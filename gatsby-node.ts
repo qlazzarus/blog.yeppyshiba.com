@@ -5,16 +5,16 @@ import { createFilePath } from 'gatsby-source-filesystem';
 // import aliases
 export const onCreateWebpackConfig = ({ getConfig, actions }) => {
     const output = getConfig().output || {};
-
+    
     actions.setWebpackConfig({
         output,
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, 'src')
+                '@': path.resolve('./src/')
             }
         }
     });
-}
+};
 
 // generate slug
 export const onCreateNode = ({ node, getNode, actions }) => {
