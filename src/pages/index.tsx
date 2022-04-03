@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react"
+import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { IGatsbyImageData } from 'gatsby-plugin-image';
 import { ArticleList } from '@/components/article';
@@ -7,27 +7,27 @@ import { ArticleListItemType } from '@/types';
 
 type IndexPageProps = {
   location: {
-    search: string
-  },
+    search: string;
+  };
   data: {
     site: {
       siteMetadata: {
-        title: string
-        description: string
-        siteUrl: string
-      }
-    }
+        title: string;
+        description: string;
+        siteUrl: string;
+      };
+    };
     allMarkdownRemark: {
-      edges: ArticleListItemType[]
-    },
+      edges: ArticleListItemType[];
+    };
     file: {
       childImageSharp: {
-        gatsbyImageData: IGatsbyImageData
-      }
-      publicURL: string
-    }
-  }
-}
+        gatsbyImageData: IGatsbyImageData;
+      };
+      publicURL: string;
+    };
+  };
+};
 
 // markup
 const IndexPage: FunctionComponent<IndexPageProps> = ({
@@ -42,14 +42,14 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
       publicURL
     }
     */
-  }
+  },
 }) => {
   return (
     <Layout title={title}>
       <ArticleList entries={edges} />
     </Layout>
-  )
-}
+  );
+};
 
 export default IndexPage;
 
@@ -62,12 +62,7 @@ export const getPostList = graphql`
         siteUrl
       }
     }
-    allMarkdownRemark(
-      sort: { 
-        order: DESC,
-        fields: [frontmatter___date, frontmatter___title]
-      }
-    ) {
+    allMarkdownRemark(sort: { order: DESC, fields: [frontmatter___date, frontmatter___title] }) {
       edges {
         node {
           id
@@ -83,7 +78,7 @@ export const getPostList = graphql`
       }
     }
   }
-`
+`;
 /*
 export const getPostList = graphql`
   query getPostList {

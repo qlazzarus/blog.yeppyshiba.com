@@ -1,4 +1,4 @@
-import type { GatsbyConfig } from "gatsby";
+import type { GatsbyConfig } from 'gatsby';
 import path from 'path';
 
 const siteUrl = `https://blog.yeppyshiba.com`;
@@ -11,7 +11,7 @@ interface SiteMetadata {
 
 const siteMetadata: SiteMetadata = {
   title: `Yeppyshiba Blog`,
-  siteUrl
+  siteUrl,
 };
 
 const config: GatsbyConfig = {
@@ -21,28 +21,28 @@ const config: GatsbyConfig = {
       resolve: `@chakra-ui/gatsby-plugin`,
       options: {
         resetCSS: true,
-        isUsingColorMode: true
-      }
+        isUsingColorMode: true,
+      },
     },
     {
       resolve: `gatsby-plugin-canonical-urls`,
       options: {
         siteUrl,
-        stripQueryString: true
-      }
+        stripQueryString: true,
+      },
     },
     {
       resolve: `gatsby-plugin-robots-txt`,
       options: {
-        policy: [{ userAgent: '*', allow: '/' }]
-      }
+        policy: [{ userAgent: '*', allow: '/' }],
+      },
     },
     {
       resolve: `gatsby-plugin-typescript`,
       options: {
         isTSX: true,
-        allExtensions: true
-      }
+        allExtensions: true,
+      },
     },
     `gatsby-plugin-emotion`,
     `gatsby-plugin-react-helmet`,
@@ -51,24 +51,24 @@ const config: GatsbyConfig = {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `contents`,
-        path: path.resolve('contents')
-      }
+        path: path.resolve('contents'),
+      },
     },
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
         path: path.resolve('static'),
-      }
+      },
     },
     `gatsby-transformer-sharp`,
     {
       resolve: `gatsby-plugin-sharp`,
       options: {
         defaults: {
-          formats: ["auto", "webp"],
+          formats: ['auto', 'webp'],
           quality: 100,
-          placeholder: "blurred",
+          placeholder: 'blurred',
         },
       },
     },
@@ -80,35 +80,35 @@ const config: GatsbyConfig = {
           {
             resolve: `gatsby-remark-embed-video`,
             options: {
-              width: 768
-            }
+              width: 768,
+            },
           },
           `gatsby-remark-emojis`,
           {
             resolve: `gatsby-remark-prismjs`,
             options: {
-              classPrefix: "language-"
-            }
+              classPrefix: 'language-',
+            },
           },
           {
             resolve: `gatsby-remark-images`,
             options: {
               maxWidth: 768,
               quality: 100,
-              withWebp: true
-            }
+              withWebp: true,
+            },
           },
           {
             resolve: `gatsby-remark-external-links`,
             options: {
-              target: "_blank",
-              ref: "nofollow"
-            }
+              target: '_blank',
+              ref: 'nofollow',
+            },
           },
-        ]
-      }
-    }
-  ]
+        ],
+      },
+    },
+  ],
 };
 
 export default config;

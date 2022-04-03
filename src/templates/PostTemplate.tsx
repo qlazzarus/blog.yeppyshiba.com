@@ -7,23 +7,23 @@ import { ArticlePageItemType } from '@/types';
 type PostTemplateProps = {
   data: {
     allMarkdownRemark: {
-      edges: ArticlePageItemType[]
-    }
-  }
+      edges: ArticlePageItemType[];
+    };
+  };
   location: {
-    href: string
-  }
-}
+    href: string;
+  };
+};
 
-const PostTemplate: FunctionComponent<PostTemplateProps> = function({ data }) {
+const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
   return (
     <Layout>
       <ArticleDetail data={data} />
     </Layout>
   );
-}
+};
 
-export default PostTemplate; 
+export default PostTemplate;
 
 export const queryMarkdownDataBySlug = graphql`
   query queryMarkdownDataBySlug($slug: String) {
@@ -40,7 +40,7 @@ export const queryMarkdownDataBySlug = graphql`
       }
     }
   }
-`
+`;
 /*
 export const queryMarkdownDataBySlug = graphql`
   query queryMarkdownDataBySlug($slug: String) {
