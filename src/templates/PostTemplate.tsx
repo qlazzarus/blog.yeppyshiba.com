@@ -1,10 +1,13 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
+import { ArticleDetail } from '@/components/article';
+import { Layout } from '@/components/common';
+import { ArticlePageItemType } from '@/types';
 
 type PostTemplateProps = {
   data: {
     allMarkdownRemark: {
-      edges: any[]//PostPageItemType[]
+      edges: ArticlePageItemType[]
     }
   }
   location: {
@@ -12,44 +15,11 @@ type PostTemplateProps = {
   }
 }
 
-/*
-export default function BlogPostTemplate({ data, location }) {
-    const { markdownRemark: { frontmatter, html } } = data;
-    
-  }
-*/ 
-const PostTemplate: FunctionComponent<PostTemplateProps> = function({
-  data: {
-    allMarkdownRemark: { edges },
-  },
-  //location: { href }
-}) {
-  const {
-    node: {
-      html,
-      frontmatter: {
-        title,
-        summary,
-        date,
-        categories,
-        /*
-        thumbnail: {
-          childImageSharp: { gatsbyImageData },
-          publicURL
-        },
-        */
-      },
-    },
-  } = edges[0];
-
+const PostTemplate: FunctionComponent<PostTemplateProps> = function({ data }) {
   return (
-    <div>
-        <h1>{title}</h1>
-        <h2>{date}</h2>
-        <div
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-    </div>
+    <Layout>
+      <ArticleDetail data={data} />
+    </Layout>
   );
 }
 
@@ -60,10 +30,11 @@ export const queryMarkdownDataBySlug = graphql`
     allMarkdownRemark(filter: { fields: { slug: { eq: $slug } } }) {
       edges {
         node {
-          html
+          htmlAst
           frontmatter {
             title
-            date(formatString: "YYYY년 MM월 DD일")
+            summary
+            date
           }
         }
       }
@@ -80,7 +51,7 @@ export const queryMarkdownDataBySlug = graphql`
           frontmatter {
             title
             summary
-            date(formatString: "YYYY년 MM월 DD일")
+            date
             categories
             thumbnail {
               childImageSharp {
