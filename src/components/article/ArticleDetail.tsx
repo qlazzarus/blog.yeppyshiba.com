@@ -55,7 +55,6 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({
             justifyContent="center"
             marginTop={{ base: '3', sm: '0' }}
           >
-            <Heading marginTop="1">{title}</Heading>
             <RenderHtml htmlAst={htmlAst} />
             <HStack marginTop="2" spacing="2" display="flex" alignItems="center">
               <Text>{date}</Text>

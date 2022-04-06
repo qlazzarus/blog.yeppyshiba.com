@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { ArticleDetail } from '@/components/article';
-import { Layout } from '@/components/common';
+import { Header, Layout } from '@/components/common';
 import { ArticlePageItemType } from '@/types';
 
 type PostTemplateProps = {
@@ -16,8 +16,12 @@ type PostTemplateProps = {
 };
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
+  const { allMarkdownRemark: { edges } } = data;
+  const { title, image } = edges[0].node.frontmatter;
+
   return (
     <Layout>
+      <Header title={title} image={image} />
       <ArticleDetail data={data} />
     </Layout>
   );

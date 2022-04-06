@@ -5,6 +5,7 @@ export type ArticleFrontmatterType = {
   date: string;
   categories: string[];
   summary: string;
+  image: string;
   thumbnail: {
     childImageSharp: {
       gatsbyImageData: IGatsbyImageData;
@@ -28,6 +29,7 @@ export type ArticlePageItemType = {
   node: {
     html: string;
     htmlAst: string;
+    tableOfContents: string,
     frontmatter: ArticleFrontmatterType;
   };
 };

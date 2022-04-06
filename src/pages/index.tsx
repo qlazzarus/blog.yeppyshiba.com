@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { IGatsbyImageData } from 'gatsby-plugin-image';
 import { ArticleList } from '@/components/article';
-import { Layout } from '@/components/common';
+import { Header, Layout } from '@/components/common';
 import { ArticleListItemType } from '@/types';
 
 type IndexPageProps = {
@@ -33,9 +33,7 @@ type IndexPageProps = {
 const IndexPage: FunctionComponent<IndexPageProps> = ({
   location: { search },
   data: {
-    site: {
-      siteMetadata: { title, description, siteUrl },
-    },
+    site: { siteMetadata },
     allMarkdownRemark: { edges },
     /*
     file: {
@@ -44,8 +42,11 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
     */
   },
 }) => {
+  const { title } = siteMetadata;
+
   return (
     <Layout title={title}>
+      <Header title={title} />
       <ArticleList entries={edges} />
     </Layout>
   );

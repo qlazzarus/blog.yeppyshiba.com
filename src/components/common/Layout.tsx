@@ -1,6 +1,8 @@
 import React, { FunctionComponent, ReactNode } from 'react';
 import { Helmet } from 'react-helmet';
 import { useStaticQuery, graphql } from 'gatsby';
+import { Container } from '@chakra-ui/react'
+import { Layout as LayoutConstants } from '@/constants';
 import Footer from './Footer';
 import Navigation from './Navigation';
 
@@ -26,7 +28,14 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, children }) => {
     <>
       <Helmet title={title ?? siteMetadata.title} />
       <Navigation siteMetadata={siteMetadata} />
-      {children}
+      <Container 
+        as={"main"}
+        maxWidth={'100%'} 
+        m={"0"} 
+        px={"0"} 
+        pt={LayoutConstants.navigationHeight}>
+        {children}
+      </Container>
       <Footer siteMetadata={siteMetadata} />
     </>
   );

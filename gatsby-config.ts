@@ -77,6 +77,7 @@ const config: GatsbyConfig = {
       resolve: `gatsby-transformer-remark`,
       options: {
         plugins: [
+          /*
           {
             resolve: `gatsby-remark-embed-video`,
             options: {
@@ -105,6 +106,7 @@ const config: GatsbyConfig = {
               ref: 'nofollow',
             },
           },
+          */
         ],
       },
     },

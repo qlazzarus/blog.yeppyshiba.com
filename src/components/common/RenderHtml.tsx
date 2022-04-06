@@ -1,7 +1,8 @@
 import {
   chakra,
+  Code,
   Divider,
-  Heading,
+  Heading as ChakraHeading,
   ListItem,
   OrderedList,
   Table,
@@ -16,17 +17,64 @@ import React, { createElement } from 'react';
 import rehypeReact from 'rehype-react';
 import { unified } from 'unified';
 
+type GetCoreProps = {
+  children?: React.ReactNode;
+  'data-sourcepos'?: any;
+};
+
+function getCoreProps(props: GetCoreProps): any {
+  return props['data-sourcepos']
+    ? { 'data-sourcepos': props['data-sourcepos'] }
+    : {};
+}
+
+const Heading = (props: any) => {
+  const { children } = props;
+  const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
+  const level: number = props.level;
+
+  return (
+    <ChakraHeading
+      my={4}
+      as={`h${level}`}
+      size={sizes[level - 1]}
+      {...getCoreProps(props)}
+    >
+      {children}
+    </ChakraHeading>
+  );
+};
+
 const processor = unified().use(rehypeReact, {
   createElement,
   components: {
-    p: (props: any) => <Text {...props} />,
-    h1: (props: any) => <Heading as="h1" {...props} size="3xl" />,
-    h2: (props: any) => <Heading as="h2" {...props} size="2xl" />,
-    h3: (props: any) => <Heading as="h3" {...props} size="xl" />,
-    h4: (props: any) => <Heading as="h4" {...props} size="lg" />,
-    h5: (props: any) => <Heading as="h5" {...props} size="md" />,
-    h6: (props: any) => <Heading as="h6" {...props} size="sm" />,
-    blockquote: (props: any) => <chakra.blockquote {...props} />,
+    p: (props: any) => <Text my={4} {...props} />,
+    em: (props: any) => <Text as={'em'} {...props} />,
+    blockquote: (props: any) => <Code as={'blockquote'} p={2} {...props} />,
+    code: (props: any) => {
+      const { inline } = props;
+      console.log(props);
+
+      //if (inline) {
+        return <Code p={2} {...props} />;
+      //}
+
+      return (
+        <Code 
+          whiteSpace={"break-spaces"}
+          d={'block'}
+          w={'full'}
+          p={2}
+          {...props}
+        />
+      );
+    },
+    h1: (props: any) => <Heading {...props} level={1} />,
+    h2: (props: any) => <Heading {...props} level={2} />,
+    h3: (props: any) => <Heading {...props} level={3} />,
+    h4: (props: any) => <Heading {...props} level={4} />,
+    h5: (props: any) => <Heading {...props} level={5} />,
+    h6: (props: any) => <Heading {...props} level={6} />,
     pre: (props: any) => <chakra.pre {...props} maxW="100%" overflowX="auto" />,
     ol: (props: any) => <OrderedList {...props} />,
     ul: (props: any) => <UnorderedList {...props} />,
