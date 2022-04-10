@@ -14,7 +14,7 @@ interface ArticleEntryProps {
 const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({ entry }) => {
   const {
     node: {
-      fields: { path },
+      fields: { slug },
       frontmatter: { title },
     },
   } = entry;
@@ -28,7 +28,7 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({ entry }) => {
     >
       <Box display="flex" flex="1" flexDirection="column" justifyContent="center" marginTop={{ base: '3', sm: '0' }}>
         <Heading marginTop="1">
-          <Link as={GatsbyLink} to={path} textDecoration="none" _hover={{ textDecoration: 'none' }}>
+          <Link as={GatsbyLink} to={slug} textDecoration="none" _hover={{ textDecoration: 'none' }}>
             {title}
           </Link>
         </Heading>

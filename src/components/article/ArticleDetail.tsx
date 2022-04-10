@@ -1,12 +1,12 @@
 import React, { FunctionComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import { Box, Container, Heading, HStack, Text } from '@chakra-ui/react';
-import { RenderHtml } from '@/components/common';
+//import { RenderHtml } from '@/components/common';
 import { ArticlePageItemType } from '@/types';
 
 interface ArticleDetailProps {
   data: {
-    allMarkdownRemark: {
+    allMdx: {
       edges: ArticlePageItemType[];
     };
   };
@@ -14,7 +14,7 @@ interface ArticleDetailProps {
 
 const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({
   data: {
-    allMarkdownRemark: { edges },
+    allMdx: { edges },
   },
   //location: { href }
 }) => {
@@ -36,6 +36,8 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({
     },
   } = edges[0];
 
+  console.log(edges);
+
   return (
     <>
       <Helmet>
@@ -55,7 +57,7 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({
             justifyContent="center"
             marginTop={{ base: '3', sm: '0' }}
           >
-            <RenderHtml htmlAst={htmlAst} />
+            {/*<RenderHtml htmlAst={htmlAst} />*/}
             <HStack marginTop="2" spacing="2" display="flex" alignItems="center">
               <Text>{date}</Text>
             </HStack>

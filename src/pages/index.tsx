@@ -17,7 +17,7 @@ type IndexPageProps = {
         siteUrl: string;
       };
     };
-    allMarkdownRemark: {
+    allMdx: {
       edges: ArticleListItemType[];
     };
     file: {
@@ -34,7 +34,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
   location: { search },
   data: {
     site: { siteMetadata },
-    allMarkdownRemark: { edges },
+    allMdx: { edges },
     /*
     file: {
       publicURL
@@ -63,13 +63,12 @@ export const getPostList = graphql`
         siteUrl
       }
     }
-    allMarkdownRemark(sort: { order: DESC, fields: [frontmatter___date, frontmatter___title] }) {
+    allMdx(sort: { order: DESC, fields: [frontmatter___date] }) {
       edges {
         node {
           id
           fields {
             slug
-            path
           }
           frontmatter {
             title
@@ -80,42 +79,3 @@ export const getPostList = graphql`
     }
   }
 `;
-/*
-export const getPostList = graphql`
-  query getPostList {
-    site {
-      siteMetadata {
-        title
-        description
-        siteUrl
-      }
-    }
-    allMarkdownRemark(
-      sort: { 
-        order: DESC,
-        fields: [frontmatter___date, frontmatter___title]
-      }
-    ) {
-      edges {
-        node {
-          id
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            summary
-            date
-            categories
-            thumbnail {
-              childImageSharp {
-                gatsbyImageData(width: 768, height: 400)
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
-*/

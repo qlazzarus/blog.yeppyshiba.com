@@ -74,38 +74,23 @@ const config: GatsbyConfig = {
     },
     `gatsby-plugin-image`,
     {
-      resolve: `gatsby-transformer-remark`,
+      resolve: `gatsby-plugin-mdx`,
       options: {
-        plugins: [
-          /*
-          {
-            resolve: `gatsby-remark-embed-video`,
-            options: {
-              width: 768,
-            },
-          },
-          `gatsby-remark-emojis`,
-          {
-            resolve: `gatsby-remark-prismjs`,
-            options: {
-              classPrefix: 'language-',
-            },
-          },
+        extensions: [`.mdx`, `.md`],
+        gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
-            options: {
-              maxWidth: 768,
-              quality: 100,
-              withWebp: true,
-            },
-          },
-          {
-            resolve: `gatsby-remark-external-links`,
-            options: {
-              target: '_blank',
-              ref: 'nofollow',
-            },
-          },
+          }
+        ],
+        rehypePlugins: [
+          /*
+          require('rehype-slug'),
+          [
+            require('rehype-autolink-headings'),
+            {
+              behavior: 'wrap'
+            }
+          ]
           */
         ],
       },

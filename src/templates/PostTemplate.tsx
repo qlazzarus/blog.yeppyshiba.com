@@ -6,23 +6,28 @@ import { ArticlePageItemType } from '@/types';
 
 type PostTemplateProps = {
   data: {
-    allMarkdownRemark: {
-      edges: ArticlePageItemType[];
+    mdx: {
+      id: string
+      mdxAST: string,
+      frontmatter: { 
+        date: string
+        image: string
+        summary: string
+        tags: string[]
+        title: string
+      },
     };
-  };
-  location: {
-    href: string;
-  };
+  }
 };
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
-  const { allMarkdownRemark: { edges } } = data;
-  const { title, image } = edges[0].node.frontmatter;
+  const { mdx: { frontmatter: { title, image } } } = data;
+  console.log(data);
 
   return (
     <Layout>
       <Header title={title} image={image} />
-      <ArticleDetail data={data} />
+      {/*<ArticleDetail data={data} />*/}
     </Layout>
   );
 };
@@ -30,17 +35,16 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
 export default PostTemplate;
 
 export const queryMarkdownDataBySlug = graphql`
-  query queryMarkdownDataBySlug($slug: String) {
-    allMarkdownRemark(filter: { fields: { slug: { eq: $slug } } }) {
-      edges {
-        node {
-          htmlAst
-          frontmatter {
-            title
-            summary
-            date
-          }
-        }
+  query queryMarkdownDataBySlug($id: String) {
+    mdx(id: { eq: $id }) {
+      id
+      mdxAST
+      frontmatter {
+        date
+        image
+        summary
+        tags
+        title
       }
     }
   }
