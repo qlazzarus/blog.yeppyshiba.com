@@ -4,21 +4,21 @@ import { MDXRenderer } from "gatsby-plugin-mdx"
 import { Box, Container, Heading, HStack, Text } from '@chakra-ui/react';
 import { ArticlePageItemType } from '@/types';
 
-type ArticleDetailProps {
+type ArticleDetailProps = {
   data: {
     mdx: {
       id: string,
       body: string,
       frontmatter: { 
-        date: string
-        image: string
-        summary: string
-        tags: string[]
+        date: string,
+        image: string,
+        summary: string,
+        tags: string[],
         title: string
       }
-    };
-  };
-}
+    }
+  }
+};
 
 const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } }) => {
   const {
