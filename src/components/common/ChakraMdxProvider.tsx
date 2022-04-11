@@ -10,6 +10,7 @@ import {
   Tbody,
   Td,
   Text,
+  Th,  
   Thead,
   Tr,
   UnorderedList,
@@ -19,12 +20,6 @@ import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 /*
 TODO
 - thematicBreak -> Thematic break
-- ul -> List
-- ol -> Ordered List
-- li -> List Item
-- table -> Table
-- tr -> Table Row
-- td/th -> Table Cell
 - em -> Emphasis
 - strong -> Strong
 - delete -> Delete
@@ -58,7 +53,16 @@ const MdxProviderComponents: MDXProviderComponents = {
   hr: (props: any) => <Divider {...props} />,
   pre: (props: any) => <chakra.pre {...props} maxW="100%" overflowX="auto" />,
   blockquote: (props: any) => <Code as={'blockquote'} p={2} {...props} />,
-  code: (props: any) => <Code whiteSpace={"break-spaces"} d={'block'} w={'full'} p={2} {...props} />
+  code: (props: any) => <Code whiteSpace={"break-spaces"} d={'block'} w={'full'} p={2} {...props} />,
+  ol: (props: any) => <OrderedList {...props} />,
+  ul: (props: any) => <UnorderedList {...props} />,
+  li: (props: any) => <ListItem {...props} />,  
+  table: (props: any) => <Table {...props} />,
+  tbody: (props: any) => <Tbody {...props} />,
+  thead: (props: any) => <Thead {...props} />,
+  tr: (props: any) => <Tr {...props} />,
+  td: (props: any) => <Td {...props} />,
+  th: (props: any) => <Th {...props} />,
 };
 
 type ChakraMdxProviderProps = {
