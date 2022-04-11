@@ -29,9 +29,9 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } })
         summary,
         tags,
         title
-      },
-    },
-  } = data;
+      }
+    }
+  } = mdx;
 
   return (
     <>
