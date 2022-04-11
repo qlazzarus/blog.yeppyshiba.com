@@ -8,7 +8,7 @@ type PostTemplateProps = {
   data: {
     mdx: {
       id: string
-      mdxAST: string,
+      body: string,
       frontmatter: { 
         date: string
         image: string
@@ -27,7 +27,7 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
   return (
     <Layout>
       <Header title={title} image={image} />
-      {/*<ArticleDetail data={data} />*/}
+      <ArticleDetail data={data} />
     </Layout>
   );
 };
@@ -38,7 +38,7 @@ export const queryMarkdownDataBySlug = graphql`
   query queryMarkdownDataBySlug($id: String) {
     mdx(id: { eq: $id }) {
       id
-      mdxAST
+      body
       frontmatter {
         date
         image
@@ -49,28 +49,3 @@ export const queryMarkdownDataBySlug = graphql`
     }
   }
 `;
-/*
-export const queryMarkdownDataBySlug = graphql`
-  query queryMarkdownDataBySlug($slug: String) {
-    allMarkdownRemark(filter: { fields: { slug: { eq: $slug } } }) {
-      edges {
-        node {
-          html
-          frontmatter {
-            title
-            summary
-            date
-            categories
-            thumbnail {
-              childImageSharp {
-                gatsbyImageData
-              }
-              publicURL
-            }
-          }
-        }
-      }
-    }
-  }
-`
-*/
