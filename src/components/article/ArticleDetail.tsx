@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { Helmet } from 'react-helmet';
 import { MDXRenderer } from "gatsby-plugin-mdx"
 import { Box, Container, Heading, HStack, Text } from '@chakra-ui/react';
-import { ArticlePageItemType } from '@/types';
+import { ChakraMdxProvider } from '@/components/common';
 
 type ArticleDetailProps = {
   data: {
@@ -51,7 +51,9 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } })
             justifyContent="center"
             marginTop={{ base: '3', sm: '0' }}
           >
-            <MDXRenderer>{body}</MDXRenderer>
+            <ChakraMdxProvider>
+              <MDXRenderer>{body}</MDXRenderer>
+            </ChakraMdxProvider>
             <HStack marginTop="2" spacing="2" display="flex" alignItems="center">
               <Text>{date}</Text>
             </HStack>
