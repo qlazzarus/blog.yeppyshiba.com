@@ -7,7 +7,7 @@ import { ArticlePageItemType } from '@/types';
 type PostTemplateProps = {
   data: {
     mdx: {
-      id: string
+      id: string,
       body: string,
       frontmatter: { 
         date: string
@@ -22,7 +22,6 @@ type PostTemplateProps = {
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
   const { mdx: { frontmatter: { title, image } } } = data;
-  console.log(data);
 
   return (
     <Layout>
