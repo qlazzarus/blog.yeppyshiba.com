@@ -25,6 +25,7 @@ const Link: FunctionComponent<LinkProp> = ({ children, href, ...props }) => {
     return (
         <ChakraLink 
             color={'brand.300'} 
+            href={href}
             {...props}>
             {children}
         </ChakraLink>
