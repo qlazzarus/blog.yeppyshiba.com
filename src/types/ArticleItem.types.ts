@@ -28,7 +28,7 @@ export type ArticlePageItemType = {
   node: {
     html: string;
     htmlAst: string;
-    tableOfContents: string,
+    tableOfContents: string;
     frontmatter: ArticleFrontmatterType;
   };
 };

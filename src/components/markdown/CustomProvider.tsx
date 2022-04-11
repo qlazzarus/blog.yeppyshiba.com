@@ -3,39 +3,22 @@ import {
   chakra,
   Code,
   Divider,
-  Heading as ChakraHeading,
   ListItem,
   OrderedList,
   Table,
   Tbody,
   Td,
   Text,
-  Th,  
+  Th,
   Thead,
   Tr,
   UnorderedList,
 } from '@chakra-ui/react';
 import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
-
-/*
-TODO
-- a -> Link
-- img -> Image
-*/
-
-const Heading = (props: any) => {
-  const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
-  const level: number = props.level;
-
-  return (
-    <ChakraHeading
-      my={4}
-      as={`h${level}`}
-      size={sizes[level - 1]}
-      {...props}
-    />
-  );
-};
+import CodeBlock from './CodeBlock';
+import Heading from './Heading';
+import Image from './Image';
+import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
   p: (props: any) => <Text my={4} {...props} />,
@@ -46,12 +29,13 @@ const MdxProviderComponents: MDXProviderComponents = {
   h5: (props: any) => <Heading level={5} {...props} />,
   h6: (props: any) => <Heading level={6} {...props} />,
   hr: (props: any) => <Divider {...props} />,
-  pre: (props: any) => <chakra.pre {...props} maxW="100%" overflowX="auto" />,
+  pre: (props: any) => <chakra.pre {...props} maxW={'100%'} overflowX="auto" />,
   blockquote: (props: any) => <Code as={'blockquote'} p={2} {...props} />,
-  code: (props: any) => <Code whiteSpace={"break-spaces"} d={'block'} w={'full'} p={2} {...props} />,
+  code: CodeBlock,
+  a: Link,
   ol: (props: any) => <OrderedList {...props} />,
   ul: (props: any) => <UnorderedList {...props} />,
-  li: (props: any) => <ListItem {...props} />,  
+  li: (props: any) => <ListItem {...props} />,
   table: (props: any) => <Table {...props} />,
   tbody: (props: any) => <Tbody {...props} />,
   thead: (props: any) => <Thead {...props} />,
@@ -62,19 +46,16 @@ const MdxProviderComponents: MDXProviderComponents = {
   strong: (props: any) => <Text as={'strong'} {...props} />,
   delete: (props: any) => <Text as={'del'} {...props} />,
   inlineCode: (props: any) => <Text as={'kbd'} {...props} />,
-  thematicBreak: (props: any) => <Divider orientation='vertical' {...props} />,
+  thematicBreak: (props: any) => <Divider orientation={'vertical'} {...props} />,
+  img: Image,
 };
 
-type ChakraMdxProviderProps = {
+type CustomProviderProps = {
   children: React.ReactNode;
 };
 
-const ChakraMdxProvider: FunctionComponent<ChakraMdxProviderProps> = ({ children }) => {
-  return (
-    <MDXProvider components={MdxProviderComponents}>
-      {children}
-    </MDXProvider>
-  );
+const CustomProvider: FunctionComponent<CustomProviderProps> = ({ children }) => {
+  return <MDXProvider components={MdxProviderComponents}>{children}</MDXProvider>;
 };
 
-export default ChakraMdxProvider;
+export default CustomProvider;

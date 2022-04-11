@@ -38,17 +38,9 @@ const Navigation: FunctionComponent<NavigationProps> = ({ siteMetadata: { title 
         </Text>
       </Flex>
 
-      <Stack
-        flex={{ base: 1, md: 0 }}
-        justify={'flex-end'}
-        direction={'row'}
-        spacing={6}>
-        <Button
-          aria-label="Toggle Color Mode"
-          onClick={toggleColorMode}
-          _focus={{ boxShadow: 'none' }}
-          w="fit-content">
-            {colorMode === 'light' ? <BsMoonStarsFill /> : <BsSun />}
+      <Stack flex={{ base: 1, md: 0 }} justify={'flex-end'} direction={'row'} spacing={6}>
+        <Button aria-label="Toggle Color Mode" onClick={toggleColorMode} _focus={{ boxShadow: 'none' }} w="fit-content">
+          {colorMode === 'light' ? <BsMoonStarsFill /> : <BsSun />}
         </Button>
       </Stack>
     </Flex>

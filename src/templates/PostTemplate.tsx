@@ -7,21 +7,25 @@ import { ArticlePageItemType } from '@/types';
 type PostTemplateProps = {
   data: {
     mdx: {
-      id: string,
-      body: string,
-      frontmatter: { 
-        date: string
-        image: string
-        summary: string
-        tags: string[]
-        title: string
-      },
+      id: string;
+      body: string;
+      frontmatter: {
+        date: string;
+        image: string;
+        summary: string;
+        tags: string[];
+        title: string;
+      };
     };
-  }
+  };
 };
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
-  const { mdx: { frontmatter: { title, image } } } = data;
+  const {
+    mdx: {
+      frontmatter: { title, image },
+    },
+  } = data;
 
   return (
     <Layout>

@@ -80,7 +80,7 @@ const config: GatsbyConfig = {
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
-          }
+          },
         ],
         rehypePlugins: [
           /*

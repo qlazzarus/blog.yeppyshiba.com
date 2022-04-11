@@ -1,5 +1,5 @@
 class Layout {
-    static readonly navigationHeight = '60px';
+  static readonly navigationHeight = '60px';
 }
 
 export default Layout;

@@ -24,13 +24,14 @@ export const onCreateNode = ({ node, getNode, actions }) => {
   if (node.internal.type === 'Mdx' || node.internal.type === 'MarkdownRemark') {
     const pathname = node.frontmatter.pathname;
     const title = node.frontmatter.title;
-    
-    const slug = pathname ? pathname
-        .replace(/(^\/)|(\/$)/g, '')
-        .split('/')
-        .map((a: string) => Lodash.kebabCase(a))
-        .join('/') : 
-        title.replace(/（/g, '(').replace(/）/g, ')');
+
+    const slug = pathname
+      ? pathname
+          .replace(/(^\/)|(\/$)/g, '')
+          .split('/')
+          .map((a: string) => Lodash.kebabCase(a))
+          .join('/')
+      : title.replace(/（/g, '(').replace(/）/g, ')');
 
     createNodeField({ node, name: 'slug', value: `/article/${slug}` });
   }
@@ -85,4 +86,3 @@ export const createPages = async ({ actions, graphql, reporter }) => {
     });
   }
 };
-  
