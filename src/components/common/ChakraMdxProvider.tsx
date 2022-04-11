@@ -19,11 +19,6 @@ import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 
 /*
 TODO
-- thematicBreak -> Thematic break
-- em -> Emphasis
-- strong -> Strong
-- delete -> Delete
-- inlineCode -> Inline Code
 - a -> Link
 - img -> Image
 */
@@ -63,6 +58,11 @@ const MdxProviderComponents: MDXProviderComponents = {
   tr: (props: any) => <Tr {...props} />,
   td: (props: any) => <Td {...props} />,
   th: (props: any) => <Th {...props} />,
+  em: (props: any) => <Text as={'em'} {...props} />,
+  strong: (props: any) => <Text as={'strong'} {...props} />,
+  delete: (props: any) => <Text as={'del'} {...props} />,
+  inlineCode: (props: any) => <Text as={'kbd'} {...props} />,
+  thematicBreak: (props: any) => <Divider orientation='vertical' {...props} />,
 };
 
 type ChakraMdxProviderProps = {
