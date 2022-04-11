@@ -22,14 +22,13 @@ type ArticleDetailProps = {
 
 const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } }) => {
   const {
-      body,
-      frontmatter: {
-        date,
-        image,
-        summary,
-        tags,
-        title
-      }
+    body,
+    frontmatter: {
+      date,
+      image,
+      summary,
+      tags,
+      title
     }
   } = mdx;
 
