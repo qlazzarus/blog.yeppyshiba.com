@@ -19,14 +19,12 @@ import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 /*
 TODO
 - thematicBreak -> Thematic break
-- blockquote -> Blockquote
 - ul -> List
 - ol -> Ordered List
 - li -> List Item
 - table -> Table
 - tr -> Table Row
 - td/th -> Table Cell
-- code -> Code
 - em -> Emphasis
 - strong -> Strong
 - delete -> Delete
@@ -59,6 +57,8 @@ const MdxProviderComponents: MDXProviderComponents = {
   h6: (props: any) => <Heading level={6} {...props} />,
   hr: (props: any) => <Divider {...props} />,
   pre: (props: any) => <chakra.pre {...props} maxW="100%" overflowX="auto" />,
+  blockquote: (props: any) => <Code as={'blockquote'} p={2} {...props} />,
+  code: (props: any) => <Code whiteSpace={"break-spaces"} d={'block'} w={'full'} p={2} {...props} />
 };
 
 type ChakraMdxProviderProps = {
