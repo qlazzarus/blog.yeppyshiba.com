@@ -9,13 +9,14 @@ type LinkProp = {
 
 const Link: FunctionComponent<LinkProp> = ({ children, href, ...props }) => {
     const internal = /^\/(?!\/)/.test(href);
+    const color = 'teal.500';
     
     if (internal) {
         return (
             <ChakraLink 
                 to={href}
                 as={GatsbyLink}
-                color={'brand.300'} 
+                color={color} 
                 {...props}>
                 {children}
             </ChakraLink>
@@ -24,8 +25,9 @@ const Link: FunctionComponent<LinkProp> = ({ children, href, ...props }) => {
 
     return (
         <ChakraLink 
-            color={'brand.300'} 
+            color={color} 
             href={href}
+            isExternal
             {...props}>
             {children}
         </ChakraLink>
