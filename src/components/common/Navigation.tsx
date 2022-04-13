@@ -27,6 +27,7 @@ const Navigation: FunctionComponent<NavigationProps> = ({ siteMetadata: { title 
       borderColor={useColorModeValue('gray.200', 'gray.900')}
       align={'center'}
       position={'fixed'}
+      zIndex={'docked'}
     >
       <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
         <Text
