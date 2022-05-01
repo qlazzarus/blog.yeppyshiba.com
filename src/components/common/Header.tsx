@@ -12,6 +12,7 @@ interface HeaderProps {
 const Header: FunctionComponent<HeaderProps> = ({ title, image }) => {
   const headerImage = image || MathUtil.getRandomValue(defaultImages);
   const headerHeight = useBreakpointValue({ base: '200px', md: '300px' });
+  // https://www.gatsbyjs.com/docs/working-with-images-in-markdown/
 
   return (
     <Flex

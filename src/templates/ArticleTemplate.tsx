@@ -23,12 +23,12 @@ type PostTemplateProps = {
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
   const {
     mdx: {
-      frontmatter: { title, image },
+      frontmatter: { title, image, summary, tags },
     },
   } = data;
 
   return (
-    <Layout>
+    <Layout title={title} description={summary} keywords={tags}>
       <Header title={title} image={image} />
       <ArticleDetail data={data} />
     </Layout>
@@ -38,16 +38,17 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
 export default PostTemplate;
 
 export const queryMarkdownDataBySlug = graphql`
-  query queryMarkdownDataBySlug($id: String) {
+  query getBlogEntry($id: String) {
     mdx(id: { eq: $id }) {
       id
       body
       frontmatter {
+        title
         date
         image
-        summary
+        category
         tags
-        title
+        summary
       }
     }
   }

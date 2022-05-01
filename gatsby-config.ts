@@ -61,7 +61,7 @@ const config: GatsbyConfig = {
         path: path.resolve('static'),
       },
     },
-    `gatsby-transformer-sharp`,
+    `gatsby-plugin-image`,
     {
       resolve: `gatsby-plugin-sharp`,
       options: {
@@ -72,7 +72,7 @@ const config: GatsbyConfig = {
         },
       },
     },
-    `gatsby-plugin-image`,
+    `gatsby-transformer-sharp`,
     {
       resolve: `gatsby-plugin-mdx`,
       options: {
@@ -82,17 +82,7 @@ const config: GatsbyConfig = {
             resolve: `gatsby-remark-images`,
           },
         ],
-        rehypePlugins: [
-          /*
-          require('rehype-slug'),
-          [
-            require('rehype-autolink-headings'),
-            {
-              behavior: 'wrap'
-            }
-          ]
-          */
-        ],
+        rehypePlugins: [],
       },
     },
   ],

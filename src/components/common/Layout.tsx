@@ -8,10 +8,12 @@ import Navigation from './Navigation';
 
 type LayoutProps = {
   title?: string;
+  description?: string;
+  keywords?: string[];
   children?: ReactNode | ReactNode[];
 };
 
-const Layout: FunctionComponent<LayoutProps> = ({ title, children }) => {
+const Layout: FunctionComponent<LayoutProps> = ({ title, description, keywords, children }) => {
   const {
     site: { siteMetadata },
   } = useStaticQuery(graphql`
@@ -19,14 +21,24 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, children }) => {
       site {
         siteMetadata {
           title
+          description
+          siteUrl
         }
       }
     }
   `);
 
+  // TODO keyword
+  // TODO siteUrl
+
   return (
     <>
-      <Helmet title={title ?? siteMetadata.title} />
+      <Helmet>
+        <meta charSet={"utf-8"} />
+        <title>{title ?? siteMetadata.title}</title>
+        <link rel={"icon"} type={"image/png"} href={"/akita-inu.png"} />
+        <meta name="description" content={description ?? siteMetadata.description} />
+      </Helmet>
       <Navigation siteMetadata={siteMetadata} />
       <Container as={'main'} maxWidth={'100%'} m={'0'} px={'0'} pt={LayoutConstants.navigationHeight}>
         {children}

@@ -1,14 +1,9 @@
 import React, { FunctionComponent } from 'react';
-import { graphql } from 'gatsby';
-import { IGatsbyImageData } from 'gatsby-plugin-image';
-import { ArticleList } from '@/components/article';
+import { graphql, Link } from 'gatsby';
 import { Header, Layout } from '@/components/common';
-import { ArticleListItemType } from '@/types';
+import { GroupCountType } from '@/types';
 
 type IndexPageProps = {
-  location: {
-    search: string;
-  };
   data: {
     site: {
       siteMetadata: {
@@ -17,45 +12,42 @@ type IndexPageProps = {
         siteUrl: string;
       };
     };
-    allMdx: {
-      edges: ArticleListItemType[];
+    categories: {
+      group: GroupCountType[]
     };
-    file: {
-      childImageSharp: {
-        gatsbyImageData: IGatsbyImageData;
-      };
-      publicURL: string;
+    tags: {
+      group: GroupCountType[]
     };
   };
 };
 
 // markup
 const IndexPage: FunctionComponent<IndexPageProps> = ({
-  location: { search },
   data: {
     site: { siteMetadata },
-    allMdx: { edges },
-    /*
-    file: {
-      publicURL
-    }
-    */
+    categories,
+    tags
   },
 }) => {
   const { title } = siteMetadata;
 
+  console.log({
+    categories,
+    tags
+  });
+
   return (
     <Layout title={title}>
       <Header title={title} />
-      <ArticleList entries={edges} />
+      <Link to={`/page`}>into the Blog</Link>
     </Layout>
   );
 };
 
 export default IndexPage;
 
-export const getPostList = graphql`
-  query getPostList {
+export const getIndex = graphql`
+  query getIndex {
     site {
       siteMetadata {
         title
@@ -63,19 +55,17 @@ export const getPostList = graphql`
         siteUrl
       }
     }
-    allMdx(sort: { order: DESC, fields: [frontmatter___date] }) {
-      edges {
-        node {
-          id
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            date
-          }
-        }
+    categories: allMdx {
+      group(field: frontmatter___category) {
+        fieldValue
+        totalCount
       }
     }
+    tags: allMdx {
+      group(field: frontmatter___tags) {
+        fieldValue
+        totalCount
+      }
+    }    
   }
 `;

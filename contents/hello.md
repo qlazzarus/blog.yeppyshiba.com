@@ -2,14 +2,18 @@
 title: 'hello'
 date: 2022-04-03T12:08:12.984Z
 summary: 'hello world'
+category: 'coding'
 image: ''
 tags:
   - dev
+  - coding
 ---
 
 # An h1 header
 
 Paragraphs are separated by a blank line.
+
+한글도 적어봅니다.
 
 2nd paragraph. _Italic_, **bold**, and `monospace`. Itemized lists
 look like:

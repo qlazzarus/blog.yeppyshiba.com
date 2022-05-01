@@ -1,22 +1,30 @@
 import React, { FunctionComponent }  from 'react';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { Link as GatsbyLink } from 'gatsby';
+import { Layout } from '@/constants';
+import { ThemeEnum } from '@/enums';
 
 type LinkProp = {
     href: string;
     children: React.ReactNode;
+    className?: string
 };
 
-const Link: FunctionComponent<LinkProp> = ({ children, href, ...props }) => {
+const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props }) => {
     const internal = /^\/(?!\/)/.test(href);
-    const color = 'teal.500';
+
+    /*
+    if (className === 'footnote-ref' || className === 'footnote-backref') {
+        console.log({children});
+    }
+    */
     
     if (internal) {
         return (
             <ChakraLink 
                 to={href}
                 as={GatsbyLink}
-                color={color} 
+                color={ThemeEnum.LINK_COLOR} 
                 {...props}>
                 {children}
             </ChakraLink>
@@ -25,7 +33,7 @@ const Link: FunctionComponent<LinkProp> = ({ children, href, ...props }) => {
 
     return (
         <ChakraLink 
-            color={color} 
+            color={ThemeEnum.LINK_COLOR} 
             href={href}
             isExternal
             {...props}>

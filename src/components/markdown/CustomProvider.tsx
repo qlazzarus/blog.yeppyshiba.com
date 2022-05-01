@@ -48,6 +48,23 @@ const MdxProviderComponents: MDXProviderComponents = {
   inlineCode: (props: any) => <Text as={'kbd'} {...props} />,
   thematicBreak: (props: any) => <Divider orientation={'vertical'} {...props} />,
   img: Image,
+  /*
+  wrapper: ({ children }) => {
+    if (!children) {
+      return <></>;
+    }
+
+    const updatedChildren = children.map((child: any) => {
+      if (child.props.className === "footnotes") {
+        console.log(child.props);
+      }
+
+      return child;
+    });
+
+    return <>{updatedChildren}</>;
+  }
+  */
 };
 
 type CustomProviderProps = {
