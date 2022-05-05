@@ -17,11 +17,12 @@ const TagTemplate: FunctionComponent<ListTemplateProps> = ({
   }
 
   const { site: { siteMetadata: { title } }, allMdx: { edges } } = data;
+  const entries = edges.map(edge => edge.node);
 
   return (
     <Layout title={title}>
       <Header title={title} />
-      <ArticleList entries={edges} />
+      <ArticleList entries={entries} />
       <Pagination {...pageContext} prefix={'/page/'} prev={'Newer'} next={'Older'} />
     </Layout>
   );

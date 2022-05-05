@@ -12,6 +12,7 @@ type PostTemplateProps = {
       frontmatter: {
         date: string;
         image: string;
+        category: string;
         summary: string;
         tags: string[];
         title: string;
@@ -23,13 +24,20 @@ type PostTemplateProps = {
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
   const {
     mdx: {
-      frontmatter: { title, image, summary, tags },
+      frontmatter: { title, image, summary, category, date, tags },
     },
   } = data;
 
   return (
     <Layout title={title} description={summary} keywords={tags}>
-      <Header title={title} image={image} />
+      <Header 
+        title={title} 
+        image={image}
+        summary={summary} 
+        category={category}
+        date={date}
+        tags={tags} 
+      />
       <ArticleDetail data={data} />
     </Layout>
   );

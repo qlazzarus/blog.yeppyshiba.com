@@ -8,13 +8,15 @@ export type ArticleFrontmatterType = {
   category?: string;
   summary: string;
 };
+
+export type ArticleListItemsType = {
+  node: ArticleListItemType
+}
   
 export type ArticleListItemType = {
-  node: {
-    id: string;
-    frontmatter: ArticleFrontmatterType;
-    slug: string;
-  };
+  id: string;
+  frontmatter: ArticleFrontmatterType;
+  slug: string;
 };
   
 export type ArticlePageItemType = {
@@ -51,8 +53,8 @@ export type ListTemplateProps = {
         siteUrl: string;
       };
     };
-    allMdx: {
-      edges: ArticleListItemType[];
+    allMdx: { 
+      edges: ArticleListItemsType[] 
     };
   };
   pageContext: PaginationContext;

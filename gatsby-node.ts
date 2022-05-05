@@ -4,6 +4,26 @@ import Lodash from 'lodash';
 
 const itemsPerPage = 10;
 
+function shuffle(array) {
+  const newArray = [...array];
+  let m = newArray.length;
+  let t;
+  let i;
+
+  // While there remain elements to shuffle…
+  while (m) {
+    // Pick a remaining element…
+    i = Math.floor(Math.random() * m--);
+
+    // And swap it with the current element.
+    t = newArray[m];
+    newArray[m] = newArray[i];
+    newArray[i] = t;
+  }
+
+  return newArray;
+}
+
 // import aliases
 export const onCreateWebpackConfig = ({ getConfig, actions }) => {
   const output = getConfig().output || {};
@@ -17,6 +37,30 @@ export const onCreateWebpackConfig = ({ getConfig, actions }) => {
     },
   });
 };
+
+// generate graphql custom resolvers
+export const createResolvers = ({ createResolvers }) => {
+  createResolvers({
+    Query: {
+      randomMdx: {
+        type: ["Mdx!"],
+        resolve: async (source, args, context) => {
+          const { entries } = await context.nodeModel.findAll({
+            type: 'Mdx',
+          });
+
+          const shuffled = shuffle(entries);
+
+          if (shuffled.length > 0) {
+            return [shuffled[0]];
+          } else {
+            return [];
+          }
+        }
+      }
+    }
+  });
+}
 
 // generate category / tags slug 
 export const onCreateNode = ({ node, getNode, actions }) => {

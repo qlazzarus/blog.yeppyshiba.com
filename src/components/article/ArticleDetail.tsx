@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-import { Helmet } from 'react-helmet';
 import { MDXRenderer } from 'gatsby-plugin-mdx';
 import { Box, Container, Heading, HStack, Text } from '@chakra-ui/react';
 import { CustomProvider } from '@/components/markdown';
@@ -20,12 +19,7 @@ type ArticleDetailProps = {
   };
 };
 
-const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } }) => {
-  const {
-    body,
-    frontmatter: { date, image, summary, tags, title },
-  } = mdx;
-
+const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx: { body } } }) => {
   return (
     <Container maxW={'7xl'} p="12">
       <Box
@@ -44,9 +38,6 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({ data: { mdx } })
           <CustomProvider>
             <MDXRenderer>{body}</MDXRenderer>
           </CustomProvider>
-          <HStack marginTop="2" spacing="2" display="flex" alignItems="center">
-            <Text>{date}</Text>
-          </HStack>
         </Box>
       </Box>
     </Container>

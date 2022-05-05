@@ -1,7 +1,14 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Box, Container, Heading, HStack, Link, SpaceProps, Tag, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, HStack, Image, Link, SpaceProps, Stack, Tag, Text, useColorModeValue } from '@chakra-ui/react';
+import { kebabCase } from 'lodash';
+import { MathUtil } from '@/utils';
 import { ArticleListItemType } from '@/types';
+
+const defaultImages = [
+  '/images/cards/pexels-olia-danilevich-4974915.jpg',
+  '/images/header/wp7317693-jeju-wallpapers.jpg'
+];
 
 interface ArticleListProps {
   entries: ArticleListItemType[];
@@ -38,70 +45,113 @@ const Tags: FunctionComponent<TagProps> = ({ tags, marginTop }) => {
  );  
 }
 
-const Author: FunctionComponent<AuthorProps> = ({ category, date }) => {
-  const name = 'Shiba';
-
-  return (
-    <HStack marginTop="2" spacing="2" display="flex" alignItems="center" justifyContent='flex-end'>
-      {category && (
-        <>
-          <Text>{category}</Text>
-          <Text>|</Text>
-        </>
-      )}
-      <Text>{date.toLocaleDateString()}</Text>
-    </HStack>    
-  );
-}
-
-const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({ entry }) => {
-  const {
-    node: {
-      slug,
-      frontmatter
-    },
-  } = entry;
-
-  const { category, date, summary, title, tags } = frontmatter;
+const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({ entry: { slug, frontmatter: { category, date, summary, image, title, tags } } }) => {
+  const articleImage = image || MathUtil.getRandomValue(defaultImages);
+  const dateObj = new Date(date);
 
   return (
     <Box
-      marginTop={{ base: '1', sm: '5' }}
-      display="flex"
-      flexDirection={{ base: 'column', sm: 'row' }}
-      justifyContent="space-between"
+      maxW={'445px'}
+      w={'full'}
+      bg={useColorModeValue('white', 'gray.900')}
+      boxShadow={'2xl'}
+      rounded={'md'}
+      p={6}
+      overflow={'hidden'}
     >
-      <Box 
-        display="flex" 
-        flex="1" 
-        flexDirection="column" 
-        justifyContent="center" 
-        marginTop={{ base: '3', sm: '0' }}
-      >
-        <Heading marginTop="1">
-          <Link as={GatsbyLink} to={`/article/${slug}`} textDecoration="none" _hover={{ textDecoration: 'none' }}>
-            {title}
-          </Link>
+      <Box
+        bg={'gray.100'}
+        mt={-6}
+        mx={-6}
+        mb={6}
+        pos={'relative'}>
+        <Image 
+          src={articleImage} 
+          alt={title} 
+        />
+      </Box>
+      <Stack>
+        {category && (
+          <Text
+            color={'green.500'}
+            textTransform={'uppercase'}
+            fontWeight={800}
+            fontSize={'sm'}
+            letterSpacing={1.1}
+            as={GatsbyLink}
+            to={`/category/${kebabCase(category)}`}>
+            {category}
+          </Text>
+        )}
+        <Heading
+          color={useColorModeValue('gray.700', 'white')}
+          fontSize={'2xl'}
+          fontFamily={'body'}>
+          {title}
         </Heading>
-        <Text
-          as="p"
-          marginTop="2"
-          color={useColorModeValue('gray.700', 'gray.200')}
-          fontSize="lg">
+        <Text color={'gray.500'}>
           {summary}
         </Text>
-        <Tags tags={tags} />        
-        <Author date={new Date(date)} category={category} />
-      </Box>
+      </Stack>
+      <Stack 
+        mt={6}
+        direction={'row'}
+        align={'center'}>
+        <Stack 
+          width={'100%'}
+          direction={'row'}
+          spacing={0}
+          fontSize={'sm'}
+          align={'center'}
+          justifyContent={'space-between'}>
+          <Text color={'gray.500'}>
+            {dateObj.toLocaleDateString()}
+          </Text>
+          <Stack 
+            direction={'row'}
+            spacing={2}>
+            {tags.map(tag => (
+              <Tag 
+                size={'md'} 
+                variant="solid" 
+                key={tag}
+                as={GatsbyLink}
+                to={`/tag/${kebabCase(tag)}`}>
+                {tag}
+              </Tag>
+            ))}
+          </Stack>
+        </Stack>
+      </Stack>
+      <Button
+        mt={10}
+        w={'full'}
+        bg={'green.400'}
+        color={'white'}
+        rounded={'xl'}
+        boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
+        _hover={{
+          bg: 'green.500',
+        }}
+        _focus={{
+          bg: 'green.500',
+        }}
+        as={GatsbyLink}
+        to={`/article/${slug}`}>
+        Read more
+      </Button>
     </Box>
   );
 };
 
 const ArticleList: FunctionComponent<ArticleListProps> = ({ entries }) => {
+  console.log(entries);
   return (
-    <Container maxW={'7xl'} p="12">
+    <Container 
+      maxW={'7xl'} 
+      p={"12"}>
       {entries.map((entry) => (
-        <ArticleEntry entry={entry} key={entry.node.id} />
+        <ArticleEntry entry={entry} key={entry.id} />
       ))}
     </Container>
   );
