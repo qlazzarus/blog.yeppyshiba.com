@@ -1,52 +1,32 @@
 import React, { FunctionComponent } from 'react';
-import { Box, Divider } from '@chakra-ui/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, useDisclosure } from '@chakra-ui/react';
+import { useModal } from '@/hooks';
 
 interface FootnoteWrapperProps {
-    children: React.ReactElement[];
+  children: React.ReactElement[];
 }
 
-const FootnoteEntry: FunctionComponent = (props) => {
-    /*
-    children: Array(2)
-        0: "Footnote text goes here."
-        1:
-            $$typeof: Symbol(react.element)
-            key: null
-            props: {parentName: 'li', href: '#fnref-1', className: 'footnote-backref', originalType: 'a', mdxType: 'a', …}
-            ref: null
-            type: {$$typeof: Symbol(react.forward_ref), render: ƒ}
-            _owner: FiberNode {tag: 0, key: null, stateNode: null, elementType: ƒ, type: ƒ, …}
-            _store: {validated: true}
-            _self: null
-            _source: null
-            [[Prototype]]: Object
-        length: 2
-    [[Prototype]]: Array(0)
-    id: "fn-1"
-    mdxType: "li"
-    originalType: "li"
-    parentName: "ol"    
-    */
-    console.log(props);
-    /*
+interface FootnoteEntryProps {
+  id: string;
+  children?: React.ReactElement[];
+}
+
+const FootnoteEntry: FunctionComponent<FootnoteEntryProps> = ({ id, children }) => {
+  //const { isOpen, onClose } = useDisclosure({ id });
+  const isOpen = false;
+  const onClose = () => {};
+  const context = useModal(id);
+
+  return (
     <Modal isCentered isOpen={isOpen} onClose={onClose}>
-        {overlay}
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Custom backdrop filters!</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    */
-    return (
-        <>
-        </>
-    );
+      <ModalContent>
+        <ModalBody>{children}</ModalBody>
+        <ModalFooter>
+          <Button onClick={onClose}>Close</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 }
 
 const FootnoteWrapper: FunctionComponent<FootnoteWrapperProps> = ({ children }) => {
@@ -55,8 +35,12 @@ const FootnoteWrapper: FunctionComponent<FootnoteWrapperProps> = ({ children }) 
         return <></>;
     }
 
-    const entries: React.ReactElement[] = list[0].props.children;
-    return <>{entries.map((entry, index) => <FootnoteEntry key={index} {...entry.props} />)}</>;
+    const entries: React.ReactElement | React.ReactElement[] = list[0].props.children;
+    if (Array.isArray(entries)) {
+      return <>{entries.map((entry, index) => <FootnoteEntry key={index} {...entry.props} />)}</>;
+    }
+
+    return <FootnoteEntry {...entries.props} />;
 };
 
 export default FootnoteWrapper;

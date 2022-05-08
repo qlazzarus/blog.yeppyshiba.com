@@ -1,8 +1,9 @@
 import React, { FunctionComponent }  from 'react';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Layout } from '@/constants';
 import { ThemeEnum } from '@/enums';
+import { useDisclosure } from '@chakra-ui/react';
+import { useModal } from '@/hooks';
 
 type LinkProp = {
     href: string;
@@ -13,9 +14,25 @@ type LinkProp = {
 const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props }) => {
     const internal = /^\/(?!\/)/.test(href);
     let isExternal = !internal;
+
+    if (className === 'footnote-backref') {
+        return <></>;
+    }
     
-    if (className === 'footnote-ref' || className === 'footnote-backref') {
-        isExternal = false;
+    if (className === 'footnote-ref') {
+        const id = href.replace('#', '');
+        //const { onOpen } = ;
+        const onOpen = () => {};
+        const context = useModal(id);
+        
+        return (
+            <ChakraLink 
+                onClick={onOpen}
+                color={ThemeEnum.LINK_COLOR} 
+                {...props}>
+                {children}
+            </ChakraLink>
+        );
     }
     
     if (internal) {
@@ -27,7 +44,7 @@ const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props
                 {...props}>
                 {children}
             </ChakraLink>
-        )
+        );
     }
 
     return (
@@ -38,7 +55,7 @@ const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props
             {...props}>
             {children}
         </ChakraLink>
-    )
+    );
 }
 
 export default Link;
