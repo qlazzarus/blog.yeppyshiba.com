@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 import CodeBlock from './CodeBlock';
+import FootnoteWrapper from './FootnoteWrapper';
 import Heading from './Heading';
 import Image from './Image';
 import Link from './Link';
@@ -48,15 +49,14 @@ const MdxProviderComponents: MDXProviderComponents = {
   inlineCode: (props: any) => <Text as={'kbd'} {...props} />,
   thematicBreak: (props: any) => <Divider orientation={'vertical'} {...props} />,
   img: Image,
-  /*
   wrapper: ({ children }) => {
     if (!children) {
       return <></>;
     }
 
-    const updatedChildren = children.map((child: any) => {
+    const updatedChildren = children.map((child: any, index: number) => {
       if (child.props.className === "footnotes") {
-        console.log(child.props);
+        return <FootnoteWrapper key={index} {...child.props} />;
       }
 
       return child;
@@ -64,7 +64,6 @@ const MdxProviderComponents: MDXProviderComponents = {
 
     return <>{updatedChildren}</>;
   }
-  */
 };
 
 type CustomProviderProps = {
