@@ -1,32 +1,56 @@
-import React, { createContext, FunctionComponent, useContext } from 'react';
+import React, { createContext, Dispatch, FunctionComponent, useContext, useReducer } from 'react';
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
 
-export const ModalContext = createContext({});
+type ModalAction =
+  | { type: 'CREATE'; id: string }
+  | { type: 'OPEN'; id: string }
+  | { type: 'CLOSE'; id: string }
 
-export const ModalProvider: FunctionComponent = ({ children }) => {
-  const value = {};
 
-  return <ModalContext.Provider value={value}>{children}</ModalContext.Provider>;
-};
-
-/*
-
-*/
-/*
-// Provider component that wraps your app and makes modal object ...
-// ... available to any child component that calls useModal().
-export function ModalProvider({ children }) {
-  const modal = useModalDisclosure();
-  return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>;
+interface ModalState {
+  modals: Partial<UseDisclosureReturn>
 }
 
-ModalProvider.propTypes = {
-  children: PropTypes.element.isRequired,
-};
+type ModalDispatch = Dispatch<ModalAction>;
 
-// Hook for child components to get the modal object ...
-// ... and re-render when it changes.
-export const useModal = () => {
-  return useContext(ModalContext);
+const initialState: ModalState = {
+  modals: {}
+}
+
+const ModalReducer = (state: ModalState, action: ModalAction) => {
+  switch (action.type) {
+    case 'CREATE':
+      console.log(state, action);
+      return {
+        ...state,
+        modals: {}
+      };
+    case 'OPEN':
+      return {
+        ...state,
+        modals: {}
+      };      
+    case 'CLOSE':
+      return {
+        ...state,
+        modals: {}
+      };      
+    default:
+      return state;
+  }
+}
+
+export const ModalStateContext = createContext<ModalState | null>(null);
+export const ModalDispatchContext = createContext<ModalDispatch | null>(null);
+
+export const ModalProvider: FunctionComponent = ({ children }) => {
+  const [state, dispatch] = useReducer(ModalReducer, initialState);
+
+  return (
+    <ModalStateContext.Provider value={state}>
+      <ModalDispatchContext.Provider value={dispatch}>
+        {children}
+      </ModalDispatchContext.Provider>
+    </ModalStateContext.Provider>
+  );
 };
-*/

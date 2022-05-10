@@ -3,7 +3,7 @@ import { Link as ChakraLink } from '@chakra-ui/react';
 import { Link as GatsbyLink } from 'gatsby';
 import { ThemeEnum } from '@/enums';
 import { useDisclosure } from '@chakra-ui/react';
-import { useModal } from '@/hooks';
+//import { useModal } from '@/hooks';
 
 type LinkProp = {
     href: string;
@@ -23,7 +23,7 @@ const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props
         const id = href.replace('#', '');
         //const { onOpen } = ;
         const onOpen = () => {};
-        const context = useModal(id);
+        //const context = useModal(id);
         
         return (
             <ChakraLink 

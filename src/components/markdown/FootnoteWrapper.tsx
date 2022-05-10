@@ -1,6 +1,6 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, useDisclosure } from '@chakra-ui/react';
-import { useModal } from '@/hooks';
+import { useModalDispatch, useModalState } from '@/hooks';
 
 interface FootnoteWrapperProps {
   children: React.ReactElement[];
@@ -13,9 +13,19 @@ interface FootnoteEntryProps {
 
 const FootnoteEntry: FunctionComponent<FootnoteEntryProps> = ({ id, children }) => {
   //const { isOpen, onClose } = useDisclosure({ id });
-  const isOpen = false;
+  //const isOpen = false;
+  const isOpen = true;
   const onClose = () => {};
-  const context = useModal(id);
+  const modalDispatch = useModalDispatch();
+  const modalState = useModalState();
+
+
+  useEffect(() => {
+    modalDispatch({
+      type: 'CREATE',
+      id
+    });
+  }, []);
 
   return (
     <Modal isCentered isOpen={isOpen} onClose={onClose}>
