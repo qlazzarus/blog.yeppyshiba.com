@@ -1,9 +1,14 @@
 import React, { useContext } from 'react';
 import { UseDisclosureReturn } from '@chakra-ui/react';
-import { ModalDispatchContext } from '@/context';
+import { ModalDispatch, ModalDispatchContext } from '@/context';
 
 const useModalDispatch = () => {
-    return useContext(ModalDispatchContext);
+    const context = useContext(ModalDispatchContext);
+    if (!context) {
+        // TODO throw error
+    }
+
+    return context as ModalDispatch;
 }
 
 export default useModalDispatch;

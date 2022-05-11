@@ -1,5 +1,4 @@
-import React, { createContext, Dispatch, FunctionComponent, useContext, useReducer } from 'react';
-import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
+import React, { createContext, Dispatch, FunctionComponent, useReducer } from 'react';
 
 type ModalAction =
   | { type: 'CREATE'; id: string }
@@ -7,33 +6,46 @@ type ModalAction =
   | { type: 'CLOSE'; id: string }
 
 
-interface ModalState {
-  modals: Partial<UseDisclosureReturn>
+export type ModalState = {
+  modals: {
+    [id: string]: 'on' | 'off'
+  }
 }
 
-type ModalDispatch = Dispatch<ModalAction>;
+export type ModalDispatch = Dispatch<ModalAction>;
 
 const initialState: ModalState = {
   modals: {}
 }
 
 const ModalReducer = (state: ModalState, action: ModalAction) => {
-  switch (action.type) {
+  const { id, type } = action;
+  const { modals } = state;
+
+  switch (type) {
     case 'CREATE':
-      console.log(state, action);
+      if (!modals[id]) {
+        modals[id] = 'off';
+      }
+
       return {
-        ...state,
-        modals: {}
+        modals
       };
     case 'OPEN':
+      if (modals[id]) {
+        modals[id] = 'on';
+      }
+
       return {
-        ...state,
-        modals: {}
+        modals
       };      
     case 'CLOSE':
+      if (modals[id]) {
+        modals[id] = 'off';
+      }
+
       return {
-        ...state,
-        modals: {}
+        modals
       };      
     default:
       return state;
