@@ -145,7 +145,6 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({ entry: { slug, fro
 };
 
 const ArticleList: FunctionComponent<ArticleListProps> = ({ entries }) => {
-  console.log(entries);
   return (
     <Container 
       maxW={'7xl'} 
