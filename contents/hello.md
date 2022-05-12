@@ -98,6 +98,8 @@ Now a nested list:
 Notice again how text always lines up on 4-space indents (including
 that last line which continues item 3 above).
 
+[^2]: Footnote text goes here. 2
+
 Here's a link to [a website](http://foo.bar), to a [local
 doc](local-doc.html), and to a [section heading in the current
 doc](#an-h2-header). Here's a footnote [^1].
@@ -107,7 +109,7 @@ doc](#an-h2-header). Here's a footnote [^1].
 
 Tables can look like this:
 
-size material color
+size material color Here's a footnote [^2].
 
 ---
 

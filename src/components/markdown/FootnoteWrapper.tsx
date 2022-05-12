@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect } from 'react';
-import { Button, Modal, ModalBody, ModalContent, ModalFooter } from '@chakra-ui/react';
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 import { useModalDispatch, useModalState } from '@/hooks';
 
 interface FootnoteWrapperProps {
@@ -32,7 +32,10 @@ const FootnoteEntry: FunctionComponent<FootnoteEntryProps> = ({ id, children }) 
 
   return (
     <Modal isCentered isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
       <ModalContent>
+        <ModalHeader>#{id.replace('fn-', '')}</ModalHeader>
+        <ModalCloseButton />
         <ModalBody>{children}</ModalBody>
         <ModalFooter>
           <Button onClick={onClose}>Close</Button>
