@@ -9,7 +9,7 @@ interface HeadingProps {
 
 const Heading: FunctionalComponent<HeadingProps> = ({ level, children }) => {
     const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
-    const id = Lodash.kebabCase(category);
+    const id = Lodash.kebabCase(children);
   
     return <ChakraHeading my={4} as={`h${level}`} size={sizes[level - 1]} id={id}>{children}</ChakraHeading>;
 };
