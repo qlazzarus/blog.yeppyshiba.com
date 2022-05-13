@@ -11,8 +11,8 @@ type LinkProp = {
 };
 
 const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props }) => {
-  const internal = /^\/(?!\/)/.test(href);
-  let isExternal = !internal;
+  let isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(href);
+  let isInternal = !isExternal;
 
   if (className === 'footnote-backref') {
     return <></>;
@@ -35,8 +35,13 @@ const Link: FunctionComponent<LinkProp> = ({ children, className, href, ...props
       </ChakraLink>
     );
   }
+  
+  if (href.startsWith('#')) {
+    isInternal = false;
+    isExternal = false;
+  }
 
-  if (internal) {
+  if (isInternal) {
     return (
       <ChakraLink to={href} as={GatsbyLink} color={ThemeEnum.LINK_COLOR} {...props}>
         {children}
