@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { FunctionalComponent } from 'react';
 import { Heading as ChakraHeading } from '@chakra-ui/react';
+import Lodash from 'lodash';
 
-const Heading = (props: any) => {
+interface HeadingProps {
+    level: number;
+    children: ReactText;
+}
+
+const Heading: FunctionalComponent<HeadingProps> = ({ level, children }) => {
     const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
-    const level: number = props.level;
+    const id = Lodash.kebabCase(children);
   
-    return <ChakraHeading my={4} as={`h${level}`} size={sizes[level - 1]} {...props} />;
+    return <ChakraHeading my={4} as={`h${level}`} size={sizes[level - 1]} id={id}>{children}</ChakraHeading>;
 };
 
 export default Heading;
