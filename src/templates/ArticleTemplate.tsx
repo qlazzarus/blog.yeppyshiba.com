@@ -1,8 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
-import { ArticleDetail } from '@/components/article';
-import { Header, Layout } from '@/components/common';
-import { ArticlePageItemType } from '@/types';
+import { ArticleHeader, ArticleDetail } from '@/components/article';
+import { Layout } from '@/components/common';
 
 type PostTemplateProps = {
   data: {
@@ -30,10 +29,9 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
 
   return (
     <Layout title={title} description={summary} keywords={tags}>
-      <Header 
+      <ArticleHeader 
         title={title} 
         image={image}
-        summary={summary} 
         category={category}
         date={date}
         tags={tags} 

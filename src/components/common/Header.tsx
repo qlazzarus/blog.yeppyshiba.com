@@ -8,17 +8,12 @@ const defaultImages = ['/images/header/wp7317693-jeju-wallpapers.jpg'];
 
 interface HeaderProps {
   title: string;
-  date?: string;
   image?: string;
-  summary?: string;
-  category?: string;
-  tags?: string[];
 }
 
-const Header: FunctionComponent<HeaderProps> = ({ title, image, summary, category, date, tags }) => {
+const Header: FunctionComponent<HeaderProps> = ({ title, image }) => {
   const headerImage = image || MathUtil.getRandomValue(defaultImages);
   const headerHeight = useBreakpointValue({ base: '200px', md: '300px' });
-  const dateObj = date && new Date(date);
 
   return (
     <Flex
@@ -36,47 +31,6 @@ const Header: FunctionComponent<HeaderProps> = ({ title, image, summary, categor
           >
           {title}
         </Heading>
-        {summary && (
-          <Heading
-            color={useColorModeValue('gray.700', 'gray.700')}
-            as={"h2"}
-            fontSize={'xl'}>
-            {summary}
-          </Heading>
-        )}
-        {category && (
-          <Text
-            color={useColorModeValue('gray.700', 'gray.700')}
-            textTransform={'uppercase'}
-            fontWeight={800}
-            fontSize={'sm'}
-            letterSpacing={1.1}
-            as={GatsbyLink}
-            to={`/category/${kebabCase(category)}`}>
-            {category}
-          </Text>
-        )}
-        {dateObj && (
-          <Text 
-            color={useColorModeValue('gray.700', 'gray.700')}>
-            {dateObj.toLocaleDateString()}
-          </Text>
-        )}
-        {tags && (
-          <HStack 
-            spacing={2}>
-            {tags.map(tag => (
-              <Tag 
-                size={'md'} 
-                variant={"solid"}
-                key={tag}
-                as={GatsbyLink}
-                to={`/tag/${kebabCase(tag)}`}>
-                {tag}
-              </Tag>
-            ))}
-        </HStack>
-        )}
       </VStack>
     </Flex>
   );
