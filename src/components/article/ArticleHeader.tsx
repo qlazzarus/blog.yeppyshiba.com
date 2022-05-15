@@ -1,10 +1,15 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Box, Flex, Heading, HStack, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Heading, HStack, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
 import { kebabCase } from 'lodash';
 import { MathUtil } from '@/utils';
 
 const defaultImages = ['/images/header/wp7317693-jeju-wallpapers.jpg'];
+
+const shrink = keyframes`
+  from { background-size: 110% 110%; }
+  to { background-size: 100% 100%; }
+`;
 
 interface ArticleHeaderProps {
   title: string;
@@ -23,8 +28,9 @@ const ArticleHeader: FunctionComponent<ArticleHeaderProps> = ({ title, image, ca
       w={'full'}
       minH={'100vh'}
       backgroundImage={`url('${headerImage}')`}
-      backgroundSize={'cover'}
+      backgroundSize={'100% 100%'}
       backgroundPosition={'center center'}
+      animation={`${shrink} 30s infinite alternate`}
     >
       <VStack maxW={'7xl'} px={'12'} justify={'center'} alignItems={'flex-start'}>
       {category && (
