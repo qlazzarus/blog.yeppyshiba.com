@@ -1,5 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 import "@fontsource/sunflower";
+import { Layout } from '@/constants';
 
 export default extendTheme({
   fonts: {
@@ -8,4 +9,11 @@ export default extendTheme({
   colors: {
     primary: 'rebeccapurple',
   },
+  styles: {
+    global: {
+      html: {
+        scrollPaddingTop: Layout.navigationHeight
+      }
+    }
+  }
 });
