@@ -80,6 +80,11 @@ const config: GatsbyConfig = {
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
+            options: { 
+              maxWidth: 1000,
+              linkImagesToOriginal: false,
+              withWebp: true
+            }
           },
         ],
         rehypePlugins: [],

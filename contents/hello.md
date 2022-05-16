@@ -163,6 +163,8 @@ Here's a "line block":
 and images can be specified like so:
 
 ![example image](https://www.tompetty.com/sites/g/files/g2000007521/f/Sample-image10-highres.jpg)
+![example image2](./../static/images/cards/pexels-olia-danilevich-4974915.jpg)
+![example image3](./../static/images/header/wp7317693-jeju-wallpapers.jpg)
 
 Inline math equations go in like so: $\omega = d\phi / dt$. Display
 math should get its own line and be put in in double-dollarsigns:
