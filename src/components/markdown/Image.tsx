@@ -1,5 +1,5 @@
 import React, { FunctionalComponent } from 'react';
-import { Image as ChakraImage } from '@chakra-ui/react';
+import { Box, HStack, Image as ChakraImage } from '@chakra-ui/react';
 
 interface ImageProps {
   src: string;
@@ -10,12 +10,15 @@ const Image: FunctionalComponent<ImageProps> = ({ src, alt, ...props }) => {
   const isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(src);
   if (isExternal) {
     return (
-      <ChakraImage 
-        src={src} 
-        alt={props.alt || ''} 
-        loading={'lazy'} 
-        maxW={1000}
-      />
+      <HStack justify={'center'}>
+        <Box maxW={1000}>
+          <ChakraImage 
+            src={src} 
+            alt={props.alt || ''} 
+            loading={'lazy'} 
+          />
+        </Box>
+      </HStack>
     );
   }
 
