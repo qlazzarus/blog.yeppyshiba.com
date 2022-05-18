@@ -25,7 +25,7 @@ const Image: FunctionalComponent<ImageProps> = ({ src, alt, ...props }) => {
     );
   }
   
-  console.log(props);
+  console.log(props, src, alt);
 
   return (
     <HStack justify={'center'}>
