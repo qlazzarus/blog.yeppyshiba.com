@@ -12,17 +12,33 @@ const Image: FunctionalComponent<ImageProps> = ({ src, alt, ...props }) => {
     return (
       <HStack justify={'center'}>
         <Box maxW={1000}>
-          <ChakraImage 
-            src={src} 
-            alt={props.alt || ''} 
-            loading={'lazy'} 
-          />
+          <figure>
+            <ChakraImage 
+              src={src} 
+              alt={alt || ''} 
+              loading={'lazy'} 
+            />
+            {alt && <figcaption>{alt}</figcaption>}
+          </figure>
         </Box>
       </HStack>
     );
   }
 
-  return <ChakraImage src={src} alt={props.alt || ''} {...props} />;
+  return (
+    <HStack justify={'center'}>
+      <Box maxW={1000}>
+        <figure>
+          <ChakraImage 
+            src={src} 
+            alt={alt || ''} 
+            {...props}
+          />
+          {alt && <figcaption>{alt}</figcaption>}
+        </figure>
+      </Box>
+    </HStack>
+  );
 };
 
 export default Image;
