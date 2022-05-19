@@ -22,7 +22,7 @@ import Image from './Image';
 import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
-  p: (props: any) => (props) => {
+  p: (props: any) => {
     props.children.each((child: any, index: number) => {
       if (child.props.className === "gatsby-resp-image-wrapper") {
         console.log('MDXProvider - ', child, index);
