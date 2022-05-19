@@ -6,10 +6,12 @@ summary: 여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여�
   이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
 image: https://imagescdn.gettyimagesbank.com/500/19/592/773/0/1147490682.jpg
 tags: 
-    - 2.5d
-    - pseudo
-    - isometric
-    - quarter view
+  - dev
+  - coding
+  - 2.5d
+  - pseudo
+  - isometric
+  - quarter view
 ---
 
 ## 들어가며

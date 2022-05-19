@@ -107,6 +107,28 @@ export const createPages = async ({ actions, graphql, reporter }) => {
             }
             slug
           }
+          next {
+            id
+            frontmatter {
+              title
+              date
+              category
+              image
+              tags
+            }
+            slug
+          }
+          previous {
+            id
+            frontmatter {
+              title
+              date
+              category
+              image
+              tags
+            }
+            slug
+          }
         }
       }
       categories: allMdx {
@@ -132,13 +154,13 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   const items = allMdx.edges;
   
   items.forEach((post) => {
-    const { slug, id } = post.node;
+    const { node: { slug, id }, next, previous } = post;
     const path = `/article/${slug}`;
 
     createPage({
       path,
       component: ArticleTemplate,
-      context: { id },
+      context: { id, next, previous },
     });
   });
 

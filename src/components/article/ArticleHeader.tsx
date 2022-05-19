@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Box, Flex, Heading, HStack, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Heading, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
 import { kebabCase } from 'lodash';
 import { MathUtil } from '@/utils';
 

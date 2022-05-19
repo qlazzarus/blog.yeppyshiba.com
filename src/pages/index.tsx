@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
-import { Header, Layout, StoryHeader } from '@/components/common';
+import { CategoryCloud, Header, Layout, StoryHeader, TagCloud } from '@/components/common';
 import { ArticleList } from '@/components/article';
 import { ArticleListItemType, GroupCountType } from '@/types';
 
@@ -39,6 +39,10 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
       <Header title={title} />
       <StoryHeader title={'Featured'} />
       <ArticleList entries={featured} />
+      <StoryHeader title={'Category'} />
+      <CategoryCloud categories={categories.group} />
+      <StoryHeader title={'Tag'} />
+      <TagCloud tags={tags.group} />
     </Layout>
   );
 };
