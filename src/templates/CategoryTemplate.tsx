@@ -1,29 +1,33 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { ArticleList } from '@/components/article';
-import { Header, Layout, Pagination } from '@/components/common';
+import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
+import { capitalize, kebabCase } from 'lodash';
 
 // markup
-const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({
-  errors,
-  data,
-  pageContext
-}) => {
+const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageContext, ...props }) => {
   if (errors || !data) {
     // error handles
     console.log(errors);
-    return (<>TODO errors</>);
+    return <>TODO errors</>;
   }
 
-  const { site: { siteMetadata: { title } }, allMdx: { edges } } = data;
-  const entries = edges.map(edge => edge.node);
+  const {
+    site: {
+      siteMetadata: { title },
+    },
+    allMdx: { edges },
+  } = data;
+  const { slug } = pageContext;
+  const entries = edges.map((edge) => edge.node);
 
   return (
     <Layout title={title}>
       <Header title={title} />
+      <StoryHeader title={`${capitalize(slug)} Category`} />
       <ArticleList entries={entries} />
-      <Pagination {...pageContext} prefix={'/page/'} prev={'Newer'} next={'Older'} />
+      <Pagination {...pageContext} prefix={`/category/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
     </Layout>
   );
 };
@@ -31,7 +35,7 @@ const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({
 export default CategoryTemplate;
 
 export const getCategoryList = graphql`
-  query getCategoryList($skip: Int!, $limit: Int!) {
+  query getCategoryList($slug: String, $skip: Int!, $limit: Int!) {
     site {
       siteMetadata {
         title
@@ -43,6 +47,7 @@ export const getCategoryList = graphql`
       sort: { order: DESC, fields: [frontmatter___date] }
       limit: $limit
       skip: $skip
+      filter: { frontmatter: { category: { eq: $slug } } }
     ) {
       edges {
         node {

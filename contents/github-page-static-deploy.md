@@ -1,9 +1,18 @@
 ---
-layout: post
-title:  "github action / github page 기능을 이용한 static deploy"
-date:   2022-03-02 00:00
-author: q_lazzarus
-tags:	[github, page, ci, cd, svn]
+title: github action / github page 기능을 이용한 static deploy
+date: 2022-03-01T15:00:00.000Z
+category: coding
+summary: github page 기능을 이용해서 수많은 사람들이 블로그로 애용 했습니다.
+  그렇지만 나는 이미지 파일 하나 올릴껀데? jekyll 블로그를 써야해? 라는 사람이 있겠죠?
+  그런 사람을 위해서 준비했습니다!
+image: https://images.velog.io/images/youngerjesus/post/5b9f5629-efd2-4a03-91da-052c63109ed9/github%20actions.png
+tags:
+  - dev
+  - coding
+  - github
+  - github page
+  - ci
+  - cd
 ---
 
 ## 들어가며

@@ -1,9 +1,14 @@
 ---
-layout: post
-title:  "svn 사용자를 위한 git 안내서"
-date:   2022-01-24 00:00
-author: q_lazzarus
-tags:	[git, svn]
+title: svn 사용자를 위한 git 안내서
+date: 2022-01-23T15:00:00.000Z
+category: coding
+summary: 여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다.
+image: https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg
+tags:
+    - dev
+    - coding
+    - git
+    - svn
 ---
 
 ## 들어가며

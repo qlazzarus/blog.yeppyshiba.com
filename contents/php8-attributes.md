@@ -1,13 +1,18 @@
 ---
-layout: post
-title:  "php8 에 도입되는 annotation (attributes)"
-date:   2021-12-01 10:00
-author: q_lazzarus
-tags:	[php, annotation]
+title: php8 에 도입되는 annotation (attributes)
+date: 2021-12-01T01:00:00.000Z
+category: coding
+summary: php 8 부터는 attrubutes 라는 기능을 사용할 수 있습니다. 다른 많은 언어에서는 annontation 이라고 불리는 것이죠.
+image: https://raw.githubusercontent.com/security-checklist/php-security-check-list/master//image/php-image.png
+tags:
+    - dev
+    - coding
+    - php
+    - annotation
 ---
 
 ## php8 에 도입되는 attributes
-php 8 부터는 attrubutes 라는 기능을 사용할 수 있습니다. 다른 많은 언어에서는 annontation 이라고 불리는 것인데, 이 attributes (aka. annotation) 은 앞서, rman 님께서 작성해주신 [Annotation 이해하기](/2021/11/10/Annotation/) 을 참조해주세요.
+php 8 부터는 attrubutes 라는 기능을 사용할 수 있습니다. 다른 많은 언어에서는 annontation 이라고 불리는 것이죠.
 
 (이미 php8 소개하는 많은 블로그들이 있었서 늦은감이 있네요...)
 

@@ -1,29 +1,33 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { ArticleList } from '@/components/article';
-import { Header, Layout, Pagination } from '@/components/common';
+import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
+import { kebabCase, lowerCase } from 'lodash';
 
 // markup
-const TagTemplate: FunctionComponent<ListTemplateProps> = ({
-  errors,
-  data,
-  pageContext
-}) => {
+const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageContext }) => {
   if (errors || !data) {
     // error handles
     console.log(errors);
-    return (<>TODO errors</>);
+    return <>TODO errors</>;
   }
 
-  const { site: { siteMetadata: { title } }, allMdx: { edges } } = data;
-  const entries = edges.map(edge => edge.node);
+  const {
+    site: {
+      siteMetadata: { title },
+    },
+    allMdx: { edges },
+  } = data;
+  const { slug } = pageContext;
+  const entries = edges.map((edge) => edge.node);
 
   return (
     <Layout title={title}>
       <Header title={title} />
+      <StoryHeader title={`'${lowerCase(slug)}' Tag`} />
       <ArticleList entries={entries} />
-      <Pagination {...pageContext} prefix={'/page/'} prev={'Newer'} next={'Older'} />
+      <Pagination {...pageContext} prefix={`/tag/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
     </Layout>
   );
 };
@@ -31,7 +35,7 @@ const TagTemplate: FunctionComponent<ListTemplateProps> = ({
 export default TagTemplate;
 
 export const getTagList = graphql`
-  query getTagList($skip: Int!, $limit: Int!) {
+  query getTagList($slug: [String], $skip: Int!, $limit: Int!) {
     site {
       siteMetadata {
         title
@@ -43,6 +47,7 @@ export const getTagList = graphql`
       sort: { order: DESC, fields: [frontmatter___date] }
       limit: $limit
       skip: $skip
+      filter: { frontmatter: { tags: { in: $slug } } }
     ) {
       edges {
         node {

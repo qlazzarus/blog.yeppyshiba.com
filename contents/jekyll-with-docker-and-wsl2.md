@@ -1,9 +1,20 @@
 ---
-layout: post
-title: 'jekyll 블로그 wsl2 + docker + vscode 에서 작업하기'
-date: 2020-07-15 16:08
-author: q_lazzarus
-tags: [jekyll, wsl2, docker, windows, linux, vscode]
+title: jekyll 블로그 wsl2 + docker + vscode 에서 작업하기
+date: 2020-07-15T07:08:00.000Z
+category: coding
+summary: 깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다.  
+  오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요...  
+  이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.
+image: https://images.velog.io/images/foreverchoi0706/post/4e2a22b7-0b84-438f-aac9-040922930912/075c8694.jpeg
+tags: 
+  - dev
+  - coding
+  - jekyll
+  - wsl2
+  - docker
+  - windows
+  - linux
+  - vscode
 ---
 
 ## 계기

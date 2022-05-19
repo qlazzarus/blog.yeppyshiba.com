@@ -1,14 +1,20 @@
 ---
-layout: post
-title: '2.5D 구현하기 - 쿼터뷰'
-date: 2022-03-27 18:00
-author: q_lazzarus
-tags: [2.5d, pseudo, isometric, quarter-view]
+title: 2.5D 구현하기 - 쿼터뷰
+date: 2022-03-27T09:00:00.000Z
+category: coding
+summary: 여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다. 
+  이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
+image: https://imagescdn.gettyimagesbank.com/500/19/592/773/0/1147490682.jpg
+tags: 
+    - 2.5d
+    - pseudo
+    - isometric
+    - quarter view
 ---
 
 ## 들어가며
 
-여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다. [참고 - 울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?](/2020/12/09/raycasting-pseudo-3d/)
+여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다. [참고 - 울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?](/article/raycasting-pseudo-3d/)
 
 이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
 

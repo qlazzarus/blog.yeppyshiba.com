@@ -1,22 +1,18 @@
 ---
 title: php 로 IntegerArray 구현하기
-date: 2019-11-27 23:52
-author: q_lazzarus
-tags: [php, iterator, array, integer]
----
-
----
-
-title: hello
-date: 2022-04-03T12:08:12.984Z
-summary: hello world
+date: 2019-11-27T14:52:00.000Z
+summary: 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다. 
+ 그러다보니 php 개발자들은 배열을 배열처럼 쓰지 않고 Hash Table 처럼 이용하는 분들이 많습니다.  
+ (나쁜거 아니에요!)
 category: coding
-image: ''
-tags:
-
-- dev
-- coding
-
+image: https://raw.githubusercontent.com/security-checklist/php-security-check-list/master//image/php-image.png
+tags: 
+    - dev
+    - coding
+    - php
+    - iterator
+    - array
+    - integer
 ---
 
 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다.  
@@ -40,7 +36,7 @@ echo $a['q_lazzarus'];
 
 그렇다면, string 하나에 integer 몰빵해서 넣으면 되자너?
 
-![profit!!](https://www.meme-arsenal.com/memes/ae6ae7737442185976d1e1cc19ea4f4f.jpg)
+![profit!!](https://www.mememaker.net/static/images/memes/4293316.jpg)
 
 ## 구현해보자 !
 
@@ -371,7 +367,7 @@ iterator speed average : 0.0068418407440186
 
 메모리 사용량은 약 90% 개선이 되었으나 속도는 기존 배열을 이길 수가 없었네요...
 
-![오늘도 망했어요...](https://jjalbang.today/files/jjalboxthumb/2018/01/102_6895.jpg)
+![오늘도 망했어요...](https://sayingimages.com/wp-content/uploads/try-again-fail-meme.png)
 
 역시 기존껄 쓰는거 좋은거라고 배우고... 오늘도 맥주와 치킨을 시키며 잡니다.  
 그래도 제 삽질이 좋다면, [github](https://github.com/q_lazzarus/arrays) 와 이 [패키지](https://packagist.org/packages/q_lazzarus/arrays)를 참고하세요

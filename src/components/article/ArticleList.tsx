@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Link as GatsbyLink } from 'gatsby';
+import { Link as GatsbyLink, navigate } from 'gatsby';
 import {
   Box,
   Button,
@@ -14,7 +14,7 @@ import {
   Tag,
   Text,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import { kebabCase } from 'lodash';
 import { MathUtil } from '@/utils';
@@ -67,63 +67,74 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
   const dateObj = new Date(date);
 
   return (
-    <Flex
-      bgColor={useColorModeValue('white', 'gray.900')}
-      borderRadius={'md'}
-      boxShadow={'2xl'}
-      flexDir={{ base: 'column', md: 'row' }}
-      maxW={{ base: 'sm', md: 'full' }}
-      overflow={'auto'}
+    <Box
+      py={4}
       w={'full'}
+      transition={'linear 0.5s'}
+      _hover={{
+        transform: 'scale(1.025);',
+      }}
     >
-      <Image
-        alt={title}
-        maxH={'xs'}
-        maxW={{ md: 'sm' }}
-        objectFit={'cover'}
-        objectPosition={'center'}
-        src={articleImage}
+      <Flex
+        bgColor={useColorModeValue('white', 'gray.900')}
+        borderRadius={'md'}
+        boxShadow={'2xl'}
+        flexDir={{ base: 'column', md: 'row' }}
+        overflow={'auto'}
         w={'full'}
-      />
-      <Stack p={4} w={'full'}>
-        <Heading as="h3" size="md" color={useColorModeValue('gray.700', 'white')}>
-          {title}
-        </Heading>
-        {category && (
-          <Text
-            color={'green.500'}
-            textTransform={'uppercase'}
-            fontWeight={800}
-            fontSize={'sm'}
-            letterSpacing={1.1}
-            as={'span'}
-          >
-            <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
-          </Text>
-        )}
-        <Text fontSize={'sm'} fontWeight={'bold'}>
-          {dateObj.toLocaleDateString()}
-        </Text>
-        <Divider />
-        <Text flexGrow={1} fontSize={'sm'}>
-          {summary}
-        </Text>
-        <HStack wrap={'wrap'} py={4}>
-          {tags.map((tag) => (
-            <Tag
-              key={tag}
-              bgColor={useColorModeValue('gray.700', 'gray.700')}
-              variant={'solid'}
-              as={GatsbyLink}
-              to={`/tag/${kebabCase(tag)}`}
-              mx={1}
-              my={2}
+      >
+        <Image
+          alt={title}
+          maxH={{ base: 'xs', md: 'unset' }}
+          maxW={{ md: 'xs' }}
+          objectFit={'cover'}
+          objectPosition={'center'}
+          src={articleImage}
+          w={'full'}
+          onClick={() => navigate(`/article/${slug}`)}
+          cursor={'pointer'}
+        />
+        <Stack p={4} w={'full'}>
+          <Heading as="h3" size="md" color={useColorModeValue('gray.700', 'white')}>
+            <GatsbyLink to={`/article/${slug}`}>{title}</GatsbyLink>
+          </Heading>
+          {category && (
+            <Text
+              color={'green.500'}
+              textTransform={'uppercase'}
+              fontWeight={800}
+              fontSize={'sm'}
+              letterSpacing={1.1}
+              as={'span'}
             >
-              {tag}
-            </Tag>
-          ))}
-        </HStack>
-        <HStack justify={'flex-end'}>
+              <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
+            </Text>
+          )}
+          <Text fontSize={'sm'} fontWeight={'bold'}>
+            {dateObj.toLocaleDateString()}
+          </Text>
+          <Divider />
+          <Text flexGrow={1} fontSize={'sm'}>
+            {summary}
+          </Text>
+          <Box overflow={'hidden'}>
+            {tags.map((tag) => (
+              <Tag
+                display={'block'}
+                float={'left'}
+                key={tag}
+                bgColor={'teal'}
+                variant={'solid'}
+                as={GatsbyLink}
+                to={`/tag/${kebabCase(tag)}`}
+                pt={1}
+                m={1}
+              >
+                {tag}
+              </Tag>
+            ))}
+          </Box>
+          <HStack justify={'flex-end'}>
           <Button
             bg={'green.400'}
             color={'white'}
@@ -141,8 +152,9 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
             Read more
           </Button>
         </HStack>
-      </Stack>
-    </Flex>
+        </Stack>
+      </Flex>
+    </Box>
   );
 };
 

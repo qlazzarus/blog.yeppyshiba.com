@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 import {
   chakra,
   Code,
+  Box,
   Divider,
   ListItem,
   OrderedList,
@@ -24,21 +25,11 @@ import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
   p: ({ children }) => {
-    let updatedChildren = children;
-
-    if (Array.isArray(children)) {
-      updatedChildren = children.map((child: any, index: number) => {
-        if (typeof child !== 'object') {
-          return child;
-        } else if (child.props.className === 'gatsby-resp-image-wrapper') {
-          return <GatsbyImageWrapper key={index} {...child.props} />;
-        }
-
-        return child;
-      });
+    if (typeof children === 'object') {
+      return <Box my={4}>{children}</Box>
     }
 
-    return <Text my={4}>{updatedChildren}</Text>;
+    return <Text my={4}>{children}</Text>;
   },
   h1: (props: any) => <Heading level={1} {...props} />,
   h2: (props: any) => <Heading level={2} {...props} />,

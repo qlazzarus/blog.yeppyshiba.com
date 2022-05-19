@@ -1,9 +1,17 @@
 ---
-layout: post
-title: 'phaser 로 구현해 보는 콘웨이의 생명게임'
-date: 2020-04-28 04:00
-author: q_lazzarus
-tags: [phaser, typescript, game, life, cells]
+title: phaser 로 구현해 보는 콘웨이의 생명게임
+date: 2020-04-27T19:00:00.000Z
+category: coding
+summary: 오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다.
+image: https://tebs-game-of-life.com/images/gosper-gun.png
+tags: 
+  - dev
+  - coding
+  - phaser
+  - typescript
+  - game
+  - life
+  - cells
 ---
 
 # phaser 로 구현해 보는 콘웨이의 생명게임
@@ -30,7 +38,7 @@ tags: [phaser, typescript, game, life, cells]
 ## 라이프 게임(Life of Game) 이란
 
 <video controls autoplay loop style="width: 100%; height: auto;">
-  <source src="https://i.imgur.com/46B3SyZ.mp4" type="video/mp4">
+  <source src="https://i.imgur.com/46B3SyZ.mp4" type="video/mp4"></source>
 </video>
 
 바둑판처럼 정사각형의 여러 칸으로 나뉘어진 공간에서 한 칸에 한 마리씩 있는 세포들의 삶과 죽음이  
@@ -197,10 +205,6 @@ create 메쏘드에서 최초 세포와 현재 세대를 정의 했습니다.
 ```
 
 ### 이제 실행해봅니다!
-
-<div style="position: relative; height: 0; padding-bottom: 56.25%; padding-top: 25px;">
-<iframe src='https://www.svn.io/assets/lifegame/' style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;'></iframe>
-</div>
 
 ![우와 대박](https://pbs.twimg.com/profile_images/804219262000693248/7SAdHjXD.jpg)
 

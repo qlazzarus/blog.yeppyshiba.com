@@ -1,9 +1,19 @@
 ---
-layout: post
-title: 'gitlab-runnner 를 활용한 docker 배포'
-date: 2020-09-16 06:00
-author: q_lazzarus
-tags: [git, gitlab, gitlab-runner, docker, deploy, ci, cd]
+title: gitlab-runnner 를 활용한 docker 배포
+date: 2020-09-15T21:00:00.000Z
+category: coding
+summary: 여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.
+image: https://khs9628.github.io/img/infra/logo/GitLab.png
+tags: 
+  - dev
+  - coding
+  - git
+  - gitlab
+  - gitlab runner
+  - docker
+  - deploy
+  - ci
+  - cd
 ---
 
 ## 서론
@@ -82,7 +92,7 @@ gitlab runner 연결을 위해서 두가지 컨테이너를 추가합니다.
 1. gitlab-runner 는 runner 가 실행시 gitlab-dind 컨테이너를 실행시키는 주체 입니다.
 2. 실행된 gitlab-dind 컨테이너는 도커 이미지를 빌드를 합니다.
 
-![docker-in-docker !?](https://i2.wp.com/www.docker.com/blog/wp-content/uploads/2013/08/docker-meme.jpg?fit=499%2C323&ssl=1)
+![docker-in-docker !?](https://www.docker.com/wp-content/uploads/2013/08/docker-meme.jpg)
 
 ```bash
 $ sudo docker run -d \

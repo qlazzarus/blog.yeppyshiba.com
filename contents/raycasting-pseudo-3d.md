@@ -1,9 +1,16 @@
 ---
-layout: post
-title:  "울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?"
-date:   2020-12-09 13:00
-author: q_lazzarus
-tags:	[game, wolfenstain, raycasting, 3d]
+title: 울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?
+date: 2020-12-09T04:00:00.000Z
+category: coding
+summary: 1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.
+image: https://i.ytimg.com/vi/4JWoNrjUMLA/maxresdefault.jpg
+tags: 
+    - dev
+    - coding
+    - game
+    - wolfenstain
+    - raycasting
+    - 3d
 ---
 
 1992년 5월 5일, *울펜슈타인 3D* 가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.

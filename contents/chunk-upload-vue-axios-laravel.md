@@ -3,17 +3,16 @@ title: axios와 vue를 이용한 분할 업로드
 date: 2019-06-20T01:00:00.000Z
 summary: 파일 업로드 구현이야 많이들 해보셨겠지만 용량이 커진다면? 생각보다 신경쓸게 많아집니다.
 category: coding
-image: ''
+image: https://icon-library.com/images/icon-uploader/icon-uploader-2.jpg
 tags:
   - dev
   - coding
-  - chunk-upload
+  - chunk upload
   - axios
   - vue
   - laravel
   - php
   - javascript
-  - ECMAscript
 ---
 
 ## 들어가며
@@ -55,7 +54,7 @@ composer create-project --prefer-dist laravel/laravel
 composer require pion/laravel-chunk-upload
 ```
 
-이제 업로드를 처리할 Controller 를 정의합니다.<br />
+이제 업로드를 처리할 Controller 를 정의합니다.
 업로드 진행시 퍼센트를 리턴해주며, 완료시에는 파일 병합 및 이동을 담당하게 됩니다.
 
 ```php

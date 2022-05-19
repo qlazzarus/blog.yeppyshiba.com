@@ -1,9 +1,16 @@
 ---
-layout: post
-title: '딥러닝과 소수'
-date: 2021-05-12 21:00
-author: q_lazzarus
-tags: [ai, deep-learning, prime-number]
+title: 딥러닝과 소수
+date: 2021-05-12T12:00:00.000Z
+category: coding
+summary: 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다.  
+  이름하여 바로 '리만 가설' 입니다.
+image: https://media.makeameme.org/created/prime-numbers-y.jpg
+tags: 
+    - dev
+    - coding
+    - ai
+    - deep learning
+    - prime number
 ---
 
 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다.  

@@ -1,9 +1,20 @@
 ---
-layout: post
-title: 'babel 이란 무엇인가?'
-date: 2020-02-12 21:56
-author: q_lazzarus
-tags: [javascript, webpack, babel, polyfill, esnext, typescript]
+title: babel 이란 무엇인가?
+date: 2020-02-12T12:56:00.000Z
+category: coding
+summary: 최근에 react 프로젝트와 typescript 프로젝트를 거치면서 webpack 을 자주 써보고 세팅해보게 되었습니다.  
+  처음에는 동작의 원리보다 `요즘 잘나가는 프론트엔드 개발 환경 만들기`라는 목표로 세팅 하였으나  
+  점점 처음부터 차근 차근 만지면서, 내가 이걸 몰랐구나 이게 이런 뜻이었구나 새삼 느끼게 되었습니다.
+image: https://blog.kakaocdn.net/dn/dGyesV/btqE0BOfEnV/tFNI9i4mUKj4xQkhrnDFI1/img.png
+tags: 
+  - dev
+  - coding
+  - javascript
+  - webpack
+  - babel
+  - polyfill
+  - esnext
+  - typescript
 ---
 
 ## 들어가며

@@ -3,7 +3,7 @@ title: mobx를 이용한 flutter 상태 관리
 date: 2019-09-04T15:00:00.000Z
 summary: 상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다.
 category: coding
-image: ''
+image: https://vuex.vuejs.org/flow.png
 tags:
   - dev
   - coding

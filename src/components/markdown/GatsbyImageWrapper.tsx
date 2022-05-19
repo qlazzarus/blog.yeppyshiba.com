@@ -1,16 +1,14 @@
 import React, { FunctionComponent } from 'react';
 
 interface GatsbyImageWrapperProps {
-  style: any;
+  style: React.CSSProperties;
   children: React.ReactElement[];
 }
 
-const GatsbyImageWrapper: FunctionComponent<GatsbyImageWrapperProps> = (props) => {
-  console.log(props);
-
+const GatsbyImageWrapper: FunctionComponent<GatsbyImageWrapperProps> = ({ style, children }) => {
   return (
-    <figure style={props.style}>
-      {props.children}
+    <figure style={style}>
+      {children}
     </figure>
   );
 };

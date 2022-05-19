@@ -10,16 +10,17 @@ const Image: FunctionComponent<ImageProps> = ({ src, alt, ...props }) => {
   const isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(src);
   if (isExternal) {
     return (
-      <VStack as={'span'} justify={'center'} my={4}>
-        <Box as={'span'} maxW={1000}>
+      <figure>
+        <Box maxW={1000} mx={'auto'}>
           <ChakraImage 
             src={src} 
             alt={alt || ''} 
             loading={'lazy'} 
+            mx={'auto'}
           />
         </Box>
-        {alt && <Text as={'span'}>{alt}</Text>}
-      </VStack>
+        {alt && <figcaption>{alt}</figcaption>}
+      </figure>
     );
   }
   

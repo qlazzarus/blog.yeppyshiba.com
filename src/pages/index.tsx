@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { graphql, Link as GatsbyLink } from 'gatsby';
-import { Box, Button, Container, Heading, Stack, Text } from '@chakra-ui/react';
-import { Header, Layout } from '@/components/common';
+import { graphql } from 'gatsby';
+import { Header, Layout, StoryHeader } from '@/components/common';
 import { ArticleList } from '@/components/article';
 import { ArticleListItemType, GroupCountType } from '@/types';
 
@@ -16,10 +15,10 @@ type IndexPageProps = {
     };
     featured: ArticleListItemType[];
     categories: {
-      group: GroupCountType[]
+      group: GroupCountType[];
     };
     tags: {
-      group: GroupCountType[]
+      group: GroupCountType[];
     };
   };
 };
@@ -30,7 +29,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
     site: { siteMetadata },
     featured,
     categories,
-    tags
+    tags,
   },
 }) => {
   const { title } = siteMetadata;
@@ -38,26 +37,8 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({
   return (
     <Layout title={title}>
       <Header title={title} />
-      <Container
-        maxW={'7xl'}>
-        <Stack
-          as={Box}
-          textAlign={'center'}
-          spacing={{ base: 8, md: 14 }} 
-          pt={{ base: 20, md: 36 }}
-        >
-          <Heading
-            fontWeight={600}
-            fontSize={{ base: '2xl', sm: '4xl', md: '6xl' }}
-            lineHeight={'110%'}>
-            Featured <br />
-            <Text as={'span'} color={'green.400'}>
-              Stories
-            </Text>
-          </Heading>
-        </Stack>
-        <ArticleList entries={featured} />
-      </Container>
+      <StoryHeader title={'Featured'} />
+      <ArticleList entries={featured} />
     </Layout>
   );
 };
@@ -96,6 +77,6 @@ export const getIndex = graphql`
         fieldValue
         totalCount
       }
-    }    
+    }
   }
 `;
