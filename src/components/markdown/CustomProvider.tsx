@@ -22,7 +22,38 @@ import Image from './Image';
 import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
-  p: (props: any) => <Text my={4} {...props} />,
+  p: (props: any) => (props) => {
+    const updatedChildren = props.children.map((child: any, index: number) => {
+      if (child.props.className === "gatsby-resp-image-wrapper") {
+        console.log('MDXProvider - ', child, index);
+      }
+      
+      return child;
+    });    
+    /*
+    node: Partial<ReactHTMLElement<HTMLParagraphElement>["props"]>
+    
+
+    
+  let className = ''
+
+  if(
+    node.children
+    &&
+    (
+      ((node.children as any)[0] && (node.children as any)[0].props && (node.children as any)[0].props.className === 'gatsby-resp-image-wrapper')
+      ||
+      ((node.children as any).props && (node.children as any).props.className === 'gatsby-resp-image-wrapper')
+    )
+  ){
+    className = "full-width"
+  }
+
+  return <p {...node} className={className} />    
+    */
+    
+    return <Text my={4} {...props} />
+  },
   h1: (props: any) => <Heading level={1} {...props} />,
   h2: (props: any) => <Heading level={2} {...props} />,
   h3: (props: any) => <Heading level={3} {...props} />,
@@ -57,8 +88,6 @@ const MdxProviderComponents: MDXProviderComponents = {
     const updatedChildren = children.map((child: any, index: number) => {
       if (child.props.className === "footnotes") {
         return <FootnoteWrapper key={index} {...child.props} />;
-      } else if (child.props.className === 'gatsby-resp-image-wrapper') {
-        console.log('MDXProvider - ', child, index);
       }
 
       return child;
