@@ -23,13 +23,11 @@ import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
   p: (props: any) => (props) => {
-    const updatedChildren = props.children.map((child: any, index: number) => {
+    props.children.each((child: any, index: number) => {
       if (child.props.className === "gatsby-resp-image-wrapper") {
         console.log('MDXProvider - ', child, index);
       }
-      
-      return child;
-    });    
+    });
     /*
     node: Partial<ReactHTMLElement<HTMLParagraphElement>["props"]>
     
