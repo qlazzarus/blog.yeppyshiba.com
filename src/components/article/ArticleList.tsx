@@ -96,10 +96,9 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
             fontWeight={800}
             fontSize={'sm'}
             letterSpacing={1.1}
-            as={GatsbyLink}
-            to={`/category/${kebabCase(category)}`}
+            as={'span'}
           >
-            {category}
+            <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
           </Text>
         )}
         <Text fontSize={'sm'} fontWeight={'bold'}>
@@ -109,9 +108,17 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
         <Text flexGrow={1} fontSize={'sm'}>
           {summary}
         </Text>
-        <HStack justify={'flex-end'} py={4}>
+        <HStack wrap={'wrap'} py={4}>
           {tags.map((tag) => (
-            <Tag size={'md'} variant="solid" key={tag} as={GatsbyLink} to={`/tag/${kebabCase(tag)}`}>
+            <Tag
+              key={tag}
+              bgColor={useColorModeValue('gray.700', 'gray.700')}
+              variant={'solid'}
+              as={GatsbyLink}
+              to={`/tag/${kebabCase(tag)}`}
+              mx={1}
+              my={2}
+            >
               {tag}
             </Tag>
           ))}

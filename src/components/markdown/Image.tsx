@@ -1,30 +1,29 @@
-import React, { FunctionalComponent } from 'react';
-import { Box, HStack, Image as ChakraImage } from '@chakra-ui/react';
+import React, { FunctionComponent } from 'react';
+import { Box, Image as ChakraImage, Text, VStack } from '@chakra-ui/react';
 
 interface ImageProps {
   src: string;
   alt?: string
 }
 
-const Image: FunctionalComponent<ImageProps> = ({ src, alt, ...props }) => {
+const Image: FunctionComponent<ImageProps> = ({ src, alt, ...props }) => {
   const isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(src);
   if (isExternal) {
     return (
-      <HStack justify={'center'}>
-        <Box maxW={1000}>
-          <figure>
-            <ChakraImage 
-              src={src} 
-              alt={alt || ''} 
-              loading={'lazy'} 
-            />
-            {alt && <figcaption>{alt}</figcaption>}
-          </figure>
+      <VStack as={'span'} justify={'center'} my={4}>
+        <Box as={'span'} maxW={1000}>
+          <ChakraImage 
+            src={src} 
+            alt={alt || ''} 
+            loading={'lazy'} 
+          />
         </Box>
-      </HStack>
+        {alt && <Text as={'span'}>{alt}</Text>}
+      </VStack>
     );
   }
   
+  // here goes to 
   return <ChakraImage src={src} alt={alt || ''} {...props} />;
 };
 
