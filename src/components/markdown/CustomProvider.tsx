@@ -57,6 +57,8 @@ const MdxProviderComponents: MDXProviderComponents = {
     const updatedChildren = children.map((child: any, index: number) => {
       if (child.props.className === "footnotes") {
         return <FootnoteWrapper key={index} {...child.props} />;
+      } else if (child.props.className === 'gatsby-resp-image-wrapper') {
+        console.log('MDXProvider - ', child, index);
       }
 
       return child;
