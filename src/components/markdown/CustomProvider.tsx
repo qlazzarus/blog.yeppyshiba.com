@@ -18,7 +18,7 @@ import {
 import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 import CodeBlock from './CodeBlock';
 import FootnoteWrapper from './FootnoteWrapper';
-import GatsbyImageWrapper from './GatsbyImageWrapper';
+//import GatsbyImageWrapper from './GatsbyImageWrapper';
 import Heading from './Heading';
 import Image from './Image';
 import Link from './Link';
@@ -60,6 +60,10 @@ const MdxProviderComponents: MDXProviderComponents = {
   wrapper: ({ children }) => {
     if (!children) {
       return <></>;
+    }
+
+    if (!Array.isArray(children)) {
+      return <>{children}</>;
     }
 
     const updatedChildren = children.map((child: any, index: number) => {

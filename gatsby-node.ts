@@ -3,8 +3,9 @@ import { paginate } from 'gatsby-awesome-pagination';
 import Lodash from 'lodash';
 
 const itemsPerPage = 10;
+const shuffleLength = 3;
 
-function shuffle(array) {
+function shuffle(array, length) {
   const newArray = [...array];
   let m = newArray.length;
   let t;
@@ -19,6 +20,10 @@ function shuffle(array) {
     t = newArray[m];
     newArray[m] = newArray[i];
     newArray[i] = t;
+  }
+
+  if (newArray.length > length) {
+    return newArray.splice(0, length);
   }
 
   return newArray;
@@ -49,10 +54,10 @@ export const createResolvers = ({ createResolvers }) => {
             type: 'Mdx',
           });
 
-          const shuffled = shuffle(entries);
+          const shuffled = shuffle(entries, shuffleLength);
 
           if (shuffled.length > 0) {
-            return [shuffled[0]];
+            return shuffled;
           } else {
             return [];
           }
@@ -181,7 +186,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
     paginate({
       createPage,
       component: CategoryTemplate,
-      items: items.filter((item) => item.node.fields.category === kebabCategory),
+      items: items.filter((item) => item.node.fields.category && item.node.fields.category === kebabCategory),
       itemsPerPage,
       pathPrefix: `/category/${kebabCategory}`,
       context: {
@@ -198,7 +203,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
     paginate({
       createPage,
       component: TagTemplate,
-      items: items.filter((item) => item.node.fields.tags.includes(kebabTag)),
+      items: items.filter((item) => item.node.fields.tags && item.node.fields.tags.includes(kebabTag)),
       itemsPerPage,
       pathPrefix: `/tag/${kebabTag}`,
       context: {
