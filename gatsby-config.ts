@@ -18,6 +18,19 @@ const config: GatsbyConfig = {
   siteMetadata,
   plugins: [
     {
+      resolve: `gatsby-plugin-google-analytics`,
+      options: {
+        trackingId: 'G-P6NE4VJRLC',
+        head: false,
+        anonymize: false,
+        respectDNT: false,
+        exclude: [],
+        pageTransitionDelay: 0,
+        defer: false,
+        enableWebVitalsTracking: true,
+      },
+    },
+    {
       resolve: `@chakra-ui/gatsby-plugin`,
       options: {
         resetCSS: true,
@@ -80,12 +93,12 @@ const config: GatsbyConfig = {
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
-            options: { 
+            options: {
               maxWidth: 1000,
               linkImagesToOriginal: false,
               showCaptions: true,
-              withWebp: true
-            }
+              withWebp: true,
+            },
           },
         ],
         rehypePlugins: [],

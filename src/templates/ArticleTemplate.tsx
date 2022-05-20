@@ -6,8 +6,8 @@ import { Layout, StoryHeader } from '@/components/common';
 import { ArticleListItemType } from '@/types';
 
 interface CustomPaginationContext extends PaginationContext {
-  next: ArticleListItemType | null
-  previous: ArticleListItemType | null
+  next: ArticleListItemType | null;
+  previous: ArticleListItemType | null;
 }
 
 interface PostTemplateProps {
@@ -25,8 +25,8 @@ interface PostTemplateProps {
       };
     };
   };
-  pageContext: CustomPaginationContext
-};
+  pageContext: CustomPaginationContext;
+}
 
 const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data, pageContext }) {
   const {
@@ -34,21 +34,15 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data, pag
       frontmatter: { title, image, summary, category, date, tags },
     },
   } = data;
-  
+
   const { next, previous } = pageContext;
   const entries = [];
   if (previous) entries.push(previous);
   if (next) entries.push(next);
 
   return (
-    <Layout title={title} description={summary} keywords={tags}>
-      <ArticleHeader 
-        title={title} 
-        image={image}
-        category={category}
-        date={date}
-        tags={tags} 
-      />
+    <Layout title={title} image={image} description={summary} category={category} date={date} keywords={tags} >
+      <ArticleHeader title={title} image={image} category={category} date={date} tags={tags} />
       <ArticleDetail data={data} />
       {entries.length > 0 && (
         <>

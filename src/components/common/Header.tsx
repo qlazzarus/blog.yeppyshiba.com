@@ -1,7 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Link as GatsbyLink } from 'gatsby';
-import { Flex, Heading, HStack, Tag, Text, VStack, useBreakpointValue, useColorModeValue } from '@chakra-ui/react';
-import { kebabCase } from 'lodash';
+import { Flex, Heading, VStack, useBreakpointValue, useColorModeValue } from '@chakra-ui/react';
 import { MathUtil } from '@/utils';
 
 const defaultImages = ['/images/header/wp7317693-jeju-wallpapers.jpg'];
@@ -24,11 +22,7 @@ const Header: FunctionComponent<HeaderProps> = ({ title, image }) => {
       backgroundPosition={'center center'}
     >
       <VStack w={'full'} justify={'center'}>
-        <Heading 
-          color={useColorModeValue('gray.900', 'gray.900')}
-          as={"h1"}
-          size={"2xl"}
-          >
+        <Heading color={useColorModeValue('gray.900', 'gray.900')} as={'h1'} size={'2xl'}>
           {title}
         </Heading>
       </VStack>

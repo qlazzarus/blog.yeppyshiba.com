@@ -14,14 +14,15 @@ interface CodeBlockProps {
   className: string;
 }
 
-const CodeBlock: FunctionComponent<CodeBlockProps> = (props) => {
-  const language = props.className?.replace('language-', '') as Language;
-  const { hasCopied, onCopy } = useClipboard(props.children);
+const CodeBlock: FunctionComponent<CodeBlockProps> = ({ className, children }) => {
+  const language = className?.replace('language-', '') as Language;
+  const { hasCopied, onCopy } = useClipboard(children);
   const { colorMode } = useColorMode();
+
   return (
     <Highlight
       {...defaultProps}
-      code={props.children}
+      code={children}
       language={language}
       theme={colorMode === 'light' ? lightTheme : darkTheme}
     >

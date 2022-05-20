@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
 import { kebabCase } from 'lodash';
+import { ListItem, UnorderedList } from '@chakra-ui/react';
 import { GroupCountType } from '@/types';
 import '@/components/tag-cloud.css';
 
@@ -10,15 +11,27 @@ interface TagCloudProps {
 
 const TagCloud: FunctionComponent<TagCloudProps> = ({ tags }) => {
   return (
-    <ul className={'tag-cloud'}>
+    <UnorderedList
+      listStyleType={'none'}
+      p={8}
+      display={'flex'}
+      flexWrap={'wrap'}
+      alignItems={'center'}
+      justifyContent={'center'}
+      lineHeight={'2.75rem'}
+      maxWidth={'100%'}
+      className={'tag-cloud'}
+    >
       {tags.map(({ fieldValue, totalCount }) => {
         return (
-        <li>
-            <GatsbyLink to={`/tag/${kebabCase(fieldValue)}`} data-weight={totalCount}>{fieldValue}</GatsbyLink>
-        </li>
+          <ListItem key={fieldValue}>
+            <GatsbyLink to={`/tag/${kebabCase(fieldValue)}`} data-weight={totalCount}>
+              {fieldValue}
+            </GatsbyLink>
+          </ListItem>
         );
       })}
-    </ul>
+    </UnorderedList>
   );
 };
 

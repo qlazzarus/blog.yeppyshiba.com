@@ -22,7 +22,6 @@ import { ArticleListItemType } from '@/types';
 
 const defaultImages = [
   '/images/cards/pexels-olia-danilevich-4974915.jpg',
-  '/images/header/wp7317693-jeju-wallpapers.jpg',
 ];
 
 interface ArticleListProps {
