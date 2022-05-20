@@ -43,6 +43,10 @@ export type GraphqlErrorLocationType = {
   line: number;
 };
 
+export interface CustomPaginationContext extends PaginationContext {
+  slug?: string
+}
+
 export type ListTemplateProps = {
   errors?: GraphqlErrorType[],
   data?: {
@@ -57,5 +61,5 @@ export type ListTemplateProps = {
       edges: ArticleListItemsType[] 
     };
   };
-  pageContext: PaginationContext;
+  pageContext: CustomPaginationContext;
 };

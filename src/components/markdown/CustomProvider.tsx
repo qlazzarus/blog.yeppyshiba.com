@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 import {
   chakra,
   Code,
+  Box,
   Divider,
   ListItem,
   OrderedList,
@@ -17,40 +18,18 @@ import {
 import { MDXProvider, MDXProviderComponents } from '@mdx-js/react';
 import CodeBlock from './CodeBlock';
 import FootnoteWrapper from './FootnoteWrapper';
+import GatsbyImageWrapper from './GatsbyImageWrapper';
 import Heading from './Heading';
 import Image from './Image';
 import Link from './Link';
 
 const MdxProviderComponents: MDXProviderComponents = {
-  p: (props: any) => {
-    props.children.each((child: any, index: number) => {
-      if (child.props.className === "gatsby-resp-image-wrapper") {
-        console.log('MDXProvider - ', child, index);
-      }
-    });
-    /*
-    node: Partial<ReactHTMLElement<HTMLParagraphElement>["props"]>
-    
+  p: ({ children }) => {
+    if (typeof children === 'object') {
+      return <Box my={4}>{children}</Box>
+    }
 
-    
-  let className = ''
-
-  if(
-    node.children
-    &&
-    (
-      ((node.children as any)[0] && (node.children as any)[0].props && (node.children as any)[0].props.className === 'gatsby-resp-image-wrapper')
-      ||
-      ((node.children as any).props && (node.children as any).props.className === 'gatsby-resp-image-wrapper')
-    )
-  ){
-    className = "full-width"
-  }
-
-  return <p {...node} className={className} />    
-    */
-    
-    return <Text my={4} {...props} />
+    return <Text my={4}>{children}</Text>;
   },
   h1: (props: any) => <Heading level={1} {...props} />,
   h2: (props: any) => <Heading level={2} {...props} />,
@@ -84,7 +63,7 @@ const MdxProviderComponents: MDXProviderComponents = {
     }
 
     const updatedChildren = children.map((child: any, index: number) => {
-      if (child.props.className === "footnotes") {
+      if (child.props.className === 'footnotes') {
         return <FootnoteWrapper key={index} {...child.props} />;
       }
 
@@ -92,7 +71,7 @@ const MdxProviderComponents: MDXProviderComponents = {
     });
 
     return <>{updatedChildren}</>;
-  }
+  },
 };
 
 type CustomProviderProps = {

@@ -1,9 +1,16 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
-import { ArticleHeader, ArticleDetail } from '@/components/article';
-import { Layout } from '@/components/common';
+import { PaginationContext } from 'gatsby-awesome-pagination';
+import { ArticleDetail, ArticleHeader, ArticleList } from '@/components/article';
+import { Layout, StoryHeader } from '@/components/common';
+import { ArticleListItemType } from '@/types';
 
-type PostTemplateProps = {
+interface CustomPaginationContext extends PaginationContext {
+  next: ArticleListItemType | null
+  previous: ArticleListItemType | null
+}
+
+interface PostTemplateProps {
   data: {
     mdx: {
       id: string;
@@ -18,14 +25,20 @@ type PostTemplateProps = {
       };
     };
   };
+  pageContext: CustomPaginationContext
 };
 
-const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
+const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data, pageContext }) {
   const {
     mdx: {
       frontmatter: { title, image, summary, category, date, tags },
     },
   } = data;
+  
+  const { next, previous } = pageContext;
+  const entries = [];
+  if (previous) entries.push(previous);
+  if (next) entries.push(next);
 
   return (
     <Layout title={title} description={summary} keywords={tags}>
@@ -37,6 +50,12 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({ data }) {
         tags={tags} 
       />
       <ArticleDetail data={data} />
+      {entries.length > 0 && (
+        <>
+          <StoryHeader title={`Relate`} />
+          <ArticleList entries={entries} />
+        </>
+      )}
     </Layout>
   );
 };

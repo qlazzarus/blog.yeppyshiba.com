@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
 import { ArticleList } from '@/components/article';
-import { Header, Layout, Pagination } from '@/components/common';
+import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
 
 // markup
@@ -22,6 +22,7 @@ const BlogTemplate: FunctionComponent<ListTemplateProps> = ({
   return (
     <Layout title={title}>
       <Header title={title} />
+      <StoryHeader title={`All`} />
       <ArticleList entries={entries} />
       <Pagination {...pageContext} prefix={'/page/'} prev={'Newer'} next={'Older'} />
     </Layout>

@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Box, Flex, Heading, HStack, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Heading, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
 import { kebabCase } from 'lodash';
 import { MathUtil } from '@/utils';
 
@@ -84,21 +84,23 @@ const ArticleHeader: FunctionComponent<ArticleHeaderProps> = ({ title, image, ca
             </Text>
           )}
           {tags && (
-            <HStack wrap={'wrap'}>
+            <Box overflow={'hidden'}>
               {tags.map((tag) => (
                 <Tag
+                  display={'block'}
+                  float={'left'}
                   key={tag}
-                  bgColor={useColorModeValue('gray.700', 'gray.700')}
+                  bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
                   to={`/tag/${kebabCase(tag)}`}
-                  mx={1}
-                  my={2}
+                  pt={1}
+                  m={1}
                 >
                   {tag}
                 </Tag>
               ))}
-            </HStack>
+            </Box>
           )}
         </VStack>
       </Flex>
