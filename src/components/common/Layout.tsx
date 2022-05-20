@@ -35,7 +35,6 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
   `);
 
   const headerImage = image || MathUtil.getRandomValue(defaultImages);
-  const siteUrl = `${siteMetadata.siteUrl}${location.pathname}`;
 
   return (
     <>
@@ -43,13 +42,11 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         <meta charSet={'utf-8'} />
         <title>{title ?? siteMetadata.title}</title>
         <link rel={'icon'} type={'image/png'} href={'/akita-inu.png'} />
-        <link rel="canonical" href={siteUrl} />
         <meta name={'description'} content={description ?? siteMetadata.description} />
         <meta name={'author'} content={siteMetadata.title} />
         {keywords && <meta name={'keywords'} content={keywords.join(', ')} />}
         {date && <meta name={'date'} content={date} />}
         <meta property="og:type" content={'blog'} />
-        <meta property="og:url" content={siteUrl} />
         <meta property="og:title" content={title ?? siteMetadata.title} />
         <meta property="og:image" content={headerImage} />
         <meta property="og:description" content={description ?? siteMetadata.description} />
