@@ -23,7 +23,7 @@ tags:
 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요...  
 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.
 
-![](./../static/images/posts/lazy.png)
+![](./../static/images/posts/archive/lazy.png)
 
 우선 저는 windows 10 에 wsl2 와 docker 를 설치하여 사용하였습니다.
 
@@ -41,7 +41,7 @@ Microsoft 에서 미리 예고한 대로 WSL2 (Windows Subsystem for Linux 2) �
 WSL 2 를 설치하려면 먼저 Windows 10 2004 를 업데이트해야 합니다.  
 현재 설치여부는 Windows Key + R 을 눌러서 실행창에 winver 를 넣고 버전을 확인해 보면 됩니다.
 
-![](./../static/images/posts/winver.png)
+![](./../static/images/posts/archive/winver.png)
 
 ### wsl2 활성화 하기
 
@@ -69,13 +69,13 @@ wsl --set-default-version 2
 
 microsoft store 에서 ubuntu 를 검색해서 설치합니다.
 
-![](./../static/images/posts/ubuntu_18_04_lts.png)
+![](./../static/images/posts/archive/ubuntu_18_04_lts.png)
 
 ### 배포판 실행하기
 
 설치한 배포판을 실행하면 설치하는데 시간이 조금 소요됩니다.
 
-![](./../static/images/posts/ubuntu_install.png)
+![](./../static/images/posts/archive/ubuntu_install.png)
 
 아래 명령어를 이용해서 wsl 버젼을 확인합니다.
 
@@ -93,9 +93,9 @@ PS C:\Users\ecst> wsl --list --verbose
 General에서 Enable the experimental WSL 2 based engine를 체크하여주고  
 Resources > WSL Integration에서 설치한 리눅스 버전을 체크해주시면 됩니다.
 
-![](./../static/images/posts/docker_general.png)
+![](./../static/images/posts/archive/docker_general.png)
 
-![](./../static/images/posts/docker_wsl.png)
+![](./../static/images/posts/archive/docker_wsl.png)
 
 ## jekyll docker 설정하기
 
@@ -132,15 +132,15 @@ docker-compose는 서비스에 필요한 docker 컨테이너를 한번에 실행
 docker-compose up
 ```
 
-![](./../static/images/posts/docker-compose.png)
+![](./../static/images/posts/archive/docker-compose.png)
 
 정상적으로 완료가 되면 자동으로 빌드되는 것을 확인할 수 있습니다
 
-![](./../static/images/posts/docker-result.png)
+![](./../static/images/posts/archive/docker-result.png)
 
 ## 추가) vscode 연동
 
-![](./../static/images/posts/docker-dashboard.png)
+![](./../static/images/posts/archive/docker-dashboard.png)
 
 위는 docker dashboard 에서 확인된 container 입니다. vscode 로 열기를 선택하시면
 해당 container 에 remote wsl 로 접속을 확인할 수 있습니다!

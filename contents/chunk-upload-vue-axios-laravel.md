@@ -277,7 +277,7 @@ onSubmit() {
 bootstrap 를 이용해서 예쁘게 꾸며줍시다.
 프로그레스바까지 꾸며주었습니다.
 
-![아! 너무 예쁘다...](./../static/images/posts/chunk-uploader-result.png)
+![아! 너무 예쁘다...](./../static/images/posts/archive/chunk-uploader-result.png)
 
 ## 마치며
 

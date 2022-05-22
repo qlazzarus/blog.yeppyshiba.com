@@ -123,7 +123,7 @@ class MainScene extends Phaser.Scene {
 
 실행 순서는 정리하자면 다음과 같습니다.
 
-![scene 메쏘드 실행 순서](./../static/images/posts/diagram.png)
+![scene 메쏘드 실행 순서](./../static/images/posts/archive/diagram.png)
 
 지금의 게임은 단순히 하나의 scene 을 가지고 하나의 object 만 다루도록 할 것 인데요.  
 이번 글은 phaser 프레임워크의 전체적인 플로우를 다루도록 진행할 예정입니다.

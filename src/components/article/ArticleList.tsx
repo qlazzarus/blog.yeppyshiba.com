@@ -84,7 +84,7 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
       >
         <Image
           alt={title}
-          maxH={{ base: 'xs', md: 'unset' }}
+          maxH={{ base: 'xs' }}
           maxW={{ md: 'xs' }}
           objectFit={'cover'}
           objectPosition={'center'}
@@ -117,7 +117,7 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
             {summary}
           </Text>
           <Box overflow={'hidden'}>
-            {tags.map((tag) => (
+            {tags && Array.isArray(tags) && tags.map((tag) => (
               <Tag
                 display={'block'}
                 float={'left'}

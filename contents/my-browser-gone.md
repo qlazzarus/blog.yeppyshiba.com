@@ -38,7 +38,7 @@ while (1) {
 이것은 역시나 제대로 알지도 못하고 짜면 이렇게 되는 것입니다.
 (이 코드가 왜 망한 코드인지는 javascript single threaded 관련글들을 참조해주세요.)
 
-![](./../static/images/posts/page_not_response.png)
+![](./../static/images/posts/archive/page_not_response.png)
 
 ![](https://static.tvtropes.org/pmwiki/pub/images/deja_q_hd_046_resized_6484.jpg)
 
@@ -51,7 +51,7 @@ while (1) {
 
 크롬 (chrominum) 은 개별 탭을 쓰레드 (thread) 가 아닌 프로세스 (process) 로 관리하고 있기 때문입니다.
 
-![](./../static/images/posts/much_much_process.png)
+![](./../static/images/posts/archive/much_much_process.png)
 
 프로세스는 어플리케이션의 실행 프로그램이며, 쓰레드는 프로세스 내부에 있습니다.
 
