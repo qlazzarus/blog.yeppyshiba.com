@@ -17,12 +17,11 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { kebabCase } from 'lodash';
+import moment from 'moment';
 import { MathUtil } from '@/utils';
 import { ArticleListItemType } from '@/types';
 
-const defaultImages = [
-  '/images/cards/pexels-olia-danilevich-4974915.jpg',
-];
+const defaultImages = ['/images/cards/pexels-olia-danilevich-4974915.jpg'];
 
 interface ArticleListProps {
   entries: ArticleListItemType[];
@@ -63,7 +62,6 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
   },
 }) => {
   const articleImage = image || MathUtil.getRandomValue(defaultImages);
-  const dateObj = new Date(date);
 
   return (
     <Box
@@ -92,6 +90,7 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
           w={'full'}
           onClick={() => navigate(`/article/${slug}`)}
           cursor={'pointer'}
+          loading={'lazy'}
         />
         <Stack p={4} w={'full'}>
           <Heading as="h3" size="md" color={useColorModeValue('gray.700', 'white')}>
@@ -109,48 +108,52 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
               <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
             </Text>
           )}
-          <Text fontSize={'sm'} fontWeight={'bold'}>
-            {dateObj.toLocaleDateString()}
-          </Text>
+          {date && (
+            <Text fontSize={'sm'} fontWeight={'bold'} title={date}>
+              {moment(date).fromNow()}
+            </Text>
+          )}
           <Divider />
           <Text flexGrow={1} fontSize={'sm'}>
             {summary}
           </Text>
           <Box overflow={'hidden'}>
-            {tags && Array.isArray(tags) && tags.map((tag) => (
-              <Tag
-                display={'block'}
-                float={'left'}
-                key={tag}
-                bgColor={'teal'}
-                variant={'solid'}
-                as={GatsbyLink}
-                to={`/tag/${kebabCase(tag)}`}
-                pt={1}
-                m={1}
-              >
-                {tag}
-              </Tag>
-            ))}
+            {tags &&
+              Array.isArray(tags) &&
+              tags.map((tag) => (
+                <Tag
+                  display={'block'}
+                  float={'left'}
+                  key={tag}
+                  bgColor={'teal'}
+                  variant={'solid'}
+                  as={GatsbyLink}
+                  to={`/tag/${kebabCase(tag)}`}
+                  pt={1}
+                  m={1}
+                >
+                  {tag}
+                </Tag>
+              ))}
           </Box>
           <HStack justify={'flex-end'}>
-          <Button
-            bg={'green.400'}
-            color={'white'}
-            rounded={'xl'}
-            boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
-            _hover={{
-              bg: 'green.500',
-            }}
-            _focus={{
-              bg: 'green.500',
-            }}
-            as={GatsbyLink}
-            to={`/article/${slug}`}
-          >
-            Read more
-          </Button>
-        </HStack>
+            <Button
+              bg={'green.400'}
+              color={'white'}
+              rounded={'xl'}
+              boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
+              _hover={{
+                bg: 'green.500',
+              }}
+              _focus={{
+                bg: 'green.500',
+              }}
+              as={GatsbyLink}
+              to={`/article/${slug}`}
+            >
+              Read more
+            </Button>
+          </HStack>
         </Stack>
       </Flex>
     </Box>
