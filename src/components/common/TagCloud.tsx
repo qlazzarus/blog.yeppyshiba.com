@@ -3,7 +3,7 @@ import { Link as GatsbyLink } from 'gatsby';
 import { kebabCase } from 'lodash';
 import { ListItem, UnorderedList } from '@chakra-ui/react';
 import { GroupCountType } from '@/types';
-import '@/components/tag-cloud.css';
+import '@static/css/tag-cloud.css';
 
 interface TagCloudProps {
   tags: GroupCountType[];

@@ -70,7 +70,7 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        name: `images`,
+        name: `static`,
         path: path.resolve('static'),
       },
     },

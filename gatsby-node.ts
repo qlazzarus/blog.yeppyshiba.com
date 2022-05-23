@@ -38,6 +38,7 @@ export const onCreateWebpackConfig = ({ getConfig, actions }) => {
     resolve: {
       alias: {
         '@': path.resolve('./src/'),
+        '@static': path.resolve('./static/'),
       },
     },
   });
