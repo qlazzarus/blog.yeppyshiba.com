@@ -4,28 +4,28 @@ date: 2020-12-09T04:00:00.000Z
 category: coding
 summary: 1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.
 image: https://i.ytimg.com/vi/4JWoNrjUMLA/maxresdefault.jpg
-tags: 
-    - dev
-    - coding
-    - game
-    - wolfenstain
-    - raycasting
-    - 3d
+tags:
+  - dev
+  - coding
+  - game
+  - wolfenstain
+  - raycasting
+  - 3d
 ---
 
-1992년 5월 5일, *울펜슈타인 3D* 가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.
+1992년 5월 5일, _울펜슈타인 3D_ 가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.
 
-*울펜슈타인3D* 은 과연 어떻게 3d를 구현했을까요?
+_울펜슈타인3D_ 은 과연 어떻게 3d를 구현했을까요?
 
-[![Wolfenstein 3D Trailer](https://img.youtube.com/vi/7P_dic-pSKo/0.jpg)](https://www.youtube.com/watch?v=7P_dic-pSKo "Wolfenstein 3D Trailer")
+[![Wolfenstein 3D Trailer](https://img.youtube.com/vi/7P_dic-pSKo/0.jpg)](https://www.youtube.com/watch?v=7P_dic-pSKo 'Wolfenstein 3D Trailer')
 
-*레이캐스팅* 이란 2차원 맵을 3차원 시점을 구현하기 위한 렌더링 테크닉입니다. 이전 시대의 PC 는 실시간으로 리얼한 3D 엔진을 구현하기에는 턱도 없이 느렸습니다. 그래서 *레이캐스팅* 은 첫번째 대안으로 제시되었습니다. 빠르거든요. 단순히 수직선에만 계산하면 되기 때문입니다. 물론 그 당시 이 기술로 유명한 게임은 *울펜슈타인 3D* 였습니다. 
+_레이캐스팅_ 이란 2차원 맵을 3차원 시점을 구현하기 위한 렌더링 테크닉입니다. 이전 시대의 PC 는 실시간으로 리얼한 3D 엔진을 구현하기에는 턱도 없이 느렸습니다. 그래서 _레이캐스팅_ 은 첫번째 대안으로 제시되었습니다. 빠르거든요. 단순히 수직선에만 계산하면 되기 때문입니다. 물론 그 당시 이 기술로 유명한 게임은 _울펜슈타인 3D_ 였습니다.
 
 ![](https://www.permadi.com/tutorial/raycast/images/figure1.gif)
 
 ![raycasting](https://i.stack.imgur.com/AC2tt.gif)
 
-사실 *레이캐스팅* 의 역사는 오래되었습니다. 이 용어는 1982년 스코트 로스의 *[구조적 입체 기하학](https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%A1%B0%EC%A0%81_%EC%9E%85%EC%B2%B4_%EA%B8%B0%ED%95%98%ED%95%99)* 모델을 렌더링하기 위한 기법을 묘사하는 컴퓨터 그래픽스 논문에서 처음 사용되었습니다.
+사실 _레이캐스팅_ 의 역사는 오래되었습니다. 이 용어는 1982년 스코트 로스의 _[구조적 입체 기하학](https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%A1%B0%EC%A0%81_%EC%9E%85%EC%B2%B4_%EA%B8%B0%ED%95%98%ED%95%99)_ 모델을 렌더링하기 위한 기법을 묘사하는 컴퓨터 그래픽스 논문에서 처음 사용되었습니다.
 
 레이 캐스팅의 기본 개념은 다음과 같습니다. 지도는 2D 로 된 정사각형 구역이며, 각 정사각형은 0 (텅빈 공간) 과 정수로 표기 됩니다. (특정 색상이나 텍스쳐를 가진 벽)
 
@@ -47,15 +47,16 @@ tags:
 
 ![](https://lodev.org/cgtutor/images/raycasthit.gif)
 
-이 방식을 DDA (Digital Diferential Analysis) 이라고 부르며 일반적으로 정사각형 격자에서 광선에 맞은 정사각형을 찾기 위한 빠른 알고리즘입니다. 
+이 방식을 DDA (Digital Diferential Analysis) 이라고 부르며 일반적으로 정사각형 격자에서 광선에 맞은 정사각형을 찾기 위한 빠른 알고리즘입니다.
 
 다음시간에는 이 알고리즘을 기반으로 Javascript 로 간단한 3D 엔진을 작성해보도록 하겠습니다.
 
 ref
- * https://en.wikipedia.org/wiki/Maze_War
- * https://en.wikipedia.org/wiki/First-person_shooter
- * https://en.wikipedia.org/wiki/Wolfenstein_3D
- * https://lodev.org/cgtutor/raycasting.html
- * https://ko.wikipedia.org/wiki/%EA%B4%91%EC%84%A0_%ED%88%AC%EC%82%AC
- * https://namu.wiki/w/%EB%A0%88%EC%9D%B4%EC%BA%90%EC%8A%A4%ED%8A%B8
- * https://www.permadi.com/tutorial/raycast/rayc1.html
+
+- https://en.wikipedia.org/wiki/Maze_War
+- https://en.wikipedia.org/wiki/First-person_shooter
+- https://en.wikipedia.org/wiki/Wolfenstein_3D
+- https://lodev.org/cgtutor/raycasting.html
+- https://ko.wikipedia.org/wiki/%EA%B4%91%EC%84%A0_%ED%88%AC%EC%82%AC
+- https://namu.wiki/w/%EB%A0%88%EC%9D%B4%EC%BA%90%EC%8A%A4%ED%8A%B8
+- https://www.permadi.com/tutorial/raycast/rayc1.html

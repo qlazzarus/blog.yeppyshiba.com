@@ -9,7 +9,7 @@ tags:
   - coding
   - phaser
   - typescript
-  - game
+  - web game
   - life
   - cells
 ---
