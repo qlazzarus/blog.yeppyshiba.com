@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Box, Image as ChakraImage, Text, VStack } from '@chakra-ui/react';
+import { Box, Image as ChakraImage } from '@chakra-ui/react';
 
 interface ImageProps {
   src: string;

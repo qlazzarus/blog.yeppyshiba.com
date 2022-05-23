@@ -42,6 +42,7 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         <meta charSet={'utf-8'} />
         <title>{title ?? siteMetadata.title}</title>
         <link rel={'icon'} type={'image/png'} href={'/akita-inu.png'} />
+        <meta name="google-site-verification" content="ohPHiE_9eeqdqrBocR0kiZSIVjMYr-mdJdZd42aJ6qY" />
         <meta name={'description'} content={description ?? siteMetadata.description} />
         <meta name={'author'} content={siteMetadata.title} />
         {keywords && <meta name={'keywords'} content={keywords.join(', ')} />}

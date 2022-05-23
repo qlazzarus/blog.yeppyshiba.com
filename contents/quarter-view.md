@@ -12,6 +12,8 @@ tags:
   - pseudo
   - isometric
   - quarter view
+  - phaser
+  - web game
 ---
 
 ## 들어가며

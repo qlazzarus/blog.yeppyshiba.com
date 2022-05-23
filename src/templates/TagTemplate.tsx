@@ -3,7 +3,7 @@ import { graphql } from 'gatsby';
 import { ArticleList } from '@/components/article';
 import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
-import { kebabCase, lowerCase } from 'lodash';
+import { kebabCase } from 'lodash';
 
 // markup
 const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageContext }) => {
@@ -25,7 +25,7 @@ const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageC
   return (
     <Layout title={title}>
       <Header title={title} />
-      <StoryHeader title={`'${lowerCase(slug)}' Tag`} />
+      <StoryHeader title={`'${slug}' Tag`} />
       <ArticleList entries={entries} />
       <Pagination {...pageContext} prefix={`/tag/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
     </Layout>
