@@ -59,17 +59,17 @@ tags:
 
 아래 이 이미지는 32x32 사이즈의 투명한 배경을 가진 이미지입니다.
 
-![isometric block](./../static/images/posts/iso-block.png)
+![isometric block](./../static/images/posts/archive/iso-block.png)
 
 쿼터뷰는 아래 사진을 이런식으로 배치하는 형식으로 시작됩니다.
 
-![isometric block couple](./../static/images/posts/iso-block-couple.png)
+![isometric block couple](./../static/images/posts/archive/iso-block-couple.png)
 
 단순히 이렇게 쌓는 것으로 끝입니다.
 
 정리하자면 일반적인 2D 맵과 달리 isometric 은 아래와 같이 겹치는 구조로 되는 것 입니다.
 
-![cartesian to isometric](./../static/images/posts/cartesian2isometric.png)
+![cartesian to isometric](./../static/images/posts/archive/cartesian2isometric.png)
 
 그렇다면 어떤 규칙으로 배치될까요?
 

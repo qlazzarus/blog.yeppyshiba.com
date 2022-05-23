@@ -55,7 +55,7 @@ webpack 에 대한 설명은 이미 많이 있으니 이번에는 babel 에 대�
 
 안드로이드는 더욱 더 충격적인데 아직 제 주변에서도 갤럭스 노트 2를 사용하시는 분들이 꽤 있더군요...
 
-![2019년 안드로이드 버전별 점유율](./../static/images/posts/20200212_android_market_share.png) [출처] [Android 배포 대시보드](https://developer.android.com/about/dashboards)
+![2019년 안드로이드 버전별 점유율](./../static/images/posts/archive/20200212_android_market_share.png) [출처] [Android 배포 대시보드](https://developer.android.com/about/dashboards)
 
 이런 하위 호환성은 외면하기에는 쉽지 않습니다...  
 이또한 babel 을 쓰는 강력한 이유가 됩니다. (babel-polyfill 부분을 참고하세요!)
@@ -69,14 +69,14 @@ webpack 에 대한 설명은 이미 많이 있으니 이번에는 babel 에 대�
 
 이미 npm 다운로드 트랜드 사이트에서는 폭발적인 인기를 볼 수 있습니다.
 
-![최근 2년간 npm 다운로드 횟수](./../static/images/posts/20200212_npmtrends.png) [출처] [npmtrends.com](https://www.npmtrends.com/typescript-vs-coffee-script-vs-purescript-vs-flow-bin-vs-elm)
+![최근 2년간 npm 다운로드 횟수](./../static/images/posts/archive/20200212_npmtrends.png) [출처] [npmtrends.com](https://www.npmtrends.com/typescript-vs-coffee-script-vs-purescript-vs-flow-bin-vs-elm)
 
 또한 기존 job recruit 사이트에서도 연봉이 많이 오른 것을 확인할 수 있습니다.
-![typescript average salary](./../static/images/posts/20200212_typescript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
-![javascript average salary](./../static/images/posts/20200212_javascript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![typescript average salary](./../static/images/posts/archive/20200212_typescript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![javascript average salary](./../static/images/posts/archive/20200212_javascript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
 
 심지어 java salary 보다 ㅎㄷㄷ
-![java average salary](./../static/images/posts/20200212_java_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Java-Developer-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![java average salary](./../static/images/posts/archive/20200212_java_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Java-Developer-Jobs-Near-Me?near_me_location=San-Francisco,CA)
 
 여튼 typescript 든 coffeescript 든 javascript 로의 compile 이 필수가 되어야 하며,  
 이를 담당하는게 babel 입니다.

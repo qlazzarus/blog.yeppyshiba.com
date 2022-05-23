@@ -20,13 +20,13 @@ tags:
 
 jekyll 블로그를 사용하면서 github action 에 대해서 많이 부러움을 느꼈습니다.
 
-![](./../static/images/posts/2434BC4257A04CAC1D.jpg)
+![](./../static/images/posts/archive/2434BC4257A04CAC1D.jpg)
 
 여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.
 
 ## Basic Concept
 
-![발로 그린 diagram](./../static/images/posts/runner-diagram.png)
+![발로 그린 diagram](./../static/images/posts/archive/runner-diagram.png)
 
 기본 컨셉은 다음과 같습니다! 코드를 보내면 자동으로 도커 이미지를 생성하고 배포 대상 서버에서 컨테이너를 실행!
 
@@ -132,7 +132,7 @@ $ echo "{ \"insecure-registries\" : [\"nexus..somewhere.com:8082\"] }" > /etc/do
 
 설정의 Runners 항목을 참조하여 등록 토큰 등을 설정합니다
 
-![](./../static/images/posts/gitlab_runner_token.png)
+![](./../static/images/posts/archive/gitlab_runner_token.png)
 
 ```bash
 $ sudo docker run -it --rm \
@@ -257,7 +257,7 @@ yaml 파일에서 바로 정의될 변수도 있지만, 외부에서 쓰일 변�
 
 설정 → CI / CD → Variables 순서대로 접근합니다.
 
-![](./../static/images/posts/ci_variables.png)
+![](./../static/images/posts/archive/ci_variables.png)
 
 아래는 등록된 모습이며 각각 다음의 내용을 기술합니다.
 
@@ -328,7 +328,7 @@ gitlab-ci.yml 파일이 생성되면, 해당 저장소의 수정이 된 것으�
 
 이후 정상적으로 배포된 docker image 와 원격지 서버를 확인 하였습니다.
 
-![](./../static/images/posts/successful_build.png)
+![](./../static/images/posts/archive/successful_build.png)
 
 ## 결론
 
