@@ -19,7 +19,19 @@ const AboutPage: FunctionComponent = () => {
       <Container maxW={'7xl'} p={'12'} textAlign={'center'}>
         <Box my={8}>
           <Heading as={'h2'}>우리는!</Heading>
-          <HStack mx={'auto'} my={8} maxW={'xs'}>
+          <HStack
+            mx={'auto'}
+            my={8}
+            maxW={'xs'}
+            position={'relative'}
+            _before={{
+              content: '"💗"',
+              position: 'absolute',
+              width: '100%',
+              zIndex: 1,
+              fontSize: '7xl'
+            }}
+          >
             <Box width={'50%'} borderRadius={'full'} overflow={'hidden'} boxShadow={'2xl'}>
               <StaticImage src={shibaImage} alt={''} layout={'fullWidth'} />
             </Box>
