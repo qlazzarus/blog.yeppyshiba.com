@@ -35,12 +35,13 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
   `);
 
   const headerImage = image || MathUtil.getRandomValue(defaultImages);
+  const headerTitle = title && `${title} | ${siteMetadata.title}` || siteMetadata.title;
 
   return (
     <>
       <Helmet>
         <meta charSet={'utf-8'} />
-        <title>{title ?? siteMetadata.title}</title>
+        <title>{headerTitle}</title>
         <link rel={'icon'} type={'image/png'} href={'/akita-inu.png'} />
         <meta name="google-site-verification" content="ohPHiE_9eeqdqrBocR0kiZSIVjMYr-mdJdZd42aJ6qY" />
         <meta name={'description'} content={description ?? siteMetadata.description} />
@@ -48,13 +49,13 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         {keywords && <meta name={'keywords'} content={keywords.join(', ')} />}
         {date && <meta name={'date'} content={date} />}
         <meta property="og:type" content={'blog'} />
-        <meta property="og:title" content={title ?? siteMetadata.title} />
+        <meta property="og:title" content={headerTitle} />
         <meta property="og:image" content={headerImage} />
         <meta property="og:description" content={description ?? siteMetadata.description} />
         <meta property="og:site_name" content={siteMetadata.title} />
         <meta property="og:locale" content={'ko_KR'} />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content={title ?? siteMetadata.title} />
+        <meta name="twitter:title" content={headerTitle} />
         <meta name="twitter:description" content={description ?? siteMetadata.description} />
         <meta name="twitter:image" content={headerImage} />
       </Helmet>
