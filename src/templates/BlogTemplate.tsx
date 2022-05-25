@@ -20,7 +20,7 @@ const BlogTemplate: FunctionComponent<ListTemplateProps> = ({
   const entries = edges.map(edge => edge.node);
 
   return (
-    <Layout title={title}>
+    <Layout title={'All Stories'}>
       <Header title={title} />
       <StoryHeader title={`All`} />
       <ArticleList entries={entries} />
