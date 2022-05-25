@@ -100,7 +100,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = ({ data }) => {
   } = data;
 
   return (
-    <Layout title={title}>
+    <Layout>
       <Header title={title} />
       <StoryHeader title={'Featured'} />
       <ArticleList entries={featured} />
