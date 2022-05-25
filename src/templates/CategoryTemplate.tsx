@@ -23,9 +23,9 @@ const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, 
   const entries = edges.map((edge) => edge.node);
 
   return (
-    <Layout title={title}>
+    <Layout title={`${slug} Category Stories`}>
       <Header title={title} />
-      <StoryHeader title={`${capitalize(slug)} Category`} />
+      <StoryHeader title={`${slug} Category`} />
       <ArticleList entries={entries} />
       <Pagination {...pageContext} prefix={`/category/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
     </Layout>
