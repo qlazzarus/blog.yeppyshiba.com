@@ -58,12 +58,6 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         <meta name={"twitter:title"} content={headerTitle} />
         <meta name={"twitter:description"} content={description ?? siteMetadata.description} />
         <meta name={"twitter:image"} content={headerImage} />
-        {typeof window !== "undefined" && typeof location !== "undefined" && (
-          <>
-            <meta property={"og:url"} content={`${siteMetadata.siteURL}${location.pathname}`} />
-            <link rel={"canonical"} href={`${siteMetadata.siteURL}${location.pathname}`} />,
-          </>
-        )}
         <link rel={'icon'} type={'image/png'} href={'/akita-inu.png'} />
       </Helmet>
       <Navigation siteMetadata={siteMetadata} />
