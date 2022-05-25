@@ -23,9 +23,9 @@ const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageC
   const entries = edges.map((edge) => edge.node);
 
   return (
-    <Layout title={title}>
+    <Layout title={`${slug} Tag Stories`}>
       <Header title={title} />
-      <StoryHeader title={`'${slug}' Tag`} />
+      <StoryHeader title={`${slug} Tag`} />
       <ArticleList entries={entries} />
       <Pagination {...pageContext} prefix={`/tag/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
     </Layout>
