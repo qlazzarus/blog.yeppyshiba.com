@@ -39,13 +39,6 @@ const config: GatsbyConfig = {
       },
     },
     {
-      resolve: `gatsby-plugin-canonical-urls`,
-      options: {
-        siteUrl,
-        stripQueryString: true,
-      },
-    },
-    {
       resolve: `gatsby-plugin-robots-txt`,
       options: {
         policy: [{ userAgent: '*', allow: '/' }],
@@ -60,6 +53,12 @@ const config: GatsbyConfig = {
     },
     `gatsby-plugin-emotion`,
     `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-react-helmet-canonical-urls`,
+      options: {
+        siteUrl
+      },
+    },    
     `gatsby-plugin-sitemap`,
     {
       resolve: `gatsby-source-filesystem`,
