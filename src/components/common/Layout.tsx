@@ -44,6 +44,7 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         <html lang={"ko"} />
         <meta charSet={'utf-8'} />
         <meta name={"google-site-verification"} content={"ohPHiE_9eeqdqrBocR0kiZSIVjMYr-mdJdZd42aJ6qY"} />
+        <meta name={"naver-site-verification"} content={"883ab3268ddfbf355cc7279ac767ace442bc0bf5"} />
         <meta name={'description'} content={description ?? siteMetadata.description} />
         <meta name={'author'} content={siteMetadata.title} />
         {keywords && <meta name={'keywords'} content={keywords.join(', ')} />}
