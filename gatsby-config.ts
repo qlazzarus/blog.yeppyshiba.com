@@ -19,16 +19,11 @@ const config: GatsbyConfig = {
   siteMetadata,
   plugins: [
     {
-      resolve: `gatsby-plugin-google-analytics`,
+      resolve: `gatsby-plugin-gtag`,
       options: {
         trackingId: 'G-P6NE4VJRLC',
         head: false,
         anonymize: false,
-        respectDNT: false,
-        exclude: [],
-        pageTransitionDelay: 0,
-        defer: false,
-        enableWebVitalsTracking: true,
       },
     },
     {
