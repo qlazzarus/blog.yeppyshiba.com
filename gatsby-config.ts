@@ -19,16 +19,11 @@ const config: GatsbyConfig = {
   siteMetadata,
   plugins: [
     {
-      resolve: `gatsby-plugin-google-analytics`,
+      resolve: `gatsby-plugin-gtag`,
       options: {
         trackingId: 'G-P6NE4VJRLC',
         head: false,
         anonymize: false,
-        respectDNT: false,
-        exclude: [],
-        pageTransitionDelay: 0,
-        defer: false,
-        enableWebVitalsTracking: true,
       },
     },
     {
@@ -36,13 +31,6 @@ const config: GatsbyConfig = {
       options: {
         resetCSS: true,
         isUsingColorMode: true,
-      },
-    },
-    {
-      resolve: `gatsby-plugin-canonical-urls`,
-      options: {
-        siteUrl,
-        stripQueryString: true,
       },
     },
     {
@@ -60,6 +48,12 @@ const config: GatsbyConfig = {
     },
     `gatsby-plugin-emotion`,
     `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-react-helmet-canonical-urls`,
+      options: {
+        siteUrl
+      },
+    },    
     `gatsby-plugin-sitemap`,
     {
       resolve: `gatsby-source-filesystem`,
