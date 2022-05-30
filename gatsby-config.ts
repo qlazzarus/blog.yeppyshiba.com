@@ -15,6 +15,8 @@ const siteMetadata: SiteMetadata = {
   description: `Living in jeju with code!`
 };
 
+const trailingSlash = 'always';
+
 const config: GatsbyConfig = {
   siteMetadata,
   plugins: [
@@ -100,6 +102,7 @@ const config: GatsbyConfig = {
       },
     },
   ],
+  trailingSlash
 };
 
 export default config;
