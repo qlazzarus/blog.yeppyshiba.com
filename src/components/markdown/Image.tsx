@@ -3,29 +3,39 @@ import { Box, Image as ChakraImage } from '@chakra-ui/react';
 
 interface ImageProps {
   src: string;
-  alt?: string
+  alt?: string;
+  className?: string;
 }
 
+const videos = ['avi', 'mp4', 'mpeg', 'mpg', 'webm'];
+
 const Image: FunctionComponent<ImageProps> = ({ src, alt, ...props }) => {
-  const isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(src);
-  if (isExternal) {
-    return (
-      <figure>
-        <Box maxW={1000} mx={'auto'}>
-          <ChakraImage 
-            src={src} 
-            alt={alt || ''} 
-            loading={'lazy'} 
-            mx={'auto'}
-          />
-        </Box>
-        {alt && <figcaption>{alt}</figcaption>}
-      </figure>
-    );
+  if (props.className === 'gatsby-resp-image-image') {
+    return <ChakraImage src={src} alt={alt || ''} {...props} />;
   }
-  
-  // here goes to 
-  return <ChakraImage src={src} alt={alt || ''} {...props} />;
+
+  const ext = src.split('.').pop() || '';
+
+  return (
+    <figure>
+      <Box maxW={1000} mx={'auto'}>
+        {videos.includes(ext) ? (
+          <video
+            controls
+            style={{
+              width: '100%',
+              height: 'auto',
+            }}
+          >
+            <source src={src} type="video/mp4" />
+          </video>
+        ) : (
+          <ChakraImage src={src} alt={alt || ''} loading={'lazy'} mx={'auto'} />
+        )}
+      </Box>
+      {alt && <figcaption>{alt}</figcaption>}
+    </figure>
+  );
 };
 
 export default Image;
