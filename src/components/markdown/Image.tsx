@@ -33,7 +33,7 @@ const Image: FunctionComponent<ImageProps> = ({ src, alt, ...props }) => {
           <ChakraImage src={src} alt={alt || ''} loading={'lazy'} mx={'auto'} />
         )}
       </Box>
-      {alt && <figcaption style={{ textAlign: 'center', marginBottom: '1rem' }}>{alt}</figcaption>}
+      {alt && <figcaption>{alt}</figcaption>}
     </figure>
   );
 };
