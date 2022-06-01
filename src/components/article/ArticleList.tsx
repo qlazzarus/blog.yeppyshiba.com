@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink, navigate } from 'gatsby';
+import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 import {
   Box,
   Button,
@@ -9,7 +10,6 @@ import {
   Heading,
   HStack,
   Image,
-  SpaceProps,
   Stack,
   Tag,
   Text,
@@ -23,45 +23,50 @@ import { ArticleListItemType } from '@/types';
 
 const defaultImages = ['/images/cards/pexels-olia-danilevich-4974915.jpg'];
 
-interface ArticleListProps {
-  entries: ArticleListItemType[];
-}
+const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
+  entry: {
+    slug,
+    frontmatter: { image, embeddedImagesLocal, title },
+  },
+}) => {
+  const gatsbyImage = embeddedImagesLocal && getImage(embeddedImagesLocal.childImageSharp.gatsbyImageData);
 
-interface ArticleEntryProps {
-  entry: ArticleListItemType;
-}
+  if (gatsbyImage) {
+    return (
+      <GatsbyImage
+        alt={title}
+        image={gatsbyImage}
+        onClick={() => navigate(`/article/${slug}`)}
+        objectFit={'cover'}
+        objectPosition={'center'}
+        style={{
+          cursor: 'pointer',
+          width: '100%',
+          height: '100%',
+        }}
+      />
+    );
+  }
 
-interface TagProps {
-  tags: Array<string>;
-  marginTop?: SpaceProps['marginTop'];
-}
+  const articleImage = image || MathUtil.getRandomValue(defaultImages);
 
-interface AuthorProps {
-  category?: string;
-  date: Date;
-}
-
-const Tags: FunctionComponent<TagProps> = ({ tags, marginTop }) => {
   return (
-    <HStack spacing={2} marginTop={marginTop}>
-      {tags.map((tag) => {
-        return (
-          <Tag size={'md'} variant="solid" key={tag}>
-            {tag}
-          </Tag>
-        );
-      })}
-    </HStack>
+    <Image
+      alt={title}
+      src={articleImage}
+      objectFit={'cover'}
+      objectPosition={'center'}
+      width={'full'}
+      height={'full'}
+      onClick={() => navigate(`/article/${slug}`)}
+      cursor={'pointer'}
+      loading={'lazy'}
+    />
   );
 };
 
-const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
-  entry: {
-    slug,
-    frontmatter: { category, date, summary, image, title, tags },
-  },
-}) => {
-  const articleImage = image || MathUtil.getRandomValue(defaultImages);
+const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry }) => {
+  const { slug, frontmatter: { category, date, summary, title, tags } } = entry;
 
   return (
     <Box
@@ -80,18 +85,9 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
         overflow={'auto'}
         w={'full'}
       >
-        <Image
-          alt={title}
-          maxH={{ base: 'xs' }}
-          maxW={{ md: 'xs' }}
-          objectFit={'cover'}
-          objectPosition={'center'}
-          src={articleImage}
-          w={'full'}
-          onClick={() => navigate(`/article/${slug}`)}
-          cursor={'pointer'}
-          loading={'lazy'}
-        />
+        <Box maxH={{ base: 'xs' }} maxW={{ md: 'xs' }} overflow={'hidden'}>
+          <ArticleImage entry={entry} />
+        </Box>
         <Stack p={4} w={'full'}>
           <Heading as="h3" size="md" color={useColorModeValue('gray.700', 'white')}>
             <GatsbyLink to={`/article/${slug}`}>{title}</GatsbyLink>
@@ -160,7 +156,9 @@ const ArticleEntry: FunctionComponent<ArticleEntryProps> = ({
   );
 };
 
-const ArticleList: FunctionComponent<ArticleListProps> = ({ entries }) => {
+const ArticleList: FunctionComponent<{
+  entries: ArticleListItemType[];
+}> = ({ entries }) => {
   return (
     <Container as={VStack} maxW={'6xl'} px={[4, 8]} py={12} spacing={[8, 12]}>
       <VStack spacing={[2, 4]} w={'full'}>

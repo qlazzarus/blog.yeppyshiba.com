@@ -21,6 +21,11 @@ const categoryTemplate = categories
             title
             date
             image
+            embeddedImagesLocal {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
             category
             tags
             summary
@@ -132,6 +137,11 @@ export const getIndex = graphql`
         title
         summary
         image
+        embeddedImagesLocal {
+          childImageSharp {
+            gatsbyImageData
+          }
+        }
         date
         category
       }
@@ -148,6 +158,11 @@ export const getIndex = graphql`
             title
             date
             image
+            embeddedImagesLocal {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
             category
             tags
             summary
@@ -168,6 +183,11 @@ export const getIndex = graphql`
             title
             date
             image
+            embeddedImagesLocal {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
             category
             tags
             summary
@@ -188,6 +208,11 @@ export const getIndex = graphql`
             title
             date
             image
+            embeddedImagesLocal {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
             category
             tags
             summary

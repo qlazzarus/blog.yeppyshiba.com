@@ -2,20 +2,11 @@ import React, { FunctionComponent } from 'react';
 import { MDXRenderer } from 'gatsby-plugin-mdx';
 import { Container } from '@chakra-ui/react';
 import { CustomProvider } from '@/components/markdown';
+import { ArticleMdxType } from '@/types';
 
 type ArticleDetailProps = {
   data: {
-    mdx: {
-      id: string;
-      body: string;
-      frontmatter: {
-        date: string;
-        image: string;
-        summary: string;
-        tags: string[];
-        title: string;
-      };
-    };
+    mdx: ArticleMdxType
   };
 };
 

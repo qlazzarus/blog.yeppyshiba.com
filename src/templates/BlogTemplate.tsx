@@ -52,6 +52,11 @@ export const getBlogList = graphql`
             title
             date
             image
+            embeddedImagesLocal {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
             category
             tags
             summary

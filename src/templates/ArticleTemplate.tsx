@@ -3,7 +3,7 @@ import { graphql } from 'gatsby';
 import { PaginationContext } from 'gatsby-awesome-pagination';
 import { ArticleDetail, ArticleHeader, ArticleList } from '@/components/article';
 import { Layout, StoryHeader } from '@/components/common';
-import { ArticleListItemType } from '@/types';
+import { ArticleMdxType, ArticleListItemType } from '@/types';
 
 interface CustomPaginationContext extends PaginationContext {
   next: ArticleListItemType | null;
@@ -12,18 +12,7 @@ interface CustomPaginationContext extends PaginationContext {
 
 interface PostTemplateProps {
   data: {
-    mdx: {
-      id: string;
-      body: string;
-      frontmatter: {
-        date: string;
-        image: string;
-        category: string;
-        summary: string;
-        tags: string[];
-        title: string;
-      };
-    };
+    mdx: ArticleMdxType
   };
   pageContext: CustomPaginationContext;
 }
@@ -65,6 +54,11 @@ export const queryMarkdownDataBySlug = graphql`
         title
         date
         image
+        embeddedImagesLocal {
+          childImageSharp {
+            gatsbyImageData
+          }
+        }
         category
         tags
         summary
