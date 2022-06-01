@@ -1,12 +1,24 @@
 import { PaginationContext } from 'gatsby-awesome-pagination';
+import { IGatsbyImageData } from 'gatsby-plugin-image';
 
 export type ArticleFrontmatterType = {
   title: string;
-  date: string;
-  image: string;
-  tags: string[];
+  date?: string;
+  image?: string;
+  embeddedImagesLocal?: {
+    childImageSharp: {
+      gatsbyImageData: IGatsbyImageData
+    }
+  }
   category?: string;
-  summary: string;
+  tags?: string[];
+  summary?: string;
+};
+
+export type ArticleMdxType = {
+  id: string;
+  body: string;
+  frontmatter: ArticleFrontmatterType;
 };
 
 export type ArticleListItemsType = {
@@ -17,15 +29,6 @@ export type ArticleListItemType = {
   id: string;
   frontmatter: ArticleFrontmatterType;
   slug: string;
-};
-  
-export type ArticlePageItemType = {
-  node: {
-    html: string;
-    htmlAst: string;
-    tableOfContents: string;
-    frontmatter: ArticleFrontmatterType;
-  };
 };
 
 export type GroupCountType = {
