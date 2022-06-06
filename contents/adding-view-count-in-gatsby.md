@@ -1,6 +1,6 @@
 ---
 title: gatsby 블로그에 조회수 추가하기
-date: 2022-05-31T14:06:42.980Z
+date: 2022-06-06T05:13:01.903Z
 summary: gatsby 는 정적 사이트 생성기로써, 훌륭한 블로그 툴입니다. 다만 조회수등 여러가지 다이나믹한 기능들은 (바로) 지원하지 않는데요...
 category: coding
 image: /images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
