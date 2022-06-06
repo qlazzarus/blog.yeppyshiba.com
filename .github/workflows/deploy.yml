@@ -22,6 +22,9 @@ jobs:
         run: npm install
       - name: build
         run: npm run build
+        env:
+          ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}          
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
