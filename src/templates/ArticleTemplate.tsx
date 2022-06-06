@@ -50,6 +50,9 @@ export const queryMarkdownDataBySlug = graphql`
     mdx(id: { eq: $id }) {
       id
       body
+      fields {
+        totalCount
+      }
       frontmatter {
         title
         date

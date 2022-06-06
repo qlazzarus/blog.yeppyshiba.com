@@ -48,6 +48,9 @@ export const getBlogList = graphql`
       edges {
         node {
           id
+          fields {
+            totalCount
+          }
           frontmatter {
             title
             date

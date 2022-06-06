@@ -1,11 +1,15 @@
+import 'dotenv/config';
 import path from 'path';
 import { paginate } from 'gatsby-awesome-pagination';
+import { createFilePath } from 'gatsby-source-filesystem';
 import Lodash from 'lodash';
+import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 const itemsPerPage = 10;
 const shuffleLength = 3;
+const articlePrefix = '/article';
 
-function shuffle(array, length) {
+const shuffle = (array, length) => {
   const newArray = [...array];
   let m = newArray.length;
   let t;
@@ -27,7 +31,49 @@ function shuffle(array, length) {
   }
 
   return newArray;
-}
+};
+
+const getViewCount = async () => {
+  let analyticsResult = [];
+  try {
+    const analyticsDataClient = new BetaAnalyticsDataClient({
+      credentials: JSON.parse(process.env.ANALYTICS_CREDENTIALS || '{}'),
+    });
+
+    analyticsResult = await analyticsDataClient.runReport({
+      property: `properties/${process.env.ANALYTICS_PROPERTY_ID || ''}`,
+      dateRanges: [{ startDate: '2022-05-30', endDate: 'today' }],
+      dimensions: [{ name: 'pagePath' }],
+      metrics: [{ name: 'screenPageViews' }],
+      dimensionFilter: {
+        filter: {
+          fieldName: 'pagePath',
+          stringFilter: {
+            matchType: 'BEGINS_WITH',
+            value: `${articlePrefix}/`,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.log('-> google analytics api call failed!!')
+    console.error(error);
+  }
+
+  // analytics data arrange
+  return (
+    analyticsResult
+      .filter((item: any) => item !== null && item.rows)
+      .map((item: any) => {
+        return item.rows.map((row: any) => {
+          return {
+            path: row.dimensionValues[0].value,
+            totalCount: row.metricValues[0].value,
+          };
+        });
+      })[0] || []
+  );
+};
 
 // import aliases
 export const onCreateWebpackConfig = ({ getConfig, actions }) => {
@@ -44,12 +90,16 @@ export const onCreateWebpackConfig = ({ getConfig, actions }) => {
   });
 };
 
+export const onPluginInit = async ({ cache }) => {
+  await cache.set('viewCount', await getViewCount());
+}
+
 // generate graphql custom resolvers
-export const createResolvers = ({ createResolvers }) => {
+export const createResolvers = async ({ createResolvers }) => {
   createResolvers({
     Query: {
       randomMdx: {
-        type: ["Mdx!"],
+        type: ['Mdx!'],
         resolve: async (source, args, context) => {
           const { entries } = await context.nodeModel.findAll({
             type: 'Mdx',
@@ -62,26 +112,32 @@ export const createResolvers = ({ createResolvers }) => {
           } else {
             return [];
           }
-        }
-      }
-    }
+        },
+      },
+    },
   });
-}
+};
 
-// generate category / tags slug 
-export const onCreateNode = ({ node, getNode, actions }) => {
+// generate category / tags slug
+export const onCreateNode = async ({ node, getNode, actions, cache }) => {
+  const viewCount = await cache.get('viewCount');
   const { createNodeField } = actions;
 
   if (node.internal.type === 'Mdx' || node.internal.type === 'MarkdownRemark') {
     const { category, tags } = node.frontmatter;
-    
+
+    // total count
+    const slug = `${articlePrefix}${createFilePath({ node, getNode, basePath: `./contents` })}`;
+    const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 }).totalCount;
+    createNodeField({ node, name: 'totalCount', value: parseInt(totalCount)});
+
     if (category) {
       createNodeField({ node, name: 'category', value: Lodash.kebabCase(category) });
     }
 
     if (tags) {
       const queue = Array.isArray(tags) ? tags : [tags];
-      createNodeField({ node, name: 'tags', value: queue.map(entry => Lodash.kebabCase(entry))});
+      createNodeField({ node, name: 'tags', value: queue.map((entry) => Lodash.kebabCase(entry)) });
     }
   }
 };
@@ -93,7 +149,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   const ArticleTemplate = path.resolve('./src/templates/ArticleTemplate.tsx');
   const BlogTemplate = path.resolve('./src/templates/BlogTemplate.tsx');
   const CategoryTemplate = path.resolve('./src/templates/CategoryTemplate.tsx');
-  const TagTemplate = path.resolve('./src/templates/TagTemplate.tsx'); 
+  const TagTemplate = path.resolve('./src/templates/TagTemplate.tsx');
 
   const result = await graphql(`
     {
@@ -115,6 +171,9 @@ export const createPages = async ({ actions, graphql, reporter }) => {
           }
           next {
             id
+            fields {
+              totalCount
+            }
             frontmatter {
               title
               date
@@ -126,6 +185,9 @@ export const createPages = async ({ actions, graphql, reporter }) => {
           }
           previous {
             id
+            fields {
+              totalCount
+            }
             frontmatter {
               title
               date
@@ -158,10 +220,14 @@ export const createPages = async ({ actions, graphql, reporter }) => {
 
   const { allMdx, categories, tags } = result.data;
   const items = allMdx.edges;
-  
+
   items.forEach((post) => {
-    const { node: { slug, id }, next, previous } = post;
-    const path = `/article/${slug}`;
+    const {
+      node: { slug, id },
+      next,
+      previous,
+    } = post;
+    const path = `${articlePrefix}/${slug}`;
 
     createPage({
       path,
@@ -191,12 +257,12 @@ export const createPages = async ({ actions, graphql, reporter }) => {
       itemsPerPage,
       pathPrefix: `/category/${kebabCategory}`,
       context: {
-        slug: category
-      }
+        slug: category,
+      },
     });
-  });  
+  });
 
-  // tags 
+  // tags
   tags.group.forEach((entry) => {
     const tag = entry.fieldValue;
     const kebabTag = Lodash.kebabCase(tag);
@@ -208,8 +274,8 @@ export const createPages = async ({ actions, graphql, reporter }) => {
       itemsPerPage,
       pathPrefix: `/tag/${kebabTag}`,
       context: {
-        slug: tag
-      }
+        slug: tag,
+      },
     });
   });
 };

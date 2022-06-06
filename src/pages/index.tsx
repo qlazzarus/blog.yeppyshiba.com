@@ -7,36 +7,6 @@ import { capitalize } from 'lodash';
 
 const categories = ['coding', 'review', 'project'];
 
-const categoryTemplate = categories
-  .map((category) => {
-    return `${category}Category: allMdx(
-    filter: {frontmatter: {category: {eq: "${category}"}}}
-    limit: 3
-    sort: {fields: frontmatter___date, order: DESC}
-    ) {
-      edges {
-        node {
-          id
-          frontmatter {
-            title
-            date
-            image
-            embeddedImagesLocal {
-              childImageSharp {
-                gatsbyImageData
-              }
-            }
-            category
-            tags
-            summary
-          }
-          slug
-        }
-      }
-    }`;
-  })
-  .join('\n');
-
 type IndexPageProps = {
   data: {
     site: {
@@ -132,6 +102,9 @@ export const getIndex = graphql`
     featured: randomMdx {
       slug
       id
+      fields {
+        totalCount
+      }
       frontmatter {
         tags
         title
@@ -154,6 +127,9 @@ export const getIndex = graphql`
       edges {
         node {
           id
+          fields {
+            totalCount
+          }
           frontmatter {
             title
             date
@@ -179,6 +155,9 @@ export const getIndex = graphql`
       edges {
         node {
           id
+          fields {
+            totalCount
+          }
           frontmatter {
             title
             date
@@ -204,6 +183,9 @@ export const getIndex = graphql`
       edges {
         node {
           id
+          fields {
+            totalCount
+          }
           frontmatter {
             title
             date
