@@ -17,6 +17,9 @@ export type ArticleFrontmatterType = {
 
 export type ArticleMdxType = {
   id: string;
+  fields?: {
+    totalCount: number
+  }
   body: string;
   frontmatter: ArticleFrontmatterType;
 };
@@ -27,6 +30,9 @@ export type ArticleListItemsType = {
   
 export type ArticleListItemType = {
   id: string;
+  fields?: {
+    totalCount: number
+  }
   frontmatter: ArticleFrontmatterType;
   slug: string;
 };

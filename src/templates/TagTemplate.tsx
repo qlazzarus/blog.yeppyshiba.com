@@ -52,6 +52,9 @@ export const getTagList = graphql`
       edges {
         node {
           id
+          fields {
+            totalCount
+          }
           frontmatter {
             title
             date

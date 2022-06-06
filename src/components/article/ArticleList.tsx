@@ -66,7 +66,12 @@ const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
 };
 
 const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry }) => {
-  const { slug, frontmatter: { category, date, summary, title, tags } } = entry;
+  const {
+    slug,
+    fields,
+    frontmatter: { category, date, summary, title, tags },
+  } = entry;
+  const totalCount = (fields && fields.totalCount) || 0;
 
   return (
     <Box
@@ -104,11 +109,18 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
               <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
             </Text>
           )}
-          {date && (
-            <Text fontSize={'sm'} fontWeight={'bold'} title={date}>
-              {moment(date).fromNow()}
-            </Text>
-          )}
+          <Box>
+            {date && (
+              <Text fontSize={'sm'} as={'span'} fontWeight={'bold'} title={date}>
+                {moment(date).fromNow()}
+              </Text>
+            )}
+            {totalCount > 0 && (
+              <Text fontSize={'sm'} as={'span'} fontWeight={'bold'} title={date}>
+                , {totalCount} Views
+              </Text>
+            )}
+          </Box>
           <Divider />
           <Text flexGrow={1} fontSize={'sm'}>
             {summary}
