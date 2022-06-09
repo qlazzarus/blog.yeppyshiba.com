@@ -172,7 +172,7 @@ const ArticleList: FunctionComponent<{
   entries: ArticleListItemType[];
 }> = ({ entries }) => {
   return (
-    <Container as={VStack} maxW={'6xl'} px={[4, 8]} py={12} spacing={[8, 12]}>
+    <Container as={VStack} maxW={'5xl'} px={[4, 8]} py={12} spacing={[8, 12]}>
       <VStack spacing={[2, 4]} w={'full'}>
         {entries.map((entry) => (
           <ArticleEntry entry={entry} key={entry.id} />
