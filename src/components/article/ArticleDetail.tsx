@@ -16,7 +16,7 @@ const ArticleDetail: FunctionComponent<ArticleDetailProps> = ({
   },
 }) => {
   return (
-    <Container maxW={'7xl'} p={'12'}>
+    <Container maxW={'5xl'} p={'12'}>
       <CustomProvider>
         <MDXRenderer>{body}</MDXRenderer>
       </CustomProvider>

@@ -49,7 +49,7 @@ const ArticleHeader: FunctionComponent<ArticleHeaderProps> = ({ title, image, ca
           animation: `${shrink} 30s infinite alternate`
         }}
       >
-        <VStack maxW={'7xl'} w={'full'} px={'12'} justify={'center'} alignItems={'flex-start'}>
+        <VStack maxW={'5xl'} w={'full'} px={'12'} justify={'center'} alignItems={'flex-start'}>
           {category && (
             <Text
               color={useColorModeValue('gray.700', 'gray.700')}
