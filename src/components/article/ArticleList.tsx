@@ -16,16 +16,17 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { kebabCase } from 'lodash';
+import { slugify } from 'transliteration';
 import moment from 'moment';
 import { MathUtil } from '@/utils';
 import { ArticleListItemType } from '@/types';
 
 const defaultImages = ['/images/cards/pexels-olia-danilevich-4974915.jpg'];
+const allowedChars = 'a-zA-Z0-9';
 
 const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
   entry: {
-    slug,
+    fields: { slug },
     frontmatter: { image, embeddedImagesLocal, title },
   },
 }) => {
@@ -67,11 +68,11 @@ const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
 
 const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry }) => {
   const {
-    slug,
     fields,
     frontmatter: { category, date, summary, title, tags },
   } = entry;
-  const totalCount = (fields && fields.totalCount) || 0;
+  const totalCount = fields.totalCount || 0;
+  const slug = fields.slug;
 
   return (
     <Box
@@ -106,7 +107,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
               letterSpacing={1.1}
               as={'span'}
             >
-              <GatsbyLink to={`/category/${kebabCase(category)}`}>{category}</GatsbyLink>
+              <GatsbyLink to={`/category/${slugify(category, { allowedChars })}`}>{category}</GatsbyLink>
             </Text>
           )}
           <Box>
@@ -136,7 +137,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
                   bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
-                  to={`/tag/${kebabCase(tag)}`}
+                  to={`/tag/${slugify(tag, { allowedChars })}`}
                   pt={1}
                   m={1}
                 >

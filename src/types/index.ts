@@ -30,11 +30,11 @@ export type ArticleListItemsType = {
   
 export type ArticleListItemType = {
   id: string;
-  fields?: {
-    totalCount: number
+  fields: {
+    totalCount: number;
+    slug: string;
   }
   frontmatter: ArticleFrontmatterType;
-  slug: string;
 };
 
 export type GroupCountType = {

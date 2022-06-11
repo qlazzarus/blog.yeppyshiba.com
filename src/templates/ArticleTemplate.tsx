@@ -52,6 +52,7 @@ export const queryMarkdownDataBySlug = graphql`
       body
       fields {
         totalCount
+        slug
       }
       frontmatter {
         title

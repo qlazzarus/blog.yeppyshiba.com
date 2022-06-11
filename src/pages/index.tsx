@@ -100,10 +100,10 @@ export const getIndex = graphql`
       }
     }
     featured: randomMdx {
-      slug
       id
       fields {
         totalCount
+        slug
       }
       frontmatter {
         tags
@@ -129,6 +129,7 @@ export const getIndex = graphql`
           id
           fields {
             totalCount
+            slug
           }
           frontmatter {
             title
@@ -143,7 +144,6 @@ export const getIndex = graphql`
             tags
             summary
           }
-          slug
         }
       }
     }
@@ -157,6 +157,7 @@ export const getIndex = graphql`
           id
           fields {
             totalCount
+            slug
           }
           frontmatter {
             title
@@ -171,7 +172,6 @@ export const getIndex = graphql`
             tags
             summary
           }
-          slug
         }
       }
     }
@@ -185,6 +185,7 @@ export const getIndex = graphql`
           id
           fields {
             totalCount
+            slug
           }
           frontmatter {
             title
@@ -199,7 +200,6 @@ export const getIndex = graphql`
             tags
             summary
           }
-          slug
         }
       }
     }

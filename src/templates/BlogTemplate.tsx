@@ -49,7 +49,8 @@ export const getBlogList = graphql`
         node {
           id
           fields {
-            totalCount
+            totalCount,
+            slug
           }
           frontmatter {
             title
@@ -64,7 +65,6 @@ export const getBlogList = graphql`
             tags
             summary
           }
-          slug
         }
       }
     }

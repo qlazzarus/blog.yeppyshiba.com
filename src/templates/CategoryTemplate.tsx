@@ -3,7 +3,10 @@ import { graphql } from 'gatsby';
 import { ArticleList } from '@/components/article';
 import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
-import { capitalize, kebabCase } from 'lodash';
+import { capitalize } from 'lodash';
+import { slugify } from 'transliteration';
+
+const allowedChars = 'a-zA-Z0-9';
 
 // markup
 const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageContext, ...props }) => {
@@ -27,7 +30,7 @@ const CategoryTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, 
       <Header title={title} />
       <StoryHeader title={`${capitalize(slug)} Category`} />
       <ArticleList entries={entries} />
-      <Pagination {...pageContext} prefix={`/category/${kebabCase(slug)}/`} prev={'Newer'} next={'Older'} />
+      <Pagination {...pageContext} prefix={`/category/${slugify(slug || '', { allowedChars })}/`} prev={'Newer'} next={'Older'} />
     </Layout>
   );
 };
@@ -54,6 +57,7 @@ export const getCategoryList = graphql`
           id
           fields {
             totalCount
+            slug
           }
           frontmatter {
             title
@@ -68,7 +72,6 @@ export const getCategoryList = graphql`
             tags
             summary
           }
-          slug
         }
       }
     }

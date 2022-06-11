@@ -12,7 +12,7 @@ interface SiteMetadata {
 const siteMetadata: SiteMetadata = {
   title: `Yeppyshiba Blog`,
   siteUrl,
-  description: `Living in jeju with code!`
+  description: `Living in jeju with code!`,
 };
 
 const trailingSlash = 'always';
@@ -53,9 +53,9 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-plugin-react-helmet-canonical-urls`,
       options: {
-        siteUrl
+        siteUrl,
       },
-    },    
+    },
     `gatsby-plugin-sitemap`,
     {
       resolve: `gatsby-source-filesystem`,
@@ -103,7 +103,7 @@ const config: GatsbyConfig = {
       },
     },
   ],
-  trailingSlash
+  trailingSlash,
 };
 
 export default config;
