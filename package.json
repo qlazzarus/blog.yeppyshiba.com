@@ -53,6 +53,7 @@
     "react-icons": "^4.3.1",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",
+    "transliteration": "^2.2.0",
     "unified": "^10.1.2"
   },
   "devDependencies": {

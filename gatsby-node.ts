@@ -1,13 +1,13 @@
 import 'dotenv/config';
 import path from 'path';
 import { paginate } from 'gatsby-awesome-pagination';
-import { createFilePath } from 'gatsby-source-filesystem';
-import Lodash from 'lodash';
+import { slugify } from 'transliteration';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 const itemsPerPage = 10;
 const shuffleLength = 3;
 const articlePrefix = '/article';
+const allowedChars = 'a-zA-Z0-9';
 
 const shuffle = (array, length) => {
   const newArray = [...array];
@@ -34,7 +34,7 @@ const shuffle = (array, length) => {
 };
 
 const getViewCount = async () => {
-  let analyticsResult = [];
+  let analyticsResult: any[] = [];
   try {
     const analyticsDataClient = new BetaAnalyticsDataClient({
       credentials: JSON.parse(process.env.ANALYTICS_CREDENTIALS || '{}'),
@@ -126,18 +126,23 @@ export const onCreateNode = async ({ node, getNode, actions, cache }) => {
   if (node.internal.type === 'Mdx' || node.internal.type === 'MarkdownRemark') {
     const { category, tags } = node.frontmatter;
 
-    // total count
-    const slug = `${articlePrefix}${createFilePath({ node, getNode, basePath: `./contents` })}`;
-    const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 }).totalCount;
+    // slug
+    const { fileAbsolutePath } = node;
+    const fileName = path.basename(fileAbsolutePath, '.md');
+    const slug = slugify(fileName, { allowedChars });
+    const itemPath = `${articlePrefix}/${slug}/`;
+    createNodeField({ node, name: 'slug', value: slug});
+
+    const totalCount = (viewCount.filter((item: any) => item.path === itemPath)[0] || { totalCount: 0 }).totalCount;
     createNodeField({ node, name: 'totalCount', value: parseInt(totalCount)});
 
     if (category) {
-      createNodeField({ node, name: 'category', value: Lodash.kebabCase(category) });
+      createNodeField({ node, name: 'category', value: slugify(category, { allowedChars }) });
     }
 
     if (tags) {
       const queue = Array.isArray(tags) ? tags : [tags];
-      createNodeField({ node, name: 'tags', value: queue.map((entry) => Lodash.kebabCase(entry)) });
+      createNodeField({ node, name: 'tags', value: queue.map((entry) => slugify(entry, { allowedChars })) });
     }
   }
 };
@@ -160,6 +165,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
             fields {
               category
               tags
+              slug
             }
             frontmatter {
               title
@@ -167,12 +173,12 @@ export const createPages = async ({ actions, graphql, reporter }) => {
               category
               tags
             }
-            slug
           }
           next {
             id
             fields {
               totalCount
+              slug
             }
             frontmatter {
               title
@@ -181,12 +187,12 @@ export const createPages = async ({ actions, graphql, reporter }) => {
               image
               tags
             }
-            slug
           }
           previous {
             id
             fields {
               totalCount
+              slug
             }
             frontmatter {
               title
@@ -195,7 +201,6 @@ export const createPages = async ({ actions, graphql, reporter }) => {
               image
               tags
             }
-            slug
           }
         }
       }
@@ -223,7 +228,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
 
   items.forEach((post) => {
     const {
-      node: { slug, id },
+      node: { id, fields: { slug } },
       next,
       previous,
     } = post;
@@ -248,7 +253,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   // category
   categories.group.forEach((entry) => {
     const category = entry.fieldValue;
-    const kebabCategory = Lodash.kebabCase(category);
+    const kebabCategory = slugify(category, { allowedChars });
 
     paginate({
       createPage,
@@ -265,7 +270,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   // tags
   tags.group.forEach((entry) => {
     const tag = entry.fieldValue;
-    const kebabTag = Lodash.kebabCase(tag);
+    const kebabTag = slugify(tag, { allowedChars });
 
     paginate({
       createPage,
