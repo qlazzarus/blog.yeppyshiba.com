@@ -24,7 +24,9 @@ jobs:
         run: npm run build
         env:
           ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
-          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}          
+          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}   
+          GATSBY_VWORLD_API: ${{ secrtes.GATSBY_VWORLD_API }}
+          GATSBY_KAKAO_API: ${{ secrtes.GATSBY_KAKAO_API }}
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

@@ -1,12 +1,10 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'gatsby';
+import { capitalize } from 'lodash';
 import { ArticleList } from '@/components/article';
 import { Header, Layout, Pagination, StoryHeader } from '@/components/common';
 import { ListTemplateProps } from '@/types';
-import { capitalize } from 'lodash';
-import { slugify } from 'transliteration';
-
-const allowedChars = 'a-zA-Z0-9';
+import { StringUtil } from '@/utils';
 
 // markup
 const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageContext }) => {
@@ -30,7 +28,7 @@ const TagTemplate: FunctionComponent<ListTemplateProps> = ({ errors, data, pageC
       <Header title={title} />
       <StoryHeader title={`${capitalize(slug)} Tag`} />
       <ArticleList entries={entries} />
-      <Pagination {...pageContext} prefix={`/tag/${slugify(slug || '', { allowedChars })}/`} prev={'Newer'} next={'Older'} />
+      <Pagination {...pageContext} prefix={`/tag/${StringUtil.slugify(slug || '')}/`} prev={'Newer'} next={'Older'} />
     </Layout>
   );
 };

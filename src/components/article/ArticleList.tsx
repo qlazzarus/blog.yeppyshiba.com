@@ -16,13 +16,11 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { slugify } from 'transliteration';
 import moment from 'moment';
-import { MathUtil } from '@/utils';
 import { ArticleListItemType } from '@/types';
+import { MathUtil, StringUtil } from '@/utils';
 
 const defaultImages = ['/images/cards/pexels-olia-danilevich-4974915.jpg'];
-const allowedChars = 'a-zA-Z0-9';
 
 const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
   entry: {
@@ -107,7 +105,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
               letterSpacing={1.1}
               as={'span'}
             >
-              <GatsbyLink to={`/category/${slugify(category, { allowedChars })}`}>{category}</GatsbyLink>
+              <GatsbyLink to={`/category/${StringUtil.slugify(category)}`}>{category}</GatsbyLink>
             </Text>
           )}
           <Box>
@@ -137,7 +135,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
                   bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
-                  to={`/tag/${slugify(tag, { allowedChars })}`}
+                  to={`/tag/${StringUtil.slugify(tag)}`}
                   pt={1}
                   m={1}
                 >

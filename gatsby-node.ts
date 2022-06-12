@@ -1,13 +1,14 @@
 import 'dotenv/config';
 import path from 'path';
+import crypto from 'crypto';
 import { paginate } from 'gatsby-awesome-pagination';
-import { slugify } from 'transliteration';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import GeoUtil from './src/utils/GeoUtil';
+import StringUtil from './src/utils/StringUtil';
 
 const itemsPerPage = 10;
 const shuffleLength = 3;
 const articlePrefix = '/article';
-const allowedChars = 'a-zA-Z0-9';
 
 const shuffle = (array, length) => {
   const newArray = [...array];
@@ -56,7 +57,7 @@ const getViewCount = async () => {
       },
     });
   } catch (error) {
-    console.log('-> google analytics api call failed!!')
+    console.log('-> google analytics api call failed!!');
     console.error(error);
   }
 
@@ -92,7 +93,7 @@ export const onCreateWebpackConfig = ({ getConfig, actions }) => {
 
 export const onPluginInit = async ({ cache }) => {
   await cache.set('viewCount', await getViewCount());
-}
+};
 
 // generate graphql custom resolvers
 export const createResolvers = async ({ createResolvers }) => {
@@ -124,25 +125,46 @@ export const onCreateNode = async ({ node, getNode, actions, cache }) => {
   const { createNodeField } = actions;
 
   if (node.internal.type === 'Mdx' || node.internal.type === 'MarkdownRemark') {
-    const { category, tags } = node.frontmatter;
+    const { category, tags, parcelAddress, roadAddress } = node.frontmatter;
 
     // slug
     const { fileAbsolutePath } = node;
     const fileName = path.basename(fileAbsolutePath, '.md');
-    const slug = slugify(fileName, { allowedChars });
+    const slug = StringUtil.slugify(fileName);
     const itemPath = `${articlePrefix}/${slug}/`;
-    createNodeField({ node, name: 'slug', value: slug});
+    createNodeField({ node, name: 'slug', value: slug });
 
+    // count
     const totalCount = (viewCount.filter((item: any) => item.path === itemPath)[0] || { totalCount: 0 }).totalCount;
-    createNodeField({ node, name: 'totalCount', value: parseInt(totalCount)});
+    createNodeField({ node, name: 'totalCount', value: parseInt(totalCount) });
 
+    // category
     if (category) {
-      createNodeField({ node, name: 'category', value: slugify(category, { allowedChars }) });
+      createNodeField({ node, name: 'category', value: StringUtil.slugify(category) });
     }
 
+    // tags
     if (tags) {
       const queue = Array.isArray(tags) ? tags : [tags];
-      createNodeField({ node, name: 'tags', value: queue.map((entry) => slugify(entry, { allowedChars })) });
+      createNodeField({ node, name: 'tags', value: queue.map((entry) => StringUtil.slugify(entry)) });
+    }
+
+    // address
+    if (parcelAddress || roadAddress) {
+      const address = parcelAddress || roadAddress;
+      const type = (parcelAddress && 'parcel') || 'road';
+
+      const geolocation = await GeoUtil.geolocation(address, type).then((data: any) => {
+        if (data) {
+          const { crs, point: { x, y } } = data;
+          const id = crypto.createHash('sha512').update(crs + x + y).digest('hex');
+          data.id = id;
+        }
+
+        return data;
+      });
+
+      createNodeField({ node, name: 'geolocation', value: geolocation });
     }
   }
 };
@@ -228,7 +250,10 @@ export const createPages = async ({ actions, graphql, reporter }) => {
 
   items.forEach((post) => {
     const {
-      node: { id, fields: { slug } },
+      node: {
+        id,
+        fields: { slug },
+      },
       next,
       previous,
     } = post;
@@ -253,7 +278,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   // category
   categories.group.forEach((entry) => {
     const category = entry.fieldValue;
-    const kebabCategory = slugify(category, { allowedChars });
+    const kebabCategory = StringUtil.slugify(category);
 
     paginate({
       createPage,
@@ -270,7 +295,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
   // tags
   tags.group.forEach((entry) => {
     const tag = entry.fieldValue;
-    const kebabTag = slugify(tag, { allowedChars });
+    const kebabTag = StringUtil.slugify(tag);
 
     paginate({
       createPage,
