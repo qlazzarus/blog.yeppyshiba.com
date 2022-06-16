@@ -77,7 +77,7 @@ const getViewCount = async () => {
 };
 
 // import aliases
-export const onCreateWebpackConfig = ({ getConfig, actions }) => {
+export const onCreateWebpackConfig = ({ stage, loaders, getConfig, actions }) => {
   const output = getConfig().output || {};
 
   actions.setWebpackConfig({
@@ -89,6 +89,19 @@ export const onCreateWebpackConfig = ({ getConfig, actions }) => {
       },
     },
   });
+
+  if (stage === 'build-html') {
+    actions.setWebpackConfig({
+      module: {
+          rules: [
+          {
+            test: /bad-module/,
+            use: loaders.null(),
+          },
+         ],
+      },
+    });
+  }
 };
 
 export const onPluginInit = async ({ cache }) => {
