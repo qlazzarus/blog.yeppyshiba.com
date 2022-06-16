@@ -89,19 +89,6 @@ export const onCreateWebpackConfig = ({ stage, loaders, getConfig, actions }) =>
       },
     },
   });
-
-  if (stage === 'build-html') {
-    actions.setWebpackConfig({
-      module: {
-          rules: [
-          {
-            test: /bad-module/,
-            use: loaders.null(),
-          },
-         ],
-      },
-    });
-  }
 };
 
 export const onPluginInit = async ({ cache }) => {
