@@ -1,9 +1,14 @@
-import React, { FunctionComponent } from 'react';
-import { graphql } from 'gatsby';
-import { Map, MapMarker } from 'react-kakao-maps-sdk';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import { graphql, navigate } from 'gatsby';
+import { Map, MapMarker, useMap } from 'react-kakao-maps-sdk';
+import { Box } from '@chakra-ui/react';
 import { Layout } from '@/components/common';
+import { ArticleImage } from '@/components/article';
 import { ArticleListItemsType } from '@/types';
 import { GeoUtil } from '@/utils';
+
+const DEFAULT_LNG = 126.795841;
+const DEFAULT_LAT = 33.55635;
 
 type MapPageProps = {
   data: {
@@ -18,9 +23,11 @@ type MarkerProps = {
 };
 
 const Marker: FunctionComponent<MarkerProps> = ({ edge }) => {
+  const map = useMap();
+  const [isVisible, setIsVisible] = useState(false);
   const {
     node: {
-      fields: { geolocation },
+      fields: { slug, geolocation },
     },
   } = edge;
   if (!geolocation) {
@@ -31,15 +38,19 @@ const Marker: FunctionComponent<MarkerProps> = ({ edge }) => {
     point: { x: lng, y: lat },
   } = geolocation;
 
-  {
-    /*
-    <MapMarker position={{ lat: 33.55635, lng: 126.795841 }}>
-      <div style={{ color: '#000' }}>Hello World!</div>
-    </MapMarker>
-  */
-  }
+  const onOver = useCallback(() => setIsVisible(true), [setIsVisible]);
+  const onOut = useCallback(() => setIsVisible(false), [setIsVisible]);
+  const onClick = useCallback(() => navigate(`/article/${slug}`), [navigate, slug]);
 
-  return <MapMarker position={{ lng, lat }}></MapMarker>;
+  return (
+    <MapMarker position={{ lng, lat }} onMouseOver={onOver} onMouseOut={onOut} onClick={onClick}>
+      {isVisible && (
+        <Box w={'full'} maxW={'10em'}>
+          <ArticleImage entry={edge.node} />
+        </Box>
+      )}
+    </MapMarker>
+  );
 };
 
 const MapPage: FunctionComponent<MapPageProps> = ({
@@ -47,32 +58,51 @@ const MapPage: FunctionComponent<MapPageProps> = ({
     allMdx: { edges },
   },
 }) => {
-  const center = GeoUtil.getCenter(
-    edges.map((edge) => {
+  const center = useMemo(() => {
+    return GeoUtil.getCenter(
+      edges.map((edge) => {
+        const {
+          node: {
+            fields: { geolocation },
+          },
+        } = edge;
+        if (!geolocation) {
+          return { x: DEFAULT_LNG, y: DEFAULT_LAT };
+        }
+
+        const {
+          point: { x, y },
+        } = geolocation;
+
+        return { x, y };
+      }),
+    );
+  }, []);
+
+  const bounds = useMemo(() => {
+    const bounds = new kakao.maps.LatLngBounds();
+    edges.forEach((edge) => {
       const {
         node: {
           fields: { geolocation },
         },
       } = edge;
-      if (!geolocation) {
-        return { x: 126.795841, y: 33.55635 };
-      }
+      bounds.extend(new kakao.maps.LatLng(geolocation?.point.y || DEFAULT_LAT, geolocation?.point.x || DEFAULT_LNG));
+    });
 
-      const {
-        point: { x, y },
-      } = geolocation;
+    return bounds;
+  }, []);
 
-      return { x, y };
-    }),
+  const mapRef: any = useCallback(
+    (map: any) => {
+      map && map.setBounds(bounds);
+    },
+    [bounds],
   );
-
-  // TODO get max distance / auto adjust level
-  const level = 8;
 
   return (
     <Layout disableFooter={true}>
-      <Map center={{ lat: center.y, lng: center.x }} style={{ width: '100%', height: '100vh' }}
-      level={level}>
+      <Map center={{ lat: center.y, lng: center.x }} style={{ width: '100%', height: '100vh' }} ref={mapRef}>
         {edges.map((edge, index) => (
           <Marker key={index} edge={edge} />
         ))}
@@ -119,9 +149,3 @@ export const getMap = graphql`
     }
   }
 `;
-
-/*
-query MyQuery {
-
-}
-*/

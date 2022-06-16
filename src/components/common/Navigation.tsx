@@ -1,13 +1,21 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
-import { Box, BoxProps, Button, Drawer, DrawerContent, Flex, Stack, Text, 
-  useColorMode, 
-  useColorModeValue, 
+import {
+  Box,
+  BoxProps,
+  Button,
+  Drawer,
+  DrawerContent,
+  Flex,
+  Stack,
+  Text,
+  useColorMode,
+  useColorModeValue,
   useBreakpointValue,
   useDisclosure,
   IconButton,
   Link as ChakraLink,
-  CloseButton
+  CloseButton,
 } from '@chakra-ui/react';
 import { BsSun, BsMoonStarsFill } from 'react-icons/bs';
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -21,31 +29,35 @@ interface NavigationProps {
 }
 
 interface MobileMenuProps extends BoxProps {
-  title: string,
+  title: string;
   onClose: () => void;
 }
 
 interface MenuItem {
   label: string;
-  link: string
+  link: string;
 }
 
 const MenuItems: Array<MenuItem> = [
   {
     label: 'About',
-    link: '/about',
+    link: '/about/',
   },
   {
     label: 'Blog',
-    link: '/page',
+    link: '/page/',
   },
   {
     label: 'Review',
-    link: '/category/review',
+    link: '/category/review/',
   },
   {
     label: 'Projects',
-    link: '/category/project',
+    link: '/category/project/',
+  },
+  {
+    label: 'Map',
+    link: '/map/',
   },
 ];
 
@@ -54,12 +66,10 @@ const DesktopMenu: FunctionComponent = () => {
   const hoverColor = useColorModeValue('gray.800', 'white');
 
   return (
-    <Stack 
-      direction={'row'} 
-      spacing={4}>
+    <Stack direction={'row'} spacing={4}>
       {MenuItems.map((entry) => (
         <Box key={entry.label}>
-          <ChakraLink 
+          <ChakraLink
             p={2}
             to={entry.link}
             as={GatsbyLink}
@@ -68,7 +78,7 @@ const DesktopMenu: FunctionComponent = () => {
             color={linkColor}
             _hover={{
               textDecoration: 'none',
-              color: hoverColor
+              color: hoverColor,
             }}
           >
             {entry.label}
@@ -77,7 +87,7 @@ const DesktopMenu: FunctionComponent = () => {
       ))}
     </Stack>
   );
-}
+};
 
 const MobileMenu: FunctionComponent<MobileMenuProps> = ({ title, onClose, ...rest }) => {
   return (
@@ -116,7 +126,7 @@ const MobileMenu: FunctionComponent<MobileMenuProps> = ({ title, onClose, ...res
       ))}
     </Box>
   );
-}
+};
 
 const Navigation: FunctionComponent<NavigationProps> = ({ siteMetadata: { title } }) => {
   const { colorMode, toggleColorMode } = useColorMode();

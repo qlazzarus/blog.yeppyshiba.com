@@ -1,6 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import queryString from 'query-string';
 
+type Location = {
+  x: number,
+  y: number
+}
+
 class GeoUtil {
   static readonly urlPrefix = 'https://api.vworld.kr';
 
@@ -37,7 +42,7 @@ class GeoUtil {
       .catch((error) => console.error(error));
   }
 
-  public static getCenter(locations: { x: number; y: number }[]): { x: number; y: number } {
+  public static getCenter(locations: Location[]): Location {
     let x = 0;
     let y = 0;
     let z = 0;

@@ -208,6 +208,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
               category
               image
               tags
+              summary
             }
           }
           previous {
@@ -222,6 +223,7 @@ export const createPages = async ({ actions, graphql, reporter }) => {
               category
               image
               tags
+              summary
             }
           }
         }
