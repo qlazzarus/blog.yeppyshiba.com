@@ -80,6 +80,8 @@ const MapPage: FunctionComponent<MapPageProps> = ({
   }, []);
 
   const bounds = useMemo(() => {
+    if (!kakao) return;
+    
     const bounds = new kakao.maps.LatLngBounds();
     edges.forEach((edge) => {
       const {
@@ -95,7 +97,7 @@ const MapPage: FunctionComponent<MapPageProps> = ({
 
   const mapRef: any = useCallback(
     (map: any) => {
-      map && map.setBounds(bounds);
+      map && bounds && map.setBounds(bounds);
     },
     [bounds],
   );
