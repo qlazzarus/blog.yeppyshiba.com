@@ -3,9 +3,8 @@ import { Link as GatsbyLink } from 'gatsby';
 import { slugify } from 'transliteration';
 import { ListItem, UnorderedList } from '@chakra-ui/react';
 import { GroupCountType } from '@/types';
+import { StringUtil } from '@/utils';
 import '@static/css/tag-cloud.css';
-
-const allowedChars = 'a-zA-Z0-9';
 
 interface TagCloudProps {
   tags: GroupCountType[];
@@ -27,7 +26,7 @@ const TagCloud: FunctionComponent<TagCloudProps> = ({ tags }) => {
       {tags.map(({ fieldValue, totalCount }) => {
         return (
           <ListItem key={fieldValue}>
-            <GatsbyLink to={`/tag/${slugify(fieldValue, { allowedChars })}`} data-weight={totalCount}>
+            <GatsbyLink to={`/tag/${StringUtil.slugify(fieldValue)}`} data-weight={totalCount}>
               {fieldValue}
             </GatsbyLink>
           </ListItem>

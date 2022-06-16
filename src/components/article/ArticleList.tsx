@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Link as GatsbyLink, navigate } from 'gatsby';
-import { GatsbyImage, getImage } from 'gatsby-plugin-image';
+import { Link as GatsbyLink } from 'gatsby';
 import {
   Box,
   Button,
@@ -9,62 +8,16 @@ import {
   Flex,
   Heading,
   HStack,
-  Image,
   Stack,
   Tag,
   Text,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { slugify } from 'transliteration';
 import moment from 'moment';
-import { MathUtil } from '@/utils';
 import { ArticleListItemType } from '@/types';
-
-const defaultImages = ['/images/cards/pexels-olia-danilevich-4974915.jpg'];
-const allowedChars = 'a-zA-Z0-9';
-
-const ArticleImage: FunctionComponent<{ entry: ArticleListItemType }> = ({
-  entry: {
-    fields: { slug },
-    frontmatter: { image, embeddedImagesLocal, title },
-  },
-}) => {
-  const gatsbyImage = embeddedImagesLocal && getImage(embeddedImagesLocal.childImageSharp.gatsbyImageData);
-
-  if (gatsbyImage) {
-    return (
-      <GatsbyImage
-        alt={title}
-        image={gatsbyImage}
-        onClick={() => navigate(`/article/${slug}`)}
-        objectFit={'cover'}
-        objectPosition={'center'}
-        style={{
-          cursor: 'pointer',
-          width: '100%',
-          height: '100%',
-        }}
-      />
-    );
-  }
-
-  const articleImage = image || MathUtil.getRandomValue(defaultImages);
-
-  return (
-    <Image
-      alt={title}
-      src={articleImage}
-      objectFit={'cover'}
-      objectPosition={'center'}
-      width={'full'}
-      height={'full'}
-      onClick={() => navigate(`/article/${slug}`)}
-      cursor={'pointer'}
-      loading={'lazy'}
-    />
-  );
-};
+import { StringUtil } from '@/utils';
+import ArticleImage from './ArticleImage';
 
 const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry }) => {
   const {
@@ -107,7 +60,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
               letterSpacing={1.1}
               as={'span'}
             >
-              <GatsbyLink to={`/category/${slugify(category, { allowedChars })}`}>{category}</GatsbyLink>
+              <GatsbyLink to={`/category/${StringUtil.slugify(category)}`}>{category}</GatsbyLink>
             </Text>
           )}
           <Box>
@@ -137,7 +90,7 @@ const ArticleEntry: FunctionComponent<{ entry: ArticleListItemType }> = ({ entry
                   bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
-                  to={`/tag/${slugify(tag, { allowedChars })}`}
+                  to={`/tag/${StringUtil.slugify(tag)}`}
                   pt={1}
                   m={1}
                 >

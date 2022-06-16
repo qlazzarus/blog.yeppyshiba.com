@@ -13,13 +13,28 @@ export type ArticleFrontmatterType = {
   category?: string;
   tags?: string[];
   summary?: string;
+  roadAddress?: string;
+  parcelAddress?: string;
 };
+
+export type ArticleFieldType = {
+  totalCount: number;
+  slug: string;
+  category?: string;
+  tags?: string[];
+  geolocation?: {
+    id: string,
+    crs: string,    
+    point: {
+      x: number,
+      y: number
+    }
+  }  
+}
 
 export type ArticleMdxType = {
   id: string;
-  fields?: {
-    totalCount: number
-  }
+  fields: ArticleFieldType;
   body: string;
   frontmatter: ArticleFrontmatterType;
 };
@@ -30,10 +45,7 @@ export type ArticleListItemsType = {
   
 export type ArticleListItemType = {
   id: string;
-  fields: {
-    totalCount: number;
-    slug: string;
-  }
+  fields: ArticleFieldType;
   frontmatter: ArticleFrontmatterType;
 };
 

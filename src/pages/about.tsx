@@ -1,13 +1,12 @@
 import React, { FunctionComponent } from 'react';
-import { Header, Layout } from '@/components/common';
 import { Box, Container, Heading, HStack, Tag, Text } from '@chakra-ui/react';
 import { Link as GatsbyLink } from 'gatsby';
 import { StaticImage } from 'gatsby-plugin-image';
-import { slugify } from 'transliteration';
+import { Header, Layout } from '@/components/common';
+import { StringUtil } from '@/utils';
 
 const shibaImage = './../../static/images/posts/202205/2f7771ce0890332c248a4b48be2e2f05.jpeg';
 const yeppyImage = './../../static/images/posts/202205/KakaoTalk_Photo_2022-05-23-18-13-27.jpeg';
-const allowedChars = 'a-zA-Z0-9';
 const tags = ['jeju', 'php', 'typescript', 'web game', 'phaser', 'roblox'];
 
 const AboutPage: FunctionComponent = () => {
@@ -60,7 +59,7 @@ const AboutPage: FunctionComponent = () => {
                   bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
-                  to={`/tag/${slugify(tag, { allowedChars })}`}
+                  to={`/tag/${StringUtil.slugify(tag)}`}
                   pt={1}
                   m={1}
                 >

@@ -1,11 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { Link as GatsbyLink } from 'gatsby';
 import { Box, Flex, Heading, keyframes, Tag, Text, VStack, useColorModeValue } from '@chakra-ui/react';
-import { slugify } from 'transliteration';
-import { MathUtil } from '@/utils';
+import { MathUtil, StringUtil } from '@/utils';
 
 const defaultImages = ['/images/header/wp7317693-jeju-wallpapers.jpg'];
-const allowedChars = 'a-zA-Z0-9';
 
 const shrink = keyframes`
   from { transform: scale(1.0); }
@@ -60,7 +58,7 @@ const ArticleHeader: FunctionComponent<ArticleHeaderProps> = ({ title, image, ca
               fontSize={'md'}
               letterSpacing={1.1}
               as={GatsbyLink}
-              to={`/category/${slugify(category, { allowedChars })}`}
+              to={`/category/${StringUtil.slugify(category)}`}
             >
               {category}
             </Text>
@@ -94,7 +92,7 @@ const ArticleHeader: FunctionComponent<ArticleHeaderProps> = ({ title, image, ca
                   bgColor={'teal'}
                   variant={'solid'}
                   as={GatsbyLink}
-                  to={`/tag/${slugify(tag, { allowedChars })}`}
+                  to={`/tag/${StringUtil.slugify(tag)}`}
                   pt={1}
                   m={1}
                 >

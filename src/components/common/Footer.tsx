@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from 'react';
 import { Box, Container, Link, Stack, Text, useColorModeValue } from '@chakra-ui/react';
-import { Layout } from '@/constants';
 import { ThemeEnum } from '@/enums';
 
 interface FooterProps {
@@ -29,13 +28,13 @@ const Footer: FunctionComponent<FooterProps> = ({ siteMetadata }) => {
           &copy; {displayYear} {siteMetadata.title}. All rights reserved.
         </Text>
         <Text>
-          <Link 
-            color={ThemeEnum.LINK_COLOR} 
-            href={"https://www.flaticon.com/free-icons/akita-inu"}
+          <Link
+            color={ThemeEnum.LINK_COLOR}
+            href={'https://www.flaticon.com/free-icons/akita-inu'}
             isExternal
-            title={"akita inu icons"}
+            title={'akita inu icons'}
           >
-              Akita inu icons created by tulpahn - Flaticon
+            Akita inu icons created by tulpahn - Flaticon
           </Link>
         </Text>
       </Container>

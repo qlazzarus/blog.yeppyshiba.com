@@ -15,11 +15,12 @@ type LayoutProps = {
   date?: string;
   keywords?: string[];
   children?: ReactNode | ReactNode[];
+  disableFooter?: boolean;
 };
 
 const defaultImages = ['/images/header/wp7317693-jeju-wallpapers.jpg'];
 
-const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, category, date, keywords, children }) => {
+const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, category, date, keywords, children, disableFooter }) => {
   const {
     site: { siteMetadata },
   } = useStaticQuery(graphql`
@@ -62,10 +63,10 @@ const Layout: FunctionComponent<LayoutProps> = ({ title, image, description, cat
         <link rel={'icon'} type={'image/png'} href={'/akita-inu.png'} />
       </Helmet>
       <Navigation siteMetadata={siteMetadata} />
-      <Container as={'main'} maxWidth={'100%'} m={'0'} px={'0'} pt={LayoutConstants.navigationHeight}>
-        {children}
+      <Container as={'main'} maxWidth={'100%'} minHeight={'100vh'} m={'0'} px={'0'} pt={LayoutConstants.navigationHeight}>
+        {children}        
       </Container>
-      <Footer siteMetadata={siteMetadata} />
+      {!disableFooter && <Footer siteMetadata={siteMetadata} />}
     </>
   );
 };
