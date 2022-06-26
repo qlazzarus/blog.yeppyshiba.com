@@ -1,23 +1,23 @@
 name: Build and deploy
-on: 
-  push: 
-    branches: [ main ]
-jobs: 
+on:
+  push:
+    branches: [main]
+jobs:
   build:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
           node-version: 17.x
-          
+
       - name: cache node_modules
         uses: actions/cache@v1
-        with: 
+        with:
           path: node_modules
           key: ${{runner.OS}}-build-$${hashFiles('**/package-lock.json')}
           restore-keys: |
-            ${{ runner.OS }}-build
+            ${{ runner.OS }}-build-$${hashFiles('**/package-lock.json')}
 
       - name: install devDependencies
         run: npm install
@@ -29,7 +29,7 @@ jobs:
           path: .cache
           key: ${{runner.os}}-cache-gatsby
           restore-keys: |
-            ${{runner.os}}-cache-gatsby        
+            ${{runner.os}}-cache-gatsby
 
       - name: Gatsby Public Folder
         uses: actions/cache@v1
@@ -39,13 +39,13 @@ jobs:
           key: ${{ runner.os }}-public-gatsby
           restore-keys: |
             ${{ runner.os }}-public-gatsby
-            
+
       - name: build
         run: npm run build
         env:
-          GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES: true        
+          GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES: true
           ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
-          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}   
+          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
           GATSBY_VWORLD_API: ${{ secrets.GATSBY_VWORLD_API }}
           GATSBY_KAKAO_API: ${{ secrets.GATSBY_KAKAO_API }}
 
