@@ -17,36 +17,6 @@ const AboutPage: FunctionComponent = () => {
       <Header title={title} />
       <Container maxW={'7xl'} p={'12'} textAlign={'center'}>
         <Box my={8}>
-          <Heading as={'h2'}>우리는!</Heading>
-          <HStack
-            mx={'auto'}
-            my={8}
-            maxW={'xs'}
-            position={'relative'}
-            _before={{
-              content: '"💗"',
-              position: 'absolute',
-              width: '100%',
-              zIndex: 1,
-              fontSize: '7xl'
-            }}
-          >
-            <Box width={'50%'} borderRadius={'full'} overflow={'hidden'} boxShadow={'2xl'}>
-              <StaticImage src={shibaImage} alt={''} layout={'fullWidth'} />
-            </Box>
-            <Box width={'50%'} borderRadius={'full'} overflow={'hidden'} boxShadow={'2xl'}>
-              <StaticImage src={yeppyImage} alt={''} layout={'fullWidth'} />
-            </Box>
-          </HStack>
-          <Text>
-            제주에서 사는 개발자입니다.
-            <br />
-            현재는 여자친구(예비신부) 님과 행복하게 제주에서 생활하고
-            <br />
-            또한 공동으로 블로그를 운영하고 있어요. 공부 그리고 생활 관심사들을 같이 올리겠습니다.
-          </Text>
-        </Box>
-        <Box my={8}>
           <Heading as={'h2'}>지금 관심사인 것들!</Heading>
           <Box mx={'auto'} my={8} maxW={'xs'} overflow={'hidden'}>
             {tags &&

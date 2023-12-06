@@ -12,7 +12,7 @@ interface SiteMetadata {
 const siteMetadata: SiteMetadata = {
   title: `Yeppyshiba Blog`,
   siteUrl,
-  description: `Living in jeju with code!`,
+  description: 'Living whatever blah blah',
 };
 
 const trailingSlash = 'always';
