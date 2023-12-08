@@ -40,14 +40,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-public-gatsby
 
+      - name: Setting .env
+        run: |
+          echo "GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES=true" >> .env
+          echo "ANALYTICS_CREDENTIALS=${{ secrets.ANALYTICS_CREDENTIALS }}" >> .env
+          echo "ANALYTICS_PROPERTY_ID=${{ secrets.ANALYTICS_PROPERTY_ID }}" >> .env
+          echo "GATSBY_VWORLD_API=${{ secrets.GATSBY_VWORLD_API }}" >> .env
+          echo "GATSBY_KAKAO_API=${{ secrets.GATSBY_KAKAO_API }}" >> .env
+          cat .env
+
       - name: build
         run: npm run build
-        env:
-          GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES: true
-          ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
-          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
-          GATSBY_VWORLD_API: ${{ secrets.GATSBY_VWORLD_API }}
-          GATSBY_KAKAO_API: ${{ secrets.GATSBY_KAKAO_API }}
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3
