@@ -57,7 +57,7 @@ const getViewCount = async () => {
       },
     });
   } catch (error) {
-    console.log(`-> google analytics api call failed!! env:'${process.env.ANALYTICS_PROPERTY_ID}'`);
+    console.log(`-> google analytics api call failed!! credentials:${process.env.ANALYTICS_CREDENTIALS}, property_id:'${process.env.ANALYTICS_PROPERTY_ID}'`);
     console.error(error);
   }
 
