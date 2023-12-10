@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tag-template-tsx",
+    "path": "/tag/look-back/",
+    "result": {"data":{"site":{"siteMetadata":{"title":"Yeppyshiba Blog","description":"Living whatever blah blah","siteUrl":"https://blog.yeppyshiba.com"}},"allMdx":{"edges":[{"node":{"id":"ae772f5f-a59d-51c6-883d-fc2f66bc316a","fields":{"totalCount":0,"slug":"a-look-back-in-november-2023"},"frontmatter":{"title":"2023년 11월의 회고","date":"2023-12-07T08:26:00.000Z","image":"https://www.futuroprossimo.it/wp-content/uploads/2023/05/Melancia_Tommy_Shelby_from_peaky-851x567.jpg","embeddedImagesLocal":null,"category":"review","tags":["review","look-back"],"summary":"2023년 11월의 나"}}}]}},"pageContext":{"slug":"look-back","pageNumber":0,"humanPageNumber":1,"skip":0,"limit":10,"numberOfPages":1,"previousPagePath":"","nextPagePath":""}},
+    "staticQueryHashes": ["3764592887"]}
