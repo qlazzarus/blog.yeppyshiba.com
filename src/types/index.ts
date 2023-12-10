@@ -7,9 +7,9 @@ export type ArticleFrontmatterType = {
   image?: string;
   embeddedImagesLocal?: {
     childImageSharp: {
-      gatsbyImageData: IGatsbyImageData
-    }
-  }
+      gatsbyImageData: IGatsbyImageData;
+    };
+  };
   category?: string;
   tags?: string[];
   summary?: string;
@@ -23,14 +23,10 @@ export type ArticleFieldType = {
   category?: string;
   tags?: string[];
   geolocation?: {
-    id: string,
-    crs: string,    
-    point: {
-      x: number,
-      y: number
-    }
-  }  
-}
+    x: number;
+    y: number;
+  };
+};
 
 export type ArticleMdxType = {
   id: string;
@@ -40,9 +36,9 @@ export type ArticleMdxType = {
 };
 
 export type ArticleListItemsType = {
-  node: ArticleListItemType
-}
-  
+  node: ArticleListItemType;
+};
+
 export type ArticleListItemType = {
   id: string;
   fields: ArticleFieldType;
@@ -55,8 +51,8 @@ export type GroupCountType = {
 };
 
 export type GraphqlErrorType = {
-  locations: GraphqlErrorLocationType[],
-  message: string
+  locations: GraphqlErrorLocationType[];
+  message: string;
 };
 
 export type GraphqlErrorLocationType = {
@@ -65,11 +61,11 @@ export type GraphqlErrorLocationType = {
 };
 
 export interface CustomPaginationContext extends PaginationContext {
-  slug?: string
+  slug?: string;
 }
 
 export type ListTemplateProps = {
-  errors?: GraphqlErrorType[],
+  errors?: GraphqlErrorType[];
   data?: {
     site: {
       siteMetadata: {
@@ -78,8 +74,8 @@ export type ListTemplateProps = {
         siteUrl: string;
       };
     };
-    allMdx: { 
-      edges: ArticleListItemsType[] 
+    allMdx: {
+      edges: ArticleListItemsType[];
     };
   };
   pageContext: CustomPaginationContext;

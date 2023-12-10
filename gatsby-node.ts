@@ -57,7 +57,9 @@ const getViewCount = async () => {
       },
     });
   } catch (error) {
-    console.log(`-> google analytics api call failed!! credentials:${process.env.ANALYTICS_CREDENTIALS}, property_id:'${process.env.ANALYTICS_PROPERTY_ID}'`);
+    console.log(
+      `-> google analytics api call failed!! credentials:${process.env.ANALYTICS_CREDENTIALS}, property_id:'${process.env.ANALYTICS_PROPERTY_ID}'`,
+    );
     console.error(error);
   }
 
@@ -152,12 +154,14 @@ export const onCreateNode = async ({ node, getNode, actions, cache }) => {
     // address
     if (parcelAddress || roadAddress) {
       const address = parcelAddress || roadAddress;
-      const type = (parcelAddress && 'parcel') || 'road';
 
-      const geolocation = await GeoUtil.geolocation(address, type).then((data: any) => {
+      const geolocation = await GeoUtil.geolocation(address).then((data: any) => {
         if (data) {
-          const { crs, point: { x, y } } = data;
-          const id = crypto.createHash('sha512').update(crs + x + y).digest('hex');
+          const { x, y } = data;
+          const id = crypto
+            .createHash('sha512')
+            .update(x + y)
+            .digest('hex');
           data.id = id;
         }
 

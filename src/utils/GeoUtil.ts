@@ -2,39 +2,37 @@ import axios, { AxiosResponse } from 'axios';
 import queryString from 'query-string';
 
 type Location = {
-  x: number,
-  y: number
-}
+  x: number;
+  y: number;
+};
 
 class GeoUtil {
-  static readonly urlPrefix = 'https://api.vworld.kr';
+  static readonly urlPrefix = 'https://dapi.kakao.com/v2';
 
   private static getKey(): string {
-    return process.env.GATSBY_VWORLD_API || '';
+    return process.env.GATSBY_KAKAO_REST_API || '';
   }
 
-  public static geolocation(address: string, type: 'road' | 'parcel'): Promise<void | AxiosResponse<any, any>> {
+  public static geolocation(address: string): Promise<void | AxiosResponse<any, any>> {
     const key = this.getKey();
     const params = {
-      service: 'address',
-      request: 'getcoord',
-      version: '2.0',
-      crs: 'epsg:4326',
-      address,
-      refine: 'true',
-      simple: 'true',
-      type,
-      key,
+      analyze_type: 'similar',
+      query: address,
+      page: 1,
+      size: 10,
     };
 
-    const url = `${this.urlPrefix}/req/address?${queryString.stringify(params)}`;
-
+    const url = `${this.urlPrefix}/local/search/address.json?${queryString.stringify(params)}`;
     return axios
-      .get(url)
+      .get(url, {
+        headers: {
+          Authorization: `KakaoAK ${key}`,
+        },
+      })
       .then((res) => {
         if (res) {
           const { data } = res;
-          return (data && data.response && data.response.result) || null;
+          return (data && data.documents && data.documents[0] && data.documents[0].address) || null;
         }
 
         return null;

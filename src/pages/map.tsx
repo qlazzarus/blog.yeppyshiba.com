@@ -34,9 +34,7 @@ const Marker: FunctionComponent<MarkerProps> = ({ edge }) => {
     return <></>;
   }
 
-  const {
-    point: { x: lng, y: lat },
-  } = geolocation;
+  const { x: lng, y: lat } = geolocation;
 
   const onOver = useCallback(() => setIsVisible(true), [setIsVisible]);
   const onOut = useCallback(() => setIsVisible(false), [setIsVisible]);
@@ -70,9 +68,7 @@ const MapPage: FunctionComponent<MapPageProps> = ({
           return { x: DEFAULT_LNG, y: DEFAULT_LAT };
         }
 
-        const {
-          point: { x, y },
-        } = geolocation;
+        const { x, y } = geolocation;
 
         return { x, y };
       }),
@@ -80,8 +76,8 @@ const MapPage: FunctionComponent<MapPageProps> = ({
   }, []);
 
   const bounds = useMemo(() => {
-    if (typeof kakao == "undefined") return;
-    
+    if (typeof kakao == 'undefined') return;
+
     const bounds = new kakao.maps.LatLngBounds();
     edges.forEach((edge) => {
       const {
@@ -89,7 +85,7 @@ const MapPage: FunctionComponent<MapPageProps> = ({
           fields: { geolocation },
         },
       } = edge;
-      bounds.extend(new kakao.maps.LatLng(geolocation?.point.y || DEFAULT_LAT, geolocation?.point.x || DEFAULT_LNG));
+      bounds.extend(new kakao.maps.LatLng(geolocation?.y || DEFAULT_LAT, geolocation?.x || DEFAULT_LNG));
     });
 
     return bounds;
@@ -126,11 +122,8 @@ export const getMap = graphql`
             slug
             geolocation {
               id
-              crs
-              point {
-                x
-                y
-              }
+              x
+              y
             }
           }
           frontmatter {

@@ -1,13 +1,10 @@
 import React, { FunctionComponent } from 'react';
-import { Box, Container, Heading, HStack, Tag, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Tag } from '@chakra-ui/react';
 import { Link as GatsbyLink } from 'gatsby';
-import { StaticImage } from 'gatsby-plugin-image';
 import { Header, Layout } from '@/components/common';
 import { StringUtil } from '@/utils';
 
-const shibaImage = './../../static/images/posts/202205/2f7771ce0890332c248a4b48be2e2f05.jpeg';
-const yeppyImage = './../../static/images/posts/202205/KakaoTalk_Photo_2022-05-23-18-13-27.jpeg';
-const tags = ['jeju', 'php', 'typescript', 'web game', 'phaser', 'roblox'];
+const tags = ['php', 'typescript', 'web game', 'phaser'];
 
 const AboutPage: FunctionComponent = () => {
   const title = 'Yeppyshiba is...';
