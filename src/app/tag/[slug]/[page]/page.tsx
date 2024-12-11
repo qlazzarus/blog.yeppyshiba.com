@@ -1,3 +1,4 @@
+import { slugify } from 'transliteration';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getAllPosts } from '@/libraries/PostManager';
@@ -23,7 +24,7 @@ export async function generateStaticParams() {
         const totalPages = Math.ceil(tagPosts.length / POSTS_PER_PAGE);
 
         for (let i = 1; i <= totalPages; i++) {
-            params.push({ slug: tag, page: i.toString() });
+            params.push({ slug: slugify(tag), page: i.toString() });
         }
     }
 

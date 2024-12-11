@@ -1,3 +1,4 @@
+import { slugify } from 'transliteration';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getAllPosts } from '@/libraries/PostManager';
@@ -23,7 +24,7 @@ export async function generateStaticParams() {
         const totalPages = Math.ceil(categoryPosts.length / POSTS_PER_PAGE);
 
         for (let i = 1; i <= totalPages; i++) {
-            params.push({ slug: category, page: i.toString() });
+            params.push({ slug: slugify(category), page: i.toString() });
         }
     }
 
@@ -37,7 +38,9 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: 
     // 현재 카케고리에 해당하는 게시물 필터링
     const startIndex = (page - 1) * POSTS_PER_PAGE;
     const endIndex = startIndex + POSTS_PER_PAGE;
-    const entries = posts.filter((p) => p.category.toLowerCase() === slug.toLowerCase()).slice(startIndex, endIndex);
+    const entries = posts
+        .filter((p) => p.category.toLowerCase() === slugify(slug.toLowerCase()))
+        .slice(startIndex, endIndex);
 
     return <>hello {entries[0].title}</>;
 };

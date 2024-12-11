@@ -1,3 +1,4 @@
+import { slugify } from 'transliteration';
 import { redirect } from 'next/navigation';
 import { getAllPosts } from '@/libraries/PostManager';
 
@@ -10,12 +11,12 @@ export async function generateStaticParams() {
     });
 
     return Array.from(allTagsSet).map((tag) => ({
-        slug: tag,
+        slug: slugify(tag),
     }));
 }
 
-const TagSlugIndex = ({ params }: { params: { slug: string } }) => {
-    const { slug } = params;
+const TagSlugIndex = async ({ params }: { params: Promise<{ slug: string }> }) => {
+    const slug = (await params).slug as string;
     // 접근 시 항상 /tag/{slug}/1 로 리다이렉트
     redirect(`/tag/${slug}/1`);
 };
