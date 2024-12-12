@@ -2,7 +2,7 @@ import React from 'react';
 import { getAllPosts } from '@/libraries/PostManager';
 import { notFound } from 'next/navigation';
 
-const posts = getAllPosts();
+const posts = await getAllPosts();
 
 export function generateStaticParams() {
     return posts.map((post) => ({

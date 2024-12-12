@@ -2,7 +2,7 @@ import { slugify } from 'transliteration';
 import { redirect } from 'next/navigation';
 import { getAllPosts } from '@/libraries/PostManager';
 
-const posts = getAllPosts();
+const posts = await getAllPosts();
 
 export async function generateStaticParams() {
     const allTagsSet = new Set<string>();

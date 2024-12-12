@@ -1,12 +1,11 @@
 import { slugify } from 'transliteration';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { getAllPosts } from '@/libraries/PostManager';
+import EntryContainer from '@/components/EntryContainer';
 
 const POSTS_PER_PAGE = 10;
 
 // 모든 게시물 로딩 후 날짜 내림차순 정렬(최신글 우선)
-const posts = getAllPosts().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const posts = (await getAllPosts()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 export async function generateStaticParams() {
     // 모든 게시물의 태그를 추출
@@ -42,7 +41,12 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: 
         .filter((p) => p.category.toLowerCase() === slugify(slug.toLowerCase()))
         .slice(startIndex, endIndex);
 
-    return <>hello {entries[0].title}</>;
+    return (
+        <>
+            <h1>Page {page}</h1>
+            <EntryContainer entries={entries} />
+        </>
+    );
 };
 
 export default CategoryPage;

@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { getAllPosts } from '@/libraries/PostManager';
+import EntryContainer from '@/components/EntryContainer';
 
 const POSTS_PER_PAGE = 10;
-const posts = getAllPosts().sort((a, b) => {
+const posts = (await getAllPosts()).sort((a, b) => {
     // 날짜 문자열을 Date 객체로 변환 후 비교 (내림차순)
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
@@ -27,13 +28,7 @@ const Page = async ({ params }: { params: Promise<{ page: Number }> }) => {
     return (
         <>
             <h1>Page {page}</h1>
-            <ul>
-                {entries.map((entry) => (
-                    <li key={entry.slug}>
-                        <Link href={`/article/${entry.slug}`}>{entry.title}</Link>
-                    </li>
-                ))}
-            </ul>
+            <EntryContainer entries={entries} />
         </>
     );
 };

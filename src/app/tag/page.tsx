@@ -1,7 +1,7 @@
 import React from 'react';
 import { getAllPosts } from '@/libraries/PostManager';
 
-const posts = getAllPosts();
+const posts = await getAllPosts();
 
 const TagCloud = () => {
     const clouds: Record<string, number> = {};

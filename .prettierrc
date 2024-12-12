@@ -5,5 +5,15 @@
     "tabWidth": 4,
     "trailingComma": "all",
     "printWidth": 120,
-    "arrowParens": "always"
+    "arrowParens": "always",
+    "plugins": ["@trivago/prettier-plugin-sort-imports"],
+    "importOrder": [
+        "<THIRD_PARTY_MODULES>",
+        "^@/components/(.*)$",
+        "^@/hooks/(.*)$",
+        "^@/libraries/(.*)$",
+        "^@/providers/(.*)$",
+        "^@/utils/(.*)$",
+        "^[./]"
+    ]
 }

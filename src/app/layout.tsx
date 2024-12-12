@@ -1,23 +1,34 @@
-import React, { Children } from 'react'
-import type { Metadata } from 'next'
+import { CssBaseline } from '@mui/material';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import type { Metadata } from 'next';
+import React from 'react';
+import ResponsiveAppBar from '@/components/ResponsiveAppBar';
 
 export const metadata: Metadata = {
     title: '',
-    description: ''
-}
+    description: '',
+};
 
 const RootLayout = ({
     children,
 }: Readonly<{
-    children: React.ReactNode
+    children: React.ReactNode;
 }>) => {
-    return (
-        <html>
-            <body>
-                {children}
-            </body>
-        </html>
-    )
-}
+    const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
 
-export default RootLayout
+    return (
+        <html lang="en">
+            <body>
+                <AppRouterCacheProvider>
+                    <CssBaseline />
+                    <ResponsiveAppBar />
+                    {children}
+                </AppRouterCacheProvider>
+            </body>
+            <GoogleAnalytics gaId={gaId} />
+        </html>
+    );
+};
+
+export default RootLayout;
