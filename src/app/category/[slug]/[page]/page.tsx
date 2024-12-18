@@ -1,6 +1,7 @@
 import { slugify } from 'transliteration';
-import { getAllPosts } from '@/libraries/PostManager';
 import EntryContainer from '@/components/EntryContainer';
+import Jumbotron from '@/components/Jumbotron';
+import { getAllPosts } from '@/libraries/PostManager';
 
 const POSTS_PER_PAGE = 10;
 
@@ -43,7 +44,7 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: 
 
     return (
         <>
-            <h1>Page {page}</h1>
+            <Jumbotron />
             <EntryContainer entries={entries} />
         </>
     );

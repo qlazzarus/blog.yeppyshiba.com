@@ -1,4 +1,5 @@
 import React from 'react';
+import Jumbotron from '@/components/Jumbotron';
 import { getAllPosts } from '@/libraries/PostManager';
 
 const posts = await getAllPosts();
@@ -16,7 +17,8 @@ const TagCloud = () => {
     });
 
     return (
-        <div>
+        <>
+            <Jumbotron />
             <h1>태그 클라우드 데이터</h1>
             <ul>
                 {Object.entries(clouds).map(([tag, count]) => (
@@ -25,7 +27,7 @@ const TagCloud = () => {
                     </li>
                 ))}
             </ul>
-        </div>
+        </>
     );
 };
 

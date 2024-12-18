@@ -1,9 +1,10 @@
-import { CssBaseline } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import React from 'react';
+import Jumbotron from '@/components/Jumbotron';
 import ResponsiveAppBar from '@/components/ResponsiveAppBar';
+import ThemeRegistry from '@/components/ThemeRegistry';
 
 export const metadata: Metadata = {
     title: '',
@@ -21,9 +22,10 @@ const RootLayout = ({
         <html lang="en">
             <body>
                 <AppRouterCacheProvider>
-                    <CssBaseline />
-                    <ResponsiveAppBar />
-                    {children}
+                    <ThemeRegistry>
+                        <ResponsiveAppBar />
+                        {children}
+                    </ThemeRegistry>
                 </AppRouterCacheProvider>
             </body>
             <GoogleAnalytics gaId={gaId} />

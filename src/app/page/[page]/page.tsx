@@ -1,7 +1,8 @@
+import { Container, Typography } from '@mui/material';
 import React from 'react';
-import Link from 'next/link';
-import { getAllPosts } from '@/libraries/PostManager';
 import EntryContainer from '@/components/EntryContainer';
+import Jumbotron from '@/components/Jumbotron';
+import { getAllPosts } from '@/libraries/PostManager';
 
 const POSTS_PER_PAGE = 10;
 const posts = (await getAllPosts()).sort((a, b) => {
@@ -27,8 +28,10 @@ const Page = async ({ params }: { params: Promise<{ page: Number }> }) => {
 
     return (
         <>
-            <h1>Page {page}</h1>
-            <EntryContainer entries={entries} />
+            <Jumbotron />
+            <Container maxWidth="xl">
+                <EntryContainer entries={entries} />
+            </Container>
         </>
     );
 };

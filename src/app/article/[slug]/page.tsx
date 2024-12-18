@@ -1,6 +1,7 @@
-import React from 'react';
-import { getAllPosts } from '@/libraries/PostManager';
 import { notFound } from 'next/navigation';
+import React from 'react';
+import Jumbotron from '@/components/Jumbotron';
+import { getAllPosts } from '@/libraries/PostManager';
 
 const posts = await getAllPosts();
 
@@ -18,7 +19,12 @@ const Article = async ({ params }: { params: Promise<{ slug: string }> }) => {
         notFound();
     }
 
-    return <>{post.title}</>;
+    return (
+        <>
+            <Jumbotron />
+            {post.title}
+        </>
+    );
 };
 
 export default Article;

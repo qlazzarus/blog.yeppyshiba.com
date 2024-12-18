@@ -1,24 +1,12 @@
 'use client';
 
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import MenuIcon from '@mui/icons-material/Menu';
-import AppBar from '@mui/material/AppBar';
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Toolbar from '@mui/material/Toolbar';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
+import { useThemeStore } from '@/stores/themeStore';
+import { GitHub, LinkedIn, DarkMode, LightMode } from '@mui/icons-material';
+import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
-
-// 이미지 경로를 실제 프로젝트에 맞게 수정
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 const pages = [
     {
@@ -40,7 +28,28 @@ const pages = [
 ];
 
 const ResponsiveAppBar = () => {
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
+    const router = useRouter();
+    const [anchorElNav, setAnchorElNav] = useState<null>(null);
+    const mode = useThemeStore((state) => state.mode);
+    const toggleMode = useThemeStore((state) => state.toggleMode);
+    const [isScrolled, setIsScrolled] = useState<boolean>(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 10); // 스크롤이 10px 이상 내려가면 상태 변경
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const appBarBackground = isScrolled
+        ? mode === 'dark'
+            ? 'rgba(34, 34, 34, 0.9)' // Dark mode 배경색
+            : 'rgba(255, 255, 255, 0.9)' // Light mode 배경색
+        : 'transparent'; // 기본 투명
 
     const handleOpenNavMenu = (event: any) => {
         setAnchorElNav(event.currentTarget);
@@ -51,7 +60,13 @@ const ResponsiveAppBar = () => {
     };
 
     return (
-        <AppBar position="static">
+        <AppBar
+            position="fixed"
+            sx={{
+                backgroundColor: appBarBackground,
+                transition: 'background-color 0.3s ease', // 부드러운 전환
+            }}
+        >
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     {/* 메뉴 (Mobile) */}
@@ -107,7 +122,7 @@ const ResponsiveAppBar = () => {
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                             <Image src={'/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
-                            <Typography variant="h6" noWrap component="div" sx={{ color: 'white' }} ml={1}>
+                            <Typography variant="h6" noWrap component="div" ml={1}>
                                 Yeppyshiba Blog
                             </Typography>
                         </Link>
@@ -116,18 +131,17 @@ const ResponsiveAppBar = () => {
                     {/* 메뉴 (Desktop) */}
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
-                            <Link key={page.title} href={page.link} passHref>
-                                <Button
-                                    sx={{
-                                        my: 2,
-                                        color: 'white',
-                                        display: 'block',
-                                        textTransform: 'none',
-                                    }}
-                                >
-                                    {page.title}
-                                </Button>
-                            </Link>
+                            <Button
+                                key={page.title}
+                                sx={{
+                                    display: 'block',
+                                    textTransform: 'none',
+                                    textDecoration: 'none',
+                                }}
+                                onClick={() => router.push(page.link)}
+                            >
+                                {page.title}
+                            </Button>
                         ))}
                     </Box>
 
@@ -140,7 +154,7 @@ const ResponsiveAppBar = () => {
                             rel="noopener noreferrer"
                             color="inherit"
                         >
-                            <GitHubIcon />
+                            <GitHub />
                         </IconButton>
                         <IconButton
                             component="a"
@@ -149,7 +163,10 @@ const ResponsiveAppBar = () => {
                             rel="noopener noreferrer"
                             color="inherit"
                         >
-                            <LinkedInIcon />
+                            <LinkedIn />
+                        </IconButton>
+                        <IconButton onClick={toggleMode} color="inherit">
+                            {mode && mode === 'light' ? <DarkMode /> : <LightMode />}
                         </IconButton>
                     </Box>
                 </Toolbar>
