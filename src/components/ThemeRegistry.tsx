@@ -1,8 +1,7 @@
 'use client';
 
 import { useThemeStore } from '@/stores/themeStore';
-import darkTheme from '@/themes/darkTheme';
-import lightTheme from '@/themes/lightTheme';
+import { darkTheme, lightTheme } from '@/themes';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';

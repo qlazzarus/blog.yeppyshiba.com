@@ -15,5 +15,9 @@
         "^@/providers/(.*)$",
         "^@/utils/(.*)$",
         "^[./]"
-    ]
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "bracketSpacing": true,
+    "bracketSameLine": false
 }

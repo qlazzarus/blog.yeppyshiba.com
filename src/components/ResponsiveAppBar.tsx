@@ -1,8 +1,19 @@
 'use client';
 
 import { useThemeStore } from '@/stores/themeStore';
-import { GitHub, LinkedIn, DarkMode, LightMode } from '@mui/icons-material';
-import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { DarkMode, GitHub, LightMode, LinkedIn } from '@mui/icons-material';
+import {
+    AppBar,
+    Box,
+    Button,
+    Container,
+    IconButton,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Typography,
+    useTheme,
+} from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,6 +42,7 @@ const ResponsiveAppBar = () => {
     const router = useRouter();
     const [anchorElNav, setAnchorElNav] = useState<null>(null);
     const mode = useThemeStore((state) => state.mode);
+    const theme = useTheme();
     const toggleMode = useThemeStore((state) => state.toggleMode);
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
@@ -62,13 +74,14 @@ const ResponsiveAppBar = () => {
     return (
         <AppBar
             position="fixed"
+            enableColorOnDark
             sx={{
                 backgroundColor: appBarBackground,
                 transition: 'background-color 0.3s ease', // 부드러운 전환
             }}
         >
             <Container maxWidth="xl">
-                <Toolbar disableGutters>
+                <Toolbar variant="dense" disableGutters>
                     {/* 메뉴 (Mobile) */}
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
@@ -120,12 +133,20 @@ const ResponsiveAppBar = () => {
 
                     {/* 홈 로고 */}
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 2 }}>
-                        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                            <Image src={'/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
-                            <Typography variant="h6" noWrap component="div" ml={1}>
-                                Yeppyshiba Blog
-                            </Typography>
-                        </Link>
+                        <Typography variant="h6" noWrap component="h1">
+                            <Link
+                                href="/"
+                                style={{
+                                    textDecoration: 'none',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    color: theme.palette.text.primary,
+                                }}
+                            >
+                                <Image src={'/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
+                                <Typography ml={1}>Yeppyshiba Blog</Typography>
+                            </Link>
+                        </Typography>
                     </Box>
 
                     {/* 메뉴 (Desktop) */}
@@ -133,7 +154,9 @@ const ResponsiveAppBar = () => {
                         {pages.map((page) => (
                             <Button
                                 key={page.title}
+                                size={'small'}
                                 sx={{
+                                    color: theme.palette.text.primary,
                                     display: 'block',
                                     textTransform: 'none',
                                     textDecoration: 'none',
@@ -152,7 +175,9 @@ const ResponsiveAppBar = () => {
                             href="https://github.com/qlazzarus"
                             target="_blank"
                             rel="noopener noreferrer"
-                            color="inherit"
+                            sx={{
+                                color: theme.palette.text.primary,
+                            }}
                         >
                             <GitHub />
                         </IconButton>
@@ -161,11 +186,18 @@ const ResponsiveAppBar = () => {
                             href="https://www.linkedin.com/in/yeppyshiba/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            color="inherit"
+                            sx={{
+                                color: theme.palette.text.primary,
+                            }}
                         >
                             <LinkedIn />
                         </IconButton>
-                        <IconButton onClick={toggleMode} color="inherit">
+                        <IconButton
+                            onClick={toggleMode}
+                            sx={{
+                                color: theme.palette.text.primary,
+                            }}
+                        >
                             {mode && mode === 'light' ? <DarkMode /> : <LightMode />}
                         </IconButton>
                     </Box>

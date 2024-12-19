@@ -1,6 +1,8 @@
 import { slugify } from 'transliteration';
-import EntryContainer from '@/components/EntryContainer';
+
 import Jumbotron from '@/components/Jumbotron';
+import PageContainer from '@/components/PageContainer';
+
 import { getAllPosts } from '@/libraries/PostManager';
 
 const POSTS_PER_PAGE = 10;
@@ -36,16 +38,12 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: 
     const page = (await params).page as number;
 
     // 현재 카케고리에 해당하는 게시물 필터링
-    const startIndex = (page - 1) * POSTS_PER_PAGE;
-    const endIndex = startIndex + POSTS_PER_PAGE;
-    const entries = posts
-        .filter((p) => p.category.toLowerCase() === slugify(slug.toLowerCase()))
-        .slice(startIndex, endIndex);
+    const entries = posts.filter((p) => p.category.toLowerCase() === slugify(slug.toLowerCase()));
 
     return (
         <>
             <Jumbotron />
-            <EntryContainer entries={entries} />
+            <PageContainer page={page} posts={entries} linkPrefix={`/category/${slug}/`} />
         </>
     );
 };

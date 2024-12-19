@@ -1,7 +1,9 @@
 import { slugify } from 'transliteration';
-import { notFound } from 'next/navigation';
+
+import Jumbotron from '@/components/Jumbotron';
+import PageContainer from '@/components/PageContainer';
+
 import { getAllPosts } from '@/libraries/PostManager';
-import EntryContainer from '@/components/EntryContainer';
 
 const POSTS_PER_PAGE = 10;
 
@@ -36,16 +38,12 @@ const TagPage = async ({ params }: { params: Promise<{ slug: string; page: numbe
     const page = (await params).page as number;
 
     // 현재 태그에 해당하는 게시물 필터링
-    const startIndex = (page - 1) * POSTS_PER_PAGE;
-    const endIndex = startIndex + POSTS_PER_PAGE;
-    const entries = posts
-        .filter((p) => p.tags.map((t) => slugify(t.toLowerCase())).includes(slug.toLowerCase()))
-        .slice(startIndex, endIndex);
+    const entries = posts.filter((p) => p.tags.map((t) => slugify(t.toLowerCase())).includes(slug.toLowerCase()));
 
     return (
         <>
-            <h1>Page {page}</h1>
-            <EntryContainer entries={entries} />
+            <Jumbotron />
+            <PageContainer page={page} posts={entries} linkPrefix={`/tag/${slug}/`} />
         </>
     );
 };

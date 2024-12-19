@@ -1,7 +1,9 @@
 import { Container, Typography } from '@mui/material';
 import React from 'react';
-import EntryContainer from '@/components/EntryContainer';
+
 import Jumbotron from '@/components/Jumbotron';
+import PageContainer from '@/components/PageContainer';
+
 import { getAllPosts } from '@/libraries/PostManager';
 
 const POSTS_PER_PAGE = 10;
@@ -22,16 +24,10 @@ export function generateStaticParams() {
 const Page = async ({ params }: { params: Promise<{ page: Number }> }) => {
     const page = (await params).page as number;
 
-    const startIndex = (page - 1) * POSTS_PER_PAGE;
-    const endIndex = startIndex + POSTS_PER_PAGE;
-    const entries = posts.slice(startIndex, endIndex);
-
     return (
         <>
             <Jumbotron />
-            <Container maxWidth="xl">
-                <EntryContainer entries={entries} />
-            </Container>
+            <PageContainer page={page} posts={posts} linkPrefix={'/page/'} />
         </>
     );
 };
