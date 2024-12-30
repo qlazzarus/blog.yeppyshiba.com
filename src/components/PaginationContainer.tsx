@@ -1,7 +1,7 @@
 'use client';
 
-import { Pagination } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { Pagination, PaginationItem } from '@mui/material';
+import Link from 'next/link';
 
 const PaginationContainer = ({
     page,
@@ -12,19 +12,15 @@ const PaginationContainer = ({
     linkPrefix: string;
     totalPages: number;
 }) => {
-    const router = useRouter(); // Next.js 라우터
-
-    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-        router.push(`${linkPrefix}${value}`); // 페이지 변경 시 링크로 이동
-    };
+    console.log({ page, totalPages });
 
     return (
         <Pagination
             count={totalPages}
             page={page}
-            onChange={handlePageChange}
-            color="primary"
             sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}
+            siblingCount={5}
+            renderItem={(item) => <PaginationItem component={Link} href={`${linkPrefix}${item.page}`} {...item} />}
         />
     );
 };

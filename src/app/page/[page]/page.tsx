@@ -21,8 +21,8 @@ export function generateStaticParams() {
     }));
 }
 
-const Page = async ({ params }: { params: Promise<{ page: Number }> }) => {
-    const page = (await params).page as number;
+const Page = async ({ params }: { params: Promise<{ page: string }> }) => {
+    const page = parseInt((await params).page);
 
     return (
         <>

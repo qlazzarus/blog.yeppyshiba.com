@@ -2,16 +2,14 @@
 
 import GradientAnimation from '@/animations/GradientAnimation';
 import WaveAnimation from '@/animations/WaveAnimation';
-import { Box, Typography, Container } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 const Jumbotron = () => {
     const [selectedAnimation, setSelectedAnimation] = useState<string>('wave'); // 애니메이션 타입
 
     useEffect(() => {
-        // 랜덤으로 애니메이션 선택 (현재는 'wave'만 추가되어 있지만 확장 가능)
         const animations = ['wave', 'gradient']; // 애니메이션 리스트
-        //const animations = ['gradient']; // 애니메이션 리스트
         const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
         setSelectedAnimation(randomAnimation);
     }, []);

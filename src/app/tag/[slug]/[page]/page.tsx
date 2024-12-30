@@ -33,9 +33,9 @@ export async function generateStaticParams() {
     return params;
 }
 
-const TagPage = async ({ params }: { params: Promise<{ slug: string; page: number }> }) => {
+const TagPage = async ({ params }: { params: Promise<{ slug: string; page: string }> }) => {
     const slug = (await params).slug as string;
-    const page = (await params).page as number;
+    const page = parseInt((await params).page);
 
     // 현재 태그에 해당하는 게시물 필터링
     const entries = posts.filter((p) => p.tags.map((t) => slugify(t.toLowerCase())).includes(slug.toLowerCase()));

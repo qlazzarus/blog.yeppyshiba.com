@@ -1,5 +1,4 @@
 import { Container } from '@mui/material';
-import Link from 'next/link';
 import React from 'react';
 
 import { PostData } from '@/libraries/PostManager';
@@ -7,7 +6,7 @@ import { PostData } from '@/libraries/PostManager';
 import EntryContainer from './EntryContainer';
 import PaginationContainer from './PaginationContainer';
 
-const POSTS_PER_PAGE = 10;
+const POSTS_PER_PAGE = 12;
 
 const PageContainer = ({ page, posts, linkPrefix }: { page: number; posts: PostData[]; linkPrefix: string }) => {
     const startIndex = (page - 1) * POSTS_PER_PAGE;

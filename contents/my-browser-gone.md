@@ -3,17 +3,17 @@ title: 내 탭이 날라가 버렸어!
 date: 2021-03-03T14:55:00.000Z
 category: coding
 summary: 지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다.
-  다른 탭은 멈추지 않고 실행되고 있습니다.
-  어떻게 이렇게 될까요?
-  그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?
+    다른 탭은 멈추지 않고 실행되고 있습니다.
+    어떻게 이렇게 될까요?
+    그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?
 image: https://i.kym-cdn.com/entries/icons/original/000/030/003/chrome.jpg
-tags: 
-  - dev
-  - coding
-  - thread
-  - process
-  - browser
-  - chromium
+tags:
+    - dev
+    - coding
+    - thread
+    - process
+    - browser
+    - chromium
 ---
 
 # 내 탭이 날라가버렸어!
@@ -28,9 +28,9 @@ tags:
 ```typescript
 // 멍청한 코드
 while (1) {
-  // do something stupid
-  updateWorld();
-  renderWorld();
+    // do something stupid
+    updateWorld();
+    renderWorld();
 }
 ```
 
@@ -38,7 +38,7 @@ while (1) {
 이것은 역시나 제대로 알지도 못하고 짜면 이렇게 되는 것입니다.
 (이 코드가 왜 망한 코드인지는 javascript single threaded 관련글들을 참조해주세요.)
 
-![](./../static/images/posts/archive/page_not_response.png)
+![](/images/posts/archive/page_not_response.png)
 
 ![](https://static.tvtropes.org/pmwiki/pub/images/deja_q_hd_046_resized_6484.jpg)
 
@@ -51,7 +51,7 @@ while (1) {
 
 크롬 (chrominum) 은 개별 탭을 쓰레드 (thread) 가 아닌 프로세스 (process) 로 관리하고 있기 때문입니다.
 
-![](./../static/images/posts/archive/much_much_process.png)
+![](/images/posts/archive/much_much_process.png)
 
 프로세스는 어플리케이션의 실행 프로그램이며, 쓰레드는 프로세스 내부에 있습니다.
 
@@ -69,10 +69,10 @@ while (1) {
 
 아래 표는 크롬의 각 프로세스들이 어떤 역할을 하는지 설명합니다:
 
-* 브라우저 - 주소 창, 뒤로 및 앞으로 이동 버튼을 포함한 어플리케이션의 "chrome" 부분을 제어합니다. 또한 네트워크 요청 및 파일 액세스와 같은 웹 브라우저의 권한이 부여된 보이지 않는 부분을 제어합니다.
-* 렌더러 - 웹사이트가 디스플레이 될 때 탭 안의 모든 것 담당.
-* 플러그인 - 플래시와 같은 웹사이트가 사용하는 모든 플러그인 담당.
-* GPU - 다른 프로세스와 분리된 GPU 작업을 제어합니다. GPU는 여러 앱의 요청을 제어하고 동일한 표면에 표시하기 때문에 다른 프로세스로 분리됩니다.
+- 브라우저 - 주소 창, 뒤로 및 앞으로 이동 버튼을 포함한 어플리케이션의 "chrome" 부분을 제어합니다. 또한 네트워크 요청 및 파일 액세스와 같은 웹 브라우저의 권한이 부여된 보이지 않는 부분을 제어합니다.
+- 렌더러 - 웹사이트가 디스플레이 될 때 탭 안의 모든 것 담당.
+- 플러그인 - 플래시와 같은 웹사이트가 사용하는 모든 플러그인 담당.
+- GPU - 다른 프로세스와 분리된 GPU 작업을 제어합니다. GPU는 여러 앱의 요청을 제어하고 동일한 표면에 표시하기 때문에 다른 프로세스로 분리됩니다.
 
 오늘은 간단히 모던 브라우져 (chrominum) 에 대해서 수박 겉핱기식으로 알아보았습니다.
 

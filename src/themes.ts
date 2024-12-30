@@ -1,3 +1,5 @@
+'use client';
+
 import { robotoFont } from '@/fonts';
 import { PaletteMode, Shadows, alpha, createTheme, responsiveFontSizes } from '@mui/material/styles';
 

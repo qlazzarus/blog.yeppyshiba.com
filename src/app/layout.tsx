@@ -1,17 +1,18 @@
+import { darkTheme } from '@/themes';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import React from 'react';
-import Jumbotron from '@/components/Jumbotron';
+
 import ResponsiveAppBar from '@/components/ResponsiveAppBar';
-import ThemeRegistry from '@/components/ThemeRegistry';
 
 export const metadata: Metadata = {
     title: '',
     description: '',
 };
 
-const RootLayout = ({
+const RootLayout = async ({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -22,10 +23,11 @@ const RootLayout = ({
         <html lang="en">
             <body>
                 <AppRouterCacheProvider>
-                    <ThemeRegistry>
+                    <ThemeProvider theme={darkTheme}>
+                        <CssBaseline enableColorScheme />
                         <ResponsiveAppBar />
                         {children}
-                    </ThemeRegistry>
+                    </ThemeProvider>
                 </AppRouterCacheProvider>
             </body>
             <GoogleAnalytics gaId={gaId} />

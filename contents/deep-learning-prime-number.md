@@ -2,10 +2,10 @@
 title: 딥러닝과 소수
 date: 2021-05-12T12:00:00.000Z
 category: coding
-summary: 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다.  
-  이름하여 바로 '리만 가설' 입니다.
+summary: 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다.
+    이름하여 바로 '리만 가설' 입니다.
 image: https://media.makeameme.org/created/prime-numbers-y.jpg
-tags: 
+tags:
     - dev
     - coding
     - ai
@@ -108,7 +108,7 @@ tags:
 다만 위의 오일러의 공식에서 돌출한 원주율 뿐만 아니라, 최근에는 양자물리학에서 쓰이던 공식이 리만 가설의 공식과 동일하다는 내용이 알려지면서...
 단순히 수학자들의 놀이 일뿐이 아니라 자연의 숨겨진 비밀을 푸는 열쇠가 될지도 모른다는 생각을 하게 되었습니다.
 
-![ㅎㄷㄷ](./../static/images/posts/archive/riemann-quantum-physics.png)
+![ㅎㄷㄷ](/images/posts/archive/riemann-quantum-physics.png)
 
 ## 혹시 ai 가 소수의 패턴을 알 수 있지 않을까?
 

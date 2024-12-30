@@ -3,7 +3,7 @@ title: 1년의 회고 - 성장과 변화의 시간
 date: 2024-11-09T14:54:00.000Z
 category: review
 summary: 시니어 개발자로서의 성장과 개인적인 변화들
-embeddedImagesLocal: ./../static/images/posts/202411/my_year_in_review.jpg
+embeddedImagesLocal: /images/posts/202411/my_year_in_review.jpg
 tags:
     - review
     - look-back

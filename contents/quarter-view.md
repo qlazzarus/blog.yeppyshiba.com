@@ -2,18 +2,18 @@
 title: 2.5D 구현하기 - 쿼터뷰
 date: 2022-03-27T09:00:00.000Z
 category: coding
-summary: 여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다. 
-  이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
+summary: 여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다.
+    이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
 image: https://imagescdn.gettyimagesbank.com/500/19/592/773/0/1147490682.jpg
-tags: 
-  - dev
-  - coding
-  - 2.5d
-  - pseudo
-  - isometric
-  - quarter view
-  - phaser
-  - web game
+tags:
+    - dev
+    - coding
+    - 2.5d
+    - pseudo
+    - isometric
+    - quarter view
+    - phaser
+    - web game
 ---
 
 ## 들어가며
@@ -61,17 +61,17 @@ tags:
 
 아래 이 이미지는 32x32 사이즈의 투명한 배경을 가진 이미지입니다.
 
-![isometric block](./../static/images/posts/archive/iso-block.png)
+![isometric block](/images/posts/archive/iso-block.png)
 
 쿼터뷰는 아래 사진을 이런식으로 배치하는 형식으로 시작됩니다.
 
-![isometric block couple](./../static/images/posts/archive/iso-block-couple.png)
+![isometric block couple](/images/posts/archive/iso-block-couple.png)
 
 단순히 이렇게 쌓는 것으로 끝입니다.
 
 정리하자면 일반적인 2D 맵과 달리 isometric 은 아래와 같이 겹치는 구조로 되는 것 입니다.
 
-![cartesian to isometric](./../static/images/posts/archive/cartesian2isometric.png)
+![cartesian to isometric](/images/posts/archive/cartesian2isometric.png)
 
 그렇다면 어떤 규칙으로 배치될까요?
 

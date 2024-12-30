@@ -33,9 +33,9 @@ export async function generateStaticParams() {
     return params;
 }
 
-const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: number }> }) => {
+const CategoryPage = async ({ params }: { params: Promise<{ slug: string; page: string }> }) => {
     const slug = (await params).slug as string;
-    const page = (await params).page as number;
+    const page = parseInt((await params).page);
 
     // 현재 카케고리에 해당하는 게시물 필터링
     const entries = posts.filter((p) => p.category.toLowerCase() === slugify(slug.toLowerCase()));

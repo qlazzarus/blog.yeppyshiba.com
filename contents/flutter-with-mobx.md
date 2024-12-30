@@ -5,18 +5,18 @@ summary: 상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스�
 category: coding
 image: https://vuex.vuejs.org/flow.png
 tags:
-  - dev
-  - coding
-  - flutter
-  - dart
-  - mobx
-  - state
-  - reactive
-  - android
-  - ios
-  - iphone
-  - google
-  - hybrid
+    - dev
+    - coding
+    - flutter
+    - dart
+    - mobx
+    - state
+    - reactive
+    - android
+    - ios
+    - iphone
+    - google
+    - hybrid
 ---
 
 ## 들어가며
@@ -35,7 +35,7 @@ react 나 vue.js 같은 frontend framework 가 연상됩니다.
 데이터는 bloc 패턴과 같은 stream 에 대한 event 로 리스닝 받고 있고요.  
 (자세한 내용은 bloc pattern 이나 reactive programming 개념은 검색 해보세요!)
 
-![출처: https://www.instiz.net/name_enter/60415754](./../static/images/posts/archive/69ac2650175cc118f093d921e6ad4faa.jpg)
+![출처: https://www.instiz.net/name_enter/60415754](/images/posts/archive/69ac2650175cc118f093d921e6ad4faa.jpg)
 
 > 버스 타요~
 
@@ -55,16 +55,16 @@ pubspec.yaml 파일에 참조 라이브러리를 설치합니다.
 
 ```yaml
 dependencies:
-  mobx: ^0.3.7
-  flutter_mobx: ^0.3.2
+    mobx: ^0.3.7
+    flutter_mobx: ^0.3.2
 ```
 
 다음에는 dev_dependencies 를 추가합니다.
 
 ```yaml
 dependencies:
-  build_runner: ^1.6.7
-  mobx_codegen: 0.3.7
+    build_runner: ^1.6.7
+    mobx_codegen: 0.3.7
 ```
 
 아래 명령어로 패키지를 설치합니다.

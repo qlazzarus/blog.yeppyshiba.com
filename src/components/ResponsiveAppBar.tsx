@@ -92,7 +92,7 @@ const ResponsiveAppBar = () => {
                             onClick={handleOpenNavMenu}
                             color="inherit"
                         >
-                            <Image src={'/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
+                            <Image src={'/images/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
                         </IconButton>
                         <Menu
                             id="menu-appbar"
@@ -143,7 +143,7 @@ const ResponsiveAppBar = () => {
                                     color: theme.palette.text.primary,
                                 }}
                             >
-                                <Image src={'/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
+                                <Image src={'/images/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
                                 <Typography ml={1}>Yeppyshiba Blog</Typography>
                             </Link>
                         </Typography>
@@ -192,14 +192,14 @@ const ResponsiveAppBar = () => {
                         >
                             <LinkedIn />
                         </IconButton>
-                        <IconButton
+                        {/* <IconButton
                             onClick={toggleMode}
                             sx={{
                                 color: theme.palette.text.primary,
                             }}
                         >
                             {mode && mode === 'light' ? <DarkMode /> : <LightMode />}
-                        </IconButton>
+                        </IconButton> */}
                     </Box>
                 </Toolbar>
             </Container>

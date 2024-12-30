@@ -1,7 +1,8 @@
 import fs from 'fs';
-import path from 'path';
 import matter from 'gray-matter';
+import path from 'path';
 import { slugify } from 'transliteration';
+
 import { getViewCount } from './AnalyticsManager';
 
 export interface PostData {
@@ -80,21 +81,26 @@ export const getAllPosts = async () => {
     // GA 조회수 가져오기
     const gaData = await getViewCount(articlePrefix);
 
-    // gaData에 있는 path로부터 slug를 추출하는 로직 필요
-    // 예: path가 '/article/jeju-food-review-goraehimjul' 형태라면
-    // slugify 한 결과와 매칭
-    // 아래는 가정: path의 마지막 세그먼트가 slugify 후 slug와 동일하다고 가정
-    // 만약 구조가 다르다면 그에 맞게 수정해야 함.
     allPosts.forEach((post) => {
+        // 1) post.slug 앞에 /article/ 접두사를 붙인다.
+        //    예: post.slug === "adding-view-count-in-gatsby" 라면
+        //        pathWithPrefix === "/article/adding-view-count-in-gatsby"
+        const pathWithPrefix = `/article/${post.slug}`;
+
+        // 2) gaData 중에서 path가 위에서 만든 pathWithPrefix와 동일한 항목을 찾는다.
         const matching = gaData.find((d) => {
-            // d.path 가 /article/slug 형태라고 가정
-            const segments = d.path.split('/');
-            const lastSegment = segments[segments.length - 1];
-            return lastSegment === post.slug;
+            // /article/ 뒤에 슬래시로 끝나는 경우를 제거하기 위해,
+            // d.path 의 트레일링 슬래시를 모두 제거한다. (ex. '/article/adding-view-count-in-gatsby/' -> '/article/adding-view-count-in-gatsby')
+            const cleanPath = d.path.replace(/\/+$/, '');
+
+            return cleanPath === pathWithPrefix;
         });
 
+        // 3) 매칭된 항목이 있다면, GA에서 받은 viewCount를 숫자로 변환하여 post.viewCount에 할당
         if (matching) {
             post.viewCount = parseInt(matching.totalCount, 10) || 0;
+        } else {
+            post.viewCount = 0;
         }
     });
 
