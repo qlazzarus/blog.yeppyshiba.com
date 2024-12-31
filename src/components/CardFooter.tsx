@@ -1,7 +1,8 @@
 import { Box, Typography } from '@mui/material';
+import moment from 'moment';
 import React from 'react';
 
-const CardFooter = () => {
+const CardFooter = ({ date, viewCount }: { date: Date | string; viewCount: number }) => {
     return (
         <Box
             sx={{
@@ -9,14 +10,14 @@ const CardFooter = () => {
                 flexDirection: 'row',
                 gap: 2,
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end',
                 padding: '16px',
             }}
         >
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
-                Views
-            </Box>
-            <Typography variant='caption'>July 14, 2021</Typography>
+            <Typography variant='caption'>
+                {moment(date).fromNow()}
+                {viewCount > 0 && `, ${viewCount} Views`}
+            </Typography>
         </Box>
     );
 };
