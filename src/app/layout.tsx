@@ -1,6 +1,7 @@
-import { darkTheme } from '@/themes';
+import theme from '@/themes';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import React from 'react';
@@ -24,7 +25,7 @@ const RootLayout = async ({
         <html lang='en'>
             <body>
                 <AppRouterCacheProvider>
-                    <ThemeProvider theme={darkTheme}>
+                    <ThemeProvider theme={theme} defaultMode={'system'}>
                         <CssBaseline enableColorScheme />
                         <ResponsiveAppBar />
                         {children}

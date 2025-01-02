@@ -12,15 +12,15 @@ const PaginationContainer = ({
     linkPrefix: string;
     totalPages: number;
 }) => {
-    console.log({ page, totalPages });
-
     return (
         <Pagination
             count={totalPages}
             page={page}
             sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}
             siblingCount={5}
-            renderItem={(item) => <PaginationItem component={Link} href={`${linkPrefix}${item.page}`} {...item} />}
+            renderItem={(item) => (
+                <PaginationItem component={Link} href={`${linkPrefix}${item.page}`} {...item} />
+            )}
         />
     );
 };

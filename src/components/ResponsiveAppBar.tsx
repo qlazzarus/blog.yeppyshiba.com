@@ -1,6 +1,5 @@
 'use client';
 
-import { useThemeStore } from '@/stores/themeStore';
 import { DarkMode, GitHub, LightMode, LinkedIn } from '@mui/icons-material';
 import {
     AppBar,
@@ -12,7 +11,7 @@ import {
     MenuItem,
     Toolbar,
     Typography,
-    useTheme,
+    useColorScheme,
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,9 +40,7 @@ const pages = [
 const ResponsiveAppBar = () => {
     const router = useRouter();
     const [anchorElNav, setAnchorElNav] = useState<null>(null);
-    const mode = useThemeStore((state) => state.mode);
-    const theme = useTheme();
-    const toggleMode = useThemeStore((state) => state.toggleMode);
+    const { mode, setMode, systemMode } = useColorScheme();
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
     useEffect(() => {
@@ -57,12 +54,6 @@ const ResponsiveAppBar = () => {
         };
     }, []);
 
-    const appBarBackground = isScrolled
-        ? mode === 'dark'
-            ? 'rgba(34, 34, 34, 0.9)' // Dark mode 배경색
-            : 'rgba(255, 255, 255, 0.9)' // Light mode 배경색
-        : 'transparent'; // 기본 투명
-
     const handleOpenNavMenu = (event: any) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -73,29 +64,41 @@ const ResponsiveAppBar = () => {
 
     return (
         <AppBar
-            position="fixed"
+            position='fixed'
             enableColorOnDark
-            sx={{
-                backgroundColor: appBarBackground,
-                transition: 'background-color 0.3s ease', // 부드러운 전환
-            }}
+            sx={[
+                (theme) => ({
+                    transition: 'background-color 0.3s ease',
+                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
+                }),
+                (theme) =>
+                    theme.applyStyles('dark', {
+                        transition: 'background-color 0.3s ease',
+                        backgroundColor: isScrolled ? 'rgba(34, 34, 34, 0.9)' : 'transparent',
+                    }),
+            ]}
         >
-            <Container maxWidth="xl">
-                <Toolbar variant="dense" disableGutters>
+            <Container maxWidth='xl'>
+                <Toolbar variant='dense' disableGutters>
                     {/* 메뉴 (Mobile) */}
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
-                            size="large"
-                            aria-label="menu"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
+                            size='large'
+                            aria-label='menu'
+                            aria-controls='menu-appbar'
+                            aria-haspopup='true'
                             onClick={handleOpenNavMenu}
-                            color="inherit"
+                            color='inherit'
                         >
-                            <Image src={'/images/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
+                            <Image
+                                src={'/images/akita-inu.png'}
+                                alt='Yeppyshiba Blog'
+                                width={24}
+                                height={24}
+                            />
                         </IconButton>
                         <Menu
-                            id="menu-appbar"
+                            id='menu-appbar'
                             anchorEl={anchorElNav}
                             anchorOrigin={{
                                 vertical: 'top',
@@ -113,7 +116,7 @@ const ResponsiveAppBar = () => {
                             }}
                         >
                             <MenuItem onClick={handleCloseNavMenu}>
-                                <Typography textAlign="center">
+                                <Typography textAlign='center'>
                                     <Link href={'/'} passHref>
                                         {'Blog'}
                                     </Link>
@@ -121,7 +124,7 @@ const ResponsiveAppBar = () => {
                             </MenuItem>
                             {pages.map((page) => (
                                 <MenuItem key={page.title} onClick={handleCloseNavMenu}>
-                                    <Typography textAlign="center">
+                                    <Typography textAlign='center'>
                                         <Link href={page.link} passHref>
                                             {page.title}
                                         </Link>
@@ -133,17 +136,21 @@ const ResponsiveAppBar = () => {
 
                     {/* 홈 로고 */}
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 2 }}>
-                        <Typography variant="h6" noWrap component="h1">
+                        <Typography variant='h6' noWrap component='h1'>
                             <Link
-                                href="/"
+                                href='/'
                                 style={{
                                     textDecoration: 'none',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    color: theme.palette.text.primary,
                                 }}
                             >
-                                <Image src={'/images/akita-inu.png'} alt="Yeppyshiba Blog" width={24} height={24} />
+                                <Image
+                                    src={'/images/akita-inu.png'}
+                                    alt='Yeppyshiba Blog'
+                                    width={24}
+                                    height={24}
+                                />
                                 <Typography ml={1}>Yeppyshiba Blog</Typography>
                             </Link>
                         </Typography>
@@ -156,7 +163,6 @@ const ResponsiveAppBar = () => {
                                 key={page.title}
                                 size={'small'}
                                 sx={{
-                                    color: theme.palette.text.primary,
                                     display: 'block',
                                     textTransform: 'none',
                                     textDecoration: 'none',
@@ -171,32 +177,23 @@ const ResponsiveAppBar = () => {
                     {/* 외부 링크 */}
                     <Box sx={{ flexGrow: 0 }}>
                         <IconButton
-                            component="a"
-                            href="https://github.com/qlazzarus"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                                color: theme.palette.text.primary,
-                            }}
+                            component='a'
+                            href='https://github.com/qlazzarus'
+                            target='_blank'
+                            rel='noopener noreferrer'
                         >
                             <GitHub />
                         </IconButton>
                         <IconButton
-                            component="a"
-                            href="https://www.linkedin.com/in/yeppyshiba/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                                color: theme.palette.text.primary,
-                            }}
+                            component='a'
+                            href='https://www.linkedin.com/in/yeppyshiba/'
+                            target='_blank'
+                            rel='noopener noreferrer'
                         >
                             <LinkedIn />
                         </IconButton>
                         {/* <IconButton
                             onClick={toggleMode}
-                            sx={{
-                                color: theme.palette.text.primary,
-                            }}
                         >
                             {mode && mode === 'light' ? <DarkMode /> : <LightMode />}
                         </IconButton> */}

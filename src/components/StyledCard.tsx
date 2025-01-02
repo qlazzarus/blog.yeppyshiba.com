@@ -13,7 +13,6 @@ const StyledCard = ({ children, ...props }: React.ComponentProps<typeof Card>) =
                 backgroundColor: 'background.paper',
                 '&:hover': {
                     backgroundColor: 'transparent',
-                    cursor: 'pointer',
                 },
                 '&:focus-visible': {
                     outline: '3px solid',

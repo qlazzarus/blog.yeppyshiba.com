@@ -18,27 +18,26 @@ const EntryContainer = ({ entries }: { entries: PostData[] }) => {
                     <Grid size={{ xs: 12, md: 6, xl: 4 }} key={index}>
                         <SyledCard variant='outlined'>
                             {/* CardMedia 대신 직접 Image 사용 */}
-                            <div
+                            <Link
+                                href={`/article/${entry.slug}`}
+                                passHref
                                 style={{
-                                    position: 'relative',
-                                    width: '100%',
                                     aspectRatio: '16/9',
+                                    width: '100%',
+                                    textDecoration: 'none',
+                                    display: 'block',
+                                    position: 'relative',
                                 }}
                             >
-                                <Link
-                                    href={`/article/${entry.slug}`}
-                                    passHref
-                                    style={{ textDecoration: 'none' }}
-                                >
-                                    <Image
-                                        src={(entry.image || entry.embeddedImagesLocal) as string}
-                                        alt={entry.title || 'image'}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
-                                        sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
-                                    />
-                                </Link>
-                            </div>
+                                <Image
+                                    src={(entry.image || entry.embeddedImagesLocal) as string}
+                                    alt={entry.title || 'image'}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
+                                />
+                            </Link>
+
                             <StyledCardContent>
                                 {entry.category && (
                                     <Typography
