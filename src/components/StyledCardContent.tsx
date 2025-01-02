@@ -8,8 +8,8 @@ const StyledCardContent = ({ children, ...props }: React.ComponentProps<typeof C
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 4,
-                padding: 16,
+                gap: 1,
+                padding: 4,
                 flexGrow: 1,
                 '&:last-child': {
                     paddingBottom: 16,

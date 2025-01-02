@@ -5,6 +5,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import React from 'react';
 
+import Footer from '@/components/Footer';
 import ResponsiveAppBar from '@/components/ResponsiveAppBar';
 
 export const metadata: Metadata = {
@@ -20,13 +21,14 @@ const RootLayout = async ({
     const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
 
     return (
-        <html lang="en">
+        <html lang='en'>
             <body>
                 <AppRouterCacheProvider>
                     <ThemeProvider theme={darkTheme}>
                         <CssBaseline enableColorScheme />
                         <ResponsiveAppBar />
                         {children}
+                        <Footer />
                     </ThemeProvider>
                 </AppRouterCacheProvider>
             </body>
