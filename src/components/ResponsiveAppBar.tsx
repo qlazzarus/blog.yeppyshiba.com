@@ -43,6 +43,19 @@ const ResponsiveAppBar = () => {
     const { mode, setMode, systemMode } = useColorScheme();
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
+    // 현재 실제로 적용 중인 모드를 계산 (system이면 systemMode 사용)
+    const activeMode = mode === 'system' ? systemMode : mode;
+
+    // 클릭 시 'light' ↔ 'dark' 로만 토글하도록 구현
+    // (system을 그대로 유지하지 않고, 사용자가 토글하면 직접 'light'나 'dark'로 오버라이드)
+    const handleToggle = () => {
+        if (activeMode === 'light') {
+            setMode('dark');
+        } else {
+            setMode('light');
+        }
+    };
+
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10); // 스크롤이 10px 이상 내려가면 상태 변경
@@ -192,11 +205,11 @@ const ResponsiveAppBar = () => {
                         >
                             <LinkedIn />
                         </IconButton>
-                        {/* <IconButton
-                            onClick={toggleMode}
+                        <IconButton
+                            onClick={handleToggle}
                         >
-                            {mode && mode === 'light' ? <DarkMode /> : <LightMode />}
-                        </IconButton> */}
+                            {activeMode === 'light' ? <DarkMode /> : <LightMode />}
+                        </IconButton>
                     </Box>
                 </Toolbar>
             </Container>

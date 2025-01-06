@@ -16,6 +16,13 @@ const config: Linter.Config = {
         'plugin:@typescript-eslint/recommended',
         'prettier', // Prettier와 통합
     ],
+        // 추가 플러그인 등록
+        plugins: [
+            // 기타 필요한 플러그인('react', '@typescript-eslint', 'react-hooks') 등이
+            // next/core-web-vitals에 이미 포함되었을 수 있으므로,
+            // 명시적으로 추가가 필요하다면 여기에 넣어 주세요.
+            'sort-keys-fix', // <= 객체 키 정렬을 위한 플러그인
+        ],
     // 추가로 필요한 plugin이 있다면 아래 plugins 배열에 명시
     // e.g., plugins: ['react', '@typescript-eslint', 'react-hooks']
     rules: {

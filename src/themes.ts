@@ -126,5 +126,8 @@ export default responsiveFontSizes(
             light: true,
             dark: true,
         },
+        cssVariables: {
+            colorSchemeSelector: 'class'
+        }
     }),
 );

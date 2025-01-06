@@ -1,6 +1,6 @@
 'use client';
 
-import { useThemeStore } from '@/stores/themeStore';
+import { useColorScheme } from '@mui/material';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -63,16 +63,18 @@ const WaveUse = styled.use<{ fill: string }>`
 `;
 
 const WaveAnimation = () => {
-    const mode = useThemeStore((state) => state.mode); // 다크 모드 여부 확인
+    const { mode, systemMode } = useColorScheme();
+    // 현재 실제로 적용 중인 모드를 계산 (system이면 systemMode 사용)
+    const activeMode = mode === 'system' ? systemMode : mode;
 
     // 모드에 따른 스타일
     const gradient =
-        mode === 'dark'
+        activeMode === 'dark'
             ? 'linear-gradient(60deg, rgba(34,34,34,1) 0%, rgba(84,58,183,1) 100%)'
             : 'linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%)';
 
     const waveColors =
-        mode === 'dark'
+        activeMode === 'dark'
             ? ['rgba(84,84,84,0.7)', 'rgba(84,84,84,0.5)', 'rgba(84,84,84,0.3)', '#222']
             : ['rgba(255,255,255,0.7)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0.3)', '#fff'];
 
@@ -80,18 +82,22 @@ const WaveAnimation = () => {
         <Background $gradient={gradient}>
             {/* Waves */}
             <WaveContainer>
-                <Svg xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+                <Svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 24 150 28'
+                    preserveAspectRatio='none'
+                >
                     <defs>
                         <path
-                            id="gentle-wave"
-                            d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+                            id='gentle-wave'
+                            d='M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z'
                         />
                     </defs>
-                    <g className="parallax">
-                        <WaveUse href="#gentle-wave" x="48" y="0" fill={waveColors[0]} />
-                        <WaveUse href="#gentle-wave" x="48" y="3" fill={waveColors[1]} />
-                        <WaveUse href="#gentle-wave" x="48" y="5" fill={waveColors[2]} />
-                        <WaveUse href="#gentle-wave" x="48" y="7" fill={waveColors[3]} />
+                    <g className='parallax'>
+                        <WaveUse href='#gentle-wave' x='48' y='0' fill={waveColors[0]} />
+                        <WaveUse href='#gentle-wave' x='48' y='3' fill={waveColors[1]} />
+                        <WaveUse href='#gentle-wave' x='48' y='5' fill={waveColors[2]} />
+                        <WaveUse href='#gentle-wave' x='48' y='7' fill={waveColors[3]} />
                     </g>
                 </Svg>
             </WaveContainer>

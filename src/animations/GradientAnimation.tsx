@@ -1,6 +1,6 @@
 'use client';
 
-import { useThemeStore } from '@/stores/themeStore';
+import { useColorScheme } from '@mui/material';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -33,19 +33,21 @@ const Background = styled.div<{ $duration: string; $reverse?: boolean; $gradient
 `;
 
 const GradientAnimation = () => {
-    const mode = useThemeStore((state) => state.mode); // 다크 모드 여부 확인
+    const { mode, systemMode } = useColorScheme();
+    // 현재 실제로 적용 중인 모드를 계산 (system이면 systemMode 사용)
+    const activeMode = mode === 'system' ? systemMode : mode;
 
     // 다크 모드와 라이트 모드에 따른 그라디언트
     const gradient =
-        mode === 'dark'
+        activeMode === 'dark'
             ? 'linear-gradient(-60deg, #333 50%, #555 50%)' // 다크 모드
             : 'linear-gradient(-60deg, #6c3 50%, #09f 50%)'; // 라이트 모드
 
     return (
         <>
-            <Background $duration="3s" $gradient={gradient} />
-            <Background $duration="4s" $reverse={true} $gradient={gradient} />
-            <Background $duration="5s" $gradient={gradient} />
+            <Background $duration='3s' $gradient={gradient} />
+            <Background $duration='4s' $reverse={true} $gradient={gradient} />
+            <Background $duration='5s' $gradient={gradient} />
         </>
     );
 };

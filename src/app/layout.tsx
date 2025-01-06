@@ -22,8 +22,9 @@ const RootLayout = async ({
     const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
 
     return (
-        <html lang='en'>
+        <html lang='en' suppressHydrationWarning>
             <body>
+                <InitColorSchemeScript attribute="class" />
                 <AppRouterCacheProvider>
                     <ThemeProvider theme={theme} defaultMode={'system'}>
                         <CssBaseline enableColorScheme />
