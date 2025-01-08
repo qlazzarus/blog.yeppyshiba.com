@@ -1,5 +1,7 @@
 import fs from 'fs';
 import matter from 'gray-matter';
+import { MDXRemoteSerializeResult } from 'next-mdx-remote';
+import { serialize } from 'next-mdx-remote/serialize';
 import path from 'path';
 import { slugify } from 'transliteration';
 
@@ -15,6 +17,7 @@ export interface PostData {
     embeddedImagesLocal?: string;
     tags: string[];
     content: string;
+    source?: MDXRemoteSerializeResult<Record<string, unknown>, Record<string, unknown>>;
     roadAddress?: string;
     parcelAddress?: string;
     lat?: number;
@@ -36,7 +39,7 @@ export const getAllPosts = async () => {
 
     const fileNames = fs.readdirSync(postDirectory);
 
-    const allPosts = fileNames.map((fileName) => {
+    const allPosts: PostData[] = fileNames.map((fileName) => {
         const fullPath = path.join(postDirectory, fileName);
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         const {
@@ -101,6 +104,14 @@ export const getAllPosts = async () => {
             post.viewCount = parseInt(matching.totalCount, 10) || 0;
         } else {
             post.viewCount = 0;
+        }
+    });
+
+    allPosts.forEach(async (post) => {
+        try {
+            post.source = await serialize(post.content);
+        } catch (e) {
+            console.error(`${post.slug} error`, e);
         }
     });
 

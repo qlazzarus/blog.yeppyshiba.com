@@ -1,13 +1,12 @@
-import { PostData } from '@/libraries/PostManager'
-import { Container } from '@mui/material'
-import React from 'react'
+import { Container } from '@mui/material';
+import { MDXRemote } from 'next-mdx-remote';
+import { serialize } from 'next-mdx-remote/serialize';
+import React from 'react';
+
+import { PostData } from '@/libraries/PostManager';
 
 const ArticleContainer = ({ post }: { post: PostData }) => {
-    return (
-        <Container maxWidth="xl">
-            {post.content}
-        </Container>
-    )
-}
+    return <Container maxWidth='xl'>{post.content}</Container>;
+};
 
-export default ArticleContainer
+export default ArticleContainer;
