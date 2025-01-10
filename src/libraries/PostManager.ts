@@ -3,6 +3,7 @@ import matter from 'gray-matter';
 import { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
 import path from 'path';
+import remarkGfm from 'remark-gfm';
 import { slugify } from 'transliteration';
 
 import { getViewCount } from './AnalyticsManager';
@@ -17,7 +18,7 @@ export interface PostData {
     embeddedImagesLocal?: string;
     tags: string[];
     content: string;
-    source?: MDXRemoteSerializeResult<Record<string, unknown>, Record<string, unknown>>;
+    source?: MDXRemoteSerializeResult;
     roadAddress?: string;
     parcelAddress?: string;
     lat?: number;
@@ -109,7 +110,14 @@ export const getAllPosts = async () => {
 
     allPosts.forEach(async (post) => {
         try {
-            post.source = await serialize(post.content);
+            post.source = await serialize(post.content, {
+                mdxOptions: {
+                    // markdown 확장 기능 (테이블, 스트라이크스루 등) 사용
+                    remarkPlugins: [remarkGfm],
+                    rehypePlugins: [],
+                    format: 'mdx',
+                },
+            });
         } catch (e) {
             console.error(`${post.slug} error`, e);
         }

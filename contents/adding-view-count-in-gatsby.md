@@ -91,12 +91,15 @@ Google은 Analytics Reporting v4 API를 사용하여 데이터를 쿼리하는 �
 
 ```json
 {
-    "dimensions": [{ "name": "pagePath" }],
-    "metrics": [{ "name": "screenPageViews" }],
     "dateRanges": [{ "startDate": "2022-05-30", "endDate": "yesterday" }],
     "dimensionFilter": {
-        "filter": { "fieldName": "pagePath", "stringFilter": { "matchType": "BEGINS_WITH", "value": "/article/" } }
-    }
+        "filter": {
+            "fieldName": "pagePath",
+            "stringFilter": { "matchType": "BEGINS_WITH", "value": "/article/" }
+        }
+    },
+    "dimensions": [{ "name": "pagePath" }],
+    "metrics": [{ "name": "screenPageViews" }]
 }
 ```
 
@@ -165,7 +168,7 @@ const getViewCount = async () => {
 
 - credentials 항목을 process.env.ANALYTICS_CREDENTIALS 으로 넘김
 - 아까 [Request Composer](https://ga-dev-tools.web.app/ga4/query-explorer/) 에서 생성한 쿼리에서 property 항목을 추가
-- 조회한 결과를 { path: string, totalCount: string } 항목으로 리턴함
+- 조회한 결과를 path: string, totalCount: string 항목으로 리턴함
 
 이 함수를 아까 이야기했던 onPluginInit 에서 호출하도록 합니다. 이후 cache 로 적재 했는데요. 자세한 내용은 [Gatsby Node API Helpers](https://www.gatsbyjs.com/docs/reference/config-files/node-api-helpers/) 문서를 참조 하세요!
 
@@ -183,7 +186,8 @@ export const onCreateNode = async ({ node, getNode, actions, cache }) => {
 
     // total count
     const slug = `${articlePrefix}${createFilePath({ node, getNode, basePath: `./contents` })}`;
-    const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 }).totalCount;
+    const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 })
+        .totalCount;
     createNodeField({ node, name: 'totalCount', value: parseInt(totalCount) });
 };
 ```
