@@ -23,6 +23,8 @@ import {
     TypographyProps,
 } from '@mui/material';
 
+import CodeBlock from '@/components/CodeBlock';
+
 export default {
     // 텍스트 관련
     p: (props: TypographyProps) => <Typography variant='body1' my={3} {...props} />,
@@ -100,16 +102,5 @@ export default {
     ),
 
     // 인라인 code
-    code: (props: React.HTMLAttributes<HTMLElement>) => (
-        <Typography
-            component='code'
-            sx={{
-                fontFamily: 'monospace',
-                backgroundColor: '#f5f5f5',
-                px: 0.5,
-                borderRadius: '4px',
-            }}
-            {...props}
-        />
-    ),
+    code: CodeBlock,
 };
