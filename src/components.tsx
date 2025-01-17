@@ -23,11 +23,23 @@ import {
     TypographyProps,
 } from '@mui/material';
 
-import CodeBlock from '@/components/CodeBlock';
+import CodeBlock from '@/components/markdown/CodeBlock';
+import ImageRenderer from '@/components/markdown/ImageRenderer';
 
 export default {
     // 텍스트 관련
-    p: (props: TypographyProps) => <Typography variant='body1' my={3} {...props} />,
+    //p: (props: TypographyProps) => <Typography variant='body1' my={3} {...props} />,
+    p: ({ children }: TypographyProps) => {
+        if (typeof children === 'object') {
+            return (
+                <Box my={4} component={'div'}>
+                    {children}
+                </Box>
+            );
+        }
+
+        return <Typography my={4}>{children}</Typography>;
+    },
     h1: (props: TypographyProps) => <Typography variant='h1' my={3} {...props} />,
     h2: (props: TypographyProps) => <Typography variant='h2' my={3} {...props} />,
     h3: (props: TypographyProps) => <Typography variant='h3' my={3} {...props} />,
@@ -75,16 +87,7 @@ export default {
     ),
 
     // 이미지
-    img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-        <Box
-            component='img'
-            maxWidth='100%'
-            display='block'
-            my={2}
-            // 기본 maxWidth 100%로 설정해, 반응형 이미지
-            {...props}
-        />
-    ),
+    img: ImageRenderer,
 
     // 블록 인용문
     blockquote: (props: BoxProps) => (

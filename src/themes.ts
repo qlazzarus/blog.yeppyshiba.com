@@ -96,20 +96,6 @@ export default responsiveFontSizes(
         },
         typography: {
             fontFamily: robotoFont.style.fontFamily,
-            h1: {
-                fontSize: '3rem',
-                fontWeight: 600,
-                lineHeight: 1.2,
-                letterSpacing: '-0.5px',
-            },
-            h2: {
-                fontSize: '2.25rem',
-                fontWeight: 600,
-                lineHeight: 1.2,
-            },
-            body1: {
-                fontSize: '1rem',
-            },
         },
         shadows: customShadows,
         components: {
@@ -127,7 +113,7 @@ export default responsiveFontSizes(
             dark: true,
         },
         cssVariables: {
-            colorSchemeSelector: 'class'
-        }
+            colorSchemeSelector: 'class',
+        },
     }),
 );
