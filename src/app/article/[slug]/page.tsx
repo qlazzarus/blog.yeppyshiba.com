@@ -3,6 +3,7 @@ import React from 'react';
 
 import ArticleContainer from '@/components/ArticleContainer';
 import Jumbotron from '@/components/Jumbotron';
+import ScrollIndicator from '@/components/ScrollIndicator';
 
 import { getAllPosts } from '@/libraries/PostManager';
 
@@ -24,6 +25,8 @@ const Article = async ({ params }: { params: Promise<{ slug: string }> }) => {
 
     return (
         <>
+            {/* 스크롤 진행 바 */}
+            <ScrollIndicator />
             <Jumbotron />
             <ArticleContainer post={post} />
         </>

@@ -22,6 +22,7 @@ import {
     Typography,
     TypographyProps,
 } from '@mui/material';
+import { ReactNode } from 'react';
 
 import CodeBlock from '@/components/markdown/CodeBlock';
 import ImageRenderer from '@/components/markdown/ImageRenderer';
@@ -76,19 +77,6 @@ export default {
     ),
 
     a: LinkContainer,
-    /*
-    // 링크
-    a: (props: MuiLinkProps) => (
-        <MuiLink
-            {...props}
-            // 원하는 스타일 추가
-            sx={{ textDecoration: 'underline' }}
-            // 외부 링크면 target, rel 처리
-            target='_blank'
-            rel='noopener noreferrer'
-        />
-    ),
-    */
 
     // 이미지
     img: ImageRenderer,

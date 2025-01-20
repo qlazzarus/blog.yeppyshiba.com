@@ -10,8 +10,7 @@ const LinkContainer = (props: MaterialLinkProps) => {
     const isAnchor = (href || '').startsWith('#');
 
     // footnote-backref 처리: 렌더링하지 않음
-    if (className === 'footnote-backref') {
-        // TODO
+    if (className === 'data-footnote-backref') {
         return null;
     }
 
