@@ -25,6 +25,7 @@ import {
 
 import CodeBlock from '@/components/markdown/CodeBlock';
 import ImageRenderer from '@/components/markdown/ImageRenderer';
+import LinkContainer from '@/components/markdown/LinkContainer';
 
 export default {
     // 텍스트 관련
@@ -74,6 +75,8 @@ export default {
         />
     ),
 
+    a: LinkContainer,
+    /*
     // 링크
     a: (props: MuiLinkProps) => (
         <MuiLink
@@ -85,6 +88,7 @@ export default {
             rel='noopener noreferrer'
         />
     ),
+    */
 
     // 이미지
     img: ImageRenderer,

@@ -2,7 +2,8 @@
 title: 2.5D 구현하기 - 쿼터뷰
 date: 2022-03-27T09:00:00.000Z
 category: coding
-summary: 여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다.
+summary:
+    여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다.
     이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
 image: https://imagescdn.gettyimagesbank.com/500/19/592/773/0/1147490682.jpg
 tags:
@@ -88,8 +89,18 @@ y 좌표는 기존 좌표의 x + y 를 더한 값을 나눠야 합니다.
 
 ## 결과!
 
-<div style="position: relative; height: 0; padding-bottom: 56.25%; padding-top: 25px;">
-<iframe src='//labs.phaser.io/view-iframe.html?src=src/depth sorting/isometric blocks.js&v=3.55.2' style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;'></iframe>
+<div style={{ position: 'relative', height: 0, paddingBottom: '56.25%', paddingTop: '25px' }}>
+  <iframe
+    src="//labs.phaser.io/view-iframe.html?src=src/depth sorting/isometric blocks.js&v=3.55.2"
+    style={{ 
+      position: 'absolute', 
+      top: 0, 
+      left: 0, 
+      width: '100%', 
+      height: '100%', 
+      border: 0 
+    }}
+  />
 </div>
 
 Ref.
