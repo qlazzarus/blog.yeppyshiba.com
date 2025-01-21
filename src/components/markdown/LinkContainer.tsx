@@ -1,13 +1,23 @@
 import { Link as MaterialLink, LinkProps as MaterialLinkProps } from '@mui/material';
-import NextLink, { LinkProps } from 'next/link';
+import NextLink from 'next/link';
 import React from 'react';
 
-const LinkContainer = (props: MaterialLinkProps) => {
+import FootnoteLink from './FootnoteLink';
+
+// MaterialLinkProps를 상속(혹은 & 교차)하며, data-footnote-ref 속성도 허용
+interface ExtendedLinkProps extends MaterialLinkProps {
+    'data-footnote-ref'?: boolean;
+}
+
+const LinkContainer = (props: ExtendedLinkProps) => {
     const { children, href, className } = props;
     // 외부 링크( http://, https:// 등 )
     const isExternal = /^([a-zA-Z]{2,20}):\/\/.+/.test(href || '');
     // 앵커(#) 링크
     const isAnchor = (href || '').startsWith('#');
+
+    // footnote label
+    const isFootnote = props['data-footnote-ref'];
 
     // footnote-backref 처리: 렌더링하지 않음
     if (className === 'data-footnote-backref') {
@@ -15,12 +25,16 @@ const LinkContainer = (props: MaterialLinkProps) => {
     }
 
     // 앵커 링크(#)는 페이지 내 스크롤 이동용
-    if (isAnchor) {
+    if (isAnchor && !isFootnote) {
         return (
             <MaterialLink href={href} color='primary' {...props}>
                 {children}
             </MaterialLink>
         );
+    }
+
+    if (isAnchor && isFootnote) {
+        return <FootnoteLink {...props} />;
     }
 
     // 내부 링크: Next.js Link 사용

@@ -25,7 +25,7 @@ tags:
 
 ![](/images/posts/202205/KakaoTalk_Photo_2022-05-22-14-48-49-006.jpeg)
 
-[^1]: 키 60~71cm에 무게 32~50kg 정도.
+[^1]: 키 60 ~ 71cm에 무게 32 ~ 50kg 정도.
 
 ![](/images/posts/202205/KakaoTalk_Photo_2022-05-22-14-48-49-003.jpeg)
 

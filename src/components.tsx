@@ -7,8 +7,6 @@ import {
     ListItem,
     ListItemProps,
     ListProps,
-    Link as MuiLink,
-    LinkProps as MuiLinkProps,
     Paper,
     PaperProps,
     Table,
@@ -22,11 +20,14 @@ import {
     Typography,
     TypographyProps,
 } from '@mui/material';
-import { ReactNode } from 'react';
+import { HTMLAttributes } from 'react';
 
 import CodeBlock from '@/components/markdown/CodeBlock';
 import ImageRenderer from '@/components/markdown/ImageRenderer';
 import LinkContainer from '@/components/markdown/LinkContainer';
+
+import FootnoteSection from './components/markdown/FootnoteSection';
+import OrderedList from './components/markdown/OrderedList';
 
 export default {
     // 텍스트 관련
@@ -51,7 +52,7 @@ export default {
 
     // 리스트
     ul: (props: ListProps) => <List {...props} />,
-    ol: (props: ListProps) => <List {...props} />,
+    ol: OrderedList,
     li: (props: ListItemProps) => <ListItem {...props} />,
 
     // 테이블
@@ -98,4 +99,12 @@ export default {
 
     // 인라인 code
     code: CodeBlock,
+
+    section: ({ className, children }: HTMLAttributes<HTMLElement>) => {
+        if (className === 'footnotes') {
+            return <FootnoteSection>{children}</FootnoteSection>;
+        }
+
+        return <>{children}</>;
+    },
 };
