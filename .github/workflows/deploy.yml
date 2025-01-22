@@ -1,58 +1,59 @@
 name: Build and deploy
 on:
-  push:
-    branches: [ main ]
+    push:
+        branches: [main]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
-        with:
-          node-version: 17.x
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@master
+            - uses: actions/setup-node@master
+              with:
+                  node-version: 17.x
 
-      - name: cache node_modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+            - name: cache node_modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
 
-      - name: install devDependencies
-        run: npm install
+            - name: install devDependencies
+              run: npm install
 
-      - name: Gatsby Cache Folder
-        uses: actions/cache@v1
-        id: gatsby-cache-folder
-        with:
-          path: .cache
-          key: ${{ runner.os }}-cache-gatsby
-          restore-keys: |
-            ${{ runner.os }}-cache-gatsby
+            - name: Gatsby Cache Folder
+              uses: actions/cache@v1
+              id: gatsby-cache-folder
+              with:
+                  path: .cache
+                  key: ${{ runner.os }}-cache-gatsby
+                  restore-keys: |
+                      ${{ runner.os }}-cache-gatsby
 
-      - name: Gatsby Public Folder
-        uses: actions/cache@v1
-        id: gatsby-public-folder
-        with:
-          path: public/
-          key: ${{ runner.os }}-public-gatsby
-          restore-keys: |
-            ${{ runner.os }}-public-gatsby
+            - name: Gatsby Public Folder
+              uses: actions/cache@v1
+              id: gatsby-public-folder
+              with:
+                  path: public/
+                  key: ${{ runner.os }}-public-gatsby
+                  restore-keys: |
+                      ${{ runner.os }}-public-gatsby
 
-      - name: build
-        run: npm run build
-        env:
-          GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES: true
-          ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
-          ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
-          GATSBY_KAKAO_REST_API: ${{ secrets.GATSBY_KAKAO_REST_API }}
-          GATSBY_KAKAO_API: ${{ secrets.GATSBY_KAKAO_API }}        
+            - name: Build (Next.js)
+              run: npm run build
+              env:
+                  ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+                  ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+                  NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.GATSBY_KAKAO_REST_API }}
+                  NEXT_PUBLIC_KAKAO_API: ${{ secrets.GATSBY_KAKAO_API }}
+                  NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
 
-      - name: deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: public/
-          cname: blog.yeppyshiba.com
+            # 6) GitHub Pages로 배포
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_branch: gh-pages
+                  publish_dir: out # next export 결과물이 들어있는 폴더
+                  cname: blog.yeppyshiba.com

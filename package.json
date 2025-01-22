@@ -12,14 +12,14 @@
     ],
     "scripts": {
         "dev": "next dev --turbopack",
-        "build": "next build",
+        "build": "next build && next export",
         "start": "next start",
         "lint": "next lint",
         "format": "prettier --write .",
         "test": "echo TODO",
         "postinstall": "husky install",
         "update:latlng": "tsx -r dotenv/config scripts/updateLatLng.ts",
-        "prepare": "husky"
+        "prepare": "husky install"
     },
     "dependencies": {
         "@emotion/cache": "^11.14.0",
