@@ -12,7 +12,7 @@ import Jumbotron from '@/components/Jumbotron';
 import ResponsiveAppBar from '@/components/ResponsiveAppBar';
 import ScrollIndicator from '@/components/ScrollIndicator';
 
-import { getAllPosts } from '@/libraries/PostManager';
+import { getAllPosts, getPostBySlug } from '@/libraries/PostManager';
 
 const allPosts = await getAllPosts();
 
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 const Article = async ({ params }: { params: { slug: string } }) => {
     const slug = (await params).slug;
-    const post = allPosts.find((p) => p.slug === slug);
+    const post = await getPostBySlug(slug);
 
     if (!post) {
         notFound();
