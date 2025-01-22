@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { GAPageView } from "@/hooks/useGAPageView";
 import React from 'react';
 
 const RootLayout = async ({
@@ -22,8 +23,9 @@ const RootLayout = async ({
                         {children}
                     </ThemeProvider>
                 </AppRouterCacheProvider>
+                <GoogleAnalytics gaId={gaId} />
+                <GAPageView />
             </body>
-            <GoogleAnalytics gaId={gaId} />
         </html>
     );
 };
