@@ -27,8 +27,8 @@ jobs:
               env:
                   ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
                   ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
-                  NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.GATSBY_KAKAO_REST_API }}
-                  NEXT_PUBLIC_KAKAO_API: ${{ secrets.GATSBY_KAKAO_API }}
+                  NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.GATSBY_KAKAO_API }}
+                  NEXT_PUBLIC_KAKAO_API: ${{ secrets.GATSBY_KAKAO_REST_API }}
                   NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
 
             # 6) GitHub Pages로 배포
