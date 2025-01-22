@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tag-template-tsx",
-    "path": "/tag/svn/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"Yeppyshiba Blog","description":"Living whatever blah blah","siteUrl":"https://blog.yeppyshiba.com"}},"allMdx":{"edges":[{"node":{"id":"71d88580-1ad3-5419-9d12-11527d4fa0c2","fields":{"totalCount":31,"slug":"svn-to-git"},"frontmatter":{"title":"svn 사용자를 위한 git 안내서","date":"2022-01-23T15:00:00.000Z","image":"https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg","embeddedImagesLocal":null,"category":"coding","tags":["dev","coding","git","svn"],"summary":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다."}}}]}},"pageContext":{"slug":"svn","pageNumber":0,"humanPageNumber":1,"skip":0,"limit":10,"numberOfPages":1,"previousPagePath":"","nextPagePath":""}},
-    "staticQueryHashes": ["3764592887"]}

@@ -1,0 +1,650 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"K66r6ptgLjfZKMy0nD8C_","p":"","c":["","article","migration-to-nextjs"],"i":false,"f":[[["",{"children":["article",{"children":[["slug","migration-to-nextjs","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","migration-to-nextjs","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","0h22zf89TwiGsfyS-K_EL",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]]}],["$","$L11",null,{"gaId":"314819162"}]]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+16:T2e15,
+## 1. 왜 Gatsby에서 Next.js로 옮겼을까?
+
+### 1) Gatsby의 장점과 한계
+
+- **장점**: 정적 사이트 생성(SSG)에 최적화된 방식, 풍부한 플러그인 생태계, GraphQL을 통한 데이터 수집 관리.
+- **한계**: 빌드 시간이 길어질 수 있음, 필요 이상의 의존성이 생길 수도 있음, SSR(서버 사이드 렌더링) 기능이 제한적.
+
+### 2) Next.js의 주요 장점
+
+- **서버 사이드 렌더링(SSR)** 및 **정적 페이지 생성(SSG)** 를 모두 지원해 유연한 아키텍처 구축 가능.
+- 페이지 단위의 라우팅이 간단하며, 파일 기반 라우팅('app' 폴더)으로 개발 생산성이 높음.
+- ISR(Incremental Static Regeneration)을 통해 부분적인 정적 페이지 리빌드가 가능해 확장성, 성능에서 강점.
+- React 18 이후 지원되는 기능들과의 호환성 우수, 빠른 업데이트.
+
+따라서 **다양한 렌더링 옵션**을 활용해 유연하고 효율적인 블로그를 만들어보고자 Next.js를 선택했습니다.
+
+---
+
+## 2. next-mdx-remote vs MDX 플러그인
+
+### 1) MDX란?
+
+MDX는 **Markdown** 문법에 **React 컴포넌트**를 섞어 쓸 수 있게 해주는 포맷입니다. 기존에도 Gatsby MDX 플러그인을 활용하여 블로그 포스트를 작성할 수 있었지만, Next.js에서 MDX를 사용하기 위해선 'next-mdx-remote'나 '@next/mdx' 같은 패키지를 도입하게 됩니다.
+
+### 2) next-mdx-remote의 특징
+
+- **파일 시스템 기반**으로 MDX를 불러오지 않고, 콘텐츠 문자열을 받아서 SSR 시점에 파싱해주기 때문에 더욱 유연하게 MDX를 처리할 수 있음.
+- 서버에서 텍스트를 받아 파싱하고, 클라이언트에선 React 컴포넌트로 렌더링하기 때문에 더 세밀한 컨트롤 가능.
+- 코드 스플리팅, 동적 import 등 Next.js 기능과도 궁합이 잘 맞음.
+
+저는 블로그 포스트를 각 마크다운(MDX) 파일로 관리하고, 빌드 시점(혹은 ISR) 또는 요청 시점(SSR)에 해당 MDX 파일을 파싱해주도록 설정했습니다. 이를 통해 새로운 글을 작성하거나 수정할 때의 프로세스를 간소화할 수 있었습니다.
+
+---
+
+## 3. UI 라이브러리: Chakra UI에서 MUI로 옮긴 이유
+
+### 1) Chakra UI의 장점과 MUI 선택 배경
+
+- **Chakra UI** 는 간단하고 직관적인 컴포넌트 스타일링을 제공해서 학습 비용이 낮고, 유연하게 테마 커스터마이징이 가능하다는 장점이 있습니다.
+- **MUI(Material UI)** 는 구글의 Material Design을 기반으로, 다양한 컴포넌트를 제공하고, 커뮤니티와 생태계가 매우 활발합니다.
+    - MUI v5 이후 스타일링 방식도 유연하게 바뀌어 **Emotion** 또는 **styled-components** 등 원하는 CSS-in-JS 솔루션을 선택해 사용할 수 있음.
+    - 이미 디자인적으로 구축된 컴포넌트가 풍부하여 빠른 프로토타이핑, 유지보수에 유리함.
+
+### 2) MUI를 적용하며 느낀 차이점
+
+- **테마 설정**: Chakra UI에서 theme 객체를 활용하던 방식을, MUI의 'createTheme' + 'ThemeProvider'로 변경했습니다. 구조는 유사하지만, MUI는 Material Design 원칙에 맞춘 **default theme**가 풍부해, 좀 더 세부적으로 커스터마이징할 수 있었습니다.
+- **컴포넌트 사용성**: 이미 Material 디자인에 맞춰 구성된 컴포넌트(버튼, 카드, Modal, 메뉴 등)가 많아 빠른 개발이 가능했습니다.
+- **스타일 커스텀**: Chakra UI처럼 'sx' prop이나 styled API를 사용해 컴포넌트 별로 커스텀할 수 있어, 적응하는 데 큰 어려움은 없었습니다.
+
+결국, **다양한 컴포넌트, 풍부한 Material 생태계, 그리고 디자인 표준성** 때문에 MUI를 선택했습니다.
+
+---
+
+## 4. 마이그레이션 주요 단계
+
+### 1) Next.js 프로젝트 초기 설정
+
+1. **Next.js 설치**
+    ```bash
+    npx create-next-app my-blog
+    ```
+2. **타입스크립트 설정(선택사항)**
+    ```bash
+    touch tsconfig.json
+    npm install --save-dev typescript @types/react @types/node
+    ```
+3. **폴더 구조 설계**
+    - 'app' 폴더: 메인 페이지, 블로그 리스트, 각종 라우트 관리.
+    - 'components' 폴더: 재사용 가능한 컴포넌트 보관.
+    - 'libraries' 폴더: MDX 파싱, 데이터 처리 로직 분리.
+    - 'public' 폴더: 이미지, 정적 리소스.
+
+### 2) next-mdx-remote 설치 및 설정
+
+1. **의존성 설치**
+    ```bash
+    npm install next-mdx-remote gray-matter remark remark-html
+    ```
+2. **MDX 파일 로딩 로직 구현**
+
+    - 'libraries/PostManager.ts' 같은 곳에, 아래와 같은 함수를 만들어서 마크다운을 파싱합니다.
+
+        ```tsx
+        import matter from 'gray-matter';
+        import { serialize } from 'next-mdx-remote/serialize';
+
+        export async function getPostBySlug(slug: string): Promise<PostData | null> {
+            ...
+            // 3) MDX 변환
+            const source = await serialize(content, {
+                mdxOptions: {
+                    remarkPlugins: [remarkGfm],
+                    rehypePlugins: [],
+                    format: 'mdx',
+                },
+            });
+            ...
+        }
+        ```
+
+3. **페이지에서 MDX 렌더링**
+
+    ```tsx
+    import components from '@/components';
+    import { Box, Container } from '@mui/material';
+    import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
+    import React from 'react';
+
+    import { PostData } from '@/libraries/PostManager';
+
+    const ArticleContainer = ({ post }: { post: PostData }) => {
+        const source = post.source as MDXRemoteSerializeResult;
+        return (
+            <Container maxWidth='xl'>
+                <Box py={4}>
+                    <MDXRemote {...source} components={components} />
+                </Box>
+            </Container>
+        );
+    };
+
+    export default ArticleContainer;
+    ```
+
+### 3) MUI 설치 및 테마 설정
+
+1. **의존성 설치**
+    ```bash
+    npm install @mui/material @emotion/react @emotion/styled
+    ```
+2. **테마 생성 및 적용**
+
+    ```tsx
+    // theme.ts
+    export default responsiveFontSizes(
+        createTheme({
+            palette: {
+                primary: {
+                    light: brand[200],
+                    main: brand[400],
+                    dark: brand[700],
+                    contrastText: brand[50],
+                },
+            },
+            typography: {
+                fontFamily: robotoFont.style.fontFamily,
+            },
+            shadows: customShadows,
+            components: {
+                MuiLink: {
+                    styleOverrides: {
+                        root: {
+                            textDecoration: 'none', // 기본적으로 밑줄 제거
+                            color: 'palette.link.main', // 테마 링크 색상 적용
+                            '&:hover': {
+                                color: 'palette.link.hover', // 호버 시 색상 변경
+                                textDecoration: 'underline', // 호버 시 밑줄 추가
+                            },
+                            '&:visited': {
+                                color: 'palette.link.visited', // 방문한 링크 색상
+                            },
+                        },
+                    },
+                },
+            },
+            colorSchemes: {
+                light: true,
+                dark: true,
+            },
+            cssVariables: {
+                colorSchemeSelector: 'class',
+            },
+        }),
+    );
+    ```
+
+3. **layout.tsx에서 ThemeProvider 적용**
+
+    ```tsx
+    const RootLayout = async ({
+        children,
+    }: Readonly<{
+        children: React.ReactNode;
+    }>) => {
+        const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
+
+        return (
+            <html lang='en' suppressHydrationWarning>
+                <body>
+                    <InitColorSchemeScript attribute='class' />
+                    <AppRouterCacheProvider>
+                        <ThemeProvider theme={theme} defaultMode={'system'}>
+                            <CssBaseline enableColorScheme />
+                            {children}
+                        </ThemeProvider>
+                    </AppRouterCacheProvider>
+                </body>
+                <GoogleAnalytics gaId={gaId} />
+            </html>
+        );
+    };
+    ```
+
+---
+
+## 5. 마이그레이션 후 느낀 점
+
+1. **빌드 시간**:
+
+    - Gatsby는 모든 페이지를 빌드 시에 정적으로 생성하기 때문에, 포스트가 많아질수록 빌드 시간이 길어질 수 있었습니다.
+    - Next.js는 ISR이나 SSR을 통해 필요한 시점에 생성하거나 갱신할 수 있기 때문에, 상대적으로 빌드 부담이 줄고 배포가 유연해졌습니다.
+
+2. **유연한 라우팅**:
+
+    - Gatsby도 라우팅이 자동화되어 있지만, Next.js의 파일 기반 라우팅은 구조를 직관적으로 파악하기 쉬웠습니다.
+    - 동적 라우팅(예: '/post/[slug].tsx')도 쉽게 적용할 수 있어, 블로그 포스트 페이지에 딱 맞았습니다.
+
+3. **MDX 관리**:
+
+    - Gatsby에서 플러그인으로 MDX를 사용했을 때는 어느 정도 추상화된 방식으로 동작했지만, Next.js에서는 'next-mdx-remote'를 통해 **직접 MDX를 파싱하고** 컴포넌트를 주입하는 형태라 세밀한 제어가 가능했습니다.
+    - Markdown/MDX 문서를 받아와 렌더링하기가 훨씬 유연해졌고, **API 연동, 파일 시스템 연동, CMS 연동** 모두 자유도 높아졌습니다.
+
+4. **스타일링, 디자인**:
+
+    - Chakra UI도 훌륭했지만, MUI는 **Material Design** 기반이라 컴포넌트 종류가 더 방대하고, UI 디자인의 일관성이 유지됩니다.
+    - 마이그레이션 시 "디자인 언어" 자체가 달라진다는 점을 감안해 레이아웃, 컬러 시스템 등을 재정의해야 했으나, 그 덕분에 결과물의 완성도와 확장성은 크게 상승했습니다.
+
+5. **생태계, 커뮤니티**:
+    - Next.js와 MUI 모두 널리 쓰이는 라이브러리이기 때문에, **문서나 예제, 문제가 발생했을 때 찾을 수 있는 자료**가 풍부합니다.
+    - 블로그를 넘어 다른 프로젝트와의 호환성을 고려할 때도 MUI와 Next.js 조합은 학습 투자 대비 가치가 높았습니다.
+
+---
+
+## 6. 결론 및 향후 계획
+
+- **Next.js + next-mdx-remote + MUI** 조합을 사용하면서 **SSR/SSG/ISR**의 유연한 제공, **MDX**의 높은 확장성, 그리고 **Material UI**의 방대한 컴포넌트 라이브러리에 힘입어 블로그 구조를 보다 단단하게 만들 수 있었습니다.
+- 추후 계획으로는, MDX에 **머리말/각주/TOC** 추가, **이미지 최적화**(Next.js의 'next/image' 사용) 등을 더 섬세하게 적용할 예정입니다.
+- 또한 CMS 연동(예: Headless CMS)이나 GitHub Actions를 통한 자동 빌드&배포 파이프라인을 구축해, 작성/수정/배포를 더욱 간편하게 만들 생각입니다.
+
+---
+
+### 마무리하며
+
+이번 마이그레이션 과정은, **기존에 안정적으로 사용하던 Gatsby 블로그**에서 **Next.js로의 전환**이 과연 큰 이점을 줄 수 있을지 의구심을 갖고 시작했지만, 결과적으로 **SSR/ISR, MDX 확장성, MUI 생태계**라는 세 마리 토끼를 모두 잡는 성공적인 선택이 되었습니다.
+
+앞으로도 프로젝트 환경과 요구사항에 맞춰 **최적의 스택**을 탐색하고 적용해보는 과정을 즐겨보시길 바랍니다. 혹시 마이그레이션 과정에 궁금한 점이나 피드백이 있다면 언제든지 이슈로 남겨주세요!
+
+감사합니다.
+17:T572b,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    code: "code",
+    h2: "h2",
+    h3: "h3",
+    hr: "hr",
+    li: "li",
+    ol: "ol",
+    p: "p",
+    pre: "pre",
+    strong: "strong",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "1. 왜 Gatsby에서 Next.js로 옮겼을까?"
+    }), "\n", _jsx(_components.h3, {
+      children: "1) Gatsby의 장점과 한계"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "장점"
+        }), ": 정적 사이트 생성(SSG)에 최적화된 방식, 풍부한 플러그인 생태계, GraphQL을 통한 데이터 수집 관리."]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "한계"
+        }), ": 빌드 시간이 길어질 수 있음, 필요 이상의 의존성이 생길 수도 있음, SSR(서버 사이드 렌더링) 기능이 제한적."]
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "2) Next.js의 주요 장점"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "서버 사이드 렌더링(SSR)"
+        }), " 및 ", _jsx(_components.strong, {
+          children: "정적 페이지 생성(SSG)"
+        }), " 를 모두 지원해 유연한 아키텍처 구축 가능."]
+      }), "\n", _jsx(_components.li, {
+        children: "페이지 단위의 라우팅이 간단하며, 파일 기반 라우팅('app' 폴더)으로 개발 생산성이 높음."
+      }), "\n", _jsx(_components.li, {
+        children: "ISR(Incremental Static Regeneration)을 통해 부분적인 정적 페이지 리빌드가 가능해 확장성, 성능에서 강점."
+      }), "\n", _jsx(_components.li, {
+        children: "React 18 이후 지원되는 기능들과의 호환성 우수, 빠른 업데이트."
+      }), "\n"]
+    }), "\n", _jsxs(_components.p, {
+      children: ["따라서 ", _jsx(_components.strong, {
+        children: "다양한 렌더링 옵션"
+      }), "을 활용해 유연하고 효율적인 블로그를 만들어보고자 Next.js를 선택했습니다."]
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h2, {
+      children: "2. next-mdx-remote vs MDX 플러그인"
+    }), "\n", _jsx(_components.h3, {
+      children: "1) MDX란?"
+    }), "\n", _jsxs(_components.p, {
+      children: ["MDX는 ", _jsx(_components.strong, {
+        children: "Markdown"
+      }), " 문법에 ", _jsx(_components.strong, {
+        children: "React 컴포넌트"
+      }), "를 섞어 쓸 수 있게 해주는 포맷입니다. 기존에도 Gatsby MDX 플러그인을 활용하여 블로그 포스트를 작성할 수 있었지만, Next.js에서 MDX를 사용하기 위해선 'next-mdx-remote'나 '@next/mdx' 같은 패키지를 도입하게 됩니다."]
+    }), "\n", _jsx(_components.h3, {
+      children: "2) next-mdx-remote의 특징"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "파일 시스템 기반"
+        }), "으로 MDX를 불러오지 않고, 콘텐츠 문자열을 받아서 SSR 시점에 파싱해주기 때문에 더욱 유연하게 MDX를 처리할 수 있음."]
+      }), "\n", _jsx(_components.li, {
+        children: "서버에서 텍스트를 받아 파싱하고, 클라이언트에선 React 컴포넌트로 렌더링하기 때문에 더 세밀한 컨트롤 가능."
+      }), "\n", _jsx(_components.li, {
+        children: "코드 스플리팅, 동적 import 등 Next.js 기능과도 궁합이 잘 맞음."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "저는 블로그 포스트를 각 마크다운(MDX) 파일로 관리하고, 빌드 시점(혹은 ISR) 또는 요청 시점(SSR)에 해당 MDX 파일을 파싱해주도록 설정했습니다. 이를 통해 새로운 글을 작성하거나 수정할 때의 프로세스를 간소화할 수 있었습니다."
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h2, {
+      children: "3. UI 라이브러리: Chakra UI에서 MUI로 옮긴 이유"
+    }), "\n", _jsx(_components.h3, {
+      children: "1) Chakra UI의 장점과 MUI 선택 배경"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "Chakra UI"
+        }), " 는 간단하고 직관적인 컴포넌트 스타일링을 제공해서 학습 비용이 낮고, 유연하게 테마 커스터마이징이 가능하다는 장점이 있습니다."]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "MUI(Material UI)"
+        }), " 는 구글의 Material Design을 기반으로, 다양한 컴포넌트를 제공하고, 커뮤니티와 생태계가 매우 활발합니다.", "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["MUI v5 이후 스타일링 방식도 유연하게 바뀌어 ", _jsx(_components.strong, {
+              children: "Emotion"
+            }), " 또는 ", _jsx(_components.strong, {
+              children: "styled-components"
+            }), " 등 원하는 CSS-in-JS 솔루션을 선택해 사용할 수 있음."]
+          }), "\n", _jsx(_components.li, {
+            children: "이미 디자인적으로 구축된 컴포넌트가 풍부하여 빠른 프로토타이핑, 유지보수에 유리함."
+          }), "\n"]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "2) MUI를 적용하며 느낀 차이점"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "테마 설정"
+        }), ": Chakra UI에서 theme 객체를 활용하던 방식을, MUI의 'createTheme' + 'ThemeProvider'로 변경했습니다. 구조는 유사하지만, MUI는 Material Design 원칙에 맞춘 ", _jsx(_components.strong, {
+          children: "default theme"
+        }), "가 풍부해, 좀 더 세부적으로 커스터마이징할 수 있었습니다."]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "컴포넌트 사용성"
+        }), ": 이미 Material 디자인에 맞춰 구성된 컴포넌트(버튼, 카드, Modal, 메뉴 등)가 많아 빠른 개발이 가능했습니다."]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "스타일 커스텀"
+        }), ": Chakra UI처럼 'sx' prop이나 styled API를 사용해 컴포넌트 별로 커스텀할 수 있어, 적응하는 데 큰 어려움은 없었습니다."]
+      }), "\n"]
+    }), "\n", _jsxs(_components.p, {
+      children: ["결국, ", _jsx(_components.strong, {
+        children: "다양한 컴포넌트, 풍부한 Material 생태계, 그리고 디자인 표준성"
+      }), " 때문에 MUI를 선택했습니다."]
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h2, {
+      children: "4. 마이그레이션 주요 단계"
+    }), "\n", _jsx(_components.h3, {
+      children: "1) Next.js 프로젝트 초기 설정"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "Next.js 설치"
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-bash",
+            children: "npx create-next-app my-blog\n"
+          })
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "타입스크립트 설정(선택사항)"
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-bash",
+            children: "touch tsconfig.json\nnpm install --save-dev typescript @types/react @types/node\n"
+          })
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "폴더 구조 설계"
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsx(_components.li, {
+            children: "'app' 폴더: 메인 페이지, 블로그 리스트, 각종 라우트 관리."
+          }), "\n", _jsx(_components.li, {
+            children: "'components' 폴더: 재사용 가능한 컴포넌트 보관."
+          }), "\n", _jsx(_components.li, {
+            children: "'libraries' 폴더: MDX 파싱, 데이터 처리 로직 분리."
+          }), "\n", _jsx(_components.li, {
+            children: "'public' 폴더: 이미지, 정적 리소스."
+          }), "\n"]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "2) next-mdx-remote 설치 및 설정"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "의존성 설치"
+          })
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-bash",
+            children: "npm install next-mdx-remote gray-matter remark remark-html\n"
+          })
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "MDX 파일 로딩 로직 구현"
+          })
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["\n", _jsx(_components.p, {
+              children: "'libraries/PostManager.ts' 같은 곳에, 아래와 같은 함수를 만들어서 마크다운을 파싱합니다."
+            }), "\n", _jsx(_components.pre, {
+              children: _jsx(_components.code, {
+                className: "language-tsx",
+                children: "import matter from 'gray-matter';\nimport { serialize } from 'next-mdx-remote/serialize';\n\nexport async function getPostBySlug(slug: string): Promise<PostData | null> {\n    ...\n    // 3) MDX 변환\n    const source = await serialize(content, {\n        mdxOptions: {\n            remarkPlugins: [remarkGfm],\n            rehypePlugins: [],\n            format: 'mdx',\n        },\n    });\n    ...\n}\n"
+              })
+            }), "\n"]
+          }), "\n"]
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "페이지에서 MDX 렌더링"
+          })
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-tsx",
+            children: "import components from '@/components';\nimport { Box, Container } from '@mui/material';\nimport { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';\nimport React from 'react';\n\nimport { PostData } from '@/libraries/PostManager';\n\nconst ArticleContainer = ({ post }: { post: PostData }) => {\n    const source = post.source as MDXRemoteSerializeResult;\n    return (\n        <Container maxWidth='xl'>\n            <Box py={4}>\n                <MDXRemote {...source} components={components} />\n            </Box>\n        </Container>\n    );\n};\n\nexport default ArticleContainer;\n"
+          })
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "3) MUI 설치 및 테마 설정"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "의존성 설치"
+          })
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-bash",
+            children: "npm install @mui/material @emotion/react @emotion/styled\n"
+          })
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "테마 생성 및 적용"
+          })
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-tsx",
+            children: "// theme.ts\nexport default responsiveFontSizes(\n    createTheme({\n        palette: {\n            primary: {\n                light: brand[200],\n                main: brand[400],\n                dark: brand[700],\n                contrastText: brand[50],\n            },\n        },\n        typography: {\n            fontFamily: robotoFont.style.fontFamily,\n        },\n        shadows: customShadows,\n        components: {\n            MuiLink: {\n                styleOverrides: {\n                    root: {\n                        textDecoration: 'none', // 기본적으로 밑줄 제거\n                        color: 'palette.link.main', // 테마 링크 색상 적용\n                        '&:hover': {\n                            color: 'palette.link.hover', // 호버 시 색상 변경\n                            textDecoration: 'underline', // 호버 시 밑줄 추가\n                        },\n                        '&:visited': {\n                            color: 'palette.link.visited', // 방문한 링크 색상\n                        },\n                    },\n                },\n            },\n        },\n        colorSchemes: {\n            light: true,\n            dark: true,\n        },\n        cssVariables: {\n            colorSchemeSelector: 'class',\n        },\n    }),\n);\n"
+          })
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsx(_components.p, {
+          children: _jsx(_components.strong, {
+            children: "layout.tsx에서 ThemeProvider 적용"
+          })
+        }), "\n", _jsx(_components.pre, {
+          children: _jsx(_components.code, {
+            className: "language-tsx",
+            children: "const RootLayout = async ({\n    children,\n}: Readonly<{\n    children: React.ReactNode;\n}>) => {\n    const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;\n\n    return (\n        <html lang='en' suppressHydrationWarning>\n            <body>\n                <InitColorSchemeScript attribute='class' />\n                <AppRouterCacheProvider>\n                    <ThemeProvider theme={theme} defaultMode={'system'}>\n                        <CssBaseline enableColorScheme />\n                        {children}\n                    </ThemeProvider>\n                </AppRouterCacheProvider>\n            </body>\n            <GoogleAnalytics gaId={gaId} />\n        </html>\n    );\n};\n"
+          })
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h2, {
+      children: "5. 마이그레이션 후 느낀 점"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsxs(_components.li, {
+        children: ["\n", _jsxs(_components.p, {
+          children: [_jsx(_components.strong, {
+            children: "빌드 시간"
+          }), ":"]
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsx(_components.li, {
+            children: "Gatsby는 모든 페이지를 빌드 시에 정적으로 생성하기 때문에, 포스트가 많아질수록 빌드 시간이 길어질 수 있었습니다."
+          }), "\n", _jsx(_components.li, {
+            children: "Next.js는 ISR이나 SSR을 통해 필요한 시점에 생성하거나 갱신할 수 있기 때문에, 상대적으로 빌드 부담이 줄고 배포가 유연해졌습니다."
+          }), "\n"]
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsxs(_components.p, {
+          children: [_jsx(_components.strong, {
+            children: "유연한 라우팅"
+          }), ":"]
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsx(_components.li, {
+            children: "Gatsby도 라우팅이 자동화되어 있지만, Next.js의 파일 기반 라우팅은 구조를 직관적으로 파악하기 쉬웠습니다."
+          }), "\n", _jsx(_components.li, {
+            children: "동적 라우팅(예: '/post/[slug].tsx')도 쉽게 적용할 수 있어, 블로그 포스트 페이지에 딱 맞았습니다."
+          }), "\n"]
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsxs(_components.p, {
+          children: [_jsx(_components.strong, {
+            children: "MDX 관리"
+          }), ":"]
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["Gatsby에서 플러그인으로 MDX를 사용했을 때는 어느 정도 추상화된 방식으로 동작했지만, Next.js에서는 'next-mdx-remote'를 통해 ", _jsx(_components.strong, {
+              children: "직접 MDX를 파싱하고"
+            }), " 컴포넌트를 주입하는 형태라 세밀한 제어가 가능했습니다."]
+          }), "\n", _jsxs(_components.li, {
+            children: ["Markdown/MDX 문서를 받아와 렌더링하기가 훨씬 유연해졌고, ", _jsx(_components.strong, {
+              children: "API 연동, 파일 시스템 연동, CMS 연동"
+            }), " 모두 자유도 높아졌습니다."]
+          }), "\n"]
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsxs(_components.p, {
+          children: [_jsx(_components.strong, {
+            children: "스타일링, 디자인"
+          }), ":"]
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["Chakra UI도 훌륭했지만, MUI는 ", _jsx(_components.strong, {
+              children: "Material Design"
+            }), " 기반이라 컴포넌트 종류가 더 방대하고, UI 디자인의 일관성이 유지됩니다."]
+          }), "\n", _jsx(_components.li, {
+            children: "마이그레이션 시 \"디자인 언어\" 자체가 달라진다는 점을 감안해 레이아웃, 컬러 시스템 등을 재정의해야 했으나, 그 덕분에 결과물의 완성도와 확장성은 크게 상승했습니다."
+          }), "\n"]
+        }), "\n"]
+      }), "\n", _jsxs(_components.li, {
+        children: ["\n", _jsxs(_components.p, {
+          children: [_jsx(_components.strong, {
+            children: "생태계, 커뮤니티"
+          }), ":"]
+        }), "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["Next.js와 MUI 모두 널리 쓰이는 라이브러리이기 때문에, ", _jsx(_components.strong, {
+              children: "문서나 예제, 문제가 발생했을 때 찾을 수 있는 자료"
+            }), "가 풍부합니다."]
+          }), "\n", _jsx(_components.li, {
+            children: "블로그를 넘어 다른 프로젝트와의 호환성을 고려할 때도 MUI와 Next.js 조합은 학습 투자 대비 가치가 높았습니다."
+          }), "\n"]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h2, {
+      children: "6. 결론 및 향후 계획"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsxs(_components.li, {
+        children: [_jsx(_components.strong, {
+          children: "Next.js + next-mdx-remote + MUI"
+        }), " 조합을 사용하면서 ", _jsx(_components.strong, {
+          children: "SSR/SSG/ISR"
+        }), "의 유연한 제공, ", _jsx(_components.strong, {
+          children: "MDX"
+        }), "의 높은 확장성, 그리고 ", _jsx(_components.strong, {
+          children: "Material UI"
+        }), "의 방대한 컴포넌트 라이브러리에 힘입어 블로그 구조를 보다 단단하게 만들 수 있었습니다."]
+      }), "\n", _jsxs(_components.li, {
+        children: ["추후 계획으로는, MDX에 ", _jsx(_components.strong, {
+          children: "머리말/각주/TOC"
+        }), " 추가, ", _jsx(_components.strong, {
+          children: "이미지 최적화"
+        }), "(Next.js의 'next/image' 사용) 등을 더 섬세하게 적용할 예정입니다."]
+      }), "\n", _jsx(_components.li, {
+        children: "또한 CMS 연동(예: Headless CMS)이나 GitHub Actions를 통한 자동 빌드&배포 파이프라인을 구축해, 작성/수정/배포를 더욱 간편하게 만들 생각입니다."
+      }), "\n"]
+    }), "\n", _jsx(_components.hr, {}), "\n", _jsx(_components.h3, {
+      children: "마무리하며"
+    }), "\n", _jsxs(_components.p, {
+      children: ["이번 마이그레이션 과정은, ", _jsx(_components.strong, {
+        children: "기존에 안정적으로 사용하던 Gatsby 블로그"
+      }), "에서 ", _jsx(_components.strong, {
+        children: "Next.js로의 전환"
+      }), "이 과연 큰 이점을 줄 수 있을지 의구심을 갖고 시작했지만, 결과적으로 ", _jsx(_components.strong, {
+        children: "SSR/ISR, MDX 확장성, MUI 생태계"
+      }), "라는 세 마리 토끼를 모두 잡는 성공적인 선택이 되었습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["앞으로도 프로젝트 환경과 요구사항에 맞춰 ", _jsx(_components.strong, {
+        children: "최적의 스택"
+      }), "을 탐색하고 적용해보는 과정을 즐겨보시길 바랍니다. 혹시 마이그레이션 과정에 궁금한 점이나 피드백이 있다면 언제든지 이슈로 남겨주세요!"]
+    }), "\n", _jsx(_components.p, {
+      children: "감사합니다."
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"nextjs로 이전 했습니다.","summary":"다시 또한번 블로그를 시작해봅니다.","date":"25 minutes ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"migration-to-nextjs","title":"nextjs로 이전 했습니다.","date":"$D2025-01-22T09:35:21.959Z","summary":"다시 또한번 블로그를 시작해봅니다.","category":"coding","image":"https://images.pexels.com/photos/4240511/pexels-photo-4240511.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1","embeddedImagesLocal":"$undefined","tags":["coding","react","gatsby","chakra-ui","nextjs","material-ui"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":0}}],["$","$L18",null,{"sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/react","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"react","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/gatsby","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"gatsby","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/chakra-ui","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"chakra-ui","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/nextjs","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"nextjs","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/material-ui","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"material-ui","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L18",null,{}],["$","$L1c",null,{"component":"$1d","href":"/article/a-look-back-in-2024","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["1년의 회고 - 성장과 변화의 시간"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"nextjs로 이전 했습니다. - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"다시 또한번 블로그를 시작해봅니다."}],["$","meta","3",{"name":"keywords","content":"coding, react, gatsby, chakra-ui, nextjs, material-ui"}],["$","link","4",{"rel":"canonical","href":"/article/migration-to-nextjs"}],["$","meta","5",{"property":"og:title","content":"nextjs로 이전 했습니다."}],["$","meta","6",{"property":"og:description","content":"다시 또한번 블로그를 시작해봅니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/migration-to-nextjs"}],["$","meta","8",{"property":"og:image","content":"https://images.pexels.com/photos/4240511/pexels-photo-4240511.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"nextjs로 이전 했습니다."}],["$","meta","12",{"name":"twitter:description","content":"다시 또한번 블로그를 시작해봅니다."}],["$","meta","13",{"name":"twitter:image","content":"https://images.pexels.com/photos/4240511/pexels-photo-4240511.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}]]
+7:null

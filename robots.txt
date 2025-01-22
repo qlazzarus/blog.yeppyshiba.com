@@ -1,4 +1,2 @@
-User-agent: *
+User-Agent: *
 Allow: /
-Sitemap: https://blog.yeppyshiba.com/sitemap/sitemap-index.xml
-Host: https://blog.yeppyshiba.com

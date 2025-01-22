@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tag-template-tsx",
-    "path": "/tag/parallax-scroll/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"Yeppyshiba Blog","description":"Living whatever blah blah","siteUrl":"https://blog.yeppyshiba.com"}},"allMdx":{"edges":[{"node":{"id":"83c3093d-e3f1-51a7-92a0-e5b9491e9bb5","fields":{"totalCount":522,"slug":"phaser3-with-parallax-scroll"},"frontmatter":{"title":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기","date":"2022-05-31T12:06:42.980Z","image":"https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png","embeddedImagesLocal":null,"category":"coding","tags":["dev","coding","phaser","web game","parallax scroll"],"summary":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다."}}}]}},"pageContext":{"slug":"parallax scroll","pageNumber":0,"humanPageNumber":1,"skip":0,"limit":10,"numberOfPages":1,"previousPagePath":"","nextPagePath":""}},
-    "staticQueryHashes": ["3764592887"]}

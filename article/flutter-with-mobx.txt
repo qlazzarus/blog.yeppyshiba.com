@@ -1,0 +1,384 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"K66r6ptgLjfZKMy0nD8C_","p":"","c":["","article","flutter-with-mobx"],"i":false,"f":[[["",{"children":["article",{"children":[["slug","flutter-with-mobx","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","flutter-with-mobx","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","HNoGZ9ix8lEaIR1YzBfx-",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]]}],["$","$L11",null,{"gaId":"314819162"}]]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+16:T16b3,
+## 들어가며
+
+상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다.
+
+예를 들자면, 회원 가입창에 이메일이 유효하면 전송 버튼이 활성화되고 유효하지 않으면 단추가 비활성화되는것 같은 상황은 상태에 따른 UI 컨트롤이 관리되는 경우입니다.
+
+## 그래서 뭐가 다른건데?
+
+사실 이래선 기존이랑 뭐가 다른지 알 수가 없습니다. 여기서는 flutter 를 예를 들어보도록 하겠습니다. flutter의 구성은 widget 들의 조합입니다. 최상위 root widget 에서 하위 widget 을 포함하는 전형적인 tree 구조를 가집니다.
+
+어디선가 비슷하죠?  
+react 나 vue.js 같은 frontend framework 가 연상됩니다.  
+각 ui widget 들은 다른 widget 들간의 연결은 느슨하게 유지됩니다.
+데이터는 bloc 패턴과 같은 stream 에 대한 event 로 리스닝 받고 있고요.  
+(자세한 내용은 bloc pattern 이나 reactive programming 개념은 검색 해보세요!)
+
+![출처: https://www.instiz.net/name_enter/60415754](/images/posts/archive/69ac2650175cc118f093d921e6ad4faa.jpg)
+
+> 버스 타요~
+
+## mobx 로 가즈아
+
+mobx 는 react 계열의 인기있는 상태 관리 라이브러리입니다.  
+개인적으로 mobx 를 좋아하기 때문에 flutter 에 mobx 라이브러리 나와서 한번 다루어 보도록 하겠습니다.
+
+자세한 내용은 [React에서 Mobx 경험기 (Redux와 비교기)](http://woowabros.github.io/experience/2019/01/02/kimcj-react-mobx.html) 를 참조하세요.
+
+여기에서는 [mobx.pub](https://pub.dev/packages/mobx) 문서를 참조하였습니다.
+
+## 라이브러리 설치
+
+pubspec.yaml 파일에 참조 라이브러리를 설치합니다.  
+여기서는 버전 정보를 일부러 건너 뛰었습니다. [pub.dev](https://pub.dev/) 에서 최신 버전을 참조해서 가져오세요.
+
+```yaml
+dependencies:
+    mobx: ^0.3.7
+    flutter_mobx: ^0.3.2
+```
+
+다음에는 dev_dependencies 를 추가합니다.
+
+```yaml
+dependencies:
+    build_runner: ^1.6.7
+    mobx_codegen: 0.3.7
+```
+
+아래 명령어로 패키지를 설치합니다.
+
+```bash
+flutter packages get
+```
+
+## store 를 추가합시다!
+
+여기서는 간단한 counter 샘프을 만들어 보도록 하겠습니다.  
+store 를 추가하기 위해 counter.dart 파일을 만들어 보겠습니다.
+
+```dart
+import 'package:mobx/mobx.dart';
+
+// Include generated file
+part 'counter.g.dart';
+
+// This is the class used by rest of your codebase
+class Counter = _Counter with _$Counter;
+
+// The store-class
+abstract class _Counter with Store {
+  @observable
+  int value = 0;
+
+  @action
+  void increment() {
+    value++;
+  }
+}
+```
+
+추상 클래스 \_Counter 는 store 를 포함하고 있으며,  
+store 관련 코드는 모두 여기 클래스에 담게 됩니다.  
+데이터는 observable annotation 으로 작성하며  
+데이터를 조작하는 코드는 action annotation 으로 작성합니다.  
+(더 많은 예제는 [mobx](https://mobx.js.org/) 공식 문서를 참조하세요.)
+
+기존 js 에서와 달리 build_runner 로 통해 코드를 생성되게 됩니다.
+(webpack 인가봐요)
+part 지시자를 통해서 추상 클래스가 변활될 파일들을 지정하게 됩니다.
+
+아래 명령어를 통해 counter.g.dart 파일을 생성합니다.
+
+```bash
+flutter packages pub run build_runner build
+```
+
+## widget 에 store 를 연결합시다.
+
+```dart
+import 'counter.dart'; // Import the Counter
+
+final counter = Counter(); // Instantiate the store
+```
+
+생성된 카운터 클래스를 가져오고 선언합니다.
+
+```dart
+class MyHomePage extends StatelessWidget {
+  const MyHomePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('MobX Counter'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'You have pushed the button this many times:',
+            ),
+            // Wrapping in the Observer will automatically re-render on changes to counter.value
+            Observer(
+              builder: (_) => Text(
+                    '${counter.value}',
+                    style: Theme.of(context).textTheme.display1,
+                  ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: counter.increment,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+```
+
+참조하시면 StatefuleWidget 을 더이상 사용하지 않는 것을 볼 수 있습니다.
+state 는 Counter store 에 보관되며, Observer Widget 를 통해 값을 렌더링하는 것이죠.
+
+FloatingActionButton widget 클릭시 counter.increment action 을 호출하게 됩니다.
+
+## 이제 끝이에요!
+
+와 간단하게 counter 앱이 만들어졌어요!
+
+![출처: https://mobx.pub](https://miro.medium.com/max/1077/1*6qRCR1KUzBiFHMwzWoak_Q.jpeg)
+
+## 후기
+
+이번 내용은 뭔가 깊이가 없어서 아쉽습니다.
+다음번에는 좀 더 쉽게 더 재미있게 풀어서 연재해보도록 하겠습니다.
+
+감사합니다.
+
+## 출처 및 참고
+
+- [state managent](https://en.wikipedia.org/wiki/State_management)
+- [Understanding state management, and why you never will](https://medium.com/flutter/understanding-state-management-and-why-you-never-will-dd84b624d0e)
+- [Reactive Programming - Streams - BLoC](https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/)
+- [React에서 Mobx 경험기 (Redux와 비교기)](http://woowabros.github.io/experience/2019/01/02/kimcj-react-mobx.html)
+- [mobx.pub](https://pub.dev/packages/mobx)
+17:T2a0f,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    blockquote: "blockquote",
+    br: "br",
+    code: "code",
+    h2: "h2",
+    img: "img",
+    li: "li",
+    p: "p",
+    pre: "pre",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "들어가며"
+    }), "\n", _jsx(_components.p, {
+      children: "상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다."
+    }), "\n", _jsx(_components.p, {
+      children: "예를 들자면, 회원 가입창에 이메일이 유효하면 전송 버튼이 활성화되고 유효하지 않으면 단추가 비활성화되는것 같은 상황은 상태에 따른 UI 컨트롤이 관리되는 경우입니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "그래서 뭐가 다른건데?"
+    }), "\n", _jsx(_components.p, {
+      children: "사실 이래선 기존이랑 뭐가 다른지 알 수가 없습니다. 여기서는 flutter 를 예를 들어보도록 하겠습니다. flutter의 구성은 widget 들의 조합입니다. 최상위 root widget 에서 하위 widget 을 포함하는 전형적인 tree 구조를 가집니다."
+    }), "\n", _jsxs(_components.p, {
+      children: ["어디선가 비슷하죠?", _jsx(_components.br, {}), "\n", "react 나 vue.js 같은 frontend framework 가 연상됩니다.", _jsx(_components.br, {}), "\n", "각 ui widget 들은 다른 widget 들간의 연결은 느슨하게 유지됩니다.\n데이터는 bloc 패턴과 같은 stream 에 대한 event 로 리스닝 받고 있고요.", _jsx(_components.br, {}), "\n", "(자세한 내용은 bloc pattern 이나 reactive programming 개념은 검색 해보세요!)"]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/69ac2650175cc118f093d921e6ad4faa.jpg",
+        alt: "출처: https://www.instiz.net/name_enter/60415754"
+      })
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "버스 타요~"
+      }), "\n"]
+    }), "\n", _jsx(_components.h2, {
+      children: "mobx 로 가즈아"
+    }), "\n", _jsxs(_components.p, {
+      children: ["mobx 는 react 계열의 인기있는 상태 관리 라이브러리입니다.", _jsx(_components.br, {}), "\n", "개인적으로 mobx 를 좋아하기 때문에 flutter 에 mobx 라이브러리 나와서 한번 다루어 보도록 하겠습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["자세한 내용은 ", _jsx(_components.a, {
+        href: "http://woowabros.github.io/experience/2019/01/02/kimcj-react-mobx.html",
+        children: "React에서 Mobx 경험기 (Redux와 비교기)"
+      }), " 를 참조하세요."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["여기에서는 ", _jsx(_components.a, {
+        href: "https://pub.dev/packages/mobx",
+        children: "mobx.pub"
+      }), " 문서를 참조하였습니다."]
+    }), "\n", _jsx(_components.h2, {
+      children: "라이브러리 설치"
+    }), "\n", _jsxs(_components.p, {
+      children: ["pubspec.yaml 파일에 참조 라이브러리를 설치합니다.", _jsx(_components.br, {}), "\n", "여기서는 버전 정보를 일부러 건너 뛰었습니다. ", _jsx(_components.a, {
+        href: "https://pub.dev/",
+        children: "pub.dev"
+      }), " 에서 최신 버전을 참조해서 가져오세요."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-yaml",
+        children: "dependencies:\n    mobx: ^0.3.7\n    flutter_mobx: ^0.3.2\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "다음에는 dev_dependencies 를 추가합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-yaml",
+        children: "dependencies:\n    build_runner: ^1.6.7\n    mobx_codegen: 0.3.7\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "아래 명령어로 패키지를 설치합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "flutter packages get\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "store 를 추가합시다!"
+    }), "\n", _jsxs(_components.p, {
+      children: ["여기서는 간단한 counter 샘프을 만들어 보도록 하겠습니다.", _jsx(_components.br, {}), "\n", "store 를 추가하기 위해 counter.dart 파일을 만들어 보겠습니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-dart",
+        children: "import 'package:mobx/mobx.dart';\n\n// Include generated file\npart 'counter.g.dart';\n\n// This is the class used by rest of your codebase\nclass Counter = _Counter with _$Counter;\n\n// The store-class\nabstract class _Counter with Store {\n  @observable\n  int value = 0;\n\n  @action\n  void increment() {\n    value++;\n  }\n}\n"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["추상 클래스 _Counter 는 store 를 포함하고 있으며,", _jsx(_components.br, {}), "\n", "store 관련 코드는 모두 여기 클래스에 담게 됩니다.", _jsx(_components.br, {}), "\n", "데이터는 observable annotation 으로 작성하며", _jsx(_components.br, {}), "\n", "데이터를 조작하는 코드는 action annotation 으로 작성합니다.", _jsx(_components.br, {}), "\n", "(더 많은 예제는 ", _jsx(_components.a, {
+        href: "https://mobx.js.org/",
+        children: "mobx"
+      }), " 공식 문서를 참조하세요.)"]
+    }), "\n", _jsx(_components.p, {
+      children: "기존 js 에서와 달리 build_runner 로 통해 코드를 생성되게 됩니다.\n(webpack 인가봐요)\npart 지시자를 통해서 추상 클래스가 변활될 파일들을 지정하게 됩니다."
+    }), "\n", _jsx(_components.p, {
+      children: "아래 명령어를 통해 counter.g.dart 파일을 생성합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "flutter packages pub run build_runner build\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "widget 에 store 를 연결합시다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-dart",
+        children: "import 'counter.dart'; // Import the Counter\n\nfinal counter = Counter(); // Instantiate the store\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "생성된 카운터 클래스를 가져오고 선언합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-dart",
+        children: "class MyHomePage extends StatelessWidget {\n  const MyHomePage();\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: Text('MobX Counter'),\n      ),\n      body: Center(\n        child: Column(\n          mainAxisAlignment: MainAxisAlignment.center,\n          children: <Widget>[\n            Text(\n              'You have pushed the button this many times:',\n            ),\n            // Wrapping in the Observer will automatically re-render on changes to counter.value\n            Observer(\n              builder: (_) => Text(\n                    '${counter.value}',\n                    style: Theme.of(context).textTheme.display1,\n                  ),\n            ),\n          ],\n        ),\n      ),\n      floatingActionButton: FloatingActionButton(\n        onPressed: counter.increment,\n        tooltip: 'Increment',\n        child: Icon(Icons.add),\n      ),\n    );\n  }\n}\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "참조하시면 StatefuleWidget 을 더이상 사용하지 않는 것을 볼 수 있습니다.\nstate 는 Counter store 에 보관되며, Observer Widget 를 통해 값을 렌더링하는 것이죠."
+    }), "\n", _jsx(_components.p, {
+      children: "FloatingActionButton widget 클릭시 counter.increment action 을 호출하게 됩니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "이제 끝이에요!"
+    }), "\n", _jsx(_components.p, {
+      children: "와 간단하게 counter 앱이 만들어졌어요!"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://miro.medium.com/max/1077/1*6qRCR1KUzBiFHMwzWoak_Q.jpeg",
+        alt: "출처: https://mobx.pub"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "후기"
+    }), "\n", _jsx(_components.p, {
+      children: "이번 내용은 뭔가 깊이가 없어서 아쉽습니다.\n다음번에는 좀 더 쉽게 더 재미있게 풀어서 연재해보도록 하겠습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "감사합니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "출처 및 참고"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://en.wikipedia.org/wiki/State_management",
+          children: "state managent"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://medium.com/flutter/understanding-state-management-and-why-you-never-will-dd84b624d0e",
+          children: "Understanding state management, and why you never will"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/",
+          children: "Reactive Programming - Streams - BLoC"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "http://woowabros.github.io/experience/2019/01/02/kimcj-react-mobx.html",
+          children: "React에서 Mobx 경험기 (Redux와 비교기)"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://pub.dev/packages/mobx",
+          children: "mobx.pub"
+        })
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"mobx를 이용한 flutter 상태 관리","summary":"상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다.","date":"5 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"flutter-with-mobx","title":"mobx를 이용한 flutter 상태 관리","date":"$D2019-09-04T15:00:00.000Z","summary":"상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다.","category":"coding","image":"https://vuex.vuejs.org/flow.png","embeddedImagesLocal":"$undefined","tags":["dev","coding","flutter","dart","mobx","state","reactive","android","ios","iphone","google","hybrid"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":10}}],["$","$L18",null,{"sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/flutter","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"flutter","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/dart","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dart","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/mobx","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"mobx","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/state","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"state","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","6",{"href":"/tag/reactive","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"reactive","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","7",{"href":"/tag/android","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"android","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","8",{"href":"/tag/ios","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"ios","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","9",{"href":"/tag/iphone","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"iphone","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","10",{"href":"/tag/google","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"google","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","11",{"href":"/tag/hybrid","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"hybrid","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/integer-array-php-implementation","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","php 로 IntegerArray 구현하기"]}],["$","$L1c",null,{"component":"$1d","href":"/article/chunk-upload-vue-axios-laravel","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["axios와 vue를 이용한 분할 업로드"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"mobx를 이용한 flutter 상태 관리 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, flutter, dart, mobx, state, reactive, android, ios, iphone, google, hybrid"}],["$","link","4",{"rel":"canonical","href":"/article/flutter-with-mobx"}],["$","meta","5",{"property":"og:title","content":"mobx를 이용한 flutter 상태 관리"}],["$","meta","6",{"property":"og:description","content":"상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/flutter-with-mobx"}],["$","meta","8",{"property":"og:image","content":"https://vuex.vuejs.org/flow.png"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"mobx를 이용한 flutter 상태 관리"}],["$","meta","12",{"name":"twitter:description","content":"상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스트 필드 같은 여러개의 UI 컨트롤의 상태를 관리하는 것을 의미합니다."}],["$","meta","13",{"name":"twitter:image","content":"https://vuex.vuejs.org/flow.png"}]]
+7:null

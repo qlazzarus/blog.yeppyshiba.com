@@ -1,0 +1,586 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"K66r6ptgLjfZKMy0nD8C_","p":"","c":["","article","game-of-life"],"i":false,"f":[[["",{"children":["article",{"children":[["slug","game-of-life","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","game-of-life","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","zEY52R0zJdSmb5gG24iiB",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]]}],["$","$L11",null,{"gaId":"314819162"}]]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+16:T1fa3,
+# phaser 로 구현해 보는 콘웨이의 생명게임
+
+## 존 호턴 콘웨이 교수님의 명복을 빕니다.
+
+![John Horton Conway, 1937년 12월 26일 ~ 2020년 4월 11일](https://www.princeton.edu/sites/default/files/styles/scale_1440/public/images/2020/04/20090310_ConwayKochen_DJA_066-copy.jpg?itok=BbmXyoCQ)
+
+먼저 이 자리를 빌어서 ‘마법적인 천재(Magical Genius)’로 불리는 영국 태생의 수학자 존 호턴 콘웨이  
+프린스턴대 수학과 교수님의 명복을 빕니다.  
+또한 코로나19로 희생되신 모든 이들의 명복을 빕니다.
+
+1937년 영국 리버풀에서 태어난 콘웨이 교수는 유한군, 매듭이론, 조합론적 게임이론, 블록부호 등을 만들어낸 수학자입니다.
+교수님이 유명해진 것은 ‘라이프 게임(Life of Game)’이라는 개념을 고안하면서부터인데요,  
+임의로 배열된 세포들이 기본 법칙에 의해 자동으로 생성·소멸하면서 삶과 죽음, 그리고 증식의 퍼즐을  
+만들어낸다는 개념을 정리한 이 이론은 후에 컴퓨터과학에도 큰 영향을 미쳤습니다.
+
+콘웨이 교수님은 이러한 공로를 인정받아 1981년 영국왕립학회 회원으로 임명됐고 1985년 프린스턴대 교수로  
+임명됐을 될 때는 총장으로부터 “20세기 가장 뛰어난 수학자 중 한 명”이라는 찬사를 받기도 했습니다.
+
+오늘 이 시간은 [phaser](https://phaser.io/) 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을  
+목표를 하겠습니다.
+
+## 라이프 게임(Life of Game) 이란
+
+![](https://i.imgur.com/46B3SyZ.mp4)
+
+바둑판처럼 정사각형의 여러 칸으로 나뉘어진 공간에서 한 칸에 한 마리씩 있는 세포들의 삶과 죽음이  
+펼쳐지는 게임입니다.  
+실제로는 개입할 수 있는게 없고 그냥 규칙에 따라 삶과 죽음이 일어나는 것을 재미있게 구경하시면 됩니다.
+
+### 규칙
+
+각 칸마다 존재하는 세포들은 인접한 8개의 이웃 세포 분포에 따라 생사가 결정 됩니다.  
+기준은 다음과 같습니다.
+
+1. 죽은 칸과 인접한 8칸 중 정확히 3칸에 세포가 살아 있다면 해당 칸의 세포는 그 다음 세대에 살아난다.
+2. 살아있는 칸과 인접한 8칸 중 2칸 혹은 3칸에 세포가 살아 있다면 해당 칸의 세포는 살아있는 상태를  
+   유지한다.
+3. 그 이외의 경우 해당 칸의 세포는 다음 세대에 고립돼 죽거나 혹은 주위가 너무 복잡해져서 죽는다.  
+   혹은 죽은 상태를 유지한다.
+
+표로 정리하면 다음과 같습니다.
+
+| 현 세대 | 인접 세포 갯수 | 다음 세대 |
+| ------- | -------------- | --------- |
+| LIVE    | 0              | DEAD      |
+| LIVE    | 1              | DEAD      |
+| LIVE    | 2              | LIVE      |
+| LIVE    | 3              | LIVE      |
+| LIVE    | 4              | DEAD      |
+| LIVE    | 5              | DEAD      |
+| LIVE    | 6              | DEAD      |
+| LIVE    | 7              | DEAD      |
+| LIVE    | 8              | DEAD      |
+| DEAD    | 0              | DEAD      |
+| DEAD    | 1              | DEAD      |
+| DEAD    | 2              | DEAD      |
+| DEAD    | 3              | LIVE      |
+| DEAD    | 4              | DEAD      |
+| DEAD    | 5              | DEAD      |
+| DEAD    | 6              | DEAD      |
+| DEAD    | 7              | DEAD      |
+| DEAD    | 8              | DEAD      |
+
+## 코드로 옮기기
+
+### phaser scene system
+
+> 전체 코드는 여기를 참조 하세요.  
+> [https://github.com/q_lazzarus/lifegame](https://github.com/q_lazzarus/lifegame)
+
+먼저 phaser 의 scene 시스템을 이해해야 합니다.
+
+```typescript
+class MainScene extends Phaser.Scene {
+    constructor() {
+        super(SCENE_KEY);
+    }
+
+    public init(): void {
+        // init
+    }
+
+    public preload(): void {
+        // preload
+    }
+
+    public create(): void {
+        // create
+    }
+
+    public update(): void {
+        // update
+    }
+}
+```
+
+각 메쏘드는 다음의 내용을 정의 합니다.
+
+| 메쏘드명 | 역할                                  |
+| -------- | ------------------------------------- |
+| init     | scene 초기화                          |
+| preload  | 에셋 (이미지/오디오 등) 호출          |
+| create   | 게임 오브젝트 생성시                  |
+| update   | 게임 기동시 tick 단위 업데이트시 호출 |
+
+실행 순서는 정리하자면 다음과 같습니다.
+
+![scene 메쏘드 실행 순서](/images/posts/archive/diagram.png)
+
+지금의 게임은 단순히 하나의 scene 을 가지고 하나의 object 만 다루도록 할 것 인데요.  
+이번 글은 phaser 프레임워크의 전체적인 플로우를 다루도록 진행할 예정입니다.
+디테일한 부분은 [예제](https://phaser.io/examples) 부분을 참조하세요
+
+### 최초 세포 생성 해봅시다.
+
+원래 라이프게임은 세포를 배치하고 지켜보는 재미이지만,  
+제가 구현한 내용은 그냥 랜덤으로 배치하고 지켜보도록 간소화 시켰습니다.
+
+create 메쏘드에서 최초 세포와 현재 세대를 정의 했습니다.  
+표시할 수 있는 전체 세포를 기준으로 object 를 생성하였습니다.
+
+또한 다음세대 메쏘드를 반복하여 실행하도록 하여 라이프게임의 규칙대로  
+세포들의 탄생과 소멸을 정의하도록 하였습니다.
+
+```typescript
+    public create(): void {
+        this.generation = 1; // 현재 세대를 정의
+        Array.from(Array(this.stageSize).keys()).forEach(index => {
+            // 각 픽셀단위로 cell 클래스를 생성하였습니다.
+            // 해당 셀은 위치값과 live/dead 를 표기하는 값만 가집니다.
+            this.cells.push(new Cell(this.numberToPosition(index)));
+        });
+
+        // this.nextGeneration 메쏘드를 타이머로 반복하게 실행하도록 하였습니다.
+        this.timer = this.time.addEvent({
+            delay: GameConfig.DELAY_INTERVAL,
+            callback: this.nextGeneration,
+            callbackScope: this,
+            loop: true
+        });
+    }
+```
+
+### 세포들을 계속 그려줍시다.
+
+> graphics property 는 프리젠테이션 레이어입니다.
+
+여기서는 매 tick 마다 실행되는 메쏘드를 수정하여  
+변경된 내역을 presentaion layer 로 그리도록 정의하겠습니다.
+
+이러면 코드상에서는 조작하는 부분과 UI 그리는 부분을 따로 제어할 수 있습니다.
+
+```typescript
+    public update(): void {
+        // 그려진 모든 버퍼를 지웁니다.
+        this.graphics?.clear();
+        this.cells.forEach(cell => {
+            // 생존한 cell 들만 그려줍니다.
+            cell.active && this.graphics?.fillRectShape(cell)
+        });
+    }
+```
+
+### 게임 규칙을 정의합니다.
+
+여기서는 timer 로 호출하도록 설정된 nextGeneration 메쏘드를 정의하도록 하겠습니다.  
+여기에서는 현재 세포의 생존유무와 주변 세포들의 존재유무로 점수로 매겨서  
+다음세대에서도 생사 유무를 결정하는 메쏘드입니다.
+
+```typescript
+    private nextGeneration(): void {
+        this.generation++; // 현재 세대를 정의
+        Array.from(Array(this.stageSize).keys()).forEach(index => {
+            // 이전 세대에서 살아남았는지
+            const active = this.cells[index].active;
+            // 주변 세포들이 존재하는지 판단해서 점수를 매깁니다.
+            const score = this.neighborScore(index);
+
+            // 점수에 따른 세포들의 생존 유무
+            if (active && (2 > score || 3 < score)) {
+                this.cells[index].active = false;
+            } else if (!active && 3 == score) {
+                this.cells[index].active = true;
+            }
+        });
+    }
+```
+
+### 이제 실행해봅니다!
+
+![우와 대박](https://pbs.twimg.com/profile_images/804219262000693248/7SAdHjXD.jpg)
+
+오늘도 고생하셨습니다.
+17:T45e1,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    blockquote: "blockquote",
+    br: "br",
+    code: "code",
+    h1: "h1",
+    h2: "h2",
+    h3: "h3",
+    img: "img",
+    li: "li",
+    ol: "ol",
+    p: "p",
+    pre: "pre",
+    table: "table",
+    tbody: "tbody",
+    td: "td",
+    th: "th",
+    thead: "thead",
+    tr: "tr",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h1, {
+      children: "phaser 로 구현해 보는 콘웨이의 생명게임"
+    }), "\n", _jsx(_components.h2, {
+      children: "존 호턴 콘웨이 교수님의 명복을 빕니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://www.princeton.edu/sites/default/files/styles/scale_1440/public/images/2020/04/20090310_ConwayKochen_DJA_066-copy.jpg?itok=BbmXyoCQ",
+        alt: "John Horton Conway, 1937년 12월 26일 ~ 2020년 4월 11일"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["먼저 이 자리를 빌어서 ‘마법적인 천재(Magical Genius)’로 불리는 영국 태생의 수학자 존 호턴 콘웨이", _jsx(_components.br, {}), "\n", "프린스턴대 수학과 교수님의 명복을 빕니다.", _jsx(_components.br, {}), "\n", "또한 코로나19로 희생되신 모든 이들의 명복을 빕니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["1937년 영국 리버풀에서 태어난 콘웨이 교수는 유한군, 매듭이론, 조합론적 게임이론, 블록부호 등을 만들어낸 수학자입니다.\n교수님이 유명해진 것은 ‘라이프 게임(Life of Game)’이라는 개념을 고안하면서부터인데요,", _jsx(_components.br, {}), "\n", "임의로 배열된 세포들이 기본 법칙에 의해 자동으로 생성·소멸하면서 삶과 죽음, 그리고 증식의 퍼즐을", _jsx(_components.br, {}), "\n", "만들어낸다는 개념을 정리한 이 이론은 후에 컴퓨터과학에도 큰 영향을 미쳤습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["콘웨이 교수님은 이러한 공로를 인정받아 1981년 영국왕립학회 회원으로 임명됐고 1985년 프린스턴대 교수로", _jsx(_components.br, {}), "\n", "임명됐을 될 때는 총장으로부터 “20세기 가장 뛰어난 수학자 중 한 명”이라는 찬사를 받기도 했습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["오늘 이 시간은 ", _jsx(_components.a, {
+        href: "https://phaser.io/",
+        children: "phaser"
+      }), " 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을", _jsx(_components.br, {}), "\n", "목표를 하겠습니다."]
+    }), "\n", _jsx(_components.h2, {
+      children: "라이프 게임(Life of Game) 이란"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://i.imgur.com/46B3SyZ.mp4",
+        alt: ""
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["바둑판처럼 정사각형의 여러 칸으로 나뉘어진 공간에서 한 칸에 한 마리씩 있는 세포들의 삶과 죽음이", _jsx(_components.br, {}), "\n", "펼쳐지는 게임입니다.", _jsx(_components.br, {}), "\n", "실제로는 개입할 수 있는게 없고 그냥 규칙에 따라 삶과 죽음이 일어나는 것을 재미있게 구경하시면 됩니다."]
+    }), "\n", _jsx(_components.h3, {
+      children: "규칙"
+    }), "\n", _jsxs(_components.p, {
+      children: ["각 칸마다 존재하는 세포들은 인접한 8개의 이웃 세포 분포에 따라 생사가 결정 됩니다.", _jsx(_components.br, {}), "\n", "기준은 다음과 같습니다."]
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsx(_components.li, {
+        children: "죽은 칸과 인접한 8칸 중 정확히 3칸에 세포가 살아 있다면 해당 칸의 세포는 그 다음 세대에 살아난다."
+      }), "\n", _jsxs(_components.li, {
+        children: ["살아있는 칸과 인접한 8칸 중 2칸 혹은 3칸에 세포가 살아 있다면 해당 칸의 세포는 살아있는 상태를", _jsx(_components.br, {}), "\n", "유지한다."]
+      }), "\n", _jsxs(_components.li, {
+        children: ["그 이외의 경우 해당 칸의 세포는 다음 세대에 고립돼 죽거나 혹은 주위가 너무 복잡해져서 죽는다.", _jsx(_components.br, {}), "\n", "혹은 죽은 상태를 유지한다."]
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "표로 정리하면 다음과 같습니다."
+    }), "\n", _jsxs(_components.table, {
+      children: [_jsx(_components.thead, {
+        children: _jsxs(_components.tr, {
+          children: [_jsx(_components.th, {
+            children: "현 세대"
+          }), _jsx(_components.th, {
+            children: "인접 세포 갯수"
+          }), _jsx(_components.th, {
+            children: "다음 세대"
+          })]
+        })
+      }), _jsxs(_components.tbody, {
+        children: [_jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "0"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "1"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "2"
+          }), _jsx(_components.td, {
+            children: "LIVE"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "3"
+          }), _jsx(_components.td, {
+            children: "LIVE"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "4"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "5"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "6"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "7"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "LIVE"
+          }), _jsx(_components.td, {
+            children: "8"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "0"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "1"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "2"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "3"
+          }), _jsx(_components.td, {
+            children: "LIVE"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "4"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "5"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "6"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "7"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "DEAD"
+          }), _jsx(_components.td, {
+            children: "8"
+          }), _jsx(_components.td, {
+            children: "DEAD"
+          })]
+        })]
+      })]
+    }), "\n", _jsx(_components.h2, {
+      children: "코드로 옮기기"
+    }), "\n", _jsx(_components.h3, {
+      children: "phaser scene system"
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsxs(_components.p, {
+        children: ["전체 코드는 여기를 참조 하세요.", _jsx(_components.br, {}), "\n", _jsx(_components.a, {
+          href: "https://github.com/q_lazzarus/lifegame",
+          children: "https://github.com/q_lazzarus/lifegame"
+        })]
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "먼저 phaser 의 scene 시스템을 이해해야 합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "class MainScene extends Phaser.Scene {\n    constructor() {\n        super(SCENE_KEY);\n    }\n\n    public init(): void {\n        // init\n    }\n\n    public preload(): void {\n        // preload\n    }\n\n    public create(): void {\n        // create\n    }\n\n    public update(): void {\n        // update\n    }\n}\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "각 메쏘드는 다음의 내용을 정의 합니다."
+    }), "\n", _jsxs(_components.table, {
+      children: [_jsx(_components.thead, {
+        children: _jsxs(_components.tr, {
+          children: [_jsx(_components.th, {
+            children: "메쏘드명"
+          }), _jsx(_components.th, {
+            children: "역할"
+          })]
+        })
+      }), _jsxs(_components.tbody, {
+        children: [_jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "init"
+          }), _jsx(_components.td, {
+            children: "scene 초기화"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "preload"
+          }), _jsx(_components.td, {
+            children: "에셋 (이미지/오디오 등) 호출"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "create"
+          }), _jsx(_components.td, {
+            children: "게임 오브젝트 생성시"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "update"
+          }), _jsx(_components.td, {
+            children: "게임 기동시 tick 단위 업데이트시 호출"
+          })]
+        })]
+      })]
+    }), "\n", _jsx(_components.p, {
+      children: "실행 순서는 정리하자면 다음과 같습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/diagram.png",
+        alt: "scene 메쏘드 실행 순서"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["지금의 게임은 단순히 하나의 scene 을 가지고 하나의 object 만 다루도록 할 것 인데요.", _jsx(_components.br, {}), "\n", "이번 글은 phaser 프레임워크의 전체적인 플로우를 다루도록 진행할 예정입니다.\n디테일한 부분은 ", _jsx(_components.a, {
+        href: "https://phaser.io/examples",
+        children: "예제"
+      }), " 부분을 참조하세요"]
+    }), "\n", _jsx(_components.h3, {
+      children: "최초 세포 생성 해봅시다."
+    }), "\n", _jsxs(_components.p, {
+      children: ["원래 라이프게임은 세포를 배치하고 지켜보는 재미이지만,", _jsx(_components.br, {}), "\n", "제가 구현한 내용은 그냥 랜덤으로 배치하고 지켜보도록 간소화 시켰습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["create 메쏘드에서 최초 세포와 현재 세대를 정의 했습니다.", _jsx(_components.br, {}), "\n", "표시할 수 있는 전체 세포를 기준으로 object 를 생성하였습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: ["또한 다음세대 메쏘드를 반복하여 실행하도록 하여 라이프게임의 규칙대로", _jsx(_components.br, {}), "\n", "세포들의 탄생과 소멸을 정의하도록 하였습니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "    public create(): void {\n        this.generation = 1; // 현재 세대를 정의\n        Array.from(Array(this.stageSize).keys()).forEach(index => {\n            // 각 픽셀단위로 cell 클래스를 생성하였습니다.\n            // 해당 셀은 위치값과 live/dead 를 표기하는 값만 가집니다.\n            this.cells.push(new Cell(this.numberToPosition(index)));\n        });\n\n        // this.nextGeneration 메쏘드를 타이머로 반복하게 실행하도록 하였습니다.\n        this.timer = this.time.addEvent({\n            delay: GameConfig.DELAY_INTERVAL,\n            callback: this.nextGeneration,\n            callbackScope: this,\n            loop: true\n        });\n    }\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "세포들을 계속 그려줍시다."
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "graphics property 는 프리젠테이션 레이어입니다."
+      }), "\n"]
+    }), "\n", _jsxs(_components.p, {
+      children: ["여기서는 매 tick 마다 실행되는 메쏘드를 수정하여", _jsx(_components.br, {}), "\n", "변경된 내역을 presentaion layer 로 그리도록 정의하겠습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "이러면 코드상에서는 조작하는 부분과 UI 그리는 부분을 따로 제어할 수 있습니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "    public update(): void {\n        // 그려진 모든 버퍼를 지웁니다.\n        this.graphics?.clear();\n        this.cells.forEach(cell => {\n            // 생존한 cell 들만 그려줍니다.\n            cell.active && this.graphics?.fillRectShape(cell)\n        });\n    }\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "게임 규칙을 정의합니다."
+    }), "\n", _jsxs(_components.p, {
+      children: ["여기서는 timer 로 호출하도록 설정된 nextGeneration 메쏘드를 정의하도록 하겠습니다.", _jsx(_components.br, {}), "\n", "여기에서는 현재 세포의 생존유무와 주변 세포들의 존재유무로 점수로 매겨서", _jsx(_components.br, {}), "\n", "다음세대에서도 생사 유무를 결정하는 메쏘드입니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "    private nextGeneration(): void {\n        this.generation++; // 현재 세대를 정의\n        Array.from(Array(this.stageSize).keys()).forEach(index => {\n            // 이전 세대에서 살아남았는지\n            const active = this.cells[index].active;\n            // 주변 세포들이 존재하는지 판단해서 점수를 매깁니다.\n            const score = this.neighborScore(index);\n\n            // 점수에 따른 세포들의 생존 유무\n            if (active && (2 > score || 3 < score)) {\n                this.cells[index].active = false;\n            } else if (!active && 3 == score) {\n                this.cells[index].active = true;\n            }\n        });\n    }\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "이제 실행해봅니다!"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://pbs.twimg.com/profile_images/804219262000693248/7SAdHjXD.jpg",
+        alt: "우와 대박"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "오늘도 고생하셨습니다."
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"phaser 로 구현해 보는 콘웨이의 생명게임","summary":"오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다.","date":"5 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"game-of-life","title":"phaser 로 구현해 보는 콘웨이의 생명게임","date":"$D2020-04-27T19:00:00.000Z","summary":"오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다.","category":"coding","image":"https://tebs-game-of-life.com/images/gosper-gun.png","embeddedImagesLocal":"$undefined","tags":["dev","coding","phaser","typescript","web game","life","cells"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":18}}],["$","$L18",null,{"sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/phaser","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"phaser","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/typescript","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"typescript","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/web-game","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"web game","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/life","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"life","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","6",{"href":"/tag/cells","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"cells","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/jekyll-with-docker-and-wsl2","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","jekyll 블로그 wsl2 + docker + vscode 에서 작업하기"]}],["$","$L1c",null,{"component":"$1d","href":"/article/what-is-babel","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["babel 이란 무엇인가?"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"phaser 로 구현해 보는 콘웨이의 생명게임 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, phaser, typescript, web game, life, cells"}],["$","link","4",{"rel":"canonical","href":"/article/game-of-life"}],["$","meta","5",{"property":"og:title","content":"phaser 로 구현해 보는 콘웨이의 생명게임"}],["$","meta","6",{"property":"og:description","content":"오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/game-of-life"}],["$","meta","8",{"property":"og:image","content":"https://tebs-game-of-life.com/images/gosper-gun.png"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"phaser 로 구현해 보는 콘웨이의 생명게임"}],["$","meta","12",{"name":"twitter:description","content":"오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다."}],["$","meta","13",{"name":"twitter:image","content":"https://tebs-game-of-life.com/images/gosper-gun.png"}]]
+7:null

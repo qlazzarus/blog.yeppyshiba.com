@@ -1,0 +1,774 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"K66r6ptgLjfZKMy0nD8C_","p":"","c":["","article","gitlab-runner-deploy-with-docker"],"i":false,"f":[[["",{"children":["article",{"children":[["slug","gitlab-runner-deploy-with-docker","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","gitlab-runner-deploy-with-docker","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","S1wUteRU5yougl_hKp6kw",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}]]}],["$","$L11",null,{"gaId":"314819162"}]]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-5cd165e00835bfdf.js","86","static/chunks/86-665701a16d36e939.js","234","static/chunks/234-4d7c2d5758e6aea9.js","467","static/chunks/467-6abad856c7981537.js","355","static/chunks/355-24198bc932a5be22.js","225","static/chunks/app/article/%5Bslug%5D/page-e6c964af98a44d22.js"],"default"]
+16:T2f9e,
+## 서론
+
+jekyll 블로그를 사용하면서 github action 에 대해서 많이 부러움을 느꼈습니다.
+
+![](/images/posts/archive/2434BC4257A04CAC1D.jpg)
+
+여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.
+
+## Basic Concept
+
+![발로 그린 diagram](/images/posts/archive/runner-diagram.png)
+
+기본 컨셉은 다음과 같습니다! 코드를 보내면 자동으로 도커 이미지를 생성하고 배포 대상 서버에서 컨테이너를 실행!
+
+1. gitlab 으로 코드를 커밋
+2. build
+
+- CI/CD (gitlab runner) 가 실행됨
+- 코드를 도커 이미지 로 빌드하고 사설 도커 저장소 (이하 _nexus_) 로 배포 진행
+
+3. deploy
+
+- 대상 원격지 서버로의 SSH 키 등록
+- 대상 원격지 서버에 SSH 명령어 전달 (_nexus_ 로 특정 리비전을 가져와서 컨테이너를 실행)
+
+## POC (Proof-Of-Concept)
+
+### 먼저 설치할 것들
+
+물론 구성을 위해서 아래의 솔루션들이 필요합니다. 이 부분 설치는 별도의 내용을 참조하세요!  
+기본적으로 손쉬운 서버 설정을 위해서 빌드서버 / 배포서버 모두 _docker engine_ 이 설치되어 있다고 가정합니다.
+
+- gitlab 설치
+- sonatype nexus3 설치
+
+### sonatype nexus3 설정
+
+아래 문서를 참고 하여, 설치된 sonaytype nexus3 에서 docker 저장소를 설정합니다.
+
+[사내 Docker Registry 만들기 (Nexus3 기반)](https://velog.io/@king/private-docker-registry)
+
+> nexus docker 로그인 연결을 그냥 admin 으로 진행 하는게 낫습니다.
+>
+> 위 블로그의 내용대로 nexus 설정에 다음과 세팅이 필요합니다.
+>
+> - realm 에 docker bearer token realm 추가 필요
+> - docker-hosted 에 api v1 + 포트 추가 (8082)
+
+### gitlab-runner-network 추가
+
+빌드서버에서 gitlab 만 네트워크를 분리하기 위하여 아래 명령어를 통해 네트워크를 추가합니다.  
+각 컨테이너간 통신은 hostname 으로 호출하게 됩니다.
+
+```bash
+$ sudo docker network create gitlab-runner-net
+62322b083c76808fd3502b7388c36e7dca5087059bf688434a7dc7573dba103b
+```
+
+### gitlab-runner 설정값 추가
+
+gitlab runner 기본 설정값을 추가 합니다.
+
+```bash
+$ sudo mkdir -p /etc/srv/gitlab-runner
+$ sudo touch /etc/srv/gitlab-runner/config.toml
+```
+
+### gitlab-runner / gitlab-dind 컨테이너 추가
+
+gitlab runner 연결을 위해서 두가지 컨테이너를 추가합니다.
+
+다음과 같은 프로세스로 runner 가 실행됩니다.
+
+1. gitlab-runner 는 runner 가 실행시 gitlab-dind 컨테이너를 실행시키는 주체 입니다.
+2. 실행된 gitlab-dind 컨테이너는 도커 이미지를 빌드를 합니다.
+
+![docker-in-docker !?](https://www.docker.com/wp-content/uploads/2013/08/docker-meme.jpg)
+
+```bash
+$ sudo docker run -d \
+--name gitlab-runner \
+--restart always \
+--network gitlab-runner-net \
+-v /srv/gitlab-runner/config.toml:/etc/gitlab-runner/config.toml \
+-e DOCKER_HOST=tcp://gitlab-dind:2375 \
+gitlab/gitlab-runner:alpine
+```
+
+> 위에서 만들어둔 외부의 config.toml 파일을 매핑시켜 줍니다.  
+> 추후 수정을 용이하게 하기 위함 입니다.
+
+```bash
+$ sudo docker run -d \
+--name gitlab-dind \
+--privileged \
+--restart always \
+--network gitlab-runner-net \
+-v /var/lib/docker \
+docker:18.09.9-dind
+```
+
+### gitlab-dind 컨테이너 수정
+
+추가된 nexus 는 https 가 지원되지 않아 insecure registry 로 등록이 필요합니다.
+*gitlab-dind 컨테이너*에 콘솔로 접속하여 수정을 진행합니다.
+
+```bash
+$ echo "{ \"insecure-registries\" : [\"nexus..somewhere.com:8082\"] }" > /etc/docker/daemon.json
+```
+
+### gitlab-runner 등록
+
+이제 gitlab runner 를 gitlab 에 연동 되도록 등록해야 합니다.
+
+설정의 Runners 항목을 참조하여 등록 토큰 등을 설정합니다
+
+![](/images/posts/archive/gitlab_runner_token.png)
+
+```bash
+$ sudo docker run -it --rm \
+ -v /srv/gitlab-runner/config.toml:/etc/gitlab-runner/config.toml \
+ gitlab/gitlab-runner:alpine \
+ register \
+ --executor docker \
+ --docker-image docker:18.09.9 \
+ --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+[sudo] password for someone:
+Runtime platform arch=amd64 os=linux pid=6 revision=a998cacd version=13.2.2
+Running in system-mode.
+Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com/):
+http://somewhere.com:8000/
+Please enter the gitlab-ci token for this runner:
+[gitlab-ci-token]
+Please enter the gitlab-ci description for this runner:
+[d6cfe8946db3]: Docker Runner
+Please enter the gitlab-ci tags for this runner (comma separated):
+Registering runner... succeeded runner=Jxyieb2E
+Please enter the executor: shell, ssh, virtualbox, docker+machine, custom, docker-ssh, parallels, dockerssh+machine, kubernetes, docker:
+[docker]:
+Please enter the default Docker image (e.g. ruby:2.6):
+[docker:18.09.9]:
+Runner registered successfully. Feel free to start it, but if it's running already the config should be
+automatically reloaded!
+```
+
+정상적으로 추가되었다면 ci 설정에서 해당 runner 가 노출되게 됩니다.
+
+### gitlab ci variables 등록
+
+#### ssh 키 생성 (클라이언트)
+
+ssh 키는 server 에 id / password 입력 없이 접속하기 위해서 생성합니다.
+여기에서는 ssh private key 만 gitlab 에 저장할 예정이며, public key 는 서버로 전송할 예정입니다.
+
+ssh-keygen 명령어로 ssh 키를 생성합니다.
+
+```bash
+$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa):
+Created directory '/root/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+d0:82:24:8e:d7:f1:bb:9b:33:53:96:93:49:da:9b:e3 root@localhost
+The key's randomart image is:
++---[RSA 2048]----+
+|.*++ o.o. |
+|.+B + oo. |
+| +++ *+. |
+| .o.Oo.+E |
+| ++B.S. |
+| o * =. |
+| + = o |
+| + = = . |
+| + o o |
++----[SHA256]-----+
+```
+
+ssh-copy-id 명령어로 ssh 키를 대상 서버로 복사합니다.
+
+```bash
+$ ssh-copy-id someone@somewhere.com
+```
+
+ssh 연결을 확인해보면 key 없이 잘 접속 되는 것을 확인됩니다.
+
+```bash
+$ ssh someone@somewhere.com
+```
+
+private key 는 gitlab ci 용 변수로 담기 위해서 복사한 후 .ssh 폴더 자체를 삭제합니다.
+
+```bash
+$ cat ~/.ssh/id_rsa
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
+...
+u+Hr4KoWBWAJVdAAAAEXJvb3RANmMwNzdhYzZkZDVjAQ==
+-----END OPENSSH PRIVATE KEY-----
+$ rm -rf ~/.ssh
+```
+
+#### sudo 등록 (서버)
+
+보안상의 이유로 *배포할 서버*를 접근시에는 root 가 아니라 일반 사용자로 등록했습니다.  
+다만 이럴 경우 일반 사용자가 docker 를 실행시킬 권한이 제한됩니다. (root 로 구동됨)
+
+따라서 docker 명령어는 sudo 로 실행해야 하며, 이럴 경우 비밀번호 묻는 프롬프트가 나와서 ssh 명령어를 전달하는 입장에서는 제한이 됩니다.  
+그러하므로 visudo 로 비밀번호를 묻지 않도록 제한할 예정입니다.
+
+root 로 visudo 를 실행하여 docker 명령어만 패스워드 묻지 않도록 허용 합니다.
+
+```
+## Allow root to run any commands anywhere
+root ALL=(ALL) ALL
+someone ALL= NOPASSWD: /bin/docker
+```
+
+#### docker insecure registries 등록 (서버)
+
+사설 docker registry 를 생성하였기 때문에 gitlab 과 배포할 서버 모두 insecure-registries 로 등록이 필요합니다.  
+gitlab-dind 는 이미 등록이 완료되어서 여기에서는 배포할 서버에만 등록해줍니다.
+
+/etc/docker/daemon.json 파일을 수정해서 아래의 경로를 추가해줍니다.
+
+```json
+{
+    "insecure-registries": ["nexus.somewhere.com:8082"]
+}
+```
+
+#### 등록 (gitlab)
+
+곧 작성할 gitlab-ci.yml 파일에 쓰일 변수들이 있습니다.  
+yaml 파일에서 바로 정의될 변수도 있지만, 외부에서 쓰일 변수들 설정이 필요하여 gitlab ci 설정을 들어가도록 하겠습니다
+
+설정 → CI / CD → Variables 순서대로 접근합니다.
+
+![](/images/posts/archive/ci_variables.png)
+
+아래는 등록된 모습이며 각각 다음의 내용을 기술합니다.
+
+| 타입      | 키                      | 설명                                                  | 예제                        |
+| --------- | ----------------------- | ----------------------------------------------------- | --------------------------- |
+| Variables | DOCKER_PRIVATE_HOST     | 도커 컨테이너 호스트입니다. nexus3 주소를 입력합니다. | nexus.somewhere.com:8082    |
+| Variables | DOCKER_PRIVATE_PASSWORD | nexus 비밀번호 입니다.                                | nexus_password              |
+| Variables | DOCKER_PRIVATE_USER     | nexus 아이디 입니다.                                  | admin                       |
+| Variables | PROD_SERVER_IP          | 배포할 원격 호스트입니다.                             | deploy.com                  |
+| Variables | PROD_SERVER_PORT        | 접근할 원격 호스트 SSH 포트입니다.                    | 22                          |
+| Variables | PROD_SERVER_USER        | 접근할 원격 호스트 유저입니다.                        | deployer                    |
+| Variables | SSH_PRIVATE_KEY         | 생성된 private key 입니다.                            | -----BEGIN OPENSSH ... 후략 |
+
+### gitlab-ci.yml 파일 등록
+
+gitlab ci 관련해서는 [이 문서](https://velog.io/@wickedev/Gitlab-CICD-%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC-bljzphditt) 를 보시고,  
+우선은 commit & push 시 발동하는 파이프라인을 작성하겠습니다.
+
+해당 CI 파일은 두가지 스테이지 (build / deploy) 로 나누어져 있으며 각각 하는 역할은 다음과 같습니다.
+
+- build - 도커 이미지 생성
+- deploy - 원격지 서버로 배포
+
+```yaml
+image: monoless/ansible-docker:18.09.9-03
+services:
+ - name: monoless/ansible-docker:18.09.9-dind-03
+ command: ["--insecure-registry=nexus.somwwhere.com:8082"]
+stages:
+ - build
+ - deploy
+variables:
+ IMAGE_NAME: $DOCKER_PRIVATE_HOST/hello-world:$CI_PIPELINE_ID
+
+before_script:
+ - docker info
+
+cache:
+ paths:
+ - node_modules/
+build:
+ stage: build
+ script:
+ - ls -al
+ - docker container ls -a
+ - docker build . -t $IMAGE_NAME
+ - docker login -u $DOCKER_PRIVATE_USER -p $DOCKER_PRIVATE_PASSWORD $DOCKER_PRIVATE_HOST
+ - docker push $IMAGE_NAME
+ - docker images | grep 'somewhere.com'
+
+deploy-image:
+ stage: deploy
+ before_script:
+ - 'which ssh-agent || (apk update && apk add openssh-client)'
+ - eval $(ssh-agent -s)
+ - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+ - mkdir -p ~/.ssh
+ - chmod 700 ~/.ssh
+ - ssh-keyscan -p $PROD_SERVER_PORT $PROD_SERVER_IP >> ~/.ssh/known_hosts
+ - chmod 644 ~/.ssh/known_hosts
+ script:
+ - ssh $PROD_SERVER_USER@$PROD_SERVER_IP -p$PROD_SERVER_PORT "sudo docker login \"${DOCKER_PRIVATE_HOST}\" -
+u \"${DOCKER_PRIVATE_USER}\" -p \"${DOCKER_PRIVATE_PASSWORD}\" && sudo docker pull $IMAGE_NAME && sudo docker
+stop \$(sudo docker ps -aq) && sudo docker rm \$(sudo docker ps -aq) && sudo docker run -d --restart=unlessstopped -p 5000:5000 $IMAGE_NAME"
+```
+
+gitlab-ci.yml 파일이 생성되면, 해당 저장소의 수정이 된 것으로 판단 자동적으로 파이프라인이 실행됩니다.
+
+이후 정상적으로 배포된 docker image 와 원격지 서버를 확인 하였습니다.
+
+![](/images/posts/archive/successful_build.png)
+
+## 결론
+
+지금 작성한 gitlab-ci 코드를 통해서 지속적인 통합과 배포를 구성하였습니다.
+
+이점으로는
+
+1. 코드로 손쉬운 통합이 가능합니다. (다만 gitlab-runner 에 대한 어느정도 학습이 필요합니다.)
+2. 솔직히 jenkins 보다는 쉬운거 같습니다....
+
+아쉬운 점으로는
+
+1. 테스트/스테이지 환경에 대한 부분은 브렌치를 통해서 구현이 필요할 것 같습니다.
+2. 여러 서버로 배포시 대응이 필요합니다.
+17:T59cd,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    blockquote: "blockquote",
+    br: "br",
+    code: "code",
+    em: "em",
+    h2: "h2",
+    h3: "h3",
+    h4: "h4",
+    img: "img",
+    li: "li",
+    ol: "ol",
+    p: "p",
+    pre: "pre",
+    table: "table",
+    tbody: "tbody",
+    td: "td",
+    th: "th",
+    thead: "thead",
+    tr: "tr",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "서론"
+    }), "\n", _jsx(_components.p, {
+      children: "jekyll 블로그를 사용하면서 github action 에 대해서 많이 부러움을 느꼈습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/2434BC4257A04CAC1D.jpg",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "Basic Concept"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/runner-diagram.png",
+        alt: "발로 그린 diagram"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "기본 컨셉은 다음과 같습니다! 코드를 보내면 자동으로 도커 이미지를 생성하고 배포 대상 서버에서 컨테이너를 실행!"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsx(_components.li, {
+        children: "gitlab 으로 코드를 커밋"
+      }), "\n", _jsx(_components.li, {
+        children: "build"
+      }), "\n"]
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "CI/CD (gitlab runner) 가 실행됨"
+      }), "\n", _jsxs(_components.li, {
+        children: ["코드를 도커 이미지 로 빌드하고 사설 도커 저장소 (이하 ", _jsx(_components.em, {
+          children: "nexus"
+        }), ") 로 배포 진행"]
+      }), "\n"]
+    }), "\n", _jsxs(_components.ol, {
+      start: "3",
+      children: ["\n", _jsx(_components.li, {
+        children: "deploy"
+      }), "\n"]
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "대상 원격지 서버로의 SSH 키 등록"
+      }), "\n", _jsxs(_components.li, {
+        children: ["대상 원격지 서버에 SSH 명령어 전달 (", _jsx(_components.em, {
+          children: "nexus"
+        }), " 로 특정 리비전을 가져와서 컨테이너를 실행)"]
+      }), "\n"]
+    }), "\n", _jsx(_components.h2, {
+      children: "POC (Proof-Of-Concept)"
+    }), "\n", _jsx(_components.h3, {
+      children: "먼저 설치할 것들"
+    }), "\n", _jsxs(_components.p, {
+      children: ["물론 구성을 위해서 아래의 솔루션들이 필요합니다. 이 부분 설치는 별도의 내용을 참조하세요!", _jsx(_components.br, {}), "\n", "기본적으로 손쉬운 서버 설정을 위해서 빌드서버 / 배포서버 모두 ", _jsx(_components.em, {
+        children: "docker engine"
+      }), " 이 설치되어 있다고 가정합니다."]
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "gitlab 설치"
+      }), "\n", _jsx(_components.li, {
+        children: "sonatype nexus3 설치"
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "sonatype nexus3 설정"
+    }), "\n", _jsx(_components.p, {
+      children: "아래 문서를 참고 하여, 설치된 sonaytype nexus3 에서 docker 저장소를 설정합니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.a, {
+        href: "https://velog.io/@king/private-docker-registry",
+        children: "사내 Docker Registry 만들기 (Nexus3 기반)"
+      })
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "nexus docker 로그인 연결을 그냥 admin 으로 진행 하는게 낫습니다."
+      }), "\n", _jsx(_components.p, {
+        children: "위 블로그의 내용대로 nexus 설정에 다음과 세팅이 필요합니다."
+      }), "\n", _jsxs(_components.ul, {
+        children: ["\n", _jsx(_components.li, {
+          children: "realm 에 docker bearer token realm 추가 필요"
+        }), "\n", _jsx(_components.li, {
+          children: "docker-hosted 에 api v1 + 포트 추가 (8082)"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-runner-network 추가"
+    }), "\n", _jsxs(_components.p, {
+      children: ["빌드서버에서 gitlab 만 네트워크를 분리하기 위하여 아래 명령어를 통해 네트워크를 추가합니다.", _jsx(_components.br, {}), "\n", "각 컨테이너간 통신은 hostname 으로 호출하게 됩니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ sudo docker network create gitlab-runner-net\n62322b083c76808fd3502b7388c36e7dca5087059bf688434a7dc7573dba103b\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-runner 설정값 추가"
+    }), "\n", _jsx(_components.p, {
+      children: "gitlab runner 기본 설정값을 추가 합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ sudo mkdir -p /etc/srv/gitlab-runner\n$ sudo touch /etc/srv/gitlab-runner/config.toml\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-runner / gitlab-dind 컨테이너 추가"
+    }), "\n", _jsx(_components.p, {
+      children: "gitlab runner 연결을 위해서 두가지 컨테이너를 추가합니다."
+    }), "\n", _jsx(_components.p, {
+      children: "다음과 같은 프로세스로 runner 가 실행됩니다."
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsx(_components.li, {
+        children: "gitlab-runner 는 runner 가 실행시 gitlab-dind 컨테이너를 실행시키는 주체 입니다."
+      }), "\n", _jsx(_components.li, {
+        children: "실행된 gitlab-dind 컨테이너는 도커 이미지를 빌드를 합니다."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://www.docker.com/wp-content/uploads/2013/08/docker-meme.jpg",
+        alt: "docker-in-docker !?"
+      })
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ sudo docker run -d \\\n--name gitlab-runner \\\n--restart always \\\n--network gitlab-runner-net \\\n-v /srv/gitlab-runner/config.toml:/etc/gitlab-runner/config.toml \\\n-e DOCKER_HOST=tcp://gitlab-dind:2375 \\\ngitlab/gitlab-runner:alpine\n"
+      })
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsxs(_components.p, {
+        children: ["위에서 만들어둔 외부의 config.toml 파일을 매핑시켜 줍니다.", _jsx(_components.br, {}), "\n", "추후 수정을 용이하게 하기 위함 입니다."]
+      }), "\n"]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ sudo docker run -d \\\n--name gitlab-dind \\\n--privileged \\\n--restart always \\\n--network gitlab-runner-net \\\n-v /var/lib/docker \\\ndocker:18.09.9-dind\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-dind 컨테이너 수정"
+    }), "\n", _jsxs(_components.p, {
+      children: ["추가된 nexus 는 https 가 지원되지 않아 insecure registry 로 등록이 필요합니다.\n", _jsx(_components.em, {
+        children: "gitlab-dind 컨테이너"
+      }), "에 콘솔로 접속하여 수정을 진행합니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ echo \"{ \\\"insecure-registries\\\" : [\\\"nexus..somewhere.com:8082\\\"] }\" > /etc/docker/daemon.json\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-runner 등록"
+    }), "\n", _jsx(_components.p, {
+      children: "이제 gitlab runner 를 gitlab 에 연동 되도록 등록해야 합니다."
+    }), "\n", _jsx(_components.p, {
+      children: "설정의 Runners 항목을 참조하여 등록 토큰 등을 설정합니다"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/gitlab_runner_token.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ sudo docker run -it --rm \\\n -v /srv/gitlab-runner/config.toml:/etc/gitlab-runner/config.toml \\\n gitlab/gitlab-runner:alpine \\\n register \\\n --executor docker \\\n --docker-image docker:18.09.9 \\\n --docker-volumes /var/run/docker.sock:/var/run/docker.sock\n[sudo] password for someone:\nRuntime platform arch=amd64 os=linux pid=6 revision=a998cacd version=13.2.2\nRunning in system-mode.\nPlease enter the gitlab-ci coordinator URL (e.g. https://gitlab.com/):\nhttp://somewhere.com:8000/\nPlease enter the gitlab-ci token for this runner:\n[gitlab-ci-token]\nPlease enter the gitlab-ci description for this runner:\n[d6cfe8946db3]: Docker Runner\nPlease enter the gitlab-ci tags for this runner (comma separated):\nRegistering runner... succeeded runner=Jxyieb2E\nPlease enter the executor: shell, ssh, virtualbox, docker+machine, custom, docker-ssh, parallels, dockerssh+machine, kubernetes, docker:\n[docker]:\nPlease enter the default Docker image (e.g. ruby:2.6):\n[docker:18.09.9]:\nRunner registered successfully. Feel free to start it, but if it's running already the config should be\nautomatically reloaded!\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "정상적으로 추가되었다면 ci 설정에서 해당 runner 가 노출되게 됩니다."
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab ci variables 등록"
+    }), "\n", _jsx(_components.h4, {
+      children: "ssh 키 생성 (클라이언트)"
+    }), "\n", _jsx(_components.p, {
+      children: "ssh 키는 server 에 id / password 입력 없이 접속하기 위해서 생성합니다.\n여기에서는 ssh private key 만 gitlab 에 저장할 예정이며, public key 는 서버로 전송할 예정입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "ssh-keygen 명령어로 ssh 키를 생성합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ ssh-keygen\nGenerating public/private rsa key pair.\nEnter file in which to save the key (/root/.ssh/id_rsa):\nCreated directory '/root/.ssh'.\nEnter passphrase (empty for no passphrase):\nEnter same passphrase again:\nYour identification has been saved in /root/.ssh/id_rsa.\nYour public key has been saved in /root/.ssh/id_rsa.pub.\nThe key fingerprint is:\nd0:82:24:8e:d7:f1:bb:9b:33:53:96:93:49:da:9b:e3 root@localhost\nThe key's randomart image is:\n+---[RSA 2048]----+\n|.*++ o.o. |\n|.+B + oo. |\n| +++ *+. |\n| .o.Oo.+E |\n| ++B.S. |\n| o * =. |\n| + = o |\n| + = = . |\n| + o o |\n+----[SHA256]-----+\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "ssh-copy-id 명령어로 ssh 키를 대상 서버로 복사합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ ssh-copy-id someone@somewhere.com\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "ssh 연결을 확인해보면 key 없이 잘 접속 되는 것을 확인됩니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ ssh someone@somewhere.com\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "private key 는 gitlab ci 용 변수로 담기 위해서 복사한 후 .ssh 폴더 자체를 삭제합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ cat ~/.ssh/id_rsa\n-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn\n...\nu+Hr4KoWBWAJVdAAAAEXJvb3RANmMwNzdhYzZkZDVjAQ==\n-----END OPENSSH PRIVATE KEY-----\n$ rm -rf ~/.ssh\n"
+      })
+    }), "\n", _jsx(_components.h4, {
+      children: "sudo 등록 (서버)"
+    }), "\n", _jsxs(_components.p, {
+      children: ["보안상의 이유로 ", _jsx(_components.em, {
+        children: "배포할 서버"
+      }), "를 접근시에는 root 가 아니라 일반 사용자로 등록했습니다.", _jsx(_components.br, {}), "\n", "다만 이럴 경우 일반 사용자가 docker 를 실행시킬 권한이 제한됩니다. (root 로 구동됨)"]
+    }), "\n", _jsxs(_components.p, {
+      children: ["따라서 docker 명령어는 sudo 로 실행해야 하며, 이럴 경우 비밀번호 묻는 프롬프트가 나와서 ssh 명령어를 전달하는 입장에서는 제한이 됩니다.", _jsx(_components.br, {}), "\n", "그러하므로 visudo 로 비밀번호를 묻지 않도록 제한할 예정입니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "root 로 visudo 를 실행하여 docker 명령어만 패스워드 묻지 않도록 허용 합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        children: "## Allow root to run any commands anywhere\nroot ALL=(ALL) ALL\nsomeone ALL= NOPASSWD: /bin/docker\n"
+      })
+    }), "\n", _jsx(_components.h4, {
+      children: "docker insecure registries 등록 (서버)"
+    }), "\n", _jsxs(_components.p, {
+      children: ["사설 docker registry 를 생성하였기 때문에 gitlab 과 배포할 서버 모두 insecure-registries 로 등록이 필요합니다.", _jsx(_components.br, {}), "\n", "gitlab-dind 는 이미 등록이 완료되어서 여기에서는 배포할 서버에만 등록해줍니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "/etc/docker/daemon.json 파일을 수정해서 아래의 경로를 추가해줍니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-json",
+        children: "{\n    \"insecure-registries\": [\"nexus.somewhere.com:8082\"]\n}\n"
+      })
+    }), "\n", _jsx(_components.h4, {
+      children: "등록 (gitlab)"
+    }), "\n", _jsxs(_components.p, {
+      children: ["곧 작성할 gitlab-ci.yml 파일에 쓰일 변수들이 있습니다.", _jsx(_components.br, {}), "\n", "yaml 파일에서 바로 정의될 변수도 있지만, 외부에서 쓰일 변수들 설정이 필요하여 gitlab ci 설정을 들어가도록 하겠습니다"]
+    }), "\n", _jsx(_components.p, {
+      children: "설정 → CI / CD → Variables 순서대로 접근합니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/ci_variables.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "아래는 등록된 모습이며 각각 다음의 내용을 기술합니다."
+    }), "\n", _jsxs(_components.table, {
+      children: [_jsx(_components.thead, {
+        children: _jsxs(_components.tr, {
+          children: [_jsx(_components.th, {
+            children: "타입"
+          }), _jsx(_components.th, {
+            children: "키"
+          }), _jsx(_components.th, {
+            children: "설명"
+          }), _jsx(_components.th, {
+            children: "예제"
+          })]
+        })
+      }), _jsxs(_components.tbody, {
+        children: [_jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "DOCKER_PRIVATE_HOST"
+          }), _jsx(_components.td, {
+            children: "도커 컨테이너 호스트입니다. nexus3 주소를 입력합니다."
+          }), _jsx(_components.td, {
+            children: "nexus.somewhere.com:8082"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "DOCKER_PRIVATE_PASSWORD"
+          }), _jsx(_components.td, {
+            children: "nexus 비밀번호 입니다."
+          }), _jsx(_components.td, {
+            children: "nexus_password"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "DOCKER_PRIVATE_USER"
+          }), _jsx(_components.td, {
+            children: "nexus 아이디 입니다."
+          }), _jsx(_components.td, {
+            children: "admin"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "PROD_SERVER_IP"
+          }), _jsx(_components.td, {
+            children: "배포할 원격 호스트입니다."
+          }), _jsx(_components.td, {
+            children: "deploy.com"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "PROD_SERVER_PORT"
+          }), _jsx(_components.td, {
+            children: "접근할 원격 호스트 SSH 포트입니다."
+          }), _jsx(_components.td, {
+            children: "22"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "PROD_SERVER_USER"
+          }), _jsx(_components.td, {
+            children: "접근할 원격 호스트 유저입니다."
+          }), _jsx(_components.td, {
+            children: "deployer"
+          })]
+        }), _jsxs(_components.tr, {
+          children: [_jsx(_components.td, {
+            children: "Variables"
+          }), _jsx(_components.td, {
+            children: "SSH_PRIVATE_KEY"
+          }), _jsx(_components.td, {
+            children: "생성된 private key 입니다."
+          }), _jsx(_components.td, {
+            children: "-----BEGIN OPENSSH ... 후략"
+          })]
+        })]
+      })]
+    }), "\n", _jsx(_components.h3, {
+      children: "gitlab-ci.yml 파일 등록"
+    }), "\n", _jsxs(_components.p, {
+      children: ["gitlab ci 관련해서는 ", _jsx(_components.a, {
+        href: "https://velog.io/@wickedev/Gitlab-CICD-%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC-bljzphditt",
+        children: "이 문서"
+      }), " 를 보시고,", _jsx(_components.br, {}), "\n", "우선은 commit & push 시 발동하는 파이프라인을 작성하겠습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "해당 CI 파일은 두가지 스테이지 (build / deploy) 로 나누어져 있으며 각각 하는 역할은 다음과 같습니다."
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "build - 도커 이미지 생성"
+      }), "\n", _jsx(_components.li, {
+        children: "deploy - 원격지 서버로 배포"
+      }), "\n"]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-yaml",
+        children: "image: monoless/ansible-docker:18.09.9-03\nservices:\n - name: monoless/ansible-docker:18.09.9-dind-03\n command: [\"--insecure-registry=nexus.somwwhere.com:8082\"]\nstages:\n - build\n - deploy\nvariables:\n IMAGE_NAME: $DOCKER_PRIVATE_HOST/hello-world:$CI_PIPELINE_ID\n\nbefore_script:\n - docker info\n\ncache:\n paths:\n - node_modules/\nbuild:\n stage: build\n script:\n - ls -al\n - docker container ls -a\n - docker build . -t $IMAGE_NAME\n - docker login -u $DOCKER_PRIVATE_USER -p $DOCKER_PRIVATE_PASSWORD $DOCKER_PRIVATE_HOST\n - docker push $IMAGE_NAME\n - docker images | grep 'somewhere.com'\n\ndeploy-image:\n stage: deploy\n before_script:\n - 'which ssh-agent || (apk update && apk add openssh-client)'\n - eval $(ssh-agent -s)\n - echo \"$SSH_PRIVATE_KEY\" | tr -d '\\r' | ssh-add - > /dev/null\n - mkdir -p ~/.ssh\n - chmod 700 ~/.ssh\n - ssh-keyscan -p $PROD_SERVER_PORT $PROD_SERVER_IP >> ~/.ssh/known_hosts\n - chmod 644 ~/.ssh/known_hosts\n script:\n - ssh $PROD_SERVER_USER@$PROD_SERVER_IP -p$PROD_SERVER_PORT \"sudo docker login \\\"${DOCKER_PRIVATE_HOST}\\\" -\nu \\\"${DOCKER_PRIVATE_USER}\\\" -p \\\"${DOCKER_PRIVATE_PASSWORD}\\\" && sudo docker pull $IMAGE_NAME && sudo docker\nstop \\$(sudo docker ps -aq) && sudo docker rm \\$(sudo docker ps -aq) && sudo docker run -d --restart=unlessstopped -p 5000:5000 $IMAGE_NAME\"\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "gitlab-ci.yml 파일이 생성되면, 해당 저장소의 수정이 된 것으로 판단 자동적으로 파이프라인이 실행됩니다."
+    }), "\n", _jsx(_components.p, {
+      children: "이후 정상적으로 배포된 docker image 와 원격지 서버를 확인 하였습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/successful_build.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "결론"
+    }), "\n", _jsx(_components.p, {
+      children: "지금 작성한 gitlab-ci 코드를 통해서 지속적인 통합과 배포를 구성하였습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "이점으로는"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsx(_components.li, {
+        children: "코드로 손쉬운 통합이 가능합니다. (다만 gitlab-runner 에 대한 어느정도 학습이 필요합니다.)"
+      }), "\n", _jsx(_components.li, {
+        children: "솔직히 jenkins 보다는 쉬운거 같습니다...."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "아쉬운 점으로는"
+    }), "\n", _jsxs(_components.ol, {
+      children: ["\n", _jsx(_components.li, {
+        children: "테스트/스테이지 환경에 대한 부분은 브렌치를 통해서 구현이 필요할 것 같습니다."
+      }), "\n", _jsx(_components.li, {
+        children: "여러 서버로 배포시 대응이 필요합니다."
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"gitlab-runnner 를 활용한 docker 배포","summary":"여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.","date":"4 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"gitlab-runner-deploy-with-docker","title":"gitlab-runnner 를 활용한 docker 배포","date":"$D2020-09-15T21:00:00.000Z","summary":"여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.","category":"coding","image":"https://khs9628.github.io/img/infra/logo/GitLab.png","embeddedImagesLocal":"$undefined","tags":["dev","coding","git","gitlab","gitlab runner","docker","deploy","ci","cd"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":10}}],["$","$L18",null,{"sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/git","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"git","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/gitlab","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"gitlab","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/gitlab-runner","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"gitlab runner","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/docker","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"docker","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","6",{"href":"/tag/deploy","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"deploy","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","7",{"href":"/tag/ci","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"ci","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","8",{"href":"/tag/cd","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"cd","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/raycasting-pseudo-3d","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?"]}],["$","$L1c",null,{"component":"$1d","href":"/article/jekyll-with-docker-and-wsl2","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["jekyll 블로그 wsl2 + docker + vscode 에서 작업하기"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"gitlab-runnner 를 활용한 docker 배포 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, git, gitlab, gitlab runner, docker, deploy, ci, cd"}],["$","link","4",{"rel":"canonical","href":"/article/gitlab-runner-deploy-with-docker"}],["$","meta","5",{"property":"og:title","content":"gitlab-runnner 를 활용한 docker 배포"}],["$","meta","6",{"property":"og:description","content":"여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/gitlab-runner-deploy-with-docker"}],["$","meta","8",{"property":"og:image","content":"https://khs9628.github.io/img/infra/logo/GitLab.png"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"gitlab-runnner 를 활용한 docker 배포"}],["$","meta","12",{"name":"twitter:description","content":"여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다."}],["$","meta","13",{"name":"twitter:image","content":"https://khs9628.github.io/img/infra/logo/GitLab.png"}]]
+7:null

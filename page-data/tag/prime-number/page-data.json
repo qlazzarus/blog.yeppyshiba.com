@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tag-template-tsx",
-    "path": "/tag/prime-number/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"Yeppyshiba Blog","description":"Living whatever blah blah","siteUrl":"https://blog.yeppyshiba.com"}},"allMdx":{"edges":[{"node":{"id":"e81f8757-70f4-5b7b-838d-f99de9c6efa3","fields":{"totalCount":14,"slug":"deep-learning-prime-number"},"frontmatter":{"title":"딥러닝과 소수","date":"2021-05-12T12:00:00.000Z","image":"https://media.makeameme.org/created/prime-numbers-y.jpg","embeddedImagesLocal":null,"category":"coding","tags":["dev","coding","ai","deep learning","prime number"],"summary":"과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다. 이름하여 바로 '리만 가설' 입니다."}}}]}},"pageContext":{"slug":"prime number","pageNumber":0,"humanPageNumber":1,"skip":0,"limit":10,"numberOfPages":1,"previousPagePath":"","nextPagePath":""}},
-    "staticQueryHashes": ["3764592887"]}
