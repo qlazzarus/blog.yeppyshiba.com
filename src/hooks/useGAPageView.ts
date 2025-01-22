@@ -4,7 +4,7 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-export default function () {
+export default function useGAPageView() {
   const pathname = usePathname();  // 현재 페이지 경로를 가져온다.
 
   useEffect(() => {
