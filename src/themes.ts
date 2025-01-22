@@ -102,8 +102,15 @@ export default responsiveFontSizes(
             MuiLink: {
                 styleOverrides: {
                     root: {
-                        textDecoration: 'none',
-                        color: 'inherit', // 텍스트 색상 상속
+                        textDecoration: 'none', // 기본적으로 밑줄 제거
+                        color: 'palette.link.main', // 테마 링크 색상 적용
+                        '&:hover': {
+                            color: 'palette.link.hover', // 호버 시 색상 변경
+                            textDecoration: 'underline', // 호버 시 밑줄 추가
+                        },
+                        '&:visited': {
+                            color: 'palette.link.visited', // 방문한 링크 색상
+                        },
                     },
                 },
             },

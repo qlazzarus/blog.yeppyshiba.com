@@ -1,3 +1,4 @@
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link as MaterialLink, LinkProps as MaterialLinkProps } from '@mui/material';
 import NextLink from 'next/link';
 import React from 'react';
@@ -53,9 +54,21 @@ const LinkContainer = (props: ExtendedLinkProps) => {
             color='primary'
             target='_blank'
             rel='noopener noreferrer'
+            sx={{
+                display: 'inline-flex', // 텍스트와 아이콘을 동일한 높이로 정렬
+                alignItems: 'center', // 아이템 세로 정렬
+                gap: 0.5, // 텍스트와 아이콘 간격
+                textDecoration: 'none',
+            }}
             {...props}
         >
             {children}
+            <ExitToAppIcon
+                fontSize='inherit' // 텍스트 크기와 아이콘 크기를 동일하게 설정
+                sx={{
+                    verticalAlign: 'middle', // 세로 정렬 보정
+                }}
+            />
         </MaterialLink>
     );
 };

@@ -3,12 +3,8 @@ import {
     BoxProps,
     Divider,
     DividerProps,
-    List,
     ListItem,
     ListItemProps,
-    ListProps,
-    Paper,
-    PaperProps,
     Table,
     TableBody,
     TableBodyProps,
@@ -28,6 +24,7 @@ import LinkContainer from '@/components/markdown/LinkContainer';
 
 import FootnoteSection from './components/markdown/FootnoteSection';
 import OrderedList from './components/markdown/OrderedList';
+import UnOrderedList from './components/markdown/UnOrderedList';
 
 export default {
     // 텍스트 관련
@@ -51,7 +48,7 @@ export default {
     h6: (props: TypographyProps) => <Typography variant='h6' my={3} {...props} />,
 
     // 리스트
-    ul: (props: ListProps) => <List {...props} />,
+    ul: UnOrderedList,
     ol: OrderedList,
     li: (props: ListItemProps) => <ListItem {...props} />,
 
@@ -63,19 +60,6 @@ export default {
 
     // 구분선, 블럭 요소
     hr: (props: DividerProps) => <Divider {...props} />,
-    pre: (props: PaperProps) => (
-        <Paper
-            elevation={1}
-            sx={{
-                p: 2,
-                mb: 2,
-                backgroundColor: '#f5f5f5',
-                overflowX: 'auto',
-                fontFamily: 'monospace',
-            }}
-            {...props}
-        />
-    ),
 
     a: LinkContainer,
 
