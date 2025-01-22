@@ -27,7 +27,7 @@ export function generateStaticParams() {
 export async function generateMetadata({
     params,
 }: {
-    params: { page: string };
+    params: Promise<{ page: string }>;
 }): Promise<Metadata> {
     const page = parseInt((await params).page);
     const title = page === 1 ? 'Home' : `Page ${page}`;

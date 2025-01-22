@@ -27,7 +27,7 @@ export function generateStaticParams() {
     }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const slug = (await params).slug;
     const post = allPosts.find((p) => p.slug === slug);
 
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     });
 }
 
-const Article = async ({ params }: { params: { slug: string } }) => {
+const Article = async ({ params }: { params: Promise<{ slug: string }> }) => {
     const slug = (await params).slug;
     const post = await getPostBySlug(slug);
 

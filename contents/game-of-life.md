@@ -37,9 +37,7 @@ tags:
 
 ## 라이프 게임(Life of Game) 이란
 
-<video controls autoplay loop style="width: 100%; height: auto;">
-  <source src="https://i.imgur.com/46B3SyZ.mp4" type="video/mp4"></source>
-</video>
+![](https://i.imgur.com/46B3SyZ.mp4)
 
 바둑판처럼 정사각형의 여러 칸으로 나뉘어진 공간에서 한 칸에 한 마리씩 있는 세포들의 삶과 죽음이  
 펼쳐지는 게임입니다.  

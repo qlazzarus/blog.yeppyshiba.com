@@ -19,7 +19,7 @@ const posts = (await getAllPosts()).sort(
 export async function generateMetadata({
     params,
 }: {
-    params: { slug: string; page: string };
+    params: Promise<{ slug: string; page: string }>;
 }): Promise<Metadata> {
     const slug = (await params).slug;
     const page = parseInt((await params).page);

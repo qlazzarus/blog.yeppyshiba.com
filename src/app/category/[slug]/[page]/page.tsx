@@ -15,7 +15,11 @@ const posts = (await getAllPosts()).sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 );
 
-export async function generateMetadata({ params }: { params: { slug: string; page: string } }) {
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ slug: string; page: string }>;
+}) {
     const slug = (await params).slug;
     const page = parseInt((await params).page, 10);
 
