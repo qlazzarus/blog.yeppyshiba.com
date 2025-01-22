@@ -2,19 +2,20 @@
 title: babel 이란 무엇인가?
 date: 2020-02-12T12:56:00.000Z
 category: coding
-summary: 최근에 react 프로젝트와 typescript 프로젝트를 거치면서 webpack 을 자주 써보고 세팅해보게 되었습니다.  
-  처음에는 동작의 원리보다 `요즘 잘나가는 프론트엔드 개발 환경 만들기`라는 목표로 세팅 하였으나  
-  점점 처음부터 차근 차근 만지면서, 내가 이걸 몰랐구나 이게 이런 뜻이었구나 새삼 느끼게 되었습니다.
+summary:
+    최근에 react 프로젝트와 typescript 프로젝트를 거치면서 webpack 을 자주 써보고 세팅해보게 되었습니다.
+    처음에는 동작의 원리보다 `요즘 잘나가는 프론트엔드 개발 환경 만들기`라는 목표로 세팅 하였으나
+    점점 처음부터 차근 차근 만지면서, 내가 이걸 몰랐구나 이게 이런 뜻이었구나 새삼 느끼게 되었습니다.
 image: https://blog.kakaocdn.net/dn/dGyesV/btqE0BOfEnV/tFNI9i4mUKj4xQkhrnDFI1/img.png
-tags: 
-  - dev
-  - coding
-  - javascript
-  - webpack
-  - babel
-  - polyfill
-  - esnext
-  - typescript
+tags:
+    - dev
+    - coding
+    - javascript
+    - webpack
+    - babel
+    - polyfill
+    - esnext
+    - typescript
 ---
 
 ## 들어가며
@@ -55,7 +56,7 @@ webpack 에 대한 설명은 이미 많이 있으니 이번에는 babel 에 대�
 
 안드로이드는 더욱 더 충격적인데 아직 제 주변에서도 갤럭스 노트 2를 사용하시는 분들이 꽤 있더군요...
 
-![2019년 안드로이드 버전별 점유율](./../static/images/posts/archive/20200212_android_market_share.png) [출처] [Android 배포 대시보드](https://developer.android.com/about/dashboards)
+![2019년 안드로이드 버전별 점유율](/images/posts/archive/20200212_android_market_share.png) [출처] [Android 배포 대시보드](https://developer.android.com/about/dashboards)
 
 이런 하위 호환성은 외면하기에는 쉽지 않습니다...  
 이또한 babel 을 쓰는 강력한 이유가 됩니다. (babel-polyfill 부분을 참고하세요!)
@@ -65,18 +66,16 @@ webpack 에 대한 설명은 이미 많이 있으니 이번에는 babel 에 대�
 현재 typescript 열풍이 거셉니다. [typescript](https://www.typescriptlang.org/) 는 Microsoft 에서 만든 언어로써  
 강력한 정적 typing 과 es2015 기반으로하는 객체지향적 문법입니다.
 
-> 관련되어서 아래 문서도 읽어보세요! [Typescript에 대하여](/2019/09/25/typescript/)
-
 이미 npm 다운로드 트랜드 사이트에서는 폭발적인 인기를 볼 수 있습니다.
 
-![최근 2년간 npm 다운로드 횟수](./../static/images/posts/archive/20200212_npmtrends.png) [출처] [npmtrends.com](https://www.npmtrends.com/typescript-vs-coffee-script-vs-purescript-vs-flow-bin-vs-elm)
+![최근 2년간 npm 다운로드 횟수](/images/posts/archive/20200212_npmtrends.png) [출처] [npmtrends.com](https://www.npmtrends.com/typescript-vs-coffee-script-vs-purescript-vs-flow-bin-vs-elm)
 
 또한 기존 job recruit 사이트에서도 연봉이 많이 오른 것을 확인할 수 있습니다.
-![typescript average salary](./../static/images/posts/archive/20200212_typescript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
-![javascript average salary](./../static/images/posts/archive/20200212_javascript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![typescript average salary](/images/posts/archive/20200212_typescript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![javascript average salary](/images/posts/archive/20200212_javascript_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Typescript-Jobs-Near-Me?near_me_location=San-Francisco,CA)
 
 심지어 java salary 보다 ㅎㄷㄷ
-![java average salary](./../static/images/posts/archive/20200212_java_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Java-Developer-Jobs-Near-Me?near_me_location=San-Francisco,CA)
+![java average salary](/images/posts/archive/20200212_java_salaries.png) [출처] [ziprecruiter.com](https://www.ziprecruiter.com/n/Java-Developer-Jobs-Near-Me?near_me_location=San-Francisco,CA)
 
 여튼 typescript 든 coffeescript 든 javascript 로의 compile 이 필수가 되어야 하며,  
 이를 담당하는게 babel 입니다.
@@ -104,16 +103,16 @@ babel 은 문법을 변환하여 javascript 로 변환하는 transpiler 역할�
 
 ```json
 {
-  "presets": [
-    [
-      "env",
-      {
-        "targets": {
-          "browsers": ["last 2 versions", "not ie <= 10"]
-        }
-      }
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "browsers": ["last 2 versions", "not ie <= 10"]
+                }
+            }
+        ]
     ]
-  ]
 }
 ```
 

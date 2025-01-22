@@ -5,14 +5,14 @@ summary: 파일 업로드 구현이야 많이들 해보셨겠지만 용량이 �
 category: coding
 image: https://icon-library.com/images/icon-uploader/icon-uploader-2.jpg
 tags:
-  - dev
-  - coding
-  - chunk upload
-  - axios
-  - vue
-  - laravel
-  - php
-  - javascript
+    - dev
+    - coding
+    - chunk upload
+    - axios
+    - vue
+    - laravel
+    - php
+    - javascript
 ---
 
 ## 들어가며
@@ -137,11 +137,11 @@ input 태그를 담는 vue component 를 만들어 봅시다.
 
 ```html
 <input
-  type="file"
-  class="custom-file-input"
-  accept="video/*,audio/*,image/*"
-  ref="fileContainer"
-  @change="onChangeFile"
+    type="file"
+    class="custom-file-input"
+    accept="video/*,audio/*,image/*"
+    ref="fileContainer"
+    @change="onChangeFile"
 />
 ```
 
@@ -158,10 +158,10 @@ onsubmit 이벤트 시점에 axios 로 POST 호출하도록 설정하겠습니�
 
 ```javascript
 const api = axios.create({
-  headers: {
-    'Content-type': 'application/x-www-form-urlencoded',
-    Accept: 'application/json',
-  },
+    headers: {
+        'Content-type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+    },
 });
 
 const chunkSize = 1024 * 1024;
@@ -175,7 +175,7 @@ const end = Math.min(file.size, start + chunkSize);
 
 let currentChunkSize = chunkSize;
 if (options.chunkNumber + 1 === options.blockCount) {
-  currentChunkSize = file.size - start;
+    currentChunkSize = file.size - start;
 }
 
 const params = new FormData();
@@ -220,20 +220,20 @@ return api
 
 ```javascript
 export default {
-  chunk: (endpoint, file, onProgress, onError, onSuccess) => {
-    const blockCount = Math.ceil(file.size / chunkSize);
-    const chunkNumber = 0;
-    const identifier = `${file.size}-${file.name.replace('.', '')}`;
+    chunk: (endpoint, file, onProgress, onError, onSuccess) => {
+        const blockCount = Math.ceil(file.size / chunkSize);
+        const chunkNumber = 0;
+        const identifier = `${file.size}-${file.name.replace('.', '')}`;
 
-    return chunkUploader(endpoint, file, {
-      blockCount,
-      identifier,
-      chunkNumber,
-      onProgress,
-      onError,
-      onSuccess,
-    });
-  },
+        return chunkUploader(endpoint, file, {
+            blockCount,
+            identifier,
+            chunkNumber,
+            onProgress,
+            onError,
+            onSuccess,
+        });
+    },
 };
 ```
 
@@ -277,7 +277,7 @@ onSubmit() {
 bootstrap 를 이용해서 예쁘게 꾸며줍시다.
 프로그레스바까지 꾸며주었습니다.
 
-![아! 너무 예쁘다...](./../static/images/posts/archive/chunk-uploader-result.png)
+![아! 너무 예쁘다...](/images/posts/archive/chunk-uploader-result.png)
 
 ## 마치며
 

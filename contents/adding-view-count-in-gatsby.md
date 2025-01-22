@@ -4,12 +4,12 @@ date: 2022-06-06T05:13:01.903Z
 summary: gatsby 는 정적 사이트 생성기로써, 훌륭한 블로그 툴입니다. 다만 조회수등 여러가지 다이나믹한 기능들은 (바로) 지원하지 않는데요...
 category: coding
 image: /images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
-embeddedImagesLocal: ./../static/images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
+embeddedImagesLocal: /images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
 tags:
-  - dev
-  - coding
-  - google analytics
-  - gatsby
+    - dev
+    - coding
+    - google analytics
+    - gatsby
 ---
 
 ## 서론
@@ -20,7 +20,7 @@ gatsby 는 정적 사이트 생성기로, 훌륭한 블로그 툴입니다. 😍
 
 다만 조회수등 여러가지 다이나믹한 기능들은 당연히 되지 않는데요. 물론 언제나 그렇듯 답은 있습니다.
 
-![우리는 답을 찾을 것이다. 늘 그랬듯이](./../static/images/posts/202206/kyle-johnson-CT8NvobyYuk-unsplash.jpg)
+![우리는 답을 찾을 것이다. 늘 그랬듯이](/images/posts/202206/kyle-johnson-CT8NvobyYuk-unsplash.jpg)
 
 예전 웹 초창기때는 여러 카운터 서비스가 있었을듯, 요즘에는 방문자 분석을 위해서 [구글 애널리틱스](https://analytics.google.com/analytics/web/)를 많이 활용하고 있는데요.
 
@@ -32,7 +32,7 @@ https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart-c
 
 먼저 저 API 문서를 통해서 확인했었는데요. API 부터 활성화 시켜봅시다.
 
-![Enable the Google Analytics Data API v1](./../static/images/posts/202206/google-analytics-data-enable-api.png)
+![Enable the Google Analytics Data API v1](/images/posts/202206/google-analytics-data-enable-api.png)
 
 이후에 ✨ **DOWNLOAD CLIENT CONFIGURATION** ✨ 를 눌러서 credentials.json 파일을 꼭 놓치지 말아주세요.
 
@@ -49,7 +49,7 @@ https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart-c
 
 여기에서 추가 버튼으로, 아까 복사한 이메일을 붙여넣기 합니다. 권한은 뷰어로만 주시면 됩니다.
 
-![Google Analytics Access](./../static/images/posts/202206/google-analytics-access.png)
+![Google Analytics Access](/images/posts/202206/google-analytics-access.png)
 
 ## 권한 설정은 아직 끝난게 아닙니다...
 
@@ -85,18 +85,21 @@ https://ji5485.github.io/post/2021-06-26/create-env-with-github-actions-secrets/
 Google은 Analytics Reporting v4 API를 사용하여 데이터를 쿼리하는 방법을 보여주는 간단한 양식인 를인 [Request Composer](https://ga-dev-tools.web.app/ga4/query-explorer/)
 제공합니다. 여기에서 생성한 JSON 을 저장해둡시다.
 
-![Google Analytics Reporting V4 API Query](./../static/images/posts/202206/google-analytics-query.png)
+![Google Analytics Reporting V4 API Query](/images/posts/202206/google-analytics-query.png)
 
 아래는 해당 JSON 전문입니다.
 
 ```json
 {
-  "dimensions": [{ "name": "pagePath" }],
-  "metrics": [{ "name": "screenPageViews" }],
-  "dateRanges": [{ "startDate": "2022-05-30", "endDate": "yesterday" }],
-  "dimensionFilter": {
-    "filter": { "fieldName": "pagePath", "stringFilter": { "matchType": "BEGINS_WITH", "value": "/article/" } }
-  }
+    "dateRanges": [{ "startDate": "2022-05-30", "endDate": "yesterday" }],
+    "dimensionFilter": {
+        "filter": {
+            "fieldName": "pagePath",
+            "stringFilter": { "matchType": "BEGINS_WITH", "value": "/article/" }
+        }
+    },
+    "dimensions": [{ "name": "pagePath" }],
+    "metrics": [{ "name": "screenPageViews" }]
 }
 ```
 
@@ -109,69 +112,69 @@ Google은 Analytics Reporting v4 API를 사용하여 데이터를 쿼리하는 �
 1. onPluginInit 시점시, 조회수를 조회한다.
 2. 이후 onCreateNode 시점에서 게시물일 경우, 조회수를 가져와서 연결한다.
 
-![말은 참 쉬운데요....](./../static/images/posts/202206/ignacio-amenabar-2dkgXTfPfTg-unsplash.jpg)
+![말은 참 쉬운데요....](/images/posts/202206/ignacio-amenabar-2dkgXTfPfTg-unsplash.jpg)
 
 ```typescript
-import 'dotenv/config';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import 'dotenv/config';
 
 const articlePrefix = '/article';
 
 const getViewCount = async () => {
-  let analyticsResult = [];
-  try {
-    const analyticsDataClient = new BetaAnalyticsDataClient({
-      credentials: JSON.parse(process.env.ANALYTICS_CREDENTIALS || '{}'),
-    });
-
-    analyticsResult = await analyticsDataClient.runReport({
-      property: `properties/${process.env.ANALYTICS_PROPERTY_ID || ''}`,
-      dateRanges: [{ startDate: '2022-05-30', endDate: 'today' }],
-      dimensions: [{ name: 'pagePath' }],
-      metrics: [{ name: 'screenPageViews' }],
-      dimensionFilter: {
-        filter: {
-          fieldName: 'pagePath',
-          stringFilter: {
-            matchType: 'BEGINS_WITH',
-            value: `${articlePrefix}/`,
-          },
-        },
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-
-  // analytics data arrange
-  return (
-    analyticsResult
-      .filter((item: any) => item !== null && item.rows)
-      .map((item: any) => {
-        return item.rows.map((row: any) => {
-          return {
-            path: row.dimensionValues[0].value,
-            totalCount: row.metricValues[0].value,
-          };
+    let analyticsResult = [];
+    try {
+        const analyticsDataClient = new BetaAnalyticsDataClient({
+            credentials: JSON.parse(process.env.ANALYTICS_CREDENTIALS || '{}'),
         });
-      })[0] || []
-  );
+
+        analyticsResult = await analyticsDataClient.runReport({
+            property: `properties/${process.env.ANALYTICS_PROPERTY_ID || ''}`,
+            dateRanges: [{ startDate: '2022-05-30', endDate: 'today' }],
+            dimensions: [{ name: 'pagePath' }],
+            metrics: [{ name: 'screenPageViews' }],
+            dimensionFilter: {
+                filter: {
+                    fieldName: 'pagePath',
+                    stringFilter: {
+                        matchType: 'BEGINS_WITH',
+                        value: `${articlePrefix}/`,
+                    },
+                },
+            },
+        });
+    } catch (error) {
+        console.error(error);
+    }
+
+    // analytics data arrange
+    return (
+        analyticsResult
+            .filter((item: any) => item !== null && item.rows)
+            .map((item: any) => {
+                return item.rows.map((row: any) => {
+                    return {
+                        path: row.dimensionValues[0].value,
+                        totalCount: row.metricValues[0].value,
+                    };
+                });
+            })[0] || []
+    );
 };
 ```
 
-![tired...](./../static/images/posts/202206/luis-villasmil-mlVbMbxfWI4-unsplash.jpg)
+![tired...](/images/posts/202206/luis-villasmil-mlVbMbxfWI4-unsplash.jpg)
 
 코드를 길게 설명하지는 않겠습니다. 주요 보여야 하는 포인트는 다음과 같습니다.
 
 - credentials 항목을 process.env.ANALYTICS_CREDENTIALS 으로 넘김
 - 아까 [Request Composer](https://ga-dev-tools.web.app/ga4/query-explorer/) 에서 생성한 쿼리에서 property 항목을 추가
-- 조회한 결과를 { path: string, totalCount: string } 항목으로 리턴함
+- 조회한 결과를 path: string, totalCount: string 항목으로 리턴함
 
 이 함수를 아까 이야기했던 onPluginInit 에서 호출하도록 합니다. 이후 cache 로 적재 했는데요. 자세한 내용은 [Gatsby Node API Helpers](https://www.gatsbyjs.com/docs/reference/config-files/node-api-helpers/) 문서를 참조 하세요!
 
 ```typescript
 export const onPluginInit = async ({ cache }) => {
-  await cache.set('viewCount', await getViewCount());
+    await cache.set('viewCount', await getViewCount());
 };
 ```
 
@@ -179,12 +182,13 @@ export const onPluginInit = async ({ cache }) => {
 
 ```typescript
 export const onCreateNode = async ({ node, getNode, actions, cache }) => {
-  const viewCount = await cache.get('viewCount');
+    const viewCount = await cache.get('viewCount');
 
-  // total count
-  const slug = `${articlePrefix}${createFilePath({ node, getNode, basePath: `./contents` })}`;
-  const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 }).totalCount;
-  createNodeField({ node, name: 'totalCount', value: parseInt(totalCount) });
+    // total count
+    const slug = `${articlePrefix}${createFilePath({ node, getNode, basePath: `./contents` })}`;
+    const totalCount = (viewCount.filter((item: any) => item.path === slug)[0] || { totalCount: 0 })
+        .totalCount;
+    createNodeField({ node, name: 'totalCount', value: parseInt(totalCount) });
 };
 ```
 
@@ -194,11 +198,11 @@ export const onCreateNode = async ({ node, getNode, actions, cache }) => {
 
 ## 끝
 
-![Gatsby Graphql Result](./../static/images/posts/202206/gatsby-graphql-result.png)
+![Gatsby Graphql Result](/images/posts/202206/gatsby-graphql-result.png)
 
 보시면 정상적으로 조회수가 추가된 것을 확인할 수 있습니다. 이제 UI 단에서 추가만 하면 끝!
 
-![드디어 끝났네요... 고생하셨습니다!](./../static/images/posts/202206/eden-constantino-32aK4c8Iekc-unsplash.jpg)
+![드디어 끝났네요... 고생하셨습니다!](/images/posts/202206/eden-constantino-32aK4c8Iekc-unsplash.jpg)
 
 ## 출처 및 참고
 

@@ -4,14 +4,14 @@ date: 2020-04-27T19:00:00.000Z
 category: coding
 summary: 오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다.
 image: https://tebs-game-of-life.com/images/gosper-gun.png
-tags: 
-  - dev
-  - coding
-  - phaser
-  - typescript
-  - web game
-  - life
-  - cells
+tags:
+    - dev
+    - coding
+    - phaser
+    - typescript
+    - web game
+    - life
+    - cells
 ---
 
 # phaser 로 구현해 보는 콘웨이의 생명게임
@@ -90,25 +90,25 @@ tags:
 
 ```typescript
 class MainScene extends Phaser.Scene {
-  constructor() {
-    super(SCENE_KEY);
-  }
+    constructor() {
+        super(SCENE_KEY);
+    }
 
-  public init(): void {
-    // init
-  }
+    public init(): void {
+        // init
+    }
 
-  public preload(): void {
-    // preload
-  }
+    public preload(): void {
+        // preload
+    }
 
-  public create(): void {
-    // create
-  }
+    public create(): void {
+        // create
+    }
 
-  public update(): void {
-    // update
-  }
+    public update(): void {
+        // update
+    }
 }
 ```
 
@@ -123,7 +123,7 @@ class MainScene extends Phaser.Scene {
 
 실행 순서는 정리하자면 다음과 같습니다.
 
-![scene 메쏘드 실행 순서](./../static/images/posts/archive/diagram.png)
+![scene 메쏘드 실행 순서](/images/posts/archive/diagram.png)
 
 지금의 게임은 단순히 하나의 scene 을 가지고 하나의 object 만 다루도록 할 것 인데요.  
 이번 글은 phaser 프레임워크의 전체적인 플로우를 다루도록 진행할 예정입니다.

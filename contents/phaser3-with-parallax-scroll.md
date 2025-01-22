@@ -5,11 +5,11 @@ summary: 패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 �
 category: coding
 image: https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png
 tags:
-  - dev
-  - coding
-  - phaser
-  - web game
-  - parallax scroll
+    - dev
+    - coding
+    - phaser
+    - web game
+    - parallax scroll
 ---
 
 ## 패럴랙스 스크롤링 (parallax scrolling) 이란?
@@ -30,40 +30,40 @@ tags:
 import Phaser from 'phaser';
 
 class MyGame extends Phaser.Scene {
-  preload() {
-    // 백그라운드 이미지 로딩
-  }
+    preload() {
+        // 백그라운드 이미지 로딩
+    }
 
-  create() {
-    // 백그라운드 설정
-  }
+    create() {
+        // 백그라운드 설정
+    }
 
-  update() {}
+    update() {}
 }
 
 new Phaser.Game({
-  type: Phaser.AUTO,
-  backgroundColor: '#000000',
-  pixelArt: true,
-  antialias: false,
-  roundPixels: false,
-  scale: {
-    mode: Phaser.Scale.NONE,
-    parent: 'Phaser-Example',
-    width: 640,
-    height: 480,
-  },
-  scene: MyGame,
+    type: Phaser.AUTO,
+    backgroundColor: '#000000',
+    pixelArt: true,
+    antialias: false,
+    roundPixels: false,
+    scale: {
+        mode: Phaser.Scale.NONE,
+        parent: 'Phaser-Example',
+        width: 640,
+        height: 480,
+    },
+    scene: MyGame,
 });
 ```
 
 실제 구현을 위해서, 사용할 레이어들의 이미지들을 호출해보도록 하겠습니다.
 
-![foreground](./../static/images/posts/202205/foreground.png)
+![foreground](/images/posts/202205/foreground.png)
 
-![back](./../static/images/posts/202205/back-buildings.png)
+![back](/images/posts/202205/back-buildings.png)
 
-![far](./../static/images/posts/202205/far-buildings.png)
+![far](/images/posts/202205/far-buildings.png)
 
 총 위의 3가지 이미지를 사용할 예정입니다.
 
@@ -76,9 +76,10 @@ new Phaser.Game({
 ```
 
 ## 가장 뒷 배경 레이어를 추가해보자!
+
 도시 야경에서 가장 뒷 배경이 되는 이미지를 여기에서 등록해보도록 하겠습니다.
 
-![far](./../static/images/posts/202205/far-buildings.png)
+![far](/images/posts/202205/far-buildings.png)
 
 Phaser 의 [TileSprite Object](https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html) 를 사용해볼 것 인데요.
 
@@ -95,7 +96,7 @@ phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 �
 ```typescript
   create() {
     const { width, height } = this.scale;
-    
+
     this.add
       .tileSprite(0, 0, width, height, 'far')
       .setOrigin(0.0, 0.0);
@@ -104,7 +105,7 @@ phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 �
 
 > ❗️ setOrigin 명령어는 object 의 배피를 중앙이 아닌 좌측, 상단을 기준으로 위치를 정의하고 싶을 수 있습니다. 이 경우는 setOrigin() 매서드를 사용합니다. 자세한 내용은 api 문서 참조하세요.
 
-![TileSprite](./../static/images/posts/202205/phaser-tilesprite.png)
+![TileSprite](/images/posts/202205/phaser-tilesprite.png)
 
 다음과 같이 반복되는 텍스쳐를 확인할 수 있겠습니다. 나중에 구름같은 배경에 쓸때 유용할 수 있겠는데요. 저희는 반복시키지 않을 것이라, setTileScaled 메소드를 활용해서 한화면 가득차도록 크게 키우도록 하겠습니다.
 
@@ -114,7 +115,7 @@ phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 �
     const scaledWidth = width / 256;
     const scaledHeight = height / 192;
     const scaled = Math.max(scaledWidth, scaledHeight);
-    
+
     this.add
       .tileSprite(0, 0, width, height, 'far')
       .setTileScale(scaled)
@@ -124,7 +125,7 @@ phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 �
 
 texture 의 가로 세로 크기를 가지고 scale 된 사이즈를 구하고, 가장 낮은 사이즈 기준으로 scale 을 조정하였습니다.
 
-![Scaled TileSprite](./../static/images/posts/202205/phaser-tilesprite-scaled.png)
+![Scaled TileSprite](/images/posts/202205/phaser-tilesprite-scaled.png)
 
 ## 남은 모두 레이어를 추가해보자!
 
@@ -132,12 +133,12 @@ texture 의 가로 세로 크기를 가지고 scale 된 사이즈를 구하고, 
 
 ```typescript
 const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: number, textureHeight: number) => {
-  const { width, height } = scene.scale;
-  const scaledWidth = width / textureWidth;
-  const scaledHeight = height / textureHeight;
-  const scaled = Math.max(scaledWidth, scaledHeight);
+    const { width, height } = scene.scale;
+    const scaledWidth = width / textureWidth;
+    const scaledHeight = height / textureHeight;
+    const scaled = Math.max(scaledWidth, scaledHeight);
 
-  return scene.add.tileSprite(0, 0, width, height, asset).setTileScale(scaled).setOrigin(0.0, 0.0);
+    return scene.add.tileSprite(0, 0, width, height, asset).setTileScale(scaled).setOrigin(0.0, 0.0);
 };
 ```
 
@@ -151,7 +152,7 @@ const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: n
   }
 ```
 
-![Mixed TileSprite](./../static/images/posts/202205/phaser-tilesprite-mix.png)
+![Mixed TileSprite](/images/posts/202205/phaser-tilesprite-mix.png)
 
 제법 그럴듯 해졌습니다! 이제 움직여 보겠습니다! 그럴려면 update 매쏘드에서 등록된 tileSprite 를 움직이도록 해볼껍니다.
 
@@ -171,9 +172,10 @@ const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: n
   }
 ```
 
-![결과!](./../static/images/posts/202205/phaser-result.mp4)
+![결과!](/images/posts/202205/phaser-result.mp4)
 
 ## 총평
+
 update 메소드를 보시면 각 스피드를 다르게 지정하는게 키포인트입니다. camera 를 움직이는것도 가능하나, 다만 아까전에 공유드렸던 내용대로 tileSprite 를 무한히 키울 수 없어 게임 자체적인 크기를 유한한게 아니라면 tilePositionX / tilePositionY 를 통해서 스크롤을 구현하여야 합니다.
 
 ## 출처 및 참고
