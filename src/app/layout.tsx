@@ -3,16 +3,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import type { Metadata } from 'next';
 import React from 'react';
-
-import Footer from '@/components/Footer';
-import ResponsiveAppBar from '@/components/ResponsiveAppBar';
-
-export const metadata: Metadata = {
-    title: '',
-    description: '',
-};
 
 const RootLayout = async ({
     children,
@@ -24,13 +15,11 @@ const RootLayout = async ({
     return (
         <html lang='en' suppressHydrationWarning>
             <body>
-                <InitColorSchemeScript attribute="class" />
+                <InitColorSchemeScript attribute='class' />
                 <AppRouterCacheProvider>
                     <ThemeProvider theme={theme} defaultMode={'system'}>
                         <CssBaseline enableColorScheme />
-                        <ResponsiveAppBar />
                         {children}
-                        <Footer />
                     </ThemeProvider>
                 </AppRouterCacheProvider>
             </body>

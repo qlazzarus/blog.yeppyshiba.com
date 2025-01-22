@@ -18,6 +18,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
+const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE;
+
 const pages = [
     {
         title: 'About',
@@ -103,12 +105,7 @@ const ResponsiveAppBar = () => {
                             onClick={handleOpenNavMenu}
                             color='inherit'
                         >
-                            <Image
-                                src={'/images/akita-inu.png'}
-                                alt='Yeppyshiba Blog'
-                                width={24}
-                                height={24}
-                            />
+                            <Image src={'/images/akita-inu.png'} alt='' width={24} height={24} />
                         </IconButton>
                         <Menu
                             id='menu-appbar'
@@ -160,11 +157,11 @@ const ResponsiveAppBar = () => {
                             >
                                 <Image
                                     src={'/images/akita-inu.png'}
-                                    alt='Yeppyshiba Blog'
+                                    alt={siteTitle || ''}
                                     width={24}
                                     height={24}
                                 />
-                                <Typography ml={1}>Yeppyshiba Blog</Typography>
+                                <Typography ml={1}>{siteTitle}</Typography>
                             </Link>
                         </Typography>
                     </Box>
@@ -205,9 +202,7 @@ const ResponsiveAppBar = () => {
                         >
                             <LinkedIn />
                         </IconButton>
-                        <IconButton
-                            onClick={handleToggle}
-                        >
+                        <IconButton onClick={handleToggle}>
                             {activeMode === 'light' ? <DarkMode /> : <LightMode />}
                         </IconButton>
                     </Box>

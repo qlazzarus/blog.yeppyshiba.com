@@ -1,10 +1,16 @@
 import type { MetadataRoute } from 'next';
-import { getAllPosts } from '@/libraries/PostManager';
+import getConfig from 'next/config';
 import { slugify } from 'transliteration';
+
+import { getAllPosts } from '@/libraries/PostManager';
+
+// Next.js Config 가져오기
+const { publicRuntimeConfig } = getConfig();
+const { siteMetadata } = publicRuntimeConfig;
 
 export const dynamic = 'force-static';
 
-const BASE_URL = 'https://blog.yeppyshiba.com';
+const BASE_URL = siteMetadata.siteUrl;
 const POSTS_PER_PAGE = 10;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
