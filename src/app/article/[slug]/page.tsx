@@ -80,7 +80,7 @@ const Article = async ({ params }: { params: Promise<{ slug: string }> }) => {
             <ArticleContainer post={post} />
 
             {/* 연관 태그 & 이전/다음 글 섹션 */}
-            <Box sx={{ mx: 'auto', width: '100%', p: 2 }}>
+            <Box maxWidth={'lg'} sx={{ mx: 'auto', width: '100%', p: 2 }}>
                 <Divider sx={{ my: 3 }} />
 
                 {/* 태그 목록 */}
