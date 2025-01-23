@@ -44,6 +44,9 @@ const generatePageMetadata = ({
         alternates: {
             canonical: url || defaultUrl,
         },
+        icons: {
+            icon: '/images/akita-inu.png',
+        },
     };
 };
 

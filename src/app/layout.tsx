@@ -10,7 +10,7 @@ const RootLayout = async ({
 }: Readonly<{
     children: React.ReactNode;
 }>) => {
-    const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
+    const gaId = process.env.NEXT_PUBLIC_GTAG as string;
 
     return (
         <html lang='en' suppressHydrationWarning>
