@@ -8,6 +8,8 @@ import {
     Table,
     TableBody,
     TableBodyProps,
+    TableCell,
+    TableCellProps,
     TableHead,
     TableHeadProps,
     TableProps,
@@ -80,6 +82,7 @@ export default {
     thead: (props: TableHeadProps) => <TableHead {...props} />,
     tbody: (props: TableBodyProps) => <TableBody {...props} />,
     tr: (props: TableRowProps) => <TableRow {...props} />,
+    td: (props: TableCellProps) => <TableCell {...props} />,
 
     em: (props: TypographyProps) => (
         <Typography component={'span'} {...props} sx={{ fontStyle: 'italic' }} />
