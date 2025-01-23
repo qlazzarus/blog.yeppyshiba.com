@@ -172,7 +172,16 @@ const ResponsiveAppBar = () => {
                 >
                     <List>
                         <ListItem>
-                            <Typography variant='h6'>{siteTitle}</Typography>
+                            <Typography variant='h6'>
+                                <Link
+                                    href='/'
+                                    style={{
+                                        textDecoration: 'none',
+                                    }}
+                                >
+                                    {siteTitle}
+                                </Link>
+                            </Typography>
                         </ListItem>
                         {pages.map((page) => (
                             <ListItem key={page.title} disablePadding>
