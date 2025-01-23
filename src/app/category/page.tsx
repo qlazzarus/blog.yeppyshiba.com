@@ -69,7 +69,7 @@ const CategoryIndexPage = async () => {
         <>
             <ResponsiveAppBar />
             <Jumbotron />
-            <Grid container spacing={2} sx={{ maxWidth: 900, mx: 'auto', px: 2 }}>
+            <Grid container spacing={2} px={2} maxWidth={'lg'} mx={'auto'}>
                 {categoryList.map((cat) => {
                     const displayName = cat.name; // 실제 카테고리 문자열
                     const imageUrl = cat.image || '/images/wp7317693-jeju-wallpapers.jpg';

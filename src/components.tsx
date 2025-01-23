@@ -28,7 +28,6 @@ import UnOrderedList from './components/markdown/UnOrderedList';
 
 export default {
     // 텍스트 관련
-    //p: (props: TypographyProps) => <Typography variant='body1' my={3} {...props} />,
     p: ({ children }: TypographyProps) => {
         if (typeof children === 'object') {
             return (
@@ -47,24 +46,8 @@ export default {
     h5: (props: TypographyProps) => <Typography variant='h5' my={3} {...props} />,
     h6: (props: TypographyProps) => <Typography variant='h6' my={3} {...props} />,
 
-    // 리스트
-    ul: UnOrderedList,
-    ol: OrderedList,
-    li: (props: ListItemProps) => <ListItem {...props} />,
-
-    // 테이블
-    table: (props: TableProps) => <Table {...props} />,
-    thead: (props: TableHeadProps) => <TableHead {...props} />,
-    tbody: (props: TableBodyProps) => <TableBody {...props} />,
-    tr: (props: TableRowProps) => <TableRow {...props} />,
-
     // 구분선, 블럭 요소
     hr: (props: DividerProps) => <Divider {...props} />,
-
-    a: LinkContainer,
-
-    // 이미지
-    img: ImageRenderer,
 
     // 블록 인용문
     blockquote: (props: BoxProps) => (
@@ -83,6 +66,33 @@ export default {
 
     // 인라인 code
     code: CodeBlock,
+
+    a: LinkContainer,
+
+    // 리스트
+    ol: OrderedList,
+    ul: UnOrderedList,
+
+    li: (props: ListItemProps) => <ListItem {...props} />,
+
+    // 테이블
+    table: (props: TableProps) => <Table {...props} />,
+    thead: (props: TableHeadProps) => <TableHead {...props} />,
+    tbody: (props: TableBodyProps) => <TableBody {...props} />,
+    tr: (props: TableRowProps) => <TableRow {...props} />,
+
+    em: (props: TypographyProps) => (
+        <Typography component={'span'} {...props} sx={{ fontStyle: 'italic' }} />
+    ),
+    delete: (props: TypographyProps) => (
+        <Typography component={'span'} {...props} sx={{ textDecoration: 'line-through' }} />
+    ),
+    inlineCode: (props: TypographyProps) => (
+        <Typography component={'kbd'} {...props} sx={{ fontFamily: 'monospace' }} />
+    ),
+
+    // 이미지
+    img: ImageRenderer,
 
     section: ({ className, children }: HTMLAttributes<HTMLElement>) => {
         if (className === 'footnotes') {

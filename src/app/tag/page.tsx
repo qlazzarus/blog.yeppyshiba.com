@@ -82,8 +82,9 @@ const TagCloudPage = async () => {
             <ResponsiveAppBar />
             <Jumbotron />
             <Box
+                maxWidth={'lg'}
+                margin={'auto'}
                 sx={{
-                    width: '100%',
                     p: 4,
                     display: 'flex',
                     flexDirection: 'column',
