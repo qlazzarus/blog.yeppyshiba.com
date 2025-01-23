@@ -5,8 +5,6 @@ import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import React from 'react';
 
-import { GAPageView } from '@/hooks/useGAPageView';
-
 const RootLayout = async ({
     children,
 }: Readonly<{
@@ -25,7 +23,6 @@ const RootLayout = async ({
                     </ThemeProvider>
                 </AppRouterCacheProvider>
                 <GoogleAnalytics gaId={gaId} />
-                <GAPageView />
             </body>
         </html>
     );
