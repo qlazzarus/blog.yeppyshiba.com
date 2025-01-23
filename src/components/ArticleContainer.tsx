@@ -10,7 +10,7 @@ import { PostData } from '@/libraries/PostManager';
 const ArticleContainer = ({ post }: { post: PostData }) => {
     const source = post.source as MDXRemoteSerializeResult;
     return (
-        <Container maxWidth='xl'>
+        <Container maxWidth='lg'>
             <Box py={4}>
                 <MDXRemote {...source} components={components} />
             </Box>
