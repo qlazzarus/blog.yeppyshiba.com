@@ -85,27 +85,21 @@ export const getAllPosts = async () => {
     // GA 조회수 가져오기
     const gaData = await getViewCount(articlePrefix);
 
+    // allPosts.forEach(...) 내부:
     allPosts.forEach((post) => {
-        // 1) post.slug 앞에 /article/ 접두사를 붙인다.
-        //    예: post.slug === "adding-view-count-in-gatsby" 라면
-        //        pathWithPrefix === "/article/adding-view-count-in-gatsby"
         const pathWithPrefix = `/article/${post.slug}`;
 
-        // 2) gaData 중에서 path가 위에서 만든 pathWithPrefix와 동일한 항목을 찾는다.
-        const matching = gaData.find((d) => {
-            // /article/ 뒤에 슬래시로 끝나는 경우를 제거하기 위해,
-            // d.path 의 트레일링 슬래시를 모두 제거한다. (ex. '/article/adding-view-count-in-gatsby/' -> '/article/adding-view-count-in-gatsby')
+        // 1) 여러 개가 걸릴 수 있으므로 filter 후 reduce로 합산
+        const matchedRows = gaData.filter((d) => {
             const cleanPath = d.path.replace(/\/+$/, '');
-
             return cleanPath === pathWithPrefix;
         });
 
-        // 3) 매칭된 항목이 있다면, GA에서 받은 viewCount를 숫자로 변환하여 post.viewCount에 할당
-        if (matching) {
-            post.viewCount = parseInt(matching.totalCount, 10) || 0;
-        } else {
-            post.viewCount = 0;
-        }
+        const sum = matchedRows.reduce((acc, cur) => {
+            return acc + parseInt(cur.totalCount, 10);
+        }, 0);
+
+        post.viewCount = sum;
     });
 
     cachedPosts = allPosts;
