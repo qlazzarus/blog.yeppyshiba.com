@@ -1,0 +1,401 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"GMP_58STJf1i37uJRngK1","p":"","c":["","article","phaser3-with-parallax-scroll",""],"i":false,"f":[[["",{"children":["article",{"children":[["slug","phaser3-with-parallax-scroll","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","phaser3-with-parallax-scroll","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","a28-tf37XkVfRqZ_wT6id",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}],["$","$L11",null,{"gaId":"G-P6NE4VJRLC"}]]}]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+16:T1c82,
+## 패럴랙스 스크롤링 (parallax scrolling) 이란?
+
+패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다. 하나의 이미지를 여러 개의 레이어(layer)로 분리한 후 스크롤에 반응하는 속도를 다르게 조정하는 방식으로 구현하게 됩니다. 1930년대부터 애니메이션 분야에 사용되던 기법이었으나, 최근에는 웹 디자인에서도 손쉽게 볼 수 있습니다.
+
+![](https://upload.wikimedia.org/wikipedia/commons/d/d7/Parallax_scroll.gif)
+
+## phaser3 코드를 작성해보자!
+
+데모를 위해서 백그라운드 이미지가 필요합니다. 여기에서 저희는 이 [스프라이트](https://opengameart.org/content/cyberpunk-street-environment)들을 쓰겠습니다.
+
+서로 다른 배경 이미지를 서로 다른 속도로 반복해서 보여줌으로써 입체감을 느끼게 하는게 목표입니다!
+
+먼저 데모용 스크립트를 작성해보겠습니다.
+
+```typescript
+import Phaser from 'phaser';
+
+class MyGame extends Phaser.Scene {
+    preload() {
+        // 백그라운드 이미지 로딩
+    }
+
+    create() {
+        // 백그라운드 설정
+    }
+
+    update() {}
+}
+
+new Phaser.Game({
+    type: Phaser.AUTO,
+    backgroundColor: '#000000',
+    pixelArt: true,
+    antialias: false,
+    roundPixels: false,
+    scale: {
+        mode: Phaser.Scale.NONE,
+        parent: 'Phaser-Example',
+        width: 640,
+        height: 480,
+    },
+    scene: MyGame,
+});
+```
+
+실제 구현을 위해서, 사용할 레이어들의 이미지들을 호출해보도록 하겠습니다.
+
+![foreground](/images/posts/202205/foreground.png)
+
+![back](/images/posts/202205/back-buildings.png)
+
+![far](/images/posts/202205/far-buildings.png)
+
+총 위의 3가지 이미지를 사용할 예정입니다.
+
+```typescript
+  preload() {
+    this.load.image("foreground", Foreground);
+    this.load.image("back", Back);
+    this.load.image("far", Far);
+  }
+```
+
+## 가장 뒷 배경 레이어를 추가해보자!
+
+도시 야경에서 가장 뒷 배경이 되는 이미지를 여기에서 등록해보도록 하겠습니다.
+
+![far](/images/posts/202205/far-buildings.png)
+
+Phaser 의 [TileSprite Object](https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html) 를 사용해볼 것 인데요.
+
+텍스쳐를 반복 그리는데 최적화된 Object 입니다.
+
+TileSprite 자체적으로 텍스쳐를 스크롤과 크기를 조정할 수 있습니다. 자동으로 래핑되며 매끄러운 텍스처를 소스로 사용하여 게임 배경을 만들 수 있도록 설계되었습니다.
+
+다만, 실제 캔버스 크기보다 더 큰 TileSprite를 생성해서는 안 됩니다. 게임의 전체 맵을 스크롤하는 큰 반복 배경을 만들려면 캔버스 크기에 맞는 TileSprite를 만든 다음 tilePosition 속성을 사용하여 플레이어가 이동할 때 텍스처를 스크롤합니다. 만약 엄청 큰 픽셀의 사이즈를 만든다면 엄청나게 메모리를 소모하며 퍼포먼스 이슈를 발생시킨다고 하네요. 😭😭😭
+
+> ❗️ tilePosition을 사용하여 텍스처를 스크롤하고 tileScale을 사용하여 텍스처의 크기를 조정하세요. 스프라이트 자체의 크기를 조정하거나 필요 이상으로 크게 만들지 마세요.
+
+phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 생성해봅니다.
+
+```typescript
+  create() {
+    const { width, height } = this.scale;
+
+    this.add
+      .tileSprite(0, 0, width, height, 'far')
+      .setOrigin(0.0, 0.0);
+  }
+```
+
+> ❗️ setOrigin 명령어는 object 의 배피를 중앙이 아닌 좌측, 상단을 기준으로 위치를 정의하고 싶을 수 있습니다. 이 경우는 setOrigin() 매서드를 사용합니다. 자세한 내용은 api 문서 참조하세요.
+
+![TileSprite](/images/posts/202205/phaser-tilesprite.png)
+
+다음과 같이 반복되는 텍스쳐를 확인할 수 있겠습니다. 나중에 구름같은 배경에 쓸때 유용할 수 있겠는데요. 저희는 반복시키지 않을 것이라, setTileScaled 메소드를 활용해서 한화면 가득차도록 크게 키우도록 하겠습니다.
+
+```typescript
+  create() {
+    const { width, height } = this.scale;
+    const scaledWidth = width / 256;
+    const scaledHeight = height / 192;
+    const scaled = Math.max(scaledWidth, scaledHeight);
+
+    this.add
+      .tileSprite(0, 0, width, height, 'far')
+      .setTileScale(scaled)
+      .setOrigin(0.0, 0.0);
+  }
+```
+
+texture 의 가로 세로 크기를 가지고 scale 된 사이즈를 구하고, 가장 낮은 사이즈 기준으로 scale 을 조정하였습니다.
+
+![Scaled TileSprite](/images/posts/202205/phaser-tilesprite-scaled.png)
+
+## 남은 모두 레이어를 추가해보자!
+
+그럼 화면 가득찬 배경을 확인할 수 있겠습니다. 이제 순서대로 나머지 두가지 레이어도 동일하게 추가할 것인데, 반복될 작업을 줄이기 위해서 TileSprite 등록하는 부분을 함수로 빼두겠습니다.
+
+```typescript
+const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: number, textureHeight: number) => {
+    const { width, height } = scene.scale;
+    const scaledWidth = width / textureWidth;
+    const scaledHeight = height / textureHeight;
+    const scaled = Math.max(scaledWidth, scaledHeight);
+
+    return scene.add.tileSprite(0, 0, width, height, asset).setTileScale(scaled).setOrigin(0.0, 0.0);
+};
+```
+
+위 함수들을 이용해서 tileSprite 들을 등록해봅시다.
+
+```typescript
+  create() {
+    addScaledBackground(this, 'far', 256, 192);
+    addScaledBackground(this, 'back', 256, 192);
+    addScaledBackground(this, 'foreground', 352, 192);
+  }
+```
+
+![Mixed TileSprite](/images/posts/202205/phaser-tilesprite-mix.png)
+
+제법 그럴듯 해졌습니다! 이제 움직여 보겠습니다! 그럴려면 update 매쏘드에서 등록된 tileSprite 를 움직이도록 해볼껍니다.
+
+## 이제 움직여보자!
+
+```typescript
+  create() {
+    this.far = addScaledBackground(this, 'far', 256, 192);
+    this.back = addScaledBackground(this, 'back', 256, 192);
+    this.foreground = addScaledBackground(this, 'foreground', 352, 192);
+  }
+
+  update() {
+    if (this.far) this.far.tilePositionX += 0.1;
+    if (this.back) this.back.tilePositionX += 0.3;
+    if (this.foreground) this.foreground.tilePositionX += 0.5;
+  }
+```
+
+![결과!](/images/posts/202205/phaser-result.mp4)
+
+## 총평
+
+update 메소드를 보시면 각 스피드를 다르게 지정하는게 키포인트입니다. camera 를 움직이는것도 가능하나, 다만 아까전에 공유드렸던 내용대로 tileSprite 를 무한히 키울 수 없어 게임 자체적인 크기를 유한한게 아니라면 tilePositionX / tilePositionY 를 통해서 스크롤을 구현하여야 합니다.
+
+## 출처 및 참고
+
+- https://ko.wikipedia.org/wiki/%ED%8C%A8%EB%9F%B4%EB%9E%99%EC%8A%A4_%EC%8A%A4%ED%81%AC%EB%A1%A4%EB%A7%81
+- https://opengameart.org/content/cyberpunk-street-environment
+- https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html
+17:T30ac,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    blockquote: "blockquote",
+    code: "code",
+    h2: "h2",
+    img: "img",
+    li: "li",
+    p: "p",
+    pre: "pre",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "패럴랙스 스크롤링 (parallax scrolling) 이란?"
+    }), "\n", _jsx(_components.p, {
+      children: "패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다. 하나의 이미지를 여러 개의 레이어(layer)로 분리한 후 스크롤에 반응하는 속도를 다르게 조정하는 방식으로 구현하게 됩니다. 1930년대부터 애니메이션 분야에 사용되던 기법이었으나, 최근에는 웹 디자인에서도 손쉽게 볼 수 있습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://upload.wikimedia.org/wikipedia/commons/d/d7/Parallax_scroll.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "phaser3 코드를 작성해보자!"
+    }), "\n", _jsxs(_components.p, {
+      children: ["데모를 위해서 백그라운드 이미지가 필요합니다. 여기에서 저희는 이 ", _jsx(_components.a, {
+        href: "https://opengameart.org/content/cyberpunk-street-environment",
+        children: "스프라이트"
+      }), "들을 쓰겠습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "서로 다른 배경 이미지를 서로 다른 속도로 반복해서 보여줌으로써 입체감을 느끼게 하는게 목표입니다!"
+    }), "\n", _jsx(_components.p, {
+      children: "먼저 데모용 스크립트를 작성해보겠습니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "import Phaser from 'phaser';\n\nclass MyGame extends Phaser.Scene {\n    preload() {\n        // 백그라운드 이미지 로딩\n    }\n\n    create() {\n        // 백그라운드 설정\n    }\n\n    update() {}\n}\n\nnew Phaser.Game({\n    type: Phaser.AUTO,\n    backgroundColor: '#000000',\n    pixelArt: true,\n    antialias: false,\n    roundPixels: false,\n    scale: {\n        mode: Phaser.Scale.NONE,\n        parent: 'Phaser-Example',\n        width: 640,\n        height: 480,\n    },\n    scene: MyGame,\n});\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "실제 구현을 위해서, 사용할 레이어들의 이미지들을 호출해보도록 하겠습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/foreground.png",
+        alt: "foreground"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/back-buildings.png",
+        alt: "back"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/far-buildings.png",
+        alt: "far"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "총 위의 3가지 이미지를 사용할 예정입니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "  preload() {\n    this.load.image(\"foreground\", Foreground);\n    this.load.image(\"back\", Back);\n    this.load.image(\"far\", Far);\n  }\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "가장 뒷 배경 레이어를 추가해보자!"
+    }), "\n", _jsx(_components.p, {
+      children: "도시 야경에서 가장 뒷 배경이 되는 이미지를 여기에서 등록해보도록 하겠습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/far-buildings.png",
+        alt: "far"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["Phaser 의 ", _jsx(_components.a, {
+        href: "https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html",
+        children: "TileSprite Object"
+      }), " 를 사용해볼 것 인데요."]
+    }), "\n", _jsx(_components.p, {
+      children: "텍스쳐를 반복 그리는데 최적화된 Object 입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "TileSprite 자체적으로 텍스쳐를 스크롤과 크기를 조정할 수 있습니다. 자동으로 래핑되며 매끄러운 텍스처를 소스로 사용하여 게임 배경을 만들 수 있도록 설계되었습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "다만, 실제 캔버스 크기보다 더 큰 TileSprite를 생성해서는 안 됩니다. 게임의 전체 맵을 스크롤하는 큰 반복 배경을 만들려면 캔버스 크기에 맞는 TileSprite를 만든 다음 tilePosition 속성을 사용하여 플레이어가 이동할 때 텍스처를 스크롤합니다. 만약 엄청 큰 픽셀의 사이즈를 만든다면 엄청나게 메모리를 소모하며 퍼포먼스 이슈를 발생시킨다고 하네요. 😭😭😭"
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "❗️ tilePosition을 사용하여 텍스처를 스크롤하고 tileScale을 사용하여 텍스처의 크기를 조정하세요. 스프라이트 자체의 크기를 조정하거나 필요 이상으로 크게 만들지 마세요."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "phaser 의 해상도를 가져와서 가득찬 크기의 TileSprite Object 를 생성해봅니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "  create() {\n    const { width, height } = this.scale;\n\n    this.add\n      .tileSprite(0, 0, width, height, 'far')\n      .setOrigin(0.0, 0.0);\n  }\n"
+      })
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "❗️ setOrigin 명령어는 object 의 배피를 중앙이 아닌 좌측, 상단을 기준으로 위치를 정의하고 싶을 수 있습니다. 이 경우는 setOrigin() 매서드를 사용합니다. 자세한 내용은 api 문서 참조하세요."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/phaser-tilesprite.png",
+        alt: "TileSprite"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "다음과 같이 반복되는 텍스쳐를 확인할 수 있겠습니다. 나중에 구름같은 배경에 쓸때 유용할 수 있겠는데요. 저희는 반복시키지 않을 것이라, setTileScaled 메소드를 활용해서 한화면 가득차도록 크게 키우도록 하겠습니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "  create() {\n    const { width, height } = this.scale;\n    const scaledWidth = width / 256;\n    const scaledHeight = height / 192;\n    const scaled = Math.max(scaledWidth, scaledHeight);\n\n    this.add\n      .tileSprite(0, 0, width, height, 'far')\n      .setTileScale(scaled)\n      .setOrigin(0.0, 0.0);\n  }\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "texture 의 가로 세로 크기를 가지고 scale 된 사이즈를 구하고, 가장 낮은 사이즈 기준으로 scale 을 조정하였습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/phaser-tilesprite-scaled.png",
+        alt: "Scaled TileSprite"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "남은 모두 레이어를 추가해보자!"
+    }), "\n", _jsx(_components.p, {
+      children: "그럼 화면 가득찬 배경을 확인할 수 있겠습니다. 이제 순서대로 나머지 두가지 레이어도 동일하게 추가할 것인데, 반복될 작업을 줄이기 위해서 TileSprite 등록하는 부분을 함수로 빼두겠습니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: number, textureHeight: number) => {\n    const { width, height } = scene.scale;\n    const scaledWidth = width / textureWidth;\n    const scaledHeight = height / textureHeight;\n    const scaled = Math.max(scaledWidth, scaledHeight);\n\n    return scene.add.tileSprite(0, 0, width, height, asset).setTileScale(scaled).setOrigin(0.0, 0.0);\n};\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "위 함수들을 이용해서 tileSprite 들을 등록해봅시다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "  create() {\n    addScaledBackground(this, 'far', 256, 192);\n    addScaledBackground(this, 'back', 256, 192);\n    addScaledBackground(this, 'foreground', 352, 192);\n  }\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/phaser-tilesprite-mix.png",
+        alt: "Mixed TileSprite"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "제법 그럴듯 해졌습니다! 이제 움직여 보겠습니다! 그럴려면 update 매쏘드에서 등록된 tileSprite 를 움직이도록 해볼껍니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "이제 움직여보자!"
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "  create() {\n    this.far = addScaledBackground(this, 'far', 256, 192);\n    this.back = addScaledBackground(this, 'back', 256, 192);\n    this.foreground = addScaledBackground(this, 'foreground', 352, 192);\n  }\n\n  update() {\n    if (this.far) this.far.tilePositionX += 0.1;\n    if (this.back) this.back.tilePositionX += 0.3;\n    if (this.foreground) this.foreground.tilePositionX += 0.5;\n  }\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/202205/phaser-result.mp4",
+        alt: "결과!"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "총평"
+    }), "\n", _jsx(_components.p, {
+      children: "update 메소드를 보시면 각 스피드를 다르게 지정하는게 키포인트입니다. camera 를 움직이는것도 가능하나, 다만 아까전에 공유드렸던 내용대로 tileSprite 를 무한히 키울 수 없어 게임 자체적인 크기를 유한한게 아니라면 tilePositionX / tilePositionY 를 통해서 스크롤을 구현하여야 합니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "출처 및 참고"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://ko.wikipedia.org/wiki/%ED%8C%A8%EB%9F%B4%EB%9E%99%EC%8A%A4_%EC%8A%A4%ED%81%AC%EB%A1%A4%EB%A7%81",
+          children: "https://ko.wikipedia.org/wiki/%ED%8C%A8%EB%9F%B4%EB%9E%99%EC%8A%A4_%EC%8A%A4%ED%81%AC%EB%A1%A4%EB%A7%81"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://opengameart.org/content/cyberpunk-street-environment",
+          children: "https://opengameart.org/content/cyberpunk-street-environment"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html",
+          children: "https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.TileSprite.html"
+        })
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기","summary":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다.","date":"3 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"phaser3-with-parallax-scroll","title":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기","date":"$D2022-05-31T12:06:42.980Z","summary":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다.","category":"coding","image":"https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png","embeddedImagesLocal":"$undefined","tags":["dev","coding","phaser","web game","parallax scroll"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":545}}],["$","$L18",null,{"maxWidth":"lg","sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/phaser","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"phaser","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/web-game","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"web game","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/parallax-scroll","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"parallax scroll","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/adding-view-count-in-gatsby","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","gatsby 블로그에 조회수 추가하기"]}],["$","$L1c",null,{"component":"$1d","href":"/article/akita-inu","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["아키타견"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, phaser, web game, parallax scroll"}],["$","link","4",{"rel":"canonical","href":"/article/phaser3-with-parallax-scroll"}],["$","meta","5",{"property":"og:title","content":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기"}],["$","meta","6",{"property":"og:description","content":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/phaser3-with-parallax-scroll/"}],["$","meta","8",{"property":"og:image","content":"https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기"}],["$","meta","12",{"name":"twitter:description","content":"패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다."}],["$","meta","13",{"name":"twitter:image","content":"https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png"}],["$","link","14",{"rel":"icon","href":"/images/akita-inu.png"}]]
+7:null

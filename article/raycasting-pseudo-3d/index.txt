@@ -1,0 +1,232 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"GMP_58STJf1i37uJRngK1","p":"","c":["","article","raycasting-pseudo-3d",""],"i":false,"f":[[["",{"children":["article",{"children":[["slug","raycasting-pseudo-3d","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","raycasting-pseudo-3d","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","nVa3NFOkvrwWO7y7WBldZ",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}],["$","$L11",null,{"gaId":"G-P6NE4VJRLC"}]]}]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+16:T13de,
+1992년 5월 5일, _울펜슈타인 3D_ 가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.
+
+_울펜슈타인3D_ 은 과연 어떻게 3d를 구현했을까요?
+
+[![Wolfenstein 3D Trailer](https://img.youtube.com/vi/7P_dic-pSKo/0.jpg)](https://www.youtube.com/watch?v=7P_dic-pSKo 'Wolfenstein 3D Trailer')
+
+_레이캐스팅_ 이란 2차원 맵을 3차원 시점을 구현하기 위한 렌더링 테크닉입니다. 이전 시대의 PC 는 실시간으로 리얼한 3D 엔진을 구현하기에는 턱도 없이 느렸습니다. 그래서 _레이캐스팅_ 은 첫번째 대안으로 제시되었습니다. 빠르거든요. 단순히 수직선에만 계산하면 되기 때문입니다. 물론 그 당시 이 기술로 유명한 게임은 _울펜슈타인 3D_ 였습니다.
+
+![](https://www.permadi.com/tutorial/raycast/images/figure1.gif)
+
+![raycasting](https://i.stack.imgur.com/AC2tt.gif)
+
+사실 _레이캐스팅_ 의 역사는 오래되었습니다. 이 용어는 1982년 스코트 로스의 _[구조적 입체 기하학](https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%A1%B0%EC%A0%81_%EC%9E%85%EC%B2%B4_%EA%B8%B0%ED%95%98%ED%95%99)_ 모델을 렌더링하기 위한 기법을 묘사하는 컴퓨터 그래픽스 논문에서 처음 사용되었습니다.
+
+레이 캐스팅의 기본 개념은 다음과 같습니다. 지도는 2D 로 된 정사각형 구역이며, 각 정사각형은 0 (텅빈 공간) 과 정수로 표기 됩니다. (특정 색상이나 텍스쳐를 가진 벽)
+
+아래 이미지를 보시면 노란색은 플레이어의 위치, 표시된 삼각형은 플레이어의 시야를 의미합니다. 플레이어 시야 끝에서 부터 끝까지 광선을 쏜다고 가정을 합시다. 이 광선은 벽에 부딪칠때까지 이동합니다. 만약 벽에 부딪쳤다면 벽까지 얼마나 걸렸는지 거리를 계산합니다. 그리고 계산된 거리는 화면에 그려질 하는 벽의 크기 (원근감) 를 나타냅니다. 거리가 멀다면 플레이어에게 멀리 있고 화면에 작게 나타나겠죠. 반대로 거리가 가깝다면 플레이어에게 가까이 있고 화면에 크게 나타납니다.
+
+![](https://lodev.org/cgtutor/images/raycastgrid.gif)
+
+당연히 사람이면 광선들이 벽에 닿는 곳을 바로 알 수 있겠지만, 컴퓨터는 한번의 연산으로는 벽이 닿는 곳을 파악할 수 없었습니다. 왜냐하면 광선을 쏘면서 벽까지 거리를 파악하는 방법은 광선을 쏘고 tick 마다 광선이 벽에 있는지 없는지 검사하는 방법으로 벽에 맞았냐 안맞았냐를 파악하고 있기 때문입니다.
+
+이러한 방법 때문에 한 화면에 여러 광선들을 쏘아도 벽을 놓칠 가능성이 존재했습니다. 예를 들어 아래의 사진을 보시면 각 광선들을 쏘고 광선들이 벽에 있냐 아니냐 검사하는 tick 들은 빨간점으로 표기 됩니다. 따라서 실제 특정 각도에서 벽이 없다고 판단할 수 있는 것 입니다.
+
+![](https://lodev.org/cgtutor/images/raycastmiss.gif)
+
+다시 tick 을 줄여도 벽을 감지할 가능성은 올라가지만, 여전히 벽을 감지하지 못할 가능성이 존재합니다. 또한 효율적이지도 않구요.
+
+![](https://lodev.org/cgtutor/images/raycastmiss2.gif)
+
+이런 방식이라면 무한한 정밀도를 가지기 위해서, tick 수치를 아주 아주 낮게 설정하면 됩니다. 다만 이것도 말도 안되는게 무한한 계산이 필요합니다. 그 당시가 92년이라고 생각하셔야 합니다. 지금 여러분이 가지고 계신 스마트폰이 그때 당시 컴퓨터보다 성능이 더 뛰어나다구요. 물론 좀 더 좋은 방법이 있습니다. 그건 광선이 벽을 만나기 전 tick 에서 근처에 모든 면을 확인하는 것입니다. 각 정사각형을 너비 1 이라고 가정하고, 각 정사각형은 정수값이며 쏜 광선의 확인하는 tick 은 소수점을 가집니다. 이걸 아래 그림과 같이 반올림해서 확인하게 된다면 손쉽게 충돌 유무를 판단할 수 있습니다.
+
+![](https://lodev.org/cgtutor/images/raycasthit.gif)
+
+이 방식을 DDA (Digital Diferential Analysis) 이라고 부르며 일반적으로 정사각형 격자에서 광선에 맞은 정사각형을 찾기 위한 빠른 알고리즘입니다.
+
+다음시간에는 이 알고리즘을 기반으로 Javascript 로 간단한 3D 엔진을 작성해보도록 하겠습니다.
+
+ref
+
+- https://en.wikipedia.org/wiki/Maze_War
+- https://en.wikipedia.org/wiki/First-person_shooter
+- https://en.wikipedia.org/wiki/Wolfenstein_3D
+- https://lodev.org/cgtutor/raycasting.html
+- https://ko.wikipedia.org/wiki/%EA%B4%91%EC%84%A0_%ED%88%AC%EC%82%AC
+- https://namu.wiki/w/%EB%A0%88%EC%9D%B4%EC%BA%90%EC%8A%A4%ED%8A%B8
+- https://www.permadi.com/tutorial/raycast/rayc1.html
+17:T23a5,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    em: "em",
+    img: "img",
+    li: "li",
+    p: "p",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsxs(_components.p, {
+      children: ["1992년 5월 5일, ", _jsx(_components.em, {
+        children: "울펜슈타인 3D"
+      }), " 가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다."]
+    }), "\n", _jsxs(_components.p, {
+      children: [_jsx(_components.em, {
+        children: "울펜슈타인3D"
+      }), " 은 과연 어떻게 3d를 구현했을까요?"]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.a, {
+        href: "https://www.youtube.com/watch?v=7P_dic-pSKo",
+        title: "Wolfenstein 3D Trailer",
+        children: _jsx(_components.img, {
+          src: "https://img.youtube.com/vi/7P_dic-pSKo/0.jpg",
+          alt: "Wolfenstein 3D Trailer"
+        })
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: [_jsx(_components.em, {
+        children: "레이캐스팅"
+      }), " 이란 2차원 맵을 3차원 시점을 구현하기 위한 렌더링 테크닉입니다. 이전 시대의 PC 는 실시간으로 리얼한 3D 엔진을 구현하기에는 턱도 없이 느렸습니다. 그래서 ", _jsx(_components.em, {
+        children: "레이캐스팅"
+      }), " 은 첫번째 대안으로 제시되었습니다. 빠르거든요. 단순히 수직선에만 계산하면 되기 때문입니다. 물론 그 당시 이 기술로 유명한 게임은 ", _jsx(_components.em, {
+        children: "울펜슈타인 3D"
+      }), " 였습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://www.permadi.com/tutorial/raycast/images/figure1.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://i.stack.imgur.com/AC2tt.gif",
+        alt: "raycasting"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["사실 ", _jsx(_components.em, {
+        children: "레이캐스팅"
+      }), " 의 역사는 오래되었습니다. 이 용어는 1982년 스코트 로스의 ", _jsx(_components.em, {
+        children: _jsx(_components.a, {
+          href: "https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%A1%B0%EC%A0%81_%EC%9E%85%EC%B2%B4_%EA%B8%B0%ED%95%98%ED%95%99",
+          children: "구조적 입체 기하학"
+        })
+      }), " 모델을 렌더링하기 위한 기법을 묘사하는 컴퓨터 그래픽스 논문에서 처음 사용되었습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "레이 캐스팅의 기본 개념은 다음과 같습니다. 지도는 2D 로 된 정사각형 구역이며, 각 정사각형은 0 (텅빈 공간) 과 정수로 표기 됩니다. (특정 색상이나 텍스쳐를 가진 벽)"
+    }), "\n", _jsx(_components.p, {
+      children: "아래 이미지를 보시면 노란색은 플레이어의 위치, 표시된 삼각형은 플레이어의 시야를 의미합니다. 플레이어 시야 끝에서 부터 끝까지 광선을 쏜다고 가정을 합시다. 이 광선은 벽에 부딪칠때까지 이동합니다. 만약 벽에 부딪쳤다면 벽까지 얼마나 걸렸는지 거리를 계산합니다. 그리고 계산된 거리는 화면에 그려질 하는 벽의 크기 (원근감) 를 나타냅니다. 거리가 멀다면 플레이어에게 멀리 있고 화면에 작게 나타나겠죠. 반대로 거리가 가깝다면 플레이어에게 가까이 있고 화면에 크게 나타납니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://lodev.org/cgtutor/images/raycastgrid.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "당연히 사람이면 광선들이 벽에 닿는 곳을 바로 알 수 있겠지만, 컴퓨터는 한번의 연산으로는 벽이 닿는 곳을 파악할 수 없었습니다. 왜냐하면 광선을 쏘면서 벽까지 거리를 파악하는 방법은 광선을 쏘고 tick 마다 광선이 벽에 있는지 없는지 검사하는 방법으로 벽에 맞았냐 안맞았냐를 파악하고 있기 때문입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "이러한 방법 때문에 한 화면에 여러 광선들을 쏘아도 벽을 놓칠 가능성이 존재했습니다. 예를 들어 아래의 사진을 보시면 각 광선들을 쏘고 광선들이 벽에 있냐 아니냐 검사하는 tick 들은 빨간점으로 표기 됩니다. 따라서 실제 특정 각도에서 벽이 없다고 판단할 수 있는 것 입니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://lodev.org/cgtutor/images/raycastmiss.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "다시 tick 을 줄여도 벽을 감지할 가능성은 올라가지만, 여전히 벽을 감지하지 못할 가능성이 존재합니다. 또한 효율적이지도 않구요."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://lodev.org/cgtutor/images/raycastmiss2.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "이런 방식이라면 무한한 정밀도를 가지기 위해서, tick 수치를 아주 아주 낮게 설정하면 됩니다. 다만 이것도 말도 안되는게 무한한 계산이 필요합니다. 그 당시가 92년이라고 생각하셔야 합니다. 지금 여러분이 가지고 계신 스마트폰이 그때 당시 컴퓨터보다 성능이 더 뛰어나다구요. 물론 좀 더 좋은 방법이 있습니다. 그건 광선이 벽을 만나기 전 tick 에서 근처에 모든 면을 확인하는 것입니다. 각 정사각형을 너비 1 이라고 가정하고, 각 정사각형은 정수값이며 쏜 광선의 확인하는 tick 은 소수점을 가집니다. 이걸 아래 그림과 같이 반올림해서 확인하게 된다면 손쉽게 충돌 유무를 판단할 수 있습니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://lodev.org/cgtutor/images/raycasthit.gif",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "이 방식을 DDA (Digital Diferential Analysis) 이라고 부르며 일반적으로 정사각형 격자에서 광선에 맞은 정사각형을 찾기 위한 빠른 알고리즘입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "다음시간에는 이 알고리즘을 기반으로 Javascript 로 간단한 3D 엔진을 작성해보도록 하겠습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "ref"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://en.wikipedia.org/wiki/Maze_War",
+          children: "https://en.wikipedia.org/wiki/Maze_War"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://en.wikipedia.org/wiki/First-person_shooter",
+          children: "https://en.wikipedia.org/wiki/First-person_shooter"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://en.wikipedia.org/wiki/Wolfenstein_3D",
+          children: "https://en.wikipedia.org/wiki/Wolfenstein_3D"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://lodev.org/cgtutor/raycasting.html",
+          children: "https://lodev.org/cgtutor/raycasting.html"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://ko.wikipedia.org/wiki/%EA%B4%91%EC%84%A0_%ED%88%AC%EC%82%AC",
+          children: "https://ko.wikipedia.org/wiki/%EA%B4%91%EC%84%A0_%ED%88%AC%EC%82%AC"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://namu.wiki/w/%EB%A0%88%EC%9D%B4%EC%BA%90%EC%8A%A4%ED%8A%B8",
+          children: "https://namu.wiki/w/%EB%A0%88%EC%9D%B4%EC%BA%90%EC%8A%A4%ED%8A%B8"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://www.permadi.com/tutorial/raycast/rayc1.html",
+          children: "https://www.permadi.com/tutorial/raycast/rayc1.html"
+        })
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?","summary":"1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.","date":"4 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"raycasting-pseudo-3d","title":"울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?","date":"$D2020-12-09T04:00:00.000Z","summary":"1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다.","category":"coding","image":"https://i.ytimg.com/vi/4JWoNrjUMLA/maxresdefault.jpg","embeddedImagesLocal":"$undefined","tags":["dev","coding","game","wolfenstain","raycasting","3d"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":41}}],["$","$L18",null,{"maxWidth":"lg","sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/game","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"game","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/wolfenstain","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"wolfenstain","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/raycasting","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"raycasting","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/3d","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"3d","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/my-browser-gone","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","내 탭이 날라가 버렸어!"]}],["$","$L1c",null,{"component":"$1d","href":"/article/gitlab-runner-deploy-with-docker","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["gitlab-runnner 를 활용한 docker 배포"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요? - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, game, wolfenstain, raycasting, 3d"}],["$","link","4",{"rel":"canonical","href":"/article/raycasting-pseudo-3d"}],["$","meta","5",{"property":"og:title","content":"울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?"}],["$","meta","6",{"property":"og:description","content":"1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/raycasting-pseudo-3d/"}],["$","meta","8",{"property":"og:image","content":"https://i.ytimg.com/vi/4JWoNrjUMLA/maxresdefault.jpg"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?"}],["$","meta","12",{"name":"twitter:description","content":"1992년 5월 5일, 울펜슈타인 3D가 출시됩니다. 그전에도 1인칭 시점의 게임은 존재하였지만, 이 게임은 화려한 256 컬러 그래픽, 빠른 속도, 높은 프레임 레이트, 영리한 AI, 선명한 사운드 효과, 매력적인 음악을 가능하게 한 엔진으로 신선한 충격을 선사하였습니다."}],["$","meta","13",{"name":"twitter:image","content":"https://i.ytimg.com/vi/4JWoNrjUMLA/maxresdefault.jpg"}],["$","link","14",{"rel":"icon","href":"/images/akita-inu.png"}]]
+7:null

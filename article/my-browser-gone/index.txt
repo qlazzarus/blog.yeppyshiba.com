@@ -1,0 +1,197 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"GMP_58STJf1i37uJRngK1","p":"","c":["","article","my-browser-gone",""],"i":false,"f":[[["",{"children":["article",{"children":[["slug","my-browser-gone","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","my-browser-gone","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","boGHqRLUJX5ufRNzQrkUu",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}],["$","$L11",null,{"gaId":"G-P6NE4VJRLC"}]]}]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+16:Td2d,
+# 내 탭이 날라가버렸어!
+
+안녕하세요 오늘 원래 [이전]([/article/raycasting-pseudo-3d/)에 이야기했던 내용처럼
+웹에서 3d 엔진 렌더링을 구현하려고 하였으나
+무한 루프에 빠지는 바람에... 실패하였고.
+왜 무한 루프에 빠졌는데도 제 브라우져의 남은 탭들은 멀쩡한가에 대해서 고찰하였습니다.
+
+먼저 제가 작성한 멍청한 코드를 먼저 보고 가시겠습니다.
+
+```typescript
+// 멍청한 코드
+while (1) {
+    // do something stupid
+    updateWorld();
+    renderWorld();
+}
+```
+
+자 이러면 진짜 멍때립니다. 어디서 이런 코드를 보겠나요?
+이것은 역시나 제대로 알지도 못하고 짜면 이렇게 되는 것입니다.
+(이 코드가 왜 망한 코드인지는 javascript single threaded 관련글들을 참조해주세요.)
+
+![](/images/posts/archive/page_not_response.png)
+
+![](https://static.tvtropes.org/pmwiki/pub/images/deja_q_hd_046_resized_6484.jpg)
+
+지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다.
+다른 탭은 멈추지 않고 실행되고 있습니다.
+어떻게 이렇게 될까요?
+그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?
+
+아닙니다.
+
+크롬 (chrominum) 은 개별 탭을 쓰레드 (thread) 가 아닌 프로세스 (process) 로 관리하고 있기 때문입니다.
+
+![](/images/posts/archive/much_much_process.png)
+
+프로세스는 어플리케이션의 실행 프로그램이며, 쓰레드는 프로세스 내부에 있습니다.
+
+즉 저희가 탭 하나당, 브라우져 프로그램이 하나씩 실행되는것과 같은 것 입니다.
+예전 IE는 웹 서핑 도중 플래시 플레이어가 멈추면 플래시 플레이어를 다시 실행하기 위해 웹 브라우저를 종료 후 다시 시작해야 했습니다.
+
+이 구조상 메모리를 많이 먹을 수밖에 없습니다...
+
+![](https://tl360.b-cdn.net/wp-content/uploads/2016/11/Simple-Hacks-And-Best-Tools-To-Limit-Memory-Usage-In-Google-Chrome.jpg)
+
+이미 죽어버린 프로세스 입니다.
+
+그렇다고 해서 전부 각기 프로세스가 나눠지는것은 또 아니더라구요
+가끔 생각해보니 탭 하나만 죽은게 아니라 모두 죽어버리는 일이 있었던것이 기억 났습니다.
+
+아래 표는 크롬의 각 프로세스들이 어떤 역할을 하는지 설명합니다:
+
+- 브라우저 - 주소 창, 뒤로 및 앞으로 이동 버튼을 포함한 어플리케이션의 "chrome" 부분을 제어합니다. 또한 네트워크 요청 및 파일 액세스와 같은 웹 브라우저의 권한이 부여된 보이지 않는 부분을 제어합니다.
+- 렌더러 - 웹사이트가 디스플레이 될 때 탭 안의 모든 것 담당.
+- 플러그인 - 플래시와 같은 웹사이트가 사용하는 모든 플러그인 담당.
+- GPU - 다른 프로세스와 분리된 GPU 작업을 제어합니다. GPU는 여러 앱의 요청을 제어하고 동일한 표면에 표시하기 때문에 다른 프로세스로 분리됩니다.
+
+오늘은 간단히 모던 브라우져 (chrominum) 에 대해서 수박 겉핱기식으로 알아보았습니다.
+
+다음번에는 javascript single threaded 구조에 대해서 좀 더 공부하고 이것을 게임엔진에 녹여보도록 하겠습니다 ㅠ
+17:T16e0,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    code: "code",
+    h1: "h1",
+    img: "img",
+    li: "li",
+    p: "p",
+    pre: "pre",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h1, {
+      children: "내 탭이 날라가버렸어!"
+    }), "\n", _jsxs(_components.p, {
+      children: ["안녕하세요 오늘 원래 ", _jsx(_components.a, {
+        href: "%5B/article/raycasting-pseudo-3d/",
+        children: "이전"
+      }), "에 이야기했던 내용처럼\n웹에서 3d 엔진 렌더링을 구현하려고 하였으나\n무한 루프에 빠지는 바람에... 실패하였고.\n왜 무한 루프에 빠졌는데도 제 브라우져의 남은 탭들은 멀쩡한가에 대해서 고찰하였습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: "먼저 제가 작성한 멍청한 코드를 먼저 보고 가시겠습니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-typescript",
+        children: "// 멍청한 코드\nwhile (1) {\n    // do something stupid\n    updateWorld();\n    renderWorld();\n}\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "자 이러면 진짜 멍때립니다. 어디서 이런 코드를 보겠나요?\n이것은 역시나 제대로 알지도 못하고 짜면 이렇게 되는 것입니다.\n(이 코드가 왜 망한 코드인지는 javascript single threaded 관련글들을 참조해주세요.)"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/page_not_response.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://static.tvtropes.org/pmwiki/pub/images/deja_q_hd_046_resized_6484.jpg",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다.\n다른 탭은 멈추지 않고 실행되고 있습니다.\n어떻게 이렇게 될까요?\n그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?"
+    }), "\n", _jsx(_components.p, {
+      children: "아닙니다."
+    }), "\n", _jsx(_components.p, {
+      children: "크롬 (chrominum) 은 개별 탭을 쓰레드 (thread) 가 아닌 프로세스 (process) 로 관리하고 있기 때문입니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/much_much_process.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "프로세스는 어플리케이션의 실행 프로그램이며, 쓰레드는 프로세스 내부에 있습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "즉 저희가 탭 하나당, 브라우져 프로그램이 하나씩 실행되는것과 같은 것 입니다.\n예전 IE는 웹 서핑 도중 플래시 플레이어가 멈추면 플래시 플레이어를 다시 실행하기 위해 웹 브라우저를 종료 후 다시 시작해야 했습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "이 구조상 메모리를 많이 먹을 수밖에 없습니다..."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "https://tl360.b-cdn.net/wp-content/uploads/2016/11/Simple-Hacks-And-Best-Tools-To-Limit-Memory-Usage-In-Google-Chrome.jpg",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "이미 죽어버린 프로세스 입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "그렇다고 해서 전부 각기 프로세스가 나눠지는것은 또 아니더라구요\n가끔 생각해보니 탭 하나만 죽은게 아니라 모두 죽어버리는 일이 있었던것이 기억 났습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "아래 표는 크롬의 각 프로세스들이 어떤 역할을 하는지 설명합니다:"
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "브라우저 - 주소 창, 뒤로 및 앞으로 이동 버튼을 포함한 어플리케이션의 \"chrome\" 부분을 제어합니다. 또한 네트워크 요청 및 파일 액세스와 같은 웹 브라우저의 권한이 부여된 보이지 않는 부분을 제어합니다."
+      }), "\n", _jsx(_components.li, {
+        children: "렌더러 - 웹사이트가 디스플레이 될 때 탭 안의 모든 것 담당."
+      }), "\n", _jsx(_components.li, {
+        children: "플러그인 - 플래시와 같은 웹사이트가 사용하는 모든 플러그인 담당."
+      }), "\n", _jsx(_components.li, {
+        children: "GPU - 다른 프로세스와 분리된 GPU 작업을 제어합니다. GPU는 여러 앱의 요청을 제어하고 동일한 표면에 표시하기 때문에 다른 프로세스로 분리됩니다."
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "오늘은 간단히 모던 브라우져 (chrominum) 에 대해서 수박 겉핱기식으로 알아보았습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "다음번에는 javascript single threaded 구조에 대해서 좀 더 공부하고 이것을 게임엔진에 녹여보도록 하겠습니다 ㅠ"
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"내 탭이 날라가 버렸어!","summary":"지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다. 다른 탭은 멈추지 않고 실행되고 있습니다. 어떻게 이렇게 될까요? 그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?","date":"4 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"my-browser-gone","title":"내 탭이 날라가 버렸어!","date":"$D2021-03-03T14:55:00.000Z","summary":"지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다. 다른 탭은 멈추지 않고 실행되고 있습니다. 어떻게 이렇게 될까요? 그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?","category":"coding","image":"https://i.kym-cdn.com/entries/icons/original/000/030/003/chrome.jpg","embeddedImagesLocal":"$undefined","tags":["dev","coding","thread","process","browser","chromium"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":2}}],["$","$L18",null,{"maxWidth":"lg","sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/thread","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"thread","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/process","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"process","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/browser","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"browser","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/chromium","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"chromium","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/deep-learning-prime-number","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","딥러닝과 소수"]}],["$","$L1c",null,{"component":"$1d","href":"/article/raycasting-pseudo-3d","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["울펜슈타인3D 는 과연 어떻게 3d를 구현했을까요?"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"내 탭이 날라가 버렸어! - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다. 다른 탭은 멈추지 않고 실행되고 있습니다. 어떻게 이렇게 될까요? 그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?"}],["$","meta","3",{"name":"keywords","content":"dev, coding, thread, process, browser, chromium"}],["$","link","4",{"rel":"canonical","href":"/article/my-browser-gone"}],["$","meta","5",{"property":"og:title","content":"내 탭이 날라가 버렸어!"}],["$","meta","6",{"property":"og:description","content":"지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다. 다른 탭은 멈추지 않고 실행되고 있습니다. 어떻게 이렇게 될까요? 그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?"}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/my-browser-gone/"}],["$","meta","8",{"property":"og:image","content":"https://i.kym-cdn.com/entries/icons/original/000/030/003/chrome.jpg"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"내 탭이 날라가 버렸어!"}],["$","meta","12",{"name":"twitter:description","content":"지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰는 내용은 날아가지 않습니다. 다른 탭은 멈추지 않고 실행되고 있습니다. 어떻게 이렇게 될까요? 그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?"}],["$","meta","13",{"name":"twitter:image","content":"https://i.kym-cdn.com/entries/icons/original/000/030/003/chrome.jpg"}],["$","link","14",{"rel":"icon","href":"/images/akita-inu.png"}]]
+7:null

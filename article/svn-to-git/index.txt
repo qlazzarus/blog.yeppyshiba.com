@@ -1,0 +1,238 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"GMP_58STJf1i37uJRngK1","p":"","c":["","article","svn-to-git",""],"i":false,"f":[[["",{"children":["article",{"children":[["slug","svn-to-git","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","svn-to-git","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","Hsa6Jp9nvVapLdq6K5ZdU",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}],["$","$L11",null,{"gaId":"G-P6NE4VJRLC"}]]}]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+16:T9de,
+## 들어가며
+여태까지 많은 git 안내서가 있지만, 이번에는 subversion (aka: svn) 사용자를 위한 타겟으로 글을 작성해보겠습니다.
+
+![subversion](https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Apache_Subversion_logo.svg/1200px-Apache_Subversion_logo.svg.png)
+![git](https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg)
+
+## git 의 주요한 특징
+먼저 git 은 subversion 과 달리 로컬에서도 원격에서도 저장이 됩니다. (원격 저장소를 여러개 두는 것도 가능하지만 여기서 다루지는 않겠습니다.)
+그러다보니 commit 만 하고 끝이지 않냐? 라는 관성 때문에 많이들 고생하시고 계십니다..
+이번은 주요한 소스 올리기와 공유 에 중점으로 다뤄보겠습니다.
+
+## 데이터 받아오기
+svn 의 checkout 명령어 처럼 git 의 저장소를 가져오는 명령어는 clone 입니다.
+
+로컬 저장소를 복제(clone)하려면 아래 명령을 실행하세요.
+
+```bash
+$ git clone /로컬/저장소/경로
+```
+
+원격 서버의 저장소를 복제하려면 아래 명령을 실행하세요.
+
+```bash
+$ git clone 사용자명@호스트:/원격/저장소/경로
+```
+
+## 데이터 가져오기
+svn 의 update 명령어 처럼 git 의 저장소에서 데이터를 가져오는 명령어는 pull 입니다.
+
+```bash
+$ git pull
+```
+
+## 데이터 저장하기
+svn 의 add / commit 명령어 처럼 git 의 저장소로 데이터를 저장하는 명령어는 git 도 동일합니다.
+
+> 하지만 svn 과 다르게 한가지 동작이 더 필요합니다
+
+기존 svn 에서는 다음의 명령어이면 서버로 업로드하는것이 끝나지만
+
+```bash
+$ svn add * --force
+$ svn commit -m "add files"
+```
+
+git 에서는 다음의 명령어이면 **로컬 저장소** 로 저장이 됩니다.
+
+```bash
+$ git add *
+$ git commit -m "add files"
+```
+
+이후로 서버에 업로드 하기 위해서는 다음의 명령어가 더 필요합니다!
+
+```bash
+$ git push origin master
+```
+
+## 그리고 나머지들
+
+git 은 svn 과 달리 merge / branch 생성이 비교적 쉽습니다. 하지만 이 단계에서 이야기할 것은 아닌 것 같습니다.
+
+Ref.
+* [git 이해하기](https://bravenamme.github.io/2021/09/01/Git/)
+* [git tutorial](https://bravenamme.github.io/2019/06/11/git-tutorial/)
+* [git - 간편 안내서](https://rogerdudler.github.io/git-guide/index.ko.html)
+* [svn 사용자의 git 사용 후기](https://www.abel9999.com/2020/05/svn-git.html)17:T176a,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    blockquote: "blockquote",
+    code: "code",
+    h2: "h2",
+    img: "img",
+    li: "li",
+    p: "p",
+    pre: "pre",
+    strong: "strong",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "들어가며"
+    }), "\n", _jsx(_components.p, {
+      children: "여태까지 많은 git 안내서가 있지만, 이번에는 subversion (aka: svn) 사용자를 위한 타겟으로 글을 작성해보겠습니다."
+    }), "\n", _jsxs(_components.p, {
+      children: [_jsx(_components.img, {
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Apache_Subversion_logo.svg/1200px-Apache_Subversion_logo.svg.png",
+        alt: "subversion"
+      }), "\n", _jsx(_components.img, {
+        src: "https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg",
+        alt: "git"
+      })]
+    }), "\n", _jsx(_components.h2, {
+      children: "git 의 주요한 특징"
+    }), "\n", _jsx(_components.p, {
+      children: "먼저 git 은 subversion 과 달리 로컬에서도 원격에서도 저장이 됩니다. (원격 저장소를 여러개 두는 것도 가능하지만 여기서 다루지는 않겠습니다.)\n그러다보니 commit 만 하고 끝이지 않냐? 라는 관성 때문에 많이들 고생하시고 계십니다..\n이번은 주요한 소스 올리기와 공유 에 중점으로 다뤄보겠습니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "데이터 받아오기"
+    }), "\n", _jsx(_components.p, {
+      children: "svn 의 checkout 명령어 처럼 git 의 저장소를 가져오는 명령어는 clone 입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "로컬 저장소를 복제(clone)하려면 아래 명령을 실행하세요."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ git clone /로컬/저장소/경로\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "원격 서버의 저장소를 복제하려면 아래 명령을 실행하세요."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ git clone 사용자명@호스트:/원격/저장소/경로\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "데이터 가져오기"
+    }), "\n", _jsx(_components.p, {
+      children: "svn 의 update 명령어 처럼 git 의 저장소에서 데이터를 가져오는 명령어는 pull 입니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ git pull\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "데이터 저장하기"
+    }), "\n", _jsx(_components.p, {
+      children: "svn 의 add / commit 명령어 처럼 git 의 저장소로 데이터를 저장하는 명령어는 git 도 동일합니다."
+    }), "\n", _jsxs(_components.blockquote, {
+      children: ["\n", _jsx(_components.p, {
+        children: "하지만 svn 과 다르게 한가지 동작이 더 필요합니다"
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "기존 svn 에서는 다음의 명령어이면 서버로 업로드하는것이 끝나지만"
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ svn add * --force\n$ svn commit -m \"add files\"\n"
+      })
+    }), "\n", _jsxs(_components.p, {
+      children: ["git 에서는 다음의 명령어이면 ", _jsx(_components.strong, {
+        children: "로컬 저장소"
+      }), " 로 저장이 됩니다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ git add *\n$ git commit -m \"add files\"\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "이후로 서버에 업로드 하기 위해서는 다음의 명령어가 더 필요합니다!"
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "$ git push origin master\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "그리고 나머지들"
+    }), "\n", _jsx(_components.p, {
+      children: "git 은 svn 과 달리 merge / branch 생성이 비교적 쉽습니다. 하지만 이 단계에서 이야기할 것은 아닌 것 같습니다."
+    }), "\n", _jsx(_components.p, {
+      children: "Ref."
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://bravenamme.github.io/2021/09/01/Git/",
+          children: "git 이해하기"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://bravenamme.github.io/2019/06/11/git-tutorial/",
+          children: "git tutorial"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://rogerdudler.github.io/git-guide/index.ko.html",
+          children: "git - 간편 안내서"
+        })
+      }), "\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://www.abel9999.com/2020/05/svn-git.html",
+          children: "svn 사용자의 git 사용 후기"
+        })
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"svn 사용자를 위한 git 안내서","summary":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다.","date":"3 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"svn-to-git","title":"svn 사용자를 위한 git 안내서","date":"$D2022-01-23T15:00:00.000Z","summary":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다.","category":"coding","image":"https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg","embeddedImagesLocal":"$undefined","tags":["dev","coding","git","svn"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":32}}],["$","$L18",null,{"maxWidth":"lg","sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/git","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"git","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/svn","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"svn","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/github-page-static-deploy","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","github action / github page 기능을 이용한 static deploy"]}],["$","$L1c",null,{"component":"$1d","href":"/article/php8-attributes","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["php8 에 도입되는 annotation (attributes)"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"svn 사용자를 위한 git 안내서 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, git, svn"}],["$","link","4",{"rel":"canonical","href":"/article/svn-to-git"}],["$","meta","5",{"property":"og:title","content":"svn 사용자를 위한 git 안내서"}],["$","meta","6",{"property":"og:description","content":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/svn-to-git/"}],["$","meta","8",{"property":"og:image","content":"https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"svn 사용자를 위한 git 안내서"}],["$","meta","12",{"name":"twitter:description","content":"여태까지 많은 git 안내서가 있지만, 이번에는 subversion 사용자를 위한 타겟으로 글을 작성해보겠습니다."}],["$","meta","13",{"name":"twitter:image","content":"https://media.vlpt.us/images/_seeul/post/a13ec304-4219-49f9-b294-145e79459532/img.jpeg"}],["$","link","14",{"rel":"icon","href":"/images/akita-inu.png"}]]
+7:null

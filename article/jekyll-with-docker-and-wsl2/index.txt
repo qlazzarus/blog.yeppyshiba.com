@@ -1,0 +1,359 @@
+1:"$Sreact.fragment"
+3:I[5244,[],""]
+4:I[3866,[],""]
+6:I[6213,[],"OutletBoundary"]
+8:I[6213,[],"MetadataBoundary"]
+a:I[6213,[],"ViewportBoundary"]
+c:I[4835,[],""]
+:HL["/_next/static/media/47cbc4e2adbc5db9-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/acfb4e572a721580.css","style"]
+0:{"P":null,"b":"GMP_58STJf1i37uJRngK1","p":"","c":["","article","jekyll-with-docker-and-wsl2",""],"i":false,"f":[[["",{"children":["article",{"children":[["slug","jekyll-with-docker-and-wsl2","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/acfb4e572a721580.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["article",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","jekyll-with-docker-and-wsl2","d"],["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children","article","children","$0:f:0:1:2:children:2:children:0","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L5",null,["$","$L6",null,{"children":"$L7"}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","Z3BwwzJcOtogxPxOgXm1p",{"children":[["$","$L8",null,{"children":"$L9"}],["$","$La",null,{"children":"$Lb"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]]}],false]],"m":"$undefined","G":["$c","$undefined"],"s":false,"S":true}
+d:I[6269,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+e:I[4527,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+f:I[1392,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+10:I[457,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"default"]
+11:I[766,["967","static/chunks/967-1bc8bd5ae145cc41.js","33","static/chunks/33-b54d5da5beda4fc8.js","177","static/chunks/app/layout-11cb33ab0676062e.js"],"GoogleAnalytics"]
+2:["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"children":[[["$","script","mui-color-scheme-init",{"suppressHydrationWarning":true,"nonce":"$undefined","dangerouslySetInnerHTML":{"__html":"(function() {\ntry {\n  let colorScheme = '';\n  const mode = localStorage.getItem('mui-mode') || 'system';\n  const dark = localStorage.getItem('mui-color-scheme-dark') || 'dark';\n  const light = localStorage.getItem('mui-color-scheme-light') || 'light';\n  if (mode === 'system') {\n    // handle system mode\n    const mql = window.matchMedia('(prefers-color-scheme: dark)');\n    if (mql.matches) {\n      colorScheme = dark\n    } else {\n      colorScheme = light\n    }\n  }\n  if (mode === 'light') {\n    colorScheme = light;\n  }\n  if (mode === 'dark') {\n    colorScheme = dark;\n  }\n  if (colorScheme) {\n    document.documentElement.classList.remove('%s'.replace('%s', light), '%s'.replace('%s', dark));\n      document.documentElement.classList.add('%s'.replace('%s', colorScheme));document.documentElement.setAttribute('.%s', colorScheme);\n  }\n} catch(e){}})();"}}]],["$","$Ld",null,{"children":["$","$Le",null,{"theme":"$f","defaultMode":"system","children":[["$","$L10",null,{"enableColorScheme":true}],["$","$L3",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[],[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]]],"forbidden":"$undefined","unauthorized":"$undefined"}]]}]}],["$","$L11",null,{"gaId":"G-P6NE4VJRLC"}]]}]}]
+12:I[4933,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+13:I[787,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+14:I[1309,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+15:I[9595,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+18:I[5436,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+19:I[7013,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1a:I[8173,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],""]
+1b:I[9234,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1c:I[2282,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1d:I[6656,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1e:I[3345,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+1f:I[9561,["967","static/chunks/967-1bc8bd5ae145cc41.js","337","static/chunks/337-18f19de510d1d53b.js","467","static/chunks/467-8c7bc18aa09eb692.js","234","static/chunks/234-4d7c2d5758e6aea9.js","48","static/chunks/48-228feae1d1feafc8.js","355","static/chunks/355-9f6e8ed93740a9d3.js","225","static/chunks/app/article/%5Bslug%5D/page-b62baeaa5c1731ae.js"],"default"]
+16:T12d2,
+## 계기
+
+깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다.  
+오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요...  
+이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.
+
+![](/images/posts/archive/lazy.png)
+
+우선 저는 windows 10 에 wsl2 와 docker 를 설치하여 사용하였습니다.
+
+## wsl2 사용하기
+
+### wsl2 란?
+
+지난 5월 윈도우 Windows 10의 대규모 업데이트가 있었습니다. 이번 업데이트는 2019년 11월 이후 첫 대규모 업데이트로 사용자를 위한 다양한 기능이 추가되었을 뿐만 아니라,  
+Microsoft 에서 미리 예고한 대로 WSL2 (Windows Subsystem for Linux 2) 를 포함하고 있습니다.
+
+- [The Windows Subsystem for Linux BUILD 2020 Summary](https://devblogs.microsoft.com/commandline/the-windows-subsystem-for-linux-build-2020-summary/)
+
+간략히 이야기 드리자면, 윈도우즈에서 경량 가상화 기술을 사용해 리눅스를 구동할 수 있도록 도와주는 기능입니다.
+
+WSL 2 를 설치하려면 먼저 Windows 10 2004 를 업데이트해야 합니다.  
+현재 설치여부는 Windows Key + R 을 눌러서 실행창에 winver 를 넣고 버전을 확인해 보면 됩니다.
+
+![](/images/posts/archive/winver.png)
+
+### wsl2 활성화 하기
+
+2004 업데이트를 설치했다면 PowerShell 을 관리자로 열고 다음 명령을 실행해서 WSL 을 활성화해줍니다.
+
+```bash
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+```
+
+설치 완료를 위해서 재부팅을 해줍니다.
+
+### wsl2 기본 버젼으로 설정
+
+새 Linux 배포를 설치할 때 Powershell에서 다음 명령을 실행하여 WSL 2를 기본 버전으로 설정합니다.  
+똑같이 파워쉘을 띄워서 아래 명령어를 입력해줍시다.
+
+```bash
+wsl --set-default-version 2
+```
+
+### linux 배포판 선택하기
+
+각종 배포판을 지원하긴 하지만, 무난한 Ubuntu 18.04 LTS를 설치 해봅니다.  
+(다른 배포판들은 [여기에서](https://docs.microsoft.com/en-us/windows/wsl/install-win10) 확인 가능합니다.)
+
+microsoft store 에서 ubuntu 를 검색해서 설치합니다.
+
+![](/images/posts/archive/ubuntu_18_04_lts.png)
+
+### 배포판 실행하기
+
+설치한 배포판을 실행하면 설치하는데 시간이 조금 소요됩니다.
+
+![](/images/posts/archive/ubuntu_install.png)
+
+아래 명령어를 이용해서 wsl 버젼을 확인합니다.
+
+```
+PS C:\Users\ecst> wsl --list --verbose
+  NAME                   STATE           VERSION
+* Ubuntu-18.04           Running         2
+```
+
+## docker 사용하기
+
+(https://docs.docker.com/docker-for-windows/wsl-tech-preview/)
+
+위의 링크를 참고하여 윈도우용 docker desktop을 설치 후  
+General에서 Enable the experimental WSL 2 based engine를 체크하여주고  
+Resources > WSL Integration에서 설치한 리눅스 버전을 체크해주시면 됩니다.
+
+![](/images/posts/archive/docker_general.png)
+
+![](/images/posts/archive/docker_wsl.png)
+
+## jekyll docker 설정하기
+
+docker-compose.yaml 파일을 만들어 봅니다.
+
+```yaml
+version: '3.3'
+
+services:
+    blog:
+        image: jekyll/jekyll:latest
+        command: jekyll serve --force_polling --drafts --livereload --trace
+        ports:
+            - '4000:4000'
+        volumes:
+            - '.:/srv/jekyll'
+```
+
+docker-compose는 서비스에 필요한 docker 컨테이너를 한번에 실행해주는 프로그램 입니다.
+
+다음은 작성된 코드의 의미입니다.
+
+- version : docker-compose의 버전을 의미
+- services : docker-compose는 여러개의 컨테이너를 띄울 수 있음. 하단 블록에 기입
+    - blog : 실행할 컨테이너의 이름
+        - image : docker 이미지
+        - command : 컨테이너가 run 하면 실행할 명령
+        - ports : local_port:container_port , 로컬 4000번 port를 컨테이너의 4000번 포트와 매핑
+        - volumes : local_dir:container_dir , 현재 경로를 컨테이너의 /srv/jekyll 경로에 mount 하겠다는 뜻
+
+이 작성된 코드로 아래 명령어를 내리면 자동으로 container 가 실행됩니다.
+
+```bash
+docker-compose up
+```
+
+![](/images/posts/archive/docker-compose.png)
+
+정상적으로 완료가 되면 자동으로 빌드되는 것을 확인할 수 있습니다
+
+![](/images/posts/archive/docker-result.png)
+
+## 추가) vscode 연동
+
+![](/images/posts/archive/docker-dashboard.png)
+
+위는 docker dashboard 에서 확인된 container 입니다. vscode 로 열기를 선택하시면
+해당 container 에 remote wsl 로 접속을 확인할 수 있습니다!
+17:T278c,"use strict";
+const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+const {useMDXComponents: _provideComponents} = arguments[0];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    br: "br",
+    code: "code",
+    h2: "h2",
+    h3: "h3",
+    img: "img",
+    li: "li",
+    p: "p",
+    pre: "pre",
+    ul: "ul",
+    ..._provideComponents(),
+    ...props.components
+  };
+  return _jsxs(_Fragment, {
+    children: [_jsx(_components.h2, {
+      children: "계기"
+    }), "\n", _jsxs(_components.p, {
+      children: ["깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다.", _jsx(_components.br, {}), "\n", "오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요...", _jsx(_components.br, {}), "\n", "이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다."]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/lazy.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "우선 저는 windows 10 에 wsl2 와 docker 를 설치하여 사용하였습니다."
+    }), "\n", _jsx(_components.h2, {
+      children: "wsl2 사용하기"
+    }), "\n", _jsx(_components.h3, {
+      children: "wsl2 란?"
+    }), "\n", _jsxs(_components.p, {
+      children: ["지난 5월 윈도우 Windows 10의 대규모 업데이트가 있었습니다. 이번 업데이트는 2019년 11월 이후 첫 대규모 업데이트로 사용자를 위한 다양한 기능이 추가되었을 뿐만 아니라,", _jsx(_components.br, {}), "\n", "Microsoft 에서 미리 예고한 대로 WSL2 (Windows Subsystem for Linux 2) 를 포함하고 있습니다."]
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: _jsx(_components.a, {
+          href: "https://devblogs.microsoft.com/commandline/the-windows-subsystem-for-linux-build-2020-summary/",
+          children: "The Windows Subsystem for Linux BUILD 2020 Summary"
+        })
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "간략히 이야기 드리자면, 윈도우즈에서 경량 가상화 기술을 사용해 리눅스를 구동할 수 있도록 도와주는 기능입니다."
+    }), "\n", _jsxs(_components.p, {
+      children: ["WSL 2 를 설치하려면 먼저 Windows 10 2004 를 업데이트해야 합니다.", _jsx(_components.br, {}), "\n", "현재 설치여부는 Windows Key + R 을 눌러서 실행창에 winver 를 넣고 버전을 확인해 보면 됩니다."]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/winver.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "wsl2 활성화 하기"
+    }), "\n", _jsx(_components.p, {
+      children: "2004 업데이트를 설치했다면 PowerShell 을 관리자로 열고 다음 명령을 실행해서 WSL 을 활성화해줍니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "설치 완료를 위해서 재부팅을 해줍니다."
+    }), "\n", _jsx(_components.h3, {
+      children: "wsl2 기본 버젼으로 설정"
+    }), "\n", _jsxs(_components.p, {
+      children: ["새 Linux 배포를 설치할 때 Powershell에서 다음 명령을 실행하여 WSL 2를 기본 버전으로 설정합니다.", _jsx(_components.br, {}), "\n", "똑같이 파워쉘을 띄워서 아래 명령어를 입력해줍시다."]
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "wsl --set-default-version 2\n"
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "linux 배포판 선택하기"
+    }), "\n", _jsxs(_components.p, {
+      children: ["각종 배포판을 지원하긴 하지만, 무난한 Ubuntu 18.04 LTS를 설치 해봅니다.", _jsx(_components.br, {}), "\n", "(다른 배포판들은 ", _jsx(_components.a, {
+        href: "https://docs.microsoft.com/en-us/windows/wsl/install-win10",
+        children: "여기에서"
+      }), " 확인 가능합니다.)"]
+    }), "\n", _jsx(_components.p, {
+      children: "microsoft store 에서 ubuntu 를 검색해서 설치합니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/ubuntu_18_04_lts.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h3, {
+      children: "배포판 실행하기"
+    }), "\n", _jsx(_components.p, {
+      children: "설치한 배포판을 실행하면 설치하는데 시간이 조금 소요됩니다."
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/ubuntu_install.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "아래 명령어를 이용해서 wsl 버젼을 확인합니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        children: "PS C:\\Users\\ecst> wsl --list --verbose\n  NAME                   STATE           VERSION\n* Ubuntu-18.04           Running         2\n"
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "docker 사용하기"
+    }), "\n", _jsxs(_components.p, {
+      children: ["(", _jsx(_components.a, {
+        href: "https://docs.docker.com/docker-for-windows/wsl-tech-preview/",
+        children: "https://docs.docker.com/docker-for-windows/wsl-tech-preview/"
+      }), ")"]
+    }), "\n", _jsxs(_components.p, {
+      children: ["위의 링크를 참고하여 윈도우용 docker desktop을 설치 후", _jsx(_components.br, {}), "\n", "General에서 Enable the experimental WSL 2 based engine를 체크하여주고", _jsx(_components.br, {}), "\n", "Resources > WSL Integration에서 설치한 리눅스 버전을 체크해주시면 됩니다."]
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/docker_general.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/docker_wsl.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "jekyll docker 설정하기"
+    }), "\n", _jsx(_components.p, {
+      children: "docker-compose.yaml 파일을 만들어 봅니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-yaml",
+        children: "version: '3.3'\n\nservices:\n    blog:\n        image: jekyll/jekyll:latest\n        command: jekyll serve --force_polling --drafts --livereload --trace\n        ports:\n            - '4000:4000'\n        volumes:\n            - '.:/srv/jekyll'\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "docker-compose는 서비스에 필요한 docker 컨테이너를 한번에 실행해주는 프로그램 입니다."
+    }), "\n", _jsx(_components.p, {
+      children: "다음은 작성된 코드의 의미입니다."
+    }), "\n", _jsxs(_components.ul, {
+      children: ["\n", _jsx(_components.li, {
+        children: "version : docker-compose의 버전을 의미"
+      }), "\n", _jsxs(_components.li, {
+        children: ["services : docker-compose는 여러개의 컨테이너를 띄울 수 있음. 하단 블록에 기입", "\n", _jsxs(_components.ul, {
+          children: ["\n", _jsxs(_components.li, {
+            children: ["blog : 실행할 컨테이너의 이름", "\n", _jsxs(_components.ul, {
+              children: ["\n", _jsx(_components.li, {
+                children: "image : docker 이미지"
+              }), "\n", _jsx(_components.li, {
+                children: "command : 컨테이너가 run 하면 실행할 명령"
+              }), "\n", _jsx(_components.li, {
+                children: "ports : local_port:container_port , 로컬 4000번 port를 컨테이너의 4000번 포트와 매핑"
+              }), "\n", _jsx(_components.li, {
+                children: "volumes : local_dir:container_dir , 현재 경로를 컨테이너의 /srv/jekyll 경로에 mount 하겠다는 뜻"
+              }), "\n"]
+            }), "\n"]
+          }), "\n"]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", _jsx(_components.p, {
+      children: "이 작성된 코드로 아래 명령어를 내리면 자동으로 container 가 실행됩니다."
+    }), "\n", _jsx(_components.pre, {
+      children: _jsx(_components.code, {
+        className: "language-bash",
+        children: "docker-compose up\n"
+      })
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/docker-compose.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "정상적으로 완료가 되면 자동으로 빌드되는 것을 확인할 수 있습니다"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/docker-result.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.h2, {
+      children: "추가) vscode 연동"
+    }), "\n", _jsx(_components.p, {
+      children: _jsx(_components.img, {
+        src: "/images/posts/archive/docker-dashboard.png",
+        alt: ""
+      })
+    }), "\n", _jsx(_components.p, {
+      children: "위는 docker dashboard 에서 확인된 container 입니다. vscode 로 열기를 선택하시면\n해당 container 에 remote wsl 로 접속을 확인할 수 있습니다!"
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ..._provideComponents(),
+    ...props.components
+  };
+  return MDXLayout ? _jsx(MDXLayout, {
+    ...props,
+    children: _jsx(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+return {
+  default: MDXContent
+};
+5:[["$","$L12",null,{}],["$","$L13",null,{}],["$","$L14",null,{"title":"jekyll 블로그 wsl2 + docker + vscode 에서 작업하기","summary":"깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다. 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요... 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.","date":"5 years ago","category":"coding"}],["$","$L15",null,{"post":{"slug":"jekyll-with-docker-and-wsl2","title":"jekyll 블로그 wsl2 + docker + vscode 에서 작업하기","date":"$D2020-07-15T07:08:00.000Z","summary":"깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다. 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요... 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.","category":"coding","image":"https://images.velog.io/images/foreverchoi0706/post/4e2a22b7-0b84-438f-aac9-040922930912/075c8694.jpeg","embeddedImagesLocal":"$undefined","tags":["dev","coding","jekyll","wsl2","docker","windows","linux","vscode"],"content":"$16","source":{"compiledSource":"$17","frontmatter":{},"scope":{}},"roadAddress":"$undefined","parcelAddress":"$undefined","lat":"$undefined","lng":"$undefined","viewCount":16}}],["$","$L18",null,{"maxWidth":"lg","sx":{"mx":"auto","width":"100%","p":2},"children":[["$","$L19",null,{"sx":{"my":3}}],["$","$L18",null,{"sx":{"mb":3},"children":["$","$L18",null,{"sx":{"mt":1,"display":"flex","flexWrap":"wrap","gap":1},"children":[["$","$L1a","0",{"href":"/tag/dev","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"dev","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","1",{"href":"/tag/coding","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"coding","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","2",{"href":"/tag/jekyll","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"jekyll","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","3",{"href":"/tag/wsl2","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"wsl2","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","4",{"href":"/tag/docker","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"docker","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","5",{"href":"/tag/windows","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"windows","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","6",{"href":"/tag/linux","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"linux","sx":{"textTransform":"lowercase"}}]}],["$","$L1a","7",{"href":"/tag/vscode","passHref":true,"style":{"textDecoration":"none"},"children":["$","$L1b",null,{"label":"vscode","sx":{"textTransform":"lowercase"}}]}]]}]}],["$","$L18",null,{"sx":{"display":"flex","justifyContent":"space-between","alignItems":"center","flexWrap":"wrap","gap":1},"children":[["$","$L1c",null,{"component":"$1d","href":"/article/gitlab-runner-deploy-with-docker","variant":"outlined","color":"primary","sx":{"textAlign":"left"},"children":["← ","gitlab-runnner 를 활용한 docker 배포"]}],["$","$L1c",null,{"component":"$1d","href":"/article/game-of-life","variant":"outlined","color":"primary","sx":{"ml":"auto","textAlign":"right"},"children":["phaser 로 구현해 보는 콘웨이의 생명게임"," →"]}]]}]]}],["$","$L18",null,{"py":2,"mt":4,"component":"footer","children":["$","$L1e",null,{"maxWidth":"lg","sx":{"display":"flex","flexDirection":{"xs":"column","md":"row"},"justifyContent":{"xs":"center","md":"space-between"},"alignItems":"center","gap":2},"children":[["$","$L1f",null,{"variant":"body2","children":["© ","2022-2025"," ","Yeppyshiba Blog",". All rights reserved."]}],["$","$L1f",null,{"variant":"body2","children":["$","$L1d",null,{"href":"https://www.flaticon.com/free-icons/akita-inu","target":"_blank","rel":"noopener noreferrer","title":"akita inu icons","underline":"hover","color":"primary","children":"Akita inu icons created by tulpahn - Flaticon"}]}]]}]}]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+9:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"jekyll 블로그 wsl2 + docker + vscode 에서 작업하기 - Yeppyshiba Blog"}],["$","meta","2",{"name":"description","content":"깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다. 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요... 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다."}],["$","meta","3",{"name":"keywords","content":"dev, coding, jekyll, wsl2, docker, windows, linux, vscode"}],["$","link","4",{"rel":"canonical","href":"/article/jekyll-with-docker-and-wsl2"}],["$","meta","5",{"property":"og:title","content":"jekyll 블로그 wsl2 + docker + vscode 에서 작업하기"}],["$","meta","6",{"property":"og:description","content":"깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다. 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요... 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다."}],["$","meta","7",{"property":"og:url","content":"https://blog.yeppyshiba.com/article/jekyll-with-docker-and-wsl2/"}],["$","meta","8",{"property":"og:image","content":"https://images.velog.io/images/foreverchoi0706/post/4e2a22b7-0b84-438f-aac9-040922930912/075c8694.jpeg"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","11",{"name":"twitter:title","content":"jekyll 블로그 wsl2 + docker + vscode 에서 작업하기"}],["$","meta","12",{"name":"twitter:description","content":"깃헙 블로그를 작성하기 위해서는 로컬 pc 에서 ruby 를 설치하고 jekyll 환경 구성을 해야 합니다. 오늘 포스팅을 작성할려고 했으나, windows 를 다시 깔아버려서 세팅하기가 너무 귀찮더라구요... 이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다."}],["$","meta","13",{"name":"twitter:image","content":"https://images.velog.io/images/foreverchoi0706/post/4e2a22b7-0b84-438f-aac9-040922930912/075c8694.jpeg"}],["$","link","14",{"rel":"icon","href":"/images/akita-inu.png"}]]
+7:null
