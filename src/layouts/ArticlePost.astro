@@ -48,6 +48,13 @@ export interface Props extends ArticleProps {
         </header>
     </div>
     <hr />
+    <aside class='hidden lg:block'>
+        <nav
+            id='toc'
+            class='prose fixed top-20 right-6 z-40 max-h-[70vh] w-64 overflow-auto rounded border border-gray-200 bg-white/70 p-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/60'
+        >
+        </nav>
+    </aside>
     <div class='prose-xl dark:prose-invert mx-auto my-4'>
         <slot />
     </div>
@@ -81,8 +88,4 @@ export interface Props extends ArticleProps {
             }
         </div>
     </div>
-
-    <aside class='hidden lg:block'>
-        <nav id='toc' class='prose sticky top-24'></nav>
-    </aside>
 </BaseLayout>
