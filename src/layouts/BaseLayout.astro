@@ -37,6 +37,16 @@ const { title, description } = Astro.props;
             gtag('js', new Date());
             gtag('config', 'G-P6NE4VJRLC');
         </script>
+        <style>
+            /* Keep native dialog hidden unless opened to avoid stray renderings */
+            dialog:not([open]) {
+                display: none;
+            }
+            /* When opened, ensure it fills viewport and centers content */
+            dialog[open] {
+                display: flex; /* keep `flex` so items-center / justify-center work */
+            }
+        </style>
     </head>
 
     <body
@@ -47,126 +57,35 @@ const { title, description } = Astro.props;
             <slot />
         </main>
         <Footer />
+        <dialog
+            id='footnote-modal'
+            class='fixed inset-0 flex h-full w-full items-center justify-center bg-transparent p-0 backdrop:bg-black/50'
+        >
+            <div
+                class='bg-background text-foreground border-border w-[min(92vw,42rem)] rounded-xl border shadow-xl'
+            >
+                <div
+                    class='border-border flex items-center justify-between border-b px-4 py-3'
+                >
+                    <div class='text-sm font-semibold'>각주</div>
+                    <button
+                        type='button'
+                        data-close
+                        class='text-muted-foreground hover:text-foreground px-2 py-1 text-sm'
+                    >
+                        닫기
+                    </button>
+                </div>
 
-        <script type='module'>
-            // Build an improved TOC from headings inside the article prose.
-            document.addEventListener('DOMContentLoaded', () => {
-                const content =
-                    document.querySelector('main .prose-xl') ||
-                    document.querySelector('.prose-xl');
-                const tocEl = document.getElementById('toc');
-                if (!content || !tocEl) return;
-
-                // Clear any existing TOC
-                tocEl.innerHTML = '';
-
-                const headings = Array.from(content.querySelectorAll('h2, h3, h4'));
-                if (!headings.length) return;
-
-                function slugify(text) {
-                    return text
-                        .trim()
-                        .toLowerCase()
-                        .replace(/\s+/g, '-')
-                        .replace(/[^\w-]/g, '');
-                }
-
-                const rootUl = document.createElement('ul');
-                rootUl.className = 'space-y-1';
-
-                // Simple nested list builder based on heading level
-                let stack = [{ level: 2, el: rootUl }];
-
-                headings.forEach((h) => {
-                    if (!h.textContent) return;
-                    if (!h.id) h.id = slugify(h.textContent);
-
-                    const level = Number(h.tagName.slice(1));
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = `#${h.id}`;
-                    a.textContent = h.textContent;
-                    a.className =
-                        'text-sm text-muted-foreground hover:text-foreground hover:underline block';
-                    a.dataset.target = h.id;
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        if (h.id) {
-                            const target = document.getElementById(h.id);
-                            if (target)
-                                target.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'start',
-                                });
-                            // update hash without jumping
-                            history.replaceState(null, '', `#${h.id}`);
-                        }
-                    });
-                    li.appendChild(a);
-
-                    // find appropriate parent in stack
-                    let parent = stack[0];
-                    if (level > parent.level) {
-                        // create nested list under previous li
-                        const lastLi = parent.el.lastElementChild;
-                        const newUl = document.createElement('ul');
-                        newUl.className = 'ml-4 space-y-1';
-                        if (lastLi) lastLi.appendChild(newUl);
-                        stack.unshift({ level, el: newUl });
-                        parent = stack[0];
-                    } else {
-                        while (stack.length && level < stack[0].level) stack.shift();
-                        parent = stack[0] || { level, el: rootUl };
-                        if (level > parent.level) {
-                            const newUl = document.createElement('ul');
-                            newUl.className = 'ml-4 space-y-1';
-                            parent.el.appendChild(newUl);
-                            stack.unshift({ level, el: newUl });
-                            parent = stack[0];
-                        }
-                    }
-
-                    parent.el.appendChild(li);
-                });
-
-                tocEl.appendChild(rootUl);
-
-                // observe headings to mark active TOC item
-                const links = Array.from(tocEl.querySelectorAll('a[data-target]'));
-                const idToLink = new Map();
-                links.forEach((l) => idToLink.set(l.dataset.target || '', l));
-
-                const observer = new IntersectionObserver(
-                    (entries) => {
-                        entries.forEach((entry) => {
-                            const id = entry.target.id;
-                            const link = idToLink.get(id);
-                            if (!link) return;
-                            if (entry.isIntersecting) {
-                                // clear others
-                                links.forEach((ln) =>
-                                    ln.classList.remove(
-                                        'font-semibold',
-                                        'text-foreground',
-                                    ),
-                                );
-                                link.classList.add('font-semibold', 'text-foreground');
-                            }
-                        });
-                    },
-                    { root: null, rootMargin: '0px 0px -60% 0px', threshold: 0 },
-                );
-
-                headings.forEach((h) => observer.observe(h));
-
-                // Initialize highlight.js on code blocks
-                if (window.hljs) {
-                    document.querySelectorAll('pre code').forEach((block) => {
-                        window.hljs.highlightElement(block);
-                    });
-                }
-            });
-        </script>
+                <div class='px-4 py-4'>
+                    <div
+                        id='footnote-modal-body'
+                        class='prose dark:prose-invert max-w-none'
+                    >
+                    </div>
+                </div>
+            </div>
+        </dialog>
         <script is:inline>
             (function () {
                 const root = document.documentElement;

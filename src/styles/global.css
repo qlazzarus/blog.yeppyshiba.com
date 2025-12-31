@@ -119,3 +119,11 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer utilities {
+    .prose .footnotes,
+    .prose-lg .footnotes,
+    .prose-xl .footnotes {
+        @apply hidden;
+    }
+}

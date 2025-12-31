@@ -88,4 +88,184 @@ export interface Props extends ArticleProps {
             }
         </div>
     </div>
+    <script type='module'>
+        function getFootnoteHtml(targetId) {
+            const li = document.getElementById(targetId);
+            if (!li) return null;
+
+            // "↩" 백링크 제거(선택)
+            const clone = li.cloneNode(true);
+            clone.querySelectorAll('a[href^="#"]').forEach((a) => a.remove());
+
+            // 각주 항목은 보통 <li><p>...</p></li>
+            return clone.innerHTML;
+        }
+
+        document.addEventListener('click', (e) => {
+            const a =
+                e.target instanceof Element
+                    ? e.target.closest('sup a[href^="#"]')
+                    : null;
+            if (!a) return;
+
+            // 기본 점프 이동 방지
+            e.preventDefault();
+
+            const href = a.getAttribute('href'); // e.g. "#fn1"
+            if (!href) return;
+
+            const targetId = href.slice(1);
+            const html = getFootnoteHtml(targetId);
+            if (!html) return;
+
+            const dialog = document.getElementById('footnote-modal');
+            const body = document.getElementById('footnote-modal-body');
+            if (!(dialog instanceof HTMLDialogElement) || !body) return;
+
+            body.innerHTML = html;
+            dialog.showModal();
+        });
+
+        // 닫기 버튼/배경 클릭 닫기
+        document.addEventListener('click', (e) => {
+            const dialog = document.getElementById('footnote-modal');
+            if (!(dialog instanceof HTMLDialogElement)) return;
+
+            const target = e.target;
+            if (!(target instanceof Element)) return;
+
+            if (target.matches('#footnote-modal') || target.closest('[data-close]')) {
+                dialog.close();
+            }
+        });
+
+        // ESC 닫기 시 내용 비우기(선택)
+        document.addEventListener(
+            'close',
+            () => {
+                const body = document.getElementById('footnote-modal-body');
+                if (body) body.innerHTML = '';
+            },
+            true,
+        );
+    </script>
+    <script type='module'>
+        // Build an improved TOC from headings inside the article prose.
+        document.addEventListener('DOMContentLoaded', () => {
+            const content =
+                document.querySelector('main .prose-xl') ||
+                document.querySelector('.prose-xl');
+            const tocEl = document.getElementById('toc');
+            if (!content || !tocEl) return;
+
+            // Clear any existing TOC
+            tocEl.innerHTML = '';
+
+            // exclude headings that are inside footnotes (hidden) so TOC doesn't pick them up
+            let headings = Array.from(content.querySelectorAll('h2, h3, h4')).filter(
+                (h) => !h.closest('.footnotes'),
+            );
+            if (!headings.length) return;
+
+            function slugify(text) {
+                return text
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w-]/g, '');
+            }
+
+            const rootUl = document.createElement('ul');
+            rootUl.className = 'space-y-1';
+
+            // Simple nested list builder based on heading level
+            let stack = [{ level: 2, el: rootUl }];
+
+            headings.forEach((h) => {
+                if (!h.textContent) return;
+                if (!h.id) h.id = slugify(h.textContent);
+
+                const level = Number(h.tagName.slice(1));
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${h.id}`;
+                a.textContent = h.textContent;
+                a.className =
+                    'text-sm text-muted-foreground hover:text-foreground hover:underline block';
+                a.dataset.target = h.id;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (h.id) {
+                        const target = document.getElementById(h.id);
+                        if (target)
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                            });
+                        // update hash without jumping
+                        history.replaceState(null, '', `#${h.id}`);
+                    }
+                });
+                li.appendChild(a);
+
+                // find appropriate parent in stack
+                let parent = stack[0];
+                if (level > parent.level) {
+                    // create nested list under previous li
+                    const lastLi = parent.el.lastElementChild;
+                    const newUl = document.createElement('ul');
+                    newUl.className = 'ml-4 space-y-1';
+                    if (lastLi) lastLi.appendChild(newUl);
+                    stack.unshift({ level, el: newUl });
+                    parent = stack[0];
+                } else {
+                    while (stack.length && level < stack[0].level) stack.shift();
+                    parent = stack[0] || { level, el: rootUl };
+                    if (level > parent.level) {
+                        const newUl = document.createElement('ul');
+                        newUl.className = 'ml-4 space-y-1';
+                        parent.el.appendChild(newUl);
+                        stack.unshift({ level, el: newUl });
+                        parent = stack[0];
+                    }
+                }
+
+                parent.el.appendChild(li);
+            });
+
+            tocEl.appendChild(rootUl);
+
+            // observe headings to mark active TOC item
+            const links = Array.from(tocEl.querySelectorAll('a[data-target]'));
+            const idToLink = new Map();
+            links.forEach((l) => idToLink.set(l.dataset.target || '', l));
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const id = entry.target.id;
+                        const link = idToLink.get(id);
+                        if (!link) return;
+                        if (entry.isIntersecting) {
+                            // clear others
+                            links.forEach((ln) =>
+                                ln.classList.remove('font-semibold', 'text-foreground'),
+                            );
+                            link.classList.add('font-semibold', 'text-foreground');
+                        }
+                    });
+                },
+                { root: null, rootMargin: '0px 0px -60% 0px', threshold: 0 },
+            );
+
+            headings.forEach((h) => observer.observe(h));
+
+            // Initialize highlight.js on code blocks
+            if (window.hljs) {
+                document.querySelectorAll('pre code').forEach((block) => {
+                    window.hljs.highlightElement(block);
+                });
+            }
+        });
+    </script>
 </BaseLayout>
