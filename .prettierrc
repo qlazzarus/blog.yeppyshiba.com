@@ -6,17 +6,28 @@
     "importOrder": [
         "<THIRD_PARTY_MODULES>",
         "^@/components/(.*)$",
-        "^@/hooks/(.*)$",
-        "^@/libraries/(.*)$",
-        "^@/providers/(.*)$",
-        "^@/utils/(.*)$",
+        "^@/layouts/(.*)$",
+        "^@/styles/(.*)$",
         "^[./]"
     ],
     "importOrderSeparation": true,
     "importOrderSortSpecifiers": true,
     "jsxSingleQuote": true,
-    "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-sort-json"],
-    "printWidth": 100,
+    "overrides": [
+        {
+            "files": "*.astro",
+            "options": {
+                "parser": "astro"
+            }
+        }
+    ],
+    "plugins": [
+        "@trivago/prettier-plugin-sort-imports",
+        "prettier-plugin-sort-json",
+        "prettier-plugin-astro",
+        "prettier-plugin-tailwindcss"
+    ],
+    "printWidth": 88,
     "semi": true,
     "singleQuote": true,
     "tabWidth": 4,

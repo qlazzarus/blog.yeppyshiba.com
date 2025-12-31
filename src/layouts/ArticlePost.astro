@@ -1,0 +1,88 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FormattedDate from '@/components/FormattedDate.astro';
+
+type ArticleProps = CollectionEntry<'blog'>['data'];
+
+// accept prev/next from page
+const { title, summary, date, image, tags, prevPost, nextPost } =
+    Astro.props as ArticleProps & {
+        prevPost?: { slug: string; title: string } | null;
+        nextPost?: { slug: string; title: string } | null;
+    };
+
+export interface Props extends ArticleProps {
+    prevPost?: { slug: string; title: string } | null;
+    nextPost?: { slug: string; title: string } | null;
+}
+---
+
+<BaseLayout title={title} description={summary}>
+    <div>
+        <header>
+            <h1 class='mb-2 text-3xl font-bold tracking-tight'>{title}</h1>
+            <div class='text-muted-foreground mb-2 text-sm'>
+                <FormattedDate date={date} />
+            </div>
+            <div class='mb-2 flex flex-wrap gap-2'>
+                {
+                    tags?.slice(0, 5).map((tag) => (
+                        <a
+                            href={`/tag/${tag}`}
+                            class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-sm'
+                        >
+                            {tag}
+                        </a>
+                    ))
+                }
+            </div>
+            {
+                image && (
+                    <div class='my-6 overflow-hidden rounded-lg shadow-lg'>
+                        <Image width={1020} height={510} src={image} alt='' />
+                    </div>
+                )
+            }
+        </header>
+    </div>
+    <hr />
+    <div class='prose-xl dark:prose-invert mx-auto my-4'>
+        <slot />
+    </div>
+    <hr />
+    <div class='mx-auto w-full max-w-5xl p-2'>
+        <div class='flex flex-wrap items-center justify-between gap-2'>
+            {
+                prevPost ? (
+                    <a
+                        href={`/article/${prevPost.slug}`}
+                        class='rounded border px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800'
+                    >
+                        ← {prevPost.title}
+                    </a>
+                ) : (
+                    <div />
+                )
+            }
+
+            {
+                nextPost ? (
+                    <a
+                        href={`/article/${nextPost.slug}`}
+                        class='ml-auto rounded border px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800'
+                    >
+                        {nextPost.title} →
+                    </a>
+                ) : (
+                    <div />
+                )
+            }
+        </div>
+    </div>
+
+    <aside class='hidden lg:block'>
+        <nav id='toc' class='prose sticky top-24'></nav>
+    </aside>
+</BaseLayout>

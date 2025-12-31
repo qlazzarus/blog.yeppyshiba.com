@@ -1,0 +1,24 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang='en'>
+    <head>
+        <BaseHead title={title} description={description} />
+        <style>
+            html,
+            body,
+            #app-map-root {
+                height: 100%;
+            }
+            body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <slot />
+    </body>
+</html>

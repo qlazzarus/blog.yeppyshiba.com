@@ -1,0 +1,131 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import { SITE_LANG } from '@/consts';
+import '@/styles/global.css';
+
+const { title, description } = Astro.props;
+---
+
+<html lang={SITE_LANG}>
+    <head>
+        <BaseHead title={title} description={description} />
+        <script is:inline>
+            // Early theme init to prevent flash (FOUC)
+            (function () {
+                try {
+                    const saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
+                    const prefersDark = window.matchMedia(
+                        '(prefers-color-scheme: dark)',
+                    ).matches;
+                    const theme = saved || (prefersDark ? 'dark' : 'light');
+                    const root = document.documentElement;
+                    if (theme === 'dark') root.classList.add('dark');
+                    else root.classList.remove('dark');
+                } catch {}
+            })();
+        </script>
+        <!-- ✅ Google tag (gtag.js) -->
+        <script async src='https://www.googletagmanager.com/gtag/js?id=G-P6NE4VJRLC'
+        ></script>
+        <script is:inline>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-P6NE4VJRLC');
+        </script>
+    </head>
+
+    <body
+        class='bg-bg text-fg flex min-h-screen flex-col transition-colors duration-150'
+    >
+        <Header />
+        <main class='container mx-auto max-w-5xl flex-1 px-4 py-8'>
+            <slot />
+        </main>
+        <Footer />
+
+        <script type='module'>
+            // Build a simple TOC from h2/h3 in the article content
+            document.addEventListener('DOMContentLoaded', () => {
+                const content = document.querySelector('article .prose');
+                const tocEl = document.getElementById('toc');
+                if (!content || !tocEl) return;
+                const headings = content.querySelectorAll('h2, h3');
+                if (!headings.length) return;
+                const ul = document.createElement('ul');
+                headings.forEach((h) => {
+                    if (!h.id) {
+                        h.id = h.textContent
+                            .trim()
+                            .toLowerCase()
+                            .replace(/\s+/g, '-')
+                            .replace(/[^\w-]/g, '');
+                    }
+                    const li = document.createElement('li');
+                    if (h.tagName.toLowerCase() === 'h3') li.className = 'ml-4';
+                    const a = document.createElement('a');
+                    a.href = `#${h.id}`;
+                    a.textContent = h.textContent;
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                tocEl.appendChild(ul);
+
+                // Initialize highlight.js on code blocks
+                if (window.hljs) {
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            });
+        </script>
+        <script is:inline>
+            (function () {
+                const root = document.documentElement;
+                const btn = document.getElementById('theme-toggle');
+                const label = document.getElementById('theme-label');
+
+                function currentIsDark() {
+                    return root.classList.contains('dark');
+                }
+                function setTheme(dark) {
+                    if (dark) root.classList.add('dark');
+                    else root.classList.remove('dark');
+                    try {
+                        localStorage.setItem('theme', dark ? 'dark' : 'light');
+                    } catch {}
+                    updateLabel();
+                }
+                function updateLabel() {
+                    if (!label) return;
+                    if (currentIsDark()) {
+                        label.textContent = '🌙 Dark';
+                    } else {
+                        label.textContent = '🌞 Light';
+                    }
+                }
+
+                // initialize label on load
+                updateLabel();
+
+                btn?.addEventListener('click', () => setTheme(!currentIsDark()));
+
+                // Optional: keep in sync if user changes OS theme and no explicit preference saved
+                try {
+                    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+                    mq.addEventListener?.('change', (e) => {
+                        const saved = localStorage.getItem('theme');
+                        if (!saved) {
+                            // only follow system if user hasn't chosen
+                            setTheme(!!e.matches);
+                        }
+                    });
+                } catch {}
+            })();
+        </script>
+    </body>
+</html>

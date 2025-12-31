@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import { slugify } from 'transliteration';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Footer from '@/components/Footer.astro';
+
+const posts = await getCollection('blog');
+
+// build counts per slug, and keep a display label for each slug
+const counts: Record<string, number> = {};
+const labels: Record<string, string> = {};
+posts.forEach((p) => {
+    const tags = p.data.tags ?? [];
+    tags.forEach((t) => {
+        const key = slugify(t);
+        counts[key] = (counts[key] || 0) + 1;
+        if (!labels[key]) labels[key] = String(t);
+    });
+});
+
+const tagEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+const title = 'Tag Cloud';
+const description = 'Explore tags used in posts';
+
+// helper: map count to a 1..9 weight
+const mapCountToWeight = (count: number, min: number, max: number) => {
+    if (max === min) return 5;
+    return Math.round(1 + ((count - min) * (9 - 1)) / (max - min));
+};
+
+const getColorByIndex = (idx: number) => {
+    if (idx % 4 === 1) return '#c38';
+    if (idx % 3 === 1) return '#33a';
+    if (idx % 2 === 1) return '#181';
+    return '#a33';
+};
+
+const countsOnly = tagEntries.map(([, c]) => c);
+const maxCount = countsOnly.length ? Math.max(...countsOnly) : 0;
+const minCount = countsOnly.length ? Math.min(...countsOnly) : 0;
+---
+
+<BaseLayout title={title} description={description}>
+    <section>
+        <h1 class='mb-4 text-center text-3xl font-bold'>Tag Cloud</h1>
+
+        {
+            tagEntries.length === 0 ? (
+                <p class='text-center'>No tags found.</p>
+            ) : (
+                <ul class='flex flex-wrap items-center justify-center gap-2'>
+                    {tagEntries.map(([slug, count], idx) => {
+                        const label = labels[slug] ?? slug;
+                        const weight = mapCountToWeight(count, minCount, maxCount);
+                        const color = getColorByIndex(idx);
+                        const fontSize = `${0.6 + weight * 0.12}rem`;
+                        return (
+                            <li class='mx-1 my-1'>
+                                <a
+                                    href={`/tag/${slug}`}
+                                    class='inline-block px-1.5 py-0.5 transition-all'
+                                    style={{ color, fontSize }}
+                                    aria-label={`${label} (${count})`}
+                                >
+                                    {label}
+                                </a>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )
+        }
+    </section>
+</BaseLayout>

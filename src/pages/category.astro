@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const posts = await getCollection('blog');
+
+// build map of category -> count
+const counts: Record<string, number> = {};
+posts.forEach((p) => {
+    const c = p.data.category;
+    if (!c) return;
+    counts[c] = (counts[c] || 0) + 1;
+});
+
+const categories = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+const title = 'Categories';
+const description = 'Browse categories';
+---
+
+<BaseLayout title={title} description={description}>
+    <section>
+        <h1 class='mb-4 text-center text-3xl font-bold'>Categories</h1>
+
+        {
+            categories.length === 0 ? (
+                <p>No categories found.</p>
+            ) : (
+                <ul class='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                    {categories.map(([cat, count]) => (
+                        <li class='rounded border p-3 hover:shadow'>
+                            <a
+                                href={`/category/${cat}`}
+                                class='flex items-center justify-between'
+                            >
+                                <span class='text-lg capitalize'>{cat}</span>
+                                <span class='text-muted-foreground text-sm'>
+                                    ({count})
+                                </span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            )
+        }
+    </section>
+</BaseLayout>

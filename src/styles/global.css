@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    /* Light theme - Warm bar atmosphere (refined) */
+    --background: oklch(0.98 0.01 60);
+    --foreground: oklch(0.16 0.02 35);
+
+    --card: oklch(1 0 0);
+    --card-foreground: var(--foreground);
+
+    --popover: oklch(1 0 0);
+    --popover-foreground: var(--foreground);
+
+    /* ✅ NEW: Primary = caramel/whisky amber (less orange, more premium) */
+    --primary: oklch(0.62 0.12 52);
+    --primary-foreground: oklch(0.985 0.01 60);
+
+    /* ✅ NEW: Secondary = warm sand (good for subtle surfaces) */
+    --secondary: oklch(0.945 0.02 70);
+    --secondary-foreground: oklch(0.26 0.03 40);
+
+    /* ✅ NEW: Muted = warm gray surface */
+    --muted: oklch(0.955 0.012 65);
+    /* ✅ NEW: Muted text = readable, not muddy */
+    --muted-foreground: oklch(0.5 0.02 55);
+
+    /* Accent: keep close to primary but slightly darker/neutral */
+    --accent: oklch(0.92 0.03 60);
+    --accent-foreground: oklch(0.26 0.03 40);
+
+    --destructive: oklch(0.62 0.18 25);
+    --destructive-foreground: oklch(0.98 0.01 60);
+
+    --border: oklch(0.89 0.015 65);
+    --input: oklch(0.955 0.012 65);
+    --ring: var(--primary);
+
+    /* Fonts */
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+.dark {
+    /* Dark theme - Cozy bar lighting (refined) */
+    --background: oklch(0.085 0.02 30);
+    --foreground: oklch(0.92 0.01 60);
+
+    --card: oklch(0.12 0.02 35);
+    --card-foreground: var(--foreground);
+
+    --popover: oklch(0.11 0.02 32);
+    --popover-foreground: var(--foreground);
+
+    /* ✅ NEW: Primary in dark = glowing amber (not neon) */
+    --primary: oklch(0.72 0.12 55);
+    --primary-foreground: oklch(0.1 0.02 30);
+
+    /* ✅ NEW: Secondary = deep warm surface */
+    --secondary: oklch(0.16 0.02 38);
+    --secondary-foreground: oklch(0.86 0.01 55);
+
+    /* ✅ NEW: Muted surfaces = slightly lifted from background */
+    --muted: oklch(0.2 0.02 38);
+    --muted-foreground: oklch(0.7 0.02 55);
+
+    --accent: oklch(0.24 0.03 45);
+    --accent-foreground: oklch(0.88 0.01 55);
+
+    --destructive: oklch(0.62 0.18 25);
+    --destructive-foreground: oklch(0.92 0.01 60);
+
+    --border: oklch(0.26 0.02 40);
+    --input: oklch(0.2 0.02 38);
+    --ring: var(--primary);
+}
+
+@theme inline {
+    /* Map CSS variables to Tailwind tokens */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}

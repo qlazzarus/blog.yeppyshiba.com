@@ -1,0 +1,139 @@
+---
+// Client-side Kakao map initializer. Renders a map into the container div below and
+// creates markers with mouseover custom overlays and click navigation to posts.
+const { markers = [] } = Astro.props;
+
+// resolve api key from common env names
+const KAKAO_KEY =
+    import.meta.env.PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.KAKAO_MAP_API_KEY ||
+    '';
+const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
+---
+
+<div
+    id={id}
+    style='width:100%; min-height:100vh; position:relative'
+    data-map={JSON.stringify({ markers, KAKAO_KEY })}
+>
+</div>
+
+<script is:inline>
+    (function () {
+        const el = document.querySelector('div[data-map]');
+        if (!el) return;
+
+        let data = {};
+        try {
+            data = JSON.parse(el.getAttribute('data-map') || '{}');
+        } catch (e) {
+            console.error('Failed to parse map data', e);
+            return;
+        }
+
+        const markers = data.markers || [];
+        const KAKAO_KEY = data.KAKAO_KEY || '';
+        const containerId = el.id;
+
+        if (!KAKAO_KEY) {
+            console.warn(
+                'Kakao map API key not provided. Set PUBLIC_KAKAO_MAP_API_KEY.',
+            );
+            return;
+        }
+
+        if (typeof window === 'undefined') return;
+
+        const script = document.createElement('script');
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=clusterer&autoload=false`;
+        script.async = true;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+            if (!window.kakao) return;
+            window.kakao.maps.load(() => {
+                initMap();
+            });
+        };
+
+        function initMap() {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (!markers || markers.length === 0) {
+                el.innerHTML =
+                    '<p style="text-align:center;padding:1rem">No markers available.</p>';
+                return;
+            }
+
+            const kakao = window.kakao;
+            const first = markers[0];
+            const map = new kakao.maps.Map(el, {
+                center: new kakao.maps.LatLng(first.lat, first.lng),
+                level: 3,
+            });
+
+            const bounds = new kakao.maps.LatLngBounds();
+
+            markers.forEach((item) => {
+                const pos = new kakao.maps.LatLng(item.lat, item.lng);
+                const marker = new kakao.maps.Marker({ position: pos });
+                marker.setMap(map);
+                bounds.extend(pos);
+
+                let overlay = null;
+                if (item.image) {
+                    const content = document.createElement('div');
+                    content.style.border = '1px solid rgba(0,0,0,0.1)';
+                    content.style.background = '#fff';
+                    content.style.padding = '6px';
+                    content.style.width = '140px';
+                    content.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+
+                    const img = document.createElement('img');
+                    img.src = item.image;
+                    img.style.width = '100%';
+                    img.style.display = 'block';
+                    img.style.objectFit = 'cover';
+                    content.appendChild(img);
+
+                    if (item.title) {
+                        const t = document.createElement('div');
+                        t.textContent = item.title;
+                        t.style.fontSize = '12px';
+                        t.style.paddingTop = '6px';
+                        t.style.display = '-webkit-box';
+                        t.style.webkitLineClamp = '2';
+                        t.style.webkitBoxOrient = 'vertical';
+                        t.style.overflow = 'hidden';
+                        t.style.textOverflow = 'ellipsis';
+                        t.style.wordBreak = 'break-word';
+                        content.appendChild(t);
+                    }
+
+                    overlay = new kakao.maps.CustomOverlay({
+                        content,
+                        position: pos,
+                        yAnchor: 1.25,
+                    });
+                }
+
+                kakao.maps.event.addListener(marker, 'mouseover', () => {
+                    if (overlay) overlay.setMap(map);
+                });
+                kakao.maps.event.addListener(marker, 'mouseout', () => {
+                    if (overlay) overlay.setMap(null);
+                });
+                kakao.maps.event.addListener(marker, 'click', () => {
+                    try {
+                        window.location.href = `/article/${item.slug}`;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
+            });
+
+            if (!bounds.isEmpty()) map.setBounds(bounds);
+        }
+    })();
+</script>
