@@ -1,4 +1,3 @@
-// 간단화한 예시 (사용하던 코드 기반)
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import fs from 'fs';
 import path from 'path';

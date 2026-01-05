@@ -9,6 +9,21 @@ interface Props {
 }
 
 const { entries = [], basePath = '/article' }: Props = Astro.props;
+
+// GA page views (generated at build time). If the file doesn't exist, treat as empty.
+type GaView = { path: string; totalCount: string };
+let gaViews: GaView[] = [];
+try {
+    gaViews = ((await import('../data/ga-views.json')).default ?? []) as GaView[];
+} catch {
+    gaViews = [];
+}
+
+const viewMap = new Map<string, number>(
+    gaViews.map((v) => [v.path, Number(v.totalCount) || 0]),
+);
+
+const getViewCount = (postId: string) => viewMap.get(`${basePath}/${postId}`) ?? 0;
 ---
 
 <div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -65,8 +80,13 @@ const { entries = [], basePath = '/article' }: Props = Astro.props;
                             ))}
                         </div>
 
-                        <div class='text-muted-foreground text-right text-xs'>
-                            <FormattedDate date={post.data.date} />
+                        <div class='text-muted-foreground flex items-center justify-between text-xs'>
+                            <span aria-label='views'>
+                                👀 {getViewCount(post.id).toLocaleString()}
+                            </span>
+                            <span class='text-right'>
+                                <FormattedDate date={post.data.date} />
+                            </span>
                         </div>
                     </div>
                 </div>
