@@ -1,0 +1,271 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FormattedDate from '@/components/FormattedDate.astro';
+
+type ArticleProps = CollectionEntry<'blog'>['data'];
+
+// accept prev/next from page
+const { title, summary, date, image, tags, prevPost, nextPost } =
+    Astro.props as ArticleProps & {
+        prevPost?: { slug: string; title: string } | null;
+        nextPost?: { slug: string; title: string } | null;
+    };
+
+export interface Props extends ArticleProps {
+    prevPost?: { slug: string; title: string } | null;
+    nextPost?: { slug: string; title: string } | null;
+}
+---
+
+<BaseLayout title={title} description={summary}>
+    <div>
+        <header>
+            <h1 class='mb-2 text-3xl font-bold tracking-tight'>{title}</h1>
+            <div class='text-muted-foreground mb-2 text-sm'>
+                <FormattedDate date={date} />
+            </div>
+            <div class='mb-2 flex flex-wrap gap-2'>
+                {
+                    tags?.slice(0, 5).map((tag) => (
+                        <a
+                            href={`/tag/${tag}`}
+                            class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-sm'
+                        >
+                            {tag}
+                        </a>
+                    ))
+                }
+            </div>
+            {
+                image && (
+                    <div class='my-6 overflow-hidden rounded-lg shadow-lg'>
+                        <Image width={1020} height={510} src={image} alt='' />
+                    </div>
+                )
+            }
+        </header>
+    </div>
+    <hr />
+    <aside class='hidden lg:block'>
+        <nav
+            id='toc'
+            class='prose fixed top-20 right-6 z-40 max-h-[70vh] w-64 overflow-auto rounded border border-gray-200 bg-white/70 p-4 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/60'
+        >
+        </nav>
+    </aside>
+    <div class='prose-xl dark:prose-invert mx-auto my-4'>
+        <slot />
+    </div>
+    <hr />
+    <div class='mx-auto w-full max-w-5xl p-2'>
+        <div class='flex flex-wrap items-center justify-between gap-2'>
+            {
+                prevPost ? (
+                    <a
+                        href={`/article/${prevPost.slug}`}
+                        class='rounded border px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800'
+                    >
+                        ← {prevPost.title}
+                    </a>
+                ) : (
+                    <div />
+                )
+            }
+
+            {
+                nextPost ? (
+                    <a
+                        href={`/article/${nextPost.slug}`}
+                        class='ml-auto rounded border px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800'
+                    >
+                        {nextPost.title} →
+                    </a>
+                ) : (
+                    <div />
+                )
+            }
+        </div>
+    </div>
+    <script type='module'>
+        function getFootnoteHtml(targetId) {
+            const li = document.getElementById(targetId);
+            if (!li) return null;
+
+            // "↩" 백링크 제거(선택)
+            const clone = li.cloneNode(true);
+            clone.querySelectorAll('a[href^="#"]').forEach((a) => a.remove());
+
+            // 각주 항목은 보통 <li><p>...</p></li>
+            return clone.innerHTML;
+        }
+
+        document.addEventListener('click', (e) => {
+            const a =
+                e.target instanceof Element
+                    ? e.target.closest('sup a[href^="#"]')
+                    : null;
+            if (!a) return;
+
+            // 기본 점프 이동 방지
+            e.preventDefault();
+
+            const href = a.getAttribute('href'); // e.g. "#fn1"
+            if (!href) return;
+
+            const targetId = href.slice(1);
+            const html = getFootnoteHtml(targetId);
+            if (!html) return;
+
+            const dialog = document.getElementById('footnote-modal');
+            const body = document.getElementById('footnote-modal-body');
+            if (!(dialog instanceof HTMLDialogElement) || !body) return;
+
+            body.innerHTML = html;
+            dialog.showModal();
+        });
+
+        // 닫기 버튼/배경 클릭 닫기
+        document.addEventListener('click', (e) => {
+            const dialog = document.getElementById('footnote-modal');
+            if (!(dialog instanceof HTMLDialogElement)) return;
+
+            const target = e.target;
+            if (!(target instanceof Element)) return;
+
+            if (target.matches('#footnote-modal') || target.closest('[data-close]')) {
+                dialog.close();
+            }
+        });
+
+        // ESC 닫기 시 내용 비우기(선택)
+        document.addEventListener(
+            'close',
+            () => {
+                const body = document.getElementById('footnote-modal-body');
+                if (body) body.innerHTML = '';
+            },
+            true,
+        );
+    </script>
+    <script type='module'>
+        // Build an improved TOC from headings inside the article prose.
+        document.addEventListener('DOMContentLoaded', () => {
+            const content =
+                document.querySelector('main .prose-xl') ||
+                document.querySelector('.prose-xl');
+            const tocEl = document.getElementById('toc');
+            if (!content || !tocEl) return;
+
+            // Clear any existing TOC
+            tocEl.innerHTML = '';
+
+            // exclude headings that are inside footnotes (hidden) so TOC doesn't pick them up
+            let headings = Array.from(content.querySelectorAll('h2, h3, h4')).filter(
+                (h) => !h.closest('.footnotes'),
+            );
+            if (!headings.length) return;
+
+            function slugify(text) {
+                return text
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w-]/g, '');
+            }
+
+            const rootUl = document.createElement('ul');
+            rootUl.className = 'space-y-1';
+
+            // Simple nested list builder based on heading level
+            let stack = [{ level: 2, el: rootUl }];
+
+            headings.forEach((h) => {
+                if (!h.textContent) return;
+                if (!h.id) h.id = slugify(h.textContent);
+
+                const level = Number(h.tagName.slice(1));
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${h.id}`;
+                a.textContent = h.textContent;
+                a.className =
+                    'text-sm text-muted-foreground hover:text-foreground hover:underline block';
+                a.dataset.target = h.id;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (h.id) {
+                        const target = document.getElementById(h.id);
+                        if (target)
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                            });
+                        // update hash without jumping
+                        history.replaceState(null, '', `#${h.id}`);
+                    }
+                });
+                li.appendChild(a);
+
+                // find appropriate parent in stack
+                let parent = stack[0];
+                if (level > parent.level) {
+                    // create nested list under previous li
+                    const lastLi = parent.el.lastElementChild;
+                    const newUl = document.createElement('ul');
+                    newUl.className = 'ml-4 space-y-1';
+                    if (lastLi) lastLi.appendChild(newUl);
+                    stack.unshift({ level, el: newUl });
+                    parent = stack[0];
+                } else {
+                    while (stack.length && level < stack[0].level) stack.shift();
+                    parent = stack[0] || { level, el: rootUl };
+                    if (level > parent.level) {
+                        const newUl = document.createElement('ul');
+                        newUl.className = 'ml-4 space-y-1';
+                        parent.el.appendChild(newUl);
+                        stack.unshift({ level, el: newUl });
+                        parent = stack[0];
+                    }
+                }
+
+                parent.el.appendChild(li);
+            });
+
+            tocEl.appendChild(rootUl);
+
+            // observe headings to mark active TOC item
+            const links = Array.from(tocEl.querySelectorAll('a[data-target]'));
+            const idToLink = new Map();
+            links.forEach((l) => idToLink.set(l.dataset.target || '', l));
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const id = entry.target.id;
+                        const link = idToLink.get(id);
+                        if (!link) return;
+                        if (entry.isIntersecting) {
+                            // clear others
+                            links.forEach((ln) =>
+                                ln.classList.remove('font-semibold', 'text-foreground'),
+                            );
+                            link.classList.add('font-semibold', 'text-foreground');
+                        }
+                    });
+                },
+                { root: null, rootMargin: '0px 0px -60% 0px', threshold: 0 },
+            );
+
+            headings.forEach((h) => observer.observe(h));
+
+            // Initialize highlight.js on code blocks
+            if (window.hljs) {
+                document.querySelectorAll('pre code').forEach((block) => {
+                    window.hljs.highlightElement(block);
+                });
+            }
+        });
+    </script>
+</BaseLayout>

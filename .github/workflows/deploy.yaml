@@ -1,0 +1,63 @@
+name: Deploy Astro site to GitHub Pages
+
+on:
+    push:
+        branches:
+            - main # main에 push될 때마다 실행
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+concurrency:
+    group: 'pages'
+    cancel-in-progress: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Fetch GA page views
+              run: npm run ga:fetch
+              env:
+                  ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+                  ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+
+            - name: Build
+              run: npm run build
+              env:
+                  ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+                  ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+                  NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.GATSBY_KAKAO_API }}
+                  NEXT_PUBLIC_KAKAO_API: ${{ secrets.GATSBY_KAKAO_REST_API }}
+                  NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+                  NEXT_PUBLIC_GTAG: ${{ secrets.NEXT_PUBLIC_GTAG }}
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: ./dist
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

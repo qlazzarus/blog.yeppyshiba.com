@@ -1,0 +1,76 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+    entries?: CollectionEntry<'blog'>[];
+    basePath?: string;
+}
+
+const { entries = [], basePath = '/article' }: Props = Astro.props;
+---
+
+<div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+    {
+        entries.map((post) => (
+            <article class='bg-card overflow-hidden rounded-lg border shadow-sm'>
+                <a
+                    href={`${basePath}/${post.id}`}
+                    class='relative block aspect-video w-full overflow-hidden'
+                >
+                    {post.data.image ? (
+                        <img
+                            src={post.data.image}
+                            alt={post.data.title || 'image'}
+                            class='absolute inset-0 h-full w-full object-cover'
+                            sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
+                        />
+                    ) : (
+                        <div
+                            class='w-full'
+                            style='padding-top:56.25%; background:#e5e7eb'
+                        />
+                    )}
+                </a>
+
+                <div class='p-4'>
+                    {post.data.category && (
+                        <div class='text-muted-foreground mb-2 rounded text-xs capitalize'>
+                            <a href={`/category/${post.data.category}`}>
+                                {post.data.category}
+                            </a>
+                        </div>
+                    )}
+
+                    <h3 class='mb-1 text-lg font-semibold'>
+                        <a href={`${basePath}/${post.id}`} class='hover:underline'>
+                            {post.data.title}
+                        </a>
+                    </h3>
+
+                    <p class='text-muted-foreground mb-3 text-sm'>
+                        {post.data.summary}
+                    </p>
+
+                    <div>
+                        <div class='mb-2 flex flex-wrap gap-2'>
+                            {post.data.tags?.slice(0, 5).map((tag) => (
+                                <a
+                                    href={`/tag/${tag}`}
+                                    class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-xs'
+                                >
+                                    {tag}
+                                </a>
+                            ))}
+                        </div>
+
+                        <div class='text-muted-foreground text-right text-xs'>
+                            <FormattedDate date={post.data.date} />
+                        </div>
+                    </div>
+                </div>
+            </article>
+        ))
+    }
+</div>

@@ -1,0 +1,55 @@
+---
+const {
+    currentPage,
+    totalPages,
+    basePath = '/page',
+    firstPagePath = '/',
+} = Astro.props;
+---
+
+<nav
+    class='mt-6 flex flex-wrap items-center justify-center gap-2'
+    aria-label='Pagination'
+>
+    {
+        currentPage > 1 && (
+            <a
+                class='bg-secondary rounded px-3 py-1'
+                href={
+                    currentPage === 2 ? firstPagePath : `${basePath}/${currentPage - 1}`
+                }
+                rel='prev'
+            >
+                Previous
+            </a>
+        )
+    }
+
+    {
+        Array.from({ length: totalPages }).map((_, i) => {
+            const idx = i + 1;
+            const href = idx === 1 ? firstPagePath : `${basePath}/${idx}`;
+            return (
+                <a
+                    class={`rounded px-3 py-1 ${idx === currentPage ? 'bg-primary text-white' : 'bg-secondary'}`}
+                    href={href}
+                    aria-current={idx === currentPage ? 'page' : undefined}
+                >
+                    {idx}
+                </a>
+            );
+        })
+    }
+
+    {
+        currentPage < totalPages && (
+            <a
+                class='bg-secondary rounded px-3 py-1'
+                href={`${basePath}/${currentPage + 1}`}
+                rel='next'
+            >
+                Next
+            </a>
+        )
+    }
+</nav>

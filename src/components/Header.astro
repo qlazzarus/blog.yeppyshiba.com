@@ -1,0 +1,130 @@
+---
+import { SITE_TITLE } from '@/consts';
+
+const MENU = [
+    { href: '/', label: 'Home', icon: '📰' },
+    { href: '/about', label: 'About', icon: 'ℹ️' },
+    { href: '/category', label: 'Categories', icon: '🧰' },
+    { href: '/tag', label: 'Tags', icon: '🚩' },
+    { href: '/map', label: 'Map', icon: '🧭' },
+];
+
+function isActive(href: string) {
+    const p = Astro.url.pathname;
+    if (href === '/')
+        return p === '/' || p.startsWith('/tag/') || /^\/(ko|en)\/[0-9]{4}\//.test(p);
+    return p === href || p.startsWith(href);
+}
+---
+
+<header
+    class='border-border bg-background/85 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-40 border-b backdrop-blur'
+>
+    <nav class='mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3'>
+        <!-- Brand -->
+        <a
+            href='/'
+            aria-label='Home'
+            class='text-foreground font-semibold tracking-tight whitespace-nowrap'
+        >
+            {SITE_TITLE}
+        </a>
+
+        <!-- Desktop menu -->
+        <ul class='hidden items-center gap-6 md:flex'>
+            {
+                MENU.map((m) => (
+                    <li>
+                        <a
+                            href={m.href}
+                            aria-current={isActive(m.href) ? 'page' : undefined}
+                            class:list={[
+                                'border-b-2 px-1 py-2 text-sm transition-colors',
+                                isActive(m.href)
+                                    ? 'border-primary text-foreground font-medium'
+                                    : 'text-muted-foreground hover:text-foreground hover:border-border border-transparent',
+                            ]}
+                        >
+                            {m.label}
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+
+        <!-- Controls -->
+        <div class='flex items-center gap-2'>
+            <!-- Theme toggle -->
+            <button
+                id='theme-toggle'
+                type='button'
+                class='border-border bg-muted text-foreground hover:bg-muted/80 inline-flex items-center gap-2 rounded-md border px-3 py-3 text-sm transition-colors'
+                aria-label='Toggle dark mode'
+            >
+                <span id='theme-label' class='text-xs'>🌙</span>
+                <span class='sr-only'>Toggle theme</span>
+            </button>
+
+            <!-- Mobile menu button -->
+            <button
+                id='menu-toggle'
+                type='button'
+                class='border-border bg-muted text-foreground hover:bg-muted/80 inline-flex items-center justify-center rounded-md border p-2 px-4 transition-colors md:hidden'
+                aria-controls='mobile-menu'
+                aria-expanded='false'
+                aria-label='Open menu'
+            >
+                <span aria-hidden='true'>☰</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile menu panel -->
+    <div id='mobile-menu' class='border-border hidden border-t md:hidden'>
+        <div class='mx-auto max-w-5xl px-4 py-3'>
+            <ul class='grid gap-2'>
+                {
+                    MENU.map((m) => (
+                        <li>
+                            <a
+                                href={m.href}
+                                aria-current={isActive(m.href) ? 'page' : undefined}
+                                class:list={[
+                                    'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+                                    isActive(m.href)
+                                        ? 'border-primary bg-accent text-foreground'
+                                        : 'border-border bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                                ]}
+                            >
+                                {m.icon && <span aria-hidden='true'>{m.icon}</span>}
+                                <span>{m.label}</span>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- No-framework menu toggle script -->
+    <script is:inline>
+        const btn = document.getElementById('menu-toggle');
+        const panel = document.getElementById('mobile-menu');
+
+        if (btn && panel) {
+            btn.addEventListener('click', () => {
+                const isOpen = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!isOpen));
+                panel.classList.toggle('hidden', isOpen);
+            });
+
+            // Close on route change via link click (simple UX)
+            panel.querySelectorAll('a').forEach((a) => {
+                a.addEventListener('click', () => {
+                    btn.setAttribute('aria-expanded', 'false');
+                    panel.classList.add('hidden');
+                });
+            });
+        }
+    </script>
+</header>

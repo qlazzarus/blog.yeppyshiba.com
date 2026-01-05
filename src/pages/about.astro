@@ -1,0 +1,111 @@
+---
+import Layout from '@/layouts/BaseLayout.astro';
+
+const name = 'Yeppyshiba';
+const position = 'Full-stack Developer';
+const profileImage = '/images/profile-yeppyshiba.png';
+const summary = `안녕하세요, ${name} 입니다. 주로 웹 개발과 3D 프린팅, 그리고 다양한 기술 스택에 관심이 있습니다. 이 블로그는 제가 개발하면서 배운 점들을 공유하고, 다른 분들과 소통하기 위해 운영하고 있습니다.`;
+const skills = [
+    'Phaser',
+    'Laravel',
+    'Spring Boot',
+    'NextJS',
+    'React',
+    'React Native',
+    'PHP',
+    'TypeScript',
+    '3D Printing',
+];
+
+const social = {
+    github: 'https://github.com/qlazzarus',
+    linkedin: 'https://www.linkedin.com/in/yeppyshiba/',
+    instagram: 'https://www.instagram.com/yeppyshiba',
+    rocketpunch: 'https://www.rocketpunch.com/@yeppyshiba',
+};
+---
+
+<Layout title={`About ${name}`} description={`About ${name} - ${position}`}>
+    <section class='flex justify-center py-8'>
+        <div class='w-full max-w-2xl px-4'>
+            <div class='bg-card border-border rounded-lg border p-6'>
+                <div class='flex flex-col items-center'>
+                    <img
+                        src={profileImage}
+                        alt={name}
+                        class='h-32 w-32 rounded-full object-cover'
+                    />
+                    <h1 class='mt-4 text-2xl font-semibold'>{name}</h1>
+                    <p class='text-muted-foreground mt-1 text-sm'>{position}</p>
+
+                    <p class='mt-4 text-center whitespace-pre-line'>{summary}</p>
+
+                    <div class='mt-4 flex flex-wrap justify-center gap-2'>
+                        {
+                            skills.map((s) => (
+                                <span class='bg-muted-foreground text-muted rounded-full px-3 py-1 text-sm'>
+                                    {s}
+                                </span>
+                            ))
+                        }
+                    </div>
+
+                    <div class='mt-4 flex gap-3'>
+                        <a
+                            href={social.github}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            aria-label='github'
+                        >
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='24'
+                                height='24'
+                                viewBox='0 0 24 24'
+                                fill='currentColor'
+                                class='text-fg opacity-90 hover:opacity-100'
+                            >
+                                <path
+                                    d='M12 .5C5.73.5.75 5.48.75 11.75c0 4.92 3.18 9.09 7.6 10.56.56.1.76-.24.76-.54 0-.27-.01-1-.02-1.96-3.09.67-3.74-1.49-3.74-1.49-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.67.08-.67 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.55 1.18 3.17.9.1-.7.38-1.18.69-1.45-2.47-.28-5.07-1.24-5.07-5.53 0-1.22.44-2.22 1.16-3-.12-.28-.5-1.42.11-2.96 0 0 .95-.3 3.12 1.15a10.8 10.8 0 0 1 2.84-.38c.96 0 1.93.13 2.84.38 2.16-1.45 3.12-1.15 3.12-1.15.61 1.54.23 2.68.11 2.96.72.78 1.16 1.78 1.16 3 0 4.3-2.61 5.25-5.09 5.52.39.34.73 1.02.73 2.06 0 1.48-.01 2.67-.01 3.03 0 .3.2.65.77.54 4.42-1.48 7.6-5.64 7.6-10.56C23.25 5.48 18.27.5 12 .5z'
+                                ></path>
+                            </svg>
+                        </a>
+
+                        <a
+                            href={social.linkedin}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            aria-label='linkedin'
+                        >
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='24'
+                                height='24'
+                                viewBox='0 0 24 24'
+                                fill='currentColor'
+                                class='text-fg opacity-90 hover:opacity-100'
+                            >
+                                <path
+                                    d='M4.98 3.5C3.34 3.5 2 4.84 2 6.48s1.34 2.98 2.98 2.98S7.96 8.12 7.96 6.48 6.62 3.5 4.98 3.5zM2.4 21.5h5.17V9.98H2.4V21.5zM9.6 9.98V21.5h5.17v-6.05c0-3.36 4.05-3.63 4.05 0V21.5H24V13.2c0-6.1-6.05-5.88-8.85-2.88V9.98H9.6z'
+                                ></path>
+                            </svg>
+                        </a>
+
+                        <a
+                            href={social.instagram}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            aria-label='instagram'>📷</a
+                        >
+                        <a
+                            href={social.rocketpunch}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            aria-label='rocket'>🚀</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</Layout>

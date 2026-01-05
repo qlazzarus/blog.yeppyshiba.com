@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import { slugify } from 'transliteration';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EntryGrid from '@/components/EntryGrid.astro';
+import Pagination from '@/components/Pagination.astro';
+import { POSTS_PER_PAGE } from '@/consts';
+
+export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    const tags = new Set<string>();
+    posts.forEach((p) => (p.data.tags ?? []).forEach((t) => tags.add(slugify(t))));
+    return Array.from(tags).map((t) => ({ params: { tag: String(t) } }));
+}
+
+const tag = String(Astro.params.tag);
+const posts = (await getCollection('blog'))
+    .filter((p) => (p.data.tags ?? []).some((t) => slugify(t) === tag))
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+if (!posts.length) throw new Error('Tag not found');
+
+const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+const pagePosts = posts.slice(0, POSTS_PER_PAGE);
+
+// derive display label from first matching tag string
+let label = tag;
+for (const p of posts) {
+    const found = (p.data.tags ?? []).find((t) => slugify(t) === tag);
+    if (found) {
+        label = found;
+        break;
+    }
+}
+
+const title = `Tag: ${label}`;
+const description = `Posts tagged ${label}`;
+---
+
+<BaseLayout title={title} description={description}>
+    <section>
+        <h1 class='mb-4 text-center text-3xl font-bold'>
+            Tag: {label}
+            <span class='text-muted-foreground text-sm'>({posts.length})</span>
+        </h1>
+
+        <EntryGrid entries={pagePosts} basePath='/article' />
+
+        <div class='mt-6'>
+            <Pagination
+                currentPage={1}
+                totalPages={totalPages}
+                basePath={`/tag/${tag}`}
+                firstPagePath={`/tag/${tag}`}
+            />
+        </div>
+    </section>
+</BaseLayout>

@@ -1,0 +1,11 @@
+---
+import { SITE_TITLE } from '@/consts';
+const today = new Date();
+---
+
+<footer class='border-border border-t py-4 text-center'>
+    <small class='text-sm opacity-70'>
+        &copy; 2022-{today.getFullYear()}
+        {SITE_TITLE}. Built with Astro.
+    </small>
+</footer>

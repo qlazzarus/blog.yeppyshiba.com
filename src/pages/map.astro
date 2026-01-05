@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import MapLayout from '@/layouts/MapLayout.astro';
+import MapClient from '@/components/MapClient.astro';
+
+const posts = (await getCollection('blog')).filter((p) => p.data.lat && p.data.lng);
+
+const markers = posts.map((p) => ({
+    lat: Number(p.data.lat),
+    lng: Number(p.data.lng),
+    slug: p.id,
+    image: p.data.image ?? null,
+    title: p.data.title,
+}));
+
+const title = 'Map';
+const description =
+    'Explore posts on an interactive map. Click markers to see more details.';
+---
+
+<MapLayout title={title} description={description}>
+    <div class='relative'>
+        <button
+            type='button'
+            onclick='history.back()'
+            class='bg-muted text-foreground hover:bg-muted/80 absolute top-4 left-4 z-50 inline-flex items-center gap-2 rounded border px-3 py-2 text-sm shadow'
+        >
+            ← 뒤로가기
+        </button>
+
+        <MapClient markers={markers} />
+    </div>
+</MapLayout>

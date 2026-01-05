@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Pagination from '@/components/Pagination.astro';
+import EntryGrid from '@/components/EntryGrid.astro';
+import { POSTS_PER_PAGE } from '@/consts';
+
+export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+    const paths = [];
+    for (let i = 2; i <= totalPages; i++) {
+        paths.push({ params: { page: String(i) } });
+    }
+    return paths;
+}
+
+const page = Number(Astro.params.page);
+const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+
+if (isNaN(page) || page < 1 || page > totalPages) {
+    throw new Error('Page not found');
+}
+
+const start = (page - 1) * POSTS_PER_PAGE;
+const pagePosts = posts.slice(start, start + POSTS_PER_PAGE);
+
+const title = `Page ${page}`;
+const description = `Explore posts on page ${page}`;
+---
+
+<BaseLayout title={title} description={description}>
+    <section>
+        <EntryGrid entries={pagePosts} basePath='/article' />
+        <div class='mt-6'>
+            <Pagination currentPage={page} totalPages={totalPages} basePath='/page' />
+        </div>
+    </section>
+</BaseLayout>

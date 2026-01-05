@@ -1,0 +1,134 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import { SITE_LANG } from '@/consts';
+import '@/styles/global.css';
+
+const { title, description } = Astro.props;
+---
+
+<html lang={SITE_LANG}>
+    <head>
+        <BaseHead title={title} description={description} />
+        <script is:inline>
+            // Early theme init to prevent flash (FOUC)
+            (function () {
+                try {
+                    const saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
+                    const prefersDark = window.matchMedia(
+                        '(prefers-color-scheme: dark)',
+                    ).matches;
+                    const theme = saved || (prefersDark ? 'dark' : 'light');
+                    const root = document.documentElement;
+                    if (theme === 'dark') root.classList.add('dark');
+                    else root.classList.remove('dark');
+                } catch {}
+            })();
+        </script>
+        <!-- ✅ Google tag (gtag.js) -->
+        <script async src='https://www.googletagmanager.com/gtag/js?id=G-P6NE4VJRLC'
+        ></script>
+        <script is:inline>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-P6NE4VJRLC');
+        </script>
+        <style>
+            /* Keep native dialog hidden unless opened to avoid stray renderings */
+            dialog:not([open]) {
+                display: none;
+            }
+            /* When opened, ensure it fills viewport and centers content */
+            dialog[open] {
+                display: flex; /* keep `flex` so items-center / justify-center work */
+            }
+        </style>
+    </head>
+
+    <body
+        class='bg-bg text-fg flex min-h-screen flex-col transition-colors duration-150'
+    >
+        <Header />
+        <main class='container mx-auto max-w-5xl flex-1 px-4 py-8'>
+            <slot />
+        </main>
+        <Footer />
+        <dialog
+            id='footnote-modal'
+            class='fixed inset-0 flex h-full w-full items-center justify-center bg-transparent p-0 backdrop:bg-black/50'
+        >
+            <div
+                class='bg-background text-foreground border-border w-[min(92vw,42rem)] rounded-xl border shadow-xl'
+            >
+                <div
+                    class='border-border flex items-center justify-between border-b px-4 py-3'
+                >
+                    <div class='text-sm font-semibold'>각주</div>
+                    <button
+                        type='button'
+                        data-close
+                        class='text-muted-foreground hover:text-foreground px-2 py-1 text-sm'
+                    >
+                        닫기
+                    </button>
+                </div>
+
+                <div class='px-4 py-4'>
+                    <div
+                        id='footnote-modal-body'
+                        class='prose dark:prose-invert max-w-none'
+                    >
+                    </div>
+                </div>
+            </div>
+        </dialog>
+        <script is:inline>
+            (function () {
+                const root = document.documentElement;
+                const btn = document.getElementById('theme-toggle');
+                const label = document.getElementById('theme-label');
+
+                function currentIsDark() {
+                    return root.classList.contains('dark');
+                }
+                function setTheme(dark) {
+                    if (dark) root.classList.add('dark');
+                    else root.classList.remove('dark');
+                    try {
+                        localStorage.setItem('theme', dark ? 'dark' : 'light');
+                    } catch {}
+                    updateLabel();
+                }
+                function updateLabel() {
+                    if (!label) return;
+                    if (currentIsDark()) {
+                        label.textContent = '🌙 Dark';
+                    } else {
+                        label.textContent = '🌞 Light';
+                    }
+                }
+
+                // initialize label on load
+                updateLabel();
+
+                btn?.addEventListener('click', () => setTheme(!currentIsDark()));
+
+                // Optional: keep in sync if user changes OS theme and no explicit preference saved
+                try {
+                    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+                    mq.addEventListener?.('change', (e) => {
+                        const saved = localStorage.getItem('theme');
+                        if (!saved) {
+                            // only follow system if user hasn't chosen
+                            setTheme(!!e.matches);
+                        }
+                    });
+                } catch {}
+            })();
+        </script>
+    </body>
+</html>
