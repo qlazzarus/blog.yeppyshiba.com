@@ -3,7 +3,10 @@ import { getCollection } from 'astro:content';
 import MapLayout from '@/layouts/MapLayout.astro';
 import MapClient from '@/components/MapClient.astro';
 
-const posts = (await getCollection('blog')).filter((p) => p.data.lat && p.data.lng);
+const posts = (await getCollection('blog'))
+    .filter((p) => p.data.lat && p.data.lng)
+    // 안정적인 정렬(SEO/UX)
+    .sort((a, b) => (b.data.date?.valueOf?.() ?? 0) - (a.data.date?.valueOf?.() ?? 0));
 
 const markers = posts.map((p) => ({
     lat: Number(p.data.lat),
@@ -28,6 +31,51 @@ const description =
             ← 뒤로가기
         </button>
 
+        {/* ✅ 현재 위치: 오른쪽 하단 + 이모지 버튼 */}
+        <button
+            type='button'
+            data-my-location
+            class='bg-background text-foreground hover:bg-muted absolute right-4 bottom-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full border shadow'
+            aria-label='현재 위치로 이동'
+            title='현재 위치로 이동'
+        >
+            📍
+        </button>
+
         <MapClient markers={markers} />
+
+        {/* ✅ 크롤러/SEO용: 지도와 별개로 내부 링크를 노출 */}
+        <section class='hidden'>
+            <h2>지도에 등록된 글 목록</h2>
+            <ul>
+                {
+                    posts.map((p) => (
+                        <li>
+                            <a href={`/article/${p.id}`}>{p.data.title}</a>
+                            <div>
+                                {p.data.date
+                                    ? new Date(p.data.date).toLocaleDateString(
+                                          'ko-KR',
+                                          {
+                                              year: 'numeric',
+                                              month: '2-digit',
+                                              day: '2-digit',
+                                          },
+                                      )
+                                    : ''}
+                                {p.data.parcelAddress}
+                            </div>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            <noscript>
+                <p class='text-muted-foreground mt-3 text-sm'>
+                    현재 브라우저 설정에서 JavaScript가 꺼져 있어 지도는 표시되지
+                    않지만, 위 목록에서 글을 열람할 수 있습니다.
+                </p>
+            </noscript>
+        </section>
     </div>
 </MapLayout>

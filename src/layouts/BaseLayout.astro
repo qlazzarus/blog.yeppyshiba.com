@@ -5,12 +5,12 @@ import Header from '@/components/Header.astro';
 import { SITE_LANG } from '@/consts';
 import '@/styles/global.css';
 
-const { title, description } = Astro.props;
+const { title, description, image } = Astro.props;
 ---
 
 <html lang={SITE_LANG}>
     <head>
-        <BaseHead title={title} description={description} />
+        <BaseHead title={title} description={description} image={image} />
         <script is:inline>
             // Early theme init to prevent flash (FOUC)
             (function () {
@@ -128,6 +128,38 @@ const { title, description } = Astro.props;
                         }
                     });
                 } catch {}
+            })();
+        </script>
+        <script is:inline>
+            (() => {
+                const els = document.querySelectorAll('time.formatted-date[datetime]');
+                const now = new Date();
+
+                const msPerMinute = 1000 * 60;
+                const msPerHour = msPerMinute * 60;
+                const msPerDay = msPerHour * 24;
+                const msPerMonth = msPerDay * 30;
+                const msPerYear = msPerDay * 365;
+
+                const rtf = (value, unit) => `${value}${unit} 전`;
+
+                els.forEach((el) => {
+                    const iso = el.getAttribute('datetime');
+                    if (!iso) return;
+
+                    const then = new Date(iso);
+                    const diffMs = now.getTime() - then.getTime();
+                    if (diffMs >= msPerYear) return;
+
+                    if (diffMs < msPerMinute) el.textContent = '방금 전';
+                    else if (diffMs < msPerHour)
+                        el.textContent = rtf(Math.floor(diffMs / msPerMinute), '분');
+                    else if (diffMs < msPerDay)
+                        el.textContent = rtf(Math.floor(diffMs / msPerHour), '시간');
+                    else if (diffMs < msPerMonth)
+                        el.textContent = rtf(Math.floor(diffMs / msPerDay), '일');
+                    else el.textContent = rtf(Math.floor(diffMs / msPerMonth), '개월');
+                });
             })();
         </script>
     </body>

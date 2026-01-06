@@ -6,7 +6,7 @@ interface Props {
 const { date } = Astro.props;
 ---
 
-<time id='formatted-date' datetime={date.toISOString()}>
+<time class='formatted-date' datetime={date.toISOString()}>
     {
         date.toLocaleDateString('ko-KR', {
             year: 'numeric',
@@ -15,57 +15,3 @@ const { date } = Astro.props;
         })
     }
 </time>
-
-<script is:inline>
-    (function () {
-        const el = document.getElementById('formatted-date');
-        if (!el) return;
-
-        const iso = el.getAttribute('datetime');
-        if (!iso) return;
-
-        const then = new Date(iso);
-        const now = new Date();
-        const diffMs = now - then;
-        const msPerSecond = 1000;
-        const msPerMinute = msPerSecond * 60;
-        const msPerHour = msPerMinute * 60;
-        const msPerDay = msPerHour * 24;
-        const msPerMonth = msPerDay * 30;
-        const msPerYear = msPerDay * 365;
-
-        if (diffMs >= msPerYear) {
-            // leave ISO string as-is for 1 year or more
-            return;
-        }
-
-        const rtf = (value, unit) => `${value}${unit} 전`;
-
-        if (diffMs < msPerMinute) {
-            el.textContent = '방금 전';
-            return;
-        }
-
-        if (diffMs < msPerHour) {
-            const mins = Math.floor(diffMs / msPerMinute);
-            el.textContent = rtf(mins, '분');
-            return;
-        }
-
-        if (diffMs < msPerDay) {
-            const hrs = Math.floor(diffMs / msPerHour);
-            el.textContent = rtf(hrs, '시간');
-            return;
-        }
-
-        if (diffMs < msPerMonth) {
-            const days = Math.floor(diffMs / msPerDay);
-            el.textContent = rtf(days, '일');
-            return;
-        }
-
-        // less than a year -> show months
-        const months = Math.floor(diffMs / msPerMonth);
-        el.textContent = rtf(months, '개월');
-    })();
-</script>
