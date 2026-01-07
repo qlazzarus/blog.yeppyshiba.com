@@ -75,19 +75,17 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
             }
 
             const kakao = window.kakao;
-            const first = markers[0];
+            // ✅ 랜덤 마커 하나 선택해서 그 위치로 중심 이동
+            const random = markers[Math.floor(Math.random() * markers.length)];
             map = new kakao.maps.Map(el, {
-                center: new kakao.maps.LatLng(first.lat, first.lng),
+                center: new kakao.maps.LatLng(random.lat, random.lng),
                 level: 3,
             });
-
-            const bounds = new kakao.maps.LatLngBounds();
 
             markers.forEach((item) => {
                 const pos = new kakao.maps.LatLng(item.lat, item.lng);
                 const marker = new kakao.maps.Marker({ position: pos });
                 marker.setMap(map);
-                bounds.extend(pos);
 
                 let overlay = null;
                 if (item.image) {
@@ -140,8 +138,6 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
                     }
                 });
             });
-
-            if (!bounds.isEmpty()) map.setBounds(bounds);
         }
 
         function goMyLocation() {
