@@ -4,11 +4,9 @@ date: 2026-01-19T17:00:00+09:00
 summary: 많이 일어날 것 같다고 느끼는 일이 실제로는 왜 잘 일어나지 않을까? 확률이 직관을 배신하는 순간들을 차분히 따라가 본다.
 category: math
 tags:
-    - 중등수학
-    - 수학취미
-    - 사고력
-    - 논리
-    - 생각하는수학
+    - math
+    - hobby
+    - logic
 image: https://images.pond5.com/slowmotion-shot-tossing-coin-flip-footage-089150404_iconl.jpeg
 ---
 
