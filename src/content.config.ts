@@ -11,7 +11,7 @@ const blog = defineCollection({
             category: z.enum(['review', 'coding', 'essay', 'math', 'aviation']),
             summary: z.string(),
             // optional tags array
-            tags: z.array(z.string()).optional(),
+            tags: z.array(z.union([z.number(), z.string()])).optional(),
             // image: either an absolute http(s) URL or a local path (starting with '/')
             image: z
                 .union([
