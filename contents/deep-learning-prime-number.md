@@ -6,11 +6,22 @@ summary: 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 �
     이름하여 바로 '리만 가설' 입니다.
 image: https://media.makeameme.org/created/prime-numbers-y.jpg
 tags:
-    - dev
-    - coding
-    - ai
-    - deep learning
-    - prime number
+  - ai
+  - analytics
+  - coding
+  - deep
+  - deep learning
+  - dev
+  - git
+  - learning
+  - math
+  - nextjs
+  - number
+  - php
+  - prime
+  - prime number
+  - svn
+  - vue
 ---
 
 과학을 잘 모르지만 과학을 좋아하고, 수포자이지만 수학을 좋아하는 제가 최근에 저를 사로잡은 내용이 있었습니다.  

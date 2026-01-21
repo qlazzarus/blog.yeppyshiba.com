@@ -4,9 +4,11 @@ date: 2026-01-14T16:00:00+09:00
 summary: 딱 떨어지지 않는 계산은 틀린 걸까? 끝까지 나눌 수 없는 상황에서 ‘나머지’가 왜 필요해졌는지를 다시 생각해본다.
 category: math
 tags:
-    - math
-    - hobby
-    - logic
+  - hobby
+  - logic
+  - math
+  - remainder
+  - thinking
 image: https://ecdn.teacherspayteachers.com/thumbitem/4th-Grade-Interactive-Math-Notebook-Division-With-Remainders-Word-Problems-5505958-1655885382/original-5505958-2.jpg
 ---
 

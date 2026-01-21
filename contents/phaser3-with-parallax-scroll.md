@@ -5,11 +5,20 @@ summary: 패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 �
 category: coding
 image: https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png
 tags:
-    - dev
-    - coding
-    - phaser
-    - web game
-    - parallax scroll
+  - analytics
+  - coding
+  - dev
+  - game-dev
+  - git
+  - graphics
+  - math
+  - parallax
+  - parallax scroll
+  - phaser
+  - phaser3
+  - scroll
+  - web game
+  - with
 ---
 
 ## 패럴랙스 스크롤링 (parallax scrolling) 이란?

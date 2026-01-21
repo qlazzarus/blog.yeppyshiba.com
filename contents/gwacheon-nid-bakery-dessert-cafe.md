@@ -5,11 +5,12 @@ summary: 과천 사기막길에 위치한 니드베이커리디저트카페는 �
 category: review
 image: /images/posts/202601/nid_bakery_01.jpg
 tags:
-    - review
     - bakery
     - cafe
     - dessert
     - gwacheon
+    - nid
+    - review
 parcelAddress: 경기 과천시 사기막길 83 1층
 lat: 37.4190789
 lng: 127.0023683

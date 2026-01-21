@@ -5,8 +5,13 @@ category: review
 summary: 2023년 11월의 나
 image: https://www.futuroprossimo.it/wp-content/uploads/2023/05/Melancia_Tommy_Shelby_from_peaky-851x567.jpg
 tags:
-  - review
+  - 2023
+  - back
+  - in
+  - look
   - look-back
+  - november
+  - review
 ---
 
 # 나는 어디에 있는가

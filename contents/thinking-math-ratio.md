@@ -4,9 +4,11 @@ date: 2026-01-15T09:00:00+09:00
 summary: 둘 중 무엇이 더 큰지 비교하고 싶을 때, 왜 우리는 나누지 않고 곱해서 판단할까? 비율이 등장한 이유를 차분히 따라가 본다.
 category: math
 tags:
-    - math
-    - hobby
-    - logic
+  - hobby
+  - logic
+  - math
+  - ratio
+  - thinking
 image: https://cdn.prod.website-files.com/5f16d69f1760cdba99c3ce6e/66c487f583e529c440d5a086_64ae8d36b7f93f6d065b331e_5.png
 ---
 

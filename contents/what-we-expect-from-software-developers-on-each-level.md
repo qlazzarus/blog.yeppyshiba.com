@@ -5,9 +5,19 @@ category: coding
 summary: 현업에 오래 있다보면, 가끔씩 나의 위치와 회사 (혹은 주변에서) 바라는 것들이 무엇인지 또한 다른 조직이나 혹은 더 넘어가서 다른 나라의 개발자들은 어떤 위치에 있는지 물어보게 됩니다.
 image: https://st4.depositphotos.com/2760050/22418/i/450/depositphotos_224189480-stock-photo-fashion-and-confidence-concept-man.jpg
 tags:
-    - dev
-    - coding
-    - insight
+  - analytics
+  - coding
+  - dev
+  - developers
+  - each
+  - expect
+  - from
+  - insight
+  - level
+  - on
+  - software
+  - we
+  - what
 ---
 
 # 들어가며

@@ -5,18 +5,22 @@ summary: 상태 관리란 무엇일까요? 위키 설명을 따르자면 텍스�
 category: coding
 image: https://vuex.vuejs.org/flow.png
 tags:
-    - dev
-    - coding
-    - flutter
-    - dart
-    - mobx
-    - state
-    - reactive
-    - android
-    - ios
-    - iphone
-    - google
-    - hybrid
+  - analytics
+  - android
+  - coding
+  - dart
+  - dev
+  - flutter
+  - git
+  - google
+  - hybrid
+  - ios
+  - iphone
+  - mobx
+  - reactive
+  - state
+  - vue
+  - with
 ---
 
 ## 들어가며

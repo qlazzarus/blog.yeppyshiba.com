@@ -5,10 +5,14 @@ category: coding
 summary: php 8 부터는 attrubutes 라는 기능을 사용할 수 있습니다. 다른 많은 언어에서는 annontation 이라고 불리는 것이죠.
 image: https://raw.githubusercontent.com/security-checklist/php-security-check-list/master//image/php-image.png
 tags:
-    - dev
-    - coding
-    - php
-    - annotation
+  - annotation
+  - attributes
+  - coding
+  - dev
+  - git
+  - laravel
+  - php
+  - php8
 ---
 
 ## php8 에 도입되는 attributes
