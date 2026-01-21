@@ -4,9 +4,12 @@ date: 2026-01-16T13:00:00+09:00
 summary: 평균은 가장 대표적인 숫자처럼 보이지만, 때로는 아무것도 설명하지 못한다. 하나의 값으로 전체를 이해하려 할 때 놓치게 되는 것들을 생각해본다.
 category: math
 tags:
-    - math
-    - hobby
-    - logic
+  - analytics
+  - average
+  - hobby
+  - logic
+  - math
+  - thinking
 image: https://www.papertieaffair.com/cdn/shop/products/MinimalBold_TableNumber_Paper-Tie-Affair_4w_1188x.jpg?v=1593657985
 ---
 

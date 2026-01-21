@@ -4,8 +4,12 @@ date: 2026-01-13T09:30:00+09:00
 summary: 항공·UATM·SWIM 프로젝트에 처음 투입된 SI 개발자를 위한 입문 가이드.
 category: aviation
 tags:
-    - flight
-    - aviation
+  - 01
+  - analytics
+  - aviation
+  - flight
+  - onboarding
+  - si
 image: https://support.boeing.com/servlet/rtaImage?eid=ka20z000000LDzO&feoid=00N60000002h5I1&refid=0EM0z000000NLnn
 ---
 

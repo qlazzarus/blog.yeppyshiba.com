@@ -6,9 +6,11 @@ category: review
 image: /images/posts/202205/KakaoTalk_Photo_2022-05-22-14-48-48-001.jpeg
 embeddedImagesLocal: /images/posts/202205/KakaoTalk_Photo_2022-05-22-14-48-48-001.jpeg
 tags:
-    - review
-    - dog
-    - akita inu
+  - akita
+  - akita inu
+  - dog
+  - inu
+  - review
 ---
 
 ## 아키타견이란?

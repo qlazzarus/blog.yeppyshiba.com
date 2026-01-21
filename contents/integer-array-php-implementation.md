@@ -6,13 +6,17 @@ summary: 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아�
  (나쁜거 아니에요!)
 category: coding
 image: https://raw.githubusercontent.com/security-checklist/php-security-check-list/master//image/php-image.png
-tags: 
-    - dev
-    - coding
-    - php
-    - iterator
-    - array
-    - integer
+tags:
+  - analytics
+  - array
+  - coding
+  - dev
+  - git
+  - implementation
+  - integer
+  - iterator
+  - nextjs
+  - php
 ---
 
 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다.  

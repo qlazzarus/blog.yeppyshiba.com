@@ -5,14 +5,18 @@ summary: 파일 업로드 구현이야 많이들 해보셨겠지만 용량이 �
 category: coding
 image: https://icon-library.com/images/icon-uploader/icon-uploader-2.jpg
 tags:
-    - dev
-    - coding
-    - chunk upload
-    - axios
-    - vue
-    - laravel
-    - php
-    - javascript
+  - axios
+  - chunk
+  - chunk upload
+  - coding
+  - dev
+  - git
+  - javascript
+  - laravel
+  - math
+  - php
+  - upload
+  - vue
 ---
 
 ## 들어가며

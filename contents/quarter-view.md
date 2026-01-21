@@ -7,14 +7,19 @@ summary:
     이번에는 그 중에서 쿼터뷰에 대해서 이야기를 해보고자 합니다.
 image: https://imagescdn.gettyimagesbank.com/500/19/592/773/0/1147490682.jpg
 tags:
-    - dev
-    - coding
-    - 2.5d
-    - pseudo
-    - isometric
-    - quarter view
-    - phaser
-    - web game
+  - 2.5d
+  - analytics
+  - coding
+  - dev
+  - game-dev
+  - graphics
+  - isometric
+  - phaser
+  - pseudo
+  - quarter
+  - quarter view
+  - view
+  - web game
 ---
 
 ## 들어가며

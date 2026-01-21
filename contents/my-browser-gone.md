@@ -8,12 +8,15 @@ summary: 지금도 브라우져는 무한 로딩 중인데 이 블로그를 쓰�
     그냥 제가 엄청 비싼 킹왕짱 컴퓨터를 가지고 있어서 그냥 무대포로 버티는걸까요?
 image: https://i.kym-cdn.com/entries/icons/original/000/030/003/chrome.jpg
 tags:
-    - dev
-    - coding
-    - thread
-    - process
-    - browser
-    - chromium
+  - browser
+  - chromium
+  - coding
+  - dev
+  - gone
+  - graphics
+  - my
+  - process
+  - thread
 ---
 
 # 내 탭이 날라가버렸어!

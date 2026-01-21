@@ -5,8 +5,10 @@ summary: 다시 블로그를 시작해봅니다.
 category: review
 image: https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260
 tags:
-    - review
-    - gatsby
+  - gatsby
+  - migration
+  - review
+  - to
 ---
 
 ## hello world!

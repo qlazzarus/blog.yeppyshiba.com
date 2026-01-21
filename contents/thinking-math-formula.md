@@ -4,11 +4,11 @@ date: 2026-01-21T10:00:00+09:00
 summary: 이해했는데도 왜 공식은 외워야 할까? 공식이 생겨난 이유와, 이해와 암기의 역할을 다시 생각해본다.
 category: math
 tags:
-    - 중등수학
-    - 수학취미
-    - 사고력
-    - 논리
-    - 생각하는수학
+  - formula
+  - hobby
+  - logic
+  - math
+  - thinking
 image: https://ih1.redbubble.net/image.5136130181.7868/hj%2C750x-pad%2C750x1000%2Cf8f8f8.webp
 ---
 

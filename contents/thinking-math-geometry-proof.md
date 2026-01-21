@@ -4,9 +4,13 @@ date: 2026-01-20T17:00:00+09:00
 summary: 눈으로 보면 분명히 맞아 보이는데, 왜 도형 문제에서는 늘 증명을 요구할까? ‘보이는 것’과 ‘확실한 것’의 차이를 차분히 따라가 본다.
 category: math
 tags:
-    - math
-    - hobby
-    - logic
+  - analytics
+  - geometry
+  - hobby
+  - logic
+  - math
+  - proof
+  - thinking
 image: https://i.pinimg.com/736x/c9/ba/44/c9ba44bf45506166abac3048cd5c7eb0.jpg
 ---
 

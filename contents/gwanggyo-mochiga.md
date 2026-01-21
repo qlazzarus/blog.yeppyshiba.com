@@ -5,11 +5,11 @@ summary: 광교 센트럴파크 인근에서 만난 과즙 가득한 생과일 �
 category: review
 image: /images/posts/202601/gwanggyo_mochiga_01.jpg
 tags:
-    - review
-    - gwanggyo
-    - mochiga
-    - dessert
-    - suwon
+  - dessert
+  - gwanggyo
+  - mochiga
+  - review
+  - suwon
 parcelAddress: 경기 수원시 영통구 센트럴파크로127번길 77
 lat: 37.2942049519435
 lng: 127.052261056281

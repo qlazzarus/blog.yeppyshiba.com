@@ -5,13 +5,20 @@ category: coding
 summary: 오늘 이 시간은 phaser 게임 프레임워크를 이용해서 ‘라이프 게임(Life of Game)’ 를 구현하는 것을 목표를 하겠습니다.
 image: https://tebs-game-of-life.com/images/gosper-gun.png
 tags:
-    - dev
-    - coding
-    - phaser
-    - typescript
-    - web game
-    - life
-    - cells
+  - analytics
+  - cells
+  - coding
+  - dev
+  - game
+  - game-dev
+  - git
+  - life
+  - math
+  - nextjs
+  - of
+  - phaser
+  - typescript
+  - web game
 ---
 
 # phaser 로 구현해 보는 콘웨이의 생명게임

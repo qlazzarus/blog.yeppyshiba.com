@@ -5,15 +5,19 @@ category: coding
 summary: 여기서는 gitlab 과 gitlab-runner (+ nexus) 를 설치하여 나도 자동적으로 빌드와 배포가 되도록 CI (Continuous Integration) / CD (Continuous Deployment) 를 구성 해보았습니다.
 image: https://khs9628.github.io/img/infra/logo/GitLab.png
 tags:
-    - dev
-    - coding
-    - git
-    - gitlab
-    - gitlab runner
-    - docker
-    - deploy
-    - ci
-    - cd
+  - analytics
+  - cd
+  - ci
+  - coding
+  - deploy
+  - dev
+  - docker
+  - git
+  - gitlab
+  - gitlab runner
+  - jekyll
+  - runner
+  - with
 ---
 
 ## 서론

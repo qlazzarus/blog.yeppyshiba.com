@@ -5,10 +5,15 @@ summary: AI 시대에도 개발을 계속하면서, 블로그를 어떻게 남�
 category: essay
 image: https://us.images.westend61.de/0001254509j/young-woman-with-smoothie-and-laptop-behind-windowpane-in-a-cafe-GIOF07093.jpg
 tags:
-    - essay
-    - blog
-    - development
-    - ai
+  - ai
+  - blog
+  - continuing
+  - development
+  - essay
+  - git
+  - meaning
+  - rethink
+  - while
 ---
 
 # 개발을 계속하면서, 블로그의 방향을 다시 생각하다
