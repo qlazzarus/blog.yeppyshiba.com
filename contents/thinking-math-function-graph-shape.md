@@ -16,7 +16,7 @@ tags:
     - math
     - thinking
     - hobby
-image: https://www.researchgate.net/publication/247905017/figure/fig2/AS%3A671529109032967%401537116424721/Graph-of-a-Parabola-Opening-Downward-y.png
+image: https://cdn.kastatic.org/ka-perseus-graphie/f04d60915d578cad7df3f650f91d98e72f04a6da.svg
 ---
 
 # 생각하는 중등수학 ⑮
@@ -70,10 +70,6 @@ image: https://www.researchgate.net/publication/247905017/figure/fig2/AS%3A67152
 직선은 이렇게 말한다.
 
 > “변화가 변하지 않는다.”
-
----
-
-![Image](https://cdn.kastatic.org/ka-perseus-graphie/f04d60915d578cad7df3f650f91d98e72f04a6da.svg)
 
 ---
 
