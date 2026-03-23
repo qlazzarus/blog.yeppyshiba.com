@@ -6,21 +6,21 @@ category: review
 image: '/images/posts/202603/uiwang-the-gardener-1.png'
 tags:
     - uiwang
-    - uiwang cafe
-    - uiwang brunch
-    - uiwang restaurant
+    - uiwang-cafe
+    - uiwang-brunch
+    - uiwang-restaurant
     - brunch
-    - brunch cafe
-    - cafe review
-    - cafe hopping
+    - brunch-cafe
+    - cafe-review
+    - cafe-hopping
     - coffee
-    - iced americano
+    - iced-americano
     - sandwich
     - panini
-    - brunch menu
+    - brunch-menu
     - bakery
-    - the gardener
-    - the gardener cafe
+    - the-gardener
+    - the-gardener-cafe
     - 더가드너
     - 의왕카페
     - 의왕브런치
@@ -28,11 +28,6 @@ tags:
 parcelAddress: 경기도 의왕시 경수대로 106
 lat: 37.337320
 lng: 126.980458
----
-
-좋아, 지금 사진 분위기랑 너 블로그 톤(라이프+기록형)에 맞춰서 바로 올릴 수 있는 형태로 작성해봤어.
-(Astro / Markdown 그대로 붙여도 자연스럽게 쓸 수 있게 구성했어)
-
 ---
 
 # 의왕 브런치 카페, 더 가드너 방문 후기
