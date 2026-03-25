@@ -1,11 +1,11 @@
 ---
 title: 나는 언제부터 '지금'이 아니라 '10년 뒤'를 보기 시작했을까
 date: 2026-03-24T12:30:00.000Z
-category: review
+category: essay
 summary: 아이, 집, 대출, 출퇴근, 취미까지. 요즘의 나는 왜 자꾸 10년 뒤를 먼저 생각하게 되는지 돌아봤다.
 image: https://commons.wikimedia.org/wiki/Special:FilePath/Sun%20over%20a%20forest%20road%20%28Unsplash%29.jpg
 tags:
-    - review
+    - essay
     - retrospective
     - mindset
     - life
