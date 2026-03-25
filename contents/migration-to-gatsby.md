@@ -2,13 +2,13 @@
 title: gatsby로 이전 했습니다.
 date: 2022-05-20T14:06:41.071Z
 summary: 다시 블로그를 시작해봅니다.
-category: review
+category: essay
 image: https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260
 tags:
-  - gatsby
-  - migration
-  - review
-  - to
+    - gatsby
+    - migration
+    - review
+    - to
 ---
 
 ## hello world!

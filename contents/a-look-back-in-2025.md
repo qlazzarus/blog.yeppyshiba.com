@@ -1,23 +1,22 @@
 ---
 title: 2025 연말회고 — 삶이 먼저 움직였던 한 해
 date: 2025-12-22T14:54:00.000Z
-category: review
+category: essay
 summary: 삶이 먼저 움직였던 한 해
 image: https://images.unsplash.com/photo-1500530855697-b586d89ba3ee
 tags:
-  - 2025
-  - back
-  - in
-  - laravel
-  - look
-  - look-back
-  - review
+    - 2025
+    - back
+    - in
+    - laravel
+    - look
+    - look-back
+    - essay
 ---
 
 # 2025 연말회고 — 삶이 먼저 움직였던 한 해
 
 ![city and life change](https://images.unsplash.com/photo-1500530855697-b586d89ba3ee)
-
 
 2025년을 돌아보면  
 업무적으로 무엇을 이루었는지보다  
@@ -38,7 +37,6 @@ tags:
 
 ![home and stability](https://images.unsplash.com/photo-1560448204-e02f11c3d0e2)
 
-
 3월, 집을 구매했다.
 
 개발자에게 집을 산다는 건  
@@ -57,7 +55,6 @@ tags:
 ## 💍 5월 — 결혼, 그리고 권고사직
 
 ![wedding rings minimal](https://images.unsplash.com/photo-1522673607200-164d1b6ce486)
-
 
 5월은 감정적으로 가장 밀도가 높은 달이었다.
 
@@ -82,7 +79,6 @@ tags:
 ## 🧑‍💻 7–9월 — 계약직으로 일하다
 
 ![working alone laptop](https://images.unsplash.com/photo-1498050108023-c5249f4df085)
-
 
 7월부터 9월까지는 계약직으로 업무를 이어갔다.
 
@@ -125,7 +121,6 @@ tags:
 
 ![new beginning office](https://images.unsplash.com/photo-1492724441997-5dc865305da7)
 
-
 12월, 아이비리더스에 합류했다.
 
 이 시점의 이직은  
@@ -156,7 +151,6 @@ tags:
 ## ☸️ 자작 쿠버네티스 클러스터
 
 ![server rack](https://images.unsplash.com/photo-1558494949-ef010cbdcc31)
-
 
 가장 많은 시간을 쓴 건  
 **자작 쿠버네티스 클러스터 구성**이었다.

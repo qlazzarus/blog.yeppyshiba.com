@@ -1,17 +1,17 @@
 ---
 title: 2023년 11월의 회고
 date: 2023-12-07T08:26:00.000Z
-category: review
+category: essay
 summary: 2023년 11월의 나
 image: https://www.futuroprossimo.it/wp-content/uploads/2023/05/Melancia_Tommy_Shelby_from_peaky-851x567.jpg
 tags:
-  - 2023
-  - back
-  - in
-  - look
-  - look-back
-  - november
-  - review
+    - 2023
+    - back
+    - in
+    - look
+    - look-back
+    - november
+    - essay
 ---
 
 # 나는 어디에 있는가
@@ -21,7 +21,7 @@ tags:
 멈추고 싶지 않았다. 조금 더 움직이고 싶었다.
 
 내 인생이 잘 났다고 잘 풀렸다고 아니면 망했다고 어떻게 이렇게 꼬일 수도 있냐고 정량하고 싶지 않다.
-그냥 최선을 다하도록 노력하고 싶다. 
+그냥 최선을 다하도록 노력하고 싶다.
 100% 을 못하더라도 목표라도 정하면 50%라도 가니까
 
 # 2023년 11월은 무엇을 하였지?
@@ -51,7 +51,6 @@ tags:
 새로운 언어 (kotlin) 도 도전하고, 일하는 것도 새로운 방법 (chat gpt) 으로 도전하고자 하였다.
 
 업무 방법도 기존과 같이 주먹구구식 보다 수치상으로 증명하는 방법으로 진행하고자 하였다.
-
 
 # 2023년 12월은 무엇을 해야할까?
 
