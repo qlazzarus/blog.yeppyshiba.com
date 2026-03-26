@@ -5,12 +5,32 @@ import Header from '@/components/Header.astro';
 import { SITE_LANG } from '@/consts';
 import '@/styles/global.css';
 
-const { title, description, image } = Astro.props;
+const {
+    title,
+    description,
+    image,
+    schemaType,
+    breadcrumbs,
+    datePublished,
+    dateModified,
+    tags,
+    category,
+} = Astro.props;
 ---
 
 <html lang={SITE_LANG}>
     <head>
-        <BaseHead title={title} description={description} image={image} />
+        <BaseHead
+            title={title}
+            description={description}
+            image={image}
+            schemaType={schemaType}
+            breadcrumbs={breadcrumbs}
+            datePublished={datePublished}
+            dateModified={dateModified}
+            tags={tags}
+            category={category}
+        />
         <script is:inline>
             // Early theme init to prevent flash (FOUC)
             (function () {

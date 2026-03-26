@@ -7,7 +7,7 @@ import FormattedDate from '@/components/FormattedDate.astro';
 type ArticleProps = CollectionEntry<'blog'>['data'];
 
 // accept prev/next from page
-const { title, summary, date, image, tags, prevPost, nextPost } =
+const { title, summary, date, image, tags, category, prevPost, nextPost } =
     Astro.props as ArticleProps & {
         prevPost?: { slug: string; title: string } | null;
         nextPost?: { slug: string; title: string } | null;
@@ -17,9 +17,34 @@ export interface Props extends ArticleProps {
     prevPost?: { slug: string; title: string } | null;
     nextPost?: { slug: string; title: string } | null;
 }
+
+const breadcrumbs = [
+    {
+        name: 'Home',
+        item: new URL('/', Astro.site).toString(),
+    },
+    {
+        name: category,
+        item: new URL(`/category/${category}`, Astro.site).toString(),
+    },
+    {
+        name: title,
+        item: new URL(Astro.url.pathname, Astro.site).toString(),
+    },
+];
 ---
 
-<BaseLayout title={title} description={summary} image={image}>
+<BaseLayout
+    title={title}
+    description={summary}
+    image={image}
+    schemaType='article'
+    breadcrumbs={breadcrumbs}
+    datePublished={date}
+    dateModified={date}
+    tags={tags}
+    category={category}
+>
     <div>
         <header>
             <h1 class='mb-2 text-3xl font-bold tracking-tight'>{title}</h1>

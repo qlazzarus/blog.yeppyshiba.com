@@ -1,0 +1,112 @@
+---
+import { SITE_TITLE } from '@/consts';
+
+type ListItem = {
+    name: string;
+    item: string;
+};
+
+interface Props {
+    type?: 'website' | 'article';
+    title?: string;
+    description?: string;
+    image?: string;
+    datePublished?: Date | string;
+    dateModified?: Date | string;
+    tags?: Array<string | number>;
+    category?: string;
+    breadcrumbs?: ListItem[];
+}
+
+const {
+    type = 'website',
+    title,
+    description,
+    image,
+    datePublished,
+    dateModified,
+    tags = [],
+    category,
+    breadcrumbs = [],
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const currentUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+const normalizeImage = (value?: string) => {
+    if (!value) return undefined;
+    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+    return new URL(value, Astro.site).toString();
+};
+
+const normalizedImage = normalizeImage(image);
+
+const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_TITLE,
+    url: siteUrl,
+    inLanguage: 'ko-KR',
+};
+
+const breadcrumbSchema =
+    breadcrumbs.length > 0
+        ? {
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: breadcrumbs.map((item, index) => ({
+                  '@type': 'ListItem',
+                  position: index + 1,
+                  name: item.name,
+                  item: item.item,
+              })),
+          }
+        : null;
+
+const articleSchema =
+    type === 'article'
+        ? {
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: title,
+              description,
+              mainEntityOfPage: currentUrl,
+              url: currentUrl,
+              image: normalizedImage ? [normalizedImage] : undefined,
+              datePublished: datePublished
+                  ? new Date(datePublished).toISOString()
+                  : undefined,
+              dateModified: dateModified
+                  ? new Date(dateModified).toISOString()
+                  : datePublished
+                    ? new Date(datePublished).toISOString()
+                    : undefined,
+              author: {
+                  '@type': 'Person',
+                  name: 'Yeppyshiba',
+              },
+              publisher: {
+                  '@type': 'Organization',
+                  name: SITE_TITLE,
+                  logo: {
+                      '@type': 'ImageObject',
+                      url: new URL('/images/akita-inu.png', Astro.site).toString(),
+                  },
+              },
+              articleSection: category,
+              keywords:
+                  tags.length > 0
+                      ? tags.map((tag) => String(tag)).join(', ')
+                      : undefined,
+              inLanguage: 'ko-KR',
+          }
+        : null;
+
+const schemas = [websiteSchema, breadcrumbSchema, articleSchema].filter(Boolean);
+---
+
+{
+    schemas.map((schema) => (
+        <script type='application/ld+json' set:html={JSON.stringify(schema)} />
+    ))
+}

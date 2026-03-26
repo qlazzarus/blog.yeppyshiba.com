@@ -1,17 +1,38 @@
 ---
-import type { ImageMetadata } from 'astro';
 import FallbackImage from '@/assets/blog-placeholder-1.jpg';
+import StructuredData from './StructuredData.astro';
 import { SITE_TITLE } from '@/consts';
+
+type BreadcrumbItem = {
+    name: string;
+    item: string;
+};
 
 interface Props {
     title: string;
     description: string;
     image?: string;
+    schemaType?: 'website' | 'article';
+    breadcrumbs?: BreadcrumbItem[];
+    datePublished?: Date | string;
+    dateModified?: Date | string;
+    tags?: Array<string | number>;
+    category?: string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title: defaultTitle, description, image } = Astro.props;
+const {
+    title: defaultTitle,
+    description,
+    image,
+    schemaType = 'website',
+    breadcrumbs = [],
+    datePublished,
+    dateModified,
+    tags = [],
+    category,
+} = Astro.props;
 
 const title = defaultTitle ? `${defaultTitle} - ${SITE_TITLE}` : SITE_TITLE;
 const defaultImage: string | URL = image || new URL(FallbackImage.src, Astro.url);
@@ -55,7 +76,7 @@ const defaultImage: string | URL = image || new URL(FallbackImage.src, Astro.url
 <meta name='description' content={description} />
 
 <!-- Open Graph / Facebook -->
-<meta property='og:type' content='website' />
+<meta property='og:type' content={schemaType === 'article' ? 'article' : 'website'} />
 <meta property='og:url' content={Astro.url} />
 <meta property='og:title' content={title} />
 <meta property='og:description' content={description} />
@@ -67,3 +88,15 @@ const defaultImage: string | URL = image || new URL(FallbackImage.src, Astro.url
 <meta property='twitter:title' content={title} />
 <meta property='twitter:description' content={description} />
 <meta property='twitter:image' content={defaultImage} />
+
+<StructuredData
+    type={schemaType}
+    title={defaultTitle}
+    description={description}
+    image={typeof defaultImage === 'string' ? defaultImage : defaultImage.toString()}
+    breadcrumbs={breadcrumbs}
+    datePublished={datePublished}
+    dateModified={dateModified}
+    tags={tags}
+    category={category}
+/>
