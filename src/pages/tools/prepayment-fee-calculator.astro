@@ -1,0 +1,448 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '중도상환수수료 계산기';
+const description =
+    '주택담보대출 중도상환수수료를 빠르게 계산하는 웹 계산기. 상환 예정 금액, 수수료율, 면제 기간, 실행일을 넣으면 예상 수수료를 바로 확인할 수 있습니다.';
+const pageUrl = new URL('/tools/prepayment-fee-calculator', Astro.site).toString();
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <section class='mx-auto max-w-5xl space-y-6'>
+        <div class='space-y-3'>
+            <p class='text-primary text-sm font-semibold'>Finance Tool</p>
+            <h1 class='text-3xl font-bold tracking-tight md:text-4xl'>
+                중도상환수수료 계산기
+            </h1>
+            <p class='text-muted-foreground max-w-3xl text-base leading-7'>
+                상환 예정 금액, 기본 수수료율, 면제까지 남은 기간을 입력하면 예상
+                중도상환수수료를 계산합니다. 은행 실행 전 손익을 빠르게 판단할 수 있게
+                만든 계산기입니다.
+            </p>
+        </div>
+
+        <div class='grid gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
+            <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                <h2 class='text-xl font-semibold'>입력값</h2>
+                <div class='mt-6 space-y-5'>
+                    <div>
+                        <label class='mb-2 block text-sm font-medium' for='principal'>
+                            상환 예정 금액
+                        </label>
+                        <input
+                            id='principal'
+                            type='number'
+                            min='0'
+                            step='100000'
+                            value='100000000'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        />
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            예: 1억 원이면 100000000
+                        </p>
+                        <p
+                            id='principalKoreanResult'
+                            class='text-muted-foreground mt-1 text-sm font-medium'
+                        >
+                            일억원
+                        </p>
+                    </div>
+
+                    <div class='grid gap-5 md:grid-cols-2'>
+                        <div>
+                            <label class='mb-2 block text-sm font-medium' for='feeRate'>
+                                기본 수수료율 (%)
+                            </label>
+                            <input
+                                id='feeRate'
+                                type='number'
+                                min='0'
+                                step='0.01'
+                                value='0.6'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p class='text-muted-foreground mt-2 text-sm'>
+                                예: 0.6 입력
+                            </p>
+                        </div>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='waiverMonths'
+                            >
+                                면제까지 총 기간 (개월)
+                            </label>
+                            <input
+                                id='waiverMonths'
+                                type='number'
+                                min='1'
+                                step='1'
+                                value='36'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p class='text-muted-foreground mt-2 text-sm'>
+                                보통 36개월
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class='grid gap-5 md:grid-cols-2'>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='loanStart'
+                            >
+                                대출 실행일
+                            </label>
+                            <input
+                                id='loanStart'
+                                type='date'
+                                value='2025-03-21'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                        </div>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='prepayDate'
+                            >
+                                예정 상환일
+                            </label>
+                            <input
+                                id='prepayDate'
+                                type='date'
+                                value='2026-03-26'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class='mb-2 block text-sm font-medium' for='calcMode'>
+                            계산 방식
+                        </label>
+                        <select
+                            id='calcMode'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        >
+                            <option value='daily' selected>일수 기준 비례 계산</option>
+                            <option value='monthly'>개월 기준 단순 계산</option>
+                        </select>
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            실제 약관은 상품별로 다를 수 있으니 최종 실행 전 은행
+                            약정서를 꼭 확인하세요.
+                        </p>
+                    </div>
+
+                    <div class='flex flex-col gap-3 sm:flex-row'>
+                        <button
+                            id='calculateBtn'
+                            type='button'
+                            class='bg-primary text-primary-foreground rounded-xl px-5 py-3 font-semibold'
+                        >
+                            계산하기
+                        </button>
+                        <button
+                            id='resetBtn'
+                            type='button'
+                            class='bg-background border-border rounded-xl border px-5 py-3 font-semibold'
+                        >
+                            초기화
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class='space-y-6'>
+                <div class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                    <h2 class='text-xl font-semibold'>계산 결과</h2>
+                    <div
+                        class='from-primary/15 mt-5 rounded-2xl border border-blue-400/30 bg-gradient-to-br to-sky-300/5 p-5'
+                    >
+                        <p class='text-muted-foreground text-sm'>예상 중도상환수수료</p>
+                        <p
+                            id='feeResult'
+                            class='mt-2 text-3xl font-bold tracking-tight md:text-4xl'
+                        >
+                            ₩0
+                        </p>
+                        <p
+                            id='feeKoreanResult'
+                            class='text-muted-foreground mt-2 text-sm font-medium'
+                        >
+                            영원
+                        </p>
+                    </div>
+
+                    <div class='mt-5 space-y-3'>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>경과 기간</span>
+                            <strong id='elapsedResult'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>면제까지 남은 기간</span
+                            >
+                            <strong id='remainingResult'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>적용 비율</span>
+                            <strong id='ratioResult'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>기본 수수료 금액</span>
+                            <div class='text-right'>
+                                <strong id='baseFeeResult' class='block'>-</strong>
+                                <span
+                                    id='baseFeeKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                    >-</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class='bg-background border-border mt-5 rounded-xl border border-dashed p-4'
+                    >
+                        <p class='text-sm font-semibold'>계산식</p>
+                        <p
+                            id='formulaText'
+                            class='text-muted-foreground mt-2 text-sm leading-6'
+                        >
+                            중도상환수수료 = 상환금액 × 수수료율 × 남은 비율
+                        </p>
+                    </div>
+                </div>
+
+                <div class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                    <p class='text-sm font-semibold'>
+                        이 계산기를 이렇게 쓰면 좋습니다
+                    </p>
+                    <ul
+                        class='text-muted-foreground mt-3 list-disc space-y-2 pl-5 text-sm leading-6'
+                    >
+                        <li>갈아타기 전 예상 수수료가 얼마인지 빠르게 확인</li>
+                        <li>월 절감액과 비교해서 몇 개월 만에 회수되는지 판단</li>
+                        <li>상환일을 조금 늦출 때 수수료가 얼마나 줄어드는지 비교</li>
+                    </ul>
+                    <p class='text-muted-foreground mt-4 text-sm leading-6'>
+                        참고: 실제 은행은 상품 종류, 금리 유형, 일부 면제 조항에 따라
+                        계산식이 달라질 수 있습니다. 이 페이지는 손익 판단용
+                        예측값입니다.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <script is:inline>
+        const el = (id) => document.getElementById(id);
+
+        const money = new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW',
+            maximumFractionDigits: 0,
+        });
+
+        function daysBetween(start, end) {
+            const ms = end.getTime() - start.getTime();
+            return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+        }
+
+        function addMonths(date, months) {
+            const d = new Date(date);
+            d.setMonth(d.getMonth() + months);
+            return d;
+        }
+
+        function monthDiff(start, end) {
+            let months = (end.getFullYear() - start.getFullYear()) * 12;
+            months += end.getMonth() - start.getMonth();
+            if (end.getDate() < start.getDate()) months -= 1;
+            return Math.max(0, months);
+        }
+
+        function formatKoreanCurrency(value) {
+            const number = Math.round(Number(value) || 0);
+            if (number === 0) return '영원';
+
+            const nums = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+            const smallUnits = ['', '십', '백', '천'];
+            const largeUnits = ['', '만', '억', '조', '경'];
+            let remaining = Math.abs(number);
+            let parts = [];
+            let largeIndex = 0;
+
+            while (remaining > 0) {
+                const chunk = remaining % 10000;
+                if (chunk > 0) {
+                    let chunkText = '';
+                    const digits = String(chunk).padStart(4, '0').split('').map(Number);
+                    for (let i = 0; i < 4; i += 1) {
+                        const digit = digits[i];
+                        if (!digit) continue;
+                        const unitIndex = 3 - i;
+                        chunkText += `${nums[digit]}${smallUnits[unitIndex]}`;
+                    }
+                    parts.unshift(`${chunkText}${largeUnits[largeIndex]}`);
+                }
+                remaining = Math.floor(remaining / 10000);
+                largeIndex += 1;
+            }
+
+            return `${number < 0 ? '마이너스 ' : ''}${parts.join('')}원`;
+        }
+
+        function updateKoreanNumberLabels(principal, fee, baseFee) {
+            if (el('principalKoreanResult')) {
+                el('principalKoreanResult').textContent =
+                    formatKoreanCurrency(principal);
+            }
+            if (el('feeKoreanResult')) {
+                el('feeKoreanResult').textContent = formatKoreanCurrency(fee);
+            }
+            if (el('baseFeeKoreanResult')) {
+                el('baseFeeKoreanResult').textContent = formatKoreanCurrency(baseFee);
+            }
+        }
+
+        function calculate(showAlert = false) {
+            const principal = Number(el('principal')?.value || 0);
+            const feeRatePercent = Number(el('feeRate')?.value || 0);
+            const waiverMonths = Number(el('waiverMonths')?.value || 0);
+            const loanStart = new Date(el('loanStart')?.value || '');
+            const prepayDate = new Date(el('prepayDate')?.value || '');
+            const calcMode = el('calcMode')?.value || 'daily';
+
+            updateKoreanNumberLabels(
+                principal,
+                0,
+                Math.round(principal * (feeRatePercent / 100 || 0)),
+            );
+
+            if (
+                !principal ||
+                Number.isNaN(loanStart.getTime()) ||
+                Number.isNaN(prepayDate.getTime()) ||
+                waiverMonths <= 0
+            ) {
+                if (showAlert) alert('입력값을 다시 확인해주세요.');
+                if (el('feeResult')) el('feeResult').textContent = money.format(0);
+                if (el('elapsedResult')) el('elapsedResult').textContent = '-';
+                if (el('remainingResult')) el('remainingResult').textContent = '-';
+                if (el('ratioResult')) el('ratioResult').textContent = '-';
+                if (el('baseFeeResult'))
+                    el('baseFeeResult').textContent = money.format(0);
+                if (el('formulaText'))
+                    el('formulaText').textContent =
+                        '중도상환수수료 = 상환금액 × 수수료율 × 남은 비율';
+                return;
+            }
+
+            if (prepayDate < loanStart) {
+                if (showAlert) alert('예정 상환일은 대출 실행일보다 뒤여야 합니다.');
+                if (el('remainingResult'))
+                    el('remainingResult').textContent = '날짜 확인 필요';
+                if (el('feeResult')) el('feeResult').textContent = money.format(0);
+                if (el('feeKoreanResult')) el('feeKoreanResult').textContent = '영원';
+                return;
+            }
+
+            const feeRate = feeRatePercent / 100;
+            const baseFee = principal * feeRate;
+
+            let elapsedText = '';
+            let remainingText = '';
+            let ratio = 0;
+
+            if (calcMode === 'daily') {
+                const waiverEnd = addMonths(loanStart, waiverMonths);
+                const totalDays = Math.max(1, daysBetween(loanStart, waiverEnd));
+                const remainingDays = Math.max(0, daysBetween(prepayDate, waiverEnd));
+                ratio = Math.max(0, Math.min(1, remainingDays / totalDays));
+                elapsedText = `${daysBetween(loanStart, prepayDate).toLocaleString('ko-KR')}일`;
+                remainingText = `${remainingDays.toLocaleString('ko-KR')}일`;
+            } else {
+                const elapsedMonths = monthDiff(loanStart, prepayDate);
+                const remainingMonths = Math.max(0, waiverMonths - elapsedMonths);
+                ratio = Math.max(0, Math.min(1, remainingMonths / waiverMonths));
+                elapsedText = `${elapsedMonths.toLocaleString('ko-KR')}개월`;
+                remainingText = `${remainingMonths.toLocaleString('ko-KR')}개월`;
+            }
+
+            const fee = Math.round(baseFee * ratio);
+            updateKoreanNumberLabels(principal, fee, Math.round(baseFee));
+
+            if (el('feeResult')) el('feeResult').textContent = money.format(fee);
+            if (el('elapsedResult')) el('elapsedResult').textContent = elapsedText;
+            if (el('remainingResult'))
+                el('remainingResult').textContent = remainingText;
+            if (el('ratioResult'))
+                el('ratioResult').textContent = `${(ratio * 100).toFixed(2)}%`;
+            if (el('baseFeeResult'))
+                el('baseFeeResult').textContent = money.format(Math.round(baseFee));
+            if (el('formulaText')) {
+                el('formulaText').textContent =
+                    `중도상환수수료 = ${money.format(principal)} × ${feeRatePercent}% × ${(ratio * 100).toFixed(2)}% = ${money.format(fee)}`;
+            }
+        }
+
+        function reset() {
+            if (el('principal')) el('principal').value = '100000000';
+            if (el('feeRate')) el('feeRate').value = '0.6';
+            if (el('waiverMonths')) el('waiverMonths').value = '36';
+            if (el('loanStart')) el('loanStart').value = '2025-03-21';
+            if (el('prepayDate')) el('prepayDate').value = '2026-03-26';
+            if (el('calcMode')) el('calcMode').value = 'daily';
+            calculate();
+        }
+
+        el('calculateBtn')?.addEventListener('click', () => calculate(true));
+        el('resetBtn')?.addEventListener('click', reset);
+
+        [
+            'principal',
+            'feeRate',
+            'waiverMonths',
+            'loanStart',
+            'prepayDate',
+            'calcMode',
+        ].forEach((id) => {
+            el(id)?.addEventListener('input', () => calculate(false));
+            el(id)?.addEventListener('change', () => calculate(false));
+        });
+
+        window.addEventListener('DOMContentLoaded', () => calculate(false));
+    </script>
+</BaseLayout>
