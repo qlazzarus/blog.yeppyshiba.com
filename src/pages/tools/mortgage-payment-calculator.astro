@@ -1,0 +1,595 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '대출 월 상환금 비교 계산기';
+const description =
+    '주택담보대출 월 상환금을 비교하는 계산기. 기존 대출과 갈아탈 대출의 월 납입금, 총 이자, 절감액을 바로 확인할 수 있습니다.';
+const pageUrl = new URL('/tools/mortgage-payment-calculator', Astro.site).toString();
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <section class='mx-auto max-w-6xl space-y-6'>
+        <div class='space-y-3'>
+            <p class='text-primary text-sm font-semibold'>Finance Tool</p>
+            <h1 class='text-3xl font-bold tracking-tight md:text-4xl'>
+                대출 월 상환금 비교 계산기
+            </h1>
+            <p class='text-muted-foreground max-w-3xl text-base leading-7'>
+                기존 대출과 갈아탈 대출의 월 상환금, 총 이자, 절감액을 한 번에
+                비교합니다. 신생아 특례대출처럼 금리 인하 효과를 숫자로 확인할 때 바로
+                쓸 수 있게 만든 계산기입니다.
+            </p>
+        </div>
+
+        <div class='grid gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
+            <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                <h2 class='text-xl font-semibold'>입력값</h2>
+
+                <div class='mt-6 grid gap-6'>
+                    <div class='grid gap-6 md:grid-cols-2'>
+                        <section class='space-y-4'>
+                            <div class='flex items-center justify-between'>
+                                <h3 class='text-primary text-sm font-semibold'>
+                                    기존 대출
+                                </h3>
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='oldPrincipal'
+                                >
+                                    대출 원금
+                                </label>
+                                <input
+                                    id='oldPrincipal'
+                                    type='number'
+                                    value='400000000'
+                                    min='0'
+                                    step='100000'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                                <p
+                                    id='oldPrincipalText'
+                                    class='text-muted-foreground mt-2 text-sm font-medium'
+                                >
+                                    사억원
+                                </p>
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='oldRate'
+                                >
+                                    연 이자율 (%)
+                                </label>
+                                <input
+                                    id='oldRate'
+                                    type='number'
+                                    value='4.41'
+                                    min='0'
+                                    step='0.01'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='oldYears'
+                                >
+                                    상환 기간 (년)
+                                </label>
+                                <input
+                                    id='oldYears'
+                                    type='number'
+                                    value='30'
+                                    min='1'
+                                    step='1'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                            </div>
+                        </section>
+
+                        <section class='space-y-4'>
+                            <div class='flex items-center justify-between'>
+                                <h3 class='text-primary text-sm font-semibold'>
+                                    새 대출
+                                </h3>
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='newPrincipal'
+                                >
+                                    대출 원금
+                                </label>
+                                <input
+                                    id='newPrincipal'
+                                    type='number'
+                                    value='400000000'
+                                    min='0'
+                                    step='100000'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                                <p
+                                    id='newPrincipalText'
+                                    class='text-muted-foreground mt-2 text-sm font-medium'
+                                >
+                                    사억원
+                                </p>
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='newRate'
+                                >
+                                    연 이자율 (%)
+                                </label>
+                                <input
+                                    id='newRate'
+                                    type='number'
+                                    value='3.2'
+                                    min='0'
+                                    step='0.01'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class='mb-2 block text-sm font-medium'
+                                    for='newYears'
+                                >
+                                    상환 기간 (년)
+                                </label>
+                                <input
+                                    id='newYears'
+                                    type='number'
+                                    value='30'
+                                    min='1'
+                                    step='1'
+                                    class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                                />
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class='grid gap-5 md:grid-cols-2'>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='repaymentType'
+                            >
+                                상환 방식
+                            </label>
+                            <select
+                                id='repaymentType'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            >
+                                <option value='amortized' selected>원리금균등</option>
+                                <option value='principal'>원금균등 (첫 달 기준)</option>
+                            </select>
+                            <p class='text-muted-foreground mt-2 text-sm leading-6'>
+                                원금균등은 월 납입액이 매달 줄어드므로 첫 달 기준으로
+                                비교합니다.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='prepayFee'
+                            >
+                                갈아타기 비용 / 수수료 (선택)
+                            </label>
+                            <input
+                                id='prepayFee'
+                                type='number'
+                                value='700000'
+                                min='0'
+                                step='10000'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p
+                                id='prepayFeeText'
+                                class='text-muted-foreground mt-2 text-sm font-medium'
+                            >
+                                칠십만원
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class='flex flex-col gap-3 sm:flex-row'>
+                        <button
+                            id='resetBtn'
+                            type='button'
+                            class='bg-background border-border rounded-xl border px-5 py-3 font-semibold'
+                        >
+                            예시값으로 초기화
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class='space-y-6'>
+                <div class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                    <h2 class='text-xl font-semibold'>비교 결과</h2>
+
+                    <div
+                        id='monthlySavingsBox'
+                        class='from-primary/15 mt-5 rounded-2xl border border-emerald-400/30 bg-gradient-to-br to-sky-300/5 p-5 transition'
+                    >
+                        <p class='text-muted-foreground text-sm'>월 절감액</p>
+                        <p
+                            id='monthlySavings'
+                            class='mt-2 text-3xl font-bold tracking-tight md:text-4xl'
+                        >
+                            ₩0
+                        </p>
+                        <p
+                            id='monthlySavingsText'
+                            class='text-muted-foreground mt-2 text-sm font-medium'
+                        >
+                            영원
+                        </p>
+                    </div>
+
+                    <div class='mt-5 grid gap-4 md:grid-cols-2'>
+                        <div class='bg-background border-border rounded-2xl border p-4'>
+                            <strong class='text-sm font-semibold'>기존 대출</strong>
+                            <div class='mt-4 space-y-3'>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >월 상환금</span
+                                    >
+                                    <strong id='oldMonthly'>-</strong>
+                                </div>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >총 상환액</span
+                                    >
+                                    <strong id='oldTotal'>-</strong>
+                                </div>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >총 이자</span
+                                    >
+                                    <strong id='oldInterest'>-</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class='bg-background border-border rounded-2xl border p-4'>
+                            <strong class='text-sm font-semibold'>새 대출</strong>
+                            <div class='mt-4 space-y-3'>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >월 상환금</span
+                                    >
+                                    <strong id='newMonthly'>-</strong>
+                                </div>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >총 상환액</span
+                                    >
+                                    <strong id='newTotal'>-</strong>
+                                </div>
+                                <div
+                                    class='border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                                >
+                                    <span class='text-muted-foreground text-sm'
+                                        >총 이자</span
+                                    >
+                                    <strong id='newInterest'>-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='mt-5 space-y-3'>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>연간 절감액</span>
+                            <strong id='yearlySavings'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>5년 절감액</span>
+                            <strong id='fiveYearSavings'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>총 이자 절감액</span>
+                            <strong id='interestSavings'>-</strong>
+                        </div>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'
+                                >갈아타기 비용 회수 기간</span
+                            >
+                            <strong id='breakEvenMonths'>-</strong>
+                        </div>
+                    </div>
+
+                    <div class='mt-5'>
+                        <div
+                            class='text-muted-foreground mb-2 flex items-center justify-between text-sm'
+                        >
+                            <span>월 상환금 비교</span>
+                            <span id='barSummary'>-</span>
+                        </div>
+                        <div
+                            class='bg-background border-border h-4 overflow-hidden rounded-full border'
+                        >
+                            <div
+                                id='barFill'
+                                class='from-primary to-primary/70 h-full w-0 rounded-full bg-gradient-to-r transition-all duration-300'
+                            >
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class='text-muted-foreground mt-5 text-sm leading-6'>
+                        참고: 실제 은행 약정, 실행 시점, 상환 방식, 우대금리 반영 여부에
+                        따라 결과가 달라질 수 있습니다. 이 계산기는 비교 판단용
+                        예측값입니다.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <script is:inline>
+        const el = (id) => document.getElementById(id);
+
+        const money = new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW',
+            maximumFractionDigits: 0,
+        });
+
+        function toKoreanNumber(value) {
+            if (!Number.isFinite(value) || value === 0) return '영원';
+
+            const units = ['', '만', '억', '조', '경'];
+            const nums = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+            const smallUnits = ['', '십', '백', '천'];
+
+            let num = Math.floor(Math.abs(value));
+            let result = '';
+            let unitIndex = 0;
+
+            while (num > 0) {
+                const chunk = num % 10000;
+                if (chunk > 0) {
+                    let chunkText = '';
+                    const digits = String(chunk).split('').reverse();
+
+                    for (let i = digits.length - 1; i >= 0; i -= 1) {
+                        const digit = Number(digits[i]);
+                        if (digit === 0) continue;
+                        chunkText += nums[digit] + smallUnits[i];
+                    }
+
+                    result = chunkText + units[unitIndex] + result;
+                }
+
+                num = Math.floor(num / 10000);
+                unitIndex += 1;
+            }
+
+            return `${value < 0 ? '마이너스 ' : ''}${result}원`;
+        }
+
+        function calcAmortized(principal, annualRate, years) {
+            const months = years * 12;
+            const monthlyRate = annualRate / 12 / 100;
+
+            if (months <= 0) return { monthly: 0, total: 0, interest: 0 };
+
+            if (monthlyRate === 0) {
+                const monthly = principal / months;
+                return { monthly, total: monthly * months, interest: 0 };
+            }
+
+            const monthly =
+                (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+                (Math.pow(1 + monthlyRate, months) - 1);
+            const total = monthly * months;
+
+            return { monthly, total, interest: total - principal };
+        }
+
+        function calcPrincipal(principal, annualRate, years) {
+            const months = years * 12;
+
+            if (months <= 0) return { monthly: 0, total: 0, interest: 0 };
+
+            const monthlyPrincipal = principal / months;
+            const monthlyRate = annualRate / 12 / 100;
+            const firstMonthInterest = principal * monthlyRate;
+            const monthly = monthlyPrincipal + firstMonthInterest;
+            const totalInterest =
+                monthlyRate === 0 ? 0 : ((months + 1) / 2) * principal * monthlyRate;
+            const total = principal + totalInterest;
+
+            return { monthly, total, interest: totalInterest };
+        }
+
+        function calculateLoan(principal, rate, years, type) {
+            if (type === 'principal') return calcPrincipal(principal, rate, years);
+            return calcAmortized(principal, rate, years);
+        }
+
+        function updateAmountTexts() {
+            el('oldPrincipalText').textContent = toKoreanNumber(
+                Number(el('oldPrincipal')?.value || 0),
+            );
+            el('newPrincipalText').textContent = toKoreanNumber(
+                Number(el('newPrincipal')?.value || 0),
+            );
+            el('prepayFeeText').textContent = toKoreanNumber(
+                Number(el('prepayFee')?.value || 0),
+            );
+        }
+
+        function formatBreakEven(cost, monthlySavings) {
+            if (monthlySavings <= 0) return '회수 불가';
+            if (cost <= 0) return '즉시 회수';
+
+            const months = cost / monthlySavings;
+            if (months < 1) return '1개월 이내';
+
+            return `${months.toFixed(1)}개월`;
+        }
+
+        function render() {
+            const oldPrincipal = Number(el('oldPrincipal')?.value || 0);
+            const oldRate = Number(el('oldRate')?.value || 0);
+            const oldYears = Number(el('oldYears')?.value || 0);
+            const newPrincipal = Number(el('newPrincipal')?.value || 0);
+            const newRate = Number(el('newRate')?.value || 0);
+            const newYears = Number(el('newYears')?.value || 0);
+            const repaymentType = el('repaymentType')?.value || 'amortized';
+            const prepayFee = Number(el('prepayFee')?.value || 0);
+
+            updateAmountTexts();
+
+            const oldLoan = calculateLoan(
+                oldPrincipal,
+                oldRate,
+                oldYears,
+                repaymentType,
+            );
+            const newLoan = calculateLoan(
+                newPrincipal,
+                newRate,
+                newYears,
+                repaymentType,
+            );
+
+            const monthlySavings = oldLoan.monthly - newLoan.monthly;
+            const yearlySavings = monthlySavings * 12;
+            const fiveYearSavings = monthlySavings * 60;
+            const interestSavings = oldLoan.interest - newLoan.interest;
+            const maxMonthly = Math.max(oldLoan.monthly, newLoan.monthly, 1);
+            const savingsRate = Math.max(
+                0,
+                Math.min(100, (monthlySavings / maxMonthly) * 100),
+            );
+
+            el('oldMonthly').textContent = money.format(Math.round(oldLoan.monthly));
+            el('oldTotal').textContent = money.format(Math.round(oldLoan.total));
+            el('oldInterest').textContent = money.format(Math.round(oldLoan.interest));
+
+            el('newMonthly').textContent = money.format(Math.round(newLoan.monthly));
+            el('newTotal').textContent = money.format(Math.round(newLoan.total));
+            el('newInterest').textContent = money.format(Math.round(newLoan.interest));
+
+            el('monthlySavings').textContent = money.format(Math.round(monthlySavings));
+            el('monthlySavingsText').textContent = toKoreanNumber(
+                Math.round(monthlySavings),
+            );
+            el('yearlySavings').textContent = money.format(Math.round(yearlySavings));
+            el('fiveYearSavings').textContent = money.format(
+                Math.round(fiveYearSavings),
+            );
+            el('interestSavings').textContent = money.format(
+                Math.round(interestSavings),
+            );
+            el('breakEvenMonths').textContent = formatBreakEven(
+                prepayFee,
+                monthlySavings,
+            );
+
+            el('barFill').style.width = `${Math.max(0, savingsRate)}%`;
+            el('barSummary').textContent =
+                `${Math.max(0, savingsRate).toFixed(1)}% 절감`;
+
+            const savingsBox = el('monthlySavingsBox');
+            if (monthlySavings >= 0) {
+                savingsBox.classList.remove('border-red-400/30', 'from-red-400/10');
+                savingsBox.classList.add('border-emerald-400/30');
+            } else {
+                savingsBox.classList.remove('border-emerald-400/30');
+                savingsBox.classList.add('border-red-400/30', 'from-red-400/10');
+            }
+        }
+
+        function bindAutoRender() {
+            [
+                'oldPrincipal',
+                'oldRate',
+                'oldYears',
+                'newPrincipal',
+                'newRate',
+                'newYears',
+                'repaymentType',
+                'prepayFee',
+            ].forEach((id) => {
+                el(id)?.addEventListener('input', render);
+                el(id)?.addEventListener('change', render);
+            });
+        }
+
+        function reset() {
+            el('oldPrincipal').value = '400000000';
+            el('oldRate').value = '4.41';
+            el('oldYears').value = '30';
+            el('newPrincipal').value = '400000000';
+            el('newRate').value = '3.2';
+            el('newYears').value = '30';
+            el('repaymentType').value = 'amortized';
+            el('prepayFee').value = '700000';
+            render();
+        }
+
+        el('resetBtn')?.addEventListener('click', reset);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            bindAutoRender();
+            render();
+        });
+    </script>
+</BaseLayout>

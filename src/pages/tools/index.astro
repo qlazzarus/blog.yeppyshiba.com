@@ -16,6 +16,13 @@ const tools = [
             '상환 금액, 수수료율, 실행일을 기준으로 예상 중도상환수수료를 계산합니다.',
         tag: 'Finance',
     },
+    {
+        href: '/tools/mortgage-payment-calculator',
+        title: '대출 월 상환금 비교 계산기',
+        description:
+            '기존 대출과 갈아탈 대출의 월 상환금, 총 이자, 절감액을 한 번에 비교하고 갈아타기 손익을 확인합니다.',
+        tag: 'Finance',
+    },
 ];
 ---
 
@@ -24,17 +31,28 @@ const tools = [
         <div class='space-y-2'>
             <p class='text-primary text-sm font-semibold'>Useful Tools</p>
             <h1 class='text-3xl font-bold tracking-tight'>도구 모음</h1>
-            <p class='text-muted-foreground'>실제 의사결정에 바로 쓸 수 있는 계산기와 유틸리티를 모아둔 페이지입니다.</p>
+            <p class='text-muted-foreground'>
+                실제 의사결정에 바로 쓸 수 있는 계산기와 유틸리티를 모아둔 페이지입니다.
+            </p>
         </div>
 
         <div class='grid gap-4 md:grid-cols-2'>
-            {tools.map((tool) => (
-                <a href={tool.href} class='bg-card border-border hover:border-primary/50 block rounded-2xl border p-6 transition-colors'>
-                    <p class='text-primary text-xs font-semibold uppercase tracking-wide'>{tool.tag}</p>
-                    <h2 class='mt-2 text-xl font-semibold'>{tool.title}</h2>
-                    <p class='text-muted-foreground mt-2 text-sm leading-6'>{tool.description}</p>
-                </a>
-            ))}
+            {
+                tools.map((tool) => (
+                    <a
+                        href={tool.href}
+                        class='bg-card border-border hover:border-primary/50 block rounded-2xl border p-6 transition-colors'
+                    >
+                        <p class='text-primary text-xs font-semibold tracking-wide uppercase'>
+                            {tool.tag}
+                        </p>
+                        <h2 class='mt-2 text-xl font-semibold'>{tool.title}</h2>
+                        <p class='text-muted-foreground mt-2 text-sm leading-6'>
+                            {tool.description}
+                        </p>
+                    </a>
+                ))
+            }
         </div>
     </section>
 </BaseLayout>
