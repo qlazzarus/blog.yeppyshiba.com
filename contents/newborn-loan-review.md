@@ -1,7 +1,7 @@
 ---
 title: 신생아 특례대출 실제 후기 — 4.41% → 3.2% 갈아탄 결정 과정과 전략
 date: 2026-04-15T15:00:00+09:00
-category: review
+category: finance
 summary: 신생아 특례대출로 금리를 4.41%에서 3.2%로 낮춘 실제 경험. 갈아타기 고민부터 실행, 그리고 앞으로의 상환 전략까지 현실적으로 정리했습니다.
 image: https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200
 tags:

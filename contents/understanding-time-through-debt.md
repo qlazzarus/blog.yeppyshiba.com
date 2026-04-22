@@ -1,7 +1,7 @@
 ---
 title: 대출을 통해 처음으로 '시간'을 이해했다
 date: 2026-03-25T09:00:00.000Z
-category: essay
+category: finance
 summary: 대출은 단순히 빚이 아니라 시간과 선택을 바꾸는 구조였다. 이자를 계산하면서 처음으로 '시간의 가격'을 이해하게 됐다.
 image: https://commons.wikimedia.org/wiki/Special:FilePath/People%20Group%20Silhouette%20Sunset%20%28Unsplash%29.jpg
 tags:
