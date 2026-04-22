@@ -8,7 +8,14 @@ const blog = defineCollection({
         z.object({
             title: z.string(),
             date: z.coerce.date(),
-            category: z.enum(['review', 'coding', 'essay', 'math', 'aviation']),
+            category: z.enum([
+                'review',
+                'coding',
+                'essay',
+                'math',
+                'aviation',
+                'finance',
+            ]),
             summary: z.string(),
             // optional tags array
             tags: z.array(z.union([z.number(), z.string()])).optional(),
