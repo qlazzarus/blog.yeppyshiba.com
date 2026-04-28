@@ -1,26 +1,21 @@
 ---
-import FallbackImage from '@/assets/blog-placeholder-1.jpg';
 import StructuredData from './StructuredData.astro';
 import { SITE_TITLE } from '@/consts';
-
-type BreadcrumbItem = {
-    name: string;
-    item: string;
-};
 
 interface Props {
     title: string;
     description: string;
     image?: string;
     schemaType?: 'website' | 'article';
-    breadcrumbs?: BreadcrumbItem[];
+    breadcrumbs?: {
+        name: string;
+        item: string;
+    }[];
     datePublished?: Date | string;
     dateModified?: Date | string;
     tags?: Array<string | number>;
     category?: string;
 }
-
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const {
     title: defaultTitle,
@@ -32,10 +27,20 @@ const {
     dateModified,
     tags = [],
     category,
-} = Astro.props;
+} = Astro.props as Props;
 
 const title = defaultTitle ? `${defaultTitle} - ${SITE_TITLE}` : SITE_TITLE;
-const defaultImage: string | URL = image || new URL(FallbackImage.src, Astro.url);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const fallbackImage = '/images/profile-yeppyshiba.png';
+
+function toAbsoluteUrl(src?: string) {
+    if (!src) return new URL(fallbackImage, Astro.site).toString();
+    if (src.startsWith('http')) return src;
+    return new URL(src, Astro.site).toString();
+}
+
+const ogImage = toAbsoluteUrl(image);
 ---
 
 <!-- Global Metadata -->
@@ -80,20 +85,20 @@ const defaultImage: string | URL = image || new URL(FallbackImage.src, Astro.url
 <meta property='og:url' content={Astro.url} />
 <meta property='og:title' content={title} />
 <meta property='og:description' content={description} />
-<meta property='og:image' content={defaultImage} />
+<meta property='og:image' content={ogImage} />
 
 <!-- Twitter -->
 <meta property='twitter:card' content='summary_large_image' />
 <meta property='twitter:url' content={Astro.url} />
 <meta property='twitter:title' content={title} />
 <meta property='twitter:description' content={description} />
-<meta property='twitter:image' content={defaultImage} />
+<meta property='twitter:image' content={ogImage} />
 
 <StructuredData
     type={schemaType}
     title={defaultTitle}
     description={description}
-    image={typeof defaultImage === 'string' ? defaultImage : defaultImage.toString()}
+    image={ogImage}
     breadcrumbs={breadcrumbs}
     datePublished={datePublished}
     dateModified={dateModified}

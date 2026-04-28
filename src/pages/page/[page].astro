@@ -30,9 +30,10 @@ const pagePosts = posts.slice(start, start + POSTS_PER_PAGE);
 
 const title = `Page ${page}`;
 const description = `Explore posts on page ${page}`;
+const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={pageImage}>
     <section>
         <EntryGrid entries={pagePosts} basePath='/article' />
         <div class='mt-6'>

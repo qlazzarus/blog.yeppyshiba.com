@@ -14,12 +14,13 @@ const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
 const title = 'Home';
 const description = 'Explore posts on page 1';
+const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={pageImage}>
     <section>
-        <EntryGrid entries={pagePosts} basePath="/article" />
-        <div class="mt-6">
+        <EntryGrid entries={pagePosts} basePath='/article' />
+        <div class='mt-6'>
             <Pagination currentPage={1} totalPages={totalPages} basePath='/page' />
         </div>
     </section>

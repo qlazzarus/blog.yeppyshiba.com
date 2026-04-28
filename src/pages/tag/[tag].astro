@@ -26,18 +26,32 @@ const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 // derive display label from first matching tag string
 let label = tag;
 for (const p of posts) {
-    const found = (p.data.tags ?? []).find((t) => slugify(t) === tag);
+    const found = (p.data.tags ?? []).find((t) => slugify(t.toString()) === tag);
     if (found) {
-        label = found;
+        label = typeof found === 'string' ? found : String(found);
         break;
     }
 }
 
 const title = `Tag: ${label}`;
 const description = `Posts tagged ${label}`;
+const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
+
+const pageUrl = new URL(`/tag/${tag}`, Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tag', item: new URL('/tag', Astro.site).toString() },
+    { name: label, item: pageUrl },
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+    title={title}
+    description={description}
+    image={pageImage}
+    breadcrumbs={breadcrumbs}
+>
     <section>
         <h1 class='mb-4 text-center text-3xl font-bold'>
             Tag: {label}

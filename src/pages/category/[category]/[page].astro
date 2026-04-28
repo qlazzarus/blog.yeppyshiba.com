@@ -41,9 +41,10 @@ const pagePosts = posts.slice(start, start + POSTS_PER_PAGE);
 
 const title = `Category: ${category} — Page ${page}`;
 const description = `Posts in category ${category}, page ${page}`;
+const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={pageImage}>
     <section>
         <h1 class='mb-4 text-center text-3xl font-bold'>
             Category: {category}
