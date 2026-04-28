@@ -28,9 +28,22 @@ if (!posts.length) {
 
 const title = `Category: ${category}`;
 const description = `Posts in category ${category}`;
+const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
+const pageUrl = new URL(`/category/${category}`, Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Category', item: new URL('/category', Astro.site).toString() },
+    { name: category, item: pageUrl },
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+    title={title}
+    description={description}
+    image={pageImage}
+    breadcrumbs={breadcrumbs}
+>
     <section>
         <h1 class='mb-4 text-center text-3xl font-bold'>
             Category: {category}

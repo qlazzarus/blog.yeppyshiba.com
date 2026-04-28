@@ -39,9 +39,13 @@ const getColorByIndex = (idx: number) => {
 const countsOnly = tagEntries.map(([, c]) => c);
 const maxCount = countsOnly.length ? Math.max(...countsOnly) : 0;
 const minCount = countsOnly.length ? Math.min(...countsOnly) : 0;
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tag', item: new URL('/tag', Astro.site).toString() },
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
     <section>
         <h1 class='mb-4 text-center text-3xl font-bold'>Tag Cloud</h1>
 
