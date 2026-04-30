@@ -16,6 +16,38 @@ const skills = [
     'TypeScript',
     '3D Printing',
 ];
+const mainCategories = [
+    {
+        href: '/category/coding/',
+        label: 'Coding',
+        description: '웹 개발, 프레임워크, 구현 경험',
+    },
+    {
+        href: '/category/math/',
+        label: 'Math',
+        description: '수학 개념을 다시 생각해보는 글',
+    },
+    {
+        href: '/category/review/',
+        label: 'Review',
+        description: '공간, 음식, 제품에 대한 솔직한 기록',
+    },
+    {
+        href: '/category/aviation/',
+        label: 'Aviation',
+        description: '항공 시스템과 업무 도메인 이야기',
+    },
+    {
+        href: '/category/finance/',
+        label: 'Finance',
+        description: '대출, 돈, 생활 비용에 대한 경험',
+    },
+    {
+        href: '/category/essay/',
+        label: 'Essay',
+        description: '일과 삶을 돌아보는 짧은 생각',
+    },
+];
 
 const social = {
     github: 'https://github.com/qlazzarus',
@@ -30,7 +62,7 @@ const social = {
     description='블로그 소개'
     breadcrumbs={[
         { name: 'Home', item: new URL('/', Astro.site).toString() },
-        { name: 'About', item: new URL('/about', Astro.site).toString() },
+        { name: 'About', item: new URL('/about/', Astro.site).toString() },
     ]}
 >
     <section class='flex justify-center py-8'>
@@ -55,6 +87,31 @@ const social = {
                                 </span>
                             ))
                         }
+                    </div>
+
+                    <div class='mt-8 w-full border-t pt-6'>
+                        <h2 class='text-center text-lg font-semibold'>
+                            블로그에서 주로 다루는 이야기
+                        </h2>
+                        <ul class='mt-4 grid gap-3 sm:grid-cols-2'>
+                            {
+                                mainCategories.map((category) => (
+                                    <li>
+                                        <a
+                                            href={category.href}
+                                            class='border-border hover:bg-muted/60 block rounded-md border px-4 py-3 transition-colors'
+                                        >
+                                            <span class='font-medium'>
+                                                {category.label}
+                                            </span>
+                                            <span class='text-muted-foreground mt-1 block text-sm'>
+                                                {category.description}
+                                            </span>
+                                        </a>
+                                    </li>
+                                ))
+                            }
+                        </ul>
                     </div>
 
                     <div class='mt-4 flex gap-3'>

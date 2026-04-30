@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { slugify } from 'transliteration';
 import FormattedDate from './FormattedDate.astro';
 
 interface Props {
@@ -22,7 +23,9 @@ const viewMap = new Map<string, number>(
     gaViews.map((v) => [v.path, Number(v.totalCount) || 0]),
 );
 
-const getViewCount = (postId: string) => viewMap.get(`${basePath}/${postId}`) ?? 0;
+const getPostHref = (postId: string) => `${basePath}/${postId}/`;
+const getViewCount = (postId: string) =>
+    viewMap.get(`${basePath}/${postId}`) ?? viewMap.get(`${basePath}/${postId}/`) ?? 0;
 ---
 
 <div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -30,7 +33,7 @@ const getViewCount = (postId: string) => viewMap.get(`${basePath}/${postId}`) ??
         entries.map((post) => (
             <article class='bg-card overflow-hidden rounded-lg border shadow-sm'>
                 <a
-                    href={`${basePath}/${post.id}`}
+                    href={getPostHref(post.id)}
                     class='relative block aspect-video w-full overflow-hidden'
                 >
                     {post.data.image ? (
@@ -51,14 +54,14 @@ const getViewCount = (postId: string) => viewMap.get(`${basePath}/${postId}`) ??
                 <div class='p-4'>
                     {post.data.category && (
                         <div class='text-muted-foreground mb-2 rounded text-xs capitalize'>
-                            <a href={`/category/${post.data.category}`}>
+                            <a href={`/category/${post.data.category}/`}>
                                 {post.data.category}
                             </a>
                         </div>
                     )}
 
                     <h3 class='mb-1 text-lg font-semibold'>
-                        <a href={`${basePath}/${post.id}`} class='hover:underline'>
+                        <a href={getPostHref(post.id)} class='hover:underline'>
                             {post.data.title}
                         </a>
                     </h3>
@@ -71,7 +74,7 @@ const getViewCount = (postId: string) => viewMap.get(`${basePath}/${postId}`) ??
                         <div class='mb-2 flex flex-wrap gap-2'>
                             {post.data.tags?.slice(0, 5).map((tag) => (
                                 <a
-                                    href={`/tag/${tag}`}
+                                    href={`/tag/${slugify(String(tag))}/`}
                                     class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-xs'
                                 >
                                     {tag}

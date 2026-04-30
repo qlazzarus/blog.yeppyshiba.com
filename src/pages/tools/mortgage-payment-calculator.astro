@@ -4,10 +4,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 const title = '대출 월 상환금 비교 계산기';
 const description =
     '주택담보대출 월 상환금을 비교하는 계산기. 기존 대출과 갈아탈 대출의 월 납입금, 총 이자, 절감액을 바로 확인할 수 있습니다.';
-const pageUrl = new URL('/tools/mortgage-payment-calculator', Astro.site).toString();
+const pageUrl = new URL('/tools/mortgage-payment-calculator/', Astro.site).toString();
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Tools', item: new URL('/tools', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
     { name: title, item: pageUrl },
 ];
 

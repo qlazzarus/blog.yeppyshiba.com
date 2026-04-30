@@ -51,7 +51,7 @@ const description =
                 {
                     posts.map((p) => (
                         <li>
-                            <a href={`/article/${p.id}`}>{p.data.title}</a>
+                            <a href={`/article/${p.id}/`}>{p.data.title}</a>
                             <div>
                                 {p.data.date
                                     ? new Date(p.data.date).toLocaleDateString(

@@ -18,7 +18,7 @@ const title = 'Categories';
 const description = 'Browse categories';
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Category', item: new URL('/category', Astro.site).toString() },
+    { name: 'Category', item: new URL('/category/', Astro.site).toString() },
 ];
 ---
 
@@ -34,7 +34,7 @@ const breadcrumbs = [
                     {categories.map(([cat, count]) => (
                         <li class='rounded border p-3 hover:shadow'>
                             <a
-                                href={`/category/${cat}`}
+                                href={`/category/${cat}/`}
                                 class='flex items-center justify-between'
                             >
                                 <span class='text-lg capitalize'>{cat}</span>

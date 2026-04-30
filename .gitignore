@@ -26,3 +26,5 @@ pnpm-debug.log*
 src/data
 
 *.zip
+
+analytics.json

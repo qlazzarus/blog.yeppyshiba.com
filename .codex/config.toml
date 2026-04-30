@@ -1,0 +1,6 @@
+[mcp_servers.ga4]
+command = "analytics-mcp"
+
+[mcp_servers.ga4.env]
+GOOGLE_APPLICATION_CREDENTIALS = "./analytics.json"
+GA_PROPERTY_ID = "314819162"
