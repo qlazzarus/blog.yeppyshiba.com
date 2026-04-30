@@ -37,11 +37,11 @@ const title = `Tag: ${label}`;
 const description = `Posts tagged ${label}`;
 const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
 
-const pageUrl = new URL(`/tag/${tag}`, Astro.site).toString();
+const pageUrl = new URL(`/tag/${tag}/`, Astro.site).toString();
 
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Tag', item: new URL('/tag', Astro.site).toString() },
+    { name: 'Tag', item: new URL('/tag/', Astro.site).toString() },
     { name: label, item: pageUrl },
 ];
 ---
@@ -65,7 +65,7 @@ const breadcrumbs = [
                 currentPage={1}
                 totalPages={totalPages}
                 basePath={`/tag/${tag}`}
-                firstPagePath={`/tag/${tag}`}
+                firstPagePath={`/tag/${tag}/`}
             />
         </div>
     </section>

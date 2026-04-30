@@ -5,19 +5,19 @@ const title = 'Tools';
 const description = 'Yeppyshiba Blog에서 제공하는 계산기와 실전 도구 모음';
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Tools', item: new URL('/tools', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
 ];
 
 const tools = [
     {
-        href: '/tools/prepayment-fee-calculator',
+        href: '/tools/prepayment-fee-calculator/',
         title: '중도상환수수료 계산기',
         description:
             '상환 금액, 수수료율, 실행일을 기준으로 예상 중도상환수수료를 계산합니다.',
         tag: 'Finance',
     },
     {
-        href: '/tools/mortgage-payment-calculator',
+        href: '/tools/mortgage-payment-calculator/',
         title: '대출 월 상환금 비교 계산기',
         description:
             '기존 대출과 갈아탈 대출의 월 상환금, 총 이자, 절감액을 한 번에 비교하고 갈아타기 손익을 확인합니다.',

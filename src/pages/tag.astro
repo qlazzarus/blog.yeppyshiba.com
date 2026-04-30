@@ -41,7 +41,7 @@ const maxCount = countsOnly.length ? Math.max(...countsOnly) : 0;
 const minCount = countsOnly.length ? Math.min(...countsOnly) : 0;
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Tag', item: new URL('/tag', Astro.site).toString() },
+    { name: 'Tag', item: new URL('/tag/', Astro.site).toString() },
 ];
 ---
 
@@ -62,7 +62,7 @@ const breadcrumbs = [
                         return (
                             <li class='mx-1 my-1'>
                                 <a
-                                    href={`/tag/${slug}`}
+                                    href={`/tag/${slug}/`}
                                     class='inline-block px-1.5 py-0.5 transition-all'
                                     style={{ color, fontSize }}
                                     aria-label={`${label} (${count})`}

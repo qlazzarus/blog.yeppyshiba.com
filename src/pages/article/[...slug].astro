@@ -23,12 +23,34 @@ const currentIndex = sortedPosts.findIndex((p) => p.id === post.id);
 const prev = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 const next =
     currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
+
+const currentTags = new Set((post.data.tags ?? []).map((tag) => String(tag)));
+const relatedPosts = sortedPosts
+    .filter((candidate) => candidate.id !== post.id)
+    .map((candidate) => {
+        const sharedTagCount = (candidate.data.tags ?? []).filter((tag) =>
+            currentTags.has(String(tag)),
+        ).length;
+        return { post: candidate, sharedTagCount };
+    })
+    .filter(({ sharedTagCount }) => sharedTagCount > 0)
+    .sort((a, b) => {
+        if (b.sharedTagCount !== a.sharedTagCount) {
+            return b.sharedTagCount - a.sharedTagCount;
+        }
+        return (
+            new Date(b.post.data.date).getTime() - new Date(a.post.data.date).getTime()
+        );
+    })
+    .slice(0, 6)
+    .map(({ post }) => post);
 ---
 
 <Layout
     {...post.data}
     prevPost={prev ? { slug: prev.id, title: prev.data.title } : null}
     nextPost={next ? { slug: next.id, title: next.data.title } : null}
+    relatedPosts={relatedPosts}
 >
     <Content />
 </Layout>

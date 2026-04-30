@@ -13,7 +13,8 @@ const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 const pagePosts = posts.slice(0, POSTS_PER_PAGE);
 
 const title = 'Home';
-const description = 'Explore posts on page 1';
+const description =
+    '웹 개발, 수학적 사고, 생활 리뷰를 차분히 기록하는 Yeppyshiba의 개인 블로그입니다.';
 const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
 ---
 

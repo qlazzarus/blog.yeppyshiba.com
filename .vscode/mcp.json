@@ -1,0 +1,12 @@
+{
+    "servers": {
+        "ga4": {
+            "type": "stdio",
+            "command": "analytics-mcp",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/analytics.json",
+                "GA_PROPERTY_ID": "314819162"
+            }
+        }
+    }
+}

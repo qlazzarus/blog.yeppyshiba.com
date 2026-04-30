@@ -16,7 +16,9 @@ const {
             <a
                 class='bg-secondary rounded px-3 py-1'
                 href={
-                    currentPage === 2 ? firstPagePath : `${basePath}/${currentPage - 1}`
+                    currentPage === 2
+                        ? firstPagePath
+                        : `${basePath}/${currentPage - 1}/`
                 }
                 rel='prev'
             >
@@ -28,7 +30,7 @@ const {
     {
         Array.from({ length: totalPages }).map((_, i) => {
             const idx = i + 1;
-            const href = idx === 1 ? firstPagePath : `${basePath}/${idx}`;
+            const href = idx === 1 ? firstPagePath : `${basePath}/${idx}/`;
             return (
                 <a
                     class={`rounded px-3 py-1 ${idx === currentPage ? 'bg-primary text-white' : 'bg-secondary'}`}
@@ -45,7 +47,7 @@ const {
         currentPage < totalPages && (
             <a
                 class='bg-secondary rounded px-3 py-1'
-                href={`${basePath}/${currentPage + 1}`}
+                href={`${basePath}/${currentPage + 1}/`}
                 rel='next'
             >
                 Next

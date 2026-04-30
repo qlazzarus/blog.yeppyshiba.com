@@ -4,10 +4,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 const title = '중도상환수수료 계산기';
 const description =
     '주택담보대출 중도상환수수료를 빠르게 계산하는 웹 계산기. 상환 예정 금액, 수수료율, 면제 기간, 실행일을 넣으면 예상 수수료를 바로 확인할 수 있습니다.';
-const pageUrl = new URL('/tools/prepayment-fee-calculator', Astro.site).toString();
+const pageUrl = new URL('/tools/prepayment-fee-calculator/', Astro.site).toString();
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Tools', item: new URL('/tools', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
     { name: title, item: pageUrl },
 ];
 
