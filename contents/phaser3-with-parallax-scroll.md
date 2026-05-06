@@ -3,29 +3,27 @@ title: phaser3 에 패럴랙스 스크롤링 (parallax scrolling) 구현하기
 date: 2022-05-31T12:06:42.980Z
 summary: 패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다.
 category: coding
-image: https://www.encora.com/hubfs/how-to-take-advantage-of-parallax-in-programming-and-video-games-top-1.png
+image: https://upload.wikimedia.org/wikipedia/commons/d/d7/Parallax_scroll.gif
 tags:
-  - analytics
-  - coding
-  - dev
-  - game-dev
-  - git
-  - graphics
-  - math
-  - parallax
-  - parallax scroll
-  - phaser
-  - phaser3
-  - scroll
-  - web game
-  - with
+    - analytics
+    - coding
+    - dev
+    - game-dev
+    - git
+    - graphics
+    - math
+    - parallax
+    - parallax scroll
+    - phaser
+    - phaser3
+    - scroll
+    - web game
+    - with
 ---
 
 ## 패럴랙스 스크롤링 (parallax scrolling) 이란?
 
 패럴랙스 스크롤링(parallax scrolling)은 원거리에 있는 배경 이미지는 느리게 움직이게 하고, 근거리에 있는 사물 이미지는 빠르게 움직이도록 함으로써 2D 기반에서 입체감을 느낄 수 있게 만든 기법입니다. 하나의 이미지를 여러 개의 레이어(layer)로 분리한 후 스크롤에 반응하는 속도를 다르게 조정하는 방식으로 구현하게 됩니다. 1930년대부터 애니메이션 분야에 사용되던 기법이었으나, 최근에는 웹 디자인에서도 손쉽게 볼 수 있습니다.
-
-![](https://upload.wikimedia.org/wikipedia/commons/d/d7/Parallax_scroll.gif)
 
 ## phaser3 코드를 작성해보자!
 
@@ -141,13 +139,21 @@ texture 의 가로 세로 크기를 가지고 scale 된 사이즈를 구하고, 
 그럼 화면 가득찬 배경을 확인할 수 있겠습니다. 이제 순서대로 나머지 두가지 레이어도 동일하게 추가할 것인데, 반복될 작업을 줄이기 위해서 TileSprite 등록하는 부분을 함수로 빼두겠습니다.
 
 ```typescript
-const addScaledBackground = (scene: Phaser.Scene, asset: string, textureWidth: number, textureHeight: number) => {
+const addScaledBackground = (
+    scene: Phaser.Scene,
+    asset: string,
+    textureWidth: number,
+    textureHeight: number,
+) => {
     const { width, height } = scene.scale;
     const scaledWidth = width / textureWidth;
     const scaledHeight = height / textureHeight;
     const scaled = Math.max(scaledWidth, scaledHeight);
 
-    return scene.add.tileSprite(0, 0, width, height, asset).setTileScale(scaled).setOrigin(0.0, 0.0);
+    return scene.add
+        .tileSprite(0, 0, width, height, asset)
+        .setTileScale(scaled)
+        .setOrigin(0.0, 0.0);
 };
 ```
 
