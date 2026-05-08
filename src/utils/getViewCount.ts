@@ -7,6 +7,21 @@ export interface GAViewResult {
     totalCount: string;
 }
 
+const DEFAULT_PATH_ALIASES: Record<string, string> = {
+    '/article/jeju-tour-review-byeoldobong': '/article/jeju-tour-review-별도봉',
+    '/article/review-2023-november': '/article/a-look-back-in-november-2023',
+};
+
+const normalizePagePath = (rawPath = '') => {
+    const pathWithoutQuery = rawPath.split('?')[0].split('#')[0];
+    const withLeadingSlash = pathWithoutQuery.startsWith('/')
+        ? pathWithoutQuery
+        : `/${pathWithoutQuery}`;
+    const withoutTrailingSlash = withLeadingSlash.replace(/\/+$/, '');
+
+    return withoutTrailingSlash || '/';
+};
+
 async function readLocalMock() {
     try {
         const p = path.resolve('./src/data/ga-views.json');
@@ -18,7 +33,10 @@ async function readLocalMock() {
     return [];
 }
 
-export const getViewCount = async (articlePrefix: string): Promise<GAViewResult[]> => {
+export const getViewCount = async (
+    articlePrefix: string,
+    pathAliases: Record<string, string> = DEFAULT_PATH_ALIASES,
+): Promise<GAViewResult[]> => {
     // 로컬에서 credentials 없으면 mock 읽기
     if (
         !process.env.ANALYTICS_CREDENTIALS &&
@@ -43,44 +61,51 @@ export const getViewCount = async (articlePrefix: string): Promise<GAViewResult[
     const [response] = await analyticsDataClient.runReport({
         property: `properties/${process.env.ANALYTICS_PROPERTY_ID || ''}`,
         dateRanges: [{ startDate: '2022-05-30', endDate: 'today' }],
-        dimensions: [{ name: 'pagePath' }],
+        dimensions: [{ name: 'pagePathPlusQueryString' }],
         metrics: [{ name: 'screenPageViews' }],
         dimensionFilter: {
             filter: {
-                fieldName: 'pagePath',
+                fieldName: 'pagePathPlusQueryString',
                 stringFilter: {
                     matchType: 'BEGINS_WITH',
                     value: `${articlePrefix}/`,
                 },
             },
         },
+        limit: 100000,
+        orderBys: [
+            {
+                desc: true,
+                metric: {
+                    metricName: 'screenPageViews',
+                },
+            },
+        ],
     });
 
     try {
         if (response && response.rows) {
-            // 1) GA가 내려준 각 row에서, pagePath의 트레일링 슬래시 제거
-            // 2) 같은 cleanPath 라면 숫자 합산
             const aggregated: Record<string, number> = {};
 
             response.rows.forEach((row: any) => {
                 const rawPath = row.dimensionValues[0].value;
-                const cleanPath = rawPath.replace(/\/+$/, ''); // 맨 뒤 슬래시 제거
+                const normalizedPath = normalizePagePath(rawPath);
+                const canonicalPath = pathAliases[normalizedPath] ?? normalizedPath;
                 const count = parseInt(row.metricValues[0].value, 10) || 0;
 
-                if (!aggregated[cleanPath]) {
-                    aggregated[cleanPath] = 0;
+                if (!canonicalPath.startsWith(`${articlePrefix}/`)) {
+                    return;
                 }
-                aggregated[cleanPath] += count;
+
+                aggregated[canonicalPath] = (aggregated[canonicalPath] ?? 0) + count;
             });
 
-            // 이제 aggregated에 합산된 값들이 들어있음
-            // { '/article/foo-bar': 10, '/article/hello-world': 5, ... } 형태
-
-            // 3) 우리가 원하는 GAViewResult[] 형태로 변환해서 반환
-            return Object.entries(aggregated).map(([path, totalCount]) => ({
-                path,
-                totalCount: String(totalCount),
-            }));
+            return Object.entries(aggregated)
+                .sort(([, a], [, b]) => b - a)
+                .map(([path, totalCount]) => ({
+                    path,
+                    totalCount: String(totalCount),
+                }));
         }
     } catch (error) {
         console.error('Google Analytics API call failed:', error);
