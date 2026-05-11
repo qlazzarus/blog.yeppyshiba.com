@@ -1,7 +1,12 @@
 ---
 // Client-side Kakao map initializer. Renders a map into the container div below and
 // creates markers with mouseover custom overlays and click navigation to posts.
-const { markers = [] } = Astro.props;
+const {
+    markers = [],
+    height = '100vh',
+    level = 3,
+    enableMarkerNavigation = true,
+} = Astro.props;
 
 // resolve api key from common env names
 const KAKAO_KEY =
@@ -14,14 +19,19 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
 
 <div
     id={id}
-    style='width:100%; min-height:100vh; position:relative'
-    data-map={JSON.stringify({ markers, KAKAO_KEY })}
+    style={`width:100%; min-height:${height}; position:relative`}
+    data-map={JSON.stringify({
+        markers,
+        KAKAO_KEY,
+        level,
+        enableMarkerNavigation,
+    })}
 >
 </div>
 
-<script is:inline>
+<script define:vars={{ id }} is:inline>
     (function () {
-        const el = document.querySelector('div[data-map]');
+        const el = document.getElementById(id);
         if (!el) return;
 
         let data = {};
@@ -34,6 +44,8 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
 
         const markers = data.markers || [];
         const KAKAO_KEY = data.KAKAO_KEY || '';
+        const level = data.level || 3;
+        const enableMarkerNavigation = data.enableMarkerNavigation !== false;
         const containerId = el.id;
 
         if (!KAKAO_KEY) {
@@ -49,18 +61,10 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
         const wrapper = el.closest('.relative') || document;
         const myLocBtn = wrapper.querySelector('button[data-my-location]');
 
-        const script = document.createElement('script');
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=clusterer&autoload=false`;
-        script.async = true;
-        document.head.appendChild(script);
-
-        script.onload = () => {
-            if (!window.kakao) return;
-            window.kakao.maps.load(() => {
-                initMap();
-                if (myLocBtn) myLocBtn.addEventListener('click', goMyLocation);
-            });
-        };
+        loadKakaoMaps(() => {
+            initMap();
+            if (myLocBtn) myLocBtn.addEventListener('click', goMyLocation);
+        });
 
         let map = null;
         let myLocationMarker = null;
@@ -79,7 +83,7 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
             const random = markers[Math.floor(Math.random() * markers.length)];
             map = new kakao.maps.Map(el, {
                 center: new kakao.maps.LatLng(random.lat, random.lng),
-                level: 3,
+                level,
             });
 
             markers.forEach((item) => {
@@ -131,13 +135,43 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
                     if (overlay) overlay.setMap(null);
                 });
                 kakao.maps.event.addListener(marker, 'click', () => {
+                    if (!enableMarkerNavigation) return;
                     try {
-                        window.location.href = `/article/${item.slug}`;
+                        if (item.href) {
+                            window.location.href = item.href;
+                        } else if (item.slug) {
+                            window.location.href = `/article/${item.slug}`;
+                        }
                     } catch (e) {
                         console.error(e);
                     }
                 });
             });
+        }
+
+        function loadKakaoMaps(callback) {
+            if (window.kakao && window.kakao.maps) {
+                window.kakao.maps.load(callback);
+                return;
+            }
+
+            const existing = document.querySelector('script[data-kakao-map-sdk]');
+            if (existing) {
+                existing.addEventListener('load', () => {
+                    if (window.kakao) window.kakao.maps.load(callback);
+                });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=clusterer&autoload=false`;
+            script.async = true;
+            script.dataset.kakaoMapSdk = 'true';
+            script.onload = () => {
+                if (!window.kakao) return;
+                window.kakao.maps.load(callback);
+            };
+            document.head.appendChild(script);
         }
 
         function goMyLocation() {
