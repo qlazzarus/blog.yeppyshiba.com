@@ -24,6 +24,47 @@ const prev = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
 const next =
     currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
 
+const NEARBY_REVIEW_RADIUS_KM = 5;
+
+function getDistanceKm(fromLat: number, fromLng: number, toLat: number, toLng: number) {
+    const earthRadiusKm = 6371;
+    const toRadians = (degree: number) => (degree * Math.PI) / 180;
+    const dLat = toRadians(toLat - fromLat);
+    const dLng = toRadians(toLng - fromLng);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(fromLat)) *
+            Math.cos(toRadians(toLat)) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+
+    return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+const nearbyReviewPosts =
+    typeof post.data.lat === 'number' && typeof post.data.lng === 'number'
+        ? sortedPosts
+              .filter(
+                  (candidate) =>
+                      candidate.id !== post.id &&
+                      candidate.data.category === 'review' &&
+                      typeof candidate.data.lat === 'number' &&
+                      typeof candidate.data.lng === 'number',
+              )
+              .map((candidate) => ({
+                  distanceKm: getDistanceKm(
+                      post.data.lat!,
+                      post.data.lng!,
+                      candidate.data.lat!,
+                      candidate.data.lng!,
+                  ),
+                  post: candidate,
+              }))
+              .filter(({ distanceKm }) => distanceKm <= NEARBY_REVIEW_RADIUS_KM)
+              .sort((a, b) => a.distanceKm - b.distanceKm)
+        : [];
+
 const currentTags = new Set((post.data.tags ?? []).map((tag) => String(tag)));
 const relatedPosts = sortedPosts
     .filter((candidate) => candidate.id !== post.id)
@@ -50,6 +91,7 @@ const relatedPosts = sortedPosts
     {...post.data}
     prevPost={prev ? { slug: prev.id, title: prev.data.title } : null}
     nextPost={next ? { slug: next.id, title: next.data.title } : null}
+    nearbyReviewPosts={nearbyReviewPosts}
     relatedPosts={relatedPosts}
 >
     <Content />

@@ -3,9 +3,11 @@
 // creates markers with mouseover custom overlays and click navigation to posts.
 const {
     markers = [],
+    center,
     height = '100vh',
     level = 3,
     enableMarkerNavigation = true,
+    fitToMarkers = false,
 } = Astro.props;
 
 // resolve api key from common env names
@@ -22,9 +24,11 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
     style={`width:100%; min-height:${height}; position:relative`}
     data-map={JSON.stringify({
         markers,
+        center,
         KAKAO_KEY,
         level,
         enableMarkerNavigation,
+        fitToMarkers,
     })}
 >
 </div>
@@ -43,9 +47,11 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
         }
 
         const markers = data.markers || [];
+        const center = data.center || null;
         const KAKAO_KEY = data.KAKAO_KEY || '';
         const level = data.level || 3;
         const enableMarkerNavigation = data.enableMarkerNavigation !== false;
+        const fitToMarkers = data.fitToMarkers === true;
         const containerId = el.id;
 
         if (!KAKAO_KEY) {
@@ -79,15 +85,18 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
             }
 
             const kakao = window.kakao;
-            // ✅ 랜덤 마커 하나 선택해서 그 위치로 중심 이동
-            const random = markers[Math.floor(Math.random() * markers.length)];
+            const initialCenter =
+                center || markers[Math.floor(Math.random() * markers.length)];
             map = new kakao.maps.Map(el, {
-                center: new kakao.maps.LatLng(random.lat, random.lng),
+                center: new kakao.maps.LatLng(initialCenter.lat, initialCenter.lng),
                 level,
             });
 
+            const bounds = new kakao.maps.LatLngBounds();
+
             markers.forEach((item) => {
                 const pos = new kakao.maps.LatLng(item.lat, item.lng);
+                bounds.extend(pos);
                 const marker = new kakao.maps.Marker({ position: pos });
                 marker.setMap(map);
 
@@ -147,6 +156,10 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
                     }
                 });
             });
+
+            if (fitToMarkers && markers.length > 1) {
+                map.setBounds(bounds);
+            }
         }
 
         function loadKakaoMaps(callback) {
