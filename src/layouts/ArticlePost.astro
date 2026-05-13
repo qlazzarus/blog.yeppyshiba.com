@@ -22,10 +22,15 @@ const {
     lng,
     prevPost,
     nextPost,
+    nearbyReviewPosts,
     relatedPosts,
 } = Astro.props as ArticleProps & {
     prevPost?: { slug: string; title: string } | null;
     nextPost?: { slug: string; title: string } | null;
+    nearbyReviewPosts?: {
+        distanceKm: number;
+        post: CollectionEntry<'blog'>;
+    }[];
     relatedPosts?: CollectionEntry<'blog'>[];
 };
 
@@ -38,12 +43,24 @@ const articleMarkers = hasLocation
               image: image ?? null,
               title,
           },
+          ...(nearbyReviewPosts ?? []).map(({ post }) => ({
+              lat: Number(post.data.lat),
+              lng: Number(post.data.lng),
+              slug: post.id,
+              image: post.data.image ?? null,
+              title: post.data.title,
+          })),
       ]
     : [];
+const nearbyReviewCount = nearbyReviewPosts?.length ?? 0;
 
 export interface Props extends ArticleProps {
     prevPost?: { slug: string; title: string } | null;
     nextPost?: { slug: string; title: string } | null;
+    nearbyReviewPosts?: {
+        distanceKm: number;
+        post: CollectionEntry<'blog'>;
+    }[];
     relatedPosts?: CollectionEntry<'blog'>[];
 }
 
@@ -123,6 +140,12 @@ const breadcrumbs = [
                                 {parcelAddress}
                             </p>
                         )}
+                        {nearbyReviewCount > 0 && (
+                            <p class='text-muted-foreground mt-1 text-sm'>
+                                반경 5km 안의 다른 리뷰 {nearbyReviewCount}개를
+                                함께 표시합니다.
+                            </p>
+                        )}
                     </div>
                     <a
                         href='/map/'
@@ -143,9 +166,10 @@ const breadcrumbs = [
                     </button>
                     <MapClient
                         markers={articleMarkers}
-                        height='320px'
-                        level={3}
-                        enableMarkerNavigation={false}
+                        center={{ lat, lng }}
+                        height='clamp(420px, 56vh, 560px)'
+                        level={6}
+                        enableMarkerNavigation
                     />
                 </div>
             </section>
