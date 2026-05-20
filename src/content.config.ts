@@ -33,4 +33,21 @@ const blog = defineCollection({
         }),
 });
 
-export const collections = { blog };
+const rides = defineCollection({
+    loader: glob({ base: './rides', pattern: '*.md' }),
+    schema: () =>
+        z.object({
+            title: z.string(),
+            date: z.coerce.date(),
+            summary: z.string(),
+            tags: z.array(z.union([z.number(), z.string()])).optional(),
+            gpxUrl: z.string().startsWith('/gpx/'),
+            coverImage: z.string().startsWith('/images/').optional(),
+            coverCredit: z.string().optional(),
+            coverLicense: z.string().optional(),
+            coverSource: z.string().url().optional(),
+            roadviewUpdateIntervalMs: z.number().optional(),
+        }),
+});
+
+export const collections = { blog, rides };
