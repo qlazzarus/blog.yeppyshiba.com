@@ -1,0 +1,81 @@
+---
+import {
+    formatDistance,
+    formatElevation,
+    formatSpeed,
+    type RouteStats,
+} from '@/utils/rideStats';
+import type { CollectionEntry } from 'astro:content';
+
+type RideCard = {
+    ride: CollectionEntry<'rides'>;
+    stats: RouteStats;
+};
+
+const { rideCards } = Astro.props as { rideCards: RideCard[] };
+
+const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
+    dateStyle: 'long',
+});
+---
+
+<div class='grid gap-4'>
+    {
+        rideCards.map(({ ride, stats }) => (
+            <a
+                href={`/rides/${ride.id}/`}
+                class:list={[
+                    'border-border group relative overflow-hidden rounded-lg border bg-card p-5 transition-colors hover:border-primary/50',
+                    ride.data.coverImage
+                        ? 'bg-cover bg-center text-white'
+                        : 'text-foreground',
+                ]}
+                style={
+                    ride.data.coverImage
+                        ? `background-image: linear-gradient(90deg, rgba(0,0,0,.72), rgba(0,0,0,.36)), url('${ride.data.coverImage}')`
+                        : undefined
+                }
+            >
+                <div class='relative space-y-4'>
+                    <div class='space-y-2'>
+                        <p
+                            class:list={[
+                                'text-sm',
+                                ride.data.coverImage
+                                    ? 'text-white/78'
+                                    : 'text-muted-foreground',
+                            ]}
+                        >
+                            {dateFormatter.format(ride.data.date)}
+                        </p>
+                        <h2 class='text-2xl font-bold tracking-tight'>
+                            {ride.data.title}
+                        </h2>
+                        <p
+                            class:list={[
+                                'max-w-3xl text-sm leading-6',
+                                ride.data.coverImage
+                                    ? 'text-white/82'
+                                    : 'text-muted-foreground',
+                            ]}
+                        >
+                            {ride.data.summary}
+                        </p>
+                    </div>
+
+                    <div class='flex flex-wrap gap-2'>
+                        <span class='bg-secondary text-secondary-foreground rounded-md px-3 py-1.5 text-sm font-medium'>
+                            거리 {formatDistance(stats.distanceKm)}
+                        </span>
+                        <span class='bg-secondary text-secondary-foreground rounded-md px-3 py-1.5 text-sm font-medium'>
+                            획득고도 {formatElevation(stats.elevationGainM)}
+                        </span>
+                        <span class='bg-secondary text-secondary-foreground rounded-md px-3 py-1.5 text-sm font-medium'>
+                            평균속도 {formatSpeed(stats.avgSpeedKmh)}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        ))
+    }
+</div>

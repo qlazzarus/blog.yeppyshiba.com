@@ -1,0 +1,934 @@
+---
+const {
+    gpxUrl,
+    title = 'Ride route',
+    height = '640px',
+    roadviewUpdateIntervalMs = 10000,
+} = Astro.props;
+
+const KAKAO_KEY =
+    import.meta.env.PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.KAKAO_MAP_API_KEY ||
+    '';
+const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
+---
+
+<section
+    id={id}
+    class='gpx-route-viewer'
+    style={`--viewer-height:${height}`}
+    data-viewer={JSON.stringify({
+        gpxUrl,
+        title,
+        KAKAO_KEY,
+        roadviewUpdateIntervalMs,
+    })}
+>
+    <div class='gpx-route-viewer__header'>
+        <p class='gpx-route-viewer__status' data-status>GPX를 불러오는 중...</p>
+    </div>
+
+    <div class='gpx-route-viewer__stats' data-stats aria-live='polite'></div>
+
+    <div class='gpx-route-viewer__surface'>
+        <div class='gpx-route-viewer__map' data-map></div>
+        <div class='gpx-route-viewer__roadview-wrap'>
+            <div class='gpx-route-viewer__roadview' data-roadview></div>
+            <div class='gpx-route-viewer__roadview-empty' data-roadview-empty>
+                로드뷰 지점을 찾는 중...
+            </div>
+        </div>
+    </div>
+
+    <div class='gpx-route-viewer__dock'>
+        <div class='gpx-route-viewer__point' data-point></div>
+
+        <button
+            type='button'
+            class='gpx-route-viewer__elevation'
+            aria-label='고도 그래프에서 위치 선택'
+            data-elevation
+        >
+            <svg viewBox='0 0 1000 120' preserveAspectRatio='none' data-elevation-svg>
+            </svg>
+        </button>
+
+        <div class='gpx-route-viewer__controls'>
+            <button type='button' data-action='play' data-play>재생</button>
+            <button type='button' data-action='start'>출발</button>
+            <button type='button' data-action='prev'>이전</button>
+            <input
+                type='range'
+                min='0'
+                max='0'
+                value='0'
+                step='1'
+                aria-label='라이딩 경로 위치'
+                data-slider
+            />
+            <button type='button' data-action='next'>다음</button>
+            <button type='button' data-action='end'>도착</button>
+            <label class='gpx-route-viewer__speed'>
+                <span>배속</span>
+                <select data-speed aria-label='재생 배속'>
+                    <option value='1'>1x</option>
+                    <option value='2'>2x</option>
+                    <option value='5' selected>5x</option>
+                    <option value='10'>10x</option>
+                    <option value='30'>30x</option>
+                    <option value='60'>60x</option>
+                </select>
+            </label>
+        </div>
+    </div>
+</section>
+
+<script define:vars={{ id }} is:inline>
+    (function () {
+        const root = document.getElementById(id);
+        if (!root) return;
+
+        let config = {};
+        try {
+            config = JSON.parse(root.getAttribute('data-viewer') || '{}');
+        } catch (error) {
+            setStatus('설정을 읽지 못했습니다.');
+            console.error(error);
+            return;
+        }
+
+        const mapEl = root.querySelector('[data-map]');
+        const roadviewEl = root.querySelector('[data-roadview]');
+        const roadviewEmptyEl = root.querySelector('[data-roadview-empty]');
+        const statsEl = root.querySelector('[data-stats]');
+        const statusEl = root.querySelector('[data-status]');
+        const pointEl = root.querySelector('[data-point]');
+        const slider = root.querySelector('[data-slider]');
+        const elevationEl = root.querySelector('[data-elevation]');
+        const elevationSvg = root.querySelector('[data-elevation-svg]');
+        const playButton = root.querySelector('[data-play]');
+        const speedSelect = root.querySelector('[data-speed]');
+        const roadviewUpdateIntervalMs = Math.max(
+            500,
+            Number(config.roadviewUpdateIntervalMs || 3000),
+        );
+
+        let points = [];
+        let cumulativeDistances = [];
+        let pointTimes = [];
+        let map = null;
+        let roadview = null;
+        let roadviewClient = null;
+        let selectedMarker = null;
+        let selectedIndex = 0;
+        let isPlaying = false;
+        let playbackFrame = 0;
+        let playbackStartedAt = 0;
+        let playbackStartTime = 0;
+        let lastRoadviewUpdateAt = 0;
+
+        if (!config.KAKAO_KEY) {
+            setStatus('Kakao Maps JavaScript 키가 필요합니다.');
+            showRoadviewMessage('PUBLIC_KAKAO_MAP_API_KEY를 설정해 주세요.');
+            return;
+        }
+
+        loadKakaoMaps(async () => {
+            try {
+                points = await loadGpx(config.gpxUrl);
+                if (points.length < 2) {
+                    setStatus('표시할 GPX 트랙 포인트가 부족합니다.');
+                    return;
+                }
+
+                prepareRouteData();
+                renderStats(points);
+                renderElevation();
+                initMap();
+                selectPoint(0, { moveMap: true });
+                setStatus(`${points.length.toLocaleString()}개 트랙 포인트`);
+            } catch (error) {
+                setStatus('GPX를 불러오지 못했습니다.');
+                showRoadviewMessage('파일 경로나 GPX 형식을 확인해 주세요.');
+                console.error(error);
+            }
+        });
+
+        root.addEventListener('click', (event) => {
+            const action = event.target?.getAttribute?.('data-action');
+            if (!action || !points.length) return;
+
+            const step = Math.max(1, Math.floor(points.length / 80));
+            if (action === 'play') togglePlayback();
+            if (action === 'start') {
+                stopPlayback();
+                selectPoint(0, { moveMap: true });
+            }
+            if (action === 'end') {
+                stopPlayback();
+                selectPoint(points.length - 1, { moveMap: true });
+            }
+            if (action === 'prev') {
+                stopPlayback();
+                selectPoint(Math.max(0, selectedIndex - step), { moveMap: true });
+            }
+            if (action === 'next') {
+                stopPlayback();
+                selectPoint(Math.min(points.length - 1, selectedIndex + step), {
+                    moveMap: true,
+                });
+            }
+        });
+
+        slider?.addEventListener('input', () => {
+            stopPlayback();
+            selectPoint(Number(slider.value), { moveMap: true });
+        });
+
+        elevationEl?.addEventListener('pointerdown', (event) => {
+            if (!points.length) return;
+            stopPlayback();
+            elevationEl.setPointerCapture?.(event.pointerId);
+            selectPoint(indexFromElevationEvent(event), { moveMap: true });
+        });
+
+        elevationEl?.addEventListener('pointermove', (event) => {
+            if (!points.length || event.buttons !== 1) return;
+            selectPoint(indexFromElevationEvent(event), { moveMap: true });
+        });
+
+        async function loadGpx(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`GPX fetch failed: ${response.status}`);
+
+            const text = await response.text();
+            const xml = new DOMParser().parseFromString(text, 'application/xml');
+            if (xml.querySelector('parsererror')) throw new Error('Invalid GPX XML');
+
+            return Array.from(xml.getElementsByTagNameNS('*', 'trkpt'))
+                .map((node) => ({
+                    lat: Number(node.getAttribute('lat')),
+                    lng: Number(node.getAttribute('lon')),
+                    ele: readNumber(node, 'ele'),
+                    time: readText(node, 'time'),
+                    heartRate: readNumber(node, 'hr'),
+                    cadence: readNumber(node, 'cad'),
+                    temperature: readNumber(node, 'atemp'),
+                }))
+                .filter(
+                    (point) => Number.isFinite(point.lat) && Number.isFinite(point.lng),
+                );
+        }
+
+        function readText(node, localName) {
+            return node.getElementsByTagNameNS('*', localName)[0]?.textContent || '';
+        }
+
+        function readNumber(node, localName) {
+            const value = Number(readText(node, localName));
+            return Number.isFinite(value) ? value : null;
+        }
+
+        function initMap() {
+            const kakao = window.kakao;
+            const first = points[0];
+
+            map = new kakao.maps.Map(mapEl, {
+                center: new kakao.maps.LatLng(first.lat, first.lng),
+                disableDoubleClick: true,
+                disableDoubleClickZoom: true,
+                draggable: false,
+                level: 3,
+                scrollwheel: false,
+            });
+
+            const path = samplePath(points, 2500).map(
+                (point) => new kakao.maps.LatLng(point.lat, point.lng),
+            );
+
+            const polyline = new kakao.maps.Polyline({
+                path,
+                strokeWeight: 5,
+                strokeColor: '#1d7f68',
+                strokeOpacity: 0.9,
+                strokeStyle: 'solid',
+            });
+            polyline.setMap(map);
+
+            map.setDraggable(false);
+            map.setZoomable(false);
+
+            selectedMarker = new kakao.maps.Marker({
+                position: new kakao.maps.LatLng(first.lat, first.lng),
+            });
+            selectedMarker.setMap(map);
+
+            if (roadviewEl) {
+                roadview = new kakao.maps.Roadview(roadviewEl, {
+                    disableZoomControl: true,
+                });
+            }
+
+            roadviewClient = new kakao.maps.RoadviewClient();
+
+            kakao.maps.event.addListener(polyline, 'click', (mouseEvent) => {
+                const latLng = mouseEvent.latLng;
+                const nearest = findNearestPointIndex(latLng.getLat(), latLng.getLng());
+                selectPoint(nearest, { moveMap: false });
+            });
+        }
+
+        function prepareRouteData() {
+            cumulativeDistances = [0];
+            pointTimes = points.map((point) => {
+                const time = new Date(point.time).getTime();
+                return Number.isFinite(time) ? time : null;
+            });
+
+            for (let i = 1; i < points.length; i += 1) {
+                cumulativeDistances[i] =
+                    cumulativeDistances[i - 1] + haversine(points[i - 1], points[i]);
+            }
+        }
+
+        function selectPoint(index, options) {
+            selectedIndex = Math.min(Math.max(index, 0), points.length - 1);
+            const point = points[selectedIndex];
+            const kakao = window.kakao;
+            const latLng = new kakao.maps.LatLng(point.lat, point.lng);
+
+            slider.max = String(points.length - 1);
+            slider.value = String(selectedIndex);
+            selectedMarker?.setPosition(latLng);
+            if (options?.centerMap !== false) map?.setCenter(latLng);
+
+            renderPoint(point, selectedIndex);
+            updateElevationCursor();
+            if (options?.updateRoadview !== false) {
+                updateRoadview(latLng);
+            }
+        }
+
+        function updateRoadview(latLng) {
+            if (!roadview || !roadviewClient) return;
+            showRoadviewMessage('로드뷰 지점을 찾는 중...');
+            const heading = routeHeading(selectedIndex);
+
+            roadviewClient.getNearestPanoId(latLng, 120, (panoId) => {
+                if (!panoId) {
+                    showRoadviewMessage('이 지점 주변에는 로드뷰가 없습니다.');
+                    return;
+                }
+
+                roadview.setPanoId(panoId, latLng);
+                roadview.setViewpoint({ pan: heading, tilt: 0, zoom: 0 });
+                roadviewEmptyEl.hidden = true;
+            });
+        }
+
+        function renderStats(routePoints) {
+            const distanceKm = cumulativeDistances[cumulativeDistances.length - 1] || 0;
+            const gainM = elevationGain(routePoints);
+            const durationMs = routeDurationMs();
+            const avgSpeed = durationMs > 0 ? distanceKm / (durationMs / 3600000) : 0;
+            const avgHeartRate = average(routePoints.map((point) => point.heartRate));
+            const avgCadence = average(routePoints.map((point) => point.cadence));
+
+            const stats = [
+                ['거리', `${distanceKm.toFixed(1)} km`],
+                ['시간', formatDuration(durationMs)],
+                ['평균 속도', `${avgSpeed.toFixed(1)} km/h`],
+                ['획득 고도', `${Math.round(gainM).toLocaleString()} m`],
+                ['평균 심박', avgHeartRate ? `${Math.round(avgHeartRate)} bpm` : '-'],
+                ['평균 케이던스', avgCadence ? `${Math.round(avgCadence)} rpm` : '-'],
+            ];
+
+            statsEl.innerHTML = stats
+                .map(
+                    ([label, value]) =>
+                        `<div><span>${label}</span><strong>${value}</strong></div>`,
+                )
+                .join('');
+        }
+
+        function renderPoint(point, index) {
+            const distanceKm = cumulativeDistances[index] || 0;
+            const speedKmh = pointSpeedKmh(index);
+            const time = point.time
+                ? new Date(point.time).toLocaleTimeString('ko-KR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                  })
+                : '-';
+            const telemetry = [
+                ['시간', time],
+                ['누적', `${distanceKm.toFixed(1)} km`],
+                ['고도', point.ele !== null ? `${Math.round(point.ele)} m` : '-'],
+                ['심박', point.heartRate !== null ? `${point.heartRate} bpm` : '-'],
+                ['케이던스', point.cadence !== null ? `${point.cadence} rpm` : '-'],
+                ['속도', speedKmh !== null ? `${speedKmh.toFixed(1)} km/h` : '-'],
+            ];
+
+            pointEl.innerHTML = telemetry
+                .map(
+                    ([label, value]) =>
+                        `<div><span>${label}</span><strong>${value}</strong></div>`,
+                )
+                .join('');
+        }
+
+        function renderElevation() {
+            if (!elevationSvg) return;
+
+            const elevations = points.map((point) => point.ele).filter(Number.isFinite);
+            if (!elevations.length) {
+                elevationEl.hidden = true;
+                return;
+            }
+
+            const minEle = Math.min(...elevations);
+            const maxEle = Math.max(...elevations);
+            const range = Math.max(1, maxEle - minEle);
+            const chartPoints = samplePath(points, 360);
+            const lastDistance =
+                cumulativeDistances[cumulativeDistances.length - 1] || 1;
+            const polylinePoints = chartPoints
+                .map((point) => {
+                    const originalIndex = points.indexOf(point);
+                    const x =
+                        ((cumulativeDistances[originalIndex] || 0) / lastDistance) *
+                        1000;
+                    const y = 104 - (((point.ele || minEle) - minEle) / range) * 88;
+                    return `${x.toFixed(2)},${y.toFixed(2)}`;
+                })
+                .join(' ');
+
+            elevationSvg.innerHTML = `
+                <polygon points="0,112 ${polylinePoints} 1000,112" fill="oklch(0.82 0.12 150 / 0.48)"></polygon>
+                <polyline points="${polylinePoints}" fill="none" stroke="oklch(0.42 0.16 150)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                <line x1="0" y1="8" x2="0" y2="112" stroke="oklch(0.33 0.13 145)" stroke-width="4" data-elevation-cursor></line>
+            `;
+            updateElevationCursor();
+        }
+
+        function updateElevationCursor() {
+            const cursor = root.querySelector('[data-elevation-cursor]');
+            if (!cursor || !points.length) return;
+            const maxIndex = Math.max(1, points.length - 1);
+            const x = (selectedIndex / maxIndex) * 1000;
+            cursor.setAttribute('x1', String(x));
+            cursor.setAttribute('x2', String(x));
+        }
+
+        function indexFromElevationEvent(event) {
+            const rect = elevationEl.getBoundingClientRect();
+            const ratio = Math.min(
+                Math.max((event.clientX - rect.left) / rect.width, 0),
+                1,
+            );
+            return Math.round(ratio * (points.length - 1));
+        }
+
+        function togglePlayback() {
+            if (isPlaying) {
+                stopPlayback();
+                return;
+            }
+            startPlayback();
+        }
+
+        function startPlayback() {
+            if (!points.length) return;
+            if (selectedIndex >= points.length - 1) selectedIndex = 0;
+
+            isPlaying = true;
+            playButton.textContent = '일시정지';
+            playbackStartedAt = performance.now();
+            playbackStartTime =
+                pointTimes[selectedIndex] ?? pointTimes.find(Number.isFinite) ?? 0;
+            lastRoadviewUpdateAt = 0;
+            playbackFrame = requestAnimationFrame(playbackTick);
+        }
+
+        function stopPlayback() {
+            if (!isPlaying) return;
+            isPlaying = false;
+            playButton.textContent = '재생';
+            cancelAnimationFrame(playbackFrame);
+        }
+
+        function playbackTick(now) {
+            if (!isPlaying) return;
+
+            const speed = Number(speedSelect?.value || 1);
+            const elapsed = (now - playbackStartedAt) * speed;
+            const targetIndex = indexForPlaybackTime(playbackStartTime + elapsed);
+            const shouldUpdateRoadview =
+                now - lastRoadviewUpdateAt > roadviewUpdateIntervalMs;
+
+            selectPoint(targetIndex, {
+                moveMap: false,
+                updateRoadview: shouldUpdateRoadview,
+            });
+
+            if (shouldUpdateRoadview) lastRoadviewUpdateAt = now;
+            if (targetIndex >= points.length - 1) {
+                stopPlayback();
+                selectPoint(points.length - 1, { moveMap: true });
+                return;
+            }
+
+            playbackFrame = requestAnimationFrame(playbackTick);
+        }
+
+        function indexForPlaybackTime(targetTime) {
+            if (!Number.isFinite(targetTime) || !pointTimes.some(Number.isFinite)) {
+                return Math.min(points.length - 1, selectedIndex + 1);
+            }
+
+            let low = 0;
+            let high = pointTimes.length - 1;
+            while (low < high) {
+                const mid = Math.floor((low + high) / 2);
+                const value = pointTimes[mid] ?? 0;
+                if (value < targetTime) low = mid + 1;
+                else high = mid;
+            }
+            return low;
+        }
+
+        function routeDurationMs() {
+            const first = pointTimes.find(Number.isFinite);
+            const last = [...pointTimes].reverse().find(Number.isFinite);
+            return Number.isFinite(first) && Number.isFinite(last) ? last - first : 0;
+        }
+
+        function pointSpeedKmh(index) {
+            const windowSize = 3;
+            const from = Math.max(0, index - windowSize);
+            const to = Math.min(points.length - 1, index + windowSize);
+            const fromTime = pointTimes[from];
+            const toTime = pointTimes[to];
+            const durationHours =
+                Number.isFinite(fromTime) && Number.isFinite(toTime)
+                    ? (toTime - fromTime) / 3600000
+                    : 0;
+
+            if (durationHours <= 0) return null;
+            return (
+                ((cumulativeDistances[to] || 0) - (cumulativeDistances[from] || 0)) /
+                durationHours
+            );
+        }
+
+        function routeHeading(index) {
+            const current = points[index];
+            const next = points[Math.min(points.length - 1, index + 4)];
+            const previous = points[Math.max(0, index - 4)];
+            if (next !== current) return bearing(current, next);
+            return bearing(previous, current);
+        }
+
+        function bearing(a, b) {
+            const lat1 = toRad(a.lat);
+            const lat2 = toRad(b.lat);
+            const dLng = toRad(b.lng - a.lng);
+            const y = Math.sin(dLng) * Math.cos(lat2);
+            const x =
+                Math.cos(lat1) * Math.sin(lat2) -
+                Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+            return (toDeg(Math.atan2(y, x)) + 360) % 360;
+        }
+
+        function elevationGain(routePoints) {
+            let gain = 0;
+            for (let i = 1; i < routePoints.length; i += 1) {
+                const prev = routePoints[i - 1].ele;
+                const next = routePoints[i].ele;
+                if (prev === null || next === null) continue;
+                const diff = next - prev;
+                if (diff > 0) gain += diff;
+            }
+            return gain;
+        }
+
+        function haversine(a, b) {
+            const radiusKm = 6371;
+            const dLat = toRad(b.lat - a.lat);
+            const dLng = toRad(b.lng - a.lng);
+            const lat1 = toRad(a.lat);
+            const lat2 = toRad(b.lat);
+            const h =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+            return 2 * radiusKm * Math.asin(Math.sqrt(h));
+        }
+
+        function toRad(value) {
+            return (value * Math.PI) / 180;
+        }
+
+        function toDeg(value) {
+            return (value * 180) / Math.PI;
+        }
+
+        function average(values) {
+            const numbers = values.filter((value) => Number.isFinite(value));
+            if (!numbers.length) return null;
+            return numbers.reduce((sum, value) => sum + value, 0) / numbers.length;
+        }
+
+        function formatDuration(ms) {
+            if (!Number.isFinite(ms) || ms <= 0) return '-';
+            const totalMinutes = Math.round(ms / 60000);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${hours}시간 ${minutes}분`;
+        }
+
+        function samplePath(routePoints, maxPoints) {
+            if (routePoints.length <= maxPoints) return routePoints;
+            const step = Math.ceil(routePoints.length / maxPoints);
+            const sampled = routePoints.filter((_, index) => index % step === 0);
+            const last = routePoints[routePoints.length - 1];
+            if (sampled[sampled.length - 1] !== last) sampled.push(last);
+            return sampled;
+        }
+
+        function findNearestPointIndex(lat, lng) {
+            let nearestIndex = 0;
+            let nearestDistance = Infinity;
+
+            points.forEach((point, index) => {
+                const distance = (point.lat - lat) ** 2 + (point.lng - lng) ** 2;
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestIndex = index;
+                }
+            });
+
+            return nearestIndex;
+        }
+
+        function loadKakaoMaps(callback) {
+            if (window.kakao && window.kakao.maps) {
+                window.kakao.maps.load(callback);
+                return;
+            }
+
+            const existing = document.querySelector('script[data-kakao-map-sdk]');
+            if (existing) {
+                existing.addEventListener('load', () => {
+                    if (window.kakao) window.kakao.maps.load(callback);
+                });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${config.KAKAO_KEY}&autoload=false`;
+            script.async = true;
+            script.dataset.kakaoMapSdk = 'true';
+            script.onload = () => {
+                if (window.kakao) window.kakao.maps.load(callback);
+            };
+            document.head.appendChild(script);
+        }
+
+        function setStatus(message) {
+            if (statusEl) statusEl.textContent = message;
+        }
+
+        function showRoadviewMessage(message) {
+            if (!roadviewEmptyEl) return;
+            roadviewEmptyEl.hidden = false;
+            roadviewEmptyEl.textContent = message;
+        }
+    })();
+</script>
+
+<style>
+    .gpx-route-viewer {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .gpx-route-viewer__header {
+        align-items: end;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+    }
+
+    .gpx-route-viewer__eyebrow,
+    .gpx-route-viewer__status {
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .gpx-route-viewer h2 {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.15;
+        margin: 0.25rem 0 0;
+    }
+
+    .gpx-route-viewer__stats {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .gpx-route-viewer__stats div {
+        background: var(--secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: grid;
+        gap: 0.2rem;
+        min-width: 0;
+        padding: 0.75rem;
+    }
+
+    .gpx-route-viewer__stats span {
+        color: var(--muted-foreground);
+        font-size: 0.75rem;
+    }
+
+    .gpx-route-viewer__stats strong {
+        font-size: 1rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .gpx-route-viewer__surface {
+        border: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+        min-height: var(--viewer-height);
+    }
+
+    .gpx-route-viewer__map,
+    .gpx-route-viewer__roadview-wrap,
+    .gpx-route-viewer__roadview {
+        min-height: var(--viewer-height);
+    }
+
+    .gpx-route-viewer__roadview {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .gpx-route-viewer__map {
+        cursor: default;
+    }
+
+    .gpx-route-viewer__roadview-wrap {
+        border-left: 1px solid var(--border);
+        position: relative;
+    }
+
+    .gpx-route-viewer__roadview::after {
+        content: '';
+        inset: 0;
+        position: absolute;
+        z-index: 3;
+    }
+
+    .gpx-route-viewer__roadview-empty {
+        align-items: center;
+        background: color-mix(in oklch, var(--background) 88%, transparent);
+        color: var(--muted-foreground);
+        display: flex;
+        font-size: 0.95rem;
+        inset: 0;
+        justify-content: center;
+        padding: 1rem;
+        position: absolute;
+        text-align: center;
+        z-index: 2;
+    }
+
+    .gpx-route-viewer__roadview-empty[hidden] {
+        display: none;
+    }
+
+    .gpx-route-viewer__dock {
+        background: color-mix(in oklch, var(--background) 94%, white 6%);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        bottom: 0;
+        box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.14);
+        display: grid;
+        gap: 0.85rem;
+        padding: 1rem 1.1rem;
+        position: sticky;
+        width: 100%;
+        z-index: 20;
+    }
+
+    .gpx-route-viewer__elevation {
+        background: linear-gradient(
+            to bottom,
+            oklch(0.97 0.035 150),
+            oklch(0.92 0.06 152)
+        );
+        border: 1px solid oklch(0.72 0.11 150);
+        border-radius: 8px;
+        cursor: pointer;
+        height: 76px;
+        overflow: hidden;
+        padding: 0;
+        touch-action: none;
+        width: 100%;
+    }
+
+    .gpx-route-viewer__elevation svg {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+
+    .gpx-route-viewer__elevation-fill {
+        fill: oklch(0.82 0.12 150 / 0.48);
+    }
+
+    .gpx-route-viewer__elevation-line {
+        fill: none;
+        stroke: oklch(0.42 0.16 150);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 5;
+    }
+
+    .gpx-route-viewer__elevation-cursor {
+        stroke: oklch(0.33 0.13 145);
+        stroke-width: 4;
+    }
+
+    .gpx-route-viewer__controls {
+        align-items: center;
+        display: grid;
+        gap: 0.65rem;
+        grid-template-columns: auto auto auto minmax(120px, 1fr) auto auto auto;
+    }
+
+    .gpx-route-viewer__controls button,
+    .gpx-route-viewer__speed select {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--foreground);
+        cursor: pointer;
+        font-size: 0.875rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .gpx-route-viewer__controls button:hover {
+        background: var(--accent);
+    }
+
+    .gpx-route-viewer__controls input {
+        accent-color: var(--primary);
+        width: 100%;
+    }
+
+    .gpx-route-viewer__speed {
+        align-items: center;
+        display: flex;
+        gap: 0.55rem;
+        padding-left: 0.25rem;
+    }
+
+    .gpx-route-viewer__speed span {
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+    }
+
+    .gpx-route-viewer__point {
+        display: grid;
+        font-size: 0.95rem;
+        gap: 0.75rem;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .gpx-route-viewer__point div {
+        background: var(--secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: grid;
+        gap: 0.45rem;
+        min-width: 0;
+        padding: 0.75rem 0.85rem;
+    }
+
+    .gpx-route-viewer__point span {
+        color: var(--muted-foreground);
+        font-size: 0.72rem;
+    }
+
+    .gpx-route-viewer__point strong {
+        color: var(--foreground);
+        display: block;
+        font-size: 0.92rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+        padding-left: 0.15rem;
+    }
+
+    @media (max-width: 840px) {
+        .gpx-route-viewer__header {
+            align-items: start;
+            flex-direction: column;
+        }
+
+        .gpx-route-viewer__stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .gpx-route-viewer__surface {
+            grid-template-columns: 1fr;
+            min-height: auto;
+        }
+
+        .gpx-route-viewer__map,
+        .gpx-route-viewer__roadview-wrap,
+        .gpx-route-viewer__roadview {
+            min-height: 360px;
+        }
+
+        .gpx-route-viewer__roadview-wrap {
+            border-left: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .gpx-route-viewer__dock {
+            padding: 0.85rem;
+        }
+
+        .gpx-route-viewer__point {
+            gap: 0.6rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .gpx-route-viewer__point strong {
+            padding-inline-start: 1em;
+        }
+
+        .gpx-route-viewer__controls {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .gpx-route-viewer__controls input {
+            grid-column: 1 / -1;
+            order: -1;
+        }
+
+        .gpx-route-viewer__speed {
+            grid-column: span 2;
+            justify-content: end;
+        }
+    }
+</style>
