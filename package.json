@@ -6,6 +6,9 @@
         "dev": "astro dev",
         "build": "astro build",
         "preview": "astro preview",
+        "ride:assist": "tsx scripts/assist-ride-writing.ts",
+        "ride:draft": "tsx scripts/create-ride-draft.ts",
+        "ride:prepare": "tsx scripts/prepare-ride-media.ts",
         "astro": "astro",
         "ga:fetch": "tsx scripts/fetch-ga-views.ts"
     },
