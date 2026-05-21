@@ -42,6 +42,7 @@ const rides = defineCollection({
             summary: z.string(),
             tags: z.array(z.union([z.number(), z.string()])).optional(),
             gpxUrl: z.string().startsWith('/gpx/'),
+            mediaManifestUrl: z.string().startsWith('/rides/').optional(),
             coverImage: z.string().startsWith('/images/').optional(),
             coverCredit: z.string().optional(),
             coverLicense: z.string().optional(),

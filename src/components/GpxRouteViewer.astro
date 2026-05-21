@@ -3,6 +3,7 @@ const {
     gpxUrl,
     title = 'Ride route',
     height = '640px',
+    mediaManifestUrl,
     roadviewUpdateIntervalMs = 10000,
 } = Astro.props;
 
@@ -22,6 +23,7 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         gpxUrl,
         title,
         KAKAO_KEY,
+        mediaManifestUrl,
         roadviewUpdateIntervalMs,
     })}
 >
@@ -35,6 +37,10 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         <div class='gpx-route-viewer__map' data-map></div>
         <div class='gpx-route-viewer__roadview-wrap'>
             <div class='gpx-route-viewer__roadview' data-roadview></div>
+            <figure class='gpx-route-viewer__media' data-media hidden>
+                <img alt='' data-media-image />
+                <figcaption data-media-caption></figcaption>
+            </figure>
             <div class='gpx-route-viewer__roadview-empty' data-roadview-empty>
                 로드뷰 지점을 찾는 중...
             </div>
@@ -101,6 +107,9 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         const mapEl = root.querySelector('[data-map]');
         const roadviewEl = root.querySelector('[data-roadview]');
         const roadviewEmptyEl = root.querySelector('[data-roadview-empty]');
+        const mediaEl = root.querySelector('[data-media]');
+        const mediaImageEl = root.querySelector('[data-media-image]');
+        const mediaCaptionEl = root.querySelector('[data-media-caption]');
         const statsEl = root.querySelector('[data-stats]');
         const statusEl = root.querySelector('[data-status]');
         const pointEl = root.querySelector('[data-point]');
@@ -117,6 +126,9 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         let points = [];
         let cumulativeDistances = [];
         let pointTimes = [];
+        let mediaManifest = null;
+        let mediaFrames = [];
+        let mediaFrameTimes = [];
         let map = null;
         let roadview = null;
         let roadviewClient = null;
@@ -136,12 +148,16 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
 
         loadKakaoMaps(async () => {
             try {
-                points = await loadGpx(config.gpxUrl);
+                [points, mediaManifest] = await Promise.all([
+                    loadGpx(config.gpxUrl),
+                    loadMediaManifest(config.mediaManifestUrl),
+                ]);
                 if (points.length < 2) {
                     setStatus('표시할 GPX 트랙 포인트가 부족합니다.');
                     return;
                 }
 
+                prepareMediaData();
                 prepareRouteData();
                 renderStats(points);
                 renderElevation();
@@ -221,6 +237,22 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
                 );
         }
 
+        async function loadMediaManifest(url) {
+            if (!url) return null;
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Media manifest fetch failed: ${response.status}`);
+            }
+
+            const manifest = await response.json();
+            if (!Array.isArray(manifest.frames)) {
+                throw new Error('Invalid media manifest: frames must be an array');
+            }
+
+            return manifest;
+        }
+
         function readText(node, localName) {
             return node.getElementsByTagNameNS('*', localName)[0]?.textContent || '';
         }
@@ -265,12 +297,18 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             selectedMarker.setMap(map);
 
             if (roadviewEl) {
-                roadview = new kakao.maps.Roadview(roadviewEl, {
-                    disableZoomControl: true,
-                });
+                if (mediaManifest) {
+                    roadviewEl.hidden = true;
+                    mediaEl.hidden = false;
+                    showRoadviewMessage('GoPro 프레임을 불러오는 중...');
+                } else {
+                    roadview = new kakao.maps.Roadview(roadviewEl, {
+                        disableZoomControl: true,
+                    });
+                }
             }
 
-            roadviewClient = new kakao.maps.RoadviewClient();
+            if (!mediaManifest) roadviewClient = new kakao.maps.RoadviewClient();
 
             kakao.maps.event.addListener(polyline, 'click', (mouseEvent) => {
                 const latLng = mouseEvent.latLng;
@@ -292,6 +330,27 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             }
         }
 
+        function prepareMediaData() {
+            if (!mediaManifest) return;
+
+            mediaFrames = mediaManifest.frames
+                .filter((frame) => frame?.src && frame?.time)
+                .map((frame) => ({
+                    ...frame,
+                    parsedTime: new Date(frame.time).getTime(),
+                }))
+                .filter((frame) => Number.isFinite(frame.parsedTime))
+                .sort((a, b) => a.parsedTime - b.parsedTime);
+            mediaFrameTimes = mediaFrames.map((frame) => frame.parsedTime);
+
+            if (!mediaFrames.length) {
+                showRoadviewMessage('표시할 GoPro 프레임이 없습니다.');
+                return;
+            }
+
+            preloadMediaFrame(0);
+        }
+
         function selectPoint(index, options) {
             selectedIndex = Math.min(Math.max(index, 0), points.length - 1);
             const point = points[selectedIndex];
@@ -306,8 +365,80 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             renderPoint(point, selectedIndex);
             updateElevationCursor();
             if (options?.updateRoadview !== false) {
-                updateRoadview(latLng);
+                if (mediaManifest) updateMediaFrame(point);
+                else updateRoadview(latLng);
             }
+        }
+
+        function updateMediaFrame(point) {
+            if (!mediaImageEl || !mediaFrames.length) return;
+
+            const pointTime = new Date(point.time).getTime();
+            const frame = Number.isFinite(pointTime)
+                ? mediaFrames[indexForMediaTime(pointTime)]
+                : mediaFrames[Math.min(selectedIndex, mediaFrames.length - 1)];
+            if (!frame) return;
+
+            if (mediaImageEl.getAttribute('src') !== frame.src) {
+                mediaImageEl.src = frame.src;
+            }
+            mediaImageEl.alt = mediaAlt(frame);
+            if (mediaCaptionEl) mediaCaptionEl.textContent = mediaCaption(frame);
+            roadviewEmptyEl.hidden = true;
+            preloadMediaFrame(indexForMediaTime((frame.parsedTime || pointTime) + 1));
+        }
+
+        function indexForMediaTime(targetTime) {
+            if (!mediaFrameTimes.length) return 0;
+
+            let low = 0;
+            let high = mediaFrameTimes.length - 1;
+            while (low < high) {
+                const mid = Math.floor((low + high) / 2);
+                if (mediaFrameTimes[mid] < targetTime) low = mid + 1;
+                else high = mid;
+            }
+
+            const previousIndex = Math.max(0, low - 1);
+            const previous = mediaFrameTimes[previousIndex];
+            const current = mediaFrameTimes[low];
+            return Math.abs(previous - targetTime) < Math.abs(current - targetTime)
+                ? previousIndex
+                : low;
+        }
+
+        function preloadMediaFrame(index) {
+            const next = mediaFrames[Math.min(mediaFrames.length - 1, index + 1)];
+            if (!next) return;
+            const image = new Image();
+            image.src = next.src;
+        }
+
+        function mediaAlt(frame) {
+            return mediaCaption(frame) || 'GoPro 라이딩 프레임';
+        }
+
+        function mediaCaption(frame) {
+            const parts = [];
+            if (Number.isFinite(frame.distanceKm)) {
+                parts.push(`${Number(frame.distanceKm).toFixed(1)} km`);
+            }
+            if (Number.isFinite(frame.speedKmh)) {
+                parts.push(`${Number(frame.speedKmh).toFixed(1)} km/h`);
+            }
+            if (Number.isFinite(frame.heading)) {
+                parts.push(`진행 방향 ${Math.round(frame.heading)}도`);
+            }
+            if (frame.time) {
+                parts.push(
+                    new Date(frame.time).toLocaleTimeString('ko-KR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                    }),
+                );
+            }
+            return parts.join(' · ');
         }
 
         function updateRoadview(latLng) {
@@ -712,6 +843,7 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
 
     .gpx-route-viewer__map,
     .gpx-route-viewer__roadview-wrap,
+    .gpx-route-viewer__media,
     .gpx-route-viewer__roadview {
         min-height: var(--viewer-height);
     }
@@ -719,6 +851,35 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
     .gpx-route-viewer__roadview {
         overflow: hidden;
         position: relative;
+    }
+
+    .gpx-route-viewer__media {
+        background: #050505;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .gpx-route-viewer__media[hidden] {
+        display: none;
+    }
+
+    .gpx-route-viewer__media img {
+        display: block;
+        height: 100%;
+        min-height: 0;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .gpx-route-viewer__media figcaption {
+        background: rgba(0, 0, 0, 0.72);
+        color: white;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        min-height: 2.5rem;
+        padding: 0.75rem 0.9rem;
     }
 
     .gpx-route-viewer__map {
@@ -894,6 +1055,7 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         }
 
         .gpx-route-viewer__map,
+        .gpx-route-viewer__media,
         .gpx-route-viewer__roadview-wrap,
         .gpx-route-viewer__roadview {
             min-height: 360px;
