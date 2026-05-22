@@ -2,15 +2,41 @@
 import Layout from '@/layouts/BaseLayout.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
 import { getCollection } from 'astro:content';
-import trendingData from '../data/ga-trending.json';
 import { generateSeededSvg } from '../utils/placeholderThumbnail.js';
 import fs from 'fs/promises';
 import path from 'path';
 
+type TrendingItem = {
+    path: string;
+    image?: string;
+    description?: string;
+};
+
+type TrendingData = {
+    generatedAt?: string | null;
+    trending: TrendingItem[];
+};
+
 const title = 'Trending Articles';
 const description = '최근 주목받는 게시물 모음';
 
-const items = trendingData?.trending ?? [];
+// 기본값 명시
+let trendingData: TrendingData = {
+    generatedAt: null,
+    trending: [],
+};
+
+try {
+    const trendingPath = path.join(process.cwd(), 'src', 'data', 'ga-trending.json');
+
+    const raw = await fs.readFile(trendingPath, 'utf8');
+    trendingData = JSON.parse(raw);
+} catch (e) {
+    // ga-trending.json 이 아직 없어도 빌드 가능
+    trendingData = { trending: [] };
+}
+
+const items = Array.isArray(trendingData?.trending) ? trendingData.trending : [];
 
 // If the trending data was generated (e.g., by CI), create a deterministic
 // og image file so social crawlers and shares get a stable preview.
