@@ -11,14 +11,20 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  ref: main
 
             - name: Setup Node
               uses: actions/setup-node@v4
               with:
-                  node-version: '18'
+                  node-version: '20'
+                  cache: npm
 
             - name: Install dependencies
               run: npm ci
+
+            - name: Ensure data directory
+              run: mkdir -p src/data
 
             - name: Run GA analysis script
               env:
@@ -41,10 +47,9 @@ jobs:
                   if git status --porcelain | grep -q 'src/data/ga-promotion.csv\|src/data/internal-links-suggestions.json\|src/data/ga-trending.json'; then
                     git add src/data/ga-promotion.csv src/data/internal-links-suggestions.json src/data/ga-trending.json || true
                     git commit -m "Update GA promotion & link suggestions (weekly)" || echo "No changes to commit"
-                    git push origin HEAD:refs/heads/auto/ga-promotion || echo "Push failed"
+                    git push origin HEAD:main || echo "Push failed"
                   else
                     echo "No changes"
-                  fi
 
         # Notes: ensure repository has secrets set:
         # - ANALYTICS_CREDENTIALS_B64: base64-encoded Google service account JSON
