@@ -26,6 +26,12 @@ jobs:
             - name: Ensure data directory
               run: mkdir -p src/data
 
+            - name: Fetch GA page views
+              env:
+                  ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+                  ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+              run: npm run ga:fetch
+
             - name: Run GA analysis script
               env:
                   # Use raw JSON secret matching your local .env key `ANALYTICS_CREDENTIALS`
