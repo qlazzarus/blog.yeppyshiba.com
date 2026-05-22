@@ -50,6 +50,7 @@ jobs:
                     git push origin HEAD:main || echo "Push failed"
                   else
                     echo "No changes"
+                  fi
 
         # Notes: ensure repository has secrets set:
         # - ANALYTICS_CREDENTIALS_B64: base64-encoded Google service account JSON
