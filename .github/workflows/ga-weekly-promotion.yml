@@ -29,9 +29,9 @@ jobs:
 
             - name: Generate trending JSON
               env:
-                # Keep trending stable for ~1 week
-                GA_TRENDING_MIN_HOURS: '168'
-                GA_TRENDING_MAX_ITEMS: '6'
+                  # Keep trending stable for ~1 week
+                  GA_TRENDING_MIN_HOURS: '168'
+                  GA_TRENDING_MAX_ITEMS: '6'
               run: node scripts/generate-trending.cjs
 
             - name: Commit results

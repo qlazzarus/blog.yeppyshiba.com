@@ -96,25 +96,31 @@ const social = {
                         </h2>
                         <ul class='mt-4 grid gap-3 sm:grid-cols-2'>
                             {
-                                    mainCategories.map((category) => (
-                                        <li>
-                                            <a
-                                                href={category.href}
-                                                class='border-border hover:bg-muted/60 block rounded-md border px-4 py-3 transition-colors flex items-center gap-3'
-                                            >
-                                                <img src={generateSeededDataUri(category.label)} alt={category.label} class='h-12 w-20 flex-none rounded-md object-cover' />
-                                                <div class='min-w-0'>
-                                                    <span class='font-medium block truncate'>
-                                                        {category.label}
-                                                    </span>
-                                                    <span class='text-muted-foreground mt-1 block text-sm truncate'>
-                                                        {category.description}
-                                                    </span>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    ))
-                                }
+                                mainCategories.map((category) => (
+                                    <li>
+                                        <a
+                                            href={category.href}
+                                            class='border-border hover:bg-muted/60 block flex items-center gap-3 rounded-md border px-4 py-3 transition-colors'
+                                        >
+                                            <img
+                                                src={generateSeededDataUri(
+                                                    category.label,
+                                                )}
+                                                alt={category.label}
+                                                class='h-12 w-20 flex-none rounded-md object-cover'
+                                            />
+                                            <div class='min-w-0'>
+                                                <span class='block truncate font-medium'>
+                                                    {category.label}
+                                                </span>
+                                                <span class='text-muted-foreground mt-1 block truncate text-sm'>
+                                                    {category.description}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                ))
+                            }
                         </ul>
                     </div>
 

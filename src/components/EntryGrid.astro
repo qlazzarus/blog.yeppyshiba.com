@@ -51,19 +51,20 @@ const getViewCount = (postId: string) =>
                     href={getPostHref(post)}
                     class='relative block aspect-video w-full overflow-hidden'
                 >
-                    {
-                        (() => {
-                            const src = post.data.image ?? post.data.coverImage ?? generatePlaceholder(post.data.title ?? post.id);
-                            return (
-                                <img
-                                    src={src}
-                                    alt={post.data.title || 'image'}
-                                    class='absolute inset-0 h-full w-full object-cover'
-                                    sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
-                                />
-                            );
-                        })()
-                    }
+                    {(() => {
+                        const src =
+                            post.data.image ??
+                            post.data.coverImage ??
+                            generatePlaceholder(post.data.title ?? post.id);
+                        return (
+                            <img
+                                src={src}
+                                alt={post.data.title || 'image'}
+                                class='absolute inset-0 h-full w-full object-cover'
+                                sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
+                            />
+                        );
+                    })()}
                 </a>
 
                 <div class='p-4'>
@@ -103,7 +104,7 @@ const getViewCount = (postId: string) =>
                                     👀 {getViewCount(post.id).toLocaleString()}
                                 </span>
                             ) : (
-                                <span></span>
+                                <span />
                             )}
                             <span class='text-right'>
                                 <FormattedDate date={post.data.date} />

@@ -38,9 +38,15 @@ const breadcrumbs = [
                                 href={`/category/${cat}/`}
                                 class='flex items-center justify-between gap-3'
                             >
-                                <div class='flex items-center gap-3 min-w-0'>
-                                    <img src={generateSeededDataUri(cat)} alt={cat} class='h-12 w-20 flex-none rounded-md object-cover' />
-                                    <span class='text-lg capitalize truncate'>{cat}</span>
+                                <div class='flex min-w-0 items-center gap-3'>
+                                    <img
+                                        src={generateSeededDataUri(cat)}
+                                        alt={cat}
+                                        class='h-12 w-20 flex-none rounded-md object-cover'
+                                    />
+                                    <span class='truncate text-lg capitalize'>
+                                        {cat}
+                                    </span>
                                 </div>
                                 <span class='text-muted-foreground text-sm'>
                                     ({count})
