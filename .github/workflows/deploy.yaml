@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - main # main에 push될 때마다 실행
+    workflow_dispatch: {}
 
 permissions:
     contents: read
