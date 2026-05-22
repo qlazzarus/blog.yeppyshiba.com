@@ -1,0 +1,165 @@
+---
+import Layout from '@/layouts/BaseLayout.astro';
+import EntryGrid from '@/components/EntryGrid.astro';
+import { getCollection } from 'astro:content';
+import trendingData from '../data/ga-trending.json';
+import { generateSeededSvg } from '../utils/placeholderThumbnail.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const title = 'Trending Articles';
+const description = '최근 주목받는 게시물 모음';
+
+const items = trendingData?.trending ?? [];
+
+// If the trending data was generated (e.g., by CI), create a deterministic
+// og image file so social crawlers and shares get a stable preview.
+let ogImagePath = undefined;
+try {
+    const generatedAt = trendingData?.generatedAt;
+    if (generatedAt) {
+        const dateKey = generatedAt.split('T')[0].replace(/-/g, ''); // YYYYMMDD
+        const filename = `trending-og-${dateKey}.svg`;
+        const outDir = path.join(process.cwd(), 'public', 'images');
+        const outPath = path.join(outDir, filename);
+
+        // ensure directory exists and write deterministic svg if missing
+        await fs.mkdir(outDir, { recursive: true });
+        let needWrite = true;
+        try {
+            const stat = await fs.stat(outPath);
+            if (stat && stat.isFile()) needWrite = false;
+        } catch (e) {
+            needWrite = true;
+        }
+
+        if (needWrite) {
+            const svg = generateSeededSvg(`trending-${dateKey}`);
+            await fs.writeFile(outPath, svg, 'utf8');
+        }
+
+        ogImagePath = `/images/${filename}`;
+    }
+} catch (e) {
+    // fail silently — page should still render even if file ops fail during build
+    ogImagePath = undefined;
+}
+
+// Try to map trending paths to blog collection entries when possible
+const blog = (await getCollection('blog')) || [];
+const rides = (await getCollection('rides')) || [];
+const matchedBlogEntries = [];
+const matchedRidesEntries = [];
+const fallback = [];
+
+for (const it of items) {
+    const p = it.path.replace(/\/+$/, '');
+    // article paths like /article/{slug}
+    let m = p.match(/^\/article\/(.+)$/);
+    if (m) {
+        const slug = m[1];
+        const found = blog.find((b) => b.id === slug);
+        if (found) matchedBlogEntries.push(found);
+        else fallback.push(it);
+        continue;
+    }
+
+    // rides paths like /rides/{slug}
+    m = p.match(/^\/rides\/(.+)$/);
+    if (m) {
+        const slug = m[1];
+        const found = rides.find((r) => r.id === slug);
+        if (found) matchedRidesEntries.push(found);
+        else fallback.push(it);
+        continue;
+    }
+
+    // anything else -> fallback
+    fallback.push(it);
+}
+
+// Convert fallback items into EntryGrid-friendly pseudo-entries so styling matches.
+// For category/tag paths try to find a recent blog post that has an image.
+const fallbackEntries = fallback.map((item) => {
+    const p = (item.path || '').replace(/^\/+|\/+$/g, '');
+    const parts = p.split('/').filter(Boolean);
+    let titleText = parts.length
+        ? parts[parts.length - 1].replace(/-/g, ' ')
+        : item.path;
+    titleText = titleText.replace(/\b\w/g, (c) => c.toUpperCase());
+
+    // Default image: if provided by item, use it; otherwise leave undefined so EntryGrid can generate placeholder
+    let image = item.image || undefined;
+
+    // If the path is /category/{name}, try to find a recent blog post in that category
+    if (parts[0] === 'category' && parts[1]) {
+        const cat = parts[1];
+        const found = blog.find((b) => b.data.category === cat && b.data.image);
+        if (found) image = found.data.image;
+    }
+
+    // If the path is /tag/{name}, try to find a recent blog post with that tag
+    if (parts[0] === 'tag' && parts[1]) {
+        const tag = parts[1];
+        const found = blog.find(
+            (b) => (b.data.tags || []).includes(tag) && b.data.image,
+        );
+        if (found) image = found.data.image;
+    }
+
+    return {
+        id: titleText.toLowerCase().replace(/\s+/g, '-'),
+        data: {
+            title: titleText,
+            summary: item.description || '',
+            image,
+            tags: [],
+            date: new Date(),
+            category: '',
+            originalPath: item.path,
+        },
+    };
+});
+---
+
+<Layout {title} {description} image={ogImagePath}>
+    <section class='mb-8'>
+        <h1 class='sr-only'>Trending</h1>
+        {
+            matchedBlogEntries.length ? (
+                <div>
+                    <h2 class='mb-4 text-2xl font-semibold'>추천 글</h2>
+                    <EntryGrid
+                        entries={matchedBlogEntries}
+                        basePath='/article'
+                        showViews={false}
+                    />
+                </div>
+            ) : null
+        }
+
+        {
+            matchedRidesEntries.length ? (
+                <div class='mt-6'>
+                    <h2 class='mb-4 text-2xl font-semibold'>추천 라이딩</h2>
+                    <EntryGrid
+                        entries={matchedRidesEntries}
+                        basePath='/rides'
+                        showViews={false}
+                    />
+                </div>
+            ) : null
+        }
+    </section>
+
+    <section class='mx-auto'>
+        <h2 class='mb-4 text-2xl font-semibold'>기타 주목 항목</h2>
+        {
+            fallbackEntries.length ? (
+                <EntryGrid entries={fallbackEntries} basePath='' showViews={false} />
+            ) : (
+                <p>기타 항목이 없습니다.</p>
+            )
+        }
+    </section>
+</Layout>

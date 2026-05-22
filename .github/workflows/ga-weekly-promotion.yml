@@ -1,0 +1,51 @@
+name: Weekly GA Promotion Update
+
+on:
+    schedule:
+        - cron: '0 3 * * 1' # every Monday 03:00 UTC (adjust as needed)
+    workflow_dispatch: {}
+
+jobs:
+    update-promotion:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run GA analysis script
+              env:
+                  # Use raw JSON secret matching your local .env key `ANALYTICS_CREDENTIALS`
+                  ANALYTICS_CREDENTIALS: ${{ secrets.ANALYTICS_CREDENTIALS }}
+                  ANALYTICS_PROPERTY_ID: ${{ secrets.ANALYTICS_PROPERTY_ID }}
+              run: node scripts/optimize_internal_links_and_amplify.cjs
+
+            - name: Generate trending JSON
+              env:
+                  # Keep trending stable for ~1 week
+                  GA_TRENDING_MIN_HOURS: '168'
+                  GA_TRENDING_MAX_ITEMS: '6'
+              run: node scripts/generate-trending.cjs
+
+            - name: Commit results
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  if git status --porcelain | grep -q 'src/data/ga-promotion.csv\|src/data/internal-links-suggestions.json\|src/data/ga-trending.json'; then
+                    git add src/data/ga-promotion.csv src/data/internal-links-suggestions.json src/data/ga-trending.json || true
+                    git commit -m "Update GA promotion & link suggestions (weekly)" || echo "No changes to commit"
+                    git push origin HEAD:refs/heads/auto/ga-promotion || echo "Push failed"
+                  else
+                    echo "No changes"
+                  fi
+
+        # Notes: ensure repository has secrets set:
+        # - ANALYTICS_CREDENTIALS_B64: base64-encoded Google service account JSON
+        # - ANALYTICS_PROPERTY_ID: GA4 property ID (e.g., 314819162)
