@@ -1,0 +1,39 @@
+---
+import promotionsData from '../data/ga-promotion.json';
+const promotions = promotionsData?.promotions ?? [];
+const top = promotions[0];
+---
+
+{
+    top ? (
+        <section class='container mx-auto max-w-5xl px-4 py-4'>
+            <div class='bg-primary/10 border-primary/20 rounded-md border p-4'>
+                <div class='flex items-center justify-between'>
+                    <div>
+                        <div class='text-primary text-sm font-semibold'>
+                            추천 콘텐츠
+                        </div>
+                        <a
+                            href={top.pagePath}
+                            class='text-lg font-bold hover:underline'
+                        >
+                            {top.pagePath.replace(/\/+$/, '')}
+                        </a>
+                        <div class='text-muted-foreground text-sm'>
+                            조회 {top.screenPageViews} · 평균 체류{' '}
+                            {Math.round(top.averageSessionDuration_seconds)}초
+                        </div>
+                    </div>
+                    <div>
+                        <a
+                            href={top.pagePath}
+                            class='bg-primary inline-block rounded px-3 py-2 text-white'
+                        >
+                            읽기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    ) : null
+}

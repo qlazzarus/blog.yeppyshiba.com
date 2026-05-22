@@ -2,13 +2,15 @@
 import type { CollectionEntry } from 'astro:content';
 import { slugify } from 'transliteration';
 import FormattedDate from './FormattedDate.astro';
+import generatePlaceholder from '../utils/placeholderThumbnail.js';
 
 interface Props {
     entries?: CollectionEntry<'blog'>[];
     basePath?: string;
+    showViews?: boolean;
 }
 
-const { entries = [], basePath = '/article' }: Props = Astro.props;
+const { entries = [], basePath = '/article', showViews = true }: Props = Astro.props;
 
 // GA page views (generated at build time). If the file doesn't exist, treat as empty.
 type GaView = { path: string; totalCount: string };
@@ -23,7 +25,20 @@ const viewMap = new Map<string, number>(
     gaViews.map((v) => [v.path, Number(v.totalCount) || 0]),
 );
 
-const getPostHref = (postId: string) => `${basePath}/${postId}/`;
+const normalizeHref = (p) => {
+    if (!p) return p;
+    // external URLs -> leave as-is
+    if (/^https?:\/\//i.test(p) || /^\/\//.test(p)) return p;
+    let out = p;
+    if (!out.startsWith('/')) out = `/${out}`;
+    if (!out.endsWith('/')) out = `${out}/`;
+    return out;
+};
+
+const getPostHref = (post: any) => {
+    if (post?.data?.originalPath) return normalizeHref(post.data.originalPath);
+    return `${basePath}/${post.id}/`;
+};
 const getViewCount = (postId: string) =>
     viewMap.get(`${basePath}/${postId}`) ?? viewMap.get(`${basePath}/${postId}/`) ?? 0;
 ---
@@ -33,22 +48,22 @@ const getViewCount = (postId: string) =>
         entries.map((post) => (
             <article class='bg-card overflow-hidden rounded-lg border shadow-sm'>
                 <a
-                    href={getPostHref(post.id)}
+                    href={getPostHref(post)}
                     class='relative block aspect-video w-full overflow-hidden'
                 >
-                    {post.data.image ? (
-                        <img
-                            src={post.data.image}
-                            alt={post.data.title || 'image'}
-                            class='absolute inset-0 h-full w-full object-cover'
-                            sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
-                        />
-                    ) : (
-                        <div
-                            class='w-full'
-                            style='padding-top:56.25%; background:#e5e7eb'
-                        />
-                    )}
+                    {
+                        (() => {
+                            const src = post.data.image ?? post.data.coverImage ?? generatePlaceholder(post.data.title ?? post.id);
+                            return (
+                                <img
+                                    src={src}
+                                    alt={post.data.title || 'image'}
+                                    class='absolute inset-0 h-full w-full object-cover'
+                                    sizes='(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw'
+                                />
+                            );
+                        })()
+                    }
                 </a>
 
                 <div class='p-4'>
@@ -61,7 +76,7 @@ const getViewCount = (postId: string) =>
                     )}
 
                     <h3 class='mb-1 text-lg font-semibold'>
-                        <a href={getPostHref(post.id)} class='hover:underline'>
+                        <a href={getPostHref(post)} class='hover:underline'>
                             {post.data.title}
                         </a>
                     </h3>
@@ -83,9 +98,13 @@ const getViewCount = (postId: string) =>
                         </div>
 
                         <div class='text-muted-foreground flex items-center justify-between text-xs'>
-                            <span aria-label='views'>
-                                👀 {getViewCount(post.id).toLocaleString()}
-                            </span>
+                            {showViews ? (
+                                <span aria-label='views'>
+                                    👀 {getViewCount(post.id).toLocaleString()}
+                                </span>
+                            ) : (
+                                <span></span>
+                            )}
                             <span class='text-right'>
                                 <FormattedDate date={post.data.date} />
                             </span>

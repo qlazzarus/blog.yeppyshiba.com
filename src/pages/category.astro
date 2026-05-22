@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { generateSeededDataUri } from '../utils/placeholderThumbnail.js';
 
 const posts = await getCollection('blog');
 
@@ -35,9 +36,12 @@ const breadcrumbs = [
                         <li class='rounded border p-3 hover:shadow'>
                             <a
                                 href={`/category/${cat}/`}
-                                class='flex items-center justify-between'
+                                class='flex items-center justify-between gap-3'
                             >
-                                <span class='text-lg capitalize'>{cat}</span>
+                                <div class='flex items-center gap-3 min-w-0'>
+                                    <img src={generateSeededDataUri(cat)} alt={cat} class='h-12 w-20 flex-none rounded-md object-cover' />
+                                    <span class='text-lg capitalize truncate'>{cat}</span>
+                                </div>
                                 <span class='text-muted-foreground text-sm'>
                                     ({count})
                                 </span>
