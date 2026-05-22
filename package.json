@@ -10,7 +10,8 @@
         "ride:draft": "tsx scripts/create-ride-draft.ts",
         "ride:prepare": "tsx scripts/prepare-ride-media.ts",
         "astro": "astro",
-        "ga:fetch": "tsx scripts/fetch-ga-views.ts"
+        "ga:fetch": "tsx scripts/fetch-ga-views.ts",
+        "ga:fetch:weekly": "tsx scripts/fetch-ga-last7days.ts"
     },
     "dependencies": {
         "astro": "^5.16.6",
