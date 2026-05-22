@@ -50,12 +50,12 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  if git status --porcelain | grep -q 'src/data/ga-promotion.csv\|src/data/internal-links-suggestions.json\|src/data/ga-trending.json'; then
-                    git add src/data/ga-promotion.csv src/data/internal-links-suggestions.json src/data/ga-trending.json || true
+                  if ls src/data/ga-promotion.csv src/data/internal-links-suggestions.json src/data/ga-trending.json >/dev/null 2>&1; then
+                    git add -f src/data/ga-promotion.csv src/data/internal-links-suggestions.json src/data/ga-trending.json
                     git commit -m "Update GA promotion & link suggestions (weekly)" || echo "No changes to commit"
                     git push origin HEAD:main || echo "Push failed"
                   else
-                    echo "No changes"
+                    echo "No generated files"
                   fi
 
         # Notes: ensure repository has secrets set:
