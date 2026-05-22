@@ -1,0 +1,40 @@
+{
+  "topPost": "/article/how-i-build-pocket-money-with-apptech",
+  "topPostViews": 10,
+  "relatedSuggestions": [
+    "/how-i-build-pocket-money-with-apptech/",
+    "/flutter-with-mobx/",
+    "/gitlab-runner-deploy-with-docker/",
+    "/how-becoming-a-father-changed-my-decisions/",
+    "/jekyll-with-docker-and-wsl2/",
+    "/phaser3-with-parallax-scroll/"
+  ],
+  "amplifyCandidates": [],
+  "fixCandidates": [
+    {
+      "path": "/article/a-look-back-in-2024",
+      "views": 1,
+      "avgSec": 8.38
+    },
+    {
+      "path": "/article/bundang-cafe-deerhill-review",
+      "views": 1,
+      "avgSec": 6.03
+    },
+    {
+      "path": "/article/gitlab-runner-deploy-with-docker",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/quarter-view",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/thinking-math-function-graph-shape",
+      "views": 1,
+      "avgSec": 4.44
+    }
+  ]
+}
