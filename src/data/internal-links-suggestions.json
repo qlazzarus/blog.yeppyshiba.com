@@ -1,13 +1,8 @@
 {
-  "topPost": "/article/how-i-build-pocket-money-with-apptech",
+  "topPost": "/article/bicycle-commute-transportation-savings",
   "topPostViews": 10,
   "relatedSuggestions": [
-    "/how-i-build-pocket-money-with-apptech/",
-    "/flutter-with-mobx/",
-    "/gitlab-runner-deploy-with-docker/",
-    "/how-becoming-a-father-changed-my-decisions/",
-    "/jekyll-with-docker-and-wsl2/",
-    "/phaser3-with-parallax-scroll/"
+    "/bicycle-commute-transportation-savings/"
   ],
   "amplifyCandidates": [],
   "fixCandidates": [
@@ -22,9 +17,9 @@
       "avgSec": 6.03
     },
     {
-      "path": "/article/gitlab-runner-deploy-with-docker",
+      "path": "/article/hwaseong-byulboim-cafe-review",
       "views": 1,
-      "avgSec": 0
+      "avgSec": 5.77
     },
     {
       "path": "/article/quarter-view",
@@ -35,6 +30,11 @@
       "path": "/article/thinking-math-function-graph-shape",
       "views": 1,
       "avgSec": 4.44
+    },
+    {
+      "path": "/article/yongin-cafe-arosto-review",
+      "views": 1,
+      "avgSec": 5.78
     }
   ]
 }
