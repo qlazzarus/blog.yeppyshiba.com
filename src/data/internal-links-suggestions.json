@@ -1,40 +1,56 @@
 {
   "topPost": "/article/bicycle-commute-transportation-savings",
-  "topPostViews": 10,
+  "topPostViews": 9,
   "relatedSuggestions": [
     "/bicycle-commute-transportation-savings/"
   ],
-  "amplifyCandidates": [],
+  "amplifyCandidates": [
+    {
+      "path": "/article/allowance-300k-02",
+      "views": 4,
+      "avgSec": 67.09
+    },
+    {
+      "path": "/article/uiwang-jeju-eunhine-haejangguk",
+      "views": 4,
+      "avgSec": 120.86
+    },
+    {
+      "path": "/article/how-i-build-pocket-money-with-apptech",
+      "views": 1,
+      "avgSec": 856
+    },
+    {
+      "path": "/article/newborn-loan-review",
+      "views": 1,
+      "avgSec": 125.2
+    },
+    {
+      "path": "/article/uiwang-bajirak-kalguksu",
+      "views": 1,
+      "avgSec": 87.51
+    }
+  ],
   "fixCandidates": [
     {
-      "path": "/article/a-look-back-in-2024",
+      "path": "/article/chunk-upload-vue-axios-laravel",
       "views": 1,
-      "avgSec": 8.38
+      "avgSec": 0
     },
     {
-      "path": "/article/bundang-cafe-deerhill-review",
+      "path": "/article/game-of-life",
       "views": 1,
-      "avgSec": 6.03
+      "avgSec": 0
     },
     {
-      "path": "/article/hwaseong-byulboim-cafe-review",
+      "path": "/article/php8-attributes",
       "views": 1,
-      "avgSec": 5.77
+      "avgSec": 0
     },
     {
       "path": "/article/quarter-view",
       "views": 1,
       "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-math-function-graph-shape",
-      "views": 1,
-      "avgSec": 4.44
-    },
-    {
-      "path": "/article/yongin-cafe-arosto-review",
-      "views": 1,
-      "avgSec": 5.78
     }
   ]
 }

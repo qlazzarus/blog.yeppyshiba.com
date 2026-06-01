@@ -1,11 +1,41 @@
 {
-  "generatedAt": "2026-05-22T08:47:23.414Z",
+  "generatedAt": "2026-06-01T08:32:52.468Z",
   "trending": [
     {
-      "path": "/article/how-i-build-pocket-money-with-apptech",
-      "views": 10,
+      "path": "/article/bicycle-commute-transportation-savings",
+      "views": 9,
       "avgSec": 0,
       "reason": "top_post"
+    },
+    {
+      "path": "/article/allowance-300k-02",
+      "views": 4,
+      "avgSec": 67.09,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/uiwang-jeju-eunhine-haejangguk",
+      "views": 4,
+      "avgSec": 120.86,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/how-i-build-pocket-money-with-apptech",
+      "views": 1,
+      "avgSec": 856,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/newborn-loan-review",
+      "views": 1,
+      "avgSec": 125.2,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/uiwang-bajirak-kalguksu",
+      "views": 1,
+      "avgSec": 87.51,
+      "reason": "amplify"
     }
   ]
 }
