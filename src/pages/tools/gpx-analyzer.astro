@@ -1,0 +1,578 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import GpxRouteViewer from '@/components/GpxRouteViewer.astro';
+
+const title = 'GPX 난이도 계산기';
+const description =
+    'GPX 파일을 브라우저에서만 분석해 거리, 획득고도, 예상 소요시간, 코스 난이도를 계산하는 자전거 라이딩 도구입니다. 파일은 서버로 업로드되지 않습니다.';
+const pageUrl = new URL('/tools/gpx-analyzer/', Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'SportsApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <section class='mx-auto max-w-5xl space-y-6'>
+        <div class='space-y-3'>
+            <p class='text-primary text-sm font-semibold'>Cycling Tool</p>
+            <h1 class='text-3xl font-bold tracking-tight md:text-4xl'>
+                GPX 난이도 계산기
+            </h1>
+            <p class='text-muted-foreground max-w-3xl text-base leading-7'>
+                자전거 라이딩 GPX 파일을 선택하면 거리, 획득고도, 최고고도, 최저고도,
+                예상 소요시간과 코스 난이도를 계산합니다. 파일은 서버로 전송하지 않고
+                현재 브라우저 안에서만 분석합니다.
+            </p>
+            <p class='text-muted-foreground max-w-3xl text-sm leading-6'>
+                로컬 업로드 GPX는 개인정보 보호를 위해 지도 로드뷰를 표시하지 않습니다.
+                집 근처 출발지나 생활 동선이 포함된 GPX도 비교적 안전하게 분석할 수
+                있습니다.
+            </p>
+        </div>
+
+        <div class='grid gap-6 lg:grid-cols-[1fr_1fr]'>
+            <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                <h2 class='text-xl font-semibold'>GPX 파일 업로드</h2>
+
+                <div class='mt-5 space-y-5'>
+                    <div>
+                        <label class='mb-2 block text-sm font-medium' for='gpxFile'>
+                            GPX 파일 선택
+                        </label>
+                        <input
+                            id='gpxFile'
+                            type='file'
+                            accept='.gpx,application/gpx+xml,text/xml,application/xml'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        />
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            Strava, Garmin, Komoot, 카카오맵 등에서 저장한 GPX 파일을
+                            사용할 수 있습니다.
+                        </p>
+                    </div>
+
+                    <div class='grid gap-5 md:grid-cols-2'>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='riderLevel'
+                            >
+                                라이더 기준
+                            </label>
+                            <select
+                                id='riderLevel'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            >
+                                <option value='beginner'>입문 / 여유 라이딩</option>
+                                <option value='normal' selected
+                                    >일반 / 주말 라이딩</option
+                                >
+                                <option value='fast'>상급 / 빠른 라이딩</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='avgSpeed'
+                            >
+                                평지 기준 평균속도
+                            </label>
+                            <input
+                                id='avgSpeed'
+                                type='number'
+                                min='10'
+                                max='45'
+                                step='1'
+                                value='24'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p class='text-muted-foreground mt-2 text-sm'>단위: km/h</p>
+                        </div>
+                    </div>
+
+                    <div class='rounded-2xl border border-dashed p-4 text-sm leading-6'>
+                        <p class='font-semibold'>계산 기준</p>
+                        <p class='text-muted-foreground mt-1'>
+                            난이도 점수 = 거리(km) + 획득고도(m) / 5
+                        </p>
+                        <p class='text-muted-foreground'>
+                            예상시간은 평균속도 기준 시간에 상승고도 보정 시간을 더해
+                            계산합니다.
+                        </p>
+                    </div>
+
+                    <button
+                        id='resetBtn'
+                        type='button'
+                        class='bg-background border-border rounded-xl border px-5 py-3 font-semibold'
+                    >
+                        초기화
+                    </button>
+                </div>
+            </section>
+
+            <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                <h2 class='text-xl font-semibold'>분석 결과</h2>
+
+                <div
+                    id='emptyState'
+                    class='text-muted-foreground mt-5 rounded-2xl border p-5 text-sm leading-6'
+                >
+                    GPX 파일을 선택하면 이 영역에 분석 결과가 표시됩니다.
+                </div>
+
+                <div id='resultArea' class='mt-5 hidden space-y-5'>
+                    <div class='grid gap-3 sm:grid-cols-2'>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>거리</p>
+                            <p id='distanceResult' class='mt-1 text-2xl font-bold'>-</p>
+                        </div>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>획득고도</p>
+                            <p id='gainResult' class='mt-1 text-2xl font-bold'>-</p>
+                        </div>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>예상 소요시간</p>
+                            <p id='timeResult' class='mt-1 text-2xl font-bold'>-</p>
+                        </div>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>난이도</p>
+                            <p id='gradeResult' class='mt-1 text-2xl font-bold'>-</p>
+                        </div>
+                    </div>
+
+                    <div class='rounded-2xl border p-4'>
+                        <div class='flex items-center justify-between gap-3'>
+                            <p class='text-sm font-semibold'>난이도 점수</p>
+                            <p id='scoreResult' class='text-sm font-bold'>-</p>
+                        </div>
+                        <div class='bg-muted mt-3 h-3 overflow-hidden rounded-full'>
+                            <div
+                                id='scoreBar'
+                                class='bg-primary h-full w-0 rounded-full transition-all'
+                            >
+                            </div>
+                        </div>
+                        <p
+                            id='gradeDescription'
+                            class='text-muted-foreground mt-3 text-sm leading-6'
+                        >
+                            -
+                        </p>
+                    </div>
+
+                    <div class='grid gap-3 sm:grid-cols-3'>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>최고고도</p>
+                            <p id='maxEleResult' class='mt-1 text-lg font-bold'>-</p>
+                        </div>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>최저고도</p>
+                            <p id='minEleResult' class='mt-1 text-lg font-bold'>-</p>
+                        </div>
+                        <div class='rounded-2xl border p-4'>
+                            <p class='text-muted-foreground text-sm'>트랙 포인트</p>
+                            <p id='pointResult' class='mt-1 text-lg font-bold'>-</p>
+                        </div>
+                    </div>
+
+                    <p id='fileNotice' class='text-muted-foreground text-sm leading-6'>
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+            <h2 class='text-xl font-semibold'>GPX 지도</h2>
+            <div class='mt-4'>
+                <GpxRouteViewer
+                    viewerId='gpx-analyzer-viewer'
+                    height='520px'
+                    showRoadview={false}
+                />
+            </div>
+        </section>
+
+        <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+            <h2 class='text-xl font-semibold'>난이도 기준</h2>
+            <div class='mt-4 overflow-x-auto'>
+                <table class='w-full min-w-[560px] text-left text-sm'>
+                    <thead>
+                        <tr class='border-b'>
+                            <th class='py-3 pr-4'>점수</th>
+                            <th class='py-3 pr-4'>등급</th>
+                            <th class='py-3 pr-4'>해석</th>
+                        </tr>
+                    </thead>
+                    <tbody class='divide-y'>
+                        <tr>
+                            <td class='py-3 pr-4'>0 ~ 80</td>
+                            <td class='py-3 pr-4 font-semibold'>입문</td>
+                            <td class='py-3 pr-4'>가벼운 자전거길, 짧은 회복 라이딩</td>
+                        </tr>
+                        <tr>
+                            <td class='py-3 pr-4'>81 ~ 150</td>
+                            <td class='py-3 pr-4 font-semibold'>초급</td>
+                            <td class='py-3 pr-4'>주말 라이딩으로 무난한 코스</td>
+                        </tr>
+                        <tr>
+                            <td class='py-3 pr-4'>151 ~ 250</td>
+                            <td class='py-3 pr-4 font-semibold'>중급</td>
+                            <td class='py-3 pr-4'>거리나 업힐 부담이 있는 코스</td>
+                        </tr>
+                        <tr>
+                            <td class='py-3 pr-4'>251 ~ 400</td>
+                            <td class='py-3 pr-4 font-semibold'>상급</td>
+                            <td class='py-3 pr-4'
+                                >보급, 페이스 조절, 체력 관리가 필요한 코스</td
+                            >
+                        </tr>
+                        <tr>
+                            <td class='py-3 pr-4'>401+</td>
+                            <td class='py-3 pr-4 font-semibold'>매우 어려움</td>
+                            <td class='py-3 pr-4'
+                                >장거리 또는 고도 부담이 큰 도전 코스</td
+                            >
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+
+    <script>
+        const fileInput = document.getElementById('gpxFile');
+        const riderLevelInput = document.getElementById('riderLevel');
+        const avgSpeedInput = document.getElementById('avgSpeed');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const emptyState = document.getElementById('emptyState');
+        const resultArea = document.getElementById('resultArea');
+
+        const distanceResult = document.getElementById('distanceResult');
+        const gainResult = document.getElementById('gainResult');
+        const timeResult = document.getElementById('timeResult');
+        const gradeResult = document.getElementById('gradeResult');
+        const scoreResult = document.getElementById('scoreResult');
+        const scoreBar = document.getElementById('scoreBar');
+        const gradeDescription = document.getElementById('gradeDescription');
+        const maxEleResult = document.getElementById('maxEleResult');
+        const minEleResult = document.getElementById('minEleResult');
+        const pointResult = document.getElementById('pointResult');
+        const fileNotice = document.getElementById('fileNotice');
+
+        let lastParsedPoints = [];
+        let lastFileName = '';
+
+        const speedByLevel = {
+            beginner: 18,
+            normal: 24,
+            fast: 30,
+        };
+
+        function toRad(value) {
+            return (value * Math.PI) / 180;
+        }
+
+        function distanceMeters(a, b) {
+            const earthRadius = 6371000;
+            const dLat = toRad(b.lat - a.lat);
+            const dLng = toRad(b.lng - a.lng);
+            const lat1 = toRad(a.lat);
+            const lat2 = toRad(b.lat);
+
+            const h =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+            return 2 * earthRadius * Math.asin(Math.sqrt(h));
+        }
+
+        function parseGpx(xmlText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlText, 'application/xml');
+
+            if (doc.querySelector('parsererror')) {
+                throw new Error('GPX 파일을 XML로 읽지 못했습니다.');
+            }
+
+            const nodes = Array.from(doc.querySelectorAll('trkpt, rtept'));
+
+            const points = nodes
+                .map((node) => {
+                    const lat = Number(node.getAttribute('lat'));
+                    const lng = Number(node.getAttribute('lon'));
+                    const eleNode = node.querySelector('ele');
+                    const ele = eleNode ? Number(eleNode.textContent) : null;
+
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+                    return {
+                        lat,
+                        lng,
+                        ele: Number.isFinite(ele) ? ele : null,
+                    };
+                })
+                .filter(Boolean);
+
+            if (points.length < 2) {
+                throw new Error('분석 가능한 트랙 포인트가 부족합니다.');
+            }
+
+            return points;
+        }
+
+        function smoothElevationGain(points) {
+            let gain = 0;
+            let previous = null;
+
+            for (const point of points) {
+                if (point.ele === null) continue;
+
+                if (previous === null) {
+                    previous = point.ele;
+                    continue;
+                }
+
+                const diff = point.ele - previous;
+
+                // GPS 고도 튐 방지용 최소 보정값
+                if (diff > 3) {
+                    gain += diff;
+                    previous = point.ele;
+                } else if (Math.abs(diff) > 3) {
+                    previous = point.ele;
+                }
+            }
+
+            return gain;
+        }
+
+        function analyzePoints(points) {
+            let distance = 0;
+
+            for (let i = 1; i < points.length; i += 1) {
+                distance += distanceMeters(points[i - 1], points[i]);
+            }
+
+            const elevations = points
+                .map((point) => point.ele)
+                .filter((ele) => Number.isFinite(ele));
+
+            const elevationGain = smoothElevationGain(points);
+            const maxElevation = elevations.length ? Math.max(...elevations) : null;
+            const minElevation = elevations.length ? Math.min(...elevations) : null;
+            const distanceKm = distance / 1000;
+
+            return {
+                distanceKm,
+                elevationGain,
+                maxElevation,
+                minElevation,
+                pointCount: points.length,
+            };
+        }
+
+        function getGrade(score) {
+            if (score <= 80) {
+                return {
+                    label: '입문',
+                    description:
+                        '짧은 거리나 고도 부담이 낮은 코스입니다. 가벼운 라이딩이나 회복주에 적합합니다.',
+                };
+            }
+
+            if (score <= 150) {
+                return {
+                    label: '초급',
+                    description:
+                        '주말 라이딩으로 무난한 코스입니다. 초보자도 페이스만 조절하면 도전할 수 있습니다.',
+                };
+            }
+
+            if (score <= 250) {
+                return {
+                    label: '중급',
+                    description:
+                        '거리나 업힐 부담이 체감되는 코스입니다. 보급과 휴식 계획을 잡는 편이 좋습니다.',
+                };
+            }
+
+            if (score <= 400) {
+                return {
+                    label: '상급',
+                    description:
+                        '체력 소모가 큰 코스입니다. 장거리 경험, 페이스 조절, 보급 전략이 필요합니다.',
+                };
+            }
+
+            return {
+                label: '매우 어려움',
+                description:
+                    '장거리 또는 누적 상승고도가 큰 도전 코스입니다. 충분한 준비와 컨디션 확인이 필요합니다.',
+            };
+        }
+
+        function formatTime(hours) {
+            if (!Number.isFinite(hours) || hours <= 0) return '-';
+
+            const totalMinutes = Math.round(hours * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+
+            if (h <= 0) return `${m}분`;
+            if (m === 0) return `${h}시간`;
+
+            return `${h}시간 ${m}분`;
+        }
+
+        function calculateEstimatedTime(distanceKm, elevationGain) {
+            const speed = Math.max(Number(avgSpeedInput.value || 24), 1);
+            const baseHours = distanceKm / speed;
+
+            // 상승고도 100m당 약 4분 보정
+            const climbPenaltyHours = (elevationGain / 100) * (4 / 60);
+
+            return baseHours + climbPenaltyHours;
+        }
+
+        function renderResult(analysis) {
+            const score = analysis.distanceKm + analysis.elevationGain / 5;
+            const grade = getGrade(score);
+            const estimatedTime = calculateEstimatedTime(
+                analysis.distanceKm,
+                analysis.elevationGain,
+            );
+
+            emptyState.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+
+            distanceResult.textContent = `${analysis.distanceKm.toFixed(1)} km`;
+            gainResult.textContent = `${Math.round(analysis.elevationGain).toLocaleString()} m`;
+            timeResult.textContent = formatTime(estimatedTime);
+            gradeResult.textContent = grade.label;
+            scoreResult.textContent = `${Math.round(score).toLocaleString()}점`;
+            gradeDescription.textContent = grade.description;
+            maxEleResult.textContent =
+                analysis.maxElevation === null
+                    ? '고도 없음'
+                    : `${Math.round(analysis.maxElevation).toLocaleString()} m`;
+            minEleResult.textContent =
+                analysis.minElevation === null
+                    ? '고도 없음'
+                    : `${Math.round(analysis.minElevation).toLocaleString()} m`;
+            pointResult.textContent = `${analysis.pointCount.toLocaleString()}개`;
+
+            const percent = Math.min((score / 400) * 100, 100);
+            scoreBar.style.width = `${percent}%`;
+
+            fileNotice.textContent = `${lastFileName} 파일을 브라우저에서만 분석했습니다. 로컬 업로드 GPX는 서버에 저장되지 않으며 로드뷰도 표시하지 않습니다.`;
+        }
+
+        function waitForRouteViewer(viewerId, timeoutMs = 5000) {
+            const startedAt = Date.now();
+
+            return new Promise((resolve) => {
+                const check = () => {
+                    if (window.GpxRouteViewer?.viewers?.[viewerId]) {
+                        resolve(window.GpxRouteViewer);
+                        return;
+                    }
+
+                    if (Date.now() - startedAt > timeoutMs) {
+                        resolve(null);
+                        return;
+                    }
+
+                    window.setTimeout(check, 50);
+                };
+
+                check();
+            });
+        }
+
+        async function handleFileChange() {
+            const file = fileInput.files?.[0];
+            if (!file) return;
+
+            const gpxText = await file.text();
+
+            lastFileName = file.name;
+
+            try {
+                lastParsedPoints = parseGpx(gpxText);
+                const analysis = analyzePoints(lastParsedPoints);
+                renderResult(analysis);
+
+                const routeViewer = await waitForRouteViewer('gpx-analyzer-viewer');
+                const didLoadMap = routeViewer?.loadGpxFromText?.(
+                    'gpx-analyzer-viewer',
+                    gpxText,
+                    {
+                        showRoadview: false,
+                    },
+                );
+
+                if (!didLoadMap) {
+                    fileNotice.textContent +=
+                        ' 지도를 초기화하지 못했습니다. Kakao Maps 키 설정이나 브라우저 콘솔을 확인해 주세요.';
+                }
+            } catch (error) {
+                emptyState.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                emptyState.textContent =
+                    error instanceof Error
+                        ? error.message
+                        : 'GPX 파일을 분석하지 못했습니다.';
+            }
+        }
+
+        function rerenderLastResult() {
+            if (!lastParsedPoints.length) return;
+            renderResult(analyzePoints(lastParsedPoints));
+        }
+
+        riderLevelInput?.addEventListener('change', () => {
+            const level = riderLevelInput.value;
+            avgSpeedInput.value = String(speedByLevel[level] || 24);
+            rerenderLastResult();
+        });
+
+        avgSpeedInput?.addEventListener('input', rerenderLastResult);
+        fileInput?.addEventListener('change', handleFileChange);
+
+        resetBtn?.addEventListener('click', () => {
+            fileInput.value = '';
+            riderLevelInput.value = 'normal';
+            avgSpeedInput.value = '24';
+            lastParsedPoints = [];
+            lastFileName = '';
+            resultArea.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            emptyState.textContent =
+                'GPX 파일을 선택하면 이 영역에 분석 결과가 표시됩니다.';
+        });
+    </script>
+</BaseLayout>

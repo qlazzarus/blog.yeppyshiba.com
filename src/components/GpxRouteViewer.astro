@@ -1,10 +1,13 @@
 ---
 const {
+    viewerId,
     gpxUrl,
+    gpxText,
     title = 'Ride route',
     height = '640px',
     mediaManifestUrl,
     roadviewUpdateIntervalMs = 10000,
+    showRoadview = true,
 } = Astro.props;
 
 const KAKAO_KEY =
@@ -12,7 +15,7 @@ const KAKAO_KEY =
     process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
     process.env.KAKAO_MAP_API_KEY ||
     '';
-const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
+const id = viewerId || `gpx-route-${Math.random().toString(36).slice(2)}`;
 ---
 
 <section
@@ -21,10 +24,12 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
     style={`--viewer-height:${height}`}
     data-viewer={JSON.stringify({
         gpxUrl,
+        gpxText,
         title,
         KAKAO_KEY,
         mediaManifestUrl,
         roadviewUpdateIntervalMs,
+        showRoadview,
     })}
 >
     <div class='gpx-route-viewer__header'>
@@ -139,6 +144,7 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
         let playbackStartedAt = 0;
         let playbackStartTime = 0;
         let lastRoadviewUpdateAt = 0;
+        let routePolyline = null;
 
         if (!config.KAKAO_KEY) {
             setStatus('Kakao Maps JavaScript 키가 필요합니다.');
@@ -146,6 +152,31 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             return;
         }
 
+        loadKakaoMaps(async () => {
+            exposeViewerApi();
+
+            if (!config.gpxUrl) {
+                setStatus('GPX 파일을 선택해 주세요.');
+                showRoadviewMessage('로컬 GPX를 업로드하면 지도에 경로가 표시됩니다.');
+                return;
+            }
+
+            try {
+                const [nextPoints, nextMediaManifest] = await Promise.all([
+                    loadGpx(config.gpxUrl),
+                    loadMediaManifest(config.mediaManifestUrl),
+                ]);
+
+                mediaManifest = nextMediaManifest;
+                renderRoute(nextPoints);
+            } catch (error) {
+                setStatus('GPX를 불러오지 못했습니다.');
+                showRoadviewMessage('파일 경로나 GPX 형식을 확인해 주세요.');
+                console.error(error);
+            }
+        });
+
+        /*
         loadKakaoMaps(async () => {
             try {
                 [points, mediaManifest] = await Promise.all([
@@ -170,6 +201,7 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
                 console.error(error);
             }
         });
+        */
 
         root.addEventListener('click', (event) => {
             const action = event.target?.getAttribute?.('data-action');
@@ -219,10 +251,19 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             if (!response.ok) throw new Error(`GPX fetch failed: ${response.status}`);
 
             const text = await response.text();
+            return loadGpxText(text);
+        }
+
+        function loadGpxText(text) {
             const xml = new DOMParser().parseFromString(text, 'application/xml');
             if (xml.querySelector('parsererror')) throw new Error('Invalid GPX XML');
 
-            return Array.from(xml.getElementsByTagNameNS('*', 'trkpt'))
+            const routeNodes = [
+                ...Array.from(xml.getElementsByTagNameNS('*', 'trkpt')),
+                ...Array.from(xml.getElementsByTagNameNS('*', 'rtept')),
+            ];
+
+            return routeNodes
                 .map((node) => ({
                     lat: Number(node.getAttribute('lat')),
                     lng: Number(node.getAttribute('lon')),
@@ -262,6 +303,39 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             return Number.isFinite(value) ? value : null;
         }
 
+        function renderRoute(nextPoints) {
+            stopPlayback();
+
+            points = nextPoints;
+            cumulativeDistances = [];
+            pointTimes = [];
+            selectedIndex = 0;
+            lastRoadviewUpdateAt = 0;
+
+            if (points.length < 2) {
+                setStatus('표시할 GPX 트랙 포인트가 부족합니다.');
+                return;
+            }
+
+            prepareMediaData();
+            prepareRouteData();
+            renderStats(points);
+            renderElevation();
+
+            if (!map) {
+                initMap();
+            } else {
+                redrawRoute();
+            }
+
+            selectPoint(0, {
+                moveMap: true,
+                updateRoadview: config.showRoadview !== false,
+            });
+
+            setStatus(`${points.length.toLocaleString()}개 트랙 포인트`);
+        }
+
         function initMap() {
             const kakao = window.kakao;
             const first = points[0];
@@ -279,14 +353,14 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
                 (point) => new kakao.maps.LatLng(point.lat, point.lng),
             );
 
-            const polyline = new kakao.maps.Polyline({
+            routePolyline = new kakao.maps.Polyline({
                 path,
                 strokeWeight: 5,
                 strokeColor: '#1d7f68',
                 strokeOpacity: 0.9,
                 strokeStyle: 'solid',
             });
-            polyline.setMap(map);
+            routePolyline.setMap(map);
 
             map.setDraggable(false);
             map.setZoomable(false);
@@ -297,7 +371,12 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             selectedMarker.setMap(map);
 
             if (roadviewEl) {
-                if (mediaManifest) {
+                if (!config.showRoadview) {
+                    roadviewEl.hidden = true;
+                    showRoadviewMessage(
+                        '로컬 업로드 GPX는 개인정보 보호를 위해 로드뷰를 표시하지 않습니다.',
+                    );
+                } else if (mediaManifest) {
                     roadviewEl.hidden = true;
                     mediaEl.hidden = false;
                     showRoadviewMessage('GoPro 프레임을 불러오는 중...');
@@ -308,9 +387,11 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
                 }
             }
 
-            if (!mediaManifest) roadviewClient = new kakao.maps.RoadviewClient();
+            if (config.showRoadview && !mediaManifest) {
+                roadviewClient = new kakao.maps.RoadviewClient();
+            }
 
-            kakao.maps.event.addListener(polyline, 'click', (mouseEvent) => {
+            kakao.maps.event.addListener(routePolyline, 'click', (mouseEvent) => {
                 const latLng = mouseEvent.latLng;
                 const nearest = findNearestPointIndex(latLng.getLat(), latLng.getLng());
                 selectPoint(nearest, { moveMap: false });
@@ -328,6 +409,100 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
                 cumulativeDistances[i] =
                     cumulativeDistances[i - 1] + haversine(points[i - 1], points[i]);
             }
+        }
+
+        function redrawRoute() {
+            const kakao = window.kakao;
+            const first = points[0];
+
+            const path = samplePath(points, 2500).map(
+                (point) => new kakao.maps.LatLng(point.lat, point.lng),
+            );
+
+            routePolyline?.setMap(null);
+
+            routePolyline = new kakao.maps.Polyline({
+                path,
+                strokeWeight: 5,
+                strokeColor: '#1d7f68',
+                strokeOpacity: 0.9,
+                strokeStyle: 'solid',
+            });
+
+            routePolyline.setMap(map);
+
+            kakao.maps.event.addListener(routePolyline, 'click', (mouseEvent) => {
+                const latLng = mouseEvent.latLng;
+                const nearest = findNearestPointIndex(latLng.getLat(), latLng.getLng());
+                selectPoint(nearest, { moveMap: false });
+            });
+
+            selectedMarker?.setPosition(new kakao.maps.LatLng(first.lat, first.lng));
+            map.setCenter(new kakao.maps.LatLng(first.lat, first.lng));
+        }
+
+        function exposeViewerApi() {
+            window.GpxRouteViewer = window.GpxRouteViewer || {};
+            window.GpxRouteViewer.viewers = window.GpxRouteViewer.viewers || {};
+
+            const viewerApi = {
+                loadFromText(gpxText, options = {}) {
+                    try {
+                        config = {
+                            ...config,
+                            ...options,
+                        };
+
+                        // 로컬 업로드 기본값: 로드뷰 비활성
+                        if (options.showRoadview === undefined) {
+                            config.showRoadview = false;
+                        }
+
+                        mediaManifest = null;
+                        mediaFrames = [];
+                        mediaFrameTimes = [];
+
+                        if (roadviewEl) {
+                            roadviewEl.hidden = true;
+                        }
+
+                        if (mediaEl) {
+                            mediaEl.hidden = true;
+                        }
+
+                        showRoadviewMessage(
+                            '로컬 업로드 GPX는 개인정보 보호를 위해 로드뷰를 표시하지 않습니다.',
+                        );
+
+                        const nextPoints = loadGpxText(gpxText);
+                        renderRoute(nextPoints);
+
+                        return true;
+                    } catch (error) {
+                        setStatus('GPX 파일을 분석하지 못했습니다.');
+                        showRoadviewMessage('GPX 형식을 확인해 주세요.');
+                        console.error(error);
+                        return false;
+                    }
+                },
+            };
+
+            window.GpxRouteViewer.viewers[id] = viewerApi;
+
+            window.GpxRouteViewer.loadFromText = function (
+                viewerId,
+                gpxText,
+                options = {},
+            ) {
+                return (
+                    window.GpxRouteViewer.viewers?.[viewerId]?.loadFromText(
+                        gpxText,
+                        options,
+                    ) || false
+                );
+            };
+
+            window.GpxRouteViewer.loadGpxFromText = window.GpxRouteViewer.loadFromText;
         }
 
         function prepareMediaData() {
@@ -365,8 +540,11 @@ const id = `gpx-route-${Math.random().toString(36).slice(2)}`;
             renderPoint(point, selectedIndex);
             updateElevationCursor();
             if (options?.updateRoadview !== false) {
-                if (mediaManifest) updateMediaFrame(point);
-                else updateRoadview(latLng);
+                if (mediaManifest) {
+                    updateMediaFrame(point);
+                } else if (config.showRoadview) {
+                    updateRoadview(latLng);
+                }
             }
         }
 
