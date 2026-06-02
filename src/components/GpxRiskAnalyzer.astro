@@ -1,0 +1,474 @@
+---
+const KAKAO_KEY =
+    import.meta.env.PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.KAKAO_MAP_API_KEY ||
+    '';
+---
+
+<section
+    class='gpx-risk-analyzer'
+    data-gpx-risk-config={JSON.stringify({
+        KAKAO_KEY,
+    })}
+>
+    <div class='gpx-risk-header'>
+        <h2>GPX 위험구간 분석기</h2>
+        <p>
+            GPX 파일을 업로드하면 급경사, 급다운힐, 급커브, 긴 업힐/다운힐 구간을
+            자동으로 탐지하고 지도와 로드뷰로 확인할 수 있습니다.
+        </p>
+    </div>
+
+    <div class='gpx-risk-upload'>
+        <input id='gpx-risk-file' type='file' accept='.gpx,application/gpx+xml' />
+        <p id='gpx-risk-status'>GPX 파일을 선택해 주세요.</p>
+    </div>
+
+    <div class='gpx-risk-summary' id='gpx-risk-summary' hidden>
+        <div>
+            <strong id='summary-total'>0</strong>
+            <span>전체 위험구간</span>
+        </div>
+        <div>
+            <strong id='summary-high'>0</strong>
+            <span>고위험</span>
+        </div>
+        <div>
+            <strong id='summary-medium'>0</strong>
+            <span>주의</span>
+        </div>
+        <div>
+            <strong id='summary-low'>0</strong>
+            <span>참고</span>
+        </div>
+    </div>
+
+    <div class='gpx-risk-layout'>
+        <div class='gpx-risk-map-wrap'>
+            <h3>전체 경로 지도</h3>
+            <div id='gpx-risk-map' class='gpx-risk-map'></div>
+        </div>
+
+        <div class='gpx-risk-list-wrap'>
+            <h3>주요 위험구간</h3>
+            <div id='gpx-risk-list' class='gpx-risk-list'>
+                <p class='empty'>분석 결과가 아직 없습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class='gpx-risk-roadview-wrap'>
+        <h3>선택 구간 로드뷰</h3>
+        <div id='gpx-risk-roadview' class='gpx-risk-roadview'></div>
+    </div>
+</section>
+
+<script>
+    import { parseGpxText } from './../utils/gpxParser';
+    import { detectGpxRisks } from './../utils/gpxRiskDetector';
+    import { KakaoGpxRiskMap } from './../utils/kakaoGpxRiskMap';
+    import { KakaoRoadview } from './../utils/kakaoRoadview';
+
+    const rootEl = document.querySelector('.gpx-risk-analyzer');
+    const fileInput = document.getElementById('gpx-risk-file');
+    const statusEl = document.getElementById('gpx-risk-status');
+    const listEl = document.getElementById('gpx-risk-list');
+    const summaryEl = document.getElementById('gpx-risk-summary');
+    const config = JSON.parse(rootEl?.dataset.gpxRiskConfig || '{}');
+
+    const summaryTotalEl = document.getElementById('summary-total');
+    const summaryHighEl = document.getElementById('summary-high');
+    const summaryMediumEl = document.getElementById('summary-medium');
+    const summaryLowEl = document.getElementById('summary-low');
+
+    let map;
+    let roadview;
+    let currentPoints = [];
+    let currentRisks = [];
+    let kakaoMapsLoadPromise;
+
+    function initKakaoTools() {
+        if (statusEl) statusEl.textContent = '카카오맵 SDK를 불러오는 중입니다.';
+
+        loadKakaoMaps()
+            .then(() => {
+                map = new KakaoGpxRiskMap({ containerId: 'gpx-risk-map' });
+                roadview = new KakaoRoadview({ containerId: 'gpx-risk-roadview' });
+
+                map.init();
+                roadview.init();
+
+                if (statusEl) statusEl.textContent = 'GPX 파일을 선택해 주세요.';
+            })
+            .catch((error) => {
+                console.error(error);
+                if (statusEl) {
+                    statusEl.textContent =
+                        error instanceof Error
+                            ? error.message
+                            : '카카오맵 SDK를 불러오지 못했습니다.';
+                }
+            });
+    }
+
+    function loadKakaoMaps() {
+        if (!config.KAKAO_KEY) {
+            return Promise.reject(
+                new Error(
+                    'PUBLIC_KAKAO_MAP_API_KEY를 설정하면 지도와 로드뷰를 사용할 수 있습니다.',
+                ),
+            );
+        }
+
+        if (window.kakao?.maps) {
+            return new Promise((resolve) => {
+                window.kakao.maps.load(resolve);
+            });
+        }
+
+        if (kakaoMapsLoadPromise) return kakaoMapsLoadPromise;
+
+        kakaoMapsLoadPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-kakao-map-sdk]');
+
+            const handleLoad = () => {
+                if (!window.kakao?.maps) {
+                    reject(new Error('카카오맵 SDK가 로드되지 않았습니다.'));
+                    return;
+                }
+
+                window.kakao.maps.load(resolve);
+            };
+
+            if (existing) {
+                existing.addEventListener('load', handleLoad, { once: true });
+                existing.addEventListener(
+                    'error',
+                    () => reject(new Error('카카오맵 SDK 스크립트 로딩에 실패했습니다.')),
+                    { once: true },
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${config.KAKAO_KEY}&autoload=false`;
+            script.async = true;
+            script.dataset.kakaoMapSdk = 'true';
+            script.onload = handleLoad;
+            script.onerror = () => {
+                reject(new Error('카카오맵 SDK 스크립트 로딩에 실패했습니다.'));
+            };
+            document.head.appendChild(script);
+        });
+
+        return kakaoMapsLoadPromise;
+    }
+
+    initKakaoTools();
+
+    fileInput?.addEventListener('change', async (event) => {
+        const target = event.target;
+        const file = target.files?.[0];
+
+        if (!file) return;
+
+        try {
+            statusEl.textContent = 'GPX 파일을 분석하는 중입니다.';
+
+            const gpxText = await file.text();
+            currentPoints = parseGpxText(gpxText);
+            currentRisks = detectGpxRisks(currentPoints);
+
+            map?.renderRoute(currentPoints);
+            map?.renderRisks(currentPoints, currentRisks);
+
+            renderSummary(currentRisks);
+            renderRiskList(currentRisks);
+
+            statusEl.textContent = `분석 완료: 총 ${currentRisks.length}개 위험구간을 찾았습니다.`;
+        } catch (error) {
+            console.error(error);
+            statusEl.textContent =
+                error instanceof Error
+                    ? error.message
+                    : 'GPX 분석 중 오류가 발생했습니다.';
+        }
+    });
+
+    function renderSummary(risks) {
+        const high = risks.filter((risk) => risk.severity === 'high').length;
+        const medium = risks.filter((risk) => risk.severity === 'medium').length;
+        const low = risks.filter((risk) => risk.severity === 'low').length;
+
+        summaryTotalEl.textContent = String(risks.length);
+        summaryHighEl.textContent = String(high);
+        summaryMediumEl.textContent = String(medium);
+        summaryLowEl.textContent = String(low);
+
+        summaryEl.hidden = false;
+    }
+
+    function renderRiskList(risks) {
+        if (!listEl) return;
+
+        if (risks.length === 0) {
+            listEl.innerHTML = '<p class="empty">탐지된 위험구간이 없습니다.</p>';
+            return;
+        }
+
+        listEl.innerHTML = risks
+            .map((risk, index) => {
+                return `
+          <article class="risk-card" data-risk-id="${risk.id}">
+            <div class="risk-card-top">
+              <strong>${index + 1}. ${risk.title}</strong>
+              <span class="risk-badge ${risk.severity}">${getSeverityLabel(risk.severity)}</span>
+            </div>
+            <p>${risk.description}</p>
+            <dl>
+              <div>
+                <dt>거리</dt>
+                <dd>${formatDistance(risk.distance)}</dd>
+              </div>
+              ${
+                  risk.avgGrade != null
+                      ? `<div><dt>평균 경사</dt><dd>${risk.avgGrade.toFixed(1)}%</dd></div>`
+                      : ''
+              }
+              ${
+                  risk.maxGrade != null
+                      ? `<div><dt>최대 경사</dt><dd>${risk.maxGrade.toFixed(1)}%</dd></div>`
+                      : ''
+              }
+              ${
+                  risk.curveAngle != null
+                      ? `<div><dt>회전각</dt><dd>${risk.curveAngle.toFixed(0)}°</dd></div>`
+                      : ''
+              }
+            </dl>
+            <div class="risk-actions">
+              <button type="button" data-action="map" data-risk-id="${risk.id}">지도 이동</button>
+              <button type="button" data-action="roadview" data-risk-id="${risk.id}">로드뷰 보기</button>
+            </div>
+          </article>
+        `;
+            })
+            .join('');
+
+        listEl.querySelectorAll('button[data-risk-id]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const riskId = button.getAttribute('data-risk-id');
+                const action = button.getAttribute('data-action');
+                const risk = currentRisks.find((item) => item.id === riskId);
+
+                if (!risk) return;
+
+                map?.focusRisk(risk);
+
+                if (action === 'roadview') {
+                    roadview?.showRisk(risk);
+                }
+            });
+        });
+    }
+
+    function getSeverityLabel(severity) {
+        if (severity === 'high') return '고위험';
+        if (severity === 'medium') return '주의';
+        return '참고';
+    }
+
+    function formatDistance(distance) {
+        if (distance >= 1000) return `${(distance / 1000).toFixed(2)}km`;
+        return `${distance.toFixed(0)}m`;
+    }
+</script>
+
+<style>
+    .gpx-risk-analyzer {
+        display: grid;
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .gpx-risk-header {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .gpx-risk-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .gpx-risk-header p {
+        margin: 0;
+        color: #525252;
+        line-height: 1.7;
+    }
+
+    .gpx-risk-upload {
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        background: #fafafa;
+    }
+
+    .gpx-risk-upload p {
+        margin: 0.5rem 0 0;
+        color: #525252;
+        font-size: 0.95rem;
+    }
+
+    .gpx-risk-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .gpx-risk-summary > div {
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        background: white;
+    }
+
+    .gpx-risk-summary strong {
+        display: block;
+        font-size: 1.5rem;
+    }
+
+    .gpx-risk-summary span {
+        color: #525252;
+        font-size: 0.9rem;
+    }
+
+    .gpx-risk-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+        gap: 1rem;
+    }
+
+    .gpx-risk-map,
+    .gpx-risk-roadview {
+        width: 100%;
+        min-height: 420px;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+
+    .gpx-risk-roadview {
+        min-height: 360px;
+    }
+
+    .gpx-risk-list {
+        display: grid;
+        gap: 0.75rem;
+        max-height: 520px;
+        overflow: auto;
+    }
+
+    .risk-card {
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        background: white;
+    }
+
+    .risk-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .risk-card p {
+        margin: 0.5rem 0;
+        color: #404040;
+        line-height: 1.6;
+    }
+
+    .risk-card dl {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+    }
+
+    .risk-card dl div {
+        padding: 0.5rem;
+        border-radius: 0.75rem;
+        background: #f9fafb;
+    }
+
+    .risk-card dt {
+        color: #737373;
+        font-size: 0.8rem;
+    }
+
+    .risk-card dd {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .risk-badge {
+        flex: none;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .risk-badge.high {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .risk-badge.medium {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .risk-badge.low {
+        color: #854d0e;
+        background: #fef3c7;
+    }
+
+    .risk-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .risk-actions button {
+        cursor: pointer;
+        padding: 0.45rem 0.7rem;
+        border: 1px solid #d4d4d4;
+        border-radius: 0.65rem;
+        background: white;
+        font-weight: 700;
+    }
+
+    .risk-actions button:hover {
+        background: #f5f5f5;
+    }
+
+    .empty {
+        padding: 1rem;
+        color: #737373;
+        border: 1px dashed #d4d4d4;
+        border-radius: 1rem;
+    }
+
+    @media (max-width: 900px) {
+        .gpx-risk-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .gpx-risk-summary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+</style>

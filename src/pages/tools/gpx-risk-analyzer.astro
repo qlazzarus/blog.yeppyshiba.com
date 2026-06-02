@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import GpxRiskAnalyzerComponent from '@/components/GpxRiskAnalyzer.astro';
+
+const title = 'GPX 위험구간 분석기';
+const description =
+    'GPX 파일을 브라우저에서 분석해 급경사, 급다운힐, 급커브, 긴 업힐과 다운힐 구간을 탐지하는 자전거 라이딩 도구입니다.';
+const pageUrl = new URL('/tools/gpx-risk-analyzer/', Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'SportsApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <GpxRiskAnalyzerComponent />
+</BaseLayout>
