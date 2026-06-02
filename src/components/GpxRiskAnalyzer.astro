@@ -64,7 +64,7 @@ const KAKAO_KEY =
     </div>
 </section>
 
-<script type='module'>
+<script>
     import { parseGpxText } from './../utils/gpxParser';
     import { detectGpxRisks } from './../utils/gpxRiskDetector';
     import { KakaoGpxRiskMap } from './../utils/kakaoGpxRiskMap';
@@ -86,49 +86,83 @@ const KAKAO_KEY =
     let roadview;
     let currentPoints = [];
     let currentRisks = [];
+    let kakaoMapsLoadPromise;
 
     function initKakaoTools() {
-        loadKakaoMaps(() => {
-            map = new KakaoGpxRiskMap({ containerId: 'gpx-risk-map' });
-            roadview = new KakaoRoadview({ containerId: 'gpx-risk-roadview' });
+        if (statusEl) statusEl.textContent = '카카오맵 SDK를 불러오는 중입니다.';
 
-            map.init();
-            roadview.init();
+        loadKakaoMaps()
+            .then(() => {
+                map = new KakaoGpxRiskMap({ containerId: 'gpx-risk-map' });
+                roadview = new KakaoRoadview({ containerId: 'gpx-risk-roadview' });
 
-            if (statusEl) statusEl.textContent = 'GPX 파일을 선택해 주세요.';
-        });
+                map.init();
+                roadview.init();
+
+                if (statusEl) statusEl.textContent = 'GPX 파일을 선택해 주세요.';
+            })
+            .catch((error) => {
+                console.error(error);
+                if (statusEl) {
+                    statusEl.textContent =
+                        error instanceof Error
+                            ? error.message
+                            : '카카오맵 SDK를 불러오지 못했습니다.';
+                }
+            });
     }
 
-    function loadKakaoMaps(callback) {
+    function loadKakaoMaps() {
         if (!config.KAKAO_KEY) {
-            if (statusEl) {
-                statusEl.textContent =
-                    'PUBLIC_KAKAO_MAP_API_KEY를 설정하면 지도와 로드뷰를 사용할 수 있습니다.';
-            }
-            return;
+            return Promise.reject(
+                new Error(
+                    'PUBLIC_KAKAO_MAP_API_KEY를 설정하면 지도와 로드뷰를 사용할 수 있습니다.',
+                ),
+            );
         }
 
         if (window.kakao?.maps) {
-            window.kakao.maps.load(callback);
-            return;
-        }
-
-        const existing = document.querySelector('script[data-kakao-map-sdk]');
-        if (existing) {
-            existing.addEventListener('load', () => {
-                if (window.kakao) window.kakao.maps.load(callback);
+            return new Promise((resolve) => {
+                window.kakao.maps.load(resolve);
             });
-            return;
         }
 
-        const script = document.createElement('script');
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${config.KAKAO_KEY}&autoload=false`;
-        script.async = true;
-        script.dataset.kakaoMapSdk = 'true';
-        script.onload = () => {
-            if (window.kakao) window.kakao.maps.load(callback);
-        };
-        document.head.appendChild(script);
+        if (kakaoMapsLoadPromise) return kakaoMapsLoadPromise;
+
+        kakaoMapsLoadPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[data-kakao-map-sdk]');
+
+            const handleLoad = () => {
+                if (!window.kakao?.maps) {
+                    reject(new Error('카카오맵 SDK가 로드되지 않았습니다.'));
+                    return;
+                }
+
+                window.kakao.maps.load(resolve);
+            };
+
+            if (existing) {
+                existing.addEventListener('load', handleLoad, { once: true });
+                existing.addEventListener(
+                    'error',
+                    () => reject(new Error('카카오맵 SDK 스크립트 로딩에 실패했습니다.')),
+                    { once: true },
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${config.KAKAO_KEY}&autoload=false`;
+            script.async = true;
+            script.dataset.kakaoMapSdk = 'true';
+            script.onload = handleLoad;
+            script.onerror = () => {
+                reject(new Error('카카오맵 SDK 스크립트 로딩에 실패했습니다.'));
+            };
+            document.head.appendChild(script);
+        });
+
+        return kakaoMapsLoadPromise;
     }
 
     initKakaoTools();
