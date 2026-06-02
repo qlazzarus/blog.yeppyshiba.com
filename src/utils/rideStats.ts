@@ -91,8 +91,9 @@ function calculateRouteStats(points: RoutePoint[]): RouteStats {
         }
     }
 
-    const firstTime = points.find((point) => point.time !== null)?.time;
-    const lastTime = [...points].reverse().find((point) => point.time !== null)?.time;
+    const firstTime = points.find((point) => point.time !== null)?.time || 0;
+    const lastTime =
+        [...points].reverse().find((point) => point.time !== null)?.time || 0;
     const durationHours =
         firstTime !== undefined && lastTime !== undefined
             ? (lastTime - firstTime) / 3600000
