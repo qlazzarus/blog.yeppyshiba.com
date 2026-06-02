@@ -287,9 +287,30 @@ const KAKAO_KEY =
 
 <style>
     .gpx-risk-analyzer {
+        --risk-surface: var(--card);
+        --risk-subtle-surface: var(--muted);
+        --risk-text-muted: var(--muted-foreground);
+        --risk-border: var(--border);
+        --risk-map-bg: color-mix(in oklch, var(--muted) 80%, var(--background));
+        --risk-high-text: #991b1b;
+        --risk-high-bg: #fee2e2;
+        --risk-medium-text: #9a3412;
+        --risk-medium-bg: #ffedd5;
+        --risk-low-text: #854d0e;
+        --risk-low-bg: #fef3c7;
         display: grid;
         gap: 1.5rem;
         margin: 2rem 0;
+    }
+
+    :global(.dark) .gpx-risk-analyzer {
+        --risk-map-bg: color-mix(in oklch, var(--muted) 70%, black);
+        --risk-high-text: oklch(0.86 0.08 25);
+        --risk-high-bg: color-mix(in oklch, var(--destructive) 28%, var(--card));
+        --risk-medium-text: oklch(0.86 0.09 55);
+        --risk-medium-bg: color-mix(in oklch, var(--primary) 24%, var(--card));
+        --risk-low-text: oklch(0.82 0.08 85);
+        --risk-low-bg: color-mix(in oklch, var(--accent) 70%, var(--card));
     }
 
     .gpx-risk-header {
@@ -304,20 +325,35 @@ const KAKAO_KEY =
 
     .gpx-risk-header p {
         margin: 0;
-        color: #525252;
+        color: var(--risk-text-muted);
         line-height: 1.7;
     }
 
     .gpx-risk-upload {
         padding: 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--risk-border);
         border-radius: 1rem;
-        background: #fafafa;
+        background: var(--risk-subtle-surface);
+    }
+
+    .gpx-risk-upload input {
+        color: var(--foreground);
+    }
+
+    .gpx-risk-upload input::file-selector-button {
+        margin-right: 0.75rem;
+        cursor: pointer;
+        border: 1px solid var(--risk-border);
+        border-radius: 0.65rem;
+        background: var(--risk-surface);
+        color: var(--foreground);
+        padding: 0.45rem 0.7rem;
+        font-weight: 700;
     }
 
     .gpx-risk-upload p {
         margin: 0.5rem 0 0;
-        color: #525252;
+        color: var(--risk-text-muted);
         font-size: 0.95rem;
     }
 
@@ -329,9 +365,9 @@ const KAKAO_KEY =
 
     .gpx-risk-summary > div {
         padding: 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--risk-border);
         border-radius: 1rem;
-        background: white;
+        background: var(--risk-surface);
     }
 
     .gpx-risk-summary strong {
@@ -340,7 +376,7 @@ const KAKAO_KEY =
     }
 
     .gpx-risk-summary span {
-        color: #525252;
+        color: var(--risk-text-muted);
         font-size: 0.9rem;
     }
 
@@ -354,10 +390,10 @@ const KAKAO_KEY =
     .gpx-risk-roadview {
         width: 100%;
         min-height: 420px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--risk-border);
         border-radius: 1rem;
         overflow: hidden;
-        background: #f5f5f5;
+        background: var(--risk-map-bg);
     }
 
     .gpx-risk-roadview {
@@ -371,50 +407,50 @@ const KAKAO_KEY =
         overflow: auto;
     }
 
-    .risk-card {
+    .gpx-risk-analyzer :global(.risk-card) {
         padding: 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--risk-border);
         border-radius: 1rem;
-        background: white;
+        background: var(--risk-surface);
     }
 
-    .risk-card-top {
+    .gpx-risk-analyzer :global(.risk-card-top) {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
     }
 
-    .risk-card p {
+    .gpx-risk-analyzer :global(.risk-card p) {
         margin: 0.5rem 0;
-        color: #404040;
+        color: var(--risk-text-muted);
         line-height: 1.6;
     }
 
-    .risk-card dl {
+    .gpx-risk-analyzer :global(.risk-card dl) {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.5rem;
         margin: 0.75rem 0;
     }
 
-    .risk-card dl div {
+    .gpx-risk-analyzer :global(.risk-card dl div) {
         padding: 0.5rem;
         border-radius: 0.75rem;
-        background: #f9fafb;
+        background: var(--risk-subtle-surface);
     }
 
-    .risk-card dt {
-        color: #737373;
+    .gpx-risk-analyzer :global(.risk-card dt) {
+        color: var(--risk-text-muted);
         font-size: 0.8rem;
     }
 
-    .risk-card dd {
+    .gpx-risk-analyzer :global(.risk-card dd) {
         margin: 0;
         font-weight: 700;
     }
 
-    .risk-badge {
+    .gpx-risk-analyzer :global(.risk-badge) {
         flex: none;
         padding: 0.2rem 0.55rem;
         border-radius: 999px;
@@ -422,44 +458,91 @@ const KAKAO_KEY =
         font-weight: 700;
     }
 
-    .risk-badge.high {
-        color: #991b1b;
-        background: #fee2e2;
+    .gpx-risk-analyzer :global(.risk-badge.high) {
+        color: var(--risk-high-text);
+        background: var(--risk-high-bg);
     }
 
-    .risk-badge.medium {
-        color: #9a3412;
-        background: #ffedd5;
+    .gpx-risk-analyzer :global(.risk-badge.medium) {
+        color: var(--risk-medium-text);
+        background: var(--risk-medium-bg);
     }
 
-    .risk-badge.low {
-        color: #854d0e;
-        background: #fef3c7;
+    .gpx-risk-analyzer :global(.risk-badge.low) {
+        color: var(--risk-low-text);
+        background: var(--risk-low-bg);
     }
 
-    .risk-actions {
+    .gpx-risk-analyzer :global(.risk-actions) {
         display: flex;
         gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.85rem;
     }
 
-    .risk-actions button {
+    .gpx-risk-analyzer :global(.risk-actions button) {
+        appearance: none;
         cursor: pointer;
-        padding: 0.45rem 0.7rem;
-        border: 1px solid #d4d4d4;
-        border-radius: 0.65rem;
-        background: white;
+        min-height: 2.35rem;
+        padding: 0.55rem 0.85rem;
+        border: 1px solid var(--risk-border);
+        border-radius: 0.5rem;
+        background: var(--risk-surface);
+        color: var(--foreground);
+        box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 12%, transparent);
         font-weight: 700;
+        line-height: 1;
+        transition:
+            background-color 150ms ease,
+            border-color 150ms ease,
+            box-shadow 150ms ease,
+            color 150ms ease,
+            transform 150ms ease;
     }
 
-    .risk-actions button:hover {
-        background: #f5f5f5;
+    .gpx-risk-analyzer :global(.risk-actions button:hover) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px color-mix(in oklch, var(--foreground) 14%, transparent);
     }
 
-    .empty {
+    .gpx-risk-analyzer :global(.risk-actions button:active) {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 12%, transparent);
+    }
+
+    .gpx-risk-analyzer :global(.risk-actions button:focus-visible) {
+        outline: 2px solid var(--ring);
+        outline-offset: 3px;
+    }
+
+    .gpx-risk-analyzer :global(.risk-actions button[data-action='map']) {
+        border-color: color-mix(in oklch, var(--primary) 82%, var(--risk-border));
+        background: var(--primary);
+        color: var(--primary-foreground);
+    }
+
+    .gpx-risk-analyzer :global(.risk-actions button[data-action='map']:hover) {
+        border-color: color-mix(in oklch, var(--primary) 75%, var(--foreground));
+        background: color-mix(in oklch, var(--primary) 88%, var(--foreground));
+    }
+
+    .gpx-risk-analyzer :global(.risk-actions button[data-action='roadview']) {
+        border-color: color-mix(in oklch, var(--primary) 45%, var(--risk-border));
+        background: color-mix(in oklch, var(--primary) 9%, var(--risk-surface));
+        color: var(--foreground);
+    }
+
+    .gpx-risk-analyzer :global(.risk-actions button[data-action='roadview']:hover) {
+        border-color: color-mix(in oklch, var(--primary) 70%, var(--risk-border));
+        background: color-mix(in oklch, var(--primary) 16%, var(--risk-surface));
+    }
+
+    .gpx-risk-analyzer :global(.empty) {
         padding: 1rem;
-        color: #737373;
-        border: 1px dashed #d4d4d4;
+        color: var(--risk-text-muted);
+        border: 1px dashed var(--risk-border);
         border-radius: 1rem;
+        background: color-mix(in oklch, var(--risk-subtle-surface) 55%, transparent);
     }
 
     @media (max-width: 900px) {
