@@ -1,0 +1,778 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '내 집 언제 다 갚나 계산기';
+const description =
+    '주택담보대출을 추가 상환하면 대출 완납일이 얼마나 빨라지고 이자를 얼마나 줄일 수 있는지 계산하는 웹 계산기입니다.';
+const pageUrl = new URL('/tools/mortgage-payoff-calculator/', Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <section class='mx-auto max-w-5xl space-y-6'>
+        <div class='space-y-3'>
+            <p class='text-primary text-sm font-semibold'>Finance Tool</p>
+            <h1 class='text-3xl font-bold tracking-tight md:text-4xl'>
+                내 집 언제 다 갚나 계산기
+            </h1>
+            <p class='text-muted-foreground max-w-3xl text-base leading-7'>
+                주택담보대출 잔액, 금리, 남은 기간을 입력하고 추가 상환 금액을 넣으면
+                대출 완납일이 얼마나 빨라지고 총 이자를 얼마나 줄일 수 있는지
+                계산합니다. “조금 더 갚으면 얼마나 당겨질까?”를 확인하는 계산기입니다.
+            </p>
+            <p class='text-muted-foreground max-w-3xl text-sm leading-6'>
+                중도상환수수료가 걱정된다면
+                <a
+                    href='/tools/prepayment-fee-calculator/'
+                    class='text-primary font-semibold underline underline-offset-4'
+                >
+                    중도상환수수료 계산기
+                </a>
+                로 먼저 예상 수수료를 확인해보세요.
+            </p>
+        </div>
+
+        <div class='grid gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
+            <section class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                <h2 class='text-xl font-semibold'>입력값</h2>
+
+                <div class='mt-6 space-y-5'>
+                    <div>
+                        <label class='mb-2 block text-sm font-medium' for='loanBalance'>
+                            현재 대출 잔액
+                        </label>
+                        <input
+                            id='loanBalance'
+                            type='number'
+                            min='0'
+                            step='1000000'
+                            value='400000000'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        />
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            예: 4억 원이면 400000000
+                        </p>
+                        <p
+                            id='loanBalanceKoreanResult'
+                            class='text-muted-foreground mt-1 text-sm font-medium'
+                        >
+                            사억원
+                        </p>
+                    </div>
+
+                    <div class='grid gap-5 md:grid-cols-2'>
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='interestRate'
+                            >
+                                연 금리 (%)
+                            </label>
+                            <input
+                                id='interestRate'
+                                type='number'
+                                min='0'
+                                step='0.01'
+                                value='3.2'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p class='text-muted-foreground mt-2 text-sm'>
+                                예: 3.2 입력
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class='mb-2 block text-sm font-medium'
+                                for='remainingYears'
+                            >
+                                남은 기간 (년)
+                            </label>
+                            <input
+                                id='remainingYears'
+                                type='number'
+                                min='1'
+                                step='1'
+                                value='30'
+                                class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                            />
+                            <p class='text-muted-foreground mt-2 text-sm'>
+                                남은 대출 기간 기준
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            class='mb-2 block text-sm font-medium'
+                            for='extraPayment'
+                        >
+                            이번에 추가 상환할 금액
+                        </label>
+                        <input
+                            id='extraPayment'
+                            type='number'
+                            min='0'
+                            step='1000000'
+                            value='10000000'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        />
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            예: 1천만 원이면 10000000
+                        </p>
+                        <p
+                            id='extraPaymentKoreanResult'
+                            class='text-muted-foreground mt-1 text-sm font-medium'
+                        >
+                            일천만원
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class='mb-2 block text-sm font-medium'>
+                            빠른 상환 금액 선택
+                        </p>
+                        <div class='flex flex-wrap gap-2'>
+                            <button
+                                type='button'
+                                data-extra-payment='5000000'
+                                class='bg-background border-border hover:bg-accent rounded-xl border px-3 py-2 text-sm font-medium transition'
+                            >
+                                500만원
+                            </button>
+                            <button
+                                type='button'
+                                data-extra-payment='10000000'
+                                class='bg-background border-border hover:bg-accent rounded-xl border px-3 py-2 text-sm font-medium transition'
+                            >
+                                1000만원
+                            </button>
+                            <button
+                                type='button'
+                                data-extra-payment='20000000'
+                                class='bg-background border-border hover:bg-accent rounded-xl border px-3 py-2 text-sm font-medium transition'
+                            >
+                                2000만원
+                            </button>
+                            <button
+                                type='button'
+                                data-extra-payment='50000000'
+                                class='bg-background border-border hover:bg-accent rounded-xl border px-3 py-2 text-sm font-medium transition'
+                            >
+                                5000만원
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            class='mb-2 block text-sm font-medium'
+                            for='monthlyPaymentMode'
+                        >
+                            추가 상환 후 방식
+                        </label>
+                        <select
+                            id='monthlyPaymentMode'
+                            class='bg-background border-border w-full rounded-xl border px-4 py-3'
+                        >
+                            <option value='keep-payment' selected>
+                                월 납입액 유지하고 기간 줄이기
+                            </option>
+                            <option value='reduce-payment'>
+                                기간 유지하고 월 납입액 줄이기
+                            </option>
+                        </select>
+                        <p class='text-muted-foreground mt-2 text-sm'>
+                            “내 집 언제 다 갚나” 컨셉은 월 납입액 유지 방식이
+                            핵심입니다.
+                        </p>
+                    </div>
+
+                    <div class='flex flex-col gap-3 sm:flex-row'>
+                        <button
+                            id='resetBtn'
+                            type='button'
+                            class='bg-background border-border rounded-xl border px-5 py-3 font-semibold'
+                        >
+                            기본값으로 초기화
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class='space-y-6'>
+                <div class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                    <h2 class='text-xl font-semibold'>계산 결과</h2>
+
+                    <div
+                        class='from-primary/15 mt-5 rounded-2xl border border-blue-400/30 bg-gradient-to-br to-sky-300/5 p-5'
+                    >
+                        <p class='text-muted-foreground text-sm'>
+                            추가 상환으로 당겨지는 기간
+                        </p>
+                        <p
+                            id='savedPeriodResult'
+                            class='mt-2 text-3xl font-bold tracking-tight md:text-4xl'
+                        >
+                            -
+                        </p>
+                        <p
+                            id='mainMessageResult'
+                            class='text-muted-foreground mt-2 text-sm font-medium'
+                        >
+                            입력값을 기준으로 계산합니다.
+                        </p>
+                    </div>
+
+                    <div class='mt-5 space-y-3'>
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'
+                                >현재 예상 월 납입액</span
+                            >
+                            <div class='text-right'>
+                                <strong id='currentMonthlyResult' class='block'
+                                    >-</strong
+                                >
+                                <span
+                                    id='currentMonthlyKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                >
+                                    -
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'
+                                >추가 상환 후 대출 잔액</span
+                            >
+                            <div class='text-right'>
+                                <strong id='newBalanceResult' class='block'>-</strong>
+                                <span
+                                    id='newBalanceKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                >
+                                    -
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>현재 기준 총 이자</span>
+                            <div class='text-right'>
+                                <strong id='currentInterestResult' class='block'
+                                    >-</strong
+                                >
+                                <span
+                                    id='currentInterestKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                >
+                                    -
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'
+                                >추가 상환 후 총 이자</span
+                            >
+                            <div class='text-right'>
+                                <strong id='newInterestResult' class='block'>-</strong>
+                                <span
+                                    id='newInterestKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                >
+                                    -
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>절감되는 이자</span>
+                            <div class='text-right'>
+                                <strong id='savedInterestResult' class='block'>-</strong
+                                >
+                                <span
+                                    id='savedInterestKoreanResult'
+                                    class='text-muted-foreground mt-1 block text-xs'
+                                >
+                                    -
+                                </span>
+                            </div>
+                        </div>
+
+                        <div
+                            class='bg-background border-border flex items-center justify-between rounded-xl border px-4 py-3'
+                        >
+                            <span class='text-muted-foreground'>예상 완납일 변화</span>
+                            <strong id='payoffDateResult'>-</strong>
+                        </div>
+                    </div>
+
+                    <div
+                        class='bg-background border-border mt-5 rounded-xl border border-dashed p-4'
+                    >
+                        <p class='text-sm font-semibold'>계산식</p>
+                        <p
+                            id='formulaText'
+                            class='text-muted-foreground mt-2 text-sm leading-6'
+                        >
+                            원리금균등상환 기준으로 월 납입액과 잔여 상환 기간을
+                            계산합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class='bg-card border-border rounded-2xl border p-6 shadow-sm'>
+                    <p class='text-sm font-semibold'>같이 보면 좋은 계산기</p>
+                    <ul
+                        class='text-muted-foreground mt-3 list-disc space-y-2 pl-5 text-sm leading-6'
+                    >
+                        <li>
+                            <a
+                                href='/tools/prepayment-fee-calculator/'
+                                class='text-primary font-semibold underline underline-offset-4'
+                            >
+                                중도상환수수료 계산기
+                            </a>
+                            로 추가 상환 전에 예상 수수료 확인
+                        </li>
+                        <li>
+                            대환을 고민한다면 대출 월 상환금 비교 계산기와 함께 비교
+                        </li>
+                        <li>매년 500만원, 1000만원, 2000만원 상환 시나리오 비교</li>
+                    </ul>
+                    <p class='text-muted-foreground mt-4 text-sm leading-6'>
+                        참고: 실제 대출은 거치기간, 금리 변동, 중도상환수수료, 은행별
+                        약정에 따라 결과가 달라질 수 있습니다. 이 계산기는 조기상환
+                        효과를 빠르게 판단하기 위한 예측용 도구입니다.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <script is:inline>
+        const el = (id) => document.getElementById(id);
+
+        const money = new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW',
+            maximumFractionDigits: 0,
+        });
+
+        function pad(num) {
+            return String(num).padStart(2, '0');
+        }
+
+        function formatDateKorean(date) {
+            return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())}`;
+        }
+
+        function shiftMonths(date, diffMonths) {
+            const d = new Date(date);
+            const originalDate = d.getDate();
+            d.setDate(1);
+            d.setMonth(d.getMonth() + diffMonths);
+            const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            d.setDate(Math.min(originalDate, lastDay));
+            return d;
+        }
+
+        function getToday() {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        }
+
+        function formatMonths(months) {
+            const safeMonths = Math.max(0, Math.round(months));
+            const years = Math.floor(safeMonths / 12);
+            const restMonths = safeMonths % 12;
+
+            if (years === 0) return `${restMonths}개월`;
+            if (restMonths === 0) return `${years}년`;
+            return `${years}년 ${restMonths}개월`;
+        }
+
+        function formatKoreanCurrency(value) {
+            const number = Math.round(Number(value) || 0);
+            if (number === 0) return '영원';
+
+            const nums = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+            const smallUnits = ['', '십', '백', '천'];
+            const largeUnits = ['', '만', '억', '조', '경'];
+
+            let remaining = Math.abs(number);
+            const parts = [];
+            let largeIndex = 0;
+
+            while (remaining > 0) {
+                const chunk = remaining % 10000;
+
+                if (chunk > 0) {
+                    let chunkText = '';
+                    const digits = String(chunk).padStart(4, '0').split('').map(Number);
+
+                    for (let i = 0; i < 4; i += 1) {
+                        const digit = digits[i];
+                        if (!digit) continue;
+
+                        const unitIndex = 3 - i;
+                        chunkText += `${nums[digit]}${smallUnits[unitIndex]}`;
+                    }
+
+                    parts.unshift(`${chunkText}${largeUnits[largeIndex]}`);
+                }
+
+                remaining = Math.floor(remaining / 10000);
+                largeIndex += 1;
+            }
+
+            return `${number < 0 ? '마이너스 ' : ''}${parts.join('')}원`;
+        }
+
+        function calculateMonthlyPayment(principal, annualRatePercent, months) {
+            if (principal <= 0 || months <= 0) return 0;
+
+            const monthlyRate = annualRatePercent / 100 / 12;
+
+            if (monthlyRate === 0) {
+                return principal / months;
+            }
+
+            return (
+                (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+                (Math.pow(1 + monthlyRate, months) - 1)
+            );
+        }
+
+        function calculateRemainingMonthsByPayment(
+            principal,
+            annualRatePercent,
+            monthlyPayment,
+        ) {
+            if (principal <= 0) return 0;
+
+            const monthlyRate = annualRatePercent / 100 / 12;
+
+            if (monthlyRate === 0) {
+                return Math.ceil(principal / monthlyPayment);
+            }
+
+            if (monthlyPayment <= principal * monthlyRate) {
+                return Infinity;
+            }
+
+            const months =
+                -Math.log(1 - (principal * monthlyRate) / monthlyPayment) /
+                Math.log(1 + monthlyRate);
+
+            return Math.ceil(months);
+        }
+
+        function renderInvalidState(message = '입력값을 다시 확인해주세요.') {
+            if (el('savedPeriodResult')) el('savedPeriodResult').textContent = '-';
+            if (el('mainMessageResult')) el('mainMessageResult').textContent = message;
+            if (el('currentMonthlyResult'))
+                el('currentMonthlyResult').textContent = money.format(0);
+            if (el('currentMonthlyKoreanResult'))
+                el('currentMonthlyKoreanResult').textContent = '영원';
+            if (el('newBalanceResult'))
+                el('newBalanceResult').textContent = money.format(0);
+            if (el('newBalanceKoreanResult'))
+                el('newBalanceKoreanResult').textContent = '영원';
+            if (el('currentInterestResult'))
+                el('currentInterestResult').textContent = money.format(0);
+            if (el('currentInterestKoreanResult'))
+                el('currentInterestKoreanResult').textContent = '영원';
+            if (el('newInterestResult'))
+                el('newInterestResult').textContent = money.format(0);
+            if (el('newInterestKoreanResult'))
+                el('newInterestKoreanResult').textContent = '영원';
+            if (el('savedInterestResult'))
+                el('savedInterestResult').textContent = money.format(0);
+            if (el('savedInterestKoreanResult'))
+                el('savedInterestKoreanResult').textContent = '영원';
+            if (el('payoffDateResult')) el('payoffDateResult').textContent = '-';
+            if (el('formulaText')) {
+                el('formulaText').textContent =
+                    '원리금균등상환 기준으로 월 납입액과 잔여 상환 기간을 계산합니다.';
+            }
+        }
+
+        function updateKoreanInputLabels(loanBalance, extraPayment) {
+            if (el('loanBalanceKoreanResult')) {
+                el('loanBalanceKoreanResult').textContent =
+                    formatKoreanCurrency(loanBalance);
+            }
+
+            if (el('extraPaymentKoreanResult')) {
+                el('extraPaymentKoreanResult').textContent =
+                    formatKoreanCurrency(extraPayment);
+            }
+        }
+
+        function calculate() {
+            const loanBalance = Number(el('loanBalance')?.value || 0);
+            const annualRatePercent = Number(el('interestRate')?.value || 0);
+            const remainingYears = Number(el('remainingYears')?.value || 0);
+            const extraPayment = Number(el('extraPayment')?.value || 0);
+            const mode = el('monthlyPaymentMode')?.value || 'keep-payment';
+
+            updateKoreanInputLabels(loanBalance, extraPayment);
+
+            if (loanBalance <= 0 || annualRatePercent < 0 || remainingYears <= 0) {
+                renderInvalidState('대출 잔액, 금리, 남은 기간을 확인해주세요.');
+                return;
+            }
+
+            if (extraPayment < 0) {
+                renderInvalidState('추가 상환 금액은 0원 이상이어야 합니다.');
+                return;
+            }
+
+            if (extraPayment >= loanBalance) {
+                const today = getToday();
+
+                if (el('savedPeriodResult')) {
+                    el('savedPeriodResult').textContent = formatMonths(
+                        remainingYears * 12,
+                    );
+                }
+                if (el('mainMessageResult')) {
+                    el('mainMessageResult').textContent =
+                        '추가 상환 금액이 현재 잔액 이상이라 전액 상환으로 계산됩니다.';
+                }
+                if (el('currentMonthlyResult'))
+                    el('currentMonthlyResult').textContent = '-';
+                if (el('currentMonthlyKoreanResult'))
+                    el('currentMonthlyKoreanResult').textContent = '-';
+                if (el('newBalanceResult'))
+                    el('newBalanceResult').textContent = money.format(0);
+                if (el('newBalanceKoreanResult'))
+                    el('newBalanceKoreanResult').textContent = '영원';
+                if (el('currentInterestResult'))
+                    el('currentInterestResult').textContent = '-';
+                if (el('currentInterestKoreanResult'))
+                    el('currentInterestKoreanResult').textContent = '-';
+                if (el('newInterestResult'))
+                    el('newInterestResult').textContent = money.format(0);
+                if (el('newInterestKoreanResult'))
+                    el('newInterestKoreanResult').textContent = '영원';
+                if (el('savedInterestResult'))
+                    el('savedInterestResult').textContent = '-';
+                if (el('savedInterestKoreanResult'))
+                    el('savedInterestKoreanResult').textContent = '-';
+                if (el('payoffDateResult')) {
+                    el('payoffDateResult').textContent =
+                        `오늘 완납 가능 (${formatDateKorean(today)})`;
+                }
+                if (el('formulaText')) {
+                    el('formulaText').textContent =
+                        '추가 상환 금액이 현재 대출 잔액 이상이면 즉시 완납으로 계산합니다.';
+                }
+                return;
+            }
+
+            const totalMonths = Math.round(remainingYears * 12);
+            const newBalance = Math.max(0, loanBalance - extraPayment);
+
+            const currentMonthlyPayment = calculateMonthlyPayment(
+                loanBalance,
+                annualRatePercent,
+                totalMonths,
+            );
+
+            const currentTotalPayment = currentMonthlyPayment * totalMonths;
+            const currentTotalInterest = currentTotalPayment - loanBalance;
+
+            let newMonthlyPayment = currentMonthlyPayment;
+            let newRemainingMonths = totalMonths;
+
+            if (mode === 'keep-payment') {
+                newRemainingMonths = calculateRemainingMonthsByPayment(
+                    newBalance,
+                    annualRatePercent,
+                    currentMonthlyPayment,
+                );
+            } else {
+                newMonthlyPayment = calculateMonthlyPayment(
+                    newBalance,
+                    annualRatePercent,
+                    totalMonths,
+                );
+                newRemainingMonths = totalMonths;
+            }
+
+            if (!Number.isFinite(newRemainingMonths)) {
+                renderInvalidState(
+                    '월 납입액이 이자보다 낮아 상환 기간을 계산할 수 없습니다.',
+                );
+                return;
+            }
+
+            const newTotalPayment = newMonthlyPayment * newRemainingMonths;
+            const newTotalInterest = Math.max(0, newTotalPayment - newBalance);
+            const savedInterest = Math.max(0, currentTotalInterest - newTotalInterest);
+            const savedMonths = Math.max(0, totalMonths - newRemainingMonths);
+
+            const currentPayoffDate = shiftMonths(getToday(), totalMonths);
+            const newPayoffDate = shiftMonths(getToday(), newRemainingMonths);
+
+            if (el('savedPeriodResult')) {
+                el('savedPeriodResult').textContent =
+                    mode === 'keep-payment'
+                        ? formatMonths(savedMonths)
+                        : `${money.format(Math.round(currentMonthlyPayment - newMonthlyPayment))}/월 절감`;
+            }
+
+            if (el('mainMessageResult')) {
+                el('mainMessageResult').textContent =
+                    mode === 'keep-payment'
+                        ? `${money.format(extraPayment)} 추가 상환 시 완납일을 약 ${formatMonths(savedMonths)} 당길 수 있습니다.`
+                        : `${money.format(extraPayment)} 추가 상환 시 월 납입액을 약 ${money.format(Math.round(currentMonthlyPayment - newMonthlyPayment))} 줄일 수 있습니다.`;
+            }
+
+            if (el('currentMonthlyResult')) {
+                el('currentMonthlyResult').textContent = money.format(
+                    Math.round(currentMonthlyPayment),
+                );
+            }
+            if (el('currentMonthlyKoreanResult')) {
+                el('currentMonthlyKoreanResult').textContent =
+                    formatKoreanCurrency(currentMonthlyPayment);
+            }
+
+            if (el('newBalanceResult')) {
+                el('newBalanceResult').textContent = money.format(
+                    Math.round(newBalance),
+                );
+            }
+            if (el('newBalanceKoreanResult')) {
+                el('newBalanceKoreanResult').textContent =
+                    formatKoreanCurrency(newBalance);
+            }
+
+            if (el('currentInterestResult')) {
+                el('currentInterestResult').textContent = money.format(
+                    Math.round(currentTotalInterest),
+                );
+            }
+            if (el('currentInterestKoreanResult')) {
+                el('currentInterestKoreanResult').textContent =
+                    formatKoreanCurrency(currentTotalInterest);
+            }
+
+            if (el('newInterestResult')) {
+                el('newInterestResult').textContent = money.format(
+                    Math.round(newTotalInterest),
+                );
+            }
+            if (el('newInterestKoreanResult')) {
+                el('newInterestKoreanResult').textContent =
+                    formatKoreanCurrency(newTotalInterest);
+            }
+
+            if (el('savedInterestResult')) {
+                el('savedInterestResult').textContent = money.format(
+                    Math.round(savedInterest),
+                );
+            }
+            if (el('savedInterestKoreanResult')) {
+                el('savedInterestKoreanResult').textContent =
+                    formatKoreanCurrency(savedInterest);
+            }
+
+            if (el('payoffDateResult')) {
+                el('payoffDateResult').textContent =
+                    mode === 'keep-payment'
+                        ? `${formatDateKorean(currentPayoffDate)} → ${formatDateKorean(newPayoffDate)}`
+                        : `${formatDateKorean(currentPayoffDate)} 유지`;
+            }
+
+            if (el('formulaText')) {
+                el('formulaText').textContent =
+                    mode === 'keep-payment'
+                        ? `현재 월 납입액 ${money.format(Math.round(currentMonthlyPayment))}을 유지하고, 추가 상환 후 잔액 ${money.format(Math.round(newBalance))}을 갚는 데 필요한 기간을 다시 계산했습니다.`
+                        : `상환 기간 ${formatMonths(totalMonths)}은 유지하고, 추가 상환 후 잔액 ${money.format(Math.round(newBalance))} 기준 월 납입액을 다시 계산했습니다.`;
+            }
+        }
+
+        function reset() {
+            if (el('loanBalance')) el('loanBalance').value = '400000000';
+            if (el('interestRate')) el('interestRate').value = '3.2';
+            if (el('remainingYears')) el('remainingYears').value = '30';
+            if (el('extraPayment')) el('extraPayment').value = '10000000';
+            if (el('monthlyPaymentMode'))
+                el('monthlyPaymentMode').value = 'keep-payment';
+
+            calculate();
+        }
+
+        function bindQuickButtons() {
+            document.querySelectorAll('[data-extra-payment]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const amount = Number(
+                        button.getAttribute('data-extra-payment') || '0',
+                    );
+                    if (el('extraPayment')) el('extraPayment').value = String(amount);
+                    calculate();
+                });
+            });
+        }
+
+        function bindAutoCalculate() {
+            [
+                'loanBalance',
+                'interestRate',
+                'remainingYears',
+                'extraPayment',
+                'monthlyPaymentMode',
+            ].forEach((id) => {
+                el(id)?.addEventListener('input', calculate);
+                el(id)?.addEventListener('change', calculate);
+            });
+        }
+
+        el('resetBtn')?.addEventListener('click', reset);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            bindQuickButtons();
+            bindAutoCalculate();
+            calculate();
+        });
+    </script>
+</BaseLayout>
