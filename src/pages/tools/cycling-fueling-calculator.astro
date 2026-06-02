@@ -1,0 +1,104 @@
+---
+import CyclingFuelingCalculator from '@/components/CyclingFuelingCalculator.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '자전거 라이딩 보급 계산기';
+const description =
+    '지도에 라이딩 루트를 직접 찍어 거리와 예상 시간을 계산하고 물, 전해질, 탄수화물과 보급 추천 지점을 확인합니다.';
+const pageUrl = new URL('/tools/cycling-fueling-calculator/', Astro.site).toString();
+
+const breadcrumbs = [
+    { name: 'Home', item: new URL('/', Astro.site).toString() },
+    { name: 'Tools', item: new URL('/tools/', Astro.site).toString() },
+    { name: title, item: pageUrl },
+];
+
+const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: title,
+    applicationCategory: 'SportsApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ko-KR',
+    description,
+    url: pageUrl,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'KRW',
+    },
+};
+---
+
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
+
+    <section class='mx-auto max-w-6xl space-y-8'>
+        <div class='space-y-3'>
+            <p class='text-primary text-sm font-semibold'>Cycling Tool</p>
+            <h1 class='text-3xl font-bold tracking-tight md:text-4xl'>
+                자전거 라이딩 보급 계산기
+            </h1>
+            <p class='text-muted-foreground max-w-3xl text-base leading-7'>
+                지도에 출발지, 경유 포인트, 목적지를 순서대로 찍어 라이딩 거리를 계산하고
+                예상 평균속도로 시간을 추정합니다. 기온과 강도에 맞춘 물, 전해질,
+                탄수화물 보급량과 함께 이 위치 전후로 보급 추천 지점을 지도에 원으로
+                표시합니다.
+            </p>
+        </div>
+
+        <CyclingFuelingCalculator />
+
+        <article class='prose prose-neutral dark:prose-invert max-w-none'>
+            <h2>자전거 라이딩 보급 계산기 사용법</h2>
+            <p>
+                지도에서 출발지부터 목적지까지 순서대로 클릭하세요. 경유 포인트를 더
+                촘촘히 찍을수록 실제 라이딩 거리와 가까워집니다. 평균속도, 기온, 라이딩
+                강도, 체중, 땀 배출 성향을 입력하면 자전거 보급 계산기가 물과 탄수화물
+                보급량을 계산하고 누적 거리 기준으로 보급 추천 지점을 표시합니다.
+            </p>
+
+            <h2>장거리 라이딩에서 보급이 중요한 이유</h2>
+            <p>
+                장거리 라이딩 보급은 페이스 유지와 회복에 직접 연결됩니다. 물과
+                탄수화물이 부족하면 속도가 급격히 떨어지고, 더운 날에는 탈수와 열피로
+                위험이 커집니다. 출발 전에 라이딩 보급 계획을 숫자로 잡아두고 편의점,
+                카페, 음식점처럼 들를 수 있는 지점을 미리 보면 젤, 바, 물통을 과하게
+                챙기거나 부족하게 챙기는 일을 줄일 수 있습니다.
+            </p>
+
+            <h2>물은 얼마나 챙겨야 할까?</h2>
+            <p>
+                자전거 물 얼마나 준비해야 하는지는 기온과 땀 배출 성향에 따라 달라집니다.
+                이 계산기는 20도 미만, 20~27도, 28도 이상 구간으로 시간당 수분 섭취량을
+                나누고, 땀이 많은 경우에는 권장량을 올려 자전거 수분 보충 계획을
+                계산합니다.
+            </p>
+
+            <h2>탄수화물은 얼마나 먹어야 할까?</h2>
+            <p>
+                1시간 미만의 짧은 라이딩은 탄수화물 보급이 많지 않아도 되지만, 2시간을
+                넘기면 시간당 40~60g 이상을 생각해야 합니다. 3시간 이상이면 시간당
+                60~90g까지 올라가므로 자전거 젤 몇 개를 챙길지, 에너지바를 함께 넣을지
+                미리 계산하는 편이 좋습니다.
+            </p>
+
+            <h2>전해질은 언제 필요할까?</h2>
+            <p>
+                전해질은 28도 이상, 2시간 이상 라이딩, 땀을 많이 흘리는 라이더에게 특히
+                권장됩니다. 물만 계속 마셨는데도 갈증이 남거나 다리에 힘이 빨리 빠지는
+                편이라면 전해질 정제나 스포츠 음료를 준비해 보세요.
+            </p>
+
+            <h2>계산 결과를 해석할 때 주의할 점</h2>
+            <p>
+                계산 결과는 참고용입니다. 실제 라이딩 보급은 개인 체질, 전날 수면,
+                식사량, 바람, 업힐 비중, 코스 난이도에 따라 달라질 수 있습니다. 지도에서
+                찍은 루트는 실제 자전거 길찾기 경로가 아니라 포인트를 직선으로 이은
+                거리이므로, 코너가 많은 코스는 경유 포인트를 더 많이 찍거나 거리 직접
+                보정 값을 사용하세요. 특히 더운 날 장거리 라이딩 보급은 중간 보급지와
+                휴식 지점을 함께 확인하는 것이 안전합니다.
+            </p>
+        </article>
+    </section>
+</BaseLayout>
