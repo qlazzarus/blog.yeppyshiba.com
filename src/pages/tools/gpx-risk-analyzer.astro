@@ -34,4 +34,98 @@ const softwareSchema = {
     <script type='application/ld+json' set:html={JSON.stringify(softwareSchema)} />
 
     <GpxRiskAnalyzerComponent />
+
+    <section class='tool-changelog' aria-labelledby='tool-changelog-title'>
+        <div class='tool-changelog__header'>
+            <p>변경 내역</p>
+            <h2 id='tool-changelog-title'>GPX 위험구간 분석기 업데이트</h2>
+        </div>
+
+        <div class='tool-changelog__items'>
+            <article>
+                <strong>v1.1</strong>
+                <ul>
+                    <li>GPX 고도 튐으로 급경사와 급다운힐이 과하게 잡히는 문제를 줄였습니다.</li>
+                    <li>경사 탐지를 인접 포인트 기준에서 50m 거리 샘플링 기준으로 변경했습니다.</li>
+                    <li>25%를 넘는 비현실적인 순간 경사는 고도 노이즈 가능성이 높다고 보고 제외합니다.</li>
+                    <li>급커브 탐지도 GPS 지터 영향을 줄이도록 거리 샘플링 기준으로 보정했습니다.</li>
+                </ul>
+            </article>
+
+            <article>
+                <strong>v1.0</strong>
+                <ul>
+                    <li>GPX 업로드 기반 급경사, 급다운힐, 긴 업힐/다운힐, 급커브 탐지 기능을 추가했습니다.</li>
+                    <li>카카오맵 경로 표시와 위험구간별 지도 이동, 로드뷰 확인 기능을 추가했습니다.</li>
+                </ul>
+            </article>
+        </div>
+    </section>
 </BaseLayout>
+
+<style>
+    .tool-changelog {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--card);
+        padding: 1.25rem;
+    }
+
+    .tool-changelog__header {
+        display: grid;
+        gap: 0.35rem;
+    }
+
+    .tool-changelog__header p {
+        color: var(--primary);
+        font-size: 0.875rem;
+        font-weight: 800;
+    }
+
+    .tool-changelog__header h2 {
+        font-size: 1.2rem;
+        font-weight: 900;
+        line-height: 1.35;
+    }
+
+    .tool-changelog__items {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .tool-changelog article {
+        display: grid;
+        gap: 0.5rem;
+        border-top: 1px solid var(--border);
+        padding-top: 0.9rem;
+    }
+
+    .tool-changelog article:first-child {
+        border-top: 0;
+        padding-top: 0;
+    }
+
+    .tool-changelog strong {
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .tool-changelog ul {
+        display: grid;
+        gap: 0.35rem;
+        padding-left: 1.1rem;
+        color: var(--muted-foreground);
+        font-size: 0.92rem;
+        line-height: 1.65;
+    }
+
+    @media (max-width: 640px) {
+        .tool-changelog {
+            border-radius: 0.85rem;
+            padding: 1rem;
+        }
+    }
+</style>

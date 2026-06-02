@@ -1,0 +1,1559 @@
+---
+const kakaoJsKey =
+    import.meta.env.PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
+    '';
+---
+
+<section class='cycling-fueling' data-kakao-js-key={kakaoJsKey}>
+    <div class='cycling-fueling__header'>
+        <p>자전거 보급 계산기</p>
+        <h2>지도에 루트를 찍고, 보급하기 좋은 구간을 함께 확인합니다</h2>
+    </div>
+
+    <div class='cycling-fueling__grid'>
+        <form class='cycling-fueling__panel' id='fuelingForm'>
+            <div class='cycling-fueling__section'>
+                <h3>루트 포인트</h3>
+                <p class='cycling-fueling__hint'>
+                    GPX 파일을 올리거나 지도에서 출발지, 경유 포인트, 목적지를 순서대로
+                    클릭하세요. GPX는 브라우저에서만 읽고 서버로 전송하지 않습니다.
+                </p>
+
+                <div class='cycling-fueling__field'>
+                    <label for='gpxFileInput'>GPX 업로드</label>
+                    <input id='gpxFileInput' type='file' accept='.gpx,application/gpx+xml,text/xml,application/xml' />
+                </div>
+
+                <div class='cycling-fueling__actions'>
+                    <button id='undoPointButton' type='button'>마지막 포인트 취소</button>
+                    <button id='resetRouteButton' type='button'>루트 초기화</button>
+                </div>
+
+                <div class='cycling-fueling__route-summary'>
+                    <div>
+                        <span>포인트</span>
+                        <strong id='pointCount'>0개</strong>
+                    </div>
+                    <div>
+                        <span>계산 거리</span>
+                        <strong id='routeDistance'>0.0km</strong>
+                    </div>
+                </div>
+
+                <ol class='cycling-fueling__point-list' id='routePointList'>
+                    <li>지도에서 첫 포인트를 찍어주세요.</li>
+                </ol>
+            </div>
+
+            <div class='cycling-fueling__section'>
+                <h3>라이딩 조건</h3>
+                <div class='cycling-fueling__fields'>
+                    <div class='cycling-fueling__field'>
+                        <label for='averageSpeedKmh'>예상 평균속도</label>
+                        <input id='averageSpeedKmh' type='number' min='1' step='0.5' value='20' />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='temperatureC'>기온</label>
+                        <input id='temperatureC' type='number' step='1' value='24' required />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='intensity'>라이딩 강도</label>
+                        <select id='intensity'>
+                            <option value='easy'>여유</option>
+                            <option value='normal' selected>보통</option>
+                            <option value='hard'>힘듦</option>
+                        </select>
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='bodyWeightKg'>체중</label>
+                        <input id='bodyWeightKg' type='number' min='30' step='1' value='70' />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='sweatRate'>땀 배출 성향</label>
+                        <select id='sweatRate'>
+                            <option value='low'>적음</option>
+                            <option value='normal' selected>보통</option>
+                            <option value='high'>많음</option>
+                        </select>
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='manualDistanceKm'>거리 직접 보정</label>
+                        <input
+                            id='manualDistanceKm'
+                            type='number'
+                            min='0'
+                            step='0.1'
+                            placeholder='비워두면 지도 거리 사용'
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class='cycling-fueling__section'>
+                <h3>보급 포인트 표시</h3>
+                <div class='cycling-fueling__fields'>
+                    <div class='cycling-fueling__field'>
+                        <label for='firstFuelingKm'>첫 보급 추천 거리</label>
+                        <input id='firstFuelingKm' type='number' min='1' step='1' value='20' />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='fuelingIntervalKm'>이후 보급 간격</label>
+                        <input id='fuelingIntervalKm' type='number' min='1' step='1' value='15' />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='fuelingRadiusM'>추천 반경</label>
+                        <input id='fuelingRadiusM' type='number' min='100' step='50' value='500' />
+                    </div>
+
+                    <div class='cycling-fueling__field'>
+                        <label for='placeCategory'>주변 장소</label>
+                        <select id='placeCategory'>
+                            <option value='CS2' selected>편의점</option>
+                            <option value='CE7'>카페</option>
+                            <option value='FD6'>음식점</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class='cycling-fueling__actions'>
+                <button type='submit'>보급량 계산하기</button>
+                <button id='findPlacesButton' type='button'>보급 포인트 다시 검색</button>
+                <button id='addFuelingStopButton' type='button'>보급 지점 추가</button>
+            </div>
+
+            <p class='cycling-fueling__status' id='fuelingStatus' aria-live='polite'>
+                카카오 지도를 불러오는 중입니다.
+            </p>
+        </form>
+
+        <div class='cycling-fueling__side'>
+            <div class='cycling-fueling__map-shell'>
+                <div class='cycling-fueling__map' id='cyclingFuelingMap'></div>
+                <button
+                    id='currentLocationButton'
+                    class='cycling-fueling__location-button'
+                    type='button'
+                    aria-label='현재 위치로 이동'
+                    title='현재 위치로 이동'
+                >
+                    <svg
+                        aria-hidden='true'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        stroke-width='2.5'
+                    >
+                        <path d='M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z'></path>
+                        <circle cx='12' cy='10' r='2.5'></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <section class='cycling-fueling__result' id='fuelingResult' hidden>
+                <div class='cycling-fueling__result-head'>
+                    <p>예상 라이딩</p>
+                    <h3 id='rideSummary'>-</h3>
+                </div>
+
+                <div class='cycling-fueling__metrics'>
+                    <div>
+                        <span>권장 물</span>
+                        <strong id='waterResult'>-</strong>
+                    </div>
+                    <div>
+                        <span>획득고도</span>
+                        <strong id='elevationResult'>-</strong>
+                    </div>
+                    <div>
+                        <span>500ml 물통</span>
+                        <strong id='bottleResult'>-</strong>
+                    </div>
+                    <div>
+                        <span>탄수화물</span>
+                        <strong id='carbResult'>-</strong>
+                    </div>
+                    <div>
+                        <span>젤/바</span>
+                        <strong id='foodResult'>-</strong>
+                    </div>
+                    <div>
+                        <span>전해질</span>
+                        <strong id='electrolyteResult'>-</strong>
+                    </div>
+                </div>
+
+                <div class='cycling-fueling__plans'>
+                    <section>
+                        <h4>보급 추천 지점</h4>
+                        <div id='fuelingStops' class='cycling-fueling__stops'></div>
+                    </section>
+                    <section>
+                        <h4>출발 전</h4>
+                        <ul id='preRideAdvice'></ul>
+                    </section>
+                    <section>
+                        <h4>라이딩 중</h4>
+                        <ul id='duringRideAdvice'></ul>
+                    </section>
+                    <section>
+                        <h4>도착 후</h4>
+                        <ul id='postRideAdvice'></ul>
+                    </section>
+                    <section>
+                        <h4>주의사항</h4>
+                        <ul id='warningAdvice'></ul>
+                    </section>
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+
+<script>
+    import { calculateRideFueling } from './../utils/cyclingFueling';
+    import type { RideIntensity, SweatRate } from './../utils/cyclingFueling';
+
+    type Coordinate = {
+        lat: number;
+        lng: number;
+        ele?: number | null;
+    };
+
+    type FuelingStop = {
+        distanceKm: number;
+        coordinate: Coordinate;
+        places: PlaceResult[];
+    };
+
+    type PlaceResult = {
+        name: string;
+        address: string;
+        coordinate: Coordinate;
+        distanceM: number;
+        url: string;
+    };
+
+    declare global {
+        interface Window {
+            kakao?: any;
+        }
+    }
+
+    const root = document.querySelector<HTMLElement>('.cycling-fueling');
+    const form = document.getElementById('fuelingForm') as HTMLFormElement | null;
+    const statusEl = document.getElementById('fuelingStatus');
+    const mapEl = document.getElementById('cyclingFuelingMap');
+    const undoPointButton = document.getElementById('undoPointButton');
+    const resetRouteButton = document.getElementById('resetRouteButton');
+    const findPlacesButton = document.getElementById('findPlacesButton');
+    const addFuelingStopButton = document.getElementById('addFuelingStopButton');
+    const currentLocationButton = document.getElementById('currentLocationButton');
+    const gpxFileInput = document.getElementById('gpxFileInput') as HTMLInputElement | null;
+
+    const state: {
+        map: any;
+        places: any;
+        routePoints: Coordinate[];
+        routeMarkers: any[];
+        routePolyline: any;
+        fuelingCircles: any[];
+        fuelingMarkers: any[];
+        placeMarkers: any[];
+        fuelingStops: FuelingStop[];
+        customFuelingStopDistances: number[] | null;
+        elevationGainM: number | null;
+    } = {
+        map: null,
+        places: null,
+        routePoints: [],
+        routeMarkers: [],
+        routePolyline: null,
+        fuelingCircles: [],
+        fuelingMarkers: [],
+        placeMarkers: [],
+        fuelingStops: [],
+        customFuelingStopDistances: null,
+        elevationGainM: null,
+    };
+
+    init();
+
+    function init() {
+        bindEvents();
+        loadKakaoMap();
+    }
+
+    function bindEvents() {
+        form?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            calculateAndRender();
+        });
+        undoPointButton?.addEventListener('click', undoLastPoint);
+        resetRouteButton?.addEventListener('click', resetRoute);
+        findPlacesButton?.addEventListener('click', () => {
+            void refreshFuelingStops();
+        });
+        addFuelingStopButton?.addEventListener('click', () => {
+            void addFuelingStop();
+        });
+        currentLocationButton?.addEventListener('click', moveToCurrentLocation);
+        gpxFileInput?.addEventListener('change', () => {
+            void handleGpxUpload();
+        });
+    }
+
+    function loadKakaoMap() {
+        const kakaoJsKey = root?.dataset.kakaoJsKey;
+
+        if (!kakaoJsKey) {
+            setStatus('PUBLIC_KAKAO_MAP_API_KEY가 설정되지 않았습니다. 지도 기반 보급 포인트를 표시할 수 없습니다.');
+            return;
+        }
+
+        if (window.kakao?.maps) {
+            window.kakao.maps.load(createMap);
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(
+            kakaoJsKey,
+        )}&libraries=services&autoload=false`;
+        script.async = true;
+        script.onload = () => window.kakao?.maps?.load(createMap);
+        script.onerror = () => {
+            setStatus('카카오 JS SDK 로드에 실패했습니다. 지도를 새로고침하거나 키 설정을 확인해 주세요.');
+        };
+        document.head.appendChild(script);
+    }
+
+    function createMap() {
+        if (!mapEl || !window.kakao?.maps) return;
+
+        const center = new window.kakao.maps.LatLng(37.5665, 126.978);
+        state.map = new window.kakao.maps.Map(mapEl, {
+            center,
+            level: 3,
+        });
+        state.places = new window.kakao.maps.services.Places();
+
+        window.kakao.maps.event.addListener(state.map, 'click', (event: any) => {
+            addRoutePoint({
+                lat: event.latLng.getLat(),
+                lng: event.latLng.getLng(),
+            });
+        });
+        window.kakao.maps.event.addListener(state.map, 'rightclick', undoLastPoint);
+        mapEl.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+
+        setStatus('지도에서 출발지부터 목적지까지 순서대로 클릭해 주세요.');
+    }
+
+    function addRoutePoint(point: Coordinate) {
+        state.routePoints.push(point);
+        state.customFuelingStopDistances = null;
+        state.elevationGainM = null;
+        renderRoute();
+        clearFuelingOverlays();
+        updateRouteSummary();
+        setStatus(`${state.routePoints.length}번째 포인트를 추가했습니다.`);
+    }
+
+    function undoLastPoint() {
+        if (state.routePoints.length === 0) {
+            setStatus('취소할 포인트가 없습니다.');
+            return;
+        }
+
+        state.routePoints.pop();
+        state.customFuelingStopDistances = null;
+        state.elevationGainM = null;
+        renderRoute();
+        clearFuelingOverlays();
+        updateRouteSummary();
+        setStatus('마지막 포인트를 취소했습니다.');
+    }
+
+    function resetRoute() {
+        state.routePoints = [];
+        state.fuelingStops = [];
+        state.customFuelingStopDistances = null;
+        state.elevationGainM = null;
+        if (gpxFileInput) gpxFileInput.value = '';
+        renderRoute();
+        clearFuelingOverlays();
+        updateRouteSummary();
+        renderFuelingStops([]);
+        setStatus('루트를 초기화했습니다.');
+    }
+
+    function renderRoute() {
+        if (!state.map || !window.kakao?.maps) return;
+
+        state.routeMarkers.forEach((marker) => marker.setMap(null));
+        state.routeMarkers = [];
+
+        getRouteMarkerIndexes().forEach((index) => {
+            const point = state.routePoints[index];
+            const marker = new window.kakao.maps.Marker({
+                map: state.map,
+                position: new window.kakao.maps.LatLng(point.lat, point.lng),
+                title: index === 0 ? '출발지' : index === state.routePoints.length - 1 ? '목적지' : `경유 ${index}`,
+            });
+            window.kakao.maps.event.addListener(marker, 'rightclick', () => {
+                undoLastPoint();
+            });
+            state.routeMarkers.push(marker);
+        });
+
+        if (state.routePolyline) {
+            state.routePolyline.setMap(null);
+            state.routePolyline = null;
+        }
+
+        if (state.routePoints.length >= 2) {
+            const path = sampleRoutePoints(state.routePoints, 2000).map(
+                (point) => new window.kakao.maps.LatLng(point.lat, point.lng),
+            );
+
+            state.routePolyline = new window.kakao.maps.Polyline({
+                path,
+                strokeWeight: 5,
+                strokeColor: '#2563eb',
+                strokeOpacity: 0.85,
+                strokeStyle: 'solid',
+            });
+            state.routePolyline.setMap(state.map);
+        }
+    }
+
+    async function handleGpxUpload() {
+        const file = gpxFileInput?.files?.[0];
+        if (!file) return;
+
+        try {
+            const gpxText = await file.text();
+            const points = parseGpx(gpxText);
+            const elevationGainM = calculateElevationGain(points);
+
+            state.routePoints = points;
+            state.fuelingStops = [];
+            state.customFuelingStopDistances = null;
+            state.elevationGainM = elevationGainM;
+            setInputValue('manualDistanceKm', '');
+            renderRoute();
+            fitRouteBounds();
+            clearFuelingOverlays();
+            updateRouteSummary();
+            renderFuelingStops([]);
+            setStatus(
+                `${file.name} GPX를 불러왔습니다. 거리와 획득고도 ${Math.round(elevationGainM).toLocaleString()}m를 자동 계산했으며, 정지 구간의 고도 흔들림은 일부 제외했습니다.`,
+            );
+        } catch (error) {
+            setStatus(error instanceof Error ? error.message : 'GPX 파일을 읽는 중 오류가 발생했습니다.');
+        }
+    }
+
+    function updateRouteSummary() {
+        const distanceKm = getRouteDistanceKm();
+        setText('pointCount', `${state.routePoints.length}개`);
+        setText('routeDistance', `${distanceKm.toFixed(1)}km`);
+        renderPointList(distanceKm);
+    }
+
+    function renderPointList(totalDistanceKm: number) {
+        const list = document.getElementById('routePointList');
+        if (!list) return;
+
+        list.innerHTML = '';
+
+        if (state.routePoints.length === 0) {
+            const item = document.createElement('li');
+            item.textContent = '지도에서 첫 포인트를 찍어주세요.';
+            list.appendChild(item);
+            return;
+        }
+
+        if (state.routePoints.length > 20) {
+            const start = state.routePoints[0];
+            const end = state.routePoints[state.routePoints.length - 1];
+            const startItem = document.createElement('li');
+            startItem.textContent = `출발지: ${start.lat.toFixed(5)}, ${start.lng.toFixed(5)}`;
+            const endItem = document.createElement('li');
+            endItem.textContent = `목적지: ${end.lat.toFixed(5)}, ${end.lng.toFixed(5)}`;
+            const summaryItem = document.createElement('li');
+            summaryItem.textContent = `GPX/루트 포인트 ${state.routePoints.length.toLocaleString()}개, 누적 거리 ${totalDistanceKm.toFixed(1)}km`;
+            list.append(startItem, endItem, summaryItem);
+            return;
+        }
+
+        state.routePoints.forEach((point, index) => {
+            const item = document.createElement('li');
+            const label = index === 0 ? '출발지' : index === state.routePoints.length - 1 ? '목적지' : `경유 ${index}`;
+            item.textContent = `${label}: ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`;
+            list.appendChild(item);
+        });
+
+        if (state.routePoints.length >= 2) {
+            const item = document.createElement('li');
+            item.textContent = `누적 거리: ${totalDistanceKm.toFixed(1)}km`;
+            list.appendChild(item);
+        }
+    }
+
+    async function calculateAndRender() {
+        const rideNumbers = getRideNumbers();
+        if (!rideNumbers) return;
+
+        const temperatureC = readNumber('temperatureC');
+        const bodyWeightKg = readNumber('bodyWeightKg') || 70;
+        const intensity = readSelectValue('intensity') as RideIntensity;
+        const sweatRate = readSelectValue('sweatRate') as SweatRate;
+
+        try {
+            const result = calculateRideFueling({
+                distanceKm: rideNumbers.distanceKm,
+                durationMinutes: rideNumbers.durationMinutes,
+                elevationGainM: rideNumbers.elevationGainM ?? undefined,
+                temperatureC,
+                intensity,
+                bodyWeightKg,
+                sweatRate,
+            });
+
+            renderResult(
+                rideNumbers.distanceKm,
+                rideNumbers.durationMinutes,
+                rideNumbers.elevationGainM,
+                temperatureC,
+                result,
+            );
+            await refreshFuelingStops();
+            setStatus('보급량과 보급 추천 지점을 계산했습니다.');
+        } catch (error) {
+            setStatus(error instanceof Error ? error.message : '보급량 계산 중 오류가 발생했습니다.');
+        }
+    }
+
+    async function refreshFuelingStops() {
+        if (state.routePoints.length < 2) {
+            setStatus('보급 포인트를 표시하려면 지도에 포인트를 2개 이상 찍어주세요.');
+            return;
+        }
+
+        const stops = buildFuelingStops();
+
+        if (stops.length === 0) {
+            state.fuelingStops = [];
+            clearFuelingOverlays();
+            renderFuelingStops([]);
+            setStatus('현재 거리에서는 별도 보급 포인트가 필요하지 않을 수 있습니다.');
+            return;
+        }
+
+        state.fuelingStops = stops;
+        renderFuelingOverlays(stops);
+        renderFuelingStops(stops);
+        await searchPlacesForStops(stops);
+        renderFuelingStops(state.fuelingStops);
+    }
+
+    function getRideNumbers():
+        | { distanceKm: number; durationMinutes: number; elevationGainM: number | null }
+        | null {
+        const manualDistanceKm = readNumber('manualDistanceKm');
+        const routeDistanceKm = getRouteDistanceKm();
+        const distanceKm = manualDistanceKm || routeDistanceKm;
+        const averageSpeedKmh = readNumber('averageSpeedKmh');
+        const elevationGainM = state.elevationGainM;
+
+        if (!isValidPositive(distanceKm)) {
+            setStatus('지도에 포인트를 2개 이상 찍거나 거리 직접 보정 값을 입력해 주세요.');
+            return null;
+        }
+
+        if (!isValidPositive(averageSpeedKmh)) {
+            setStatus('예상 평균속도를 1km/h 이상으로 입력해 주세요.');
+            return null;
+        }
+
+        const flatDurationMinutes = (distanceKm / averageSpeedKmh) * 60;
+        const elevationPenaltyMinutes = elevationGainM ? (elevationGainM / 100) * 4 : 0;
+
+        return {
+            distanceKm,
+            durationMinutes: flatDurationMinutes + elevationPenaltyMinutes,
+            elevationGainM,
+        };
+    }
+
+    function buildFuelingStops(): FuelingStop[] {
+        const routeDistanceKm = getRouteDistanceKm();
+        const firstFuelingKm = readNumber('firstFuelingKm') || 20;
+        const fuelingIntervalKm = readNumber('fuelingIntervalKm') || 15;
+        const stops: FuelingStop[] = [];
+
+        if (routeDistanceKm <= 0 || firstFuelingKm <= 0 || fuelingIntervalKm <= 0) {
+            return stops;
+        }
+
+        const stopDistances =
+            state.customFuelingStopDistances ??
+            buildDefaultFuelingStopDistances(routeDistanceKm, firstFuelingKm, fuelingIntervalKm);
+
+        for (const distanceKm of stopDistances) {
+            const coordinate = getPointAtDistance(distanceKm);
+
+            if (coordinate && distanceKm > 0 && distanceKm < routeDistanceKm) {
+                stops.push({
+                    distanceKm,
+                    coordinate,
+                    places: [],
+                });
+            }
+        }
+
+        return stops;
+    }
+
+    function buildDefaultFuelingStopDistances(
+        routeDistanceKm: number,
+        firstFuelingKm: number,
+        fuelingIntervalKm: number,
+    ): number[] {
+        const distances: number[] = [];
+
+        for (
+            let distanceKm = firstFuelingKm;
+            distanceKm < routeDistanceKm;
+            distanceKm += fuelingIntervalKm
+        ) {
+            distances.push(distanceKm);
+        }
+
+        return distances;
+    }
+
+    async function addFuelingStop() {
+        const routeDistanceKm = getRouteDistanceKm();
+
+        if (routeDistanceKm <= 0) {
+            setStatus('보급 지점을 추가하려면 먼저 루트를 만들어 주세요.');
+            return;
+        }
+
+        const currentDistances =
+            state.customFuelingStopDistances ?? state.fuelingStops.map((stop) => stop.distanceKm);
+        const lastDistance = currentDistances.at(-1) ?? Math.min(20, Math.max(1, routeDistanceKm / 2));
+        const nextDistance = Math.min(routeDistanceKm - 0.1, lastDistance + 10);
+
+        state.customFuelingStopDistances = normalizeFuelingStopDistances([
+            ...currentDistances,
+            nextDistance,
+        ]);
+        await refreshFuelingStops();
+    }
+
+    function renderFuelingOverlays(stops: FuelingStop[]) {
+        if (!state.map || !window.kakao?.maps) return;
+
+        clearFuelingOverlays();
+
+        const radiusM = Math.max(100, readNumber('fuelingRadiusM') || 500);
+
+        stops.forEach((stop, index) => {
+            const center = new window.kakao.maps.LatLng(stop.coordinate.lat, stop.coordinate.lng);
+            const circle = new window.kakao.maps.Circle({
+                center,
+                radius: radiusM,
+                strokeWeight: 2,
+                strokeColor: '#f97316',
+                strokeOpacity: 0.9,
+                strokeStyle: 'solid',
+                fillColor: '#f97316',
+                fillOpacity: 0.12,
+            });
+            circle.setMap(state.map);
+            state.fuelingCircles.push(circle);
+
+            const marker = new window.kakao.maps.Marker({
+                map: state.map,
+                position: center,
+                title: `${Math.round(stop.distanceKm)}km 전후 보급 추천`,
+            });
+            state.fuelingMarkers.push(marker);
+        });
+    }
+
+    function moveToCurrentLocation() {
+        if (!state.map || !window.kakao?.maps) {
+            setStatus('지도가 아직 준비되지 않았습니다.');
+            return;
+        }
+
+        if (!navigator.geolocation) {
+            setStatus('현재 위치 기능을 사용할 수 없는 브라우저입니다.');
+            return;
+        }
+
+        setStatus('현재 위치를 확인하는 중입니다.');
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const coordinate = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
+                const center = new window.kakao.maps.LatLng(coordinate.lat, coordinate.lng);
+
+                state.map.setLevel(3);
+                state.map.panTo(center);
+
+                setStatus('현재 위치로 지도를 이동했습니다. 루트 포인트는 지도 클릭으로 추가하세요.');
+            },
+            () => {
+                setStatus('현재 위치를 가져오지 못했습니다. 브라우저 위치 권한을 확인해 주세요.');
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 30000,
+                timeout: 8000,
+            },
+        );
+    }
+
+    function clearFuelingOverlays() {
+        state.fuelingCircles.forEach((circle) => circle.setMap(null));
+        state.fuelingMarkers.forEach((marker) => marker.setMap(null));
+        state.placeMarkers.forEach((marker) => marker.setMap(null));
+        state.fuelingCircles = [];
+        state.fuelingMarkers = [];
+        state.placeMarkers = [];
+    }
+
+    async function searchPlacesForStops(stops: FuelingStop[]) {
+        if (!state.places || !window.kakao?.maps) {
+            setStatus('카카오 장소 검색을 사용할 수 없습니다. 원 표시 기준으로 보급 지점을 확인해 주세요.');
+            return;
+        }
+
+        const category = readSelectValue('placeCategory') || 'CS2';
+        const radiusM = Math.max(100, readNumber('fuelingRadiusM') || 500);
+
+        await Promise.all(
+            stops.map(async (stop, index) => {
+                stop.places = await searchPlaces(stop.coordinate, category, radiusM);
+                renderPlaceMarkers(stop, index);
+            }),
+        );
+    }
+
+    function searchPlaces(
+        coordinate: Coordinate,
+        category: string,
+        radiusM: number,
+    ): Promise<PlaceResult[]> {
+        return new Promise((resolve) => {
+            const location = new window.kakao.maps.LatLng(coordinate.lat, coordinate.lng);
+
+            state.places.categorySearch(
+                category,
+                (results: any[], status: string) => {
+                    if (status !== window.kakao.maps.services.Status.OK || !Array.isArray(results)) {
+                        resolve([]);
+                        return;
+                    }
+
+                    resolve(
+                        results.slice(0, 3).map((place) => ({
+                            name: place.place_name,
+                            address: place.road_address_name || place.address_name || '',
+                            coordinate: {
+                                lat: Number(place.y),
+                                lng: Number(place.x),
+                            },
+                            distanceM: Number(place.distance) || 0,
+                            url: place.place_url || '',
+                        })),
+                    );
+                },
+                {
+                    location,
+                    radius: radiusM,
+                    sort: window.kakao.maps.services.SortBy.DISTANCE,
+                },
+            );
+        });
+    }
+
+    function renderPlaceMarkers(stop: FuelingStop, stopIndex: number) {
+        if (!state.map || !window.kakao?.maps) return;
+
+        stop.places.forEach((place, placeIndex) => {
+            const marker = new window.kakao.maps.Marker({
+                map: state.map,
+                position: new window.kakao.maps.LatLng(place.coordinate.lat, place.coordinate.lng),
+                title: `${Math.round(stop.distanceKm)}km ${place.name}`,
+                zIndex: 10 + stopIndex + placeIndex,
+            });
+            state.placeMarkers.push(marker);
+        });
+    }
+
+    function renderResult(
+        distanceKm: number,
+        durationMinutes: number,
+        elevationGainM: number | null,
+        temperatureC: number,
+        result: ReturnType<typeof calculateRideFueling>,
+    ) {
+        setText(
+            'rideSummary',
+            `${distanceKm.toFixed(1)}km / ${formatDuration(durationMinutes)} / ${temperatureC}도 / ${formatElevationSummary(elevationGainM)}`,
+        );
+        setText('waterResult', `${formatMl(result.waterMlMin)}~${formatMl(result.waterMlMax)}`);
+        setText('elevationResult', formatElevationResult(elevationGainM));
+        setText('bottleResult', `${result.bottleCount500ml}개 기준`);
+        setText('carbResult', `${result.carbGramMin}~${result.carbGramMax}g`);
+        setText(
+            'foodResult',
+            result.barCount > 0
+                ? `스포츠젤 ${result.gelCount}개 + 에너지바 ${result.barCount}개`
+                : `스포츠젤 ${result.gelCount}개`,
+        );
+        setText('electrolyteResult', result.electrolyteRecommended ? '권장' : '선택');
+        renderList('preRideAdvice', result.preRideAdvice);
+        renderList('duringRideAdvice', result.duringRideAdvice);
+        renderList('postRideAdvice', result.postRideAdvice);
+        renderList('warningAdvice', result.warnings);
+
+        const resultEl = document.getElementById('fuelingResult');
+        if (resultEl) resultEl.hidden = false;
+    }
+
+    function renderFuelingStops(stops: FuelingStop[]) {
+        const container = document.getElementById('fuelingStops');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (stops.length === 0) {
+            container.innerHTML = '<p>보급 추천 지점이 아직 없습니다.</p>';
+            return;
+        }
+
+        stops.forEach((stop) => {
+            const card = document.createElement('article');
+            card.className = 'fueling-stop-card';
+
+            const title = document.createElement('h5');
+            title.textContent = '보급 추천 지점';
+            card.appendChild(title);
+
+            const controls = document.createElement('div');
+            controls.className = 'fueling-stop-card__controls';
+
+            const label = document.createElement('label');
+            label.textContent = '누적 거리';
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0.1';
+            input.step = '0.1';
+            input.value = stop.distanceKm.toFixed(1);
+            input.dataset.stopIndex = String(stops.indexOf(stop));
+            input.className = 'fueling-stop-card__distance';
+            input.addEventListener('change', () => {
+                void updateFuelingStopDistance(Number(input.dataset.stopIndex), Number(input.value));
+            });
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '삭제';
+            removeButton.addEventListener('click', () => {
+                void removeFuelingStop(Number(input.dataset.stopIndex));
+            });
+
+            label.appendChild(input);
+            controls.append(label, removeButton);
+            card.appendChild(controls);
+
+            const description = document.createElement('p');
+            description.textContent = `${stop.distanceKm.toFixed(1)}km 전후, 추천 반경 ${Math.round(readNumber('fuelingRadiusM') || 500)}m 안에서 물, 젤, 간단한 탄수화물을 보충하기 좋은 지점입니다.`;
+            card.appendChild(description);
+
+            const list = document.createElement('ul');
+            if (stop.places.length === 0) {
+                const item = document.createElement('li');
+                item.textContent = '주변 장소 검색 결과가 없거나 아직 검색 중입니다.';
+                list.appendChild(item);
+            } else {
+                stop.places.forEach((place) => {
+                    const item = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = place.url;
+                    link.target = '_blank';
+                    link.rel = 'noreferrer';
+                    link.textContent = `${place.name}${place.distanceM ? ` (${place.distanceM}m)` : ''}`;
+                    item.appendChild(link);
+
+                    if (place.address) {
+                        const address = document.createElement('span');
+                        address.textContent = place.address;
+                        item.appendChild(address);
+                    }
+
+                    list.appendChild(item);
+                });
+            }
+            card.appendChild(list);
+            container.appendChild(card);
+        });
+    }
+
+    async function updateFuelingStopDistance(index: number, distanceKm: number) {
+        if (!Number.isFinite(index) || !Number.isFinite(distanceKm)) return;
+
+        const currentDistances = state.fuelingStops.map((stop) => stop.distanceKm);
+        currentDistances[index] = distanceKm;
+        state.customFuelingStopDistances = normalizeFuelingStopDistances(currentDistances);
+        await refreshFuelingStops();
+    }
+
+    async function removeFuelingStop(index: number) {
+        const currentDistances = state.fuelingStops.map((stop) => stop.distanceKm);
+        currentDistances.splice(index, 1);
+        state.customFuelingStopDistances = normalizeFuelingStopDistances(currentDistances);
+        await refreshFuelingStops();
+    }
+
+    function normalizeFuelingStopDistances(distances: number[]): number[] {
+        const routeDistanceKm = getRouteDistanceKm();
+
+        return Array.from(
+            new Set(
+                distances
+                    .filter((distanceKm) => distanceKm > 0 && distanceKm < routeDistanceKm)
+                    .map((distanceKm) => Math.round(distanceKm * 10) / 10),
+            ),
+        ).sort((a, b) => a - b);
+    }
+
+    function getRouteDistanceKm(): number {
+        if (state.routePoints.length < 2) return 0;
+
+        let totalMeters = 0;
+
+        for (let index = 1; index < state.routePoints.length; index += 1) {
+            totalMeters += distanceMeters(state.routePoints[index - 1], state.routePoints[index]);
+        }
+
+        return totalMeters / 1000;
+    }
+
+    function calculateElevationGain(points: Coordinate[]): number {
+        const minGainMeters = 3;
+        const minMoveMeters = 20;
+        const maxGradePercent = 25;
+        let gain = 0;
+        let previous: Coordinate | null = null;
+
+        for (const point of points) {
+            if (!Number.isFinite(point.ele)) continue;
+
+            if (previous === null) {
+                previous = point;
+                continue;
+            }
+
+            const diff = Number(point.ele) - Number(previous.ele);
+            const moveMeters = distanceMeters(previous, point);
+            const gradePercent = moveMeters > 0 ? (diff / moveMeters) * 100 : Infinity;
+
+            if (
+                diff > minGainMeters &&
+                moveMeters >= minMoveMeters &&
+                gradePercent <= maxGradePercent
+            ) {
+                gain += diff;
+                previous = point;
+            } else if (Math.abs(diff) > minGainMeters) {
+                previous = point;
+            }
+        }
+
+        return gain;
+    }
+
+    function getPointAtDistance(targetKm: number): Coordinate | null {
+        if (state.routePoints.length < 2) return null;
+
+        const targetMeters = targetKm * 1000;
+        let traveledMeters = 0;
+
+        for (let index = 1; index < state.routePoints.length; index += 1) {
+            const from = state.routePoints[index - 1];
+            const to = state.routePoints[index];
+            const segmentMeters = distanceMeters(from, to);
+
+            if (traveledMeters + segmentMeters >= targetMeters) {
+                const ratio = (targetMeters - traveledMeters) / segmentMeters;
+
+                return {
+                    lat: from.lat + (to.lat - from.lat) * ratio,
+                    lng: from.lng + (to.lng - from.lng) * ratio,
+                    ele:
+                        Number.isFinite(from.ele) && Number.isFinite(to.ele)
+                            ? Number(from.ele) + (Number(to.ele) - Number(from.ele)) * ratio
+                            : null,
+                };
+            }
+
+            traveledMeters += segmentMeters;
+        }
+
+        return state.routePoints.at(-1) ?? null;
+    }
+
+    function distanceMeters(a: Coordinate, b: Coordinate): number {
+        const earthRadiusMeters = 6371000;
+        const dLat = toRadians(b.lat - a.lat);
+        const dLng = toRadians(b.lng - a.lng);
+        const lat1 = toRadians(a.lat);
+        const lat2 = toRadians(b.lat);
+        const sinLat = Math.sin(dLat / 2);
+        const sinLng = Math.sin(dLng / 2);
+        const h =
+            sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLng * sinLng;
+
+        return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+    }
+
+    function toRadians(degrees: number): number {
+        return (degrees * Math.PI) / 180;
+    }
+
+    function parseGpx(gpxText: string): Coordinate[] {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(gpxText, 'application/xml');
+
+        if (xml.querySelector('parsererror')) {
+            throw new Error('GPX 파일을 XML로 읽지 못했습니다.');
+        }
+
+        const nodes = Array.from(xml.querySelectorAll('trkpt, rtept'));
+        const points = nodes
+            .map((node) => {
+                const lat = Number(node.getAttribute('lat'));
+                const lng = Number(node.getAttribute('lon'));
+                const eleText = node.querySelector('ele')?.textContent ?? '';
+                const ele = Number(eleText);
+
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+                return {
+                    lat,
+                    lng,
+                    ele: Number.isFinite(ele) ? ele : null,
+                };
+            })
+            .filter((point): point is Coordinate => point !== null);
+
+        if (points.length < 2) {
+            throw new Error('분석 가능한 GPX 포인트가 부족합니다.');
+        }
+
+        return points;
+    }
+
+    function fitRouteBounds() {
+        if (!state.map || !window.kakao?.maps || state.routePoints.length === 0) return;
+
+        const bounds = new window.kakao.maps.LatLngBounds();
+        sampleRoutePoints(state.routePoints, 1000).forEach((point) => {
+            bounds.extend(new window.kakao.maps.LatLng(point.lat, point.lng));
+        });
+        state.map.setBounds(bounds);
+    }
+
+    function getRouteMarkerIndexes(): number[] {
+        if (state.routePoints.length <= 20) {
+            return state.routePoints.map((_, index) => index);
+        }
+
+        return [0, state.routePoints.length - 1];
+    }
+
+    function sampleRoutePoints(points: Coordinate[], maxPoints: number): Coordinate[] {
+        if (points.length <= maxPoints) return points;
+
+        const step = Math.ceil(points.length / maxPoints);
+        const sampled = points.filter((_, index) => index % step === 0);
+        const last = points[points.length - 1];
+
+        if (sampled.at(-1) !== last) sampled.push(last);
+
+        return sampled;
+    }
+
+    function readNumber(id: string): number {
+        const value = (document.getElementById(id) as HTMLInputElement | null)?.value;
+        const numberValue = Number(value);
+
+        return Number.isFinite(numberValue) ? numberValue : 0;
+    }
+
+    function readSelectValue(id: string): string {
+        return (document.getElementById(id) as HTMLSelectElement | null)?.value ?? '';
+    }
+
+    function isValidPositive(value: number): boolean {
+        return Number.isFinite(value) && value > 0;
+    }
+
+    function setStatus(message: string) {
+        if (statusEl) statusEl.textContent = message;
+    }
+
+    function setText(id: string, text: string) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = text;
+    }
+
+    function setInputValue(id: string, value: string) {
+        const input = document.getElementById(id) as HTMLInputElement | null;
+        if (input) input.value = value;
+    }
+
+    function renderList(id: string, items: string[]) {
+        const list = document.getElementById(id);
+        if (!list) return;
+
+        list.innerHTML = '';
+        items.forEach((item) => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+        });
+    }
+
+    function formatDuration(minutes: number): string {
+        const roundedMinutes = Math.round(minutes);
+        const hours = Math.floor(roundedMinutes / 60);
+        const restMinutes = roundedMinutes % 60;
+
+        if (hours <= 0) return `${restMinutes}분`;
+        if (restMinutes <= 0) return `${hours}시간`;
+        return `${hours}시간 ${restMinutes}분`;
+    }
+
+    function formatMl(value: number): string {
+        if (value >= 1000) return `${(value / 1000).toFixed(1)}L`;
+        return `${value}ml`;
+    }
+
+    function formatElevationSummary(elevationGainM: number | null): string {
+        if (elevationGainM === null) return '획득고도 미반영';
+        return `+${Math.round(elevationGainM)}m`;
+    }
+
+    function formatElevationResult(elevationGainM: number | null): string {
+        if (elevationGainM === null) return '미반영';
+        return `+${Math.round(elevationGainM)}m 자동 반영`;
+    }
+</script>
+
+<style>
+    .cycling-fueling {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .cycling-fueling__header {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .cycling-fueling__header p,
+    .cycling-fueling__result-head p {
+        color: var(--primary);
+        font-size: 0.875rem;
+        font-weight: 700;
+    }
+
+    .cycling-fueling__header h2 {
+        max-width: 46rem;
+        font-size: clamp(1.4rem, 3vw, 2rem);
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .cycling-fueling__grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: minmax(18rem, 0.78fr) minmax(24rem, 1.22fr);
+        align-items: start;
+    }
+
+    .cycling-fueling__panel,
+    .cycling-fueling__result {
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--card);
+        padding: 1.25rem;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    }
+
+    .cycling-fueling__section {
+        display: grid;
+        gap: 1rem;
+        padding-block: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .cycling-fueling__section:first-child {
+        padding-top: 0;
+    }
+
+    .cycling-fueling__section h3 {
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .cycling-fueling__hint,
+    .cycling-fueling__status,
+    .cycling-fueling__point-list {
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+
+    .cycling-fueling__fields,
+    .cycling-fueling__route-summary {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cycling-fueling__route-summary div {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        padding: 0.9rem;
+    }
+
+    .cycling-fueling__route-summary span {
+        display: block;
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .cycling-fueling__route-summary strong {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 1.2rem;
+    }
+
+    .cycling-fueling__point-list {
+        display: grid;
+        gap: 0.25rem;
+        max-height: 10rem;
+        overflow: auto;
+        padding-left: 1.2rem;
+    }
+
+    .cycling-fueling__field {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .cycling-fueling__field label {
+        font-size: 0.875rem;
+        font-weight: 700;
+    }
+
+    .cycling-fueling__field-hint {
+        color: var(--muted-foreground);
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+
+    .cycling-fueling input,
+    .cycling-fueling select {
+        width: 100%;
+        min-height: 2.75rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        color: var(--foreground);
+        padding: 0.7rem 0.85rem;
+        font: inherit;
+    }
+
+    .cycling-fueling button {
+        min-height: 2.75rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        color: var(--foreground);
+        padding: 0.65rem 1rem;
+        font-weight: 800;
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease;
+    }
+
+    .cycling-fueling button:hover {
+        border-color: color-mix(in oklab, var(--primary) 60%, var(--border));
+        background: var(--accent);
+    }
+
+    .cycling-fueling__actions button[type='submit'],
+    #findPlacesButton,
+    #addFuelingStopButton {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-foreground);
+    }
+
+    .cycling-fueling__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        padding-top: 0.25rem;
+    }
+
+    .cycling-fueling__side {
+        display: grid;
+        gap: 1rem;
+        position: sticky;
+        top: 1rem;
+    }
+
+    .cycling-fueling__map-shell {
+        position: relative;
+    }
+
+    .cycling-fueling__map {
+        min-height: 30rem;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--muted);
+        overflow: hidden;
+    }
+
+    .cycling-fueling__location-button {
+        position: absolute;
+        right: 0.85rem;
+        bottom: 0.85rem;
+        z-index: 5;
+        display: block;
+        width: 2.75rem;
+        height: 2.75rem;
+        padding: 0;
+        min-height: 2.75rem;
+        box-sizing: border-box;
+        line-height: 0;
+        border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
+        color: #dc2626;
+        background: var(--card);
+        box-shadow: 0 8px 22px rgb(0 0 0 / 0.14);
+    }
+
+    .cycling-fueling__location-button:hover {
+        background: var(--accent);
+    }
+
+    .cycling-fueling__location-button svg {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1.35rem;
+        height: 1.35rem;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+
+    .cycling-fueling__result[hidden] {
+        display: none;
+    }
+
+    .cycling-fueling__result {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .cycling-fueling__result-head h3 {
+        margin-top: 0.25rem;
+        font-size: 1.35rem;
+        font-weight: 900;
+        line-height: 1.35;
+    }
+
+    .cycling-fueling__metrics {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cycling-fueling__metrics div {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        padding: 0.9rem;
+    }
+
+    .cycling-fueling__metrics span {
+        display: block;
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .cycling-fueling__metrics strong {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    .cycling-fueling__plans {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .cycling-fueling__plans h4 {
+        margin-bottom: 0.45rem;
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .cycling-fueling__plans ul {
+        display: grid;
+        gap: 0.35rem;
+        padding-left: 1.1rem;
+        color: var(--muted-foreground);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .cycling-fueling__stops {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .cycling-fueling__stops p {
+        color: var(--muted-foreground);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card) {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--background);
+        padding: 0.9rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card h5) {
+        font-weight: 900;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card__controls) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 0.65rem;
+        margin-top: 0.65rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card__controls label) {
+        display: grid;
+        flex: 1 1 9rem;
+        gap: 0.35rem;
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card__controls input) {
+        min-height: 2.35rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card__controls button) {
+        min-height: 2.35rem;
+        padding-block: 0.45rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card p) {
+        margin-top: 0.25rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card ul) {
+        margin-top: 0.5rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card a) {
+        color: var(--primary);
+        font-weight: 800;
+        text-decoration: underline;
+        text-underline-offset: 0.2rem;
+    }
+
+    .cycling-fueling :global(.fueling-stop-card span) {
+        display: block;
+        margin-top: 0.1rem;
+        color: var(--muted-foreground);
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+        .cycling-fueling__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cycling-fueling__side {
+            position: static;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .cycling-fueling__panel,
+        .cycling-fueling__result {
+            border-radius: 0.85rem;
+            padding: 1rem;
+        }
+
+        .cycling-fueling__fields,
+        .cycling-fueling__route-summary,
+        .cycling-fueling__metrics {
+            grid-template-columns: 1fr;
+        }
+
+        .cycling-fueling__actions {
+            display: grid;
+            align-items: stretch;
+        }
+
+        .cycling-fueling__map {
+            min-height: 22rem;
+        }
+    }
+</style>

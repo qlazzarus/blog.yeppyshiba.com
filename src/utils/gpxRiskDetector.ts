@@ -1,4 +1,4 @@
-import { bearingDegrees, gradePercent, midpoint, turnAngleDegrees } from './gpxGeo';
+import { bearingDegrees, midpoint, turnAngleDegrees } from './gpxGeo';
 import type { GpxPoint, GpxRiskSegment, RiskSeverity, RiskType } from './gpxRiskTypes';
 
 interface RiskDetectorOptions {
@@ -10,6 +10,15 @@ interface RiskDetectorOptions {
     longDescentMaxGrade: number;
     sharpCurveAngle: number;
     minSegmentDistance: number;
+    gradeSampleDistance: number;
+    curveSampleDistance: number;
+    maxReliableGrade: number;
+}
+
+interface GradeSample {
+    startIndex: number;
+    endIndex: number;
+    grade: number | null;
 }
 
 const DEFAULT_OPTIONS: RiskDetectorOptions = {
@@ -21,6 +30,9 @@ const DEFAULT_OPTIONS: RiskDetectorOptions = {
     longDescentMaxGrade: -6,
     sharpCurveAngle: 70,
     minSegmentDistance: 30,
+    gradeSampleDistance: 50,
+    curveSampleDistance: 25,
+    maxReliableGrade: 25,
 };
 
 export function detectGpxRisks(
@@ -28,10 +40,12 @@ export function detectGpxRisks(
     options: Partial<RiskDetectorOptions> = {},
 ): GpxRiskSegment[] {
     const opts = { ...DEFAULT_OPTIONS, ...options };
+    const gradeSamples = buildGradeSamples(points, opts);
 
     const risks: GpxRiskSegment[] = [
         ...detectGradeSegments(
             points,
+            gradeSamples,
             'steep-uphill',
             opts.steepUphillGrade,
             Infinity,
@@ -39,13 +53,14 @@ export function detectGpxRisks(
         ),
         ...detectGradeSegments(
             points,
+            gradeSamples,
             'steep-downhill',
             -Infinity,
             opts.steepDownhillGrade,
             opts.minSegmentDistance,
         ),
-        ...detectLongClimb(points, opts),
-        ...detectLongDescent(points, opts),
+        ...detectLongClimb(points, gradeSamples, opts),
+        ...detectLongDescent(points, gradeSamples, opts),
         ...detectSharpCurves(points, opts),
     ];
 
@@ -57,6 +72,7 @@ export function detectGpxRisks(
 
 function detectGradeSegments(
     points: GpxPoint[],
+    samples: GradeSample[],
     type: 'steep-uphill' | 'steep-downhill',
     minGrade: number,
     maxGrade: number,
@@ -64,27 +80,29 @@ function detectGradeSegments(
 ): GpxRiskSegment[] {
     const risks: GpxRiskSegment[] = [];
     let startIndex: number | null = null;
+    let endIndex: number | null = null;
     let grades: number[] = [];
 
-    for (let i = 1; i < points.length; i++) {
-        const grade = gradePercent(points[i - 1], points[i]);
+    for (const sample of samples) {
+        const grade = sample.grade;
         const matched = grade != null && grade >= minGrade && grade <= maxGrade;
 
         if (matched) {
-            if (startIndex == null) startIndex = i - 1;
+            if (startIndex == null) startIndex = sample.startIndex;
+            endIndex = sample.endIndex;
             grades.push(grade);
         } else if (startIndex != null) {
-            const endIndex = i - 1;
             pushGradeRisk(
                 risks,
                 points,
                 startIndex,
-                endIndex,
+                endIndex ?? startIndex,
                 grades,
                 type,
                 minDistance,
             );
             startIndex = null;
+            endIndex = null;
             grades = [];
         }
     }
@@ -94,7 +112,7 @@ function detectGradeSegments(
             risks,
             points,
             startIndex,
-            points.length - 1,
+            endIndex ?? startIndex,
             grades,
             type,
             minDistance,
@@ -106,10 +124,12 @@ function detectGradeSegments(
 
 function detectLongClimb(
     points: GpxPoint[],
+    samples: GradeSample[],
     opts: RiskDetectorOptions,
 ): GpxRiskSegment[] {
     return detectLongGradeRange(
         points,
+        samples,
         'long-climb',
         opts.longClimbMinGrade,
         Infinity,
@@ -119,10 +139,12 @@ function detectLongClimb(
 
 function detectLongDescent(
     points: GpxPoint[],
+    samples: GradeSample[],
     opts: RiskDetectorOptions,
 ): GpxRiskSegment[] {
     return detectLongGradeRange(
         points,
+        samples,
         'long-descent',
         -Infinity,
         opts.longDescentMaxGrade,
@@ -132,6 +154,7 @@ function detectLongDescent(
 
 function detectLongGradeRange(
     points: GpxPoint[],
+    samples: GradeSample[],
     type: 'long-climb' | 'long-descent',
     minGrade: number,
     maxGrade: number,
@@ -139,27 +162,29 @@ function detectLongGradeRange(
 ): GpxRiskSegment[] {
     const risks: GpxRiskSegment[] = [];
     let startIndex: number | null = null;
+    let endIndex: number | null = null;
     let grades: number[] = [];
 
-    for (let i = 1; i < points.length; i++) {
-        const grade = gradePercent(points[i - 1], points[i]);
+    for (const sample of samples) {
+        const grade = sample.grade;
         const matched = grade != null && grade >= minGrade && grade <= maxGrade;
 
         if (matched) {
-            if (startIndex == null) startIndex = i - 1;
+            if (startIndex == null) startIndex = sample.startIndex;
+            endIndex = sample.endIndex;
             grades.push(grade);
         } else if (startIndex != null) {
-            const endIndex = i - 1;
             pushGradeRisk(
                 risks,
                 points,
                 startIndex,
-                endIndex,
+                endIndex ?? startIndex,
                 grades,
                 type,
                 minDistance,
             );
             startIndex = null;
+            endIndex = null;
             grades = [];
         }
     }
@@ -169,7 +194,7 @@ function detectLongGradeRange(
             risks,
             points,
             startIndex,
-            points.length - 1,
+            endIndex ?? startIndex,
             grades,
             type,
             minDistance,
@@ -184,29 +209,31 @@ function detectSharpCurves(
     opts: RiskDetectorOptions,
 ): GpxRiskSegment[] {
     const risks: GpxRiskSegment[] = [];
+    const sampledPoints = samplePointsByDistance(points, opts.curveSampleDistance);
 
-    for (let i = 1; i < points.length - 1; i++) {
-        const angle = turnAngleDegrees(points[i - 1], points[i], points[i + 1]);
+    for (let i = 1; i < sampledPoints.length - 1; i++) {
+        const previous = sampledPoints[i - 1];
+        const center = sampledPoints[i];
+        const next = sampledPoints[i + 1];
+        const angle = turnAngleDegrees(previous, center, next);
 
         if (angle >= opts.sharpCurveAngle) {
-            const center = points[i];
-            const heading = bearingDegrees(points[i - 1], points[i + 1]);
+            const heading = bearingDegrees(previous, next);
 
             risks.push({
                 id: '',
                 type: 'sharp-curve',
                 title: '급커브 구간',
                 description: `진행 방향이 약 ${angle.toFixed(0)}° 꺾이는 구간입니다. 다운힐과 겹치면 감속이 필요합니다.`,
-                startIndex: i - 1,
-                endIndex: i + 1,
-                startLat: points[i - 1].lat,
-                startLng: points[i - 1].lng,
+                startIndex: points.indexOf(previous),
+                endIndex: points.indexOf(next),
+                startLat: previous.lat,
+                startLng: previous.lng,
                 centerLat: center.lat,
                 centerLng: center.lng,
-                endLat: points[i + 1].lat,
-                endLng: points[i + 1].lng,
-                distance:
-                    points[i + 1].distanceFromStart - points[i - 1].distanceFromStart,
+                endLat: next.lat,
+                endLng: next.lng,
+                distance: next.distanceFromStart - previous.distanceFromStart,
                 curveAngle: angle,
                 heading,
                 severity: angle >= 100 ? 'high' : 'medium',
@@ -215,6 +242,64 @@ function detectSharpCurves(
     }
 
     return risks;
+}
+
+function buildGradeSamples(points: GpxPoint[], opts: RiskDetectorOptions): GradeSample[] {
+    const samples: GradeSample[] = [];
+    let startIndex = 0;
+
+    for (let index = 1; index < points.length; index += 1) {
+        const start = points[startIndex];
+        const end = points[index];
+        const distance = end.distanceFromStart - start.distanceFromStart;
+
+        if (distance < opts.gradeSampleDistance) continue;
+
+        samples.push({
+            startIndex,
+            endIndex: index,
+            grade: getReliableGrade(start, end, distance, opts.maxReliableGrade),
+        });
+        startIndex = index;
+    }
+
+    return samples;
+}
+
+function getReliableGrade(
+    start: GpxPoint,
+    end: GpxPoint,
+    distance: number,
+    maxReliableGrade: number,
+): number | null {
+    if (start.ele == null || end.ele == null || distance < 1) return null;
+
+    const grade = ((end.ele - start.ele) / distance) * 100;
+
+    if (Math.abs(grade) > maxReliableGrade) return null;
+
+    return grade;
+}
+
+function samplePointsByDistance(points: GpxPoint[], distance: number): GpxPoint[] {
+    if (points.length <= 2) return points;
+
+    const sampled = [points[0]];
+    let previous = points[0];
+
+    for (let index = 1; index < points.length - 1; index += 1) {
+        const point = points[index];
+
+        if (point.distanceFromStart - previous.distanceFromStart >= distance) {
+            sampled.push(point);
+            previous = point;
+        }
+    }
+
+    const last = points[points.length - 1];
+    if (sampled.at(-1) !== last) sampled.push(last);
+
+    return sampled;
 }
 
 function pushGradeRisk(
