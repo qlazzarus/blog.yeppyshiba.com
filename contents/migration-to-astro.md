@@ -5,16 +5,11 @@ summary: Next.js 기반 정적 블로그를 Astro + Tailwind로 이주하면서 
 category: coding
 image: https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?fm=jpg&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29mZmVlJTIwbGFwdG9wfGVufDB8fDB8fHww&ixlib=rb-4.1.0&q=60&w=3000
 tags:
-  - analytics
-  - astro
-  - coding
-  - gatsby
-  - git
-  - migration
-  - nextjs
-  - static-site
-  - tailwind
-  - to
+    - astro
+    - tailwind
+    - 블로그이전
+    - static-site
+    - migration
 ---
 
 ## 또 이사냐고요? 네, 또 이사입니다.

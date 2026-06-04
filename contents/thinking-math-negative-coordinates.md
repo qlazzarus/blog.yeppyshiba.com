@@ -4,17 +4,11 @@ date: 2026-02-04T10:00:00+09:00
 summary: 숫자에 위치를 붙였을 때, 왜 좌표는 양수에서 멈추지 않았을까? 공간에 ‘마이너스’가 필요해진 이유를 따라가 본다.
 category: math
 tags:
-    - coordinates
-    - negative
-    - direction
-    - symmetry
-    - origin
-    - extension
-    - geometry
-    - space
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 좌표
+    - 음수
+    - 기하
+    - 공간
 image: https://images.openai.com/static-rsc-3/7O5F8jWCy9dtLsRjEL5IrgI-lXwAocYG80m4dUo0--yXZAeFttg44DKw2AY5p73BI45dUbvDn2wrzcAhjoZafbDcUu1RjiLFJNF1W7TV7tQ?purpose=fullsize
 ---
 
@@ -33,7 +27,6 @@ image: https://images.openai.com/static-rsc-3/7O5F8jWCy9dtLsRjEL5IrgI-lXwAocYG80
 
 > **왼쪽은?**
 > **아래쪽은?**
-
 ---
 
 ## 기준이 생기면 반대도 생긴다

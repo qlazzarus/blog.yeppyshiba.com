@@ -5,13 +5,10 @@ category: essay
 summary: 삶이 먼저 움직였던 한 해
 image: https://images.unsplash.com/photo-1500530855697-b586d89ba3ee
 tags:
+    - 회고
     - 2025
-    - back
-    - in
-    - laravel
-    - look
-    - look-back
-    - essay
+    - 삶의기록
+    - 장기계획
 ---
 
 # 2025 연말회고 — 삶이 먼저 움직였던 한 해

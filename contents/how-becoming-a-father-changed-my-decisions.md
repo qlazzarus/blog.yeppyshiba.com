@@ -5,15 +5,11 @@ category: essay
 summary: 소비, 시간, 리스크까지. 아이가 생기고 나서 내 선택 기준이 어떻게 달라졌는지 정리해봤다.
 image: https://images.unsplash.com/photo-1560328055-e938bb2ed50a?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZmF0aGVyJTIwYW5kJTIwc29ufGVufDB8fDB8fHww
 tags:
-    - essay
-    - retrospective
-    - fatherhood
-    - life
-    - mindset
-    - family
-    - decision
-    - planning
-    - 2026
+    - 육아
+    - 가족
+    - 삶의기준
+    - 의사결정
+    - 장기계획
 ---
 
 아이를 낳고 나서 삶이 크게 바뀔 거라고는 생각했다.  

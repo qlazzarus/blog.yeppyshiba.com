@@ -1,6 +1,7 @@
 ---
 import StructuredData from './StructuredData.astro';
 import { SITE_TITLE } from '@/consts';
+import { getPublicTags } from '@/utils/tags';
 
 interface Props {
     title: string;
@@ -41,7 +42,8 @@ function toAbsoluteUrl(src?: string) {
 }
 
 const ogImage = toAbsoluteUrl(image);
-const keywords = tags.map((tag) => String(tag)).filter(Boolean).join(', ');
+const seoTags = getPublicTags(tags).map((tag) => tag.label);
+const keywords = seoTags.join(', ');
 ---
 
 <!-- Global Metadata -->
@@ -104,6 +106,6 @@ const keywords = tags.map((tag) => String(tag)).filter(Boolean).join(', ');
     breadcrumbs={breadcrumbs}
     datePublished={datePublished}
     dateModified={dateModified}
-    tags={tags}
+    tags={seoTags}
     category={category}
 />

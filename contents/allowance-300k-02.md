@@ -5,15 +5,11 @@ summary: 직장인 한달 용돈 30만원 실험 2주차 결산. 남은 식권, 
 category: finance
 image: https://images.unsplash.com/photo-1554224155-6726b3ff858f
 tags:
-    - allowance
-    - budget
-    - saving
-    - 직장인용돈
+    - 용돈30만원
     - 생활비절약
     - 식비절약
     - 교통비절약
-    - 직장인절약
-    - 용돈관리
+    - 예산관리
 ---
 
 ## 직장인 용돈 30만원 실험, 2주차까지 왔다

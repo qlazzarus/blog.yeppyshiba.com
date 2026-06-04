@@ -1,22 +1,16 @@
 ---
 title: php 로 IntegerArray 구현하기
 date: 2019-11-27T14:52:00.000Z
-summary: 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다. 
- 그러다보니 php 개발자들은 배열을 배열처럼 쓰지 않고 Hash Table 처럼 이용하는 분들이 많습니다.  
- (나쁜거 아니에요!)
+summary: 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다.
+    그러다보니 php 개발자들은 배열을 배열처럼 쓰지 않고 Hash Table 처럼 이용하는 분들이 많습니다.
+    (나쁜거 아니에요!)
 category: coding
-image: https://raw.githubusercontent.com/security-checklist/php-security-check-list/master//image/php-image.png
 tags:
-  - analytics
-  - array
-  - coding
-  - dev
-  - git
-  - implementation
-  - integer
-  - iterator
-  - nextjs
-  - php
+    - php
+    - 자료구조
+    - iterator
+    - array
+    - 구현기록
 ---
 
 기본적으로 PHP 의 배열은 일반적인 ArrayList 구현이 아니라, Hash Table 입니다.  

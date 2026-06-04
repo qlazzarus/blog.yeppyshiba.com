@@ -6,13 +6,11 @@ category: coding
 image: /images/posts/202605/phaser4-ecs.png
 tags:
     - phaser
-    - phaser3
     - phaser4
     - ecs
     - migration
     - game-dev
     - javascript
-    - coding
 ---
 
 # Phaser 3 -> 4 실전 코드 변환편 (이동/점프/공격 로직)

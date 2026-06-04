@@ -5,13 +5,11 @@ summary: 로컬 GPX 파일을 브라우저에서만 읽어 거리, 획득고도,
 category: coding
 image: /images/rides/202605/dahon_dash_d16.png
 tags:
-    - GPX
+    - gpx
     - 자전거
     - 라이딩
     - 카카오지도
-    - Astro
-    - JavaScript
-    - cycling
+    - astro
     - tool
 ---
 

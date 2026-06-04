@@ -5,22 +5,12 @@ summary: 앱 하나만 집중하는 대신 여러 앱을 생활 속에서 함께
 category: finance
 image: /images/posts/202605/apptech-cover.png
 tags:
-    - finance
-    - apptech
-    - side-income
-    - pocket-money
-    - toss
-    - kakaobank
-    - kbank
-    - banksalad
-    - hanamoney
-    - monimo
-    - daangn
     - 앱테크
     - 용돈벌기
     - 생활비절약
     - 현금화
-    - 모니모
+    - 짠테크
+    - 예산관리
 ---
 
 # 앱테크로 용돈 만드는 루틴

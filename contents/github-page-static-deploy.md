@@ -7,18 +7,11 @@ summary: github page 기능을 이용해서 수많은 사람들이 블로그로 
   그런 사람을 위해서 준비했습니다!
 image: https://images.velog.io/images/youngerjesus/post/5b9f5629-efd2-4a03-91da-052c63109ed9/github%20actions.png
 tags:
-  - cd
-  - ci
-  - coding
-  - deploy
-  - dev
-  - git
-  - github
-  - github page
-  - jekyll
-  - page
-  - static
-  - vue
+    - github-actions
+    - github-pages
+    - static-deploy
+    - ci-cd
+    - jekyll
 ---
 
 ## 들어가며

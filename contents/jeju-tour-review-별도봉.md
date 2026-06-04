@@ -6,17 +6,11 @@ category: review
 image: /images/posts/202206/byeoldobong-enter-04.jpeg
 embeddedImagesLocal: /images/posts/202206/byeoldobong-enter-04.jpeg
 tags:
-  - climb
-  - jeju
-  - olle trail
-  - review
-  - tour
-  - 별도봉
-  - 애기업은돌
-  - 여행
-  - 오름
-  - 올레길
-  - 제주
+    - 제주
+    - 별도봉
+    - 오름
+    - 올레길
+    - 여행리뷰
 parcelAddress: 제주특별자치도 제주시 화북일동 4472
 lat: 33.5192040447641
 lng: 126.553040458153

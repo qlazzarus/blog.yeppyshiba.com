@@ -5,16 +5,12 @@ summary: 강화도 동막해수욕장 근처에 위치한 보스턴수제버거 
 category: review
 image: /images/posts/202606/boston-burger-dongmak-01.jpeg
 tags:
-    - ganghwa
-    - dongmak-beach
-    - boston-burger
-    - handmade-burger
-    - ocean-view
-    - 강화도맛집
-    - 동막해수욕장맛집
-    - 보스턴수제버거
-    - 강화도수제버거
+    - 강화도
+    - 동막해수욕장
+    - 수제버거
     - 바다뷰맛집
+    - 맛집리뷰
+    - 강화도여행
 
 parcelAddress: 인천 강화군 화도면 해안남로 1538-1
 lat: 37.59427269427646

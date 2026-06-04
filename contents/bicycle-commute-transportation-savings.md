@@ -7,13 +7,9 @@ image: https://commons.wikimedia.org/wiki/Special:FilePath/Bike%20in%20the%20Rai
 tags:
     - 자전거출퇴근
     - 교통비절약
-    - 직장인절약
     - 생활비절약
-    - 용돈관리
-    - 직장인용돈
-    - 자전거
-    - 출퇴근
-    - saving
+    - 직장인절약
+    - 예산관리
 ---
 
 ## 자전거 출퇴근은 정말 교통비 절약이 될까?

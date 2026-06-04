@@ -4,16 +4,11 @@ date: 2026-01-24T10:00:00+09:00
 summary: 같지 않다는 말은 왜 화살표가 되었을까? 부등식이 숫자에 ‘방향’을 부여하는 이유를 차분히 따라가 본다.
 category: math
 tags:
-    - inequality
-    - direction
-    - order
-    - comparison
-    - boundary
-    - algebra
-    - logic
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 부등식
+    - 대수
+    - 비교
+    - 방향
 image: https://images.cdn.sofatutor.net/videos/pictures/21565/normal/US21565.jpg?1482422220=
 ---
 
@@ -34,7 +29,6 @@ x ≤ 10
 
 > 같지 않다는 말이
 > 왜 방향을 가져야 할까?
-
 ---
 
 ## ‘같다’가 무너지는 순간

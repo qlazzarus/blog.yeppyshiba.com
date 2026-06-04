@@ -6,16 +6,10 @@ category: coding
 image: /images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
 embeddedImagesLocal: /images/posts/202206/justin-morgan-_Lnid7JAWFQ-unsplash.jpg
 tags:
-  - adding
-  - analytics
-  - coding
-  - count
-  - dev
-  - gatsby
-  - git
-  - google analytics
-  - in
-  - view
+    - gatsby
+    - google-analytics
+    - 조회수
+    - 블로그개발
 ---
 
 ## 서론

@@ -6,20 +6,11 @@ category: review
 image: '/images/posts/202605/uiwang-serendipity-03.jpeg'
 
 tags:
-    - uiwang
-    - uiwang-cafe
-    - serendipity
-    - drip-coffee
-    - coffee
-    - cafe-review
+    - 의왕
     - 의왕카페
-    - 의왕맛집
-    - 의왕드립커피
-    - 세렌디피티
-    - 내손동카페
-    - 모락산카페
-    - 백운호수카페
-    - uiwang-drive
+    - 드립커피
+    - 조용한카페
+    - 카페리뷰
 
 parcelAddress: 경기도 의왕시 능안길 148
 lat: 37.37150354772746
@@ -40,7 +31,6 @@ lng: 126.98838002392415
 > Serendipity — 우연히 발견한 뜻밖의 행운
 
 메뉴판과 머그컵에도 같은 메시지가 반복되는데, 단순한 인테리어 요소라기보다 공간 컨셉 자체처럼 느껴졌다.
-
 ---
 
 ## 공간 분위기 — 오래 앉아도 부담 없는 조용함

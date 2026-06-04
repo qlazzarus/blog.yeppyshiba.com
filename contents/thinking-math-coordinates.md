@@ -4,16 +4,11 @@ date: 2026-01-25T10:00:00+09:00
 summary: 숫자에 왜 위치를 붙이게 되었을까? 좌표가 등장한 순간, 수학이 ‘값’에서 ‘장소’를 다루기 시작한 이유를 따라가 본다.
 category: math
 tags:
-    - coordinates
-    - position
-    - plane
-    - axis
-    - graph
-    - geometry
-    - representation
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 좌표
+    - 그래프
+    - 기하
+    - 표현
 image: https://study.com/cimages/multimages/16/axisgraph3795074999033209767.png
 ---
 
@@ -34,7 +29,6 @@ image: https://study.com/cimages/multimages/16/axisgraph3795074999033209767.png
 - (x, y)
 
 좌표는 왜 필요해졌을까?
-
 ---
 
 ## 숫자는 크기만 말해준다

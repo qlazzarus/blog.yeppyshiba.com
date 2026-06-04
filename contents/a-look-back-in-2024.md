@@ -5,14 +5,10 @@ category: essay
 summary: 시니어 개발자로서의 성장과 개인적인 변화들
 embeddedImagesLocal: /images/posts/202411/my_year_in_review.jpg
 tags:
+    - 회고
     - 2024
-    - back
-    - docker
-    - git
-    - in
-    - look
-    - look-back
-    - essay
+    - 성장
+    - 삶의기록
 ---
 
 ## 나는 어디에 있는가

@@ -3,6 +3,7 @@ import Layout from '@/layouts/BaseLayout.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
 import { getCollection } from 'astro:content';
 import { generateSeededSvg } from '../utils/placeholderThumbnail.js';
+import { getPostsByTag } from '@/utils/tags';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -127,9 +128,7 @@ const fallbackEntries = fallback.map((item) => {
     // If the path is /tag/{name}, try to find a recent blog post with that tag
     if (parts[0] === 'tag' && parts[1]) {
         const tag = parts[1];
-        const found = blog.find(
-            (b) => (b.data.tags || []).includes(tag) && b.data.image,
-        );
+        const found = getPostsByTag(blog, tag).find((b) => b.data.image);
         if (found) image = found.data.image;
     }
 

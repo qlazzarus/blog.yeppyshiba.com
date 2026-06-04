@@ -6,12 +6,10 @@ summary: SWIM(SYSTEM WIDE INFORMATION MANAGEMENT)이 왜 필요한지, EUROCONTR
 image: /images/posts/202604/why-swim.png
 tags:
     - swim
-    - aviation
-    - eurocontrol
+    - 항공시스템
     - icao
-    - system-integration
-    - api
-    - middleware
+    - eurocontrol
+    - 시스템통합
     - air-traffic
 ---
 

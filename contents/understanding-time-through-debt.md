@@ -5,15 +5,11 @@ category: finance
 summary: 대출은 단순히 빚이 아니라 시간과 선택을 바꾸는 구조였다. 이자를 계산하면서 처음으로 '시간의 가격'을 이해하게 됐다.
 image: https://commons.wikimedia.org/wiki/Special:FilePath/People%20Group%20Silhouette%20Sunset%20%28Unsplash%29.jpg
 tags:
-    - essay
-    - retrospective
-    - finance
-    - loan
-    - debt
-    - mindset
-    - time
-    - planning
-    - 2026
+    - 대출
+    - 시간관리
+    - 삶의기준
+    - 장기계획
+    - 재무계획
 ---
 
 예전에는 대출을 그냥 ‘빚’이라고 생각했다.  

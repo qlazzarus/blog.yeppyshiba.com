@@ -5,18 +5,12 @@ summary: 신생아 특례대출로 대환한 뒤 올해와 내년에 각각 1000
 category: finance
 image: /images/posts/202606/mortgage-prepayment-plan-cover.png
 tags:
-    - mortgage
-    - mortgage-payoff
-    - newborn-loan
-    - refinance
-    - mortgage-calculator
-    - prepayment
     - 신생아특례대출
     - 주택담보대출
     - 조기상환
     - 대출상환
-    - 원금상환
     - 대환대출
+    - 계산기
 ---
 
 ## 출산 후 신생아 특례대출로 갈아탔다

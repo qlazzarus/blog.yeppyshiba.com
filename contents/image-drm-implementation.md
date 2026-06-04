@@ -5,14 +5,11 @@ category: coding
 summary: 최근에 이미지 DRM 에 대한 관심으로, 구현 방법을 PoC 진행한 내용입니다.
 image: https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
 tags:
-  - coding
-  - dev
-  - drm
-  - git
-  - image
-  - image-drm
-  - implementation
-  - javascript
+    - javascript
+    - 이미지처리
+    - drm
+    - 커스텀포맷
+    - 브라우저
 ---
 
 # 이미지 DRM 구현을 위한 커스텀 컨테이너 접근

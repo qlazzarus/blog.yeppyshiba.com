@@ -4,13 +4,11 @@ date: 2026-01-22T10:00:00+09:00
 summary: x는 왜 숫자처럼 취급될까? 문자가 계산의 자리에 올라서게 된 이유를 따라가며, 수학이 복잡함을 다루는 방식을 생각해본다.
 category: math
 tags:
-    - algebra
-    - variables
-    - abstraction
-    - math
-    - logic
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 문자와식
+    - 대수
+    - 추상화
+    - 수학적사고
 image: https://m.media-amazon.com/images/I/51LCqSo0TbL._AC_UF894%2C1000_QL80_.jpg
 ---
 
@@ -29,7 +27,6 @@ image: https://m.media-amazon.com/images/I/51LCqSo0TbL._AC_UF894%2C1000_QL80_.jp
 - x는 숫자가 아닌데
 - 값을 모르는 기호인데
 - 왜 계산을 할 수 있을까?
-
 ---
 
 ## 숫자로는 부족해진 순간
