@@ -4,15 +4,11 @@ date: 2026-01-23T10:00:00+09:00
 summary: 등호는 왜 항상 가운데에 서 있을까? 방정식을 ‘계산 문제’가 아니라 ‘균형의 약속’으로 바라보며, 수학이 관계를 다루는 방식을 생각해본다.
 category: math
 tags:
-    - equation
-    - balance
-    - equality
-    - algebra
-    - logic
-    - abstraction
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 방정식
+    - 대수
+    - 균형
+    - 수학적사고
 image: https://thethinkingdesk.com/cdn/shop/files/Sit_to_Stand.png?v=1761539022
 ---
 
@@ -38,7 +34,6 @@ x + 3 = 10
 
 > **왜 항상 ‘옮긴다’고 말할까?**
 > **왜 등호는 늘 가운데에 있을까?**
-
 ---
 
 ## 등호는 계산 기호가 아니다

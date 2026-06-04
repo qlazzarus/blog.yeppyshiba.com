@@ -4,18 +4,11 @@ date: 2026-02-05T10:00:00+09:00
 summary: x축과 y축이 만나는 순간, 공간은 왜 네 조각으로 나뉘었을까? 좌표평면이 4사분면이 된 이유를 차분히 따라가 본다.
 category: math
 tags:
-    - quadrant
-    - coordinate-plane
-    - axis
-    - sign
-    - symmetry
-    - classification
-    - direction
-    - geometry
-    - space
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 좌표
+    - 사분면
+    - 기하
+    - 방향
 image: https://www.red17.co.uk/media/wysiwyg/Blog_Pics/Topics/10_Best_Colour_Combinations_for_Sign_Boards/colour_combinations_abstract_art_pic_cropped_with_text.jpg
 ---
 
@@ -37,7 +30,6 @@ image: https://www.red17.co.uk/media/wysiwyg/Blog_Pics/Topics/10_Best_Colour_Com
 
 > **왜 하필 네 칸일까?**
 > **세 칸도, 다섯 칸도 아닌데?**
-
 ---
 
 ## 축이 두 개라는 선택

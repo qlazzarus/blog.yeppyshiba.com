@@ -8,16 +8,11 @@ summary:
     이번 기회에 저처럼 자주 이러저리 옮겨다니는 사람들을 위해 이번 내용을 작성하게 되었습니다.
 image: https://images.velog.io/images/foreverchoi0706/post/4e2a22b7-0b84-438f-aac9-040922930912/075c8694.jpeg
 tags:
-  - and
-  - coding
-  - dev
-  - docker
-  - jekyll
-  - linux
-  - vscode
-  - windows
-  - with
-  - wsl2
+    - jekyll
+    - docker
+    - wsl2
+    - vscode
+    - 블로그개발
 ---
 
 ## 계기

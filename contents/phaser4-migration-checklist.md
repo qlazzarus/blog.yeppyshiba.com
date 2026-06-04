@@ -6,13 +6,11 @@ category: coding
 image: /images/posts/202604/phaser4-migration.png
 tags:
     - phaser
-    - phaser3
     - phaser4
     - migration
     - game-dev
     - javascript
     - webgame
-    - coding
 ---
 
 # Phaser 4 마이그레이션 체크리스트 (Phaser 3 -> 4)

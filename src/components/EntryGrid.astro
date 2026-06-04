@@ -1,8 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { slugify } from 'transliteration';
 import FormattedDate from './FormattedDate.astro';
 import generatePlaceholder from '../utils/placeholderThumbnail.js';
+import { sortDisplayTags } from '@/utils/tags';
 
 interface Props {
     entries?: CollectionEntry<'blog'>[];
@@ -88,14 +88,16 @@ const getViewCount = (postId: string) =>
 
                     <div>
                         <div class='mb-2 flex flex-wrap gap-2'>
-                            {post.data.tags?.slice(0, 5).map((tag) => (
-                                <a
-                                    href={`/tag/${slugify(String(tag))}/`}
-                                    class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-xs'
-                                >
-                                    {tag}
-                                </a>
-                            ))}
+                            {sortDisplayTags(post.data.tags)
+                                .slice(0, 5)
+                                .map((tag) => (
+                                    <a
+                                        href={`/tag/${tag.slug}/`}
+                                        class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-xs'
+                                    >
+                                        {tag.label}
+                                    </a>
+                                ))}
                         </div>
 
                         <div class='text-muted-foreground flex items-center justify-between text-xs'>

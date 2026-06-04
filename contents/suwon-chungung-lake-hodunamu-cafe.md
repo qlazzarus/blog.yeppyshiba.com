@@ -5,15 +5,11 @@ category: review
 summary: 하남 춘궁저수지 바로 앞, 통창 뷰가 인상적인 호두나무카페 방문 후기. 자연 속에서 여유를 즐기기 좋은 카페.
 image: /images/posts/202604/hodunamu-01.jpeg
 tags:
-    - suwon
-    - cafe
-    - gwanggyo
-    - review
-    - korea
-    - healing
-    - lakeview
-    - nature
-    - coffee
+    - 하남
+    - 춘궁저수지
+    - 카페
+    - 호수뷰
+    - 카페리뷰
 parcelAddress: 경기도 하남시 서하남로390번길 96
 lat: 37.520659660
 lng: 127.185643293
@@ -27,7 +23,6 @@ lng: 127.185643293
 ![호두나무카페 외관](/images/posts/202604/hodunamu-01.jpeg)
 
 👉 나무와 어우러진 분위기가 인상적인 카페
-
 ---
 
 ## 🌊 통창으로 보이는 저수지 뷰

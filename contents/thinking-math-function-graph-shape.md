@@ -4,18 +4,11 @@ date: 2026-01-30T10:00:00+09:00
 summary: 식은 한 줄인데, 그래프는 왜 저런 모양이 될까? 함수의 그래프가 ‘모양’을 갖게 되는 이유를 차분히 따라가 본다.
 category: math
 tags:
-    - function
-    - graph
-    - shape
-    - change
-    - curve
-    - linear
-    - nonlinear
-    - continuity
-    - abstraction
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 함수
+    - 그래프
+    - 변화
+    - 연속성
 image: https://cdn.kastatic.org/ka-perseus-graphie/f04d60915d578cad7df3f650f91d98e72f04a6da.svg
 ---
 
@@ -34,7 +27,6 @@ image: https://cdn.kastatic.org/ka-perseus-graphie/f04d60915d578cad7df3f650f91d9
 
 > **왜 식 하나가
 > 저런 ‘모양’을 갖게 될까?**
-
 ---
 
 ## 그래프는 ‘값’이 아니라 ‘변화’를 그린다

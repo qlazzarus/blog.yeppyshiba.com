@@ -6,22 +6,12 @@ category: review
 image: '/images/posts/202605/uiwang-1981-chopyeong-gyeongyang-05.jpeg'
 
 tags:
-    - uiwang
-    - uiwang-restaurant
-    - uiwang-donkatsu
-    - donkatsu
-    - hamburger-steak
-    - korean-western
-    - retro-restaurant
-    - restaurant-review
-    - 1981-chopyeong-gyeongyang
-    - 초평경양
+    - 의왕
     - 의왕맛집
-    - 의왕돈까스
-    - 의왕경양식
-    - 왕송호수맛집
-    - 왕돈까스
-    - 함박스테이크
+    - 돈까스
+    - 경양식
+    - 왕송호수
+    - 맛집리뷰
 
 parcelAddress: 경기도 의왕시 초평로 49-1
 lat: 37.31573209323514

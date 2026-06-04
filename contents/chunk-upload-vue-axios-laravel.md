@@ -3,20 +3,13 @@ title: axios와 vue를 이용한 분할 업로드
 date: 2019-06-20T01:00:00.000Z
 summary: 파일 업로드 구현이야 많이들 해보셨겠지만 용량이 커진다면? 생각보다 신경쓸게 많아집니다.
 category: coding
-image: https://icon-library.com/images/icon-uploader/icon-uploader-2.jpg
 tags:
-  - axios
-  - chunk
-  - chunk upload
-  - coding
-  - dev
-  - git
-  - javascript
-  - laravel
-  - math
-  - php
-  - upload
-  - vue
+    - vue
+    - axios
+    - laravel
+    - php
+    - 파일업로드
+    - 분할업로드
 ---
 
 ## 들어가며

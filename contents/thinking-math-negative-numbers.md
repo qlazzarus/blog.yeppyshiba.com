@@ -4,12 +4,11 @@ date: 2026-01-10T16:00:00+09:00
 summary: 마이너스는 원래 없던 숫자였다. 셀 수 없는 것을 숫자로 만들기까지, 음수가 필요해진 순간들을 따라가 본다.
 category: math
 tags:
-  - hobby
-  - logic
-  - math
-  - negative
-  - numbers
-  - thinking
+    - 생각하는중등수학
+    - 음수
+    - 수체계
+    - 수학적사고
+    - 직관
 image: https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?fm=jpg&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2hpdGUlMjBhYnN0cmFjdHxlbnwwfHwwfHx8MA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000
 ---
 
@@ -29,7 +28,6 @@ image: https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?fm=jpg&ixid=M3w
 
 한때 수학에서도
 **음수는 존재하지 않는 숫자**였다.
-
 ---
 
 ## 숫자는 원래 세는 도구였다

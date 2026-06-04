@@ -5,13 +5,11 @@ category: review
 summary: 안양시 동안구 호성로에 위치한 이미돈까스 방문 후기. 바삭한 수제 돈까스와 가성비 메뉴, 실제 방문 사진 기반으로 정리했습니다.
 image: /images/posts/202604/anyang-imidon-01.jpeg
 tags:
-    - anyang
-    - donkatsu
-    - korean-food
-    - restaurant-review
-    - 안양맛집
+    - 안양
     - 동안구맛집
-    - 돈까스맛집
+    - 돈까스
+    - 가성비맛집
+    - 맛집리뷰
 parcelAddress: 경기도 안양시 동안구 호성로 3
 lat: 37.362545864
 lng: 126.962927931
@@ -28,7 +26,6 @@ lng: 126.962927931
 
 직접 방문해보니  
 요즘 프랜차이즈와는 다른 “동네 찐 맛집” 느낌이다.
-
 ---
 
 ## 📍 위치 / 접근성

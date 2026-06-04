@@ -4,12 +4,11 @@ date: 2026-01-13T09:30:00+09:00
 summary: 항공·UATM·SWIM 프로젝트에 처음 투입된 SI 개발자를 위한 입문 가이드.
 category: aviation
 tags:
-  - 01
-  - analytics
-  - aviation
-  - flight
-  - onboarding
-  - si
+    - 항공시스템
+    - SI
+    - 온보딩
+    - 시스템통합
+    - 신입개발자
 image: https://support.boeing.com/servlet/rtaImage?eid=ka20z000000LDzO&feoid=00N60000002h5I1&refid=0EM0z000000NLnn
 ---
 
@@ -22,7 +21,6 @@ image: https://support.boeing.com/servlet/rtaImage?eid=ka20z000000LDzO&feoid=00N
 >
 > “왜 이렇게 복잡한가?”에 대한 답을
 > **개념 → 구조 → 시스템 역할** 순서로 정리한다.
-
 ---
 
 ## 1. 항공 시스템은 왜 이렇게 복잡할까?

@@ -4,17 +4,11 @@ date: 2026-02-03T10:00:00+09:00
 summary: 하나의 규칙으로 설명되지 않는 순간들. 함수가 구간마다 다른 얼굴을 갖게 된 이유를 차분히 따라가 본다.
 category: math
 tags:
-    - piecewise
-    - interval
-    - function
-    - rule
-    - change
-    - continuity
-    - definition
-    - graph
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 함수
+    - 구간
+    - 그래프
+    - 연속성
 image: https://ds055uzetaobb.cloudfront.net/brioche/uploads/TV19LvokHL-group-58.svg?width=300
 ---
 
@@ -32,7 +26,6 @@ image: https://ds055uzetaobb.cloudfront.net/brioche/uploads/TV19LvokHL-group-58.
 **한 사람이 아니라 여러 사람**처럼 행동한다.
 
 > **왜 굳이 이렇게 나눠야 할까?**
-
 ---
 
 ## 하나의 규칙으로는 부족해진 순간

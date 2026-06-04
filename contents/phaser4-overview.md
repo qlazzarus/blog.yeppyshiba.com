@@ -9,9 +9,8 @@ tags:
     - phaser4
     - game-dev
     - javascript
-    - indie-game
     - webgame
-    - coding
+    - migration
 ---
 
 # Phaser 4 완전 정리 — Phaser 3와 뭐가 달라졌나?

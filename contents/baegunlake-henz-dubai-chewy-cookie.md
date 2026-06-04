@@ -5,16 +5,11 @@ summary: 백운호수 근처 헨지 카페에서 만난 ‘두바이쫀득쿠키
 category: review
 image: /images/posts/202601/henz-dubai-cookie-01.png
 tags:
-  - baegunlake
-  - bakery
-  - cafe
-  - chewy
-  - cookie
-  - dessert
-  - dubai
-  - dubai-chewy-cookie
-  - henz
-  - review
+    - 백운호수
+    - 카페
+    - 디저트
+    - 베이커리
+    - 두바이초콜릿
 parcelAddress: 경기 의왕시 백운중앙로5길 14 1층 101호
 lat: 37.3744241888312
 lng: 127.009818645912
@@ -32,7 +27,6 @@ lng: 127.009818645912
 
 ![henz](/images/posts/202601/henz-dubai-cookie-01.png)
 ![henz](/images/posts/202601/henz-dubai-cookie-02.png)
-
 ---
 
 두바이쫀득쿠키, 이름 그대로의 식감

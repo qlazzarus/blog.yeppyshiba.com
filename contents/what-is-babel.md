@@ -8,19 +8,12 @@ summary:
     점점 처음부터 차근 차근 만지면서, 내가 이걸 몰랐구나 이게 이런 뜻이었구나 새삼 느끼게 되었습니다.
 image: https://blog.kakaocdn.net/dn/dGyesV/btqE0BOfEnV/tFNI9i4mUKj4xQkhrnDFI1/img.png
 tags:
-  - analytics
-  - babel
-  - browser
-  - coding
-  - dev
-  - esnext
-  - is
-  - javascript
-  - nextjs
-  - polyfill
-  - typescript
-  - webpack
-  - what
+    - babel
+    - javascript
+    - typescript
+    - webpack
+    - polyfill
+    - 브라우저
 ---
 
 ## 들어가며

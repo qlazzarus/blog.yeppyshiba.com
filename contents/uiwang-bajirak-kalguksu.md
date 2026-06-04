@@ -5,16 +5,11 @@ category: review
 summary: 경기 의왕시 안양판교로에 위치한 전라도팥바지락칼국수 본점 방문 후기. 바지락 듬뿍 들어간 칼국수와 가성비, 실제 분위기까지 솔직하게 정리.
 image: /images/posts/202604/uiwang-bajirak-kalguksu-01.jpeg
 tags:
-    - uiwang
-    - kalguksu
-    - seafood
-    - bajirak
-    - restaurant
-    - review
-    - korean-food
+    - 의왕
     - 의왕맛집
     - 바지락칼국수
-    - 칼국수맛집
+    - 한식
+    - 맛집리뷰
 address: 경기 의왕시 안양판교로 379 1층
 lat: 37.392629882
 lng: 127.011804963
@@ -29,7 +24,6 @@ lng: 127.011804963
 
 처음엔 그냥 동네 식당 느낌이었는데  
 👉 먹어보니 **완전 제대로 된 집**
-
 ---
 
 ## 🍲 바지락 양이 말이 안됨

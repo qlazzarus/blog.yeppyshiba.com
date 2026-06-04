@@ -4,15 +4,11 @@ date: 2026-01-09T16:00:00+09:00
 summary: 중학교 때부터 당연하게 외워왔던 “0으로 나누면 안 된다”는 말. 계산이 아니라, 그 말이 의미하는 ‘생각의 이유’를 다시 천천히 따라가 본다.
 category: math
 tags:
-  - by
-  - division
-  - hobby
-  - logic
-  - math
-  - middle
-  - school
-  - thinking
-  - zero
+    - 생각하는중등수학
+    - 0으로나누기
+    - 나눗셈
+    - 수학적사고
+    - 논리
 image: https://i.etsystatic.com/22428314/r/il/312721/5131593181/il_fullxfull.5131593181_lsp2.jpg
 ---
 
@@ -28,7 +24,6 @@ image: https://i.etsystatic.com/22428314/r/il/312721/5131593181/il_fullxfull.513
 그리고 “당연하다”고 넘어갔던 질문들.
 
 ![Image](https://i.etsystatic.com/22428314/r/il/312721/5131593181/il_fullxfull.5131593181_lsp2.jpg)
-
 ---
 
 ## 너무 익숙한 말

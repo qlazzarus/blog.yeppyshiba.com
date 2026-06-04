@@ -4,18 +4,11 @@ date: 2026-01-30T09:00:00+09:00
 summary: 입력하면 출력이 나온다. 함수가 ‘기계’로 설명되기 시작한 이유를 따라가며, 수학이 관계를 다루는 방식을 생각해본다.
 category: math
 tags:
-    - function
-    - input
-    - output
-    - mapping
-    - relation
-    - machine
-    - domain
-    - range
-    - abstraction
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 함수
+    - 대응
+    - 정의역
+    - 치역
 image: https://mathinsight.org/media/image/image/function_machine.png
 ---
 
@@ -38,7 +31,6 @@ image: https://mathinsight.org/media/image/image/function_machine.png
 왜 함수는
 사람이나 규칙이 아니라
 **기계**처럼 설명될까?
-
 ---
 
 ## 관계가 많아지기 시작한 순간

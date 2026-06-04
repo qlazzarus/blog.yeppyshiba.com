@@ -1,44 +1,59 @@
 ---
 import { getCollection } from 'astro:content';
-import { slugify } from 'transliteration';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Footer from '@/components/Footer.astro';
+import { getVisibleTagEntries } from '@/utils/tags';
+import type { TagEntry } from '@/utils/tags';
 
 const posts = await getCollection('blog');
+const tagEntries = getVisibleTagEntries(posts);
+const tagTabs = [
+    { key: 'all', label: 'All' },
+    { key: 'topic', label: 'Topics' },
+    { key: 'series', label: 'Series' },
+    { key: 'place', label: 'Places' },
+    { key: 'tech', label: 'Tech' },
+    { key: 'finance', label: 'Finance' },
+    { key: 'lifestyle', label: 'Life' },
+] as const;
 
-// build counts per slug, and keep a display label for each slug
-const counts: Record<string, number> = {};
-const labels: Record<string, string> = {};
-posts.forEach((p) => {
-    const tags = p.data.tags ?? [];
-    tags.forEach((t) => {
-        const key = slugify(t);
-        counts[key] = (counts[key] || 0) + 1;
-        if (!labels[key]) labels[key] = String(t);
-    });
-});
+const entriesByTab = tagTabs
+    .map((tab) => ({
+        ...tab,
+        entries:
+            tab.key === 'all'
+                ? tagEntries
+                : tagEntries.filter(({ meta }) => meta.group === tab.key),
+    }))
+    .filter(({ entries }) => entries.length > 0);
 
-const tagEntries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+const counts = tagEntries.map(({ count }) => count);
+const minCount = counts.length ? Math.min(...counts) : 0;
+const maxCount = counts.length ? Math.max(...counts) : 0;
 
-const title = 'Tag Cloud';
-const description = 'Explore tags used in posts';
-
-// helper: map count to a 1..9 weight
-const mapCountToWeight = (count: number, min: number, max: number) => {
-    if (max === min) return 5;
-    return Math.round(1 + ((count - min) * (9 - 1)) / (max - min));
+const getTagWeight = (count: number) => {
+    if (maxCount === minCount) return 5;
+    return Math.round(1 + ((count - minCount) * 8) / (maxCount - minCount));
 };
 
-const getColorByIndex = (idx: number) => {
-    if (idx % 4 === 1) return '#c38';
-    if (idx % 3 === 1) return '#33a';
-    if (idx % 2 === 1) return '#181';
+const getColorByIndex = (index: number) => {
+    if (index % 4 === 1) return '#c38';
+    if (index % 3 === 1) return '#33a';
+    if (index % 2 === 1) return '#181';
     return '#a33';
 };
 
-const countsOnly = tagEntries.map(([, c]) => c);
-const maxCount = countsOnly.length ? Math.max(...countsOnly) : 0;
-const minCount = countsOnly.length ? Math.min(...countsOnly) : 0;
+const getTagStyle = ({ count }: TagEntry, index: number) => {
+    const weight = getTagWeight(count);
+    return {
+        color: getColorByIndex(index),
+        fontSize: `${0.85 + weight * 0.11}rem`,
+        fontWeight: String(420 + weight * 55),
+        opacity: String(0.72 + weight * 0.03),
+    };
+};
+
+const title = 'Tag Cloud';
+const description = 'Explore tags used in posts';
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
     { name: 'Tag', item: new URL('/tag/', Astro.site).toString() },
@@ -53,27 +68,93 @@ const breadcrumbs = [
             tagEntries.length === 0 ? (
                 <p class='text-center'>No tags found.</p>
             ) : (
-                <ul class='flex flex-wrap items-center justify-center gap-2'>
-                    {tagEntries.map(([slug, count], idx) => {
-                        const label = labels[slug] ?? slug;
-                        const weight = mapCountToWeight(count, minCount, maxCount);
-                        const color = getColorByIndex(idx);
-                        const fontSize = `${0.6 + weight * 0.12}rem`;
-                        return (
-                            <li class='mx-1 my-1'>
-                                <a
-                                    href={`/tag/${slug}/`}
-                                    class='inline-block px-1.5 py-0.5 transition-all'
-                                    style={{ color, fontSize }}
-                                    aria-label={`${label} (${count})`}
-                                >
-                                    {label}
-                                </a>
-                            </li>
-                        );
-                    })}
-                </ul>
+                <div class='tag-cloud-tabs'>
+                    <div
+                        class='border-border mb-6 flex flex-wrap justify-center gap-2 border-b pb-3'
+                        role='tablist'
+                        aria-label='Tag groups'
+                    >
+                        {entriesByTab.map((tab, index) => (
+                            <button
+                                type='button'
+                                class:list={[
+                                    'tag-cloud-tab rounded px-3 py-1.5 text-sm font-medium transition-colors',
+                                    index === 0
+                                        ? 'bg-foreground text-background'
+                                        : 'bg-muted text-muted-foreground hover:bg-muted-foreground hover:text-muted',
+                                ]}
+                                role='tab'
+                                aria-selected={index === 0 ? 'true' : 'false'}
+                                aria-controls={`tag-panel-${tab.key}`}
+                                id={`tag-tab-${tab.key}`}
+                                data-tag-tab={tab.key}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {entriesByTab.map((tab, index) => (
+                        <section
+                            id={`tag-panel-${tab.key}`}
+                            class='tag-cloud-panel'
+                            role='tabpanel'
+                            aria-labelledby={`tag-tab-${tab.key}`}
+                            data-tag-panel={tab.key}
+                            hidden={index !== 0}
+                        >
+                            <ul class='flex flex-wrap items-center justify-center gap-x-3 gap-y-2'>
+                                {tab.entries.map((entry, tagIndex) => (
+                                    <li>
+                                        <a
+                                            href={`/tag/${entry.meta.slug}/`}
+                                            class='hover:bg-muted inline-flex items-baseline gap-1 rounded px-1.5 py-0.5 leading-tight transition-colors'
+                                            style={getTagStyle(entry, tagIndex)}
+                                            aria-label={`${entry.meta.label} (${entry.count})`}
+                                        >
+                                            <span>{entry.meta.label}</span>
+                                            <span class='text-xs opacity-70'>
+                                                {entry.count}
+                                            </span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ))}
+                </div>
             )
         }
     </section>
+
+    <script>
+        const root = document.querySelector('.tag-cloud-tabs');
+        const tabs = Array.from(
+            root?.querySelectorAll<HTMLButtonElement>('[data-tag-tab]') ?? [],
+        );
+        const panels = Array.from(
+            root?.querySelectorAll<HTMLElement>('[data-tag-panel]') ?? [],
+        );
+
+        function activateTab(tab: HTMLButtonElement) {
+            const key = tab.dataset.tagTab;
+            tabs.forEach((item) => {
+                const isActive = item === tab;
+                item.setAttribute('aria-selected', String(isActive));
+                item.classList.toggle('bg-foreground', isActive);
+                item.classList.toggle('text-background', isActive);
+                item.classList.toggle('bg-muted', !isActive);
+                item.classList.toggle('text-muted-foreground', !isActive);
+                item.classList.toggle('hover:bg-muted-foreground', !isActive);
+                item.classList.toggle('hover:text-muted', !isActive);
+            });
+            panels.forEach((panel) => {
+                panel.hidden = panel.dataset.tagPanel !== key;
+            });
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => activateTab(tab));
+        });
+    </script>
 </BaseLayout>

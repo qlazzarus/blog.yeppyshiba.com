@@ -5,16 +5,11 @@ summary: 다시 또한번 블로그를 시작해봅니다.
 category: coding
 image: https://images.pexels.com/photos/4240511/pexels-photo-4240511.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
 tags:
-  - analytics
-  - chakra-ui
-  - coding
-  - gatsby
-  - git
-  - material-ui
-  - migration
-  - nextjs
-  - react
-  - to
+    - nextjs
+    - react
+    - 블로그이전
+    - migration
+    - ui-framework
 ---
 
 ## 1. 왜 Gatsby에서 Next.js로 옮겼을까?

@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import Layout from '@/layouts/ArticlePost.astro';
+import { getRelatedPostScore } from '@/utils/tags';
 
 export async function getStaticPaths() {
     const posts = await getCollection('blog');
@@ -65,20 +66,15 @@ const nearbyReviewPosts =
               .sort((a, b) => a.distanceKm - b.distanceKm)
         : [];
 
-const currentTags = new Set((post.data.tags ?? []).map((tag) => String(tag)));
 const relatedPosts = sortedPosts
     .filter((candidate) => candidate.id !== post.id)
-    .map((candidate) => {
-        const sharedTagCount = (candidate.data.tags ?? []).filter((tag) =>
-            currentTags.has(String(tag)),
-        ).length;
-        return { post: candidate, sharedTagCount };
-    })
-    .filter(({ sharedTagCount }) => sharedTagCount > 0)
+    .map((candidate) => ({
+        post: candidate,
+        score: getRelatedPostScore(post, candidate),
+    }))
+    .filter(({ score }) => score > 0)
     .sort((a, b) => {
-        if (b.sharedTagCount !== a.sharedTagCount) {
-            return b.sharedTagCount - a.sharedTagCount;
-        }
+        if (b.score !== a.score) return b.score - a.score;
         return (
             new Date(b.post.data.date).getTime() - new Date(a.post.data.date).getTime()
         );

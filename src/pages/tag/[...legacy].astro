@@ -1,0 +1,45 @@
+---
+import { legacyTagRedirects } from '@/config/legacyTagRedirects';
+
+type Props = {
+    from: string;
+    reason: string;
+    target: string;
+};
+
+export function getStaticPaths() {
+    return legacyTagRedirects.map((redirect) => ({
+        params: {
+            legacy: redirect.from.replace(/^\/tag\//, '').replace(/\/$/, ''),
+        },
+        props: redirect,
+    }));
+}
+
+const { from, reason, target } = Astro.props as Props;
+const targetUrl = new URL(target, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang='ko'>
+    <head>
+        <meta charset='utf-8' />
+        <meta name='robots' content='noindex,follow' />
+        <meta http-equiv='refresh' content={`0; url=${target}`} />
+        <link rel='canonical' href={targetUrl} />
+        <title>Redirecting...</title>
+    </head>
+    <body>
+        <main>
+            <h1>Redirecting...</h1>
+            <p>
+                The legacy tag path <code>{from}</code> has moved.
+                <a href={target}>Continue to the current page</a>.
+            </p>
+            <p>{reason}</p>
+        </main>
+        <script define:vars={{ target }}>
+            window.location.replace(target);
+        </script>
+    </body>
+</html>

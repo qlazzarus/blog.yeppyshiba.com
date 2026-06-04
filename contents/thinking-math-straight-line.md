@@ -4,16 +4,11 @@ date: 2026-01-26T10:00:00+09:00
 summary: 수많은 곡선 중에서 왜 그래프는 항상 직선으로 시작할까? 가장 단순한 선이 관계를 설명하는 기준이 된 이유를 따라가 본다.
 category: math
 tags:
-    - graph
-    - straight-line
-    - linear
-    - relationship
-    - change
-    - slope
-    - abstraction
-    - math
-    - thinking
-    - hobby
+    - 생각하는중등수학
+    - 그래프
+    - 직선
+    - 기울기
+    - 변화
 image: https://images.openai.com/static-rsc-3/dkqTZZcv82Cxs3fDeZa429WoqfFk104cOOAtWNYgpxl17zHl5YyCYZO3EiO9Z5jiGMqh4C6f4jzTYmPYJL7WaBo11axkpTxwaO1Re559K9Y?purpose=fullsize
 ---
 
@@ -32,7 +27,6 @@ image: https://images.openai.com/static-rsc-3/dkqTZZcv82Cxs3fDeZa429WoqfFk104cOO
 - **직선**
 
 왜 하필 직선일까?
-
 ---
 
 ## 직선은 가장 조용한 변화다
