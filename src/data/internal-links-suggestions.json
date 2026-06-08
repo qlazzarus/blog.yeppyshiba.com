@@ -1,56 +1,51 @@
 {
-  "topPost": "/article/bicycle-commute-transportation-savings",
-  "topPostViews": 9,
+  "topPost": "/article/ganghwa-cafe-in-bunjae-review",
+  "topPostViews": 46,
   "relatedSuggestions": [
-    "/bicycle-commute-transportation-savings/"
+    "/ganghwa-cafe-in-bunjae-review/",
+    "/bundang-cafe-deerhill-review/",
+    "/ganghwa-dongmak-boston-burger-review/",
+    "/hwaseong-byulboim-cafe-review/",
+    "/yongin-cafe-arosto-review/",
+    "/a-look-back-in-2024/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/allowance-300k-02",
+      "path": "/article/gpx-risk-analyzer",
       "views": 4,
-      "avgSec": 67.09
-    },
-    {
-      "path": "/article/uiwang-jeju-eunhine-haejangguk",
-      "views": 4,
-      "avgSec": 120.86
-    },
-    {
-      "path": "/article/how-i-build-pocket-money-with-apptech",
-      "views": 1,
-      "avgSec": 856
-    },
-    {
-      "path": "/article/newborn-loan-review",
-      "views": 1,
-      "avgSec": 125.2
-    },
-    {
-      "path": "/article/uiwang-bajirak-kalguksu",
-      "views": 1,
-      "avgSec": 87.51
+      "avgSec": 88.27
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/chunk-upload-vue-axios-laravel",
-      "views": 1,
-      "avgSec": 0
+      "path": "/article/quarter-view",
+      "views": 2,
+      "avgSec": 1.93
     },
     {
-      "path": "/article/game-of-life",
-      "views": 1,
-      "avgSec": 0
+      "path": "/article/thinking-math-formula",
+      "views": 2,
+      "avgSec": 7.6
     },
     {
-      "path": "/article/php8-attributes",
+      "path": "/article/bicycle-commute-transportation-savings",
       "views": 1,
-      "avgSec": 0
+      "avgSec": 6.83
+    },
+    {
+      "path": "/article/migration-to-gatsby",
+      "views": 1,
+      "avgSec": 5.02
     },
     {
       "path": "/article/quarter-view",
       "views": 1,
       "avgSec": 0
+    },
+    {
+      "path": "/article/uiwang-1981-chopyeong-gyeongyang",
+      "views": 1,
+      "avgSec": 8.33
     }
   ]
 }
