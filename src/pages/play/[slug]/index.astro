@@ -1,0 +1,53 @@
+---
+import { readdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
+
+export async function getStaticPaths() {
+    const gamesDir = path.join(process.cwd(), 'games');
+    const entries = await readdir(gamesDir, { withFileTypes: true }).catch(() => []);
+
+    return entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => ({
+            params: { slug: entry.name },
+        }));
+}
+
+const slug = Astro.params.slug;
+const gamesDir = path.join(process.cwd(), 'games');
+
+if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
+    Astro.response.status = 404;
+}
+
+const html =
+    slug && /^[a-z0-9-]+$/.test(slug)
+        ? await readFile(path.join(gamesDir, slug, 'dist', 'index.html'), 'utf8').catch(
+              () => null,
+          )
+        : null;
+const assetTags = html?.match(/<(script|link)\b[^>]*(?:><\/script>|>)/g) ?? [];
+
+if (!html) {
+    Astro.response.status = 404;
+}
+---
+
+<!doctype html>
+<html lang='ko'>
+    <head>
+        <meta charset='UTF-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <title>Isometric Minesweeper</title>
+        {assetTags.map((tag) => <Fragment set:html={tag} />)}
+    </head>
+    <body>
+        {
+            html ? (
+                <div id='game' />
+            ) : (
+                'Game build not found. Run `npm run build:games`.'
+            )
+        }
+    </body>
+</html>

@@ -1,5 +1,6 @@
 # build output
 dist/
+games/*/dist/
 # generated types
 .astro/
 
@@ -24,6 +25,8 @@ pnpm-debug.log*
 .idea/
 
 src/data
+public/play/
+public/game-assets/
 
 *.zip
 
