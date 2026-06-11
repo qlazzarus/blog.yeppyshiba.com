@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = 'Web Games';
+const description = 'Phaser 기반 웹게임 실험 모음입니다.';
+const games = [
+    {
+        description:
+            'Isometric 좌표계와 Phaser 4 기반 ECS 패턴을 실험하는 지뢰찾기 게임입니다.',
+        href: '/games/isometric-minesweeper/',
+        title: 'Isometric Minesweeper',
+    },
+];
+---
+
+<BaseLayout title={title} description={description}>
+    <section class='mx-auto max-w-5xl space-y-6'>
+        <div class='space-y-2'>
+            <p class='text-primary text-sm font-semibold'>Playable Labs</p>
+            <h1 class='text-3xl font-bold tracking-tight'>Web Games</h1>
+            <p class='text-muted-foreground'>
+                글로 설명한 구현 아이디어를 직접 실행해볼 수 있는 웹게임 실험실입니다.
+            </p>
+        </div>
+
+        <div class='grid gap-4 sm:grid-cols-2'>
+            {
+                games.map((game) => (
+                    <a
+                        href={game.href}
+                        class='border-border bg-card hover:border-primary/50 rounded-lg border p-5 transition-colors'
+                    >
+                        <h2 class='text-xl font-semibold'>{game.title}</h2>
+                        <p class='text-muted-foreground mt-2 text-sm leading-6'>
+                            {game.description}
+                        </p>
+                    </a>
+                ))
+            }
+        </div>
+    </section>
+</BaseLayout>
