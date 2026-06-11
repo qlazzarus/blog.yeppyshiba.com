@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import FormattedDate from '@/components/FormattedDate.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
+import GpxRouteViewer from '@/components/GpxRouteViewer.astro';
 import MapClient from '@/components/MapClient.astro';
 import { sortDisplayTags } from '@/utils/tags';
 
@@ -20,6 +21,12 @@ const {
     parcelAddress,
     lat,
     lng,
+    gpxUrl,
+    mediaManifestUrl,
+    coverCredit,
+    coverLicense,
+    coverSource,
+    roadviewUpdateIntervalMs,
     prevPost,
     nextPost,
     nearbyReviewPosts,
@@ -111,14 +118,44 @@ const breadcrumbs = [
             </div>
             {
                 image && (
-                    <div class='my-6 overflow-hidden rounded-lg shadow-lg'>
-                        <Image width={1020} height={510} src={image} alt='' />
-                    </div>
+                    <>
+                        <div class='my-6 overflow-hidden rounded-lg shadow-lg'>
+                            <Image width={1020} height={510} src={image} alt='' />
+                        </div>
+                        {(coverCredit || coverLicense) && (
+                            <p class='text-muted-foreground -mt-4 mb-6 text-xs'>
+                                Cover image:{' '}
+                                {coverSource ? (
+                                    <a
+                                        href={coverSource}
+                                        class='underline underline-offset-2'
+                                    >
+                                        {coverCredit}
+                                    </a>
+                                ) : (
+                                    coverCredit
+                                )}
+                                {coverLicense && ` · ${coverLicense}`}
+                            </p>
+                        )}
+                    </>
                 )
             }
         </header>
     </div>
     <hr />
+    {
+        gpxUrl && (
+            <section class='mx-auto my-8 w-full max-w-5xl'>
+                <GpxRouteViewer
+                    gpxUrl={gpxUrl}
+                    height='620px'
+                    mediaManifestUrl={mediaManifestUrl}
+                    roadviewUpdateIntervalMs={roadviewUpdateIntervalMs}
+                />
+            </section>
+        )
+    }
     <aside class='hidden lg:block'>
         <nav
             id='toc'

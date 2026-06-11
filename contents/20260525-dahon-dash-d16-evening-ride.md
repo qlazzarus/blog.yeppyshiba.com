@@ -1,14 +1,15 @@
 ---
 title: 2026년 5월 25일 다혼 대쉬 D16 — 저녁 스프린트
 date: 2026-05-25
+category: ride
 summary: 친구와 만난 뒤 편의점에서 수다를 떨다 늦어진 탓에 아내와 아기가 기다리고 있어 집에 빨리 가려고 전력 스프린트를 펼친 짧고 강렬한 저녁 라이딩 기록입니다.
 tags:
     - GPX
     - 스프린트
     - Dahon Dash D16
     - 저녁 라이딩
+image: /images/rides/202605/anyangcheon_hakuicheon_20090418.jpg
 gpxUrl: /gpx/202605/20260525_evening_ride_trim.gpx
-coverImage: /images/rides/202605/anyangcheon_hakuicheon_20090418.jpg
 coverCredit: Jpbarrass
 coverLicense: Public domain
 coverSource: https://commons.wikimedia.org/wiki/File:Looking_downstream_along_the_Anyangcheon_from_the_Hakuicheon_-_2009-04-18.JPG

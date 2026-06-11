@@ -39,8 +39,15 @@ const getPostHref = (post: any) => {
     if (post?.data?.originalPath) return normalizeHref(post.data.originalPath);
     return `${basePath}/${post.id}/`;
 };
-const getViewCount = (postId: string) =>
-    viewMap.get(`${basePath}/${postId}`) ?? viewMap.get(`${basePath}/${postId}/`) ?? 0;
+const isRide = (post: CollectionEntry<'blog'>) => Boolean(post.data.gpxUrl);
+const getEntryType = (post: CollectionEntry<'blog'>) =>
+    isRide(post) ? 'Ride' : post.data.category;
+const getTypeHref = (post: CollectionEntry<'blog'>) =>
+    isRide(post) ? '/rides/' : `/category/${post.data.category}/`;
+const getViewCount = (post: CollectionEntry<'blog'>) =>
+    viewMap.get(`${basePath}/${post.id}`) ??
+    viewMap.get(`${basePath}/${post.id}/`) ??
+    0;
 ---
 
 <div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -54,7 +61,6 @@ const getViewCount = (postId: string) =>
                     {(() => {
                         const src =
                             post.data.image ??
-                            post.data.coverImage ??
                             generatePlaceholder(post.data.title ?? post.id);
                         return (
                             <img
@@ -68,10 +74,10 @@ const getViewCount = (postId: string) =>
                 </a>
 
                 <div class='p-4'>
-                    {post.data.category && (
+                    {getEntryType(post) && (
                         <div class='text-muted-foreground mb-2 rounded text-xs capitalize'>
-                            <a href={`/category/${post.data.category}/`}>
-                                {post.data.category}
+                            <a href={getTypeHref(post)}>
+                                {getEntryType(post)}
                             </a>
                         </div>
                     )}
@@ -103,7 +109,7 @@ const getViewCount = (postId: string) =>
                         <div class='text-muted-foreground flex items-center justify-between text-xs'>
                             {showViews ? (
                                 <span aria-label='views'>
-                                    👀 {getViewCount(post.id).toLocaleString()}
+                                    👀 {getViewCount(post).toLocaleString()}
                                 </span>
                             ) : (
                                 <span />

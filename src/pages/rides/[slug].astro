@@ -1,10 +1,10 @@
 ---
-import GpxRouteViewer from '@/components/GpxRouteViewer.astro';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { type CollectionEntry, getCollection, render } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
-    const rides = await getCollection('rides');
+    const rides = (await getCollection('blog')).filter(
+        (post) => post.data.category === 'ride' && post.data.gpxUrl,
+    );
 
     return rides.map((ride) => ({
         params: { slug: ride.id },
@@ -12,137 +12,23 @@ export async function getStaticPaths() {
     }));
 }
 
-const { ride } = Astro.props as { ride: CollectionEntry<'rides'> };
-const tags = ride.data.tags ?? ['GPX', '라이딩 기록', '자전거 코스'];
-const displayDate = new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'long',
-}).format(ride.data.date);
-const { Content } = await render(ride);
-const sortedRides = (await getCollection('rides')).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
-const currentIndex = sortedRides.findIndex((candidate) => candidate.id === ride.id);
-const prevRide = currentIndex > 0 ? sortedRides[currentIndex - 1] : null;
-const nextRide =
-    currentIndex < sortedRides.length - 1 ? sortedRides[currentIndex + 1] : null;
-const breadcrumbs = [
-    { name: 'Home', item: new URL('/', Astro.site).toString() },
-    { name: 'Rides', item: new URL('/rides/', Astro.site).toString() },
-    {
-        name: ride.data.title,
-        item: new URL(`/rides/${ride.id}/`, Astro.site).toString(),
-    },
-];
+const { ride } = Astro.props as { ride: CollectionEntry<'blog'> };
+const canonicalPath = `/article/${ride.id}/`;
+const canonicalUrl = new URL(canonicalPath, Astro.site).toString();
 ---
 
-<BaseLayout
-    title={ride.data.title}
-    description={ride.data.summary}
-    image={ride.data.coverImage}
-    schemaType='article'
-    breadcrumbs={breadcrumbs}
-    datePublished={ride.data.date}
-    dateModified={ride.data.date}
-    tags={tags}
-    category='rides'
->
-    <article class='space-y-8'>
-        <a
-            href='/rides/'
-            class='border-border bg-card hover:bg-muted inline-flex w-fit rounded border px-4 py-2 text-sm font-medium transition-colors'
-        >
-            라이딩 목록으로
-        </a>
-
-        <header class='space-y-3'>
-            <p class='text-muted-foreground text-sm'>
-                {displayDate}
-            </p>
-            <h1
-                class='text-3xl leading-tight font-extrabold tracking-normal md:text-4xl'
-            >
-                {ride.data.title}
-            </h1>
-            <p class='text-muted-foreground max-w-3xl leading-7'>
-                {ride.data.summary}
-            </p>
-            <div class='flex flex-wrap gap-2'>
-                {
-                    tags.map((tag) => (
-                        <span class='bg-muted-foreground text-muted rounded px-2 py-0.5 text-sm'>
-                            {tag}
-                        </span>
-                    ))
-                }
-            </div>
-        </header>
-
-        {
-            ride.data.coverImage && (
-                <figure class='space-y-2'>
-                    <img
-                        src={ride.data.coverImage}
-                        alt={`${ride.data.title} 커버 이미지`}
-                        class='border-border aspect-[16/9] w-full rounded-lg border object-cover'
-                        loading='eager'
-                    />
-                    {ride.data.coverCredit && (
-                        <figcaption class='text-muted-foreground text-xs'>
-                            Cover image:{' '}
-                            {ride.data.coverSource ? (
-                                <a
-                                    href={ride.data.coverSource}
-                                    class='underline underline-offset-2'
-                                >
-                                    {ride.data.coverCredit}
-                                </a>
-                            ) : (
-                                ride.data.coverCredit
-                            )}
-                            {ride.data.coverLicense && ` · ${ride.data.coverLicense}`}
-                        </figcaption>
-                    )}
-                </figure>
-            )
-        }
-
-        <GpxRouteViewer
-            gpxUrl={ride.data.gpxUrl}
-            height='620px'
-            mediaManifestUrl={ride.data.mediaManifestUrl}
-            roadviewUpdateIntervalMs={ride.data.roadviewUpdateIntervalMs}
-        />
-
-        <div class='prose dark:prose-invert max-w-none'>
-            <Content />
-        </div>
-
-        {
-            (prevRide || nextRide) && (
-                <nav class='border-border flex flex-wrap items-center justify-between gap-2 border-t pt-6'>
-                    {prevRide ? (
-                        <a
-                            href={`/rides/${prevRide.id}/`}
-                            class='hover:bg-muted rounded border px-4 py-2 text-sm transition-colors'
-                        >
-                            ← {prevRide.data.title}
-                        </a>
-                    ) : (
-                        <div />
-                    )}
-
-                    {nextRide ? (
-                        <a
-                            href={`/rides/${nextRide.id}/`}
-                            class='hover:bg-muted ml-auto rounded border px-4 py-2 text-sm transition-colors'
-                        >
-                            {nextRide.data.title} →
-                        </a>
-                    ) : (
-                        <div />
-                    )}
-                </nav>
-            )
-        }
-    </article>
-</BaseLayout>
+<html lang='ko'>
+    <head>
+        <meta charset='utf-8' />
+        <meta http-equiv='refresh' content={`0; url=${canonicalPath}`} />
+        <link rel='canonical' href={canonicalUrl} />
+        <title>{ride.data.title}</title>
+    </head>
+    <body>
+        <p>
+            이 라이딩 기록은
+            <a href={canonicalPath}>article 페이지</a>
+            로 이동했습니다.
+        </p>
+    </body>
+</html>

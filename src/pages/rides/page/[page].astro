@@ -9,7 +9,9 @@ const RIDES_PER_PAGE = 6;
 
 export async function getStaticPaths() {
     const ridesPerPage = 6;
-    const rides = await getCollection('rides');
+    const rides = (await getCollection('blog')).filter(
+        (post) => post.data.category === 'ride' && post.data.gpxUrl,
+    );
     const totalPages = Math.max(1, Math.ceil(rides.length / ridesPerPage));
 
     return Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) => ({
@@ -18,9 +20,9 @@ export async function getStaticPaths() {
 }
 
 const page = Number(Astro.params.page);
-const rides = (await getCollection('rides')).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const rides = (await getCollection('blog'))
+    .filter((post) => post.data.category === 'ride' && post.data.gpxUrl)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const totalPages = Math.max(1, Math.ceil(rides.length / RIDES_PER_PAGE));
 
 if (Number.isNaN(page) || page < 2 || page > totalPages) {
@@ -32,14 +34,14 @@ const pageRides = rides.slice(start, start + RIDES_PER_PAGE);
 const rideCards = await Promise.all(
     pageRides.map(async (ride) => ({
         ride,
-        stats: await readRouteStats(ride.data.gpxUrl),
+        stats: await readRouteStats(ride.data.gpxUrl!),
     })),
 );
 
 const title = `라이딩 기록 - ${page}페이지`;
 const description = `GPX 경로, 거리, 획득고도, 평균속도와 함께 다시 보는 자전거 라이딩 기록 ${page}페이지입니다.`;
 const seoTags = ['GPX', '라이딩 기록', '자전거 코스', '한강 자전거길', '로드뷰'];
-const pageImage = pageRides.find((ride) => ride.data.coverImage)?.data.coverImage;
+const pageImage = pageRides.find((ride) => ride.data.image)?.data.image;
 const breadcrumbs = [
     { name: 'Home', item: new URL('/', Astro.site).toString() },
     { name: 'Rides', item: new URL('/rides/', Astro.site).toString() },
@@ -58,11 +60,11 @@ const itemListSchema = {
     itemListElement: pageRides.map((ride, index) => ({
         '@type': 'ListItem',
         position: start + index + 1,
-        url: new URL(`/rides/${ride.id}/`, Astro.site).toString(),
+        url: new URL(`/article/${ride.id}/`, Astro.site).toString(),
         name: ride.data.title,
         description: ride.data.summary,
-        image: ride.data.coverImage
-            ? new URL(ride.data.coverImage, Astro.site).toString()
+        image: ride.data.image
+            ? new URL(ride.data.image, Astro.site).toString()
             : undefined,
     })),
 };

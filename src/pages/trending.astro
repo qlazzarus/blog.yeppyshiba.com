@@ -74,9 +74,7 @@ try {
 
 // Try to map trending paths to blog collection entries when possible
 const blog = (await getCollection('blog')) || [];
-const rides = (await getCollection('rides')) || [];
 const matchedBlogEntries = [];
-const matchedRidesEntries = [];
 const fallback = [];
 
 for (const it of items) {
@@ -95,8 +93,8 @@ for (const it of items) {
     m = p.match(/^\/rides\/(.+)$/);
     if (m) {
         const slug = m[1];
-        const found = rides.find((r) => r.id === slug);
-        if (found) matchedRidesEntries.push(found);
+        const found = blog.find((b) => b.id === slug);
+        if (found) matchedBlogEntries.push(found);
         else fallback.push(it);
         continue;
     }
@@ -157,19 +155,6 @@ const fallbackEntries = fallback.map((item) => {
                     <EntryGrid
                         entries={matchedBlogEntries}
                         basePath='/article'
-                        showViews={false}
-                    />
-                </div>
-            ) : null
-        }
-
-        {
-            matchedRidesEntries.length ? (
-                <div class='mt-6'>
-                    <h2 class='mb-4 text-2xl font-semibold'>추천 라이딩</h2>
-                    <EntryGrid
-                        entries={matchedRidesEntries}
-                        basePath='/rides'
                         showViews={false}
                     />
                 </div>
