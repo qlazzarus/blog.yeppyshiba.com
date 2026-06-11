@@ -16,19 +16,19 @@ const breadcrumbs = [
     { name: 'Rides', item: new URL('/rides/', Astro.site).toString() },
 ];
 
-const rides = (await getCollection('rides')).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const rides = (await getCollection('blog'))
+    .filter((post) => post.data.category === 'ride' && post.data.gpxUrl)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const totalPages = Math.max(1, Math.ceil(rides.length / RIDES_PER_PAGE));
 const pageRides = rides.slice(0, RIDES_PER_PAGE);
 
 const rideCards = await Promise.all(
     pageRides.map(async (ride) => ({
         ride,
-        stats: await readRouteStats(ride.data.gpxUrl),
+        stats: await readRouteStats(ride.data.gpxUrl!),
     })),
 );
-const pageImage = pageRides.find((ride) => ride.data.coverImage)?.data.coverImage;
+const pageImage = pageRides.find((ride) => ride.data.image)?.data.image;
 const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -39,11 +39,11 @@ const itemListSchema = {
     itemListElement: pageRides.map((ride, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: new URL(`/rides/${ride.id}/`, Astro.site).toString(),
+        url: new URL(`/article/${ride.id}/`, Astro.site).toString(),
         name: ride.data.title,
         description: ride.data.summary,
-        image: ride.data.coverImage
-            ? new URL(ride.data.coverImage, Astro.site).toString()
+        image: ride.data.image
+            ? new URL(ride.data.image, Astro.site).toString()
             : undefined,
     })),
 };

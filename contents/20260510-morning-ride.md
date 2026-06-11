@@ -1,6 +1,7 @@
 ---
 title: 2026년 5월 10일 하트코스
 date: 2026-05-10
+category: ride
 summary: 하트코스를 따라 길게 페달을 밟으며 한강과 도심의 리듬을 다시 느낀 아침 라이딩 기록입니다.
 tags:
     - GPX
@@ -8,8 +9,8 @@ tags:
     - 한강 자전거길
     - 라이딩 기록
     - 자전거 코스
+image: /images/rides/202605/han-river-bike-path.jpg
 gpxUrl: /gpx/202605/20260510_morning_ride.gpx
-coverImage: /images/rides/202605/han-river-bike-path.jpg
 coverCredit: Han river bike path - gary4now
 coverLicense: CC BY 3.0
 coverSource: https://commons.wikimedia.org/wiki/File:Han_river_bike_path_-_panoramio.jpg

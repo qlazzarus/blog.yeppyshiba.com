@@ -116,7 +116,7 @@ tags:
     - 라이딩 기록
 gpxUrl: /gpx/202606/20260601-morning-ride.trimmed.gpx
 mediaManifestUrl: /rides/202606/20260601-morning-ride/media.json
-coverImage: /images/rides/202606/20260601-morning-ride/frames/frame-000001.jpg
+image: /images/rides/202606/20260601-morning-ride/frames/frame-000001.jpg
 roadviewUpdateIntervalMs: 10000
 ---
 ```

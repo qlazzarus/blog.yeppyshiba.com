@@ -15,6 +15,7 @@ const blog = defineCollection({
                 'math',
                 'aviation',
                 'finance',
+                'ride',
             ]),
             summary: z.string(),
             // optional tags array
@@ -30,20 +31,8 @@ const blog = defineCollection({
             parcelAddress: z.string().optional(),
             lat: z.number().optional(),
             lng: z.number().optional(),
-        }),
-});
-
-const rides = defineCollection({
-    loader: glob({ base: './rides', pattern: '*.md' }),
-    schema: () =>
-        z.object({
-            title: z.string(),
-            date: z.coerce.date(),
-            summary: z.string(),
-            tags: z.array(z.union([z.number(), z.string()])).optional(),
-            gpxUrl: z.string().startsWith('/gpx/'),
+            gpxUrl: z.string().startsWith('/gpx/').optional(),
             mediaManifestUrl: z.string().startsWith('/rides/').optional(),
-            coverImage: z.string().startsWith('/images/').optional(),
             coverCredit: z.string().optional(),
             coverLicense: z.string().optional(),
             coverSource: z.string().url().optional(),
@@ -51,4 +40,4 @@ const rides = defineCollection({
         }),
 });
 
-export const collections = { blog, rides };
+export const collections = { blog };

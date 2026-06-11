@@ -54,7 +54,7 @@ async function main() {
 
     const highlights = selectHighlightFrames(manifest);
     const coverImage = highlights[0]?.src ?? manifest.frames[0].src;
-    const outPath = options.outPath ?? path.join('rides', `${manifest.slug}.md`);
+    const outPath = options.outPath ?? path.join('contents', `${manifest.slug}.md`);
 
     if (!options.overwrite && fs.existsSync(outPath)) {
         throw new Error(`${outPath} already exists. Pass --overwrite to replace it.`);
@@ -128,7 +128,7 @@ Options:
   --media-url   Public manifest URL. Inferred from public/... when omitted
   --title       Ride post title
   --summary     Ride post summary
-  --out         Output markdown path, default rides/<slug>.md
+    --out         Output markdown path, default contents/<slug>.md
   --overwrite   Replace an existing markdown file
 `);
 }
@@ -202,6 +202,7 @@ function renderDraft(input: {
     return `---
 title: ${yamlString(input.title)}
 date: ${input.date}
+category: ride
 summary: ${yamlString(input.summary)}
 tags:
     - GPX
@@ -210,7 +211,7 @@ tags:
     - 자전거 코스
 gpxUrl: ${input.manifest.trimmedGpxUrl}
 mediaManifestUrl: ${input.mediaManifestUrl}
-coverImage: ${input.coverImage}
+image: ${input.coverImage}
 roadviewUpdateIntervalMs: 10000
 ---
 

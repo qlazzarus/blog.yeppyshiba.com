@@ -4,6 +4,7 @@ export type TagGroup =
     | 'tech'
     | 'place'
     | 'food'
+    | 'cycling'
     | 'lifestyle'
     | 'finance'
     | 'meta';
@@ -162,5 +163,70 @@ export const tagRegistry = [
         slug: 'life-principles',
         group: 'lifestyle',
         relatedWeight: 2.5,
+    },
+    {
+        label: 'GPX',
+        slug: 'gpx',
+        group: 'cycling',
+        description: 'GPX 경로와 지도 기반 기록',
+        featured: true,
+        relatedWeight: 2.5,
+    },
+    {
+        label: '자전거',
+        slug: 'jajeongeo',
+        group: 'cycling',
+        aliases: ['cycling', 'bike', 'bicycle'],
+        description: '자전거 관련 글 모음',
+        featured: true,
+        relatedWeight: 3,
+    },
+    {
+        label: '라이딩',
+        slug: 'raiding',
+        group: 'cycling',
+        aliases: ['riding'],
+        description: '라이딩 관련 글 모음',
+        featured: true,
+        relatedWeight: 3,
+    },
+    {
+        label: '라이딩 기록',
+        slug: 'ride-log',
+        group: 'cycling',
+        description: '자전거 라이딩 기록 모음',
+        featured: true,
+        relatedWeight: 3,
+    },
+    {
+        label: '자전거 코스',
+        slug: 'cycling-route',
+        group: 'cycling',
+        description: '자전거 코스와 경로 기록',
+        relatedWeight: 2.5,
+    },
+    {
+        label: '저녁 라이딩',
+        slug: 'evening-ride',
+        group: 'cycling',
+        relatedWeight: 2,
+    },
+    {
+        label: '하트코스',
+        slug: 'heart-course',
+        group: 'cycling',
+        relatedWeight: 2,
+    },
+    {
+        label: '안장 피팅',
+        slug: 'saddle-fitting',
+        group: 'cycling',
+        relatedWeight: 2,
+    },
+    {
+        label: '사이클 언더웨어',
+        slug: 'cycling-underwear',
+        group: 'cycling',
+        relatedWeight: 2,
     },
 ] satisfies TagMeta[];

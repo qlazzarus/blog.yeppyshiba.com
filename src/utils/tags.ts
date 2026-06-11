@@ -16,6 +16,7 @@ const groupWeights: Record<TagGroup, number> = {
     tech: 2.5,
     place: 3,
     food: 2.5,
+    cycling: 3,
     lifestyle: 2,
     finance: 2.5,
     meta: 0.5,
@@ -122,11 +123,12 @@ export function sortDisplayTags(tags: Array<string | number> = []): TagMeta[] {
         series: 0,
         place: 1,
         topic: 2,
-        tech: 3,
-        food: 4,
-        finance: 5,
-        lifestyle: 6,
-        meta: 7,
+        cycling: 3,
+        tech: 4,
+        food: 5,
+        finance: 6,
+        lifestyle: 7,
+        meta: 8,
     };
 
     return getPublicTags(tags).sort((a, b) => {
