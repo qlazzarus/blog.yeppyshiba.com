@@ -8,6 +8,7 @@ const MENU = [
     { href: '/tag/', label: 'Tags', icon: '🚩' },
     { href: '/map/', label: 'Map', icon: '🧭' },
     { href: '/rides/', label: 'Rides', icon: '🚴' },
+    { href: '/games/', label: 'Games', icon: '🎮' },
     { href: '/tools/', label: 'Tools', icon: '🧮' },
     { href: '/trending/', label: 'Trending', icon: '🔥' },
 ];
@@ -34,7 +35,7 @@ function isActive(href: string) {
         </a>
 
         <!-- Desktop menu -->
-        <ul class='hidden items-center gap-6 md:flex'>
+        <ul class='hidden items-center gap-5 lg:flex'>
             {
                 MENU.map((m) => (
                     <li>
@@ -72,7 +73,7 @@ function isActive(href: string) {
             <button
                 id='menu-toggle'
                 type='button'
-                class='border-border bg-muted text-foreground hover:bg-muted/80 inline-flex items-center justify-center rounded-md border p-2 px-4 transition-colors md:hidden'
+                class='border-border bg-muted text-foreground hover:bg-muted/80 inline-flex items-center justify-center rounded-md border p-2 px-4 transition-colors lg:hidden'
                 aria-controls='mobile-menu'
                 aria-expanded='false'
                 aria-label='Open menu'
@@ -83,9 +84,12 @@ function isActive(href: string) {
     </nav>
 
     <!-- Mobile menu panel -->
-    <div id='mobile-menu' class='border-border hidden border-t md:hidden'>
+    <div
+        id='mobile-menu'
+        class='border-border bg-background/95 hidden border-t lg:hidden'
+    >
         <div class='mx-auto max-w-5xl px-4 py-3'>
-            <ul class='grid gap-2'>
+            <ul class='grid grid-cols-2 gap-2'>
                 {
                     MENU.map((m) => (
                         <li>
@@ -93,14 +97,18 @@ function isActive(href: string) {
                                 href={m.href}
                                 aria-current={isActive(m.href) ? 'page' : undefined}
                                 class:list={[
-                                    'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+                                    'flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
                                     isActive(m.href)
-                                        ? 'border-primary bg-accent text-foreground'
-                                        : 'border-border bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                                        ? 'bg-accent text-foreground font-medium'
+                                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                                 ]}
                             >
-                                {m.icon && <span aria-hidden='true'>{m.icon}</span>}
-                                <span>{m.label}</span>
+                                {m.icon && (
+                                    <span aria-hidden='true' class='w-5 text-center'>
+                                        {m.icon}
+                                    </span>
+                                )}
+                                <span class='truncate'>{m.label}</span>
                             </a>
                         </li>
                     ))
