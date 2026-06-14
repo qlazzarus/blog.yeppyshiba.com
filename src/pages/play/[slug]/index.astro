@@ -15,6 +15,7 @@ export async function getStaticPaths() {
 
 const slug = Astro.params.slug;
 const gamesDir = path.join(process.cwd(), 'games');
+const publicGameAssetsDir = path.join(process.cwd(), 'public', 'game-assets');
 
 if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
     Astro.response.status = 404;
@@ -22,8 +23,11 @@ if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
 
 const html =
     slug && /^[a-z0-9-]+$/.test(slug)
-        ? await readFile(path.join(gamesDir, slug, 'dist', 'index.html'), 'utf8').catch(
-              () => null,
+        ? await readFile(path.join(publicGameAssetsDir, slug, 'index.html'), 'utf8').catch(
+              () =>
+                  readFile(path.join(gamesDir, slug, 'dist', 'index.html'), 'utf8').catch(
+                      () => null,
+                  ),
           )
         : null;
 const assetTags = html?.match(/<(script|link)\b[^>]*(?:><\/script>|>)/g) ?? [];

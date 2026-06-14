@@ -23,19 +23,57 @@ export function renderBoardSystem(
 
     getRenderableEntities(world).forEach((entityId) => {
         const render = world.renders.get(entityId);
+        const tile = world.tiles.get(entityId);
         if (!render) return;
+
+        const revealed = tile?.revealed ?? false;
+        const mineRevealed = revealed && world.mines.has(entityId);
 
         drawDiamond(graphics, {
             alpha: 1,
-            fill: 0x5d846f,
+            fill: getTileFill(world, entityId, revealed, mineRevealed),
             height: layout.tileHeight,
             lineWidth: 1,
-            stroke: 0x273b35,
+            stroke: revealed ? 0x4c5e59 : 0x273b35,
             width: layout.tileWidth,
             x: render.screenX,
             y: render.screenY,
         });
     });
+}
+
+export function renderTileContentSystem(
+    world: World,
+    scene: Phaser.Scene,
+    previousLabels: Phaser.GameObjects.Text[],
+) {
+    previousLabels.forEach((label) => label.destroy());
+
+    const nextLabels: Phaser.GameObjects.Text[] = [];
+
+    getRenderableEntities(world).forEach((entityId) => {
+        const render = world.renders.get(entityId);
+        const tile = world.tiles.get(entityId);
+        if (!render || !tile) return;
+
+        const labelText = getTileLabel(world, entityId, tile.revealed);
+        if (!labelText) return;
+
+        const label = scene.add
+            .text(render.screenX, render.screenY - 8, labelText, {
+                align: 'center',
+                color: getTileLabelColor(world, entityId),
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '18px',
+                fontStyle: '700',
+            })
+            .setDepth(6)
+            .setOrigin(0.5);
+
+        nextLabels.push(label);
+    });
+
+    return nextLabels;
 }
 
 export function renderHoverSystem(
@@ -62,6 +100,48 @@ export function renderHoverSystem(
         x: render.screenX,
         y: render.screenY,
     });
+}
+
+function getTileFill(
+    world: World,
+    entityId: number,
+    revealed: boolean,
+    mineRevealed: boolean,
+) {
+    if (mineRevealed) return world.resources.gameStatus === 'lost' ? 0x8f4a4a : 0x6f6258;
+    if (revealed) return 0xb9c7b3;
+    if (world.flags.has(entityId)) return 0x6b7f88;
+
+    return 0x5d846f;
+}
+
+function getTileLabel(world: World, entityId: number, revealed: boolean) {
+    if (!revealed) return world.flags.has(entityId) ? 'F' : '';
+    if (world.mines.has(entityId)) return 'M';
+
+    const count = world.adjacentMineCounts.get(entityId) ?? 0;
+
+    return count > 0 ? count.toString() : '';
+}
+
+function getTileLabelColor(world: World, entityId: number) {
+    if (world.flags.has(entityId)) return '#f3d36b';
+    if (world.mines.has(entityId)) return '#241a1a';
+
+    const count = world.adjacentMineCounts.get(entityId) ?? 0;
+    const countColors = [
+        '#f3efe2',
+        '#2f5fbd',
+        '#267344',
+        '#b44242',
+        '#5a3f9b',
+        '#8d4b24',
+        '#287578',
+        '#2d3335',
+        '#6f7475',
+    ];
+
+    return countColors[count] ?? '#2d3335';
 }
 
 function drawDiamond(graphics: Phaser.GameObjects.Graphics, options: DiamondOptions) {

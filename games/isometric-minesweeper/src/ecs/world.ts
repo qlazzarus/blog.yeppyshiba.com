@@ -5,6 +5,8 @@ export type TilePoint = {
 
 export type EntityId = number;
 
+export type GameStatus = 'ready' | 'playing' | 'won' | 'lost';
+
 export type PositionComponent = TilePoint;
 
 export type TileComponent = {
@@ -18,25 +20,37 @@ export type RenderComponent = {
 };
 
 export type WorldResources = {
+    gameStatus: GameStatus;
     hoveredTile: TilePoint | null;
+    minefieldReady: boolean;
 };
 
 export type World = {
+    adjacentMineCounts: Map<EntityId, number>;
+    flags: Set<EntityId>;
+    mines: Set<EntityId>;
     nextEntityId: EntityId;
     positions: Map<EntityId, PositionComponent>;
     renders: Map<EntityId, RenderComponent>;
     resources: WorldResources;
+    tileEntities: Map<string, EntityId>;
     tiles: Map<EntityId, TileComponent>;
 };
 
 export function createWorld(): World {
     return {
+        adjacentMineCounts: new Map(),
+        flags: new Set(),
+        mines: new Set(),
         nextEntityId: 1,
         positions: new Map(),
         renders: new Map(),
         resources: {
+            gameStatus: 'ready',
             hoveredTile: null,
+            minefieldReady: false,
         },
+        tileEntities: new Map(),
         tiles: new Map(),
     };
 }
@@ -50,18 +64,19 @@ export function createTileEntity(
 
     world.nextEntityId += 1;
     world.positions.set(entityId, position);
+    world.tileEntities.set(getTileKey(position), entityId);
     world.tiles.set(entityId, { revealed: false });
     world.renders.set(entityId, render);
 
     return entityId;
 }
 
-export function getEntityAtTile(world: World, tile: TilePoint) {
-    for (const [entityId, position] of world.positions) {
-        if (sameTile(position, tile)) return entityId;
-    }
+export function getTileKey(tile: TilePoint) {
+    return `${tile.x},${tile.y}`;
+}
 
-    return null;
+export function getEntityAtTile(world: World, tile: TilePoint) {
+    return world.tileEntities.get(getTileKey(tile)) ?? null;
 }
 
 export function getRenderableEntities(world: World) {
