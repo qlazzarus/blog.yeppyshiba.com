@@ -4,11 +4,13 @@ export const BOARD_WIDTH = 10;
 export const BOARD_HEIGHT = 10;
 export const BOARD_ORIGIN_Y = 130;
 export const HOVER_INSET = 3;
+export const MINE_COUNT = 14;
 
 export type BoardLayout = {
     boardHeight: number;
     boardWidth: number;
     hoverInset: number;
+    mineCount: number;
     originX: number;
     originY: number;
     tileHeight: number;
@@ -20,6 +22,7 @@ export function createBoardLayout(viewportWidth: number): BoardLayout {
         boardHeight: BOARD_HEIGHT,
         boardWidth: BOARD_WIDTH,
         hoverInset: HOVER_INSET,
+        mineCount: MINE_COUNT,
         originX: viewportWidth / 2,
         originY: BOARD_ORIGIN_Y,
         tileHeight: TILE_HEIGHT,
