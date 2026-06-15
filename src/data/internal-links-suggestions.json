@@ -1,51 +1,57 @@
 {
-  "topPost": "/article/ganghwa-cafe-in-bunjae-review",
-  "topPostViews": 46,
+  "topPost": "/article/apptech-income-may-2026",
+  "topPostViews": 130,
   "relatedSuggestions": [
-    "/ganghwa-cafe-in-bunjae-review/",
-    "/bundang-cafe-deerhill-review/",
-    "/ganghwa-dongmak-boston-burger-review/",
-    "/hwaseong-byulboim-cafe-review/",
-    "/yongin-cafe-arosto-review/",
-    "/a-look-back-in-2024/"
+    "/apptech-income-may-2026/",
+    "/how-i-build-pocket-money-with-apptech/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/gpx-risk-analyzer",
+      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
       "views": 4,
-      "avgSec": 88.27
+      "avgSec": 134.36
+    },
+    {
+      "path": "/article/how-i-build-pocket-money-with-apptech",
+      "views": 2,
+      "avgSec": 734.28
+    },
+    {
+      "path": "/article/ansan-bono-dong-gukbapjip-review",
+      "views": 1,
+      "avgSec": 225.86
+    },
+    {
+      "path": "/article/gpx-risk-analyzer",
+      "views": 1,
+      "avgSec": 85.72
+    },
+    {
+      "path": "/article/newborn-loan-review",
+      "views": 1,
+      "avgSec": 130.45
+    },
+    {
+      "path": "/article/thinking-math-variables",
+      "views": 1,
+      "avgSec": 124.25
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/quarter-view",
-      "views": 2,
-      "avgSec": 1.93
-    },
-    {
-      "path": "/article/thinking-math-formula",
-      "views": 2,
-      "avgSec": 7.6
-    },
-    {
-      "path": "/article/bicycle-commute-transportation-savings",
+      "path": "/article/20260525-dahon-dash-d16-evening-ride",
       "views": 1,
-      "avgSec": 6.83
+      "avgSec": 2.21
     },
     {
-      "path": "/article/migration-to-gatsby",
-      "views": 1,
-      "avgSec": 5.02
-    },
-    {
-      "path": "/article/quarter-view",
+      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/uiwang-1981-chopyeong-gyeongyang",
+      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
       "views": 1,
-      "avgSec": 8.33
+      "avgSec": 0
     }
   ]
 }
