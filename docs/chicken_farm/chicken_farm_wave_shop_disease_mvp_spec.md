@@ -30,6 +30,8 @@ type GamePhase = "lobby" | "prebuild" | "running" | "victory" | "defeat";
 type RuntimeState = {
   phase: GamePhase;
   elapsedSec: number;
+  timeScale: number;
+  maxPlayers: 8;
   difficulty: "easy" | "normal" | "hard" | "crazy";
   players: PlayerState[];
   wave: WaveRuntime;
@@ -42,8 +44,17 @@ type RuntimeState = {
 공통 규칙:
 
 - 모든 반복 이벤트는 `elapsedSec` 기준으로 판정한다.
+- `elapsedSec`는 원본 논리 시간이며, 테스트 배속은 `realDeltaSec * timeScale`로만 반영한다.
 - 30초 수익 tick, 20초 웨이브 보충 tick, 질병 tick은 별도 타이머 객체보다 `elapsedSec >= nextAtSec` 방식이 재접속/동기화에 유리하다.
 - 원본 rawcode는 데이터의 `sourceRawcode` 필드에만 남기고 런타임 로직에서는 새 id를 사용한다.
+
+테스트 프로파일:
+
+| profile | timeScale | 목적 |
+|---|---:|---|
+| `original` | 1 | 원본에 가까운 장기 체감 검증 |
+| `fast` | 3 | 전체 흐름을 한 세션에서 확인 |
+| `smoke` | 10 | 웨이브/보스/질병 이벤트 순서 검증 |
 
 ---
 
@@ -61,7 +72,7 @@ type RuntimeState = {
 | 보충 스폰 | `IlillII`~`IllllII` 5907-6174 | 조건 만족 시 Player(10)에 2기씩 보충 |
 | 점수 | `iiIIliI` 6943-6985 | 늑대 처치/리더보드 점수 갱신 |
 
-원본 장기 타이머 후보는 60, 120, 230, 300, 600, 1100, 1500, 2000, 2200, 2400, 2600, 2800, 3000초다. MVP는 840~900초 세션으로 압축한다.
+원본 장기 타이머 후보는 60, 120, 230, 300, 600, 1100, 1500, 2000, 2200, 2400, 2600, 2800, 3000초다. 원본 근접 내부 테스트에서는 이 논리 시간을 유지하고, 빠른 검증은 `timeScale`로만 압축한다.
 
 ### 2.2 MVP 데이터
 
@@ -100,19 +111,20 @@ type WaveEvent = {
 };
 ```
 
-초안 timeline:
+원본 근접 timeline 초안:
 
 | sec | enemy | count | 의도 |
 |---:|---|---:|---|
-| 70 | `timber_wolf` | 4 | 첫 압박 |
-| 120 | `timber_wolf` | 6 | 기본 방어 확인 |
-| 180 | `frost_wolf` | 5 | 약간 단단한 적 |
-| 240 | `giant_wolf` | 4 | 중반 전환 |
-| 300 | `blood_wolf` | 1 | 첫 보스 |
-| 420 | `wild_wolf` | 1 | 방어선 검사 |
-| 540 | `hell_hound` | 1 | 후반 압박 |
-| 660 | `doom_guard` | 1 | 최종 전 단계 |
-| 780 | `archimonde` | 1 | 정적 분석상 직접 등장하는 후반 보스 |
+| 80 | `timber_wolf` | 4 | 첫 압박 |
+| 120 | `timber_wolf` | 6 | 주요 웨이브 활성화 |
+| 230 | `frost_wolf` | 5 | 초반 방어 확인 |
+| 300 | `giant_wolf` | 4 | 보충/압박 증가 |
+| 600 | `blood_wolf` | 1 | 첫 보스 |
+| 1100 | `frost_wolf` 또는 상위 일반 늑대 | 보충 | 난이도 상승 |
+| 1500 | `wild_wolf` | 1 | 중후반 방어선 검사 |
+| 2000 | `hell_hound` | 1 | 후반 압박 |
+| 2600 | `doom_guard` | 1 | 최종 전 단계 |
+| 3000 | `archimonde` | 1 | 정적 분석상 직접 등장하는 후반 보스 |
 | 관찰 필요 | `nether_dragon` | 1 | 사망/변환 후속 보스 후보 |
 
 주의: 정적 분석 기준 `H01N` 아키몬드는 후반 보스 등장 메시지와 함께 생성된다. `H01O` 네더 드레곤은 별도 등장 메시지 함수가 아니라 사망 위치에 생성되고 이전 유닛 레벨을 이어받는 함수에서 확인된다. 실제 플레이 관찰은 보류하고, 현재 최종전은 정적 분석과 Warsmash behavior 참조 기준으로 `archimonde -> nether_dragon` 2단계 후보로 둔다.
