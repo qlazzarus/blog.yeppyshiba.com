@@ -1,0 +1,1935 @@
+{
+  "header": {
+    "magic": "W3do",
+    "version": 8,
+    "subversion": 11,
+    "doodad_count": 1162,
+    "special_count": 0,
+    "remaining_bytes": 4
+  },
+  "bounds": {
+    "min_x": -3070.314,
+    "max_x": 7648.0,
+    "min_y": -7679.038,
+    "max_y": 3040.0
+  },
+  "top_rawcodes": [
+    {
+      "rawcode": "BTtw",
+      "count": 562,
+      "category": "tree_or_wood_blocker"
+    },
+    {
+      "rawcode": "YTpb",
+      "count": 96,
+      "category": "cityscape_prop"
+    },
+    {
+      "rawcode": "APms",
+      "count": 96,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "ZPfw",
+      "count": 93,
+      "category": "other"
+    },
+    {
+      "rawcode": "ZRrk",
+      "count": 58,
+      "category": "other"
+    },
+    {
+      "rawcode": "APbs",
+      "count": 51,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "VOfl",
+      "count": 26,
+      "category": "village_or_structure_prop"
+    },
+    {
+      "rawcode": "ATtc",
+      "count": 26,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "ZWsw",
+      "count": 16,
+      "category": "other"
+    },
+    {
+      "rawcode": "D000",
+      "count": 15,
+      "category": "dungeon_or_ruin_prop"
+    },
+    {
+      "rawcode": "ZPsh",
+      "count": 14,
+      "category": "other"
+    },
+    {
+      "rawcode": "AWfs",
+      "count": 13,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "VSvb",
+      "count": 10,
+      "category": "village_or_structure_prop"
+    },
+    {
+      "rawcode": "AObd",
+      "count": 10,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "LOhc",
+      "count": 9,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "ZWcl",
+      "count": 9,
+      "category": "other"
+    },
+    {
+      "rawcode": "IWbg",
+      "count": 6,
+      "category": "other"
+    },
+    {
+      "rawcode": "DOtp",
+      "count": 5,
+      "category": "dungeon_or_ruin_prop"
+    },
+    {
+      "rawcode": "LObz",
+      "count": 4,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "LOlp",
+      "count": 4,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "ZWfs",
+      "count": 4,
+      "category": "other"
+    },
+    {
+      "rawcode": "LOsc",
+      "count": 4,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "ARrk",
+      "count": 4,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "APct",
+      "count": 4,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "LWw0",
+      "count": 3,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "ZPvp",
+      "count": 3,
+      "category": "other"
+    },
+    {
+      "rawcode": "LOh1",
+      "count": 2,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "YOfb",
+      "count": 2,
+      "category": "cityscape_prop"
+    },
+    {
+      "rawcode": "LOfl",
+      "count": 2,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "ZRrs",
+      "count": 2,
+      "category": "other"
+    },
+    {
+      "rawcode": "LSba",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "LOtr",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "LOch",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "LOhb",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "LOwp",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "NObt",
+      "count": 1,
+      "category": "other"
+    },
+    {
+      "rawcode": "LOgr",
+      "count": 1,
+      "category": "lordaeron_terrain_prop"
+    },
+    {
+      "rawcode": "AOhs",
+      "count": 1,
+      "category": "ashenvale_prop"
+    },
+    {
+      "rawcode": "ZWsf",
+      "count": 1,
+      "category": "other"
+    }
+  ],
+  "rawcode_spatial": [
+    {
+      "rawcode": "BTtw",
+      "count": 562,
+      "category": "tree_or_wood_blocker",
+      "min_x": -3008.0,
+      "max_x": 7552.0,
+      "min_y": -7360.0,
+      "max_y": 3008.0,
+      "avg_x": 5056.342,
+      "avg_y": -410.078
+    },
+    {
+      "rawcode": "APms",
+      "count": 96,
+      "category": "ashenvale_prop",
+      "min_x": -3070.314,
+      "max_x": 7159.247,
+      "min_y": -7414.767,
+      "max_y": 2925.842,
+      "avg_x": 2071.869,
+      "avg_y": -2030.255
+    },
+    {
+      "rawcode": "YTpb",
+      "count": 96,
+      "category": "cityscape_prop",
+      "min_x": 1056.0,
+      "max_x": 3040.0,
+      "min_y": -4256.0,
+      "max_y": -2336.0,
+      "avg_x": 1963.333,
+      "avg_y": -3425.333
+    },
+    {
+      "rawcode": "ZPfw",
+      "count": 93,
+      "category": "other",
+      "min_x": -3067.992,
+      "max_x": 7073.815,
+      "min_y": -7349.649,
+      "max_y": 2880.335,
+      "avg_x": 4359.384,
+      "avg_y": -1172.788
+    },
+    {
+      "rawcode": "ZRrk",
+      "count": 58,
+      "category": "other",
+      "min_x": -2816.0,
+      "max_x": 6592.0,
+      "min_y": -7616.0,
+      "max_y": -7488.0,
+      "avg_x": 2033.655,
+      "avg_y": -7492.414
+    },
+    {
+      "rawcode": "APbs",
+      "count": 51,
+      "category": "ashenvale_prop",
+      "min_x": -2720.0,
+      "max_x": 7648.0,
+      "min_y": -6368.0,
+      "max_y": 3040.0,
+      "avg_x": 5355.294,
+      "avg_y": 416.0
+    },
+    {
+      "rawcode": "ATtc",
+      "count": 26,
+      "category": "ashenvale_prop",
+      "min_x": -2016.0,
+      "max_x": 7328.0,
+      "min_y": -5856.0,
+      "max_y": 3040.0,
+      "avg_x": 4987.077,
+      "avg_y": -428.308
+    },
+    {
+      "rawcode": "VOfl",
+      "count": 26,
+      "category": "village_or_structure_prop",
+      "min_x": 992.0,
+      "max_x": 3104.0,
+      "min_y": -4320.0,
+      "max_y": -2272.0,
+      "avg_x": 2048.0,
+      "avg_y": -3268.923
+    },
+    {
+      "rawcode": "ZWsw",
+      "count": 16,
+      "category": "other",
+      "min_x": -2699.274,
+      "max_x": 6954.724,
+      "min_y": -7658.816,
+      "max_y": -7537.442,
+      "avg_x": 3071.729,
+      "avg_y": -7602.223
+    },
+    {
+      "rawcode": "D000",
+      "count": 15,
+      "category": "dungeon_or_ruin_prop",
+      "min_x": -2816.0,
+      "max_x": 7552.0,
+      "min_y": -6208.0,
+      "max_y": 3008.0,
+      "avg_x": 4599.467,
+      "avg_y": 166.4
+    },
+    {
+      "rawcode": "ZPsh",
+      "count": 14,
+      "category": "other",
+      "min_x": -3059.128,
+      "max_x": 7186.655,
+      "min_y": -7480.568,
+      "max_y": -836.375,
+      "avg_x": 655.96,
+      "avg_y": -6810.144
+    },
+    {
+      "rawcode": "AWfs",
+      "count": 13,
+      "category": "ashenvale_prop",
+      "min_x": -2546.158,
+      "max_x": 4451.923,
+      "min_y": -7679.038,
+      "max_y": -7577.57,
+      "avg_x": -398.654,
+      "avg_y": -7632.85
+    },
+    {
+      "rawcode": "AObd",
+      "count": 10,
+      "category": "ashenvale_prop",
+      "min_x": -2786.495,
+      "max_x": 7075.786,
+      "min_y": -7456.402,
+      "max_y": 2638.046,
+      "avg_x": 1756.103,
+      "avg_y": -2268.094
+    },
+    {
+      "rawcode": "VSvb",
+      "count": 10,
+      "category": "village_or_structure_prop",
+      "min_x": 1088.0,
+      "max_x": 3008.0,
+      "min_y": -4224.0,
+      "max_y": -2368.0,
+      "avg_x": 2246.4,
+      "avg_y": -3641.6
+    },
+    {
+      "rawcode": "LOhc",
+      "count": 9,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1448.557,
+      "max_x": 1781.933,
+      "min_y": -4231.639,
+      "max_y": -4073.452,
+      "avg_x": 1597.001,
+      "avg_y": -4169.463
+    },
+    {
+      "rawcode": "ZWcl",
+      "count": 9,
+      "category": "other",
+      "min_x": -1408.0,
+      "max_x": 7296.0,
+      "min_y": -7648.0,
+      "max_y": -7520.0,
+      "avg_x": 4579.556,
+      "avg_y": -7598.222
+    },
+    {
+      "rawcode": "IWbg",
+      "count": 6,
+      "category": "other",
+      "min_x": -1217.885,
+      "max_x": 6945.065,
+      "min_y": -7673.847,
+      "max_y": -7653.449,
+      "avg_x": 2850.812,
+      "avg_y": -7660.593
+    },
+    {
+      "rawcode": "DOtp",
+      "count": 5,
+      "category": "dungeon_or_ruin_prop",
+      "min_x": 2368.0,
+      "max_x": 2624.0,
+      "min_y": -2496.0,
+      "max_y": -2368.0,
+      "avg_x": 2496.0,
+      "avg_y": -2432.0
+    },
+    {
+      "rawcode": "APct",
+      "count": 4,
+      "category": "ashenvale_prop",
+      "min_x": -2701.426,
+      "max_x": 2170.838,
+      "min_y": -873.381,
+      "max_y": 2834.623,
+      "avg_x": -286.153,
+      "avg_y": 983.277
+    },
+    {
+      "rawcode": "ARrk",
+      "count": 4,
+      "category": "ashenvale_prop",
+      "min_x": -3008.0,
+      "max_x": 7104.0,
+      "min_y": -7488.0,
+      "max_y": 2816.0,
+      "avg_x": 2016.0,
+      "avg_y": -4048.0
+    },
+    {
+      "rawcode": "LObz",
+      "count": 4,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 928.0,
+      "max_x": 3168.0,
+      "min_y": -3744.0,
+      "max_y": -3040.0,
+      "avg_x": 2048.0,
+      "avg_y": -3392.0
+    },
+    {
+      "rawcode": "LOlp",
+      "count": 4,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1120.0,
+      "max_x": 2912.0,
+      "min_y": -3872.0,
+      "max_y": -2720.0,
+      "avg_x": 2016.0,
+      "avg_y": -3312.0
+    },
+    {
+      "rawcode": "LOsc",
+      "count": 4,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 2024.9,
+      "max_x": 2198.605,
+      "min_y": -967.512,
+      "max_y": -914.678,
+      "avg_x": 2125.89,
+      "avg_y": -946.663
+    },
+    {
+      "rawcode": "ZWfs",
+      "count": 4,
+      "category": "other",
+      "min_x": -2218.888,
+      "max_x": -1986.322,
+      "min_y": -7635.819,
+      "max_y": -7558.954,
+      "avg_x": -2120.43,
+      "avg_y": -7598.429
+    },
+    {
+      "rawcode": "LWw0",
+      "count": 3,
+      "category": "lordaeron_terrain_prop",
+      "min_x": -2998.672,
+      "max_x": -2591.564,
+      "min_y": -7651.435,
+      "max_y": -7614.245,
+      "avg_x": -2842.587,
+      "avg_y": -7627.729
+    },
+    {
+      "rawcode": "ZPvp",
+      "count": 3,
+      "category": "other",
+      "min_x": 6688.0,
+      "max_x": 7008.0,
+      "min_y": 2720.0,
+      "max_y": 2720.0,
+      "avg_x": 6880.0,
+      "avg_y": 2720.0
+    },
+    {
+      "rawcode": "LOfl",
+      "count": 2,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 2070.779,
+      "max_x": 2159.776,
+      "min_y": -942.246,
+      "max_y": -929.418,
+      "avg_x": 2115.278,
+      "avg_y": -935.832
+    },
+    {
+      "rawcode": "LOh1",
+      "count": 2,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1056.0,
+      "max_x": 3040.0,
+      "min_y": -3744.0,
+      "max_y": -3104.0,
+      "avg_x": 2048.0,
+      "avg_y": -3424.0
+    },
+    {
+      "rawcode": "YOfb",
+      "count": 2,
+      "category": "cityscape_prop",
+      "min_x": 7249.153,
+      "max_x": 7347.979,
+      "min_y": -7668.598,
+      "max_y": -7446.032,
+      "avg_x": 7298.566,
+      "avg_y": -7557.315
+    },
+    {
+      "rawcode": "ZRrs",
+      "count": 2,
+      "category": "other",
+      "min_x": 3648.0,
+      "max_x": 7232.0,
+      "min_y": -7616.0,
+      "max_y": -7296.0,
+      "avg_x": 5440.0,
+      "avg_y": -7456.0
+    },
+    {
+      "rawcode": "AOhs",
+      "count": 1,
+      "category": "ashenvale_prop",
+      "min_x": 1792.0,
+      "max_x": 1792.0,
+      "min_y": 2752.0,
+      "max_y": 2752.0,
+      "avg_x": 1792.0,
+      "avg_y": 2752.0
+    },
+    {
+      "rawcode": "LOch",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1504.0,
+      "max_x": 1504.0,
+      "min_y": -4160.0,
+      "max_y": -4160.0,
+      "avg_x": 1504.0,
+      "avg_y": -4160.0
+    },
+    {
+      "rawcode": "LOgr",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": -2016.0,
+      "max_x": -2016.0,
+      "min_y": 3040.0,
+      "max_y": 3040.0,
+      "avg_x": -2016.0,
+      "avg_y": 3040.0
+    },
+    {
+      "rawcode": "LOhb",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1792.0,
+      "max_x": 1792.0,
+      "min_y": -4160.0,
+      "max_y": -4160.0,
+      "avg_x": 1792.0,
+      "avg_y": -4160.0
+    },
+    {
+      "rawcode": "LOtr",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1408.0,
+      "max_x": 1408.0,
+      "min_y": -2400.0,
+      "max_y": -2400.0,
+      "avg_x": 1408.0,
+      "avg_y": -2400.0
+    },
+    {
+      "rawcode": "LOwp",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 2272.0,
+      "max_x": 2272.0,
+      "min_y": -2336.0,
+      "max_y": -2336.0,
+      "avg_x": 2272.0,
+      "avg_y": -2336.0
+    },
+    {
+      "rawcode": "LSba",
+      "count": 1,
+      "category": "lordaeron_terrain_prop",
+      "min_x": 1184.0,
+      "max_x": 1184.0,
+      "min_y": -2464.0,
+      "max_y": -2464.0,
+      "avg_x": 1184.0,
+      "avg_y": -2464.0
+    },
+    {
+      "rawcode": "NObt",
+      "count": 1,
+      "category": "other",
+      "min_x": -2094.255,
+      "max_x": -2094.255,
+      "min_y": 2951.619,
+      "max_y": 2951.619,
+      "avg_x": -2094.255,
+      "avg_y": 2951.619
+    },
+    {
+      "rawcode": "ZWsf",
+      "count": 1,
+      "category": "other",
+      "min_x": 1581.882,
+      "max_x": 1581.882,
+      "min_y": -7663.653,
+      "max_y": -7663.653,
+      "avg_x": 1581.882,
+      "avg_y": -7663.653
+    }
+  ],
+  "category_counts": {
+    "ashenvale_prop": 205,
+    "cityscape_prop": 98,
+    "dungeon_or_ruin_prop": 20,
+    "lordaeron_terrain_prop": 34,
+    "other": 207,
+    "tree_or_wood_blocker": 562,
+    "village_or_structure_prop": 36
+  },
+  "start_location_neighborhoods": [
+    {
+      "slot": "0",
+      "x": 4672.0,
+      "y": -6464.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 1,
+        "1536": 17,
+        "2048": 33
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "ZRrk",
+          "count": 13
+        },
+        {
+          "rawcode": "ZWsw",
+          "count": 2
+        },
+        {
+          "rawcode": "AWfs",
+          "count": 1
+        },
+        {
+          "rawcode": "ZWcl",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 1,
+        "other": 16
+      },
+      "nearest": [
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4672.0,
+          "y": -7488.0,
+          "distance": 1024.0
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4800.0,
+          "y": -7488.0,
+          "distance": 1031.97
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4544.0,
+          "y": -7488.0,
+          "distance": 1031.97
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4928.0,
+          "y": -7488.0,
+          "distance": 1055.52
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4416.0,
+          "y": -7488.0,
+          "distance": 1055.52
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5056.0,
+          "y": -7488.0,
+          "distance": 1093.63
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4288.0,
+          "y": -7488.0,
+          "distance": 1093.63
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5184.0,
+          "y": -7488.0,
+          "distance": 1144.87
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 4160.0,
+          "y": -7488.0,
+          "distance": 1144.87
+        },
+        {
+          "rawcode": "AWfs",
+          "category": "ashenvale_prop",
+          "x": 4451.923,
+          "y": -7607.151,
+          "distance": 1164.14
+        },
+        {
+          "rawcode": "ZWsw",
+          "category": "other",
+          "x": 4919.947,
+          "y": -7601.718,
+          "distance": 1164.42
+        },
+        {
+          "rawcode": "ZWcl",
+          "category": "other",
+          "x": 4800.0,
+          "y": -7648.0,
+          "distance": 1190.9
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5312.0,
+          "y": -7488.0,
+          "distance": 1207.55
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5440.0,
+          "y": -7488.0,
+          "distance": 1280.0
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5568.0,
+          "y": -7488.0,
+          "distance": 1360.66
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 5696.0,
+          "y": -7488.0,
+          "distance": 1448.15
+        }
+      ]
+    },
+    {
+      "slot": "1",
+      "x": 2496.0,
+      "y": -5376.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 50,
+        "2048": 86
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "YTpb",
+          "count": 32
+        },
+        {
+          "rawcode": "VOfl",
+          "count": 8
+        },
+        {
+          "rawcode": "LOhc",
+          "count": 6
+        },
+        {
+          "rawcode": "VSvb",
+          "count": 3
+        },
+        {
+          "rawcode": "LOhb",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "cityscape_prop": 32,
+        "lordaeron_terrain_prop": 7,
+        "village_or_structure_prop": 11
+      },
+      "nearest": [
+        {
+          "rawcode": "VOfl",
+          "category": "village_or_structure_prop",
+          "x": 2432.0,
+          "y": -4320.0,
+          "distance": 1057.94
+        },
+        {
+          "rawcode": "VOfl",
+          "category": "village_or_structure_prop",
+          "x": 2688.0,
+          "y": -4320.0,
+          "distance": 1073.31
+        },
+        {
+          "rawcode": "VOfl",
+          "category": "village_or_structure_prop",
+          "x": 2176.0,
+          "y": -4320.0,
+          "distance": 1103.42
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2528.0,
+          "y": -4256.0,
+          "distance": 1120.46
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2464.0,
+          "y": -4256.0,
+          "distance": 1120.46
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2400.0,
+          "y": -4256.0,
+          "distance": 1124.11
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2592.0,
+          "y": -4256.0,
+          "distance": 1124.11
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2336.0,
+          "y": -4256.0,
+          "distance": 1131.37
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2656.0,
+          "y": -4256.0,
+          "distance": 1131.37
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2272.0,
+          "y": -4256.0,
+          "distance": 1142.18
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2720.0,
+          "y": -4256.0,
+          "distance": 1142.18
+        },
+        {
+          "rawcode": "VOfl",
+          "category": "village_or_structure_prop",
+          "x": 2944.0,
+          "y": -4320.0,
+          "distance": 1147.1
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2208.0,
+          "y": -4256.0,
+          "distance": 1156.44
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2784.0,
+          "y": -4256.0,
+          "distance": 1156.44
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2144.0,
+          "y": -4256.0,
+          "distance": 1174.01
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2080.0,
+          "y": -4256.0,
+          "distance": 1194.76
+        }
+      ]
+    },
+    {
+      "slot": "2",
+      "x": 384.0,
+      "y": 1472.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 28,
+        "2048": 81
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "BTtw",
+          "count": 23
+        },
+        {
+          "rawcode": "ATtc",
+          "count": 2
+        },
+        {
+          "rawcode": "AObd",
+          "count": 1
+        },
+        {
+          "rawcode": "APms",
+          "count": 1
+        },
+        {
+          "rawcode": "ZPfw",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 4,
+        "other": 1,
+        "tree_or_wood_blocker": 23
+      },
+      "nearest": [
+        {
+          "rawcode": "AObd",
+          "category": "ashenvale_prop",
+          "x": 860.777,
+          "y": 2534.529,
+          "distance": 1164.6
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 384.0,
+          "y": 2752.0,
+          "distance": 1280.0
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 512.0,
+          "y": 2752.0,
+          "distance": 1286.38
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 256.0,
+          "y": 2752.0,
+          "distance": 1286.38
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 640.0,
+          "y": 2752.0,
+          "distance": 1305.35
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 128.0,
+          "y": 2752.0,
+          "distance": 1305.35
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 768.0,
+          "y": 2752.0,
+          "distance": 1336.36
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 0.0,
+          "y": 2752.0,
+          "distance": 1336.36
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": -128.0,
+          "y": 2752.0,
+          "distance": 1378.6
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 896.0,
+          "y": 2752.0,
+          "distance": 1378.6
+        },
+        {
+          "rawcode": "APms",
+          "category": "ashenvale_prop",
+          "x": 990.737,
+          "y": 2719.376,
+          "distance": 1387.11
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 384.0,
+          "y": 2880.0,
+          "distance": 1408.0
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 512.0,
+          "y": 2880.0,
+          "distance": 1413.81
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 256.0,
+          "y": 2880.0,
+          "distance": 1413.81
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 1024.0,
+          "y": 2752.0,
+          "distance": 1431.08
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 640.0,
+          "y": 2880.0,
+          "distance": 1431.08
+        }
+      ]
+    },
+    {
+      "slot": "3",
+      "x": 6016.0,
+      "y": -4224.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 6,
+        "1536": 73,
+        "2048": 148
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "BTtw",
+          "count": 56
+        },
+        {
+          "rawcode": "ATtc",
+          "count": 6
+        },
+        {
+          "rawcode": "ZPfw",
+          "count": 6
+        },
+        {
+          "rawcode": "APms",
+          "count": 4
+        },
+        {
+          "rawcode": "ARrk",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 11,
+        "other": 6,
+        "tree_or_wood_blocker": 56
+      },
+      "nearest": [
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 6979.187,
+          "y": -4290.673,
+          "distance": 965.49
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 6977.102,
+          "y": -4331.603,
+          "distance": 967.11
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 6992.389,
+          "y": -4345.073,
+          "distance": 983.87
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 7003.395,
+          "y": -4379.678,
+          "distance": 999.59
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 7028.015,
+          "y": -4215.069,
+          "distance": 1012.05
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": 6979.113,
+          "y": -4545.961,
+          "distance": 1015.5
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4288.0,
+          "distance": 1026.0
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4160.0,
+          "distance": 1026.0
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4416.0,
+          "distance": 1041.84
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4032.0,
+          "distance": 1041.84
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -3904.0,
+          "distance": 1072.84
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4544.0,
+          "distance": 1072.84
+        },
+        {
+          "rawcode": "APms",
+          "category": "ashenvale_prop",
+          "x": 7028.546,
+          "y": -4618.811,
+          "distance": 1086.8
+        },
+        {
+          "rawcode": "ARrk",
+          "category": "ashenvale_prop",
+          "x": 7104.0,
+          "y": -4224.0,
+          "distance": 1088.0
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -3776.0,
+          "distance": 1117.71
+        },
+        {
+          "rawcode": "BTtw",
+          "category": "tree_or_wood_blocker",
+          "x": 7040.0,
+          "y": -4672.0,
+          "distance": 1117.71
+        }
+      ]
+    },
+    {
+      "slot": "4",
+      "x": -1536.0,
+      "y": -512.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 1,
+        "2048": 2
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "ZPfw",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "other": 1
+      },
+      "nearest": [
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -3001.075,
+          "y": -178.735,
+          "distance": 1502.5
+        }
+      ]
+    },
+    {
+      "slot": "5",
+      "x": 768.0,
+      "y": -6464.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 24,
+        "2048": 34
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "ZRrk",
+          "count": 14
+        },
+        {
+          "rawcode": "AWfs",
+          "count": 4
+        },
+        {
+          "rawcode": "ZWsw",
+          "count": 2
+        },
+        {
+          "rawcode": "AObd",
+          "count": 1
+        },
+        {
+          "rawcode": "ZWsf",
+          "count": 1
+        },
+        {
+          "rawcode": "IWbg",
+          "count": 1
+        },
+        {
+          "rawcode": "ZWcl",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 5,
+        "other": 19
+      },
+      "nearest": [
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 640.0,
+          "y": -7488.0,
+          "distance": 1031.97
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 1024.0,
+          "y": -7488.0,
+          "distance": 1055.52
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 512.0,
+          "y": -7488.0,
+          "distance": 1055.52
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 384.0,
+          "y": -7488.0,
+          "distance": 1093.63
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 1216.0,
+          "y": -7488.0,
+          "distance": 1117.71
+        },
+        {
+          "rawcode": "ZWcl",
+          "category": "other",
+          "x": 832.0,
+          "y": -7584.0,
+          "distance": 1121.83
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 256.0,
+          "y": -7488.0,
+          "distance": 1144.87
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 1344.0,
+          "y": -7488.0,
+          "distance": 1174.88
+        },
+        {
+          "rawcode": "AObd",
+          "category": "ashenvale_prop",
+          "x": 1415.84,
+          "y": -7456.402,
+          "distance": 1185.14
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 128.0,
+          "y": -7488.0,
+          "distance": 1207.55
+        },
+        {
+          "rawcode": "ZWsw",
+          "category": "other",
+          "x": 983.088,
+          "y": -7658.816,
+          "distance": 1214.02
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 1472.0,
+          "y": -7488.0,
+          "distance": 1242.66
+        },
+        {
+          "rawcode": "AWfs",
+          "category": "ashenvale_prop",
+          "x": 358.818,
+          "y": -7654.482,
+          "distance": 1258.84
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 0.0,
+          "y": -7488.0,
+          "distance": 1280.0
+        },
+        {
+          "rawcode": "ZRrk",
+          "category": "other",
+          "x": 1600.0,
+          "y": -7488.0,
+          "distance": 1319.39
+        },
+        {
+          "rawcode": "AWfs",
+          "category": "ashenvale_prop",
+          "x": 43.077,
+          "y": -7577.57,
+          "distance": 1328.74
+        }
+      ]
+    },
+    {
+      "slot": "6",
+      "x": 3648.0,
+      "y": 448.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 0,
+        "2048": 10
+      },
+      "top_rawcodes_1536": [],
+      "category_counts_1536": {},
+      "nearest": []
+    },
+    {
+      "slot": "7",
+      "x": 4928.0,
+      "y": -1408.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 0,
+        "2048": 0
+      },
+      "top_rawcodes_1536": [],
+      "category_counts_1536": {},
+      "nearest": []
+    },
+    {
+      "slot": "8",
+      "x": -1152.0,
+      "y": -4992.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 0,
+        "1536": 0,
+        "2048": 9
+      },
+      "top_rawcodes_1536": [],
+      "category_counts_1536": {},
+      "nearest": []
+    },
+    {
+      "slot": "9",
+      "x": -2304.0,
+      "y": -3072.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 2,
+        "1536": 12,
+        "2048": 15
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "ZPfw",
+          "count": 10
+        },
+        {
+          "rawcode": "APms",
+          "count": 1
+        },
+        {
+          "rawcode": "AObd",
+          "count": 1
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 2,
+        "other": 10
+      },
+      "nearest": [
+        {
+          "rawcode": "APms",
+          "category": "ashenvale_prop",
+          "x": -3070.314,
+          "y": -2713.167,
+          "distance": 846.17
+        },
+        {
+          "rawcode": "AObd",
+          "category": "ashenvale_prop",
+          "x": -2786.495,
+          "y": -2205.756,
+          "distance": 991.55
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2982.332,
+          "y": -2293.602,
+          "distance": 1032.49
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2936.639,
+          "y": -2241.552,
+          "distance": 1043.97
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -3067.992,
+          "y": -2332.11,
+          "distance": 1063.54
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2945.65,
+          "y": -2153.552,
+          "distance": 1120.38
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2942.612,
+          "y": -2045.078,
+          "distance": 1209.29
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2990.479,
+          "y": -4312.984,
+          "distance": 1418.2
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -3036.828,
+          "y": -4289.85,
+          "distance": 1421.34
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -3026.692,
+          "y": -4299.859,
+          "distance": 1424.75
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2967.964,
+          "y": -4355.605,
+          "distance": 1445.16
+        },
+        {
+          "rawcode": "ZPfw",
+          "category": "other",
+          "x": -2936.573,
+          "y": -4437.706,
+          "distance": 1505.09
+        }
+      ]
+    },
+    {
+      "slot": "10",
+      "x": 1792.0,
+      "y": -3072.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 45,
+        "1536": 152,
+        "2048": 163
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "YTpb",
+          "count": 93
+        },
+        {
+          "rawcode": "VOfl",
+          "count": 22
+        },
+        {
+          "rawcode": "LOhc",
+          "count": 9
+        },
+        {
+          "rawcode": "VSvb",
+          "count": 7
+        },
+        {
+          "rawcode": "DOtp",
+          "count": 5
+        },
+        {
+          "rawcode": "LObz",
+          "count": 4
+        },
+        {
+          "rawcode": "LOlp",
+          "count": 4
+        },
+        {
+          "rawcode": "LOh1",
+          "count": 2
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 1,
+        "cityscape_prop": 93,
+        "dungeon_or_ruin_prop": 5,
+        "lordaeron_terrain_prop": 24,
+        "village_or_structure_prop": 29
+      },
+      "nearest": [
+        {
+          "rawcode": "LOlp",
+          "category": "lordaeron_terrain_prop",
+          "x": 1184.0,
+          "y": -2784.0,
+          "distance": 672.76
+        },
+        {
+          "rawcode": "LOh1",
+          "category": "lordaeron_terrain_prop",
+          "x": 1056.0,
+          "y": -3104.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1760.0,
+          "y": -2336.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1056.0,
+          "y": -3040.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1824.0,
+          "y": -2336.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1696.0,
+          "y": -2336.0,
+          "distance": 742.23
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1056.0,
+          "y": -2976.0,
+          "distance": 742.23
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1888.0,
+          "y": -2336.0,
+          "distance": 742.23
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1632.0,
+          "y": -2336.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1056.0,
+          "y": -2912.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1952.0,
+          "y": -2336.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1568.0,
+          "y": -2336.0,
+          "distance": 769.33
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1056.0,
+          "y": -2848.0,
+          "distance": 769.33
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2016.0,
+          "y": -2336.0,
+          "distance": 769.33
+        },
+        {
+          "rawcode": "LOtr",
+          "category": "lordaeron_terrain_prop",
+          "x": 1408.0,
+          "y": -2400.0,
+          "distance": 773.98
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 1504.0,
+          "y": -2336.0,
+          "distance": 790.34
+        }
+      ]
+    },
+    {
+      "slot": "11",
+      "x": 2304.0,
+      "y": -3072.0,
+      "counts_by_radius": {
+        "512": 0,
+        "1024": 46,
+        "1536": 152,
+        "2048": 163
+      },
+      "top_rawcodes_1536": [
+        {
+          "rawcode": "YTpb",
+          "count": 93
+        },
+        {
+          "rawcode": "VOfl",
+          "count": 22
+        },
+        {
+          "rawcode": "LOhc",
+          "count": 9
+        },
+        {
+          "rawcode": "VSvb",
+          "count": 7
+        },
+        {
+          "rawcode": "DOtp",
+          "count": 5
+        },
+        {
+          "rawcode": "LObz",
+          "count": 4
+        },
+        {
+          "rawcode": "LOlp",
+          "count": 4
+        },
+        {
+          "rawcode": "LOh1",
+          "count": 2
+        }
+      ],
+      "category_counts_1536": {
+        "ashenvale_prop": 1,
+        "cityscape_prop": 93,
+        "dungeon_or_ruin_prop": 5,
+        "lordaeron_terrain_prop": 24,
+        "village_or_structure_prop": 29
+      },
+      "nearest": [
+        {
+          "rawcode": "DOtp",
+          "category": "dungeon_or_ruin_prop",
+          "x": 2368.0,
+          "y": -2496.0,
+          "distance": 579.54
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2528.0,
+          "y": -2528.0,
+          "distance": 588.31
+        },
+        {
+          "rawcode": "AObd",
+          "category": "ashenvale_prop",
+          "x": 2828.163,
+          "y": -3367.954,
+          "distance": 601.94
+        },
+        {
+          "rawcode": "DOtp",
+          "category": "dungeon_or_ruin_prop",
+          "x": 2624.0,
+          "y": -2496.0,
+          "distance": 658.92
+        },
+        {
+          "rawcode": "DOtp",
+          "category": "dungeon_or_ruin_prop",
+          "x": 2496.0,
+          "y": -2432.0,
+          "distance": 668.18
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2272.0,
+          "y": -2400.0,
+          "distance": 672.76
+        },
+        {
+          "rawcode": "LOlp",
+          "category": "lordaeron_terrain_prop",
+          "x": 2912.0,
+          "y": -2720.0,
+          "distance": 702.54
+        },
+        {
+          "rawcode": "DOtp",
+          "category": "dungeon_or_ruin_prop",
+          "x": 2368.0,
+          "y": -2368.0,
+          "distance": 706.9
+        },
+        {
+          "rawcode": "LOwp",
+          "category": "lordaeron_terrain_prop",
+          "x": 2272.0,
+          "y": -2336.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 3040.0,
+          "y": -3040.0,
+          "distance": 736.7
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2208.0,
+          "y": -2336.0,
+          "distance": 742.23
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 3040.0,
+          "y": -2976.0,
+          "distance": 742.23
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 3040.0,
+          "y": -2912.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2464.0,
+          "y": -2336.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 2144.0,
+          "y": -2336.0,
+          "distance": 753.19
+        },
+        {
+          "rawcode": "YTpb",
+          "category": "cityscape_prop",
+          "x": 3040.0,
+          "y": -2848.0,
+          "distance": 769.33
+        }
+      ]
+    }
+  ]
+}

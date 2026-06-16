@@ -1,0 +1,74 @@
+{
+  "ini_section_count": 978,
+  "slk_table_counts": {
+    "unit_abilities": 322,
+    "unit_balance": 322,
+    "unit_data": 322,
+    "unit_ui": 322,
+    "unit_weapons": 322,
+    "item_data": 49
+  },
+  "anonymous_blocks": [
+    {
+      "block_index": 59,
+      "size": 236249,
+      "kind": "unknown",
+      "head": "BLP1\u0000\u0000\u0000\u0000\b\u0000\u0000\u0000\u0000\u0002\u0000\u0000\u0000\u0002\u0000\u0000\u0004\u0000\u0000\u0000"
+    },
+    {
+      "block_index": 70,
+      "size": 403926,
+      "kind": "ini_sections",
+      "head": "[e000]\\nName=ì¨ëë¦¬ì¤"
+    },
+    {
+      "block_index": 82,
+      "size": 98527,
+      "kind": "ini_sections",
+      "head": "[I000]\\nName=ê¸í ìë"
+    },
+    {
+      "block_index": 84,
+      "size": 15839,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X7;Y323;D0"
+    },
+    {
+      "block_index": 85,
+      "size": 105994,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X61;Y323;D"
+    },
+    {
+      "block_index": 86,
+      "size": 61383,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X32;Y323;D"
+    },
+    {
+      "block_index": 87,
+      "size": 124545,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X51;Y323;D"
+    },
+    {
+      "block_index": 88,
+      "size": 128426,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X79;Y323;D"
+    },
+    {
+      "block_index": 89,
+      "size": 14750,
+      "kind": "slk",
+      "head": "ID;PWXL;N;E\\nB;X35;Y50;D0"
+    },
+    {
+      "block_index": 90,
+      "size": 1527,
+      "kind": "unknown",
+      "head": "STRING 1\\r\\n{\\r\\në­ ëì¥ "
+    }
+  ],
+  "note": "Derived from unnamed, unencrypted MPQ blocks that contain unit INI/SLK tables; raw original files are not written."
+}

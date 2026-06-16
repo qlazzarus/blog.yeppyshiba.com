@@ -1,0 +1,7 @@
+flags	hex	count	ground_blocked	build_blocked
+64	0x40	108800	False	False
+202	0xCA	4520	True	True
+72	0x48	3708	False	True
+8	0x08	600	False	True
+10	0x0A	552	True	True
+206	0xCE	92	True	True

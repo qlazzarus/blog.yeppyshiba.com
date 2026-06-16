@@ -1,0 +1,254 @@
+{
+  "meta": {
+    "sourceMap": "docs/\ub2ed\ub18d\uc7a51.3a.w3x",
+    "purpose": "Reference original Warcraft III values and proposed transformed values for the Phaser/Web MVP.",
+    "sourceArtifacts": [
+      "jass_timer_events.tsv",
+      "jass_economy_events.tsv",
+      "jass_score_events.tsv",
+      "jass_create_units.tsv",
+      "unit_rawcode_crosscheck.tsv",
+      "wpm_summary.json"
+    ],
+    "notes": [
+      "Do not copy original assets, names, scripts, or exact balance wholesale into the new game.",
+      "Original values are preserved as reference; mvp values are first-pass tuning targets for a 12-15 minute web session.",
+      "Warcraft III damage fields are engine-specific. MVP damage is a normalized design value, not a direct formula port."
+    ]
+  },
+  "conversion": {
+    "sessionScale": {
+      "originalLateEventSec": 3000,
+      "mvpTargetSessionSec": 900,
+      "method": "Compress late-game timing to roughly 30% while keeping the first pressure window close to the original 60-80 second feel."
+    },
+    "statScale": {
+      "unitHp": "Normalize ordinary enemies around 100-180 HP, defenders around 220-650 HP, and bosses around 130-900 HP.",
+      "damage": "Use relative threat from original cooldown/damage fields, then flatten outliers for readable web combat.",
+      "speed": "Use original move speed ranking, mapped to Phaser movement speeds around 90-125 px/s."
+    },
+    "economyScale": {
+      "income": "Convert 70/110/170 lumber per 30 seconds into 1/2/3 egg units or equivalent cash yield.",
+      "cost": "Compress Warcraft III gold/lumber costs into smaller MVP purchase prices while preserving tier gaps.",
+      "penalty": "Reduce original 40% revive resource loss to 25% for shorter sessions."
+    }
+  },
+  "session": {
+    "original": {
+      "firstWolfHintSec": 80,
+      "observedTimerSec": [60, 120, 230, 300, 600, 1100, 1500, 2000, 2200, 2400, 2600, 2800, 3000],
+      "incomeIntervalSec": 30
+    },
+    "mvp": {
+      "targetSessionSec": 840,
+      "firstWaveSec": 70,
+      "waveCheckIntervalSec": 20,
+      "eliteWaveSec": 300,
+      "bossWaveSec": 480,
+      "latePressureSec": 660,
+      "finalPressureSec": 780,
+      "incomeIntervalSec": 30
+    }
+  },
+  "economy": {
+    "original": {
+      "startingGold": "1500 + difficulty bonus",
+      "easyBonusGold": 200,
+      "exchangeTiers": [
+        { "pay": 100, "receive": 70 },
+        { "pay": 500, "receive": 400 },
+        { "pay": 1500, "receive": 1200 },
+        { "pay": 3000, "receive": 2400 }
+      ],
+      "reviveResourceLossPct": 40,
+      "incomeBuildings": [
+        { "rawcode": "h00A", "name": "\ub7fc\ubc84 \ubc00", "costGold": 350, "hp": 150, "incomeLumberPer30Sec": 70, "upgradeTo": "h00J" },
+        { "rawcode": "h00J", "name": "\ub7fc\ubc84 \ubc00[2\ub2e8\uacc4]", "costGold": 750, "hp": 150, "incomeLumberPer30Sec": 110, "upgradeTo": "h00W" },
+        { "rawcode": "h00W", "name": "\ub7fc\ubc84 \ubc00[3\ub2e8\uacc4]", "costGold": 1450, "hp": 150, "incomeLumberPer30Sec": 170, "upgradeTo": "" }
+      ],
+      "shopPurchases": [
+        { "jassLine": 3270, "costGold": 150 },
+        { "jassLine": 3290, "costGold": 400 },
+        { "jassLine": 3310, "costGold": 850 }
+      ]
+    },
+    "mvp": {
+      "startingCoins": 120,
+      "easyBonusCoins": 20,
+      "exchangeEnabled": false,
+      "reviveResourceLossPct": 25,
+      "incomeBuildings": [
+        { "id": "coop_basic", "sourceRawcode": "h00A", "costCoins": 60, "hp": 120, "eggUnitsPer30Sec": 1, "sellValueCoins": 36, "upgradeTo": "coop_mid" },
+        { "id": "coop_mid", "sourceRawcode": "h00J", "costCoins": 120, "hp": 150, "eggUnitsPer30Sec": 2, "sellValueCoins": 72, "upgradeTo": "coop_high" },
+        { "id": "coop_high", "sourceRawcode": "h00W", "costCoins": 220, "hp": 180, "eggUnitsPer30Sec": 3, "sellValueCoins": 132, "upgradeTo": "" }
+      ],
+      "eggUnitValueCoins": 12,
+      "defenderPurchases": [
+        { "id": "dog", "sourceRawcode": "n002", "costCoins": 45 },
+        { "id": "big_dog", "sourceRawcode": "n00E", "costCoins": 180 }
+      ]
+    }
+  },
+  "units": {
+    "player": [
+      {
+        "id": "farmer",
+        "sourceRawcode": "H000",
+        "original": { "hp": 220, "armor": 1, "speed": 240, "costGold": 425, "costLumber": 100, "cooldownSec": 1.5, "damageBase": 30, "dice": 1, "sides": 4 },
+        "mvp": { "hp": 100, "armor": 0, "speedPxPerSec": 100, "damage": 10, "attackCooldownSec": 0.9, "role": "builder_hero" }
+      },
+      {
+        "id": "dog",
+        "sourceRawcode": "n002",
+        "original": { "hp": 600, "armor": 7, "speed": 290, "costGold": 150, "costLumber": 50, "cooldownSec": 0.95, "damageBase": 35, "dice": 1, "sides": 2 },
+        "mvp": { "hp": 220, "armor": 2, "speedPxPerSec": 118, "damage": 18, "attackCooldownSec": 0.8, "role": "fast_defender" }
+      },
+      {
+        "id": "big_dog",
+        "sourceRawcode": "n00E",
+        "original": { "hp": 1700, "armor": 9, "speed": 330, "costGold": 2200, "costLumber": 500, "cooldownSec": 1.2, "damageBase": 80, "dice": 1, "sides": 6 },
+        "mvp": { "hp": 650, "armor": 4, "speedPxPerSec": 122, "damage": 45, "attackCooldownSec": 1.0, "role": "elite_defender" }
+      }
+    ],
+    "enemies": [
+      {
+        "id": "timber_wolf",
+        "sourceRawcode": "n007",
+        "original": { "hp": 450, "armor": 0, "speed": 330, "cooldownSec": 1.35, "damageBase": 11, "dice": 1, "sides": 2 },
+        "mvp": { "hp": 100, "armor": 0, "speedPxPerSec": 115, "damage": 8, "attackCooldownSec": 1.1, "score": 10 }
+      },
+      {
+        "id": "frost_wolf",
+        "sourceRawcode": "n008",
+        "original": { "hp": 600, "armor": 1, "speed": 330, "cooldownSec": 1.35, "damageBase": 17, "dice": 1, "sides": 3 },
+        "mvp": { "hp": 140, "armor": 1, "speedPxPerSec": 112, "damage": 12, "attackCooldownSec": 1.1, "score": 15 }
+      },
+      {
+        "id": "giant_wolf",
+        "sourceRawcode": "n009",
+        "original": { "hp": 700, "armor": 1, "speed": 330, "cooldownSec": 1.35, "damageBase": 20, "dice": 1, "sides": 4 },
+        "mvp": { "hp": 175, "armor": 1, "speedPxPerSec": 108, "damage": 16, "attackCooldownSec": 1.15, "score": 20 }
+      }
+    ],
+    "bosses": [
+      {
+        "id": "blood_wolf",
+        "sourceRawcode": "H012",
+        "original": { "hp": 5200, "armor": 0, "speed": 330, "cooldownSec": 1.0, "damageBase": -10, "dice": 2, "sides": 8, "score": 150 },
+        "mvp": { "hp": 130, "armor": 1, "speedPxPerSec": 110, "damage": 14, "attackCooldownSec": 1.0, "score": 40, "spawnAtSec": 300 }
+      },
+      {
+        "id": "wild_wolf",
+        "sourceRawcode": "H00X",
+        "original": { "hp": 8500, "armor": 28, "speed": 330, "cooldownSec": 0.95, "damageBase": 0, "dice": 2, "sides": 35, "score": 300 },
+        "mvp": { "hp": 220, "armor": 2, "speedPxPerSec": 112, "damage": 22, "attackCooldownSec": 0.95, "score": 70, "spawnAtSec": 420 }
+      },
+      {
+        "id": "hell_hound",
+        "sourceRawcode": "H013",
+        "original": { "hp": 13000, "armor": 50, "speed": 330, "cooldownSec": 0.85, "damageBase": 10, "dice": 2, "sides": 55, "score": 450 },
+        "mvp": { "hp": 360, "armor": 3, "speedPxPerSec": 112, "damage": 32, "attackCooldownSec": 0.9, "score": 100, "spawnAtSec": 540 }
+      },
+      {
+        "id": "doom_guard",
+        "sourceRawcode": "H01B",
+        "original": { "hp": 24000, "armor": 56, "speed": 330, "cooldownSec": 0.9, "damageBase": 15, "dice": 2, "sides": 50, "score": 700 },
+        "mvp": { "hp": 600, "armor": 4, "speedPxPerSec": 105, "damage": 40, "attackCooldownSec": 1.0, "score": 140, "spawnAtSec": 660 }
+      },
+      {
+        "id": "archimonde",
+        "sourceRawcode": "H01N",
+        "original": { "hp": 24000, "armor": 55, "speed": 330, "cooldownSec": 0.9, "damageBase": 40, "dice": 2, "sides": 50, "score": null },
+        "mvp": { "hp": 700, "armor": 4, "speedPxPerSec": 102, "damage": 46, "attackCooldownSec": 1.0, "score": 160, "spawnAtSec": 780, "mayTransformInto": "nether_dragon" }
+      },
+      {
+        "id": "nether_dragon",
+        "sourceRawcode": "H01O",
+        "original": { "hp": 36000, "armor": 90, "speed": 330, "cooldownSec": 0.9, "damageBase": 0, "dice": 2, "sides": 55, "score": 1000 },
+        "mvp": { "hp": 900, "armor": 5, "speedPxPerSec": 100, "damage": 48, "attackCooldownSec": 1.05, "score": 200, "spawnAfter": "archimonde", "requiresPlayObservation": true }
+      }
+    ]
+  },
+  "waves": {
+    "original": {
+      "ordinaryWolfRawcodes": ["n007", "n008", "n009"],
+      "bossRawcodes": ["H012", "H00X", "H013", "H01B", "H01N", "H01O"],
+      "replenishPattern": "Create 2 units for Player(10) when current stage group count drops below threshold."
+    },
+    "mvp": {
+      "spawnPolicy": "Open-field pursuit with player-built fences and defenders as the main control surface.",
+      "replenishBatchSize": 2,
+      "timeline": [
+        { "sec": 70, "enemy": "timber_wolf", "count": 4 },
+        { "sec": 120, "enemy": "timber_wolf", "count": 6 },
+        { "sec": 180, "enemy": "frost_wolf", "count": 5 },
+        { "sec": 240, "enemy": "giant_wolf", "count": 4 },
+        { "sec": 300, "enemy": "blood_wolf", "count": 1 },
+        { "sec": 420, "enemy": "wild_wolf", "count": 1 },
+        { "sec": 540, "enemy": "hell_hound", "count": 1 },
+        { "sec": 660, "enemy": "doom_guard", "count": 1 },
+        { "sec": 780, "enemy": "archimonde", "count": 1 },
+        { "sec": null, "enemy": "nether_dragon", "count": 1, "condition": "verify in play: likely spawned after a death/transform event" }
+      ]
+    }
+  },
+  "score": {
+    "original": {
+      "wolfStone": 100,
+      "bloodWolf": 150,
+      "wildWolf": 300,
+      "hellHound": 450,
+      "doomGuard": 700,
+      "netherDragon": 1000
+    },
+    "mvp": {
+      "ordinaryWolf": 10,
+      "frostWolf": 15,
+      "giantWolf": 20,
+      "bloodWolf": 40,
+      "wildWolf": 70,
+      "hellHound": 100,
+      "doomGuard": 140,
+      "netherDragon": 200,
+      "survivalEvery10Sec": 5
+    }
+  },
+  "difficulty": {
+    "original": {
+      "selectors": ["n00N", "n00O", "n00P", "n00S", "n00T"],
+      "easyBonusGold": 200
+    },
+    "mvp": {
+      "easy": { "enemyHpMultiplier": 0.85, "enemyDamageMultiplier": 0.85, "startingCoinsBonus": 20 },
+      "normal": { "enemyHpMultiplier": 1.0, "enemyDamageMultiplier": 1.0, "startingCoinsBonus": 0 },
+      "hard": { "enemyHpMultiplier": 1.2, "enemyDamageMultiplier": 1.15, "startingCoinsBonus": 0 },
+      "crazy": { "enemyHpMultiplier": 1.4, "enemyDamageMultiplier": 1.25, "startingCoinsBonus": -10 }
+    }
+  },
+  "pathing": {
+    "original": {
+      "groundOpenPct": 95.621,
+      "playerStartBuildBlockedPctApprox": 0.0,
+      "centralHubBuildBlockedPctApprox": 90.0
+    },
+    "mvp": {
+      "cellSize": 32,
+      "baseBlockedRatioTarget": 0.04,
+      "farmAreaBuildable": true,
+      "centralHubBuildable": false,
+      "wolfBlockedByPlayerFence": true
+    }
+  },
+  "disease": {
+    "original": {
+      "mode": "Optional disease pressure selected through dialog.",
+      "timedLifeUnitRawcodeObserved": "h005"
+    },
+    "mvp": {
+      "enabledByDefault": false,
+      "eventIntervalSec": 90,
+      "durationSec": 20,
+      "effect": "Temporarily disable income from one random coop/income building unless repaired."
+    }
+  }
+}

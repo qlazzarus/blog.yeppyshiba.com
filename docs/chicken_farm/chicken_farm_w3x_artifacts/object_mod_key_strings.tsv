@@ -1,0 +1,521 @@
+file	table	old_id	new_id	field	level_or_variation	value
+war3map.w3a	original	AHab		aret	0	브릴리언스 오라(|cffffcc00R|r) - [|cffffcc00 %d|r]
+war3map.w3a	original	AHav		aret	0	아바타(|cffffcc00V|r)
+war3map.w3a	original	AHav		atp1	1	아바타
+war3map.w3a	original	AHbh		aret	0	배쉬|cffffcc00B|r) - [|cffffcc00 %d|r]
+war3map.w3a	original	AHbn		aret	0	배니쉬(|cffffcc00B|r) - [|cffffcc00 %d|r]
+war3map.w3a	original	AHbz		aret	0	블리자드(|cffffcc00B|r) - [|cffffcc00 %d|r]
+war3map.w3a	original	AHdr		aret	0	사이펀 마나(|cffffcc00N|r) - [|cffffcc00%d|r]
+war3map.w3a	original	AHds		aret	0	디바인 쉴드(|cffffcc00D|r) - [|cffffcc00 %d|r]
+war3map.w3a	original	AHfs		aret	0	플레임 스트라이크(|cffffcc00F|r) - [|cffffcc00%d|r]
+war3map.w3a	original	AHhb		aret	0	홀리 라이트(|cffffcc00T|r) - [|cffffcc00等_ %d|r]
+war3map.w3a	original	AHmt		anam	0	매스 텔러포트
+war3map.w3a	original	AHpx		aret	0	피닉스(|cffffcc00X|r)
+war3map.w3a	original	AHpx		atp1	1	피닉스(|cffffcc00X|r)
+war3map.w3a	original	AHre		anam	0	레저 렉션
+war3map.w3a	original	AHre		aret	0	레저렉션(|cffffcc00R|r)
+war3map.w3a	original	AHre		atp1	1	레저렉션(|cffffcc00R|r)
+war3map.w3a	original	AHta		atp1	1	리빌(|cffffcc00R|r)
+war3map.w3a	original	AHta		aub1	1	몇초 동안 전체시야를 봅니다
+war3map.w3a	original	AHtb		aret	0	스톰 볼트(|cffffcc00T|r) - [|cffffcc00%d|r]
+war3map.w3a	original	AHtc		aret	0	썬더 클랩(|cffffcc00C|r) - [|cffffcc00%d|r]
+war3map.w3a	original	AHwe		anam	0	워터 엘리멘탈
+war3map.w3a	original	AHwe		aret	0	워터 엘리맨탈(|cffffcc00W|r) - [|cffffcc000 %d|r]
+war3map.w3a	original	AOsf		anam	0	스피릿 울프
+war3map.w3a	original	Abds		anam	0	소형 블라인드 디스펠
+war3map.w3a	original	Aclf		anam	0	안개구름
+war3map.w3a	original	Acmg		atp1	1	컨트롤 매직(|cffffcc00C|r)
+war3map.w3a	original	Acmg		aub1	1	촉진제 를 개발할때 씁니다
+war3map.w3a	original	Adef		atp1	1	디펜드(|cffffcc00D|r)
+war3map.w3a	original	Adef		aut1	1	디펜드 종료(|cffffcc00D|r)
+war3map.w3a	original	Adis		anam	0	어벌리쉬 매직
+war3map.w3a	original	Adis		atp1	1	어벌리쉬 매직(|cffffcc00D|r)
+war3map.w3a	original	Afbt		asat	0	Abilities\Spells\Human\Feedback\ArcaneTowerAttack.mdl
+war3map.w3a	original	Afla		atp1	1	플레어(|cffffcc00F|r)
+war3map.w3a	original	Afsh		anam	0	조각파편
+war3map.w3a	original	Afsh		atp1	1	조각파편
+war3map.w3a	original	Ahrp		anam	0	수리(휴면)
+war3map.w3a	original	Ahrp		atp1	1	수리|cffffcc00(R)|r
+war3map.w3a	original	Ahrp		aub1	1	기계 유닛이나 건물을 수리합니다.
+war3map.w3a	original	Ahrp		aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	original	Ahrp		auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	original	Ainf		anam	0	이너파이어
+war3map.w3a	original	Ainf		atp1	1	이너파이어(|cffffcc00F|r)
+war3map.w3a	original	Ainf		aut1	1	|cffc3dbff이너파이어 끕니다
+war3map.w3a	original	Aivs		atp1	1	인비저블리티(|cffffcc00I|r)
+war3map.w3a	original	Amls		atp1	1	에어리얼 수쉐클(|cffffcc00E|r)
+war3map.w3a	original	Apxf		anam	0	피닉스파이어
+war3map.w3a	original	Aroc		anam	0	시즈 엔진
+war3map.w3a	original	Aroc		atp1	1	시즈 엔진
+war3map.w3a	original	Aroc		aub1	1	엔진유닛의 뎀지증가
+war3map.w3a	original	Asps		atp1	1	스펠스틸(|cffffcc00T|r)
+war3map.w3a	original	Asps		aut1	1	|cffc3dbff스펠 스틸을 끕니다。|r
+war3map.w3a	original	Asth		anam	0	스톰해머
+war3map.w3a	original	Asth		atp1	1	스톰해머
+war3map.w3a	custom	Ahea	A000	anam	0	알낳기
+war3map.w3a	custom	Ahea	A000	atp1	1	알낳기|cffffcc00(Q)|r
+war3map.w3a	custom	Ahea	A000	aub1	1	알을 낳습니다.
+war3map.w3a	custom	Ahea	A000	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ahea	A000	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Ahea	A001	anam	0	모이주기
+war3map.w3a	custom	Ahea	A001	atp1	1	모이주기|cffffcc00(D)|r
+war3map.w3a	custom	Ahea	A001	aub1	1	배고픈 동물에게 모이를 줍니다.
+war3map.w3a	custom	Ahea	A001	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ahea	A001	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	AOfs	A002	anam	0	몰이
+war3map.w3a	custom	AOfs	A002	atp1	1	몰이|cffffcc00(X)|r
+war3map.w3a	custom	AOfs	A002	aub1	1	자신 주변의 동물들을 몰아서 원하는 지역으로 이동하게 합니다.
+war3map.w3a	custom	Arpl	A003	anam	0	모이 뿌리기
+war3map.w3a	custom	Arpl	A003	atp1	1	모이 뿌리기|cffffcc00(Q)|r
+war3map.w3a	custom	Arpl	A003	aub1	1	사방에 최대 8마리가 먹을 정도의 모이를 뿌립니다.
+war3map.w3a	custom	Arpl	A003	aut1	1	|cffc3dbff|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r|r
+war3map.w3a	custom	Arpl	A003	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	AIpz	A004	anam	0	동맹설정
+war3map.w3a	custom	AIpz	A004	atp1	1	동맹설정|cffffcc00(W)|r
+war3map.w3a	custom	AIpz	A004	aub1	1	다른 플레이어관의 동맹설정을 변경합니다.
+war3map.w3a	custom	ANtm	A005	atp1	1	트랜스뮤트|cffffcc00(F)|r
+war3map.w3a	custom	ANtm	A005	aub1	1	자신의 건물을 생산비의 60%만큼 돌려 받고 건물을 부십니다.
+war3map.w3a	custom	Arej	A006	anam	0	도축
+war3map.w3a	custom	Arej	A006	atp1	1	도축|cffffcc00(Q)|r
+war3map.w3a	custom	Arej	A006	aub1	1	동물을 도축하여 고기를 얻습니다.
+war3map.w3a	custom	Aien	A009	anam	0	인벤토리
+war3map.w3a	custom	AIpz	A00C	anam	0	금화 소량 교환
+war3map.w3a	custom	AIpz	A00C	atp1	1	금화 소량 교환|cffffcc00(Q)|r
+war3map.w3a	custom	AIpz	A00C	aub1	1	100의 금화를 70의 목재로 교환합니다.
+war3map.w3a	custom	ACrd	A00D	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00D	anam	0	부화
+war3map.w3a	custom	ACrd	A00D	atp1	1	부화|cffffcc00(V)|r
+war3map.w3a	custom	ACrd	A00D	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00D	aub1	1	농가에 있는 알을 부화시킵니다. 농가에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A00D	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ACrd	A00D	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.
+war3map.w3a	custom	ACrd	A00E	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00E	anam	0	부화
+war3map.w3a	custom	ACrd	A00E	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A00E	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00E	aub1	1	알보관소에 있는 닭을 부화시킵니다. 닭장에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A00E	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ANcr	A00G	anam	0	문 열기/닫기
+war3map.w3a	custom	ANcr	A00G	atp1	1	문 열기/닫기|cffffcc00(Q)|r
+war3map.w3a	custom	Absk	A00H	anam	0	강제 알낳기
+war3map.w3a	custom	Absk	A00H	atp1	1	강제 알낳기
+war3map.w3a	custom	Absk	A00H	aub1	1	강제 알낳기
+war3map.w3a	custom	AImr	A00I	anam	0	목재 소량 교환
+war3map.w3a	custom	AImr	A00I	atp1	1	목재 소량 교환|cffffcc00(W)|r
+war3map.w3a	custom	AImr	A00I	aub1	1	100의 목재를 70의 금화로 교환합니다.
+war3map.w3a	custom	Arpl	A00J	anam	0	모이 뿌리기
+war3map.w3a	custom	Arpl	A00J	atp1	1	모이 뿌리기|cffffcc00(Q)|r
+war3map.w3a	custom	Arpl	A00J	aub1	1	사방에 최대 16마리가 먹을 정도의 모이를 뿌립니다.
+war3map.w3a	custom	Arpl	A00J	aut1	1	|cffc3dbff|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r|r
+war3map.w3a	custom	Arpl	A00J	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	ACrd	A00K	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00K	anam	0	부화
+war3map.w3a	custom	ACrd	A00K	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A00K	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00K	aub1	1	닭장에 있는 닭을 부화시킵니다. 닭장에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A00K	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	AHbz	A00L	anam	0	소규모 알 끌어모으기
+war3map.w3a	custom	ACrf	A00M	anam	0	중간규모 알 끌어모으기
+war3map.w3a	custom	ACrf	A00M	atp1	1	중간규모 알 끌어모으기|cffffcc00(A)|r
+war3map.w3a	custom	ACrf	A00M	aub1	1	원하는 지역의 300의 범위 안에있는 알을 모두 모읍니다.
+war3map.w3a	custom	ACrd	A00N	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00N	anam	0	부화
+war3map.w3a	custom	ACrd	A00N	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A00N	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00N	aub1	1	훼리카나에 있는 중닭을 부화시킵니다. 훼리카나에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A00N	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ACrd	A00O	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00O	anam	0	부화
+war3map.w3a	custom	ACrd	A00O	atp1	1	부화|cffffcc00(V)|r
+war3map.w3a	custom	ACrd	A00O	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A00O	aub1	1	마을회관에 있는 알을 부화시킵니다. 마을회관에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A00O	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ACrd	A00O	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.
+war3map.w3a	custom	Adcn	A00P	anam	0	대규모 치킨 만들기
+war3map.w3a	custom	Adcn	A00P	atp1	1	대규모 치킨 만들기|cffffcc00(S)|r
+war3map.w3a	custom	Adcn	A00P	aub1	1	목표 지역에 있는 닭들을 모조리 치킨으로 만들어 버립니다.
+war3map.w3a	custom	AHbz	A00Q	anam	0	고기상자 끌어모으기
+war3map.w3a	custom	Adcn	A00R	anam	0	난사
+war3map.w3a	custom	Adcn	A00R	atp1	1	난사|cffffcc00(C)|r
+war3map.w3a	custom	Adcn	A00R	aub1	1	목표 지역에 있는 닭들을 모조리 죽여 고기상자에 닮습니다.
+war3map.w3a	custom	ACmo	A00S	anam	0	대규모 알 끌어모으기
+war3map.w3a	custom	ACmo	A00S	atp1	1	대규모 알 끌어모으기|cffffcc00(Z)|r
+war3map.w3a	custom	ACmo	A00S	aub1	1	원하는 지역의 500의 범위 안에있는 알을 모두 모읍니다.
+war3map.w3a	custom	AOhw	A00T	anam	0	치유의 손길
+war3map.w3a	custom	AOhw	A00T	atp1	1	치유의 손길|cffffcc00(Z)|r
+war3map.w3a	custom	AOhw	A00T	aub1	1	최대 4기의 아군 유닛을 돌아가며 치료해 줍니다. 목표로 지정한 유닛의 체력을 150 회복시키고, 다음 목표물로 넘어갈수록 치료량이 점점 줄어듭니다.
+war3map.w3a	custom	AIrl	A00U	anam	0	간호
+war3map.w3a	custom	AIrl	A00U	atp1	1	간호|cffffcc00(C)|r
+war3map.w3a	custom	AIrl	A00U	aub1	1	대상을 간호하여 천천히 체력을 500만큼 회복시킵니다. 공격받게 되면 해제됩니다.
+war3map.w3a	custom	AIpv	A00V	anam	0	금화 중량 교환
+war3map.w3a	custom	AIpv	A00V	atp1	1	금화 중량 교환|cffffcc00(A)|r
+war3map.w3a	custom	AIpv	A00V	aub1	1	500의 금화를 400의 목재로 교환합니다.
+war3map.w3a	custom	AIsa	A00W	anam	0	목재 중량 교환
+war3map.w3a	custom	AIsa	A00W	atp1	1	목재 중량 교환|cffffcc00(S)|r
+war3map.w3a	custom	AIsa	A00W	aub1	1	500의 목재를 400의 금화로 교환합니다.
+war3map.w3a	custom	AOfs	A00X	anam	0	아내의 유혹
+war3map.w3a	custom	AOfs	A00X	atp1	1	아내의 유혹|cffffcc00(X)|r - [|cffffcc00레벨 1|r]
+war3map.w3a	custom	AOfs	A00X	aub1	1	아내만의 특별한 스킬로 대규모 단위로 닭을 이동시킬 수 있습니다.
+war3map.w3a	custom	Ahea	A00Y	anam	0	모이주기
+war3map.w3a	custom	Ahea	A00Y	atp1	1	모이주기|cffffcc00(Z)|r
+war3map.w3a	custom	Ahea	A00Y	aub1	1	배고픈 동물에게 모이를 줍니다.
+war3map.w3a	custom	Ahea	A00Y	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ahea	A00Y	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	AIgo	A00Z	anam	0	금화
+war3map.w3a	custom	AIpz	A011	anam	0	1 - 더미 스킬
+war3map.w3a	custom	AOcr	A012	anam	0	크리티컬
+war3map.w3a	custom	AOcr	A012	aub1	1	<AOcr,DataA1>%의 확률로 일반 공격 데미지의 3배의 데미지를 입힙니다.
+war3map.w3a	custom	AOcr	A012	aub1	2	<AOcr,DataA2>%의 확률로 일반 공격 데미지의 4배의 데미지를 입힙니다.
+war3map.w3a	custom	AOcr	A012	aub1	3	<AOcr,DataA3>%의 확률로 일반 공격 데미지의 5배의 데미지를 입힙니다.
+war3map.w3a	custom	AEev	A013	atp1	1	이베이션
+war3map.w3a	custom	AEev	A013	aub1	1	15%의 확률로 공격을 회피합니다.
+war3map.w3a	custom	AHfa	A014	atp1	1	시어링 애로우|cffffcc00(R)|r
+war3map.w3a	custom	AHfa	A014	aub1	1	공격할 때마다 10의 화염 데미지를 추가합니다. 건물에는 사용할 수 없습니다.
+war3map.w3a	custom	AHfa	A014	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	AHfa	A014	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Adef	A015	atp1	1	디펜드|cffffcc00(D)|r
+war3map.w3a	custom	Adef	A015	aub1	1	관통 데미지를 <Adef,DataF1>%의 확률로 반사하고, 반사되지 않은 공격은 <Adef,DataA1,%>%의 데미지만 받습니다. 방어가 활성화된 상태에서는 이동 속도가 <Adef,DataC1,%>%로 감소됩니다.
+war3map.w3a	custom	Adef	A015	aut1	1	디펜드 해제|cffffcc00(D)|r
+war3map.w3a	custom	Adef	A015	auu1	1	디펜드를 해제하면 이동 속도가 정상으로 돌아오지만, 관통 공격에 100%의 데미지를 입게 됩니다.
+war3map.w3a	custom	Aslo	A016	atp1	1	슬로우|cffffcc00(Q)|r
+war3map.w3a	custom	Aslo	A016	aub1	1	대상 적군 유닛의 공격 속도를 20%, 이동 속도를 35% 느리게 합니다. |n30초 동안 지속되나 강력한 유닛에게는 효과가 떨어집니다.
+war3map.w3a	custom	Aslo	A016	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Aslo	A016	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Adis	A017	atp1	1	디스펠 매직|cffffcc00(W)|r
+war3map.w3a	custom	Adis	A017	aub1	1	목표 지역에서 유닛에게 걸린 모든 마법을 제거합니다. |n|cffffcc00소환된 유닛에겐 <Adis,DataB1> 데미지를 입힙니다.|r
+war3map.w3a	custom	Ainf	A018	anam	0	이너파이어
+war3map.w3a	custom	Ainf	A018	atp1	1	이너 파이어|cffffcc00(E)|r
+war3map.w3a	custom	Ainf	A018	aub1	1	아군 유닛의 공격 데미지를 <Ainf,DataA1,%>% 증가시키고 아머를 <Ainf,DataB1> 증가시킵니다. |n<Ainf,Dur1>초 동안 지속됩니다.
+war3map.w3a	custom	Ainf	A018	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ainf	A018	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Ahea	A019	atp1	1	힐|cffffcc00(Q)|r
+war3map.w3a	custom	Ahea	A019	aub1	1	기계 유닛이 아닌 아군 유닛의 체력을 <Ahea,DataA1>씩 회복시킵니다.
+war3map.w3a	custom	Ahea	A019	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ahea	A019	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Ablo	A01A	atp1	1	블러드러스트|cffffcc00(E)|r
+war3map.w3a	custom	Ablo	A01A	aub1	1	아군 유닛의 공격 속도를 <Ablo,DataA1,%>%, 이동 속도를 <Ablo,DataB1,%>% 증가시킵니다. |n<Ablo,Dur1>초 동안 지속됩니다.
+war3map.w3a	custom	Amls	A01B	anam	0	에이리얼 쉐클
+war3map.w3a	custom	Amls	A01B	atp1	1	에어리얼 쉐클|cffffcc00(R)|r
+war3map.w3a	custom	Amls	A01B	aub1	1	적군 유닛이나 건물을 마법으로 묶어 움직이거나 공격하지 못하게 한 후 초당 10의 데미지를 입힙니다. 영웅에게는 사용할 수 없습니다.|n20초 동안 지속되나 강력한 유닛에게는 효과가 떨어집니다.
+war3map.w3a	custom	Aloa	A01C	atp1	1	태우기|cffffcc00(Z)|r
+war3map.w3a	custom	Aloa	A01C	aub1	1	해당 아군 지상 유닛을 태웁니다.
+war3map.w3a	custom	Ansk	A01D	anam	0	하드스킨
+war3map.w3a	custom	Ansk	A01D	atp1	1	하드 스킨
+war3map.w3a	custom	Ansk	A01D	aub1	1	캡틴에 대한 모든 공격의 데미지를 10씩 줄여 줍니다. 3 데미지 이하로는 줄일 수 없습니다.
+war3map.w3a	custom	Arej	A01E	anam	0	리쥬베너이션
+war3map.w3a	custom	Arej	A01E	atp1	1	리쥬버네이션|cffffcc00(R)|r
+war3map.w3a	custom	Arej	A01E	aub1	1	해당 아군 유닛의 체력을 <Arej,DataA1>씩 <Arej,Dur1>초 동안 회복시켜
+war3map.w3a	custom	Absk	A01F	atp1	1	버서크(|cffffcc00B|r)
+war3map.w3a	custom	Absk	A01F	aub1	1	잠시동안 강하게만들어드립니다
+war3map.w3a	custom	ACbk	A01H	anam	0	펠 애로우
+war3map.w3a	custom	AOae	A01I	anam	0	난이도 조정 (어려움)
+war3map.w3a	custom	AOmi	A01J	anam	0	미러이미지
+war3map.w3a	custom	AOmi	A01J	atp1	1	미러이미지(|cffffcc00R|r) - [|cffffcc001|r]
+war3map.w3a	custom	AOwk	A01K	anam	0	원드윅
+war3map.w3a	custom	AOwk	A01K	atp1	1	윈드윅(|cffffcc00W|r) - [|cffffcc00等_ 1|r]
+war3map.w3a	custom	AOwk	A01K	atp1	2	윈드윅(|cffffcc00W|r) - [|cffffcc00等_ 2|r]
+war3map.w3a	custom	Ara2	A01L	anam	0	먹이 유혹
+war3map.w3a	custom	Ara2	A01L	atp1	1	먹이 유혹|cffffcc00(W)|r
+war3map.w3a	custom	Ara2	A01L	aub1	1	동물들을 먹이로 유인하여 주변으로 모이게 합니다.
+war3map.w3a	custom	AOae	A01M	anam	0	난이도 조정 (스페셜)
+war3map.w3a	custom	AOae	A01N	anam	0	난이도 조정 (크레이지)
+war3map.w3a	custom	Aakb	A01O	anam	0	난이도 조정 (크레이지) (데미지)
+war3map.w3a	custom	AUin	A01P	aret	0	인페르노 배우기|cffffcc00(F)|r
+war3map.w3a	custom	AUin	A01P	arut	0	하늘에서 인페르날을 소환하여 낙하 지역에 있는 적군 지상 유닛들에게 300의 데미지를 입히고 <AUin,Dur1>초 동안 기절시킵니다. 인페르날은 <AUin,DataB1>초 동안 지속됩니다.
+war3map.w3a	custom	AUin	A01P	atp1	1	인페르노|cffffcc00(F)|r
+war3map.w3a	custom	AUin	A01P	aub1	1	하늘에서 인페르날을 소환하여 낙하 지역에 있는 적군 지상 유닛들에게 300의 데미지를 입히고 <AUin,Dur1>초 동안 기절시킵니다. 인페르날은 <AUin,DataB1>초 동안 지속됩니다.
+war3map.w3a	custom	AIva	A01Q	anam	0	라이프 훔치기
+war3map.w3a	custom	ANpi	A01R	anam	0	이몰레이션
+war3map.w3a	custom	ANpi	A01R	atp1	1	이몰레이션
+war3map.w3a	custom	ANpi	A01R	aub1	1	주위 화염
+war3map.w3a	custom	Aroc	A01S	amat	0	Abilities\Weapons\GuardTowerMissile\GuardTowerMissile.mdl
+war3map.w3a	custom	Aroc	A01S	anam	0	추가적인 화살
+war3map.w3a	custom	Aroc	A01S	atp1	1	추가적인 화살
+war3map.w3a	custom	Aroc	A01S	aub1	1	주변의 적군을 최대 3명에게 공격합니다.
+war3map.w3a	custom	AIpz	A01T	anam	0	동맹설정
+war3map.w3a	custom	AIpz	A01T	atp1	1	동맹설정|cffffcc00(D)|r
+war3map.w3a	custom	AIpz	A01T	aub1	1	다른 플레이어관의 동맹설정을 변경합니다.
+war3map.w3a	custom	AImt	A01U	anam	0	텔레포테이션
+war3map.w3a	custom	AImt	A01U	atp1	1	텔레포테이션
+war3map.w3a	custom	AImt	A01U	aub1	1	동맹 상태의 아군의 건물로 텔포한다.
+war3map.w3a	custom	Aspb	A01V	anam	0	행동 스킬
+war3map.w3a	custom	Aspb	A01V	atp1	1	행동 스킬|cffffcc00(C)|r
+war3map.w3a	custom	Aspb	A01V	aub1	1	동맹설정과 도축을 사용할 수 있습니다.
+war3map.w3a	custom	AEbl	A01W	atp1	1	블링크|cffffcc00(z)|r
+war3map.w3a	custom	AEbl	A01W	aub1	1	가까운 거리로 순간 이동합니다.
+war3map.w3a	custom	AHad	A01X	anam	0	디보우션 오라 (매드)
+war3map.w3a	custom	AOae	A01Y	anam	0	난이도 조정 (매드)
+war3map.w3a	custom	Aakb	A01Z	anam	0	난이도 조정 (매드) (데미지)
+war3map.w3a	custom	AHad	A020	anam	0	디보우션 오라 (임파서블)
+war3map.w3a	custom	Aakb	A021	anam	0	난이도 조정 (임파서블) (데미지)
+war3map.w3a	custom	AOae	A022	anam	0	난이도 조정 (임파서블)
+war3map.w3a	custom	ANr3	A025	anam	0	인페르노 스톤
+war3map.w3a	custom	Ansk	A027	anam	0	하드스킨
+war3map.w3a	custom	Ansk	A027	atp1	1	하드스킨
+war3map.w3a	custom	Ansk	A027	aub1	1	캡틴에 대한 모든 공격의 데미지를 10씩 줄여 줍니다. 3 데미지 이하로는 줄일 수 없습니다.
+war3map.w3a	custom	Arej	A028	anam	0	도축
+war3map.w3a	custom	Arej	A028	atp1	1	도축|cffffcc00(C)|r
+war3map.w3a	custom	Arej	A028	aub1	1	동물을 도축하여 고기를 얻습니다.
+war3map.w3a	custom	AOae	A029	anam	0	살육의 본능
+war3map.w3a	custom	AOae	A029	atp1	1	살육의 본능 [|cffffcc00等_ 1|r]
+war3map.w3a	custom	Ahrp	A02A	atp1	1	수리|cffffcc00(R)|r
+war3map.w3a	custom	Ahrp	A02A	aub1	1	기계 유닛이나 건물을 수리합니다.
+war3map.w3a	custom	Ahrp	A02A	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Ahrp	A02A	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	AOae	A02B	anam	0	닭 보호
+war3map.w3a	custom	AOae	A02B	atp1	1	닭보호
+war3map.w3a	custom	AOae	A02C	anam	0	닭 보호
+war3map.w3a	custom	AOae	A02C	atp1	1	닭보호
+war3map.w3a	custom	Avng	A02D	anam	0	닭 보호
+war3map.w3a	custom	Avng	A02D	atp1	1	닭 보호|cffffcc00(C)|r
+war3map.w3a	custom	Avng	A02D	aub1	1	주변의 닭을 도축으로 부터 보호합니다.
+war3map.w3a	custom	AIh1	A02E	anam	0	대형 힐링 포션
+war3map.w3a	custom	Absk	A02F	anam	0	부활
+war3map.w3a	custom	Absk	A02F	atp1	1	부활
+war3map.w3a	custom	Absk	A02F	aub1	1	죽은 농부를 되살려 새롭게 시작합니다. 부활시 농부는 1분간 무적 상태가 됩니다.|n|n|c00ff0000 *주의 : 부활을 하게되면 농부를 제외한 당신의 모든 유닛은 죽게되며, 당신이 자원이 있다면 금과 목재가 40% 삭감 됩니다. 총 2회만 사용가능합니다.|r
+war3map.w3a	custom	AHab	A02G	anam	0	촉진제
+war3map.w3a	custom	AHab	A02G	atp1	1	촉진제
+war3map.w3a	custom	AHab	A02G	aub1	1	주변의 닭들이 좀더 빠르게 알을 낳게 합니다.
+war3map.w3a	custom	ANlm	A02H	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ANlm	A02H	anam	0	닭 구입
+war3map.w3a	custom	ANpi	A02I	anam	0	이몰레이션
+war3map.w3a	custom	ANpi	A02I	atp1	1	이몰레이션
+war3map.w3a	custom	ANpi	A02I	aub1	1	주위 화염
+war3map.w3a	custom	AOeq	A02J	anam	0	소규모 치킨 만들기
+war3map.w3a	custom	Aadm	A02K	anam	0	질병 치료
+war3map.w3a	custom	Aadm	A02K	atp1	1	질병 치료|cffffcc00(R)|r
+war3map.w3a	custom	Aadm	A02K	aub1	1	질병이 걸린 동물을 치료합니다.
+war3map.w3a	custom	Aadm	A02K	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Aadm	A02K	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	ANso	A02L	anam	0	질병
+war3map.w3a	custom	Aweb	A02M	anam	0	질병워드
+war3map.w3a	custom	Aslo	A02N	anam	0	병약
+war3map.w3a	custom	Ache	A02O	anam	0	질병 치료 물약
+war3map.w3a	custom	Aroc	A02P	amat	0	Abilities\Weapons\GuardTowerMissile\GuardTowerMissile.mdl
+war3map.w3a	custom	Aroc	A02P	anam	0	추가적인 화살
+war3map.w3a	custom	Aroc	A02P	atp1	1	추가적인 화살
+war3map.w3a	custom	Aroc	A02P	aub1	1	주변의 적군을 최대 4명에게 공격합니다.
+war3map.w3a	custom	Apxf	A02S	anam	0	피닉스
+war3map.w3a	custom	Apxf	A02S	atp1	1	피닉스
+war3map.w3a	custom	Aroc	A02T	anam	0	트루샷오라
+war3map.w3a	custom	Aroc	A02T	atp1	1	오라
+war3map.w3a	custom	Aroc	A02T	aub1	1	주위 원거리유닛을 공격증가
+war3map.w3a	custom	ACrd	A02U	anam	0	스켈레톤 워리어
+war3map.w3a	custom	Ara2	A02V	anam	0	곰
+war3map.w3a	custom	Arpl	A02X	anam	0	모이 뿌리기
+war3map.w3a	custom	Arpl	A02X	atp1	1	모이 뿌리기|cffffcc00(Q)|r
+war3map.w3a	custom	Arpl	A02X	aub1	1	사방에 최대 6마리가 먹을 정도의 모이를 뿌립니다.
+war3map.w3a	custom	Arpl	A02X	aut1	1	|cffc3dbff|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r|r
+war3map.w3a	custom	Arpl	A02X	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	AIbf	A02Y	anam	0	불터 건설
+war3map.w3a	custom	ACds	A02Z	anam	0	창조자의 가호
+war3map.w3a	custom	Asps	A030	atp1	1	스펠 스틸|cffffcc00(W)|r
+war3map.w3a	custom	Asps	A030	aub1	1	적에게 유리하게 작용하는 마법을 뺏아 주변의 아군 유닛에게 적용하거나 아군에게 불리하게 작용하는 마법을 뺏아 주변의 적 유닛에게 적용합니다.
+war3map.w3a	custom	Asps	A030	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Asps	A030	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Adri	A031	anam	0	모두내리기
+war3map.w3a	custom	Adri	A031	atp1	1	모두 내리기|cffffcc00(X)|r
+war3map.w3a	custom	Adri	A031	aub1	1	탑승한 모든 유닛들을 내립니다.
+war3map.w3a	custom	Aadm	A032	anam	0	질병 치료
+war3map.w3a	custom	Aadm	A032	atp1	1	질병 치료|cffffcc00(X)|r
+war3map.w3a	custom	Aadm	A032	aub1	1	질병이 걸린 동물을 치료합니다.
+war3map.w3a	custom	Aadm	A032	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r
+war3map.w3a	custom	Aadm	A032	auu1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r
+war3map.w3a	custom	Absk	A033	anam	0	전력질주
+war3map.w3a	custom	Absk	A033	atp1	1	전력질주|cffffcc00(V)|r
+war3map.w3a	custom	Absk	A033	aub1	1	15초 동안 이동속도를 극한으로 끌어 올립니다.
+war3map.w3a	custom	Aloa	A034	atp1	1	태우기|cffffcc00(Z)|r
+war3map.w3a	custom	Aloa	A034	aub1	1	해당 아군 지상 유닛을 태웁니다.
+war3map.w3a	custom	AOae	A035	anam	0	난이도 조정 (쉬움)
+war3map.w3a	custom	AHad	A036	anam	0	디보우션 오라 (쉬움)
+war3map.w3a	custom	AOae	A037	anam	0	난이도 조정 (언리미트)
+war3map.w3a	custom	Aakb	A038	anam	0	난이도 조정 (언리미트) (데미지)
+war3map.w3a	custom	AHad	A039	anam	0	디보우션 오라 (언리미트)
+war3map.w3a	custom	AHad	A03A	anam	0	디보우션 오라 %(언리미트)
+war3map.w3a	custom	AUin	A03C	anam	0	사악한 인페르노
+war3map.w3a	custom	AUin	A03C	aret	0	인페르노 배우기|cffffcc00(F)|r
+war3map.w3a	custom	AUin	A03C	arut	0	하늘에서 인페르날을 소환하여 낙하 지역에 있는 적군 지상 유닛들에게 300의 데미지를 입히고 <AUin,Dur1>초 동안 기절시킵니다. 인페르날은 <AUin,DataB1>초 동안 지속됩니다.
+war3map.w3a	custom	AOmi	A03D	anam	0	링 오브 파이어
+war3map.w3a	custom	AOmi	A03D	atp1	1	링오브파이어|cffffcc00R|r) - [|cffffcc00_ 1|r]
+war3map.w3a	custom	AHtc	A03E	anam	0	링오파
+war3map.w3a	custom	AUfn	A03G	anam	0	영혼 노바
+war3map.w3a	custom	AHwe	A03I	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	AHwe	A03I	anam	0	중년 닭 구매
+war3map.w3a	custom	AHwe	A03I	atp1	1	중년 닭 구매|cffffcc00(F)|r
+war3map.w3a	custom	AHwe	A03I	aub1	1	400의 금화를 사용하여 중년 닭 1마리를 구입합니다. 중년 닭은 일반 닭보다 2배나 빠른 속도로 알을 낳습니다.
+war3map.w3a	custom	ACmo	A03J	anam	0	광역 알 끌어모으기
+war3map.w3a	custom	ACmo	A03J	atp1	1	광역 알 끌어모으기|cffffcc00(X)|r
+war3map.w3a	custom	Absk	A03K	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	Absk	A03K	anam	0	자이언트 닭 구매
+war3map.w3a	custom	Absk	A03K	atp1	1	자이언트 닭 구매|cffffcc00(E)|r
+war3map.w3a	custom	Absk	A03K	aub1	1	850의 금화를 사용하여 자이언트 닭 1마리를 구입합니다. 자이언트 닭은 중년 닭보다 2.2배나 빠른 속도로 알을 낳습니다.
+war3map.w3a	custom	ACrd	A03L	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A03L	anam	0	부화
+war3map.w3a	custom	ACrd	A03L	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A03L	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A03L	aub1	1	서양식 양계장에 있는 자이언트 닭을 부화시킵니다. 서양식 양계장에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A03L	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	AIrl	A03M	anam	0	자연회복
+war3map.w3a	custom	Asp1	A03N	anam	0	폭풍의 힘
+war3map.w3a	custom	Avng	A03O	anam	0	알 수집 자동화 및 닭 보호
+war3map.w3a	custom	Avng	A03O	atp1	1	알 수집 자동화 및 닭 보호|cffffcc00(V)|r
+war3map.w3a	custom	AIpz	A03P	anam	0	금화 대량 교환
+war3map.w3a	custom	AIpz	A03P	atp1	1	금화 대량 교환|cffffcc00(Q)|r
+war3map.w3a	custom	AIpz	A03P	aub1	1	1500의 금화를 1200의 목재로 교환합니다.
+war3map.w3a	custom	AImr	A03Q	anam	0	목재 대량 교환
+war3map.w3a	custom	AImr	A03Q	atp1	1	목재 대량 교환|cffffcc00(W)|r
+war3map.w3a	custom	AImr	A03Q	aub1	1	1500의 목재를 1200의 금화로 교환합니다.
+war3map.w3a	custom	AIpv	A03R	anam	0	금화 최대량 교환
+war3map.w3a	custom	AIpv	A03R	atp1	1	금화 최대량 교환|cffffcc00(A)|r
+war3map.w3a	custom	AIpv	A03R	aub1	1	3000의 금화를 2400의 목재로 교환합니다.
+war3map.w3a	custom	AIsa	A03S	anam	0	목재 최대량 교환
+war3map.w3a	custom	AIsa	A03S	atp1	1	목재 최대량 교환|cffffcc00(S)|r
+war3map.w3a	custom	AIsa	A03S	aub1	1	3000의 목재를 2400의 금화로 교환합니다.
+war3map.w3a	custom	ANsi	A03T	anam	0	곰의외침
+war3map.w3a	custom	ANsi	A03T	atp1	1	곰의외침|cffffcc00(E)|r - [|cffffcc00레벨 1|r]
+war3map.w3a	custom	ANsi	A03T	atp1	2	곰의외침|cffffcc00(E)|r - [|cffffcc00레벨 2|r]
+war3map.w3a	custom	ANsi	A03T	atp1	3	곰의외침|cffffcc00(E)|r - [|cffffcc00레벨 3|r]
+war3map.w3a	custom	ANsi	A03T	aub1	1	곰의 울음소리를 듣고 적들은 공격기능을 상실합니다
+war3map.w3a	custom	ANsi	A03T	aub1	2	곰의 울음소리를 듣고 적들은 공격기능을 상실합니다
+war3map.w3a	custom	ANsi	A03T	aub1	3	곰의 울음소리를 듣고 적들은 공격기능을 상실합니다
+war3map.w3a	custom	AEme	A03U	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	AEme	A03U	anam	0	닭 변신
+war3map.w3a	custom	AEme	A03U	aret	0	곰변신 배우기|cffffcc00(T)|r
+war3map.w3a	custom	AEme	A03U	arut	0	곰으로 변신합니다
+war3map.w3a	custom	AEme	A03U	atp1	1	곰변신|cffffcc00(T)|r
+war3map.w3a	custom	AEme	A03U	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	AEme	A03U	aub1	1	곰으로 변신합니다
+war3map.w3a	custom	AIda	A03V	anam	0	절대 방어
+war3map.w3a	custom	AIda	A03V	aret	0	황 배우기|cffffcc00(Y)|r - [|cffffcc00레벨 %d|r]
+war3map.w3a	custom	AIsa	A03W	anam	0	자연의 축복
+war3map.w3a	custom	AIsa	A03W	aret	0	네이쳐 버스터 배우기|cffffcc00(N)|r - [|cffffcc00레벨 %d|r]
+war3map.w3a	custom	AIsa	A03W	arut	0	범위 내 아군들의 이동속도를 짧은 시간동안 극대화시킵니다.
+war3map.w3a	custom	Sch5	S000	anam	0	화물적제
+war3map.w3a	custom	Sch5	S001	anam	0	화물적제
+war3map.w3a	custom	Sch5	S002	anam	0	화물 적제
+war3map.w3a	custom	AIbs	A03X	anam	0	시장 건설
+war3map.w3a	custom	ACrd	A03Y	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A03Y	anam	0	[알]부화
+war3map.w3a	custom	ACrd	A03Y	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A03Y	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A03Y	aub1	1	마을에 있는 닭을 부화시킵니다. 마을에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A03Y	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	AHab	A03Z	aret	0	브릴리언스 오라(|cffffcc00R|r) - [|cffffcc00 %d|r]
+war3map.w3a	custom	AHab	A03Z	anam	0	지능닭오라
+war3map.w3a	custom	ACac	A040	anam	0	공격닭[오라]
+war3map.w3a	custom	ACrd	A041	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A041	anam	0	[알]부화
+war3map.w3a	custom	ACrd	A041	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A041	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A041	aub1	1	알보관소에 있는 닭을 부화시킵니다. 닭장에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A041	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ACrd	A042	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A042	anam	0	[알]부화
+war3map.w3a	custom	ACrd	A042	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A042	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A042	aub1	1	훼리카나에 있는 중년닭을 부화시킵니다. 훼리카나에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A042	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	ACrd	A043	aart	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A043	anam	0	[알]부화
+war3map.w3a	custom	ACrd	A043	atp1	1	부화|cffffcc00(R)|r
+war3map.w3a	custom	ACrd	A043	auar	0	ReplaceableTextures\CommandButtons\BTNCritterChicken.blp
+war3map.w3a	custom	ACrd	A043	aub1	1	서양식에 있는 자이언트닭을 부화시킵니다. 서양식에 알이 없다면 아무일도 일어나지 않습니다.
+war3map.w3a	custom	ACrd	A043	aut1	1	|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.
+war3map.w3a	custom	AHad	A044	anam	0	아머닭[오라]
+war3map.w3a	custom	Ahea	A045	anam	0	모이닭[기술]
+war3map.w3a	custom	Aroa	A047	anam	0	힘내라힘
+war3map.w3a	custom	Aroa	A047	atp1	1	힘내라힘(|cffffcc00R|r)
+war3map.w3a	custom	ACac	A048	anam	0	오라1
+war3map.w3a	custom	ACac	A048	atp1	1	오라1
+war3map.w3a	custom	ACac	A048	aub1	1	주변 아군 유닛,건물의 공격력에 추가 데미지를 보탭니다.
+war3map.w3a	custom	AItx	A049	anam	0	각성2
+war3map.w3a	custom	AIx5	A04A	anam	0	각성3
+war3map.w3a	custom	AHtc	A04B	aret	0	썬더 클랩(|cffffcc00C|r) - [|cffffcc00%d|r]
+war3map.w3a	custom	AHtc	A04B	anam	0	우싹스의스킬
+war3map.w3a	custom	AHad	A04C	anam	0	우싹쓰의오라
+war3map.w3a	custom	AOae	A04D	anam	0	우싹쓰의오라2
+war3map.w3a	custom	ACua	A04E	anam	0	모이닭오라
+war3map.w3a	custom	AEim	A04F	anam	0	우싹쓰의화염
+war3map.w3a	custom	AIs3	A04G	anam	0	우싹쓰의손
+war3map.w3a	custom	Asps	A04H	atp1	1	스펠스틸(|cffffcc00T|r)
+war3map.w3a	custom	Asps	A04H	aut1	1	|cffc3dbff스펠 스틸을 끕니다。|r
+war3map.w3a	custom	Asps	A04H	anam	0	@돈초택
+war3map.w3a	custom	AOhx	A04I	aub1	1	|cffffcc00 늑대들이 귀여운 동물로 변해버립니다.
+war3map.w3a	custom	AOhx	A04I	anam	0	변해라 얍!
+war3map.w3a	custom	AHav	A04J	aret	0	아바타(|cffffcc00V|r)
+war3map.w3a	custom	AHav	A04J	atp1	1	주인을위해!
+war3map.w3a	custom	AHav	A04J	aub1	1	주인님을 위해서라면 무엇이든 하겠어!
+war3map.w3a	custom	AHav	A04J	anam	0	주인을 위해!
+war3map.w3a	custom	Ansk	A04K	anam	0	나에겐 고통이란없다!
+war3map.w3a	custom	Ansk	A04K	atp1	1	나에겐 고통이란없다!
+war3map.w3a	custom	Ansk	A04K	aub1	1	유닛에 대한 모든 공격 데미지를 무력화 시킵니다 [20초 지속]
+war3map.w3a	custom	Ainf	A04L	anam	0	아내의 축복
+war3map.w3a	custom	Ainf	A04L	atp1	1	아내의 축복 (|cffffcc00F|r)
+war3map.w3a	custom	Ainf	A04L	aut1	1	|cffc3dbff아내의 축복 끕니다
+war3map.w3a	custom	AIsx	A04M	anam	0	헤이스트
+war3map.w3q	original	Rhac		gtp1	4	최고급 석공술로 업그레이드|cffffcc00(M)|r
+war3map.w3q	original	Rhac		gtp1	5	최고급 석공술로 업그레이드|cffffcc00(M)|r
+war3map.w3q	original	Rhac		gub1	4	휴먼 건물들의 아머와 체력을 추가로 증가시킵니다.
+war3map.w3q	original	Rhac		gub1	5	휴먼 건물들의 아머와 체력을 추가로 증가시킵니다.
+war3map.w3q	original	Rhac		gnam	4	최고급 석공술
+war3map.w3q	original	Rhla		gtp1	4	드래곤하이드로 업그레이드|cffffcc00(A)|r
+war3map.w3q	original	Rhla		gub1	4	라이플맨, 모탈 팀, 드래곤 호크 라이더 및 그리폰 라이더의 아머를 추가로 증가시킵니다.
+war3map.w3q	original	Rhlh		gnam	1	목재 채취력 증가
+war3map.w3q	original	Rhlh		gnam	2	목재 채취력 증가
+war3map.w3q	original	Rhlh		gnam	3	목재 채취력 증가
+war3map.w3q	original	Rhlh		gnam	4	목재 채취력 증가
+war3map.w3q	original	Rhlh		gtp1	2	목재 채취력 증가|cffffcc00(L)|r
+war3map.w3q	original	Rhlh		gtp1	1	목재 채취력 증가|cffffcc00(L)|r
+war3map.w3q	original	Rhlh		gtp1	3	목재 채취력 증가|cffffcc00(L)|r
+war3map.w3q	original	Rhlh		gtp1	4	목재 채취력 증가|cffffcc00(L)|r
+war3map.w3q	original	Rhme		gtp1	2	대량 살상무기를 배운다|cffffcc00(S)|r
+war3map.w3q	original	Rhme		gub1	1	가드맨의 공격력을 상승시킵니다
+war3map.w3q	original	Rhme		gtp1	4	미스릴 검으로 업그레이드|cffffcc00(S)|r
+war3map.w3q	original	Rhme		gub1	4	밀리샤, 풋맨, 스펠 브레이커, 드래곤 호크 라이더, 그리폰 라이더 및 나이트의 공격 데미지를 추가로 증가시킵니다.
+war3map.w3q	original	Rhme		gnam	4	미스릴 검
+war3map.w3q	original	Rhpm		gnam	1	자동화 연구
+war3map.w3q	original	Rhpm		gtp1	1	자동화 연구|cffffcc00(B)|r
+war3map.w3q	original	Rhpm		gub1	1	자동화 연구를시작합니다
+war3map.w3q	original	Rhra		gtp1	5	최상의 화약으로 업그레이드|cffffcc00(G)|r
+war3map.w3q	original	Rhra		gtp1	4	최상의 화약으로 업그레이드|cffffcc00(G)|r
+war3map.w3q	original	Rhra		gub1	4	라이플맨, 모탈 팀, 시즈 엔진 및 플라잉 머신의 원거리 공격 데미지를 추가로 향상시킵니다.
+war3map.w3q	original	Rhra		gub1	5	라이플맨, 모탈 팀, 시즈 엔진 및 플라잉 머신의 원거리 공격 데미지를 추가로 향상시킵니다.
+war3map.w3q	original	Rhra		gnam	4	최상의 화약
+war3map.w3q	original	Rhra		gnam	5	최상의 화약
+war3map.w3q	original	Rhri		gnam	1	사정거리 업글
+war3map.w3q	custom	Resw	R008	gnam	1	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gnam	2	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gnam	3	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gtp1	1	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gtp1	2	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gub1	1	가드타워 공격력증가
+war3map.w3q	custom	Resw	R008	gtp1	3	가드타워 공격력증가
+war3map.w3q	custom	Resw	R009	gnam	1	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gnam	2	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gnam	3	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gtp1	1	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gtp1	2	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gub1	1	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gtp1	3	아케인타워 공격력증가
+war3map.w3q	custom	Resw	R009	gub1	2	아케인타워 공격력증가
+war3map.w3q	custom	Rucr	R00A	gnam	1	개의 발톱
+war3map.w3q	custom	Rucr	R00A	gnam	2	개의 발톱
+war3map.w3q	custom	Rucr	R00A	gnam	3	개의 발톱
+war3map.w3q	custom	Rucr	R00A	gtp1	1	개의 발톱 업글|cffffcc00(C)|r
+war3map.w3q	custom	Rucr	R00A	gtp1	2	개의 발톱 업글|cffffcc00(C)|r
+war3map.w3q	custom	Rucr	R00A	gtp1	3	개의 발톱 업글 |cffffcc00(C)|r
+war3map.w3q	custom	Rucr	R00A	gub1	1	개 의 공격력을 상승시킵니다
+war3map.w3q	custom	Rucr	R00A	gub1	2	개 의 공격력을 상승시킵니다
+war3map.w3q	custom	Rucr	R00A	gub1	3	개 의 공격력을 상승시킵니다
+war3map.w3q	custom	Rehs	R00B	gnam	1	가드맨 효과증폭
+war3map.w3q	custom	Rehs	R00B	gub1	1	가드맨 효과증폭
+war3map.w3q	custom	Rehs	R00B	gtp1	1	가드맨 효과증폭 연구|cffffcc00(H)|r
+war3map.w3q	custom	Rhfc	R00C	gnam	1	군인 공격속도상승
+war3map.w3q	custom	Rhfc	R00C	gub1	1	군인 공격속도상승
+war3map.w3q	custom	Rhfc	R00C	gtp1	1	군인 공격속도상승
+war3map.w3q	custom	Rugf	R00D	gnam	1	개의 발톱업글
+war3map.w3q	custom	Rugf	R00D	gtp1	1	개의 발톱업글 연구|cffffcc00(Z)|r
+war3map.w3q	custom	Rugf	R00D	gub1	1	개의 공격속도와 이동속도를 상승시킵니다
+war3map.w3q	custom	Rehs	R00E	gnam	1	늑대의돌 체력
+war3map.w3q	custom	Rehs	R00E	gub1	1	가드맨 효과증폭
+war3map.w3q	custom	Rehs	R00E	gtp1	1	가드맨 효과증폭 연구|cffffcc00(H)|r
