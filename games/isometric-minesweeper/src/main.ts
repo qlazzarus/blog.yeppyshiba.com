@@ -3,7 +3,7 @@ import './styles.css';
 import { createWorld, type World } from './ecs/world';
 import { createBoardLayout, type BoardLayout } from './game/config';
 import { createBoardSystem } from './systems/board';
-import { revealTileSystem, toggleFlagSystem } from './systems/minesweeper';
+import { getMinesLeft, revealTileSystem, toggleFlagSystem } from './systems/minesweeper';
 import { clearHoveredTileSystem, updateHoveredTileSystem } from './systems/pointer';
 import { renderBoardSystem, renderHoverSystem, renderTileContentSystem } from './systems/render';
 
@@ -51,6 +51,8 @@ class BootScene extends Phaser.Scene {
         });
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            if (this.isUiPointer(pointer)) return;
+
             updateHoveredTileSystem(
                 this.world,
                 pointer.worldX,
@@ -83,7 +85,7 @@ class BootScene extends Phaser.Scene {
             .setDepth(10);
 
         this.add
-            .text(24, 52, 'Phaser 4 workspace scaffold', {
+            .text(24, 52, 'Left click reveal | Right click flag', {
                 color: '#aeb8b4',
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '14px',
@@ -97,6 +99,27 @@ class BootScene extends Phaser.Scene {
                 fontSize: '14px',
             })
             .setDepth(10);
+
+        this.add
+            .text(736, 24, 'New game', {
+                backgroundColor: '#26343c',
+                color: '#f3efe2',
+                fixedWidth: 118,
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '14px',
+                fontStyle: '700',
+                padding: {
+                    bottom: 8,
+                    left: 14,
+                    right: 14,
+                    top: 8,
+                },
+            })
+            .setDepth(10)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                this.resetGame();
+            });
     }
 
     private renderGame() {
@@ -108,20 +131,31 @@ class BootScene extends Phaser.Scene {
 
     private getStatusText() {
         const flagCount = this.world.flags.size;
+        const minesLeft = getMinesLeft(this.world, this.boardLayout);
 
         if (this.world.resources.gameStatus === 'ready') {
-            return `Mines ${this.boardLayout.mineCount} | Left click to start, right click to flag`;
+            return `Ready | Mines left ${minesLeft} | Flags ${flagCount}`;
         }
 
         if (this.world.resources.gameStatus === 'lost') {
-            return `Game over | Mines ${this.boardLayout.mineCount} | Flags ${flagCount}`;
+            return `Game over | Mines left ${minesLeft} | Flags ${flagCount}`;
         }
 
         if (this.world.resources.gameStatus === 'won') {
-            return `Clear | Mines ${this.boardLayout.mineCount} | Flags ${flagCount}`;
+            return `Clear | Mines left ${minesLeft} | Flags ${flagCount}`;
         }
 
-        return `Playing | Mines ${this.boardLayout.mineCount} | Flags ${flagCount}`;
+        return `Playing | Mines left ${minesLeft} | Flags ${flagCount}`;
+    }
+
+    private resetGame() {
+        this.world = createWorld();
+        createBoardSystem(this.world, this.boardLayout);
+        this.renderGame();
+    }
+
+    private isUiPointer(pointer: Phaser.Input.Pointer) {
+        return pointer.worldY < 105;
     }
 }
 

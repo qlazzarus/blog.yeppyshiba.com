@@ -30,12 +30,19 @@ export function revealTileSystem(
         world.resources.gameStatus = 'playing';
     }
 
-    tileState.revealed = true;
-
     if (world.mines.has(entityId)) {
+        tileState.revealed = true;
         world.resources.gameStatus = 'lost';
         revealAllMines(world);
         return { changed: true, statusChanged: true };
+    }
+
+    const adjacentMineCount = world.adjacentMineCounts.get(entityId) ?? 0;
+
+    if (adjacentMineCount === 0) {
+        revealConnectedSafeTiles(world, tile, layout);
+    } else {
+        tileState.revealed = true;
     }
 
     if (hasWon(world)) {
@@ -44,6 +51,10 @@ export function revealTileSystem(
     }
 
     return { changed: true, statusChanged: false };
+}
+
+export function getMinesLeft(world: World, layout: BoardLayout) {
+    return Math.max(0, layout.mineCount - world.flags.size);
 }
 
 export function toggleFlagSystem(world: World, tile: TilePoint): GameActionResult {
@@ -116,6 +127,35 @@ function getNeighborTiles(tile: TilePoint, layout: BoardLayout) {
     }
 
     return neighbors;
+}
+
+function revealConnectedSafeTiles(world: World, startTile: TilePoint, layout: BoardLayout) {
+    const queue = [startTile];
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+        const tile = queue.shift();
+        if (!tile) continue;
+
+        const tileKey = `${tile.x},${tile.y}`;
+        if (visited.has(tileKey)) continue;
+        visited.add(tileKey);
+
+        const entityId = getEntityAtTile(world, tile);
+        if (!entityId || world.flags.has(entityId) || world.mines.has(entityId)) continue;
+
+        const tileState = world.tiles.get(entityId);
+        if (!tileState || tileState.revealed) continue;
+
+        tileState.revealed = true;
+
+        const adjacentMineCount = world.adjacentMineCounts.get(entityId) ?? 0;
+        if (adjacentMineCount > 0) continue;
+
+        getNeighborTiles(tile, layout).forEach((neighbor) => {
+            queue.push(neighbor);
+        });
+    }
 }
 
 function revealAllMines(world: World) {
