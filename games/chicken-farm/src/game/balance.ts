@@ -13,6 +13,8 @@ export type EnemyId =
 
 export type DefenderId = 'farmer' | 'dog' | 'big_dog';
 export type IncomeBuildingId = 'coop_basic' | 'coop_mid' | 'coop_high';
+export type DefenseBuildingId = 'fence_wood' | 'tower_basic' | 'well_basic';
+export type BuildingId = IncomeBuildingId | DefenseBuildingId;
 export type ShopItemId = IncomeBuildingId | 'dog' | 'big_dog';
 
 export type SourceTrace = {
@@ -39,8 +41,11 @@ export type SessionBalance = {
 export type CombatStats = {
     readonly armor: number;
     readonly attackCooldownSec: number;
+    readonly attackRangePx: number;
+    readonly acquireRangePx: number;
     readonly damage: number;
     readonly hp: number;
+    readonly rangeLeashPx: number;
     readonly speedPxPerSec: number;
 };
 
@@ -54,7 +59,13 @@ export type EnemyConfig = CombatStats & {
     readonly id: EnemyId;
     readonly score: number;
     readonly source: SourceTrace;
-    readonly tags: readonly ('ordinary' | 'boss' | 'elite' | 'final' | 'requires_play_observation')[];
+    readonly tags: readonly (
+        | 'ordinary'
+        | 'boss'
+        | 'elite'
+        | 'final'
+        | 'requires_play_observation'
+    )[];
 };
 
 export type IncomeBuildingConfig = {
@@ -66,6 +77,27 @@ export type IncomeBuildingConfig = {
     readonly source: SourceTrace;
     readonly upgradeCostCoins?: number;
     readonly upgradeTo?: IncomeBuildingId;
+};
+
+export type DefenseBuildingConfig = {
+    readonly armor: number;
+    readonly buildTimeSec: number;
+    readonly costCoins: number;
+    readonly hp: number;
+    readonly id: DefenseBuildingId;
+    readonly blocksPath: boolean;
+    readonly targetableByWolves: boolean;
+    readonly source: SourceTrace;
+    readonly attack?: {
+        readonly cooldownSec: number;
+        readonly damage: number;
+        readonly rangePx: number;
+    };
+    readonly aura?: {
+        readonly amountPerSec: number;
+        readonly kind: 'heal';
+        readonly rangePx: number;
+    };
 };
 
 export type ShopItemConfig = {
@@ -126,6 +158,7 @@ export type ChickenFarmBalance = {
     readonly economy: EconomyBalance;
     readonly enemies: Record<EnemyId, EnemyConfig>;
     readonly incomeBuildings: Record<IncomeBuildingId, IncomeBuildingConfig>;
+    readonly defenseBuildings: Record<DefenseBuildingId, DefenseBuildingConfig>;
     readonly pathing: PathingBalance;
     readonly score: ScoreBalance;
     readonly session: SessionBalance;
@@ -305,7 +338,9 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             id: 'nether_dragon',
             score: 200,
             source: {
-                notes: ['Likely spawned after death/transform event; verify with actual play.'],
+                notes: [
+                    'Likely spawned after death/transform event; verify with actual play.',
+                ],
                 rawcode: 'H01O',
             },
             speedPxPerSec: 100,
@@ -484,7 +519,8 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             },
             {
                 atSec: null,
-                condition: 'Spawn after archimonde death only if actual play confirms the transform.',
+                condition:
+                    'Spawn after archimonde death only if actual play confirms the transform.',
                 count: 1,
                 enemyId: 'nether_dragon',
                 group: 'final',
@@ -501,7 +537,9 @@ export function getDifficultyConfig(
     return CHICKEN_FARM_BALANCE.difficulties[difficulty];
 }
 
-export function getStartingCoins(difficulty: DifficultyId = DEFAULT_DIFFICULTY): number {
+export function getStartingCoins(
+    difficulty: DifficultyId = DEFAULT_DIFFICULTY,
+): number {
     const config = getDifficultyConfig(difficulty);
     return CHICKEN_FARM_BALANCE.economy.startingCoins + config.startingCoinsBonus;
 }
@@ -516,8 +554,11 @@ export function getScaledEnemyStats(
     return {
         armor: enemy.armor,
         attackCooldownSec: enemy.attackCooldownSec,
+        attackRangePx: enemy.attackRangePx,
+        acquireRangePx: enemy.acquireRangePx,
         damage: Math.round(enemy.damage * config.enemyDamageMultiplier),
         hp: Math.round(enemy.hp * config.enemyHpMultiplier),
+        rangeLeashPx: enemy.rangeLeashPx,
         speedPxPerSec: enemy.speedPxPerSec,
     };
 }

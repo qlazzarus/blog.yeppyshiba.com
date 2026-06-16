@@ -11,21 +11,21 @@
 
 ## 1. 확인한 핵심 패키지/클래스
 
-| 영역 | Warsmash 경로/클래스 | 관찰 요약 |
-|---|---|---|
-| 명령 진입 | `simulation.players.CPlayerUnitOrderExecutor` | target/point/immediate order를 `COrder*` 객체로 감싸 `CUnit.order(...)`로 전달한다. |
-| 유닛 상태 | `simulation.CUnit` | 현재 behavior, 기본 behavior, 명령 큐, acquisition range, 이동/공격 behavior 참조를 가진다. |
-| behavior 공통 | `simulation.behaviors.CBehavior` | `begin`, `update`, `end`, `interruptable`, `getBehaviorCategory`가 기본 계약이다. |
-| 이동 | `simulation.behaviors.CBehaviorMove` | pathfinding 요청, 방향 전환, prop window 진입 후 이동, 충돌 실패 시 재탐색/포기 흐름을 담당한다. |
-| ranged/공격 공통 | `simulation.behaviors.CAbstractRangedBehavior` | 사거리 밖이면 이동 behavior로 전환하고, 사거리 안이면 facing window를 맞춘 뒤 실제 행동을 진행한다. |
-| 공격 | `simulation.behaviors.CBehaviorAttack` | attack cooldown, damage point, backswing, attack animation, launch 타이밍을 관리한다. |
-| attack-move | `simulation.behaviors.CBehaviorAttackMove` | 이동 중 `autoAcquireAttackTargets`가 성공하면 현재 공격 behavior로 전환한다. |
-| 공격 능력 | `simulation.abilities.CAbilityAttack` | smart/attack order의 target 가능 여부를 확인하고 unit/destructable/point target에 따라 attack/move/attack-move로 분기한다. |
-| 공격 스탯 | `simulation.combat.attacks.CUnitAttack` | damage dice, cooldown, range, range motion buffer, targets allowed, weapon type, attack speed 보정을 가진다. |
-| pathing grid | `environment.PathingGrid` | `.wpm` 정적 pathing과 건물/나무/destructable 동적 overlay를 합쳐 walkable 여부를 판단한다. |
-| pathfinding | `simulation.pathing.CPathfindingProcessor` | 32 world-unit grid 기준 A* 계열 탐색, corner/cell mapping, smoothing, 동적 충돌 검사를 수행한다. |
-| world collision | `simulation.CWorldCollision` | 유닛/건물/destructable/item을 quadtree로 관리하고 range/rect enum 및 충돌 검사를 제공한다. |
-| destructable pathing | `simulation.CDestructable`, `War3MapViewer#createNewDestructable` | 생존/사망 상태별 pathing overlay를 만들고 life 상태에 따라 pathing을 add/remove한다. |
+| 영역                 | Warsmash 경로/클래스                                              | 관찰 요약                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 명령 진입            | `simulation.players.CPlayerUnitOrderExecutor`                     | target/point/immediate order를 `COrder*` 객체로 감싸 `CUnit.order(...)`로 전달한다.                                        |
+| 유닛 상태            | `simulation.CUnit`                                                | 현재 behavior, 기본 behavior, 명령 큐, acquisition range, 이동/공격 behavior 참조를 가진다.                                |
+| behavior 공통        | `simulation.behaviors.CBehavior`                                  | `begin`, `update`, `end`, `interruptable`, `getBehaviorCategory`가 기본 계약이다.                                          |
+| 이동                 | `simulation.behaviors.CBehaviorMove`                              | pathfinding 요청, 방향 전환, prop window 진입 후 이동, 충돌 실패 시 재탐색/포기 흐름을 담당한다.                           |
+| ranged/공격 공통     | `simulation.behaviors.CAbstractRangedBehavior`                    | 사거리 밖이면 이동 behavior로 전환하고, 사거리 안이면 facing window를 맞춘 뒤 실제 행동을 진행한다.                        |
+| 공격                 | `simulation.behaviors.CBehaviorAttack`                            | attack cooldown, damage point, backswing, attack animation, launch 타이밍을 관리한다.                                      |
+| attack-move          | `simulation.behaviors.CBehaviorAttackMove`                        | 이동 중 `autoAcquireAttackTargets`가 성공하면 현재 공격 behavior로 전환한다.                                               |
+| 공격 능력            | `simulation.abilities.CAbilityAttack`                             | smart/attack order의 target 가능 여부를 확인하고 unit/destructable/point target에 따라 attack/move/attack-move로 분기한다. |
+| 공격 스탯            | `simulation.combat.attacks.CUnitAttack`                           | damage dice, cooldown, range, range motion buffer, targets allowed, weapon type, attack speed 보정을 가진다.               |
+| pathing grid         | `environment.PathingGrid`                                         | `.wpm` 정적 pathing과 건물/나무/destructable 동적 overlay를 합쳐 walkable 여부를 판단한다.                                 |
+| pathfinding          | `simulation.pathing.CPathfindingProcessor`                        | 32 world-unit grid 기준 A\* 계열 탐색, corner/cell mapping, smoothing, 동적 충돌 검사를 수행한다.                          |
+| world collision      | `simulation.CWorldCollision`                                      | 유닛/건물/destructable/item을 quadtree로 관리하고 range/rect enum 및 충돌 검사를 제공한다.                                 |
+| destructable pathing | `simulation.CDestructable`, `War3MapViewer#createNewDestructable` | 생존/사망 상태별 pathing overlay를 만들고 life 상태에 따라 pathing을 add/remove한다.                                       |
 
 ## 2. 명령과 Behavior 흐름
 
@@ -78,14 +78,14 @@ PathingGrid 관찰:
 
 Phaser 축약:
 
-| 개념 | Phaser MVP 변환 |
-|---|---|
+| 개념                       | Phaser MVP 변환                                                              |
+| -------------------------- | ---------------------------------------------------------------------------- |
 | 32 world-unit pathing cell | 32px 또는 48px grid 중 하나로 고정. 현재 W3X `wpm` 분석과 맞추려면 32px 권장 |
-| 정적 pathing | `terrainBlocked: boolean[]` |
-| 동적 pathing overlay | `dynamicBlockers: Map<CellKey, BlockerRef[]>` |
-| unit collision | MVP에서는 늑대끼리 겹침 허용 또는 약한 separation만 적용 |
-| path smoothing | A* 결과에서 직선 시야가 열리면 중간 노드 제거 |
-| 반복 실패 | `repathAttempts`, `blockedSinceSec`, `lastRepathAtSec`로 관리 |
+| 정적 pathing               | `terrainBlocked: boolean[]`                                                  |
+| 동적 pathing overlay       | `dynamicBlockers: Map<CellKey, BlockerRef[]>`                                |
+| unit collision             | MVP에서는 늑대끼리 겹침 허용 또는 약한 separation만 적용                     |
+| path smoothing             | A\* 결과에서 직선 시야가 열리면 중간 노드 제거                               |
+| 반복 실패                  | `repathAttempts`, `blockedSinceSec`, `lastRepathAtSec`로 관리                |
 
 늑대 이동 규칙:
 
@@ -121,12 +121,12 @@ else:
 
 권장 우선순위:
 
-| 단계 | 후보 |
-|---|---|
-| primary acquire | 수익 건물, 닭/가축 역할 오브젝트, 농부/핵심 건물 |
+| 단계              | 후보                                                |
+| ----------------- | --------------------------------------------------- |
+| primary acquire   | 수익 건물, 닭/가축 역할 오브젝트, 농부/핵심 건물    |
 | proximity acquire | 가까운 방어 유닛 또는 공격 가능한 플레이어 오브젝트 |
-| blocked acquire | path를 막는 펜스/벽/건물 blocker |
-| fallback | 가장 가까운 가치 오브젝트로 재탐색 |
+| blocked acquire   | path를 막는 펜스/벽/건물 blocker                    |
+| fallback          | 가장 가까운 가치 오브젝트로 재탐색                  |
 
 ## 5. 공격 루프 관찰
 
@@ -140,14 +140,14 @@ Warsmash 공격 감각:
 
 Phaser 축약:
 
-| Warsmash 요소 | MVP 필드 |
-|---|---|
-| `cooldownTime` | `attackCooldownSec` |
-| `animationDamagePoint` | `windupSec` |
-| `animationBackswingPoint` | `backswingSec` 또는 시각 연출만 |
-| damage dice | 고정 `damagePerHit` 또는 작은 랜덤폭 |
-| `range` | `attackRangePx` |
-| `rangeMotionBuffer` | `rangeLeashPx` |
+| Warsmash 요소             | MVP 필드                             |
+| ------------------------- | ------------------------------------ |
+| `cooldownTime`            | `attackCooldownSec`                  |
+| `animationDamagePoint`    | `windupSec`                          |
+| `animationBackswingPoint` | `backswingSec` 또는 시각 연출만      |
+| damage dice               | 고정 `damagePerHit` 또는 작은 랜덤폭 |
+| `range`                   | `attackRangePx`                      |
+| `rangeMotionBuffer`       | `rangeLeashPx`                       |
 
 MVP 공격 상태:
 
@@ -182,15 +182,15 @@ Warsmash 관찰:
 
 Phaser 펜스 규칙:
 
-| 속성 | 권장값 |
-|---|---:|
-| cell footprint | 1x1 grid cell |
-| hp | 80 |
-| armor | 0 |
-| targetableByWolves | true |
-| blocksGround | true |
-| blocksFlying | false |
-| death pathing | blocker 제거 |
+| 속성               |        권장값 |
+| ------------------ | ------------: |
+| cell footprint     | 1x1 grid cell |
+| hp                 |            80 |
+| armor              |             0 |
+| targetableByWolves |          true |
+| blocksGround       |          true |
+| blocksFlying       |         false |
+| death pathing      |  blocker 제거 |
 
 늑대가 펜스를 공격하는 조건:
 
@@ -209,62 +209,60 @@ Phaser 펜스 규칙:
 데이터 타입 후보:
 
 ```ts
-type WolfState =
-  | 'idle'
-  | 'acquire'
-  | 'move'
-  | 'repath'
-  | 'attack'
-  | 'attack_blocker';
+type WolfState = 'idle' | 'acquire' | 'move' | 'repath' | 'attack' | 'attack_blocker';
 
 interface WolfAiRuntime {
-  state: WolfState;
-  targetId?: string;
-  blockerTargetId?: string;
-  path: Array<{ x: number; y: number }>;
-  pathIndex: number;
-  lastAcquireAtSec: number;
-  lastRepathAtSec: number;
-  blockedSinceSec?: number;
-  nextAttackAtSec: number;
-  windupEndsAtSec?: number;
+    state: WolfState;
+    targetId?: string;
+    blockerTargetId?: string;
+    path: Array<{ x: number; y: number }>;
+    pathIndex: number;
+    lastAcquireAtSec: number;
+    lastRepathAtSec: number;
+    blockedSinceSec?: number;
+    nextAttackAtSec: number;
+    windupEndsAtSec?: number;
 }
 ```
 
 튜닝 시작값:
 
-| 항목 | 값 |
-|---|---:|
-| grid size | 32 px |
-| acquire interval | 0.35 sec |
-| repath interval | 0.50 sec |
-| blocked-to-blocker delay | 0.80 sec |
-| blocker search radius | 96 px |
-| range leash | 16 px |
-| ordinary wolf speed | 110 px/sec |
+| 항목                     |         값 |
+| ------------------------ | ---------: |
+| grid size                |      32 px |
+| acquire interval         |   0.35 sec |
+| repath interval          |   0.50 sec |
+| blocked-to-blocker delay |   0.80 sec |
+| blocker search radius    |      96 px |
+| range leash              |      16 px |
+| ordinary wolf speed      | 110 px/sec |
 
 ## 8. Phaser MVP 구현 외 추가 조사 후보
 
 Phaser MVP 구현으로 바로 들어가기 전에, 구현과 별도로 더 조사할 수 있는 항목은 다음이다.
 
-| 우선순위 | 조사 항목 | 목적 | 예상 산출물 |
-|---|---|---|---|
-| 완료 | 펜스/벽/방어 건물 rawcode 후보 분리 | 늑대가 공격할 blocker와 단순 장식을 구분 | `docs/chicken_farm/chicken_farm_w3x_artifacts/fence_candidate_rawcodes.tsv` |
-| 완료 | JASS 늑대 명령 함수의 좌표/대상 우선순위 좁히기 | 스폰 후 늑대가 어느 지점/오브젝트를 향하는지 추정 | `docs/chicken_farm/chicken_farm_w3x_artifacts/jass_wolf_order_flows.tsv` |
-| 높음 | Warsmash pathing flag와 현재 `.wpm` 파싱 결과 교차표 | `UNWALKABLE` 해석과 32px grid 변환 확정 | `wpm_warsmash_pathing_crosscheck.md` |
-| 중간 | destructable 생존/사망 pathing 참고 | 펜스 파괴 후 blocker 제거 감각 확정 | `destructable_pathing_notes.md` |
-| 중간 | `war3mapImported` 모델/텍스처 경로 인덱싱 | 원본을 직접 쓰지 않고 신규 에셋 제작 레퍼런스 정리 | `asset_reference_index.tsv` |
-| 중간 | 상점/아이템 원문 tooltip과 스탯 연결 | MVP shop item 이름/효과를 원본 감각에 맞춤 | `shop_item_reference.tsv` |
-| 중간 | 질병/상태 이상 buff rawcode 추적 | 질병 이벤트가 단순 페널티인지 유닛/버프 기반인지 구분 | `disease_buff_reference.tsv` |
-| 낮음 | 보스 후속 변환 함수 추가 추적 | `archimonde -> nether_dragon` 가설 보강 | `boss_transform_flow.md` |
-| 낮음 | wc3libs로 파서 결과 교차검증 | Python 파서의 `.doo/.wpm/SLK` 해석 신뢰도 보강 | `parser_crosscheck_notes.md` |
-| 낮음 | 실제 플레이 관찰 재개 | Warsmash/정적 분석으로 대체한 가설의 체감 검증 | `play_observation_template.tsv` 갱신 |
+| 우선순위 | 조사 항목                                            | 목적                                                  | 예상 산출물                                                                 |
+| -------- | ---------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| 완료     | 펜스/벽/방어 건물 rawcode 후보 분리                  | 늑대가 공격할 blocker와 단순 장식을 구분              | `docs/chicken_farm/chicken_farm_w3x_artifacts/fence_candidate_rawcodes.tsv` |
+| 완료     | JASS 늑대 명령 함수의 좌표/대상 우선순위 좁히기      | 스폰 후 늑대가 어느 지점/오브젝트를 향하는지 추정     | `docs/chicken_farm/chicken_farm_w3x_artifacts/jass_wolf_order_flows.tsv`    |
+| 높음     | Warsmash pathing flag와 현재 `.wpm` 파싱 결과 교차표 | `UNWALKABLE` 해석과 32px grid 변환 확정               | `wpm_warsmash_pathing_crosscheck.md`                                        |
+| 중간     | destructable 생존/사망 pathing 참고                  | 펜스 파괴 후 blocker 제거 감각 확정                   | `destructable_pathing_notes.md`                                             |
+| 중간     | `war3mapImported` 모델/텍스처 경로 인덱싱            | 원본을 직접 쓰지 않고 신규 에셋 제작 레퍼런스 정리    | `asset_reference_index.tsv`                                                 |
+| 중간     | 상점/아이템 원문 tooltip과 스탯 연결                 | MVP shop item 이름/효과를 원본 감각에 맞춤            | `shop_item_reference.tsv`                                                   |
+| 중간     | 질병/상태 이상 buff rawcode 추적                     | 질병 이벤트가 단순 페널티인지 유닛/버프 기반인지 구분 | `disease_buff_reference.tsv`                                                |
+| 낮음     | 보스 후속 변환 함수 추가 추적                        | `archimonde -> nether_dragon` 가설 보강               | `boss_transform_flow.md`                                                    |
+| 낮음     | wc3libs로 파서 결과 교차검증                         | Python 파서의 `.doo/.wpm/SLK` 해석 신뢰도 보강        | `parser_crosscheck_notes.md`                                                |
+| 낮음     | 실제 플레이 관찰 재개                                | Warsmash/정적 분석으로 대체한 가설의 체감 검증        | `play_observation_template.tsv` 갱신                                        |
 
 이번 단계의 기준은 “실제 플레이 관찰 필수”가 아니라 “Warsmash behavior 관찰 + W3X 정적 데이터”다. 실제 플레이 관찰은 보스 순서/체감 튜닝을 확인하는 후순위 검증으로 둔다.
 
 ## 9. 다음 구현 작업
 
-1. `games/chicken-farm/src/game/pathing.ts`에 정적/동적 blocker grid와 A* helper를 만든다.
+1. `games/chicken-farm/src/game/pathing.ts`에 정적/동적 blocker grid와 A\* helper를 만든다.
 2. `games/chicken-farm/src/game/ai.ts`에 위 상태 머신을 독립 모듈로 구현한다.
 3. `balance.ts`의 enemy/fence 값에 `attackRangePx`, `attackCooldownSec`, `acquireRangePx`, `rangeLeashPx`를 명시한다.
 4. 완료: 원본 doodad/unit 후보에서 실제 펜스 후보 rawcode를 `docs/chicken_farm/chicken_farm_w3x_artifacts/fence_candidate_rawcodes.tsv`로 분리했다.
+5. `balance.ts`에 펜스/타워/우물 같은 방어 건물 스키마를 추가한다.
+6. `pathing.ts`에서는 terrain blocker와 dynamic blocker를 분리한다.
+7. `ai.ts`에서는 blocker를 primary target으로 삼지 않고, pathing 실패 후 fallback target으로만 공격하게 한다.
+8. `combat.ts`에서는 공격을 `elapsedSec >= nextAttackAtSec` 기준으로 처리한다.

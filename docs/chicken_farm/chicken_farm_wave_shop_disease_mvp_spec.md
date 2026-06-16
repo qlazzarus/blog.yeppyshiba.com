@@ -25,21 +25,50 @@
 MVP는 호스트 권위형 상태로 둔다. P2P에서는 호스트가 시간, 웨이브, 자원 tick, 질병 이벤트를 결정하고 클라이언트는 입력만 전송한다.
 
 ```ts
-type GamePhase = "lobby" | "prebuild" | "running" | "victory" | "defeat";
+type GamePhase =
+    | 'lobby'
+    | 'prebuild'
+    | 'running'
+    | 'paused'
+    | 'host_lost'
+    | 'victory'
+    | 'defeat';
 
 type RuntimeState = {
-  phase: GamePhase;
-  elapsedSec: number;
-  timeScale: number;
-  maxPlayers: 8;
-  difficulty: "easy" | "normal" | "hard" | "crazy";
-  players: PlayerState[];
-  wave: WaveRuntime;
-  shop: ShopRuntime;
-  disease: DiseaseRuntime;
-  rngSeed: number;
+    phase: GamePhase;
+
+    // Simulation time
+    tick: number;
+    elapsedSec: number;
+    timeScale: number;
+
+    // Session config
+    maxPlayers: 8;
+    difficulty: 'easy' | 'normal' | 'hard' | 'crazy';
+    rngSeed: number;
+
+    // Host authoritative metadata
+    hostId: string;
+    hostEpoch: number;
+    lastAppliedCommandId: string | null;
+    lastCheckpointTick: number | null;
+    stateChecksum?: string;
+
+    // Game runtime
+    players: PlayerState[];
+    wave: WaveRuntime;
+    shop: ShopRuntime;
+    disease: DiseaseRuntime;
 };
 ```
+
+P2P 멀티플레이에서는 `hostEpoch`가 현재 방장 세대를 나타낸다.
+
+- 최초 방장은 `hostEpoch = 0` 또는 `1`로 시작한다.
+- 방장 이관이 발생하면 `hostEpoch`를 1 증가시킨다.
+- 모든 네트워크 메시지는 `hostEpoch`를 포함한다.
+- 클라이언트는 현재 `hostEpoch`보다 낮은 메시지를 무시한다.
+- MVP에서는 자동 이관을 하지 않지만, 상태 구조에는 미리 포함한다.
 
 공통 규칙:
 
@@ -50,11 +79,60 @@ type RuntimeState = {
 
 테스트 프로파일:
 
-| profile | timeScale | 목적 |
-|---|---:|---|
-| `original` | 1 | 원본에 가까운 장기 체감 검증 |
-| `fast` | 3 | 전체 흐름을 한 세션에서 확인 |
-| `smoke` | 10 | 웨이브/보스/질병 이벤트 순서 검증 |
+| profile    | timeScale | 목적                              |
+| ---------- | --------: | --------------------------------- |
+| `original` |         1 | 원본에 가까운 장기 체감 검증      |
+| `fast`     |         3 | 전체 흐름을 한 세션에서 확인      |
+| `smoke`    |        10 | 웨이브/보스/질병 이벤트 순서 검증 |
+
+### 1.1 SerializedGameState와 체크포인트
+
+P2P 복구와 향후 방장 이관을 위해 렌더링 상태와 복구 상태를 분리한다.
+
+```ts
+type SerializedGameState = {
+    tick: number;
+    elapsedSec: number;
+    difficulty: 'easy' | 'normal' | 'hard' | 'crazy';
+    rngSeed: number;
+
+    hostId: string;
+    hostEpoch: number;
+    lastAppliedCommandId: string | null;
+
+    players: PlayerState[];
+    wave: WaveRuntime;
+    shop: ShopRuntime;
+    disease: DiseaseRuntime;
+
+    entities: {
+        farmers: FarmerState[];
+        defenders: DefenderState[];
+        enemies: EnemyState[];
+        buildings: BuildingState[];
+        eggs: EggState[];
+    };
+};
+```
+
+복구용 체크포인트는 SerializedGameState를 기반으로 생성한다.
+
+```ts
+type RecoveryCheckpoint = {
+    type: 'RECOVERY_CHECKPOINT';
+    checkpointId: string;
+    hostId: string;
+    hostEpoch: number;
+    tick: number;
+    elapsedSec: number;
+    lastAppliedCommandId: string | null;
+    stateChecksum: string;
+    state: SerializedGameState;
+};
+```
+
+MVP에서는 체크포인트를 실제 복구에 사용하지 않아도 된다.
+다만 5~10초마다 host가 체크포인트를 생성하고 참가자가 최근 N개를 보관할 수 있도록 타입과 저장 구조를 먼저 준비한다.
 
 ---
 
@@ -62,15 +140,15 @@ type RuntimeState = {
 
 ### 2.1 원본 근거
 
-| 역할 | 근거 함수/라인 | 관찰 |
-|---|---|---|
-| 초기화 | `config` 9685-9706, `main` 9670-9684 | 플레이어/팀/환경 초기화 |
-| 런타임 등록 | `iiiIilI` 7233-7887 | 장기 타이머, 유닛 이벤트, 다이얼로그 등록 |
-| 초기 웨이브 | `IliIilI` 5614-5663 | Player(10) 늑대 계열 생성, 안내 |
-| 보스 1 | `IliiiiI` 5741-5763 | Blood Wolf 생성, 핑/시야 공유, 다음 트리거 활성화 |
-| 보스 연쇄 | `IliilII`, `IliillI`, `IlilIiI`, `IliliII` 5776-5894 | Wild Wolf, Hell Hound, Doom Guard, Archimonde 계열 단계 |
-| 보충 스폰 | `IlillII`~`IllllII` 5907-6174 | 조건 만족 시 Player(10)에 2기씩 보충 |
-| 점수 | `iiIIliI` 6943-6985 | 늑대 처치/리더보드 점수 갱신 |
+| 역할        | 근거 함수/라인                                       | 관찰                                                    |
+| ----------- | ---------------------------------------------------- | ------------------------------------------------------- |
+| 초기화      | `config` 9685-9706, `main` 9670-9684                 | 플레이어/팀/환경 초기화                                 |
+| 런타임 등록 | `iiiIilI` 7233-7887                                  | 장기 타이머, 유닛 이벤트, 다이얼로그 등록               |
+| 초기 웨이브 | `IliIilI` 5614-5663                                  | Player(10) 늑대 계열 생성, 안내                         |
+| 보스 1      | `IliiiiI` 5741-5763                                  | Blood Wolf 생성, 핑/시야 공유, 다음 트리거 활성화       |
+| 보스 연쇄   | `IliilII`, `IliillI`, `IlilIiI`, `IliliII` 5776-5894 | Wild Wolf, Hell Hound, Doom Guard, Archimonde 계열 단계 |
+| 보충 스폰   | `IlillII`~`IllllII` 5907-6174                        | 조건 만족 시 Player(10)에 2기씩 보충                    |
+| 점수        | `iiIIliI` 6943-6985                                  | 늑대 처치/리더보드 점수 갱신                            |
 
 원본 장기 타이머 후보는 60, 120, 230, 300, 600, 1100, 1500, 2000, 2200, 2400, 2600, 2800, 3000초다. 원본 근접 내부 테스트에서는 이 논리 시간을 유지하고, 빠른 검증은 `timeScale`로만 압축한다.
 
@@ -80,52 +158,52 @@ type RuntimeState = {
 
 ```ts
 type EnemyId =
-  | "timber_wolf"
-  | "frost_wolf"
-  | "giant_wolf"
-  | "blood_wolf"
-  | "wild_wolf"
-  | "hell_hound"
-  | "doom_guard"
-  | "archimonde"
-  | "nether_dragon";
+    | 'timber_wolf'
+    | 'frost_wolf'
+    | 'giant_wolf'
+    | 'blood_wolf'
+    | 'wild_wolf'
+    | 'hell_hound'
+    | 'doom_guard'
+    | 'archimonde'
+    | 'nether_dragon';
 
 type EnemyDef = {
-  id: EnemyId;
-  sourceRawcode: string;
-  hp: number;
-  armor: number;
-  speedPxPerSec: number;
-  damage: number;
-  attackCooldownSec: number;
-  score: number;
-  tags: ("ordinary" | "boss" | "flying" | "elite")[];
+    id: EnemyId;
+    sourceRawcode: string;
+    hp: number;
+    armor: number;
+    speedPxPerSec: number;
+    damage: number;
+    attackCooldownSec: number;
+    score: number;
+    tags: ('ordinary' | 'boss' | 'flying' | 'elite')[];
 };
 
 type WaveEvent = {
-  sec: number;
-  enemy: EnemyId;
-  count: number;
-  spawnGroup: "outer" | "boss";
-  announcement?: string;
+    sec: number;
+    enemy: EnemyId;
+    count: number;
+    spawnGroup: 'outer' | 'boss';
+    announcement?: string;
 };
 ```
 
 원본 근접 timeline 초안:
 
-| sec | enemy | count | 의도 |
-|---:|---|---:|---|
-| 80 | `timber_wolf` | 4 | 첫 압박 |
-| 120 | `timber_wolf` | 6 | 주요 웨이브 활성화 |
-| 230 | `frost_wolf` | 5 | 초반 방어 확인 |
-| 300 | `giant_wolf` | 4 | 보충/압박 증가 |
-| 600 | `blood_wolf` | 1 | 첫 보스 |
-| 1100 | `frost_wolf` 또는 상위 일반 늑대 | 보충 | 난이도 상승 |
-| 1500 | `wild_wolf` | 1 | 중후반 방어선 검사 |
-| 2000 | `hell_hound` | 1 | 후반 압박 |
-| 2600 | `doom_guard` | 1 | 최종 전 단계 |
-| 3000 | `archimonde` | 1 | 정적 분석상 직접 등장하는 후반 보스 |
-| 관찰 필요 | `nether_dragon` | 1 | 사망/변환 후속 보스 후보 |
+|       sec | enemy                            | count | 의도                                |
+| --------: | -------------------------------- | ----: | ----------------------------------- |
+|        80 | `timber_wolf`                    |     4 | 첫 압박                             |
+|       120 | `timber_wolf`                    |     6 | 주요 웨이브 활성화                  |
+|       230 | `frost_wolf`                     |     5 | 초반 방어 확인                      |
+|       300 | `giant_wolf`                     |     4 | 보충/압박 증가                      |
+|       600 | `blood_wolf`                     |     1 | 첫 보스                             |
+|      1100 | `frost_wolf` 또는 상위 일반 늑대 |  보충 | 난이도 상승                         |
+|      1500 | `wild_wolf`                      |     1 | 중후반 방어선 검사                  |
+|      2000 | `hell_hound`                     |     1 | 후반 압박                           |
+|      2600 | `doom_guard`                     |     1 | 최종 전 단계                        |
+|      3000 | `archimonde`                     |     1 | 정적 분석상 직접 등장하는 후반 보스 |
+| 관찰 필요 | `nether_dragon`                  |     1 | 사망/변환 후속 보스 후보            |
 
 주의: 정적 분석 기준 `H01N` 아키몬드는 후반 보스 등장 메시지와 함께 생성된다. `H01O` 네더 드레곤은 별도 등장 메시지 함수가 아니라 사망 위치에 생성되고 이전 유닛 레벨을 이어받는 함수에서 확인된다. 실제 플레이 관찰은 보류하고, 현재 최종전은 정적 분석과 Warsmash behavior 참조 기준으로 `archimonde -> nether_dragon` 2단계 후보로 둔다.
 
@@ -133,10 +211,10 @@ type WaveEvent = {
 
 ```ts
 type WaveRuntime = {
-  nextTimelineIndex: number;
-  nextReplenishAtSec: number;
-  activeEnemiesByWave: Record<string, number>;
-  defeatedBosses: string[];
+    nextTimelineIndex: number;
+    nextReplenishAtSec: number;
+    activeEnemiesByWave: Record<string, number>;
+    defeatedBosses: string[];
 };
 ```
 
@@ -183,13 +261,13 @@ type WaveRuntime = {
 
 ### 3.1 원본 근거
 
-| 역할 | 근거 함수/라인 | 원본 수치 |
-|---|---|---|
-| 자원 교환 | `lIilii` 3182-3255 | 100->70, 500->400, 1500->1200, 3000->2400 |
-| 구매 1 | `lIlIii` 3268-3275 | 금화 150 소모 후 유닛 생성 |
-| 구매 2 | `lIliii` 3288-3295 | 금화 400 소모 후 유닛 생성 |
-| 구매 3 | `lIllii` 3308-3315 | 금화 850 소모 후 유닛 생성 |
-| 부활 | `liilIi` 3415-3445 | 현재 골드/목재 40% 차감, 영웅 부활 |
+| 역할      | 근거 함수/라인      | 원본 수치                                                    |
+| --------- | ------------------- | ------------------------------------------------------------ |
+| 자원 교환 | `lIilii` 3182-3255  | 100->70, 500->400, 1500->1200, 3000->2400                    |
+| 구매 1    | `lIlIii` 3268-3275  | 금화 150 소모 후 유닛 생성                                   |
+| 구매 2    | `lIliii` 3288-3295  | 금화 400 소모 후 유닛 생성                                   |
+| 구매 3    | `lIllii` 3308-3315  | 금화 850 소모 후 유닛 생성                                   |
+| 부활      | `liilIi` 3415-3445  | 현재 골드/목재 40% 차감, 영웅 부활                           |
 | 주기 수익 | `lIiillI` 9352-9366 | 30초마다 `h00A`/`h00J`/`h00W` 수에 따라 70/110/170 목재 지급 |
 
 ### 3.2 MVP 자원 모델
@@ -198,33 +276,33 @@ type WaveRuntime = {
 
 ```ts
 type PlayerResources = {
-  coins: number;
-  eggs: number;
+    coins: number;
+    eggs: number;
 };
 
 type ShopRuntime = {
-  nextIncomeAtSec: number;
+    nextIncomeAtSec: number;
 };
 ```
 
 초기값:
 
-| 난이도 | startingCoins | 비고 |
-|---|---:|---|
-| easy | 140 | 원본 쉬움 +200 골드 감각 |
-| normal | 120 | 기본 |
-| hard | 120 | 적 강화 |
-| crazy | 110 | 적 강화 + 시작 페널티 |
+| 난이도 | startingCoins | 비고                     |
+| ------ | ------------: | ------------------------ |
+| easy   |           140 | 원본 쉬움 +200 골드 감각 |
+| normal |           120 | 기본                     |
+| hard   |           120 | 적 강화                  |
+| crazy  |           110 | 적 강화 + 시작 페널티    |
 
 ### 3.3 구매 항목
 
-| id | sourceRawcode | MVP 비용 | 결과 |
-|---|---|---:|---|
-| `coop_basic` | `h00A` | 60 coins | 30초마다 1 egg unit |
-| `coop_mid` | `h00J` | 120 coins | 30초마다 2 egg units |
-| `coop_high` | `h00W` | 220 coins | 30초마다 3 egg units |
-| `dog` | `n002` | 45 coins | 빠른 방어 유닛 |
-| `big_dog` | `n00E` | 180 coins | 고급 방어 유닛 |
+| id           | sourceRawcode |  MVP 비용 | 결과                 |
+| ------------ | ------------- | --------: | -------------------- |
+| `coop_basic` | `h00A`        |  60 coins | 30초마다 1 egg unit  |
+| `coop_mid`   | `h00J`        | 120 coins | 30초마다 2 egg units |
+| `coop_high`  | `h00W`        | 220 coins | 30초마다 3 egg units |
+| `dog`        | `n002`        |  45 coins | 빠른 방어 유닛       |
+| `big_dog`    | `n00E`        | 180 coins | 고급 방어 유닛       |
 
 업그레이드:
 
@@ -237,14 +315,14 @@ type ShopRuntime = {
 
 ```ts
 function applyIncomeTick(state: RuntimeState) {
-  for (const player of state.players) {
-    const eggUnits = player.buildings.reduce((sum, building) => {
-      if (building.disabledByDisease) return sum;
-      return sum + incomeByBuilding[building.kind].eggUnitsPer30Sec;
-    }, 0);
-    player.resources.eggs += eggUnits;
-    player.resources.coins += eggUnits * 12;
-  }
+    for (const player of state.players) {
+        const eggUnits = player.buildings.reduce((sum, building) => {
+            if (building.disabledByDisease) return sum;
+            return sum + incomeByBuilding[building.kind].eggUnitsPer30Sec;
+        }, 0);
+        player.resources.eggs += eggUnits;
+        player.resources.coins += eggUnits * 12;
+    }
 }
 ```
 
@@ -261,10 +339,10 @@ function applyIncomeTick(state: RuntimeState) {
 
 ```ts
 function revivePlayer(player: PlayerState) {
-  player.resources.coins = Math.floor(player.resources.coins * 0.75);
-  player.resources.eggs = Math.floor(player.resources.eggs * 0.75);
-  player.hero.hp = player.hero.maxHp;
-  player.hero.position = player.spawnPoint;
+    player.resources.coins = Math.floor(player.resources.coins * 0.75);
+    player.resources.eggs = Math.floor(player.resources.eggs * 0.75);
+    player.hero.hp = player.hero.maxHp;
+    player.hero.position = player.spawnPoint;
 }
 ```
 
@@ -284,11 +362,11 @@ function revivePlayer(player: PlayerState) {
 
 ### 4.1 원본 근거
 
-| 역할 | 근거 함수/라인 | 관찰 |
-|---|---|---|
-| 선택 UI | `lliIIi` 3547-3556 | 질병 다이얼로그 버튼 표시 |
-| 안내/분기 | `lliiii` 3575-3592 | 질병 관련 안내와 조건부 실행 |
-| 모드 시작 | `llliii` 3642-3660 | 질병 트리거 활성화, `Ili[60]` 참조 |
+| 역할      | 근거 함수/라인               | 관찰                                   |
+| --------- | ---------------------------- | -------------------------------------- |
+| 선택 UI   | `lliIIi` 3547-3556           | 질병 다이얼로그 버튼 표시              |
+| 안내/분기 | `lliiii` 3575-3592           | 질병 관련 안내와 조건부 실행           |
+| 모드 시작 | `llliii` 3642-3660           | 질병 트리거 활성화, `Ili[60]` 참조     |
 | 효과 생성 | `llllIi`, `llllli` 3667-3686 | 유닛 생성 후 `UnitApplyTimedLife` 적용 |
 
 질병은 기본 웨이브가 아니라 선택형 압박 모드로 보는 것이 맞다.
@@ -299,30 +377,30 @@ function revivePlayer(player: PlayerState) {
 
 ```ts
 type DiseaseRuntime = {
-  enabled: boolean;
-  nextEventAtSec: number;
-  activeEvents: DiseaseEvent[];
+    enabled: boolean;
+    nextEventAtSec: number;
+    activeEvents: DiseaseEvent[];
 };
 
 type DiseaseEvent = {
-  id: string;
-  targetPlayerId: string;
-  targetBuildingId: string;
-  startedAtSec: number;
-  endsAtSec: number;
+    id: string;
+    targetPlayerId: string;
+    targetBuildingId: string;
+    startedAtSec: number;
+    endsAtSec: number;
 };
 ```
 
 설정:
 
-| 항목 | 값 |
-|---|---:|
-| 기본 활성화 | false |
-| 시작 가능 시점 | 180초 이후 |
-| 이벤트 간격 | 90초 |
-| 지속 시간 | 20초 |
-| 대상 | 살아 있는 플레이어의 수익 건물 중 무작위 1개 |
-| 효과 | 해당 건물 수익 tick 비활성화 |
+| 항목           |                                           값 |
+| -------------- | -------------------------------------------: |
+| 기본 활성화    |                                        false |
+| 시작 가능 시점 |                                   180초 이후 |
+| 이벤트 간격    |                                         90초 |
+| 지속 시간      |                                         20초 |
+| 대상           | 살아 있는 플레이어의 수익 건물 중 무작위 1개 |
+| 효과           |                 해당 건물 수익 tick 비활성화 |
 
 ### 4.3 Disease Flow
 
