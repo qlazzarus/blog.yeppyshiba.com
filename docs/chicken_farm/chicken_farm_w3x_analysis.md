@@ -114,6 +114,8 @@ python3 scripts/analyze_chicken_w3x.py
 | `jass_wolf_unit_tiers.tsv`            | 일반 늑대 보충 배열 `iIi[]` rawcode                     |
 | `jass_wolf_special_spawns.tsv`        | 난이도/보스 직접 생성 위치                              |
 | `jass_wolf_order_areas.tsv`           | 늑대 공격/보스/난이도 rect 좌표                         |
+| `jass_day_night_events.tsv`           | 낮/밤 time-of-day 등록과 연결 액션 요약                  |
+| `jass_night_wolf_stat_candidates.tsv` | 스탯 변경 API 함수와 낮/밤/늑대 연결 가능성 후보         |
 | `unit_crosscheck_summary.json`        | 익명 MPQ 블록의 유닛 INI/SLK 테이블 탐색 요약           |
 | `unit_rawcode_crosscheck.tsv`         | rawcode별 유닛/구조물 스탯, UI, JASS 관찰값 교차표      |
 | `fence_candidate_rawcodes.tsv`        | 펜스/벽/방어 건물 rawcode 후보 분리                     |
@@ -1106,14 +1108,57 @@ Phaser에서의 펜스 모델은 다음을 목표로 한다.
 
 핵심은 “완벽한 미로 만들기”가 아니라 “잠깐 늑대를 묶어두는 방어선”이다. 원본 pathing이 넓게 열려 있으므로, 웹 버전에서도 펜스는 긴 우회 미로보다 농장 보호용 지연 장치로 두는 편이 원본 감각에 가깝다.
 
-### 18.4 다음 워3 분석 항목
+### 18.4 낮/밤, 시야, 미니맵 감각
+
+원본 JASS에는 Warcraft III 엔진의 낮/밤 및 시야 관련 기능을 사용하는 단서가 있다.
+
+| 근거 | 관찰 |
+|---|---|
+| `jass_labeled_call_edges.tsv` | `SetDayNightModels`, `SetAmbientDaySound`, `SetAmbientNightSound` 호출 확인 |
+| `jass_labeled_call_edges.tsv` | `TriggerRegisterGameStateEventTimeOfDay` 호출 확인 |
+| `jass_function_labels.tsv` | 초기화 함수 `iiiIilI`와 `main`에서 day/night, ambient sound, terrain fog 계열 호출 확인 |
+| `jass_day_night_events.tsv` | `6.00` 시각 이벤트가 `lllllI` 액션으로 연결됨 |
+| `jass_night_wolf_stat_candidates.tsv` | 스탯 변경 API 후보 중 time-of-day 액션으로 등록된 함수 없음 |
+| `war3map.mmp` | 미니맵 메타데이터 추출 가능 |
+| 웨이브 함수 요약 | 일부 특수 웨이브에서 미니맵 핑/시야 공유가 함께 관찰됨 |
+
+해석:
+
+- 원본 맵은 Warcraft III 기본 day/night 렌더링과 ambient sound 설정을 유지하거나 커스텀 초기화한 것으로 보인다.
+- `TriggerRegisterGameStateEventTimeOfDay(iiiII,EQUAL,6.00)`는 확인되지만, 연결 액션 `lllllI`는 `PlaySoundBJ`, `lIIiiI(10.00)`, `KillSoundWhenDoneBJ`만 호출한다.
+- 정적 JASS 기준으로는 time-of-day 이벤트가 `SetUnitMoveSpeed`, `SetUnitState`, `UnitAddAbilityBJ`, `SetHeroLevelBJ` 같은 스탯 변경 API를 통해 늑대를 강화하는 직접 증거가 없다.
+- `jass_night_wolf_stat_candidates.tsv`의 스탯 변경 후보 함수들도 time-of-day 액션으로 등록되지 않았고, 늑대 rawcode 직접 참조도 확인되지 않았다.
+- 다만 Warcraft III 엔진 기본 낮/밤 효과는 별도다. 크립/유닛의 낮/밤 시야, 시야 획득 체감, ambient/terrain fog는 플레이어가 “밤에 더 위험하다”고 느끼게 만들 수 있다.
+- 플레이 경험상 “밤마다 늑대가 강해진다”는 기억은 실제 스탯 버프라기보다 밤 시야/가시성/웨이브 타이머/사운드 경고가 결합된 체감일 가능성이 있다. 이 부분은 Warsmash 또는 실제 플레이 관찰로 재검증한다.
+
+Phaser 반영 방향:
+
+| 항목 | MVP 처리 |
+|---|---|
+| 낮/밤 사이클 | `elapsedSec` 기반의 시각 연출 레이어로 구현. 게임 규칙과는 처음에 분리 |
+| 밤 연출 | 화면 전체에 약한 청록/남색 overlay, ambient 변화, UI clock 표시 |
+| 밤 능력치 | 정적 JASS 직접 증거 없음. MVP 기본값에는 넣지 않고, 선택형 modifier 후보로 보류 |
+| FoW | 현재 PoC처럼 플레이어 주변 시야와 탐색 완료 영역을 분리 |
+| 미니맵 | 탐색된 영역, 플레이어, 스폰/중립/특수 오브젝트를 축약 표시 |
+| 웨이브 연결 | 첫 MVP에서는 timer-driven wave 유지. 이후 밤 전환과 웨이브 경고를 시각적으로 맞춤 |
+
+추가 분석 후보:
+
+1. 완료: `TriggerRegisterGameStateEventTimeOfDay` 연결 액션과 스탯 변경 API 후보를 `jass_day_night_events.tsv`, `jass_night_wolf_stat_candidates.tsv`로 분리했다.
+2. Warsmash 또는 실제 플레이 관찰로 밤 시간대의 늑대 이동/획득/공격 체감이 낮과 달라지는지 확인한다.
+3. 원본 SLK 기본값까지 교차해 wolf 계열의 `sight/nsight` 기본 적용값을 확정한다.
+4. 필요하면 Phaser MVP에 `nightEnemyModifier`를 옵션 필드로만 추가하고 기본값은 `1.0`으로 둔다.
+
+### 18.5 다음 워3 분석 항목
 
 Phaser 구현으로 넘어가기 전에 워3 분석 문서에서 더 확인할 항목은 다음이다. 실제 플레이 관찰은 보류하고, 우선 Warsmash behavior와 정적 데이터 교차검증으로 대체한다.
 
 1. 완료: `unit_rawcode_crosscheck.tsv`와 `doo_*` 산출물에서 펜스/벽/방어 건물 후보 rawcode를 `docs/chicken_farm/chicken_farm_w3x_artifacts/fence_candidate_rawcodes.tsv`로 분리했다.
 2. 완료: JASS 늑대 명령 함수의 좌표/대상 흐름을 `docs/chicken_farm/chicken_farm_w3x_artifacts/jass_wolf_order_flows.tsv`와 관련 TSV로 분리했다.
-3. wc3libs로 현재 Python 파서의 `.wpm`, `.doo`, 익명 SLK 파싱 결과를 교차 검증할 수 있는지 검토한다.
-4. `war3mapImported` 경로와 doodad/unit 모델 경로를 연결해 신규 에셋 제작 참고 목록을 만든다.
+3. 완료: `TriggerRegisterGameStateEventTimeOfDay` 연결 함수와 낮/밤 조건의 정적 JASS 영향도를 `jass_day_night_events.tsv` / `jass_night_wolf_stat_candidates.tsv`로 분리했다.
+4. Warsmash 또는 실제 플레이 관찰로 엔진 기본 밤 효과가 늑대 체감에 주는 영향을 검증한다.
+5. wc3libs로 현재 Python 파서의 `.wpm`, `.doo`, 익명 SLK 파싱 결과를 교차 검증할 수 있는지 검토한다.
+6. `war3mapImported` 경로와 doodad/unit 모델 경로를 연결해 신규 에셋 제작 참고 목록을 만든다.
 
 Phaser 구현 산출물은 별도 기획 문서와 데이터 파일로 분리한다.
 

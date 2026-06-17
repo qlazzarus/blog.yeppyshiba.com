@@ -1,0 +1,2 @@
+line	trigger	comparator	time_of_day	action_function	action_line_start	action_line_end	action_calls	stat_affecting_calls	wolf_rawcode_refs	inferred_effect
+7277	iiiII	EQUAL	6.00	lllllI	1532	1536	KillSoundWhenDoneBJ,PlaySoundBJ,lIIiiI			audio cue only in extracted action

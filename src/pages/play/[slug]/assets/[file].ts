@@ -11,6 +11,7 @@ const contentTypes: Record<string, string> = {
     '.js': 'application/javascript; charset=utf-8',
     '.json': 'application/json; charset=utf-8',
     '.map': 'application/json; charset=utf-8',
+    '.png': 'image/png',
     '.svg': 'image/svg+xml',
     '.wasm': 'application/wasm',
 };
@@ -73,7 +74,11 @@ async function findAssetFiles(slug: string) {
     const rootDir = process.cwd();
     const assetDirs = [
         path.join(rootDir, 'public', 'game-assets', slug, 'assets'),
+        path.join(rootDir, 'public', 'game-assets', slug, 'tilemaps'),
+        path.join(rootDir, 'public', 'game-assets', slug, 'tilesets', 'kenney-tiny-town'),
         path.join(rootDir, 'games', slug, 'dist', 'assets'),
+        path.join(rootDir, 'games', slug, 'dist', 'tilemaps'),
+        path.join(rootDir, 'games', slug, 'dist', 'tilesets', 'kenney-tiny-town'),
     ];
     const files = new Set<string>();
 
@@ -92,7 +97,11 @@ async function readGameAsset(slug: string, file: string) {
     const rootDir = process.cwd();
     const candidates = [
         path.join(rootDir, 'public', 'game-assets', slug, 'assets', file),
+        path.join(rootDir, 'public', 'game-assets', slug, 'tilemaps', file),
+        path.join(rootDir, 'public', 'game-assets', slug, 'tilesets', 'kenney-tiny-town', file),
         path.join(rootDir, 'games', slug, 'dist', 'assets', file),
+        path.join(rootDir, 'games', slug, 'dist', 'tilemaps', file),
+        path.join(rootDir, 'games', slug, 'dist', 'tilesets', 'kenney-tiny-town', file),
     ];
 
     for (const candidate of candidates) {

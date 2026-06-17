@@ -615,6 +615,155 @@ def label_jass_functions(jass: str) -> dict[str, object]:
     }
 
 
+DAY_NIGHT_RULE_APIS = [
+    "TriggerRegisterGameStateEventTimeOfDay",
+    "SetDayNightModels",
+    "SetAmbientDaySound",
+    "SetAmbientNightSound",
+]
+
+STAT_AFFECTING_APIS = [
+    "SetUnitMoveSpeed",
+    "SetUnitState",
+    "SetUnitLifePercentBJ",
+    "SetHeroLevelBJ",
+    "SetPlayerTechResearchedSwap",
+    "UnitAddAbilityBJ",
+    "UnitRemoveAbilityBJ",
+]
+
+WOLF_RAWCODE_DECIMALS = {
+    "n007": rawcode_to_u32("n007"),
+    "n008": rawcode_to_u32("n008"),
+    "n009": rawcode_to_u32("n009"),
+    "n00A": rawcode_to_u32("n00A"),
+    "n00B": rawcode_to_u32("n00B"),
+    "n00C": rawcode_to_u32("n00C"),
+    "n00G": rawcode_to_u32("n00G"),
+    "n00I": rawcode_to_u32("n00I"),
+    "n00J": rawcode_to_u32("n00J"),
+    "n00K": rawcode_to_u32("n00K"),
+    "n00L": rawcode_to_u32("n00L"),
+    "H012": rawcode_to_u32("H012"),
+    "H00X": rawcode_to_u32("H00X"),
+    "H013": rawcode_to_u32("H013"),
+    "H01B": rawcode_to_u32("H01B"),
+    "H01N": rawcode_to_u32("H01N"),
+}
+
+
+def collect_day_night_wolf_stat_analysis(jass: str) -> dict[str, list[dict[str, object]]]:
+    blocks = split_jass_function_blocks(jass)
+    by_name = {str(block["function"]): block for block in blocks}
+    lines = jass.splitlines()
+
+    registrations = []
+    register_pattern = re.compile(
+        r"TriggerRegisterGameStateEventTimeOfDay\((\w+),(\w+),([0-9.]+)\)"
+    )
+    action_pattern = re.compile(r"TriggerAddAction\((\w+),function\s+(\w+)\)")
+
+    trigger_actions: dict[str, list[str]] = defaultdict(list)
+    for line in lines:
+        action_match = action_pattern.search(line)
+        if action_match:
+            trigger_actions[action_match.group(1)].append(action_match.group(2))
+
+    for index, line in enumerate(lines, start=1):
+        register_match = register_pattern.search(line)
+        if not register_match:
+            continue
+
+        trigger, comparator, value = register_match.groups()
+        actions = trigger_actions.get(trigger, [])
+        for action in actions or [""]:
+            block = by_name.get(action)
+            body = str(block["body"]) if block else ""
+            calls = list(block["calls"]) if block else []
+            stat_calls = [api for api in STAT_AFFECTING_APIS if api in body]
+            wolf_refs = [
+                rawcode
+                for rawcode, decimal in WOLF_RAWCODE_DECIMALS.items()
+                if rawcode in body or str(decimal) in body
+            ]
+            registrations.append(
+                {
+                    "line": index,
+                    "trigger": trigger,
+                    "comparator": comparator,
+                    "time_of_day": value,
+                    "action_function": action,
+                    "action_line_start": block["line_start"] if block else "",
+                    "action_line_end": block["line_end"] if block else "",
+                    "action_calls": ",".join(calls),
+                    "stat_affecting_calls": ",".join(stat_calls),
+                    "wolf_rawcode_refs": ",".join(wolf_refs),
+                    "inferred_effect": infer_day_night_effect(calls, stat_calls, wolf_refs),
+                }
+            )
+
+    candidates = []
+    day_night_functions = {
+        str(row["action_function"]) for row in registrations if row.get("action_function")
+    }
+    for block in blocks:
+        name = str(block["function"])
+        body = str(block["body"])
+        calls = list(block["calls"])
+        stat_calls = [api for api in STAT_AFFECTING_APIS if api in body]
+        if not stat_calls:
+            continue
+
+        wolf_refs = [
+            rawcode
+            for rawcode, decimal in WOLF_RAWCODE_DECIMALS.items()
+            if rawcode in body or str(decimal) in body
+        ]
+        player10 = "Player(10)" in body
+        time_linked = name in day_night_functions
+        candidates.append(
+            {
+                "function": name,
+                "line_start": block["line_start"],
+                "line_end": block["line_end"],
+                "stat_affecting_calls": ",".join(stat_calls),
+                "calls": ",".join(calls[:16]),
+                "player10_ref": "yes" if player10 else "no",
+                "wolf_rawcode_refs": ",".join(wolf_refs),
+                "registered_time_of_day_action": "yes" if time_linked else "no",
+                "night_wolf_stat_link_confidence": infer_night_wolf_stat_confidence(
+                    time_linked, stat_calls, wolf_refs, player10
+                ),
+            }
+        )
+
+    return {"registrations": registrations, "stat_candidates": candidates}
+
+
+def infer_day_night_effect(calls: list[str], stat_calls: list[str], wolf_refs: list[str]) -> str:
+    if stat_calls and wolf_refs:
+        return "time-of-day action directly touches wolf/stat APIs"
+    if stat_calls:
+        return "time-of-day action has stat-affecting API but no wolf rawcode reference"
+    if any(call in {"PlaySoundBJ", "KillSoundWhenDoneBJ"} for call in calls):
+        return "audio cue only in extracted action"
+    return "no direct stat effect observed"
+
+
+def infer_night_wolf_stat_confidence(
+    time_linked: bool, stat_calls: list[str], wolf_refs: list[str], player10: bool
+) -> str:
+    if time_linked and stat_calls and wolf_refs:
+        return "high"
+    if time_linked and stat_calls and player10:
+        return "medium"
+    if time_linked and stat_calls:
+        return "low"
+    if stat_calls and wolf_refs:
+        return "not_time_linked"
+    return "none"
+
+
 def line_number_offsets(text: str) -> list[int]:
     offsets = [0]
     for match in re.finditer("\n", text):
@@ -1619,6 +1768,7 @@ def main() -> None:
         summary = summarize_jass(extracted[r"scripts\war3map.j"])
         function_labels = label_jass_functions(jass_text)
         wolf_order_analysis = collect_jass_wolf_order_analysis(jass_text)
+        day_night_analysis = collect_day_night_wolf_stat_analysis(jass_text)
         write_json(
             output / "jass_metrics.json",
             {
@@ -1734,6 +1884,38 @@ def main() -> None:
             output / "jass_wolf_order_areas.tsv",
             wolf_order_analysis["areas"],
             ["symbol", "role_inferred", "rect_symbol", "line", "min_x", "min_y", "max_x", "max_y"],
+        )
+        write_tsv(
+            output / "jass_day_night_events.tsv",
+            day_night_analysis["registrations"],
+            [
+                "line",
+                "trigger",
+                "comparator",
+                "time_of_day",
+                "action_function",
+                "action_line_start",
+                "action_line_end",
+                "action_calls",
+                "stat_affecting_calls",
+                "wolf_rawcode_refs",
+                "inferred_effect",
+            ],
+        )
+        write_tsv(
+            output / "jass_night_wolf_stat_candidates.tsv",
+            day_night_analysis["stat_candidates"],
+            [
+                "function",
+                "line_start",
+                "line_end",
+                "stat_affecting_calls",
+                "calls",
+                "player10_ref",
+                "wolf_rawcode_refs",
+                "registered_time_of_day_action",
+                "night_wolf_stat_link_confidence",
+            ],
         )
     else:
         summary = {"start_locations": []}
