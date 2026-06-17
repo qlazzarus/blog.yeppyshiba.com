@@ -147,7 +147,7 @@ lIiilII	9334	9345	economy	economy		0		economy:CountLivingPlayerUnitsOfTypeId(174
 lIiillI	9352	9366	economy	economy		2	AdjustPlayerStateBJ,DisplayTimedTextToPlayer	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:CountLivingPlayerUnitsOfTypeId(1747988545|economy:CountLivingPlayerUnitsOfTypeId(1747988554|economy:CountLivingPlayerUnitsOfTypeId(1747988567
 lIiliII	9379	9381	wave	wave		1	SetPlayerTechResearchedSwap	wave:Player(10)
 lIililI	9387	9389	wave	wave		1	SetPlayerTechResearchedSwap	wave:Player(10)
-lIlIiII	9437	9491	alliance,chat		alliance,chat	53	iiiIlII,iiiIllI,iiiiIiI,iiiiiII,iiiiilI,iiiillI,iiilIlI,iiillII,iilIIiI,iilIilI,iiliIII,iiliiiI,iilillI,iilliII,iillilI,ilIIliI,ilIlIII,iliIIlI,iliiiiI,iliilII	calls:iiiIllI:alliance|calls:iiiIllI:chat|calls:iiiiiII:chat|calls:iiiiilI:chat|calls:iiiillI:chat|calls:iiilIlI:chat|calls:illlIII:chat|calls:lIIliiI:chat
+lIlIiII	9437	9491	alliance,chat		alliance,chat	53	iiiIlII,iiiIllI,iiiiIiI,iiiiiII,iiiiilI,iiiillI,iiilIlI,iiillII,iilIIiI,iilIilI,iiliIII,iiliiiI,iilillI,iilliII,iillilI,ilIIliI,ilIlIII,iliIIlI,iliiiiI,iliilII	calls:iiiIllI:chat|calls:iiiIllI:alliance|calls:iiiiiII:chat|calls:iiiiilI:chat|calls:iiiillI:chat|calls:iiilIlI:chat|calls:illlIII:chat|calls:lIIliiI:chat
 lIlIilI	9499	9562	wave	wave		6	ForcePlayerStartLocation,SetPlayerColor,SetPlayerController,SetPlayerRacePreference,SetPlayerRaceSelectable,SetPlayerStartLocation	wave:Player(10)
 InitCustomTeams	9563	9576	wave	wave		1	SetPlayerTeam	wave:Player(10)
 main	9670	9684	wave		wave	13	NewSoundEnvironment,SetAmbientDaySound,SetAmbientNightSound,SetCameraBounds,SetDayNightModels,SetMapMusic,SetTerrainFogEx,lIlIiII,lIlIiiI,liiIiI,liiIlI,liiliI,liillI	calls:liiIlI:wave

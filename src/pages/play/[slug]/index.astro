@@ -40,7 +40,12 @@ if (!html) {
 }
 
 function rewriteAssetTag(tag: string, slug: string) {
-    return tag.replaceAll(`/game-assets/${slug}/assets/`, `/play/${slug}/assets/`);
+    return tag
+        .replaceAll(`/game-assets/${slug}/assets/`, `/play/${slug}/assets/`)
+        .replace(
+            new RegExp(`(/play/${slug}/assets/[^"']+?)(?=["'])`, 'g'),
+            '$1/',
+        );
 }
 ---
 
