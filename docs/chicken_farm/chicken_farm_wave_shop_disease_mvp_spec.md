@@ -1,6 +1,7 @@
-# Chicken Farm Web MVP: Wave, Shop, Disease Spec
+# Chicken Farm Web MVP: Wave and Shop Spec
 
-> 목적: `닭농장1.3a.w3x` 분석에서 확인한 웨이브/상점/질병 흐름을 Phaser + P2P 웹 MVP 구현 단위로 좁혀 정리한다.
+> 목적: `닭농장1.3a.w3x` 분석에서 확인한 웨이브/상점 흐름을 Phaser + P2P 웹 MVP 구현 단위로 좁혀 정리한다.
+> 질병은 원본에 존재하는 선택형 압박 요소로 문서 하단에 보관하지만, 현재 구현/MVP 범위에서는 제외한다.
 
 원본 JASS 함수명은 난독화되어 있으므로 구현 이름으로 사용하지 않는다. 아래 함수명과 라인은 추적 근거이며, 실제 구현은 새 데이터/상태/이벤트 이름을 사용한다.
 
@@ -22,7 +23,7 @@
 
 ## 1. Shared Runtime Model
 
-MVP는 호스트 권위형 상태로 둔다. P2P에서는 호스트가 시간, 웨이브, 자원 tick, 질병 이벤트를 결정하고 클라이언트는 입력만 전송한다.
+MVP는 호스트 권위형 상태로 둔다. P2P에서는 호스트가 시간, 웨이브, 자원 tick을 결정하고 클라이언트는 입력만 전송한다.
 
 ```ts
 type GamePhase =
@@ -58,7 +59,6 @@ type RuntimeState = {
     players: PlayerState[];
     wave: WaveRuntime;
     shop: ShopRuntime;
-    disease: DiseaseRuntime;
 };
 ```
 
@@ -74,7 +74,7 @@ P2P 멀티플레이에서는 `hostEpoch`가 현재 방장 세대를 나타낸다
 
 - 모든 반복 이벤트는 `elapsedSec` 기준으로 판정한다.
 - `elapsedSec`는 원본 논리 시간이며, 테스트 배속은 `realDeltaSec * timeScale`로만 반영한다.
-- 30초 수익 tick, 20초 웨이브 보충 tick, 질병 tick은 별도 타이머 객체보다 `elapsedSec >= nextAtSec` 방식이 재접속/동기화에 유리하다.
+- 30초 수익 tick, 20초 웨이브 보충 tick은 별도 타이머 객체보다 `elapsedSec >= nextAtSec` 방식이 재접속/동기화에 유리하다.
 - 원본 rawcode는 데이터의 `sourceRawcode` 필드에만 남기고 런타임 로직에서는 새 id를 사용한다.
 
 테스트 프로파일:
@@ -83,7 +83,7 @@ P2P 멀티플레이에서는 `hostEpoch`가 현재 방장 세대를 나타낸다
 | ---------- | --------: | --------------------------------- |
 | `original` |         1 | 원본에 가까운 장기 체감 검증      |
 | `fast`     |         3 | 전체 흐름을 한 세션에서 확인      |
-| `smoke`    |        10 | 웨이브/보스/질병 이벤트 순서 검증 |
+| `smoke`    |        10 | 웨이브/보스 이벤트 순서 검증      |
 
 ### 1.1 SerializedGameState와 체크포인트
 
@@ -103,8 +103,6 @@ type SerializedGameState = {
     players: PlayerState[];
     wave: WaveRuntime;
     shop: ShopRuntime;
-    disease: DiseaseRuntime;
-
     entities: {
         farmers: FarmerState[];
         defenders: DefenderState[];
@@ -317,7 +315,6 @@ type ShopRuntime = {
 function applyIncomeTick(state: RuntimeState) {
     for (const player of state.players) {
         const eggUnits = player.buildings.reduce((sum, building) => {
-            if (building.disabledByDisease) return sum;
             return sum + incomeByBuilding[building.kind].eggUnitsPer30Sec;
         }, 0);
         player.resources.eggs += eggUnits;
@@ -329,7 +326,6 @@ function applyIncomeTick(state: RuntimeState) {
 규칙:
 
 - 30초마다 실행한다.
-- 질병으로 비활성화된 수익 건물은 해당 tick에서 제외한다.
 - 원본은 목재 지급이지만 MVP에서는 eggs와 coins를 함께 올려 초반 정체를 줄인다.
 - `eggs`는 점수/업적/후속 성장 재료로 남긴다.
 
@@ -358,7 +354,9 @@ function revivePlayer(player: PlayerState) {
 
 ---
 
-## 4. Disease Spec
+## 4. Archived Disease Reference
+
+현재 구현에서는 질병을 제외한다. 이 섹션은 원본 분석 근거를 잃지 않기 위한 보관용이며, `RuntimeState`, `balance.ts`, MVP PoC 목록에는 포함하지 않는다.
 
 ### 4.1 원본 근거
 
@@ -371,7 +369,7 @@ function revivePlayer(player: PlayerState) {
 
 질병은 기본 웨이브가 아니라 선택형 압박 모드로 보는 것이 맞다.
 
-### 4.2 MVP Disease Mode
+### 4.2 Archived Runtime Sketch
 
 기본값은 꺼둔다.
 
@@ -425,7 +423,7 @@ cleanup
 
 ### 4.4 Counterplay
 
-MVP의 질병은 손실을 만들되 즉시 패배로 이어지지 않아야 한다.
+보관용 설계에서 질병은 손실을 만들되 즉시 패배로 이어지지 않는 선택형 압박이었다.
 
 - 감염된 건물은 시각적으로 명확히 표시한다.
 - 플레이어가 5초간 상호작용하면 즉시 치료할 수 있다.
@@ -456,16 +454,8 @@ MVP의 질병은 손실을 만들되 즉시 패배로 이어지지 않아야 한
 - 방어 유닛 `dog`, `big_dog` 구매.
 - 30초 수익 tick과 25% 부활 패널티.
 
-질병:
-
-- 옵션 토글은 방 설정에 둔다.
-- 기본값 false.
-- 감염 이벤트 생성/만료/치료.
-- 감염 중 수익 tick 제외.
-
 검증:
 
 - 15분 이하 세션에서 최종 보스까지 도달한다.
 - 첫 웨이브 전 최소 한 번 수익 건물을 살 수 있다.
 - 일반 늑대가 열린 지형에서 농장으로 접근한다.
-- 질병이 켜져도 치료 없이 전체 경제가 붕괴하지 않는다.

@@ -1,0 +1,28 @@
+acquisition_group	rawcode	name	source_or_provider	cost_or_chance	jass_lines	original_effect	mvp_translation	confidence
+purchase	I000	금화 소량 교환	아이템 stock, 시장 교환 계열	100 gold	-	100 금화를 70 목재로 교환	marketExchange.smallGoldToLumber. 실제 구현은 아이템 구매보다 시장 액션으로 처리	medium
+purchase	I001	목재 소량 교환	아이템 stock, 시장 교환 계열	100 lumber	-	100 목재를 70 금화로 교환	marketExchange.smallLumberToGold. 실제 구현은 아이템 구매보다 시장 액션으로 처리	medium
+purchase	I002	닭 분양서	시장/상점 구매 후보	150 gold	3530-3533	사용 시 기본 닭 n000 생성	chickenScroll.basic 구매 아이템	high
+purchase	I004	질병 치료제	상점 구매 후보	30 gold	4064-4078	질병 치료, 10회 사용	현재 구현 제외. 원본 참조만 유지	high
+purchase	I00B	하급 수송건물 건축 기술서	상점 구매 후보	400 gold	3715-3730	사용 시 h011 연구 해금	researchBook.transportBuildingBasic	high
+purchase	I00C	중급 수송기 제작 기술서	상점 구매 후보	1000 gold	3736-3751	사용 시 h014 연구 해금	researchBook.transportMid	high
+purchase	I00D	중급 포탑 무기 제조 기술서	상점 구매 후보	1000 gold	3757-3772	사용 시 h015 연구 해금	researchBook.turretWeaponMid	high
+purchase	I00E	고급 포탑 무기 제조 기술서	상점 구매 후보	2000 gold	3778-3793	사용 시 h017 연구 해금	researchBook.turretWeaponAdvanced	high
+purchase	I00F	시장건설	상점/시작 키트 후보	160 gold, 50 lumber	1746,1753,1758	목표 지점에 시장 건설	marketBuildKit. 시작 지급과 구매 가능성을 모두 데이터에 열어둠	high
+drop	I005	고기상자	동물/고기 처리 흐름	판매 가치 200 lumber	2643-2656,2727-2739	고기상자 생성, 일부 분기에서 3/5 charges	meatCrate production/drop. 판매 자원으로 연결	high
+drop	I006	알	닭 산란/생산 흐름	판매 가치 170 gold	2481,3954,3979,4004	알 생성, 부화/특수 닭 변환 입력	egg production/drop. hatchery와 specialChickenRoll 입력	high
+drop	I007	치킨	조리/생산 흐름	판매 가치 250 gold	2956-2961,3032-3037	치킨 생성 후 영웅에게 지급, 체력 300 회복	cookedChicken consumable/sellable	high
+drop	I00G	중년닭 분양서 (판매불가)	n01D 거미 사망	50%	8051-8068	거미 처치 시 생성, 사용 시 중년 닭 n011 생성	spiderBonus.middleChickenScroll	high
+drop	I00O	우싹쓰의뿔	n01K 우싹스골렘 사망	약 81%	8076-8100	장착 영웅과 주변 아군 방어 오라	specialBossDrop.armorAura	high
+drop	I00P	우싹쓰의 손	n01K 우싹스골렘 사망	약 19%	8076-8100	힘/장갑 계열 장비	specialBossDrop.strengthGauntlet	high
+level_reward	I00Q	헤이스트 글로브	H000 농부 level 20	고정 지급	8850-8871	공격 속도 증가	heroLevelReward.level20.attackSpeed	high
+level_reward	I00H	각성아이템1	H000 농부 level 25	고정 지급	8879-8900	주변 아군 공격 데미지 증가 오라	heroLevelReward.level25.commandAura	high
+level_reward	I00I	각성아이템2	H000 농부 level 30	고정 지급	8908-8929	장착 영웅 공격 데미지 +300	heroLevelReward.level30.damageFlat	high
+level_reward	I00N	각성아이템3	H000 농부 level 35	고정 지급	8937-8955	힘과 지능 향상	heroLevelReward.level35.heroStats	high
+event_reward	I003	닭 분양서 (판매불가)	시작/재시작 지급	5/6/7 charges	1743-1760,1819-1820	기본 닭 n000 생성	initialInventory.basicChickenScroll	high
+event_reward	I008	질병 치료제 (판매불가)	시작 지급 후보	10 uses	1751,1759	질병 치료	현재 구현 제외. 원본 시작 인벤토리 참조	medium
+event_reward	I009	불터 키트 (판매불가)	시작 지급 후보	1 use	1745,1752,1760	불터 건설	initialInventory.campfireKit	high
+event_reward	I00A	디바인 포션 부활 시	중앙 n006 부활 서비스	자원 40% 삭감 후 지급	3415-3428	농부 부활 후 무적 포션 지급	reviveService.invulnerabilityPotion	high
+event_reward	I00J	지능닭 분양서 (판매불가)	특수 닭 이벤트/분양서 후보	획득 경로 추가 확인	8160-8178	사용 시 지능닭 n01E 생성	specialChickenScroll.intelligence. acquisition unresolved	medium
+event_reward	I00K	아머닭 분양서 (판매불가)	특수 닭 이벤트/분양서 후보	획득 경로 추가 확인	8184-8198	사용 시 아머닭 n01G 생성	specialChickenScroll.armor. acquisition unresolved	medium
+event_reward	I00L	공격닭 분양서 (판매불가)	특수 닭 이벤트/분양서 후보	획득 경로 추가 확인	8112-8130	사용 시 공격닭 n01F 생성	specialChickenScroll.attack. acquisition unresolved	medium
+event_reward	I00M	모이닭 분양서 (판매불가)	특수 닭 이벤트/분양서 후보	획득 경로 추가 확인	8136-8154	사용 시 모이닭 n01H 생성	specialChickenScroll.feed. acquisition unresolved	medium

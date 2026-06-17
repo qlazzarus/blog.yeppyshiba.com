@@ -13,7 +13,21 @@ export type EnemyId =
 
 export type DefenderId = 'farmer' | 'dog' | 'big_dog';
 export type IncomeBuildingId = 'coop_basic' | 'coop_mid' | 'coop_high';
-export type DefenseBuildingId = 'fence_wood' | 'tower_basic' | 'well_basic';
+export type DefenseBuildingId =
+    | 'fence_wood'
+    | 'fence_bronze'
+    | 'wall_stone'
+    | 'barrier_magic'
+    | 'tower_scout'
+    | 'tower_guard_small'
+    | 'tower_guard_medium'
+    | 'tower_guard_large'
+    | 'tower_guard_black'
+    | 'tower_arcane_small'
+    | 'tower_arcane_medium'
+    | 'tower_arcane_large'
+    | 'tower_arcane_grand'
+    | 'well_basic';
 export type BuildingId = IncomeBuildingId | DefenseBuildingId;
 export type ShopItemId = IncomeBuildingId | 'dog' | 'big_dog';
 
@@ -41,11 +55,11 @@ export type SessionBalance = {
 export type CombatStats = {
     readonly armor: number;
     readonly attackCooldownSec: number;
-    readonly attackRangePx: number;
-    readonly acquireRangePx: number;
+    readonly attackRangePx?: number;
+    readonly acquireRangePx?: number;
     readonly damage: number;
     readonly hp: number;
-    readonly rangeLeashPx: number;
+    readonly rangeLeashPx?: number;
     readonly speedPxPerSec: number;
 };
 
@@ -86,8 +100,11 @@ export type DefenseBuildingConfig = {
     readonly hp: number;
     readonly id: DefenseBuildingId;
     readonly blocksPath: boolean;
+    readonly requires?: IncomeBuildingId | 'family_temple' | 'workshop';
     readonly targetableByWolves: boolean;
     readonly source: SourceTrace;
+    readonly upgradeCostCoins?: number;
+    readonly upgradeTo?: DefenseBuildingId;
     readonly attack?: {
         readonly cooldownSec: number;
         readonly damage: number;
@@ -134,15 +151,6 @@ export type ScoreBalance = {
     readonly survivalEvery10Sec: number;
 };
 
-export type DiseaseBalance = {
-    readonly cureInteractSec: number;
-    readonly durationSec: number;
-    readonly enabledByDefault: boolean;
-    readonly eventIntervalSec: number;
-    readonly sellValueMultiplierWhileInfected: number;
-    readonly startAfterSec: number;
-};
-
 export type PathingBalance = {
     readonly baseBlockedRatioTarget: number;
     readonly cellSize: number;
@@ -154,7 +162,6 @@ export type PathingBalance = {
 export type ChickenFarmBalance = {
     readonly defenders: Record<DefenderId, DefenderConfig>;
     readonly difficulties: Record<DifficultyId, DifficultyConfig>;
-    readonly disease: DiseaseBalance;
     readonly economy: EconomyBalance;
     readonly enemies: Record<EnemyId, EnemyConfig>;
     readonly incomeBuildings: Record<IncomeBuildingId, IncomeBuildingConfig>;
@@ -234,14 +241,6 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             label: 'Normal',
             startingCoinsBonus: 0,
         },
-    },
-    disease: {
-        cureInteractSec: 5,
-        durationSec: 20,
-        enabledByDefault: false,
-        eventIntervalSec: 90,
-        sellValueMultiplierWhileInfected: 0.5,
-        startAfterSec: 180,
     },
     economy: {
         easyBonusCoins: 20,
@@ -407,6 +406,259 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             },
             upgradeCostCoins: 140,
             upgradeTo: 'coop_high',
+        },
+    },
+    defenseBuildings: {
+        barrier_magic: {
+            armor: 8,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 46,
+            hp: 650,
+            id: 'barrier_magic',
+            requires: 'workshop',
+            source: {
+                notes: ['Original chain h00K -> h00Y -> h014.'],
+                rawcode: 'h00Y',
+            },
+            targetableByWolves: true,
+        },
+        fence_bronze: {
+            armor: 2,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 22,
+            hp: 300,
+            id: 'fence_bronze',
+            source: {
+                rawcode: 'h00L',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 26,
+            upgradeTo: 'wall_stone',
+        },
+        fence_wood: {
+            armor: 1,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 8,
+            hp: 200,
+            id: 'fence_wood',
+            source: {
+                rawcode: 'h003',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 18,
+            upgradeTo: 'fence_bronze',
+        },
+        tower_arcane_grand: {
+            armor: 13,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 76,
+                rangePx: 360,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 230,
+            hp: 1000,
+            id: 'tower_arcane_grand',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h01K',
+            },
+            targetableByWolves: true,
+        },
+        tower_arcane_large: {
+            armor: 9,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 54,
+                rangePx: 330,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 160,
+            hp: 800,
+            id: 'tower_arcane_large',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h017',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 120,
+            upgradeTo: 'tower_arcane_grand',
+        },
+        tower_arcane_medium: {
+            armor: 8,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 38,
+                rangePx: 300,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 100,
+            hp: 650,
+            id: 'tower_arcane_medium',
+            requires: 'workshop',
+            source: {
+                rawcode: 'h008',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 80,
+            upgradeTo: 'tower_arcane_large',
+        },
+        tower_arcane_small: {
+            armor: 7,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 26,
+                rangePx: 270,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 76,
+            hp: 400,
+            id: 'tower_arcane_small',
+            requires: 'coop_basic',
+            source: {
+                notes: ['Branch from h00D scout tower.'],
+                rawcode: 'h016',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 58,
+            upgradeTo: 'tower_arcane_medium',
+        },
+        tower_guard_black: {
+            armor: 12,
+            attack: {
+                cooldownSec: 0.9,
+                damage: 64,
+                rangePx: 345,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 220,
+            hp: 900,
+            id: 'tower_guard_black',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h01J',
+            },
+            targetableByWolves: true,
+        },
+        tower_guard_large: {
+            armor: 8,
+            attack: {
+                cooldownSec: 0.8,
+                damage: 40,
+                rangePx: 285,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 76,
+            hp: 550,
+            id: 'tower_guard_large',
+            requires: 'workshop',
+            source: {
+                rawcode: 'h00Z',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 118,
+            upgradeTo: 'tower_guard_black',
+        },
+        tower_guard_medium: {
+            armor: 7,
+            attack: {
+                cooldownSec: 0.85,
+                damage: 34,
+                rangePx: 255,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 56,
+            hp: 400,
+            id: 'tower_guard_medium',
+            requires: 'coop_basic',
+            source: {
+                rawcode: 'h00Q',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 44,
+            upgradeTo: 'tower_guard_large',
+        },
+        tower_guard_small: {
+            armor: 6,
+            attack: {
+                cooldownSec: 0.9,
+                damage: 22,
+                rangePx: 225,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 44,
+            hp: 300,
+            id: 'tower_guard_small',
+            requires: 'coop_basic',
+            source: {
+                notes: ['Branch from h00D scout tower.'],
+                rawcode: 'h007',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 34,
+            upgradeTo: 'tower_guard_medium',
+        },
+        tower_scout: {
+            armor: 5,
+            attack: {
+                cooldownSec: 1.05,
+                damage: 14,
+                rangePx: 195,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 32,
+            hp: 275,
+            id: 'tower_scout',
+            source: {
+                rawcode: 'h00D',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 34,
+            upgradeTo: 'tower_guard_small',
+        },
+        wall_stone: {
+            armor: 5,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 34,
+            hp: 450,
+            id: 'wall_stone',
+            requires: 'coop_basic',
+            source: {
+                rawcode: 'h00K',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 40,
+            upgradeTo: 'barrier_magic',
+        },
+        well_basic: {
+            armor: 0,
+            aura: {
+                amountPerSec: 2,
+                kind: 'heal',
+                rangePx: 96,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 30,
+            hp: 100,
+            id: 'well_basic',
+            source: {
+                rawcode: 'h00M',
+            },
+            targetableByWolves: true,
         },
     },
     pathing: {

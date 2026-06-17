@@ -1,0 +1,20 @@
+category	trigger_or_unit	rawcode_or_item	name	jass_lines	effect_or_reward	interpretation	confidence
+boss_score	death	H012	블러드 울프	6914-6917,6959-6961	score +150	정규 보스 처치 점수 보상. 직접 아이템 생성은 현 JASS 조각에서 미확인.	high
+boss_score	death	H00X	와일드 울프	6919-6923,6964-6966	score +300	정규 보스 처치 점수 보상. 직접 아이템 생성은 현 JASS 조각에서 미확인.	high
+boss_score	death	H013	헬 하운드	6925-6929,6969-6971	score +450	정규 보스 처치 점수 보상. 직접 아이템 생성은 현 JASS 조각에서 미확인.	high
+boss_score	death	H01B	둠 가드	6931-6935,6974-6976	score +700	정규 보스 처치 점수 보상. 직접 아이템 생성은 현 JASS 조각에서 미확인.	high
+boss_score	death	H01O	네더 드레곤	6937-6941,6979-6981	score +1000	후반 보스 처치 점수 보상. 직접 아이템 생성은 현 JASS 조각에서 미확인.	high
+boss_xp	timer/loop	H012,H00X,H013,H01B,H01N,H01O	보스 유닛군	6767-6791	AddHeroXPSwapped 150 to enum units	정규 보스군에 주기적/트리거성 XP가 들어가는 흐름. 플레이어 농부 보상인지가 아니라 보스 유닛 성장 후보로 해석.	medium
+special_drop	death	n01K	우싹스골렘	8076-8100	I00O or I00P	특수 보스/이벤트 몬스터 사망 시 아이템 드랍. GetRandomInt(1,100)>=20이면 I00O, 아니면 I00P.	high
+special_drop_item	item	I00O	우싹쓰의뿔	8096-8099	armor aura item	우싹스골렘 드랍 후보.	high
+special_drop_item	item	I00P	우싹쓰의 손	8096-8099	gauntlet/power item	우싹스골렘 드랍 후보.	high
+early_drop	death	n01D	거미	8051-8068	I00G at 50% chance	초반 거미 처치 보너스.	high
+early_drop_item	item	I00G	중년닭 분양서	8063-8068	create middle chicken on use	초반 경제 보너스 아이템.	high
+farmer_level	level	H000 -> level 5	농부	8748-8768	STR +10, AGI +10, INT +10	농부 레벨업 보상.	high
+farmer_level	level	H000 -> level 10	농부	8776-8797	STR +15, AGI +15, INT +5	농부 레벨업 보상.	high
+farmer_level	level	H000 -> level 15	농부	2265-2300,8822-8842	repair/defense/blessing abilities; STR/AGI/INT +30	농부 능력 해금과 스탯 보상.	high
+farmer_level_item	level	H000 -> level 20	I00Q	헤이스트 글로브	8850-8871	STR/AGI/INT +45; add I00Q	농부 레벨업 추가 아이템.	high
+farmer_level_item	level	H000 -> level 25	I00H	각성아이템1	8879-8900	STR/AGI/INT +60; add I00H	농부 레벨업 추가 아이템.	high
+farmer_level_item	level	H000 -> level 30	I00I	각성아이템2	8908-8929	STR/AGI/INT +80; add I00I	농부 레벨업 추가 아이템.	high
+farmer_level_item	level	H000 -> level 35	I00N	각성아이템3	8937-8955	STR/AGI/INT +120; add I00N	농부 레벨업 추가 아이템.	high
+spouse_level	level	H002 -> level 10	H002	아내	8804-8815	add ability A03L	아내 레벨 10 능력 해금 후보.	medium

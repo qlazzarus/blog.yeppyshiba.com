@@ -1,0 +1,23 @@
+rawcode	name	provider_rawcodes	provider_names	target_rawcodes	target_names_or_group	source_kind	mvp_id	notes
+R008	가드타워 공격력증가	h01V	발전기	h007,h00Q,h00Z,h00R,h01J	가드 타워 라인	building_research	guardTowerDamage	3레벨 문자열 확인. 제공 건물은 h01V 발전기. 적용 대상은 가드 타워 5단계.
+R009	아케인타워 공격력증가	h01V	발전기	h016,h008,h017,h01K	아케인 타워 라인	building_research	arcaneTowerDamage	3레벨 문자열 확인. 제공 건물은 h01V 발전기. 적용 대상은 아케인 타워 4단계.
+R006	unknown tower/support upgrade	h01V	발전기	h00D,h007,h00Q,h00Z,h00R,h01J,h016,h008,h017,h01K	스카우트/가드/아케인 타워 라인	building_research	towerSupportUpgrade	문자열명은 아직 미확정. 적용 대상이 모든 커스텀 타워라 타워 공통 연구 후보.
+R00A	개의 발톱	h015	신전	n002,n00E	개/큰 개	building_research	dogDamage	3레벨 공격력 연구. 제공 건물은 h015 신전.
+R00D	개의 발톱업글	h01H	아케인 생텀	n002,n00E	개/큰 개	building_research	dogSpeedClaw	공격속도와 이동속도 상승 설명 확인. 제공 건물은 h01H 아케인 생텀.
+R00B	가드맨 효과증폭	h01H	아케인 생텀	h009	[용병]가드맨	building_research	guardmanBoost	제공 건물은 h01H 아케인 생텀. h009에 적용.
+R00C	군인 공격속도상승	h01H	아케인 생텀	h00V	[용병]총병	building_research	soldierAttackSpeed	제공 건물은 h01H 아케인 생텀. h00V에 적용.
+Rhpm	자동화 연구	h01H	아케인 생텀	hfoo,hmpr,hsor,hspt,h00F,h010,h011,h01E,h01F,h01P,h01Y,h020,h021	자동화/특수 더미 후보	building_research	automation	커스텀 제공 건물은 h01H. 표준 캐슬류도 제공하지만 MVP 기준은 h01H.
+Rhac	석공술	h00A,h00J,h00W	럼버 밀 라인	다수 건물/벽/타워	휴먼 건물 armor/hp 계열	building_research	masonry	커스텀 럼버 밀 1~3단계에서 제공. 건물 체력/방어 연구로 해석.
+Rhme	근접 공격 업그레이드	h00B	블랙스미스	h009,h01L	가드맨/나이트 등	building_research	meleeDamage	표준 hbla도 제공하지만 커스텀 기준은 h00B 블랙스미스.
+Rhla	방어/아머 업그레이드	h00B	블랙스미스	h009,h00V	가드맨/총병 등	building_research	soldierArmor	표준 설명은 드래곤하이드지만 커스텀 대상은 가드맨/총병에 걸림.
+Rhri	사정거리 업글	h00B	블랙스미스	h00V,hrtt	총병/환크	building_research	rangedRange	제공 건물은 h00B 블랙스미스. hbar도 제공하지만 레거시 배럭 후보.
+Rhra	원거리 공격 업그레이드	h00B	블랙스미스	h00V,hrtt	총병/환크	building_research	rangedDamage	제공 건물은 h00B 블랙스미스. 표준 hbla도 제공.
+Rhan	동물/비행 계열 후보	h00H,h015	마을회관,신전	hdhw,hgry	와이번/비행 계열 후보	building_research	animalTraining	커스텀 h00H/h015에서 제공. 정확한 MVP 효과는 후속 축약에서 결정.
+Rhcd	클라우드/기계 계열 후보	h00C	워크샵	hdhw	비행/기계 후보	building_research	workshopSpecial	제공 건물은 h00C 워크샵. 대상 rawcode는 커스텀 주요 유닛과 직접 연결 약함.
+Rhss	매직 센트리/보호 후보	h00O,h01Z	훼리카나,서양식양계장	hspt	닭장 자동화/보호 후보	building_research	coopProtection	닭장 상위 라인에서 제공. 정확 효과는 능력 A03O/A043과 함께 후속 확인.
+R00E	늑대의돌 체력	none	Player(10) trigger	n00D	늑대의 돌	trigger_research	wolfStoneHp	JASS 9380/9388에서 Player(10)에 직접 1/2레벨 설정. 건물 제공 연구가 아니라 웨이브/특수 트리거 연구.
+Rhfs	플랙 캐논/늑대의 돌 보조	ospm	[공장] legacy	hmtm,n00D,n017	모탈/늑대의 돌/고대 늑대의 돌	trigger_or_legacy	wolfStoneSupport	JASS 5665에서 Player(10)에 누적 설정. 커스텀 제공 건물보다는 Player(10) 웨이브 보정으로 취급.
+R001	unknown trigger tech	none	trigger only	unknown	unknown	trigger_research	triggerTechR001	JASS 3729에서 아이템/트리거 소유 플레이어에게 직접 설정.
+R004	unknown trigger tech	none	trigger only	unknown	unknown	trigger_research	triggerTechR004	JASS 3750에서 아이템/트리거 소유 플레이어에게 직접 설정.
+R005	unknown trigger tech	none	trigger only	unknown	unknown	trigger_research	triggerTechR005	JASS 3771에서 아이템/트리거 소유 플레이어에게 직접 설정.
+R007	unknown trigger tech	none	trigger only	unknown	unknown	trigger_research	triggerTechR007	JASS 3792에서 아이템/트리거 소유 플레이어에게 직접 설정.

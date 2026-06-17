@@ -1,0 +1,24 @@
+rawcode	name	owner_rawcodes	evidence	inferred_mvp_behavior	status
+ACct	unknown ability	n00C,n00E	unit_rawcode_crosscheck.tsv	일반 늑대/큰 개 양쪽에 붙어 있어 원본 엔진 효과 재확인 필요.	unknown
+A02I	이몰레이션	n00M,n00U,n00V,n00W,H012,H00X,H01B,H01N,H01O	object_mod_key_strings.tsv	주변 화염/지속 피해형 오라 또는 근접 압박으로 변환 후보.	confirmed_name
+A024	unknown ability	n00U	unit_rawcode_crosscheck.tsv	다크가드 전용 후반 능력 후보.	unknown
+A023	unknown ability	n00W,H01B,n00Q	unit_rawcode_crosscheck.tsv	오버로드/둠 가드/인페르날 계열 공통 능력. 소환체 강화 또는 특수 공격 후보.	unknown
+A02W	unknown ability	n013	unit_rawcode_crosscheck.tsv	사티로스 티어 16 전용 능력 후보.	unknown
+A02U	스켈레톤 워리어	n015	object_mod_key_strings.tsv	사티로스 소울스틸러의 스켈레톤 소환/생성 능력 후보. 후반 소환 기억과 부합.	confirmed_name
+A03B	unknown boss ability	H012	unit_rawcode_crosscheck.tsv	블러드 울프 전용 보스 능력 후보.	unknown
+A03H	unknown boss ability	H00X	unit_rawcode_crosscheck.tsv	와일드 울프 전용 보스 능력 후보.	unknown
+A01G	unknown boss ability	H00X,H019	unit_rawcode_crosscheck.tsv	와일드 울프 계열 공통 능력 후보.	unknown
+A03E	링오파	H013	object_mod_key_strings.tsv	헬 하운드의 광역 충격/스턴 계열 능력 후보.	confirmed_name
+A01R	이몰레이션	H013,n00Q	object_mod_key_strings.tsv	주위 화염. 헬 하운드/인페르날 근접 압박으로 변환 후보.	confirmed_name
+A01H	펠 애로우	H013	object_mod_key_strings.tsv	헬 하운드 추가 공격/화염 투사체 후보.	confirmed_name
+A03C	사악한 인페르노	H01B	object_mod_key_strings.tsv	인페르날 낙하 소환. 300 데미지/기절 설명 확인.	confirmed_summon
+A025	인페르노 스톤	H01B,H01C	object_mod_key_strings.tsv	둠 가드 인페르노 소환/보조 능력 후보.	confirmed_name
+A03F	unknown boss ability	H01N	unit_rawcode_crosscheck.tsv	아키몬드 전용 보스 능력 후보. 메시지상 악마 지배/소환과 연결 가능.	unknown
+A02R	unknown boss ability	H01N	unit_rawcode_crosscheck.tsv	아키몬드 능력 후보.	unknown
+A02Q	unknown boss ability	H01N	unit_rawcode_crosscheck.tsv	아키몬드 능력 후보.	unknown
+A03G	영혼 노바	H01O	object_mod_key_strings.tsv	네더 드래곤 광역 피해/마법 능력 후보.	confirmed_name
+A01J	미러이미지	H01O	object_mod_key_strings.tsv	분신 소환/혼란 능력.	confirmed_name
+A02T	트루샷오라	H01O	object_mod_key_strings.tsv	주변 원거리 유닛 공격 증가 오라.	confirmed_name
+A02S	피닉스	H01O	object_mod_key_strings.tsv	피닉스 소환/보조 전투 능력 후보.	confirmed_name
+A02V	곰	H01O	object_mod_key_strings.tsv	곰 소환/변환 계열 후보.	confirmed_name
+A01P	인페르노	related ability	object_mod_key_strings.tsv	하늘에서 인페르날을 소환하고 300 데미지/기절/지속시간 설명 확인. 둠 가드 A03C와 동일 계열 참조.	confirmed_summon

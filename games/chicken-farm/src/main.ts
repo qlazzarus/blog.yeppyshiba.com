@@ -14,6 +14,7 @@ const MINIMAP_WIDTH = 132;
 const MINIMAP_X = 24;
 const MINIMAP_Y = WORLD_VIEW_HEIGHT + 20;
 const PLAYER_SPEED_PX_PER_SEC = 150;
+const BUILD_GRID_MAJOR_EVERY = 4;
 
 type VisibilityOverlayConfig = {
     readonly cellSize: number;
@@ -49,6 +50,7 @@ const MARKER_STYLES: Record<string, MarkerStyle> = {
     boss_spawn: { color: 0xd4b15f, label: 'B', radius: 8 },
     neutral_spider: { color: 0x8e66d8, label: 'SP', radius: 7 },
     wolf_spawn: { color: 0xd45846, label: 'WF', radius: 7 },
+    wolf_spawn_rect: { color: 0xd45846, label: 'WF', radius: 6 },
     wolf_stone: { color: 0x6cc7d8, label: 'STONE', radius: 8 },
 };
 
@@ -77,9 +79,12 @@ class FarmScene extends Phaser.Scene {
         | 'six'
         | 'seven'
         | 'eight'
+        | 'grid'
         | 'up',
         Phaser.Input.Keyboard.Key
     >;
+    private buildGridGraphics?: Phaser.GameObjects.Graphics;
+    private buildGridVisible = true;
     private exploredFogCells = new Set<string>();
     private fogGraphics?: Phaser.GameObjects.Graphics;
     private lightingGraphics?: Phaser.GameObjects.Graphics;
@@ -123,6 +128,7 @@ class FarmScene extends Phaser.Scene {
 
         this.createTileLayer(map, tileset, 'ground', 0);
         this.createTileLayer(map, tileset, 'collision_static', 2);
+        this.createBuildGrid(map);
         this.renderObjectLayer(map, 'farm_zones');
         this.renderObjectLayer(map, 'spawns');
         this.createPlayerAtRandomStart();
@@ -137,6 +143,7 @@ class FarmScene extends Phaser.Scene {
 
     update(_time: number, delta: number) {
         this.updatePlayerSlotHotkeys();
+        this.updateBuildGridHotkey();
         this.updatePlayerMovement(delta / 1000);
         this.updateFogOfWar();
         this.updateMinimap();
@@ -255,6 +262,31 @@ class FarmScene extends Phaser.Scene {
         });
 
         this.worldObjects.push(graphics, ...labelObjects);
+    }
+
+    private createBuildGrid(map: Phaser.Tilemaps.Tilemap) {
+        const grid = this.add.graphics().setDepth(3);
+        const tileWidth = map.tileWidth * this.worldScale;
+        const tileHeight = map.tileHeight * this.worldScale;
+        const width = map.widthInPixels * this.worldScale;
+        const height = map.heightInPixels * this.worldScale;
+
+        for (let x = 0; x <= width; x += tileWidth) {
+            const tileIndex = Math.round(x / tileWidth);
+            const major = tileIndex % BUILD_GRID_MAJOR_EVERY === 0;
+            grid.lineStyle(1, major ? 0xf2d77b : 0xd7c99a, major ? 0.28 : 0.13);
+            grid.lineBetween(x, 0, x, height);
+        }
+
+        for (let y = 0; y <= height; y += tileHeight) {
+            const tileIndex = Math.round(y / tileHeight);
+            const major = tileIndex % BUILD_GRID_MAJOR_EVERY === 0;
+            grid.lineStyle(1, major ? 0xf2d77b : 0xd7c99a, major ? 0.28 : 0.13);
+            grid.lineBetween(0, y, width, y);
+        }
+
+        this.buildGridGraphics = grid;
+        this.worldObjects.push(grid);
     }
 
     private getPlayerStartLabel(name: unknown) {
@@ -467,6 +499,13 @@ class FarmScene extends Phaser.Scene {
         });
     }
 
+    private updateBuildGridHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.grid)) return;
+
+        this.buildGridVisible = !this.buildGridVisible;
+        this.buildGridGraphics?.setVisible(this.buildGridVisible);
+    }
+
     private createUi() {
         const panel = this.add
             .rectangle(0, WORLD_VIEW_HEIGHT, CANVAS_WIDTH, UI_HEIGHT, 0x141515, 1)
@@ -496,7 +535,7 @@ class FarmScene extends Phaser.Scene {
             })
             .setDepth(103);
         const help = this.add
-            .text(164, WORLD_VIEW_HEIGHT + 48, 'Arrow keys / WASD move player, 1-8 switch spawn', {
+            .text(164, WORLD_VIEW_HEIGHT + 48, 'Arrow keys / WASD move player, 1-8 switch spawn, G grid', {
                 color: '#bcc9a6',
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '14px',
@@ -510,7 +549,7 @@ class FarmScene extends Phaser.Scene {
             })
             .setDepth(103);
         const legend = this.add
-            .text(164, WORLD_VIEW_HEIGHT + 110, 'P# player start | SP spider | WF wolf spawn | STONE wolf stone | B boss', {
+            .text(164, WORLD_VIEW_HEIGHT + 110, 'P# player start | SP outer spider | WF wolf rect | STONE wolf stone | B boss', {
                 color: '#aebc9b',
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '13px',
@@ -630,6 +669,7 @@ class FarmScene extends Phaser.Scene {
             eight: Phaser.Input.Keyboard.KeyCodes.EIGHT,
             five: Phaser.Input.Keyboard.KeyCodes.FIVE,
             four: Phaser.Input.Keyboard.KeyCodes.FOUR,
+            grid: Phaser.Input.Keyboard.KeyCodes.G,
             left: Phaser.Input.Keyboard.KeyCodes.A,
             one: Phaser.Input.Keyboard.KeyCodes.ONE,
             right: Phaser.Input.Keyboard.KeyCodes.D,
@@ -649,7 +689,9 @@ class FarmScene extends Phaser.Scene {
                 this.player?.y ?? 0,
             )} | camera ${Math.round(this.worldCamera.scrollX)}, ${Math.round(
                 this.worldCamera.scrollY,
-            )} | zoom ${CAMERA_ZOOM}x | vision ${VISIBILITY_OVERLAY.revealRadiusPx}px | viewport ${
+            )} | zoom ${CAMERA_ZOOM}x | grid ${
+                this.buildGridVisible ? 'on' : 'off'
+            } | vision ${VISIBILITY_OVERLAY.revealRadiusPx}px | viewport ${
                 this.worldCamera.width
             }x${this.worldCamera.height}`,
         );
