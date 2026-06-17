@@ -6,9 +6,44 @@ export const BOARD_ORIGIN_Y = 130;
 export const HOVER_INSET = 3;
 export const MINE_COUNT = 14;
 
+export type DifficultyId = 'beginner' | 'standard' | 'expert';
+
+export type DifficultyConfig = {
+    boardHeight: number;
+    boardWidth: number;
+    id: DifficultyId;
+    label: string;
+    mineCount: number;
+};
+
+export const DIFFICULTIES: DifficultyConfig[] = [
+    {
+        boardHeight: 8,
+        boardWidth: 8,
+        id: 'beginner',
+        label: 'Beginner',
+        mineCount: 10,
+    },
+    {
+        boardHeight: BOARD_HEIGHT,
+        boardWidth: BOARD_WIDTH,
+        id: 'standard',
+        label: 'Standard',
+        mineCount: MINE_COUNT,
+    },
+    {
+        boardHeight: 14,
+        boardWidth: 14,
+        id: 'expert',
+        label: 'Expert',
+        mineCount: 32,
+    },
+];
+
 export type BoardLayout = {
     boardHeight: number;
     boardWidth: number;
+    difficulty: DifficultyConfig;
     hoverInset: number;
     mineCount: number;
     originX: number;
@@ -17,15 +52,23 @@ export type BoardLayout = {
     tileWidth: number;
 };
 
-export function createBoardLayout(viewportWidth: number): BoardLayout {
+export function createBoardLayout(
+    viewportWidth: number,
+    difficulty: DifficultyConfig = DIFFICULTIES[1],
+): BoardLayout {
+    const maxTileWidth = Math.floor((viewportWidth - 72) / difficulty.boardWidth);
+    const tileWidth = Math.max(46, Math.min(TILE_WIDTH, maxTileWidth));
+    const tileHeight = Math.round(tileWidth / 2);
+
     return {
-        boardHeight: BOARD_HEIGHT,
-        boardWidth: BOARD_WIDTH,
+        boardHeight: difficulty.boardHeight,
+        boardWidth: difficulty.boardWidth,
+        difficulty,
         hoverInset: HOVER_INSET,
-        mineCount: MINE_COUNT,
+        mineCount: difficulty.mineCount,
         originX: viewportWidth / 2,
         originY: BOARD_ORIGIN_Y,
-        tileHeight: TILE_HEIGHT,
-        tileWidth: TILE_WIDTH,
+        tileHeight,
+        tileWidth,
     };
 }

@@ -1,0 +1,3509 @@
+{
+  "war3map.w3a": {
+    "version": 2,
+    "remaining_bytes": 0,
+    "tables": [
+      {
+        "name": "original",
+        "object_count": 314,
+        "sample_objects": [
+          {
+            "old_id": "ACad",
+            "new_id": "",
+            "mod_count": 6,
+            "mods": [
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "D",
+                "terminator": "ACad"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "操纵死尸",
+                "terminator": "ACad"
+              },
+              {
+                "field": "asat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl",
+                "terminator": "ACad"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "air,ground,dead",
+                "terminator": "ACad"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "操纵死尸(|cffffcc00D|r)",
+                "terminator": "ACad"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "复活<ACad,DataA1>个阵亡单位。持续时间为<ACad,Dur1>秒。",
+                "terminator": "ACad"
+              }
+            ]
+          },
+          {
+            "old_id": "ACct",
+            "new_id": "",
+            "mod_count": 4,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "致命一击",
+                "terminator": "ACct"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "air,ground,enemy,neutral",
+                "terminator": "ACct"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "致命一击",
+                "terminator": "ACct"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "给予<ACct,DataA1>%的概率使得该单位能施放出常规攻击<ACct,DataB1>倍的伤害值。",
+                "terminator": "ACct"
+              }
+            ]
+          },
+          {
+            "old_id": "ACen",
+            "new_id": "",
+            "mod_count": 6,
+            "mods": [
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "E",
+                "terminator": "ACen"
+              },
+              {
+                "field": "amat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Orc\\Ensnare\\EnsnareMissile.mdl",
+                "terminator": "ACen"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "诱捕",
+                "terminator": "ACen"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ground,air,enemy,nonhero,neutral",
+                "terminator": "ACen"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "诱捕(|cffffcc00E|r)",
+                "terminator": "ACen"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "将敌方的某个空中单位捕获到地面能动弹。被诱捕的空中单位能像地面单位一样遭到攻击。|n持续<ACen,Dur1>秒。",
+                "terminator": "ACen"
+              }
+            ]
+          },
+          {
+            "old_id": "ACm2",
+            "new_id": "",
+            "mod_count": 3,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACm2"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACm2"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "让目标单位对所有魔法免疫。",
+                "terminator": "ACm2"
+              }
+            ]
+          },
+          {
+            "old_id": "ACm3",
+            "new_id": "",
+            "mod_count": 3,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACm3"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACm3"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "让目标单位对所有魔法免疫。",
+                "terminator": "ACm3"
+              }
+            ]
+          },
+          {
+            "old_id": "ACmi",
+            "new_id": "",
+            "mod_count": 3,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACmi"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "魔法免疫",
+                "terminator": "ACmi"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "让目标单位对所有魔法免疫。",
+                "terminator": "ACmi"
+              }
+            ]
+          },
+          {
+            "old_id": "ACpv",
+            "new_id": "",
+            "mod_count": 4,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "粉碎",
+                "terminator": "ACpv"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ground,enemy,neutral",
+                "terminator": "ACpv"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "粉碎",
+                "terminator": "ACpv"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "给予<ACpv,DataA1>%的概率能对周围的单位造成<ACpv,DataB1>点的伤害。",
+                "terminator": "ACpv"
+              }
+            ]
+          },
+          {
+            "old_id": "ACrk",
+            "new_id": "",
+            "mod_count": 3,
+            "mods": [
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "抗性皮肤",
+                "terminator": "ACrk"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "抗性皮肤",
+                "terminator": "ACrk"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "减少负面魔法的持续时间，使单位对某些魔法免疫。",
+                "terminator": "ACrk"
+              }
+            ]
+          },
+          {
+            "old_id": "ACsp",
+            "new_id": "",
+            "mod_count": 3,
+            "mods": [
+              {
+                "field": "acat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Other\\CreepSleep\\CreepSleepTarget.mdl",
+                "terminator": "ACsp"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "睡眠",
+                "terminator": "ACsp"
+              },
+              {
+                "field": "aord",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "creepsleep",
+                "terminator": "ACsp"
+              }
+            ]
+          },
+          {
+            "old_id": "ACsw",
+            "new_id": "",
+            "mod_count": 9,
+            "mods": [
+              {
+                "field": "acat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Human\\Slow\\SlowCaster.mdl",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "W",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "减速",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "air,ground,enemy",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "减速(|cffffcc00W|r)",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "减慢<ACsw,DataB1,%>%的攻击速度和<ACsw,DataA1,%>%的移动速度。持续<ACsw,Dur1>秒。",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "auhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "W",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "aut1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff点击右键以激活自动施放功能。|r",
+                "terminator": "ACsw"
+              },
+              {
+                "field": "auu1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff点击右键以取消自动施放功能。|r",
+                "terminator": "ACsw"
+              }
+            ]
+          },
+          {
+            "old_id": "AEah",
+            "new_id": "",
+            "mod_count": 16,
+            "mods": [
+              {
+                "field": "Eah1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0.10000000149011612,
+                "terminator": "AEah"
+              },
+              {
+                "field": "Eah1",
+                "type": 2,
+                "level_or_variation": 2,
+                "data_pointer": 1,
+                "value": 0.20000000298023224,
+                "terminator": "AEah"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "荆棘光环",
+                "terminator": "AEah"
+              },
+              {
+                "field": "aret",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "学习荆棘光环(|cffffcc00R|r) - [|cffffcc00等级 %d|r]",
+                "terminator": "AEah"
+              },
+              {
+                "field": "arhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "R",
+                "terminator": "AEah"
+              },
+              {
+                "field": "arut",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "该光环能给予周围的友军单位一个具有攻击力的护盾保护，敌人对这些单位进行一次近战攻击就会受到一定的伤害。|n|n|cffffcc00等级 1|r - 返回<AEah,DataA1,%>%的伤害。|n|cffffcc00等级 2|r - 返回<AEah,DataA2,%>%的伤害。|n|cffffcc00等级 3|r - 返回<AEah,DataA3,%>%的伤害。",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\NightElf\\ThornsAura\\ThornsAura.mdl",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "荆棘光环 - [|cffffcc00等级 1|r]",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "荆棘光环 - [|cffffcc00等级 2|r]",
+                "terminator": "AEah"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "荆棘光环 - [|cffffcc00等级 3|r]",
+                "terminator": "AEah"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "该光环能给予周围的友军单位一个具有攻击力的护盾保护，敌人对这些单位进行一次近战攻击就会受到相当于<AEah,DataA1,%>%自身攻击力的伤害。",
+                "terminator": "AEah"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "该光环能给予周围的友军单位一个具有攻击力的护盾保护，敌人对这些单位进行一次近战攻击就会受到相当于<AEah,DataA2,%>%自身攻击力的伤害。",
+                "terminator": "AEah"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "该光环能给予周围的友军单位一个具有攻击力的护盾保护，敌人对这些单位进行一次近战攻击就会受到相当于<AEah,DataA3,%>%自身攻击力的伤害。",
+                "terminator": "AEah"
+              }
+            ]
+          },
+          {
+            "old_id": "AEar",
+            "new_id": "",
+            "mod_count": 16,
+            "mods": [
+              {
+                "field": "Ear1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0.10000000149011612,
+                "terminator": "AEar"
+              },
+              {
+                "field": "Ear1",
+                "type": 2,
+                "level_or_variation": 2,
+                "data_pointer": 1,
+                "value": 0.20000000298023224,
+                "terminator": "AEar"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "强击光环",
+                "terminator": "AEar"
+              },
+              {
+                "field": "aret",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "学习强击光环(|cffffcc00T|r) - [|cffffcc00等级 %d|r]",
+                "terminator": "AEar"
+              },
+              {
+                "field": "arhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "T",
+                "terminator": "AEar"
+              },
+              {
+                "field": "arut",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "一种能增加周围友军单位远程攻击力的光环。|n|n|cffffcc00等级 1|r - 增加<AEar,DataA1,%>%的远程攻击力。|n|cffffcc00等级 2|r - 增加<AEar,DataA2,%>%的远程攻击力。|n|cffffcc00等级 3|r - 增加<AEar,DataA3,%>%的远程攻击力。",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "air,ground,friend,self,vuln,invu",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\NightElf\\TrueshotAura\\TrueshotAura.mdl",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "强击光环 - [|cffffcc00等级 1|r]",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "强击光环 - [|cffffcc00等级 2|r]",
+                "terminator": "AEar"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "强击光环 - [|cffffcc00等级 3|r]",
+                "terminator": "AEar"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "一种能增加周围友军单位<AEar,DataA1,%>%远程攻击力的光环。",
+                "terminator": "AEar"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "一种能增加周围友军单位<AEar,DataA2,%>%远程攻击力的光环。",
+                "terminator": "AEar"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "一种能增加周围友军单位<AEar,DataA3,%>%远程攻击力的光环。",
+                "terminator": "AEar"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "custom",
+        "object_count": 170,
+        "sample_objects": [
+          {
+            "old_id": "Ahea",
+            "new_id": "A000",
+            "mod_count": 15,
+            "mods": [
+              {
+                "field": "Hea1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0.0,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNOrbOfLightning.blp",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "abuf",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "B002",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Q",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 100,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "알낳기",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aran",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 99999.0,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ground",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "알낳기|cffffcc00(Q)|r",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auar",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNOrbOfLightning.blp",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "알을 낳습니다.",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Q",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aut1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auu1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r",
+                "terminator": "Ahea"
+              }
+            ]
+          },
+          {
+            "old_id": "Ahea",
+            "new_id": "A001",
+            "mod_count": 18,
+            "mods": [
+              {
+                "field": "Hea1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 8.0,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNDust.blp",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "abpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "abpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "abuf",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "B001",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "D",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 3,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "모이주기",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ancient,ground",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Human\\Heal\\HealTarget.mdl",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "모이주기|cffffcc00(D)|r",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auar",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNDust.blp",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "배고픈 동물에게 모이를 줍니다.",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aubx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auby",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "D",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "aut1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r",
+                "terminator": "Ahea"
+              },
+              {
+                "field": "auu1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r",
+                "terminator": "Ahea"
+              }
+            ]
+          },
+          {
+            "old_id": "AOfs",
+            "new_id": "A002",
+            "mod_count": 17,
+            "mods": [
+              {
+                "field": "Ofs1",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aare",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.0,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "acdn",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.30000001192092896,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "adur",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.009999999776482582,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aeff",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "ahdu",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.009999999776482582,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aher",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "X",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "alev",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 4,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "몰이",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aran",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 1800.0,
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aret",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "学习透视(|cffffcc00F|r) - [|cffffcc00等级 %d|r]",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "arhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "F",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "arut",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "能在一定时间内驱散目标区域内的战争迷雾。还能看见敌方的隐形单位。|n|n|cffffcc00等级 1|r - 消耗<AOfs,Cost1>点魔法。|n|cffffcc00等级 2|r - 消耗<AOfs,Cost2>点魔法。|n|cffffcc00等级 3|r - 消耗<AOfs,Cost3>点魔法。",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "몰이|cffffcc00(X)|r",
+                "terminator": "AOfs"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "자신 주변의 동물들을 몰아서 원하는 지역으로 이동하게 합니다.",
+                "terminator": "AOfs"
+              }
+            ]
+          },
+          {
+            "old_id": "Arpl",
+            "new_id": "A003",
+            "mod_count": 20,
+            "mods": [
+              {
+                "field": "Rej1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 4.0,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "Rpb6",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 8,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "aare",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 300.0,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNDust.blp",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "abpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "abuf",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "B001",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "acat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\NightElf\\MoonWell\\MoonWellCasterArt.mdl",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Q",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "모이 뿌리기",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "asat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ancient,ground",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "모이 뿌리기|cffffcc00(Q)|r",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "auar",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNDust.blp",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "사방에 최대 8마리가 먹을 정도의 모이를 뿌립니다.",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "auby",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Arpl"
+              },
+              {
+                "field": "auhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Q",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "aut1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태로 전환됩니다.|r|r",
+                "terminator": "Arpl"
+              },
+              {
+                "field": "auu1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "|cffc3dbff마우스 오른쪽 버튼을 클릭하면 자동시전 상태가 해제됩니다.|r",
+                "terminator": "Arpl"
+              }
+            ]
+          },
+          {
+            "old_id": "AIpz",
+            "new_id": "A004",
+            "mod_count": 12,
+            "mods": [
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNSpy.blp",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "abpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 3,
+                "terminator": "AIpz"
+              },
+              {
+                "field": "abpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "AIpz"
+              },
+              {
+                "field": "acdn",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.699999988079071,
+                "terminator": "AIpz"
+              },
+              {
+                "field": "aefs",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "W",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "aite",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "AIpz"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 6,
+                "terminator": "AIpz"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "동맹설정",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "동맹설정|cffffcc00(W)|r",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "다른 플레이어관의 동맹설정을 변경합니다.",
+                "terminator": "AIpz"
+              },
+              {
+                "field": "auhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "W",
+                "terminator": "AIpz"
+              }
+            ]
+          },
+          {
+            "old_id": "ANtm",
+            "new_id": "A005",
+            "mod_count": 19,
+            "mods": [
+              {
+                "field": "Ntm1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0.6000000238418579,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "Ntm2",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 2,
+                "value": 0.6000000238418579,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "Ntm3",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 3,
+                "value": 999999,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "Ntm4",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 4,
+                "value": 0,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "abpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "acdn",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 1.0,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "aher",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "F",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "amac",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0.4000000059604645,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "amat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Other\\Transmute\\GoldBottleMissile.mdl",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 6,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "amsp",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1500,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "aran",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 350.0,
+                "terminator": "ANtm"
+              },
+              {
+                "field": "aret",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "(|cffffcc00T|r)学习点金术",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "arhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "T",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "arut",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "立刻杀死某个单位，然后将其变成金币，补充到你的国库中。|n点金术不能被用在英雄和高于等级<ANtm,DataC1>的野外生物上。",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "structure,player",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "트랜스뮤트|cffffcc00(F)|r",
+                "terminator": "ANtm"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "자신의 건물을 생산비의 60%만큼 돌려 받고 건물을 부십니다.",
+                "terminator": "ANtm"
+              }
+            ]
+          },
+          {
+            "old_id": "Arej",
+            "new_id": "A006",
+            "mod_count": 15,
+            "mods": [
+              {
+                "field": "Rej1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 1.0,
+                "terminator": "Arej"
+              },
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ReplaceableTextures\\CommandButtons\\BTNImpale.blp",
+                "terminator": "Arej"
+              },
+              {
+                "field": "abpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Arej"
+              },
+              {
+                "field": "abuf",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "B000",
+                "terminator": "Arej"
+              },
+              {
+                "field": "acdn",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.699999988079071,
+                "terminator": "Arej"
+              },
+              {
+                "field": "adur",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.009999999776482582,
+                "terminator": "Arej"
+              },
+              {
+                "field": "ahdu",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 0.009999999776482582,
+                "terminator": "Arej"
+              },
+              {
+                "field": "ahky",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Q",
+                "terminator": "Arej"
+              },
+              {
+                "field": "amcs",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 7,
+                "terminator": "Arej"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "도축",
+                "terminator": "Arej"
+              },
+              {
+                "field": "aran",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 95.0,
+                "terminator": "Arej"
+              },
+              {
+                "field": "areq",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Arej"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "nonhero,organic,ancient,ground,vulnerable,friend",
+                "terminator": "Arej"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "도축|cffffcc00(Q)|r",
+                "terminator": "Arej"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "동물을 도축하여 고기를 얻습니다.",
+                "terminator": "Arej"
+              }
+            ]
+          },
+          {
+            "old_id": "AUau",
+            "new_id": "A007",
+            "mod_count": 14,
+            "mods": [
+              {
+                "field": "Uau1",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 0.0,
+                "terminator": "AUau"
+              },
+              {
+                "field": "Uau2",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 2,
+                "value": -0.20000000298023224,
+                "terminator": "AUau"
+              },
+              {
+                "field": "aare",
+                "type": 2,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": 99999.0,
+                "terminator": "AUau"
+              },
+              {
+                "field": "abuf",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "B004",
+                "terminator": "AUau"
+              },
+              {
+                "field": "aher",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "AUau"
+              },
+              {
+                "field": "alev",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "AUau"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "邪恶光环",
+                "terminator": "AUau"
+              },
+              {
+                "field": "aret",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "学习邪恶光环(|cffffcc00U|r) - [|cffffcc00等级 %d|r]",
+                "terminator": "AUau"
+              },
+              {
+                "field": "arhk",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "U",
+                "terminator": "AUau"
+              },
+              {
+                "field": "arut",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "增加周围友军单位的移动速度和生命恢复速度。|n|n|cffffcc00等级 1|r - 增加<AUau,DataA1,%>%的移动速度和小幅度的生命恢复速度。|n|cffffcc00等级 2|r - 增加<AUau,DataA2,%>%的移动速度和中等幅度的生命恢复速度。|n|cffffcc00等级 3|r - 增加<AUau,DataA3,%>%的移动速度和大幅度的生命恢复速度。",
+                "terminator": "AUau"
+              },
+              {
+                "field": "atar",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "ancient,enemies,ground",
+                "terminator": "AUau"
+              },
+              {
+                "field": "atat",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "Abilities\\Spells\\Undead\\UnholyAura\\UnholyAura.mdl",
+                "terminator": "AUau"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "邪恶光环 - [|cffffcc00等级 1|r]",
+                "terminator": "AUau"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "增加周围友军单位<AUau,DataA1,%>%的移动速度和生命恢复速度。",
+                "terminator": "AUau"
+              }
+            ]
+          },
+          {
+            "old_id": "Apak",
+            "new_id": "A008",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Apak"
+              },
+              {
+                "field": "areq",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Apak"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Apak"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Apak"
+              },
+              {
+                "field": "inv3",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 3,
+                "value": 1,
+                "terminator": "Apak"
+              }
+            ]
+          },
+          {
+            "old_id": "Aien",
+            "new_id": "A009",
+            "mod_count": 6,
+            "mods": [
+              {
+                "field": "aart",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Aien"
+              },
+              {
+                "field": "anam",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "인벤토리",
+                "terminator": "Aien"
+              },
+              {
+                "field": "areq",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Aien"
+              },
+              {
+                "field": "atp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Aien"
+              },
+              {
+                "field": "aub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Aien"
+              },
+              {
+                "field": "inv3",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 3,
+                "value": 1,
+                "terminator": "Aien"
+              }
+            ]
+          },
+          {
+            "old_id": "AInv",
+            "new_id": "A00A",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "inv1",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 3,
+                "terminator": "AInv"
+              },
+              {
+                "field": "inv2",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 2,
+                "value": 1,
+                "terminator": "AInv"
+              }
+            ]
+          },
+          {
+            "old_id": "AInv",
+            "new_id": "A00B",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "inv1",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 1,
+                "value": 1,
+                "terminator": "AInv"
+              },
+              {
+                "field": "inv2",
+                "type": 0,
+                "level_or_variation": 1,
+                "data_pointer": 2,
+                "value": 1,
+                "terminator": "AInv"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "war3map.w3q": {
+    "version": 2,
+    "remaining_bytes": 0,
+    "tables": [
+      {
+        "name": "original",
+        "object_count": 56,
+        "sample_objects": [
+          {
+            "old_id": "Recb",
+            "new_id": "",
+            "mod_count": 1,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "renw",
+                "terminator": "Recb"
+              }
+            ]
+          },
+          {
+            "old_id": "Redc",
+            "new_id": "",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "caster",
+                "terminator": "Redc"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rmnx",
+                "terminator": "Redc"
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rmnr",
+                "terminator": "Redc"
+              },
+              {
+                "field": "gef3",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rhpx",
+                "terminator": "Redc"
+              },
+              {
+                "field": "gef4",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratd",
+                "terminator": "Redc"
+              }
+            ]
+          },
+          {
+            "old_id": "Redt",
+            "new_id": "",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "caster",
+                "terminator": "Redt"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rmnx",
+                "terminator": "Redt"
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rmnr",
+                "terminator": "Redt"
+              },
+              {
+                "field": "gef3",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rhpx",
+                "terminator": "Redt"
+              },
+              {
+                "field": "gef4",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratd",
+                "terminator": "Redt"
+              }
+            ]
+          },
+          {
+            "old_id": "Reib",
+            "new_id": "",
+            "mod_count": 1,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratr",
+                "terminator": "Reib"
+              }
+            ]
+          },
+          {
+            "old_id": "Rema",
+            "new_id": "",
+            "mod_count": 8,
+            "mods": [
+              {
+                "field": "gbpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Rema"
+              },
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "armor",
+                "terminator": "Rema"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rarm",
+                "terminator": "Rema"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 350,
+                "terminator": "Rema"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 175,
+                "terminator": "Rema"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 4,
+                "terminator": "Rema"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 70,
+                "terminator": "Rema"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30,
+                "terminator": "Rema"
+              }
+            ]
+          },
+          {
+            "old_id": "Remg",
+            "new_id": "",
+            "mod_count": 1,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratc",
+                "terminator": "Remg"
+              }
+            ]
+          },
+          {
+            "old_id": "Remk",
+            "new_id": "",
+            "mod_count": 1,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratx",
+                "terminator": "Remk"
+              }
+            ]
+          },
+          {
+            "old_id": "Renb",
+            "new_id": "",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rmvx",
+                "terminator": "Renb"
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rarm",
+                "terminator": "Renb"
+              }
+            ]
+          },
+          {
+            "old_id": "Repb",
+            "new_id": "",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rasd",
+                "terminator": "Repb"
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "renw",
+                "terminator": "Repb"
+              }
+            ]
+          },
+          {
+            "old_id": "Rerh",
+            "new_id": "",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "armor",
+                "terminator": "Rerh"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rarm",
+                "terminator": "Rerh"
+              }
+            ]
+          },
+          {
+            "old_id": "Rers",
+            "new_id": "",
+            "mod_count": 0,
+            "mods": []
+          },
+          {
+            "old_id": "Resm",
+            "new_id": "",
+            "mod_count": 10,
+            "mods": [
+              {
+                "field": "gbpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Resm"
+              },
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "melee",
+                "terminator": "Resm"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratd",
+                "terminator": "Resm"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Resm"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 350,
+                "terminator": "Resm"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 100,
+                "terminator": "Resm"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Resm"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 4,
+                "terminator": "Resm"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 70,
+                "terminator": "Resm"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30,
+                "terminator": "Resm"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "custom",
+        "object_count": 15,
+        "sample_objects": [
+          {
+            "old_id": "Rhfs",
+            "new_id": "R000",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 150,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 10,
+                "terminator": "Rhfs"
+              }
+            ]
+          },
+          {
+            "old_id": "Recb",
+            "new_id": "R001",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Recb"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              }
+            ]
+          },
+          {
+            "old_id": "Rhfs",
+            "new_id": "R002",
+            "mod_count": 6,
+            "mods": [
+              {
+                "field": "gbpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 200,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 150,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Rhfs"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 10,
+                "terminator": "Rhfs"
+              }
+            ]
+          },
+          {
+            "old_id": "Reht",
+            "new_id": "R003",
+            "mod_count": 6,
+            "mods": [
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": "Reht"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 125,
+                "terminator": "Reht"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 50,
+                "terminator": "Reht"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 75,
+                "terminator": "Reht"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 3,
+                "terminator": "Reht"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 10,
+                "terminator": "Reht"
+              }
+            ]
+          },
+          {
+            "old_id": "Recb",
+            "new_id": "R004",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Recb"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              }
+            ]
+          },
+          {
+            "old_id": "Recb",
+            "new_id": "R005",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Recb"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              }
+            ]
+          },
+          {
+            "old_id": "Rhse",
+            "new_id": "R006",
+            "mod_count": 14,
+            "mods": [
+              {
+                "field": "gba1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 300.0,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gba2",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 100.0,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gbpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 3,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rsig",
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratr",
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 800,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1200,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 600,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1400,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gmo1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 300.0,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gmo2",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 100.0,
+                "terminator": "Rhse"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 10,
+                "terminator": "Rhse"
+              }
+            ]
+          },
+          {
+            "old_id": "Recb",
+            "new_id": "R007",
+            "mod_count": 5,
+            "mods": [
+              {
+                "field": "gbpy",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": "Recb"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Recb"
+              }
+            ]
+          },
+          {
+            "old_id": "Resw",
+            "new_id": "R008",
+            "mod_count": 22,
+            "mods": [
+              {
+                "field": "gbpx",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 0,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ranged",
+                "terminator": "Resw"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratx",
+                "terminator": "Resw"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1000,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2000,
+                "terminator": "Resw"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 750,
+                "terminator": "Resw"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1750,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 40,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 20,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gmo1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "gba1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "가드타워 공격력증가",
+                "terminator": ""
+              }
+            ]
+          },
+          {
+            "old_id": "Resw",
+            "new_id": "R009",
+            "mod_count": 21,
+            "mods": [
+              {
+                "field": "gcls",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ranged",
+                "terminator": "Resw"
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratx",
+                "terminator": "Resw"
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1000,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2000,
+                "terminator": "Resw"
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 750,
+                "terminator": "Resw"
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1750,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 40,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 20,
+                "terminator": "Resw"
+              },
+              {
+                "field": "gmo1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "gba1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "아케인타워 공격력증가",
+                "terminator": ""
+              }
+            ]
+          },
+          {
+            "old_id": "Rucr",
+            "new_id": "R00A",
+            "mod_count": 20,
+            "mods": [
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "ratx",
+                "terminator": "Rucr"
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "개의 발톱",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "개의 발톱",
+                "terminator": ""
+              },
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "개의 발톱",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "gmo1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "gba1",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 30.0,
+                "terminator": ""
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1200,
+                "terminator": ""
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1500,
+                "terminator": ""
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 300,
+                "terminator": ""
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 500,
+                "terminator": ""
+              },
+              {
+                "field": "gtib",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 20,
+                "terminator": ""
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 80,
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "개의 발톱 업글|cffffcc00(C)|r",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "개의 발톱 업글|cffffcc00(C)|r",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "개의 발톱 업글 |cffffcc00(C)|r",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "개 의 공격력을 상승시킵니다",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 2,
+                "data_pointer": 0,
+                "value": "개 의 공격력을 상승시킵니다",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 3,
+                "data_pointer": 0,
+                "value": "개 의 공격력을 상승시킵니다",
+                "terminator": ""
+              }
+            ]
+          },
+          {
+            "old_id": "Rehs",
+            "new_id": "R00B",
+            "mod_count": 14,
+            "mods": [
+              {
+                "field": "gnam",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드맨 효과증폭",
+                "terminator": ""
+              },
+              {
+                "field": "grac",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "human",
+                "terminator": ""
+              },
+              {
+                "field": "gef1",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rarm",
+                "terminator": ""
+              },
+              {
+                "field": "gef2",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "rhpx",
+                "terminator": ""
+              },
+              {
+                "field": "gba2",
+                "type": 2,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 500.0,
+                "terminator": ""
+              },
+              {
+                "field": "glvl",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 2,
+                "terminator": ""
+              },
+              {
+                "field": "gglb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1500,
+                "terminator": ""
+              },
+              {
+                "field": "glmb",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1500,
+                "terminator": ""
+              },
+              {
+                "field": "gglm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1500,
+                "terminator": ""
+              },
+              {
+                "field": "glmm",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1700,
+                "terminator": ""
+              },
+              {
+                "field": "gtim",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 80,
+                "terminator": ""
+              },
+              {
+                "field": "greq",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "gub1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드맨 효과증폭",
+                "terminator": ""
+              },
+              {
+                "field": "gtp1",
+                "type": 3,
+                "level_or_variation": 1,
+                "data_pointer": 0,
+                "value": "가드맨 효과증폭 연구|cffffcc00(H)|r",
+                "terminator": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "war3map.w3h": {
+    "error": "unpack_from requires a buffer of at least 35328 bytes for unpacking 4 bytes at offset 35324 (actual buffer size is 35326)",
+    "size": 35326
+  },
+  "war3map.w3b": {
+    "error": "unpack_from requires a buffer of at least 236 bytes for unpacking 4 bytes at offset 232 (actual buffer size is 235)",
+    "size": 235
+  },
+  "war3map.w3d": {
+    "version": 2,
+    "remaining_bytes": 0,
+    "tables": [
+      {
+        "name": "original",
+        "object_count": 1,
+        "sample_objects": [
+          {
+            "old_id": "LOsc",
+            "new_id": "",
+            "mod_count": 2,
+            "mods": [
+              {
+                "field": "dptx",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "",
+                "terminator": ""
+              },
+              {
+                "field": "dwlk",
+                "type": 0,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": 1,
+                "terminator": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "custom",
+        "object_count": 1,
+        "sample_objects": [
+          {
+            "old_id": "ARrk",
+            "new_id": "D000",
+            "mod_count": 1,
+            "mods": [
+              {
+                "field": "dfil",
+                "type": 3,
+                "level_or_variation": 0,
+                "data_pointer": 0,
+                "value": "war3mapImported\\GreenGrass_Wall.mdl",
+                "terminator": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "name": "war3mapMap.blp",
+    "status": "ok",
+    "size": 10140,
+    "output": "reference_assets/war3mapMap.blp",
+    "note": "reference only; do not ship or reuse directly"
+  },
+  {
+    "name": "war3mapPreview.tga",
+    "status": "ok",
+    "size": 198181,
+    "output": "reference_assets/war3mapPreview.tga",
+    "note": "reference only; do not ship or reuse directly"
+  },
+  {
+    "name": "war3mapImported\\GreenGrass_Wall.mdx",
+    "status": "ok",
+    "size": 15030,
+    "output": "reference_assets/war3mapImported__GreenGrass_Wall.mdx",
+    "note": "reference only; do not ship or reuse directly"
+  }
+]

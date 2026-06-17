@@ -1,0 +1,91 @@
+[
+  {
+    "name": "war3map.wts",
+    "status": "ok",
+    "size": 1527
+  },
+  {
+    "name": "war3map.w3i",
+    "status": "ok",
+    "size": 784
+  },
+  {
+    "name": "scripts\\war3map.j",
+    "status": "ok",
+    "size": 311745
+  },
+  {
+    "name": "war3map.w3e",
+    "status": "ok",
+    "size": 53040
+  },
+  {
+    "name": "war3map.wpm",
+    "status": "ok",
+    "size": 118288
+  },
+  {
+    "name": "war3map.doo",
+    "status": "ok",
+    "size": 58124
+  },
+  {
+    "name": "war3map.w3a",
+    "status": "ok",
+    "size": 227666
+  },
+  {
+    "name": "war3map.w3b",
+    "status": "ok",
+    "size": 235
+  },
+  {
+    "name": "war3map.w3d",
+    "status": "ok",
+    "size": 137
+  },
+  {
+    "name": "war3map.w3q",
+    "status": "ok",
+    "size": 14220
+  },
+  {
+    "name": "war3map.w3h",
+    "status": "ok",
+    "size": 35326
+  },
+  {
+    "name": "war3map.mmp",
+    "status": "ok",
+    "size": 200
+  },
+  {
+    "name": "war3map.shd",
+    "status": "ok",
+    "size": 118272
+  },
+  {
+    "name": "(listfile)",
+    "status": "not_extracted"
+  },
+  {
+    "name": "war3map.w3u",
+    "status": "not_extracted"
+  },
+  {
+    "name": "war3map.w3t",
+    "status": "not_extracted"
+  },
+  {
+    "name": "war3map.wtg",
+    "status": "not_extracted"
+  },
+  {
+    "name": "war3map.wct",
+    "status": "not_extracted"
+  },
+  {
+    "name": "war3mapUnits.doo",
+    "status": "not_extracted"
+  }
+]

@@ -14,6 +14,11 @@ type DiamondOptions = {
     y: number;
 };
 
+export type TileContentRenderState = {
+    graphics: Phaser.GameObjects.Graphics;
+    labels: Phaser.GameObjects.Text[];
+};
+
 export function renderBoardSystem(
     world: World,
     graphics: Phaser.GameObjects.Graphics,
@@ -34,20 +39,26 @@ export function renderBoardSystem(
             fill: getTileFill(world, entityId, revealed, mineRevealed),
             height: layout.tileHeight,
             lineWidth: 1,
-            stroke: revealed ? 0x4c5e59 : 0x273b35,
+            stroke: getTileStroke(world, entityId, revealed, mineRevealed),
             width: layout.tileWidth,
             x: render.screenX,
             y: render.screenY,
         });
+
+        if (!revealed) {
+            drawTileTopHighlight(graphics, render.screenX, render.screenY, layout);
+        }
     });
 }
 
 export function renderTileContentSystem(
     world: World,
     scene: Phaser.Scene,
-    previousLabels: Phaser.GameObjects.Text[],
+    previousState: TileContentRenderState,
+    layout: BoardLayout,
 ) {
-    previousLabels.forEach((label) => label.destroy());
+    previousState.labels.forEach((label) => label.destroy());
+    previousState.graphics.clear();
 
     const nextLabels: Phaser.GameObjects.Text[] = [];
 
@@ -56,16 +67,26 @@ export function renderTileContentSystem(
         const tile = world.tiles.get(entityId);
         if (!render || !tile) return;
 
+        if (!tile.revealed && world.flags.has(entityId)) {
+            drawFlagIcon(previousState.graphics, render.screenX, render.screenY, layout);
+            return;
+        }
+
+        if (tile.revealed && world.mines.has(entityId)) {
+            drawMineIcon(previousState.graphics, render.screenX, render.screenY, layout);
+            return;
+        }
+
         const labelText = getTileLabel(world, entityId, tile.revealed);
         if (!labelText) return;
 
         const label = scene.add
-            .text(render.screenX, render.screenY - 8, labelText, {
+            .text(render.screenX, render.screenY - layout.tileHeight * 0.25, labelText, {
                 align: 'center',
                 color: getTileLabelColor(world, entityId),
                 fontFamily: 'system-ui, sans-serif',
-                fontSize: '18px',
-                fontStyle: '700',
+                fontSize: `${Math.max(15, Math.floor(layout.tileWidth * 0.27))}px`,
+                fontStyle: '800',
             })
             .setDepth(6)
             .setOrigin(0.5);
@@ -73,7 +94,10 @@ export function renderTileContentSystem(
         nextLabels.push(label);
     });
 
-    return nextLabels;
+    return {
+        graphics: previousState.graphics,
+        labels: nextLabels,
+    };
 }
 
 export function renderHoverSystem(
@@ -91,7 +115,7 @@ export function renderHoverSystem(
     if (!render) return;
 
     drawDiamond(graphics, {
-        alpha: 0.24,
+        alpha: 0.3,
         fill: 0xd9b85f,
         height: layout.tileHeight - layout.hoverInset * 2,
         lineWidth: 2,
@@ -108,16 +132,28 @@ function getTileFill(
     revealed: boolean,
     mineRevealed: boolean,
 ) {
-    if (mineRevealed) return world.resources.gameStatus === 'lost' ? 0x8f4a4a : 0x6f6258;
-    if (revealed) return 0xb9c7b3;
-    if (world.flags.has(entityId)) return 0x6b7f88;
+    if (mineRevealed) return world.resources.gameStatus === 'lost' ? 0x9f5050 : 0x776b60;
+    if (revealed) return 0xc3d0bc;
+    if (world.flags.has(entityId)) return 0x5f7780;
 
-    return 0x5d846f;
+    return 0x5f8d72;
+}
+
+function getTileStroke(
+    world: World,
+    entityId: number,
+    revealed: boolean,
+    mineRevealed: boolean,
+) {
+    if (mineRevealed) return world.resources.gameStatus === 'lost' ? 0xe0a0a0 : 0x4e4944;
+    if (world.flags.has(entityId)) return 0xaec6c9;
+    if (revealed) return 0x53645e;
+
+    return 0x2c463c;
 }
 
 function getTileLabel(world: World, entityId: number, revealed: boolean) {
-    if (!revealed) return world.flags.has(entityId) ? 'F' : '';
-    if (world.mines.has(entityId)) return 'M';
+    if (!revealed || world.mines.has(entityId)) return '';
 
     const count = world.adjacentMineCounts.get(entityId) ?? 0;
 
@@ -125,23 +161,100 @@ function getTileLabel(world: World, entityId: number, revealed: boolean) {
 }
 
 function getTileLabelColor(world: World, entityId: number) {
-    if (world.flags.has(entityId)) return '#f3d36b';
-    if (world.mines.has(entityId)) return '#241a1a';
-
     const count = world.adjacentMineCounts.get(entityId) ?? 0;
     const countColors = [
         '#f3efe2',
-        '#2f5fbd',
-        '#267344',
-        '#b44242',
-        '#5a3f9b',
-        '#8d4b24',
-        '#287578',
-        '#2d3335',
-        '#6f7475',
+        '#255fb8',
+        '#247342',
+        '#b33434',
+        '#6440a6',
+        '#905129',
+        '#23757b',
+        '#222b2f',
+        '#5f676b',
     ];
 
     return countColors[count] ?? '#2d3335';
+}
+
+function drawTileTopHighlight(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    layout: BoardLayout,
+) {
+    const halfWidth = layout.tileWidth / 2;
+    const halfHeight = layout.tileHeight / 2;
+
+    graphics.lineStyle(1, 0x8fbea0, 0.28);
+    graphics.beginPath();
+    graphics.moveTo(x, y - halfHeight + 2);
+    graphics.lineTo(x + halfWidth - 4, y);
+    graphics.strokePath();
+}
+
+function drawFlagIcon(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    layout: BoardLayout,
+) {
+    const poleHeight = layout.tileHeight * 0.72;
+    const poleTop = y - layout.tileHeight * 0.56;
+    const poleBottom = poleTop + poleHeight;
+    const flagWidth = layout.tileWidth * 0.24;
+    const flagHeight = layout.tileHeight * 0.34;
+
+    graphics.lineStyle(3, 0x253238, 1);
+    graphics.beginPath();
+    graphics.moveTo(x - 4, poleTop);
+    graphics.lineTo(x - 4, poleBottom);
+    graphics.strokePath();
+
+    graphics.fillStyle(0xf2c94c, 1);
+    graphics.lineStyle(1, 0x815f16, 1);
+    graphics.beginPath();
+    graphics.moveTo(x - 2, poleTop + 2);
+    graphics.lineTo(x + flagWidth, poleTop + flagHeight * 0.45);
+    graphics.lineTo(x - 2, poleTop + flagHeight);
+    graphics.closePath();
+    graphics.fillPath();
+    graphics.strokePath();
+
+    graphics.fillStyle(0x253238, 0.32);
+    graphics.fillEllipse(x - 4, poleBottom + 2, layout.tileWidth * 0.22, 5);
+}
+
+function drawMineIcon(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    layout: BoardLayout,
+) {
+    const radius = Math.max(7, layout.tileWidth * 0.14);
+    const centerY = y - layout.tileHeight * 0.2;
+
+    graphics.lineStyle(2, 0x1f1717, 1);
+    for (let index = 0; index < 8; index += 1) {
+        const angle = (Math.PI * 2 * index) / 8;
+        const innerX = x + Math.cos(angle) * (radius * 0.7);
+        const innerY = centerY + Math.sin(angle) * (radius * 0.7);
+        const outerX = x + Math.cos(angle) * (radius * 1.35);
+        const outerY = centerY + Math.sin(angle) * (radius * 1.1);
+
+        graphics.beginPath();
+        graphics.moveTo(innerX, innerY);
+        graphics.lineTo(outerX, outerY);
+        graphics.strokePath();
+    }
+
+    graphics.fillStyle(0x2b2423, 1);
+    graphics.lineStyle(2, 0x14100f, 1);
+    graphics.fillCircle(x, centerY, radius);
+    graphics.strokeCircle(x, centerY, radius);
+
+    graphics.fillStyle(0xf0d8b0, 0.78);
+    graphics.fillCircle(x - radius * 0.35, centerY - radius * 0.35, radius * 0.24);
 }
 
 function drawDiamond(graphics: Phaser.GameObjects.Graphics, options: DiamondOptions) {

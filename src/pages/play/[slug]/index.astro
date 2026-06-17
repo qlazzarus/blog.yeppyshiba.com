@@ -31,9 +31,21 @@ const html =
           )
         : null;
 const assetTags = html?.match(/<(script|link)\b[^>]*(?:><\/script>|>)/g) ?? [];
+const playAssetTags = assetTags.map((tag) =>
+    slug ? rewriteAssetTag(tag, slug) : tag,
+);
 
 if (!html) {
     Astro.response.status = 404;
+}
+
+function rewriteAssetTag(tag: string, slug: string) {
+    return tag
+        .replaceAll(`/game-assets/${slug}/assets/`, `/play/${slug}/assets/`)
+        .replace(
+            new RegExp(`(/play/${slug}/assets/[^"']+)(["'])`),
+            '$1/$2',
+        );
 }
 ---
 
@@ -43,7 +55,7 @@ if (!html) {
         <meta charset='UTF-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <title>Isometric Minesweeper</title>
-        {assetTags.map((tag) => <Fragment set:html={tag} />)}
+        {playAssetTags.map((tag) => <Fragment set:html={tag} />)}
     </head>
     <body>
         {

@@ -1,0 +1,7 @@
+session_id	difficulty	player_count	elapsed_time	event_text	observed_unit_name	expected_rawcode	observed_hp_or_estimate	damage_feel	defense_feel	special_ability	kill_text	score_gained	next_event	verdict	notes
+normal_01	normal	1		블러드 울프가 등장했습니다.	블러드 울프	H012							pending	
+normal_01	normal	1		와일드 울프가 등장했습니다.	와일드 울프	H00X							pending	
+normal_01	normal	1		헬 하운드가 등장했습니다.	헬 하운드	H013							pending	
+normal_01	normal	1		둠 가드가 등장했습니다.	둠 가드	H01B							pending	
+normal_01	normal	1		아키몬드가 등장했습니다.	아키몬드	H01N							pending	네더 드레곤으로 이어지는지 확인
+normal_01	normal	1		네더 드레곤 생성/등장 여부	네더 드레곤	H01O							pending	독립 등장인지 사망 후 변환인지 확인

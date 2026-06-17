@@ -1,0 +1,154 @@
+function	line_start	line_end	labels	direct_labels	inherited_labels	call_count	calls	reasons
+lIlilI	466	470	alliance	alliance		1	ForceEnumAllies	alliance:ForceEnumAllies
+liiIlI	617	999	wave	wave		0		wave:Ili[
+lilIII	1034	1169	wave	wave		0		wave:Ili[
+lilIiI	1170	1190	wave	wave		0		wave:Player(10)
+lilIlI	1191	1205	wave	wave		0		wave:Player(10)
+liliII	1206	1213	disease	disease		0		disease:PLAYER_NEUTRAL_AGGRESSIVE
+lilliI	1274	1282	disease	disease		0		disease:PLAYER_NEUTRAL_AGGRESSIVE
+llIiII	1307	1322	chat	chat		3	DisableTrigger,DisplayTextToForce,EnableTrigger	chat:DisplayTextToForce
+llIiiI	1323	1334	disease	disease		0		disease:PLAYER_NEUTRAL_AGGRESSIVE
+lliIlI	1356	1364	chat	chat		3	DisableTrigger,DisplayTextToForce,EnableTrigger	chat:DisplayTextToForce
+IIIIIi	1537	1572	alliance,chat,wave	alliance,chat,wave		5	CreateFogModifierRectBJ,CreateQuestBJ,SetPlayerAllianceStateBJ,SetPlayerFlagBJ,SetPlayerTechMaxAllowedSwap	wave:늑대|chat:-이름|chat:-hostban|alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE|alliance:-올동맹|alliance:-동맹상태
+IIilii	1728	1795	economy,wave	economy,wave		13	CinematicFilterGenericBJ,ConditionalTriggerExecute,CreateNUnitsAtLoc,DisplayTimedTextToForce,PanCameraToTimedLocForPlayer,PauseUnitBJ,SelectUnitForPlayerSingle,SetItemCharges,SetPlayerStateBJ,SetUnitInvulnerable,UnitAddItemByIdSwapped,UnitRemoveAbilityBJ,lIIiiI	wave:늑대|economy:PLAYER_STATE_RESOURCE
+IIlIii	1808	1832	economy	economy		8	CinematicFilterGenericBJ,CreateNUnitsAtLoc,PanCameraToTimedLocForPlayer,SelectUnitForPlayerSingle,SetItemCharges,SetPlayerStateBJ,UnitAddItemByIdSwapped,lIIiiI	economy:PLAYER_STATE_RESOURCE
+IiIiii	1917	1968	alliance	alliance		7	CreateNUnitsAtLoc,CreateTextTagLocBJ,DisplayTimedTextToForce,PanCameraToTimedLocForPlayer,PauseUnitBJ,SelectUnitForPlayerSingle,SetPlayerAllianceStateBJ	alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IiiIii	1993	1995	alliance	alliance		1	DisplayTimedTextToForce	alliance:동맹
+IiiiIi	2002	2004	wave	wave		1	DisplayTimedTextToForce	wave:늑대
+Iiiili	2011	2013	wave	wave		1	DisplayTimedTextToForce	wave:늑대
+Iiilii	2020	2022	disease,wave	disease,wave		1	DisplayTimedTextToForce	wave:늑대|disease:질병
+Iillii	2068	2137	alliance	alliance		8	ConditionalTriggerExecute,DisableTrigger,DisplayTimedTextToForce,KillUnit,RemoveUnit,SetPlayerAllianceStateBJ,SetPlayerTechMaxAllowedSwap,SetPlayerUnitAvailableBJ	alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+iIIIii	2432	2437	wave	wave		1	IssuePointOrderLocBJ	wave:IssuePointOrderLocBJ
+iIIili	2456	2461	wave	wave		1	IssuePointOrderLocBJ	wave:IssuePointOrderLocBJ
+lIIIIi	3086	3091	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIIIli	3098	3103	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIIiii	3110	3115	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIIlIi	3122	3127	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIIlli	3134	3139	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIiIii	3146	3151	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIiiIi	3158	3163	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIiili	3170	3175	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIilii	3182	3255	economy	economy		2	AdjustPlayerStateBJ,DisplayTimedTextToForce	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:충분한 금화|economy:충분한 목재
+lIlIIi	3262	3267	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIlIii	3268	3275	economy	economy		3	AdjustPlayerStateBJ,CreateNUnitsAtLoc,DisplayTimedTextToForce	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:충분한 금화
+lIliIi	3282	3287	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIliii	3288	3295	economy	economy		3	AdjustPlayerStateBJ,CreateNUnitsAtLoc,DisplayTimedTextToForce	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:충분한 금화
+lIllIi	3302	3307	economy	economy		0		economy:PLAYER_STATE_RESOURCE
+lIllii	3308	3315	economy	economy		3	AdjustPlayerStateBJ,CreateNUnitsAtLoc,DisplayTimedTextToForce	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:충분한 금화
+liilIi	3415	3445	economy	economy		6	AdjustPlayerStateBJ,DisplayTimedTextToForce,ForGroupBJ,IssueImmediateOrderBJ,ReviveHeroLoc,UnitAddItemByIdSwapped	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE
+lilili	3486	3492	wave	wave		4	CreateNUnitsAtLoc,IssueImmediateOrderBJ,RemoveUnit,SetHeroLevelBJ	wave:Player(10)
+lillii	3499	3501	wave	wave		0		wave:Player(10)
+lillli	3502	3504	wave	wave		1	IssuePointOrderLocBJ	wave:IssuePointOrderLocBJ
+lliIIi	3547	3556	disease	disease		3	DialogAddButtonBJ,DialogDisplayBJ,DialogSetMessageBJ	disease:질병
+lliiii	3575	3592	disease	disease		2	ConditionalTriggerExecute,DisplayTimedTextToForce	disease:질병
+llilIi	3599	3604	disease	disease		3	CreateNUnitsAtLoc,IssueTargetOrder,IssueTargetOrderBJ	disease:1747988806|disease:PLAYER_NEUTRAL_AGGRESSIVE
+llliii	3642	3660	disease,wave	disease,wave		3	DisplayTimedTextToForce,EnableTrigger,lIIiiI	wave:Ili[|disease:질병|disease:Ili[60]
+lllili	3661	3666	disease,wave	disease,wave		0		wave:Ili[|wave:Player(10)|disease:Ili[60]|disease:1747988805
+llllIi	3667	3673	disease,wave	disease,wave		2	CreateNUnitsAtLoc,UnitApplyTimedLife	wave:Player(10)|disease:1747988805
+llllii	3674	3679	disease,wave	disease,wave		0		wave:Ili[|wave:Player(10)|disease:Ili[60]|disease:1747988805
+llllli	3680	3686	disease,wave	disease,wave		2	CreateNUnitsAtLoc,UnitApplyTimedLife	wave:Player(10)|disease:1747988805
+IIIIiII	3705	3710	disease	disease		0		disease:1747988805
+IIliiII	4192	4198	economy	economy		3	ConditionalTriggerExecute,DisplayTimedTextToForce,SetPlayerStateBJ	economy:PLAYER_STATE_RESOURCE
+IIllilI	4273	4281	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+IIlllII	4282	4285	chat	chat		1	SetCameraFieldForPlayer	chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+IiIIilI	4323	4350	alliance	alliance		2	DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IiilliI	4669	4946	alliance	alliance		4	DialogAddButtonBJ,DialogDisplayBJ,DialogSetMessageBJ,DisplayTimedTextToForce	alliance:동맹
+IilIIlI	4965	4994	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IilIlII	5013	5042	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IiliIiI	5061	5090	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IiliilI	5109	5138	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IillIII	5157	5186	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IilliiI	5205	5234	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IillllI	5253	5282	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IlIIiII	5301	5330	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IlIIliI	5349	5378	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IlIiIlI	5397	5426	alliance	alliance		3	DialogClearBJ,DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:동맹|alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IlIiiiI	5433	5444	wave	wave		0		wave:Player(10)
+IlIilII	5451	5458	alliance	alliance		2	DisplayTimedTextToForce,SetPlayerAllianceStateBJ	alliance:SetPlayerAllianceStateBJ|alliance:bj_ALLIANCE
+IliIilI	5614	5663	wave	wave		2	CreateNUnitsAtLoc,DisplayTimedTextToForce	wave:늑대|wave:Player(10)
+IliIlII	5664	5666	wave	wave		1	SetPlayerTechResearchedSwap	wave:Player(10)|wave:SetPlayerTechResearchedSwap(1382573683
+IliIllI	5714	5719	wave	wave		0		wave:Player(10)
+IliiIII	5720	5722	wave	wave		1	IssuePointOrderLocBJ	wave:IssuePointOrderLocBJ
+IliiIiI	5723	5725	wave	wave		1	IssuePointOrderLocBJ	wave:IssuePointOrderLocBJ
+IliiIlI	5726	5728	wave	wave		1	ForGroupBJ	wave:Player(10)
+IliiiiI	5741	5763	wave	wave		7	CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,EnableTrigger,PingMinimapLocForForceEx,UnitShareVisionBJ,lIIiiI	wave:Ili[|wave:Player(10)
+IliiilI	5764	5775	wave	wave		3	DisableTrigger,DisplayTimedTextToForce,EnableTrigger	wave:늑대|wave:Ili[
+IliilII	5776	5795	wave	wave		6	CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,EnableTrigger,PingMinimapLocForForceEx,UnitShareVisionBJ	wave:Ili[|wave:Player(10)
+IliiliI	5796	5808	wave	wave		3	DisableTrigger,DisplayTimedTextToForce,EnableTrigger	wave:Ili[
+IliillI	5809	5828	wave	wave		6	CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,EnableTrigger,PingMinimapLocForForceEx,UnitShareVisionBJ	wave:Ili[|wave:Player(10)
+IlilIII	5829	5841	wave	wave		3	DisableTrigger,DisplayTimedTextToForce,EnableTrigger	wave:Ili[
+IlilIiI	5842	5861	wave	wave		6	CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,EnableTrigger,PingMinimapLocForForceEx,UnitShareVisionBJ	wave:Ili[|wave:Player(10)
+IlilIlI	5862	5874	wave	wave		3	DisableTrigger,DisplayTimedTextToForce,EnableTrigger	wave:Ili[
+IliliII	5875	5894	wave	wave		6	CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,EnableTrigger,PingMinimapLocForForceEx,UnitShareVisionBJ	wave:Ili[|wave:Player(10)
+IlililI	5901	5906	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IlillII	5907	5922	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IlilllI	5929	5934	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllIIII	5935	5950	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IllIIlI	5957	5962	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllIiII	5963	5978	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IllIilI	5985	5990	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllIlII	5991	6006	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IllIllI	6013	6018	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IlliIII	6019	6034	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IlliIlI	6041	6046	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IlliiII	6047	6062	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IlliilI	6069	6074	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllilII	6075	6090	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IllillI	6097	6102	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IlllIII	6103	6118	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IlllIlI	6125	6130	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllliII	6131	6146	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+IlllilI	6153	6158	wave	wave		0		wave:Ili[|wave:Player(10)|wave:CountUnitsInGroup(lIliII(Player(10)
+IllllII	6159	6174	wave	wave		1	CreateNUnitsAtLoc	wave:Player(10)|wave:CreateNUnitsAtLoc(2,iIi
+iIIIilI	6226	6250	wave	wave		0		wave:Ili[
+iIIiiII	6296	6315	wave	wave		0		wave:Ili[
+iIIlIlI	6367	6391	wave	wave		0		wave:Ili[
+iIIlliI	6425	6436	wave	wave		0		wave:Ili[
+iIiIilI	6482	6501	wave	wave		0		wave:Ili[
+iIiiIiI	6535	6546	wave	wave		0		wave:Ili[
+iIiillI	6592	6611	wave	wave		0		wave:Ili[
+iIiliiI	6645	6656	wave	wave		0		wave:Ili[
+iIlIIlI	6702	6721	wave	wave		0		wave:Ili[
+iIlIliI	6755	6766	wave	wave		0		wave:Ili[
+iIliilI	6785	6792	wave	wave		1	ForGroupBJ	wave:Player(10)
+iIllliI	6883	6894	wave	wave		0		wave:Player(10)
+iiIIliI	6943	6985	wave	wave		2	DisplayTimedTextToForce,LeaderboardSetPlayerItemValueBJ	wave:늑대
+iiiIIII	7156	7197	chat	chat		2	DisplayTimedTextToForce,StartTimerBJ	chat:채팅|chat:-hostban
+iiiIilI	7233	7887	alliance,chat,disease,wave	alliance,chat,wave	disease	34	ConditionalTriggerExecute,DisableTrigger,NewSoundEnvironment,SetAmbientDaySound,SetAmbientNightSound,SetCameraBounds,SetDayNightModels,SetMapMusic,SetSoundChannel,SetSoundDuration,SetSoundParamsFromLabel,SetSoundPitch,SetSoundVolume,SetTerrainFogEx,TriggerAddAction,TriggerAddCondition,TriggerRegisterAnyUnitEventBJ,TriggerRegisterDialogEventBJ,TriggerRegisterEnterRectSimple,TriggerRegisterGameStateEventTimeOfDay	wave:Player(10)|chat:TriggerRegisterPlayerChatEvent|chat:-hostban|alliance:동맹|alliance:-올동맹|alliance:-동맹상태|alliance:-동맹|calls:lilIII:wave|calls:lilIiI:wave|calls:lilIlI:wave|calls:liliII:disease
+iiiIliI	7891	7894	alliance,chat	alliance,chat		1	DisplayTimedTextToPlayer	chat:채팅|alliance:동맹
+iiiIllI	7895	7908	alliance,chat	alliance,chat		2	TriggerAddAction,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent|alliance:동맹|alliance:-동맹
+iiiiIlI	7925	7928	chat	chat		1	DisplayTimedTextToPlayer	chat:채팅
+iiiiiII	7929	7942	chat	chat		2	TriggerAddAction,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent|chat:-전체
+iiiiiiI	7943	7946	chat	chat		1	DisplayTimedTextToPlayer	chat:채팅
+iiiiilI	7947	7960	chat	chat		2	TriggerAddAction,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent|chat:-모두
+iiiilII	7961	7975	alliance,chat	alliance,chat		0		chat:GetEventPlayerChatString|chat:-모두|chat:-전체|alliance:동맹|alliance:-동맹
+iiiiliI	7976	7978	alliance,chat	alliance,chat		1	DisplayTextToForce	chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString|chat:DisplayTextToForce|alliance:lIlilI(GetTriggerPlayer
+iiiillI	7979	7993	chat	chat		3	TriggerAddAction,TriggerAddCondition,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent
+iiilIII	7994	8008	alliance,chat	alliance,chat		0		chat:GetEventPlayerChatString|chat:-모두|chat:-전체|alliance:동맹|alliance:-동맹
+iiilIiI	8009	8011	alliance,chat	alliance,chat		1	DisplayTextToForce	chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString|chat:DisplayTextToForce|alliance:동맹|alliance:lIlilI(GetTriggerPlayer
+iiilIlI	8012	8026	chat	chat		3	TriggerAddAction,TriggerAddCondition,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent
+iliiilI	8700	8727	alliance,chat	alliance,chat		6	DialogAddButtonBJ,DisplayTimedTextToForce,SetUnitInvulnerable,ShowUnitHide,TriggerRegisterPlayerChatEvent,TriggerRegisterUnitEvent	chat:TriggerRegisterPlayerChatEvent|chat:채팅|chat:-모두|alliance:동맹|alliance:-동맹
+illillI	8978	8980	chat	chat		1	SetPlayerName	chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+illlIII	8981	8994	chat	chat		2	TriggerAddAction,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent|chat:-이름
+illllII	9027	9034	wave	wave		3	DialogAddButtonBJ,PauseUnitBJ,ShowUnitHide	wave:늑대
+lIIiiII	9130	9160	economy,wave	economy,wave		7	AdjustPlayerStateBJ,CreateNUnitsAtLoc,DisableTrigger,DisplayTimedTextToForce,ShowUnitHide,TriggerExecute,TriggerSleepAction	wave:Player(10)|economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE
+lIIlIlI	9205	9213	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+lIIliiI	9217	9222	chat	chat		3	TriggerAddAction,TriggerAddCondition,TriggerRegisterPlayerChatEvent	chat:TriggerRegisterPlayerChatEvent
+lIIlilI	9223	9231	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+lIIllII	9232	9234	economy	economy		1	AdjustPlayerStateBJ	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE
+lIIlllI	9240	9251	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+lIiIiII	9268	9276	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+lIiIiiI	9277	9291	alliance,chat	alliance,chat		0		chat:GetEventPlayerChatString|alliance:동맹
+lIiIllI	9303	9311	chat	chat		0		chat:GetEventPlayerChatString|chat:SubStringBJ(GetEventPlayerChatString
+lIiiIII	9312	9314	economy	economy		1	AdjustPlayerStateBJ	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE
+lIiiIlI	9320	9322	economy	economy		1	AdjustPlayerStateBJ	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:CountLivingPlayerUnitsOfTypeId(1747988545
+lIiiiiI	9327	9329	economy	economy		1	AdjustPlayerStateBJ	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:CountLivingPlayerUnitsOfTypeId(1747988545
+lIiilII	9334	9345	economy	economy		0		economy:CountLivingPlayerUnitsOfTypeId(1747988545|economy:CountLivingPlayerUnitsOfTypeId(1747988554|economy:CountLivingPlayerUnitsOfTypeId(1747988567
+lIiillI	9352	9366	economy	economy		2	AdjustPlayerStateBJ,DisplayTimedTextToPlayer	economy:AdjustPlayerStateBJ|economy:PLAYER_STATE_RESOURCE|economy:CountLivingPlayerUnitsOfTypeId(1747988545|economy:CountLivingPlayerUnitsOfTypeId(1747988554|economy:CountLivingPlayerUnitsOfTypeId(1747988567
+lIiliII	9379	9381	wave	wave		1	SetPlayerTechResearchedSwap	wave:Player(10)
+lIililI	9387	9389	wave	wave		1	SetPlayerTechResearchedSwap	wave:Player(10)
+lIlIiII	9437	9491	alliance,chat		alliance,chat	53	iiiIlII,iiiIllI,iiiiIiI,iiiiiII,iiiiilI,iiiillI,iiilIlI,iiillII,iilIIiI,iilIilI,iiliIII,iiliiiI,iilillI,iilliII,iillilI,ilIIliI,ilIlIII,iliIIlI,iliiiiI,iliilII	calls:iiiIllI:alliance|calls:iiiIllI:chat|calls:iiiiiII:chat|calls:iiiiilI:chat|calls:iiiillI:chat|calls:iiilIlI:chat|calls:illlIII:chat|calls:lIIliiI:chat
+lIlIilI	9499	9562	wave	wave		6	ForcePlayerStartLocation,SetPlayerColor,SetPlayerController,SetPlayerRacePreference,SetPlayerRaceSelectable,SetPlayerStartLocation	wave:Player(10)
+InitCustomTeams	9563	9576	wave	wave		1	SetPlayerTeam	wave:Player(10)
+main	9670	9684	wave		wave	13	NewSoundEnvironment,SetAmbientDaySound,SetAmbientNightSound,SetCameraBounds,SetDayNightModels,SetMapMusic,SetTerrainFogEx,lIlIiII,lIlIiiI,liiIiI,liiIlI,liiliI,liillI	calls:liiIlI:wave
+config	9685	9706	wave		wave	9	DefineStartLocation,InitCustomTeams,SetGamePlacement,SetMapDescription,SetMapName,SetPlayers,SetTeams,lIlIilI,lIlIlII	calls:lIlIilI:wave|calls:InitCustomTeams:wave
