@@ -1160,12 +1160,13 @@ MVP pathing 권장:
 | 이동 판정 | Warsmash 관찰상 pathfinding은 32 world-unit grid와 유닛 collision size를 함께 사용 | 같은 지형 gap이어도 유닛 크기에 따라 통과 가능 여부가 달라질 수 있음 |
 | 농부/늑대 이동 타입 | `H000` 농부와 늑대류 모두 `movetp=foot`이지만, 실제 통과 가능성은 이동 타입만이 아니라 collision/pathing clearance 영향을 받음 | "농부는 통과, 늑대는 막힘"은 엔진 판정상 가능 |
 | 방벽/울타리 | `h003` 울타리, `h00L` 청동 울타리, `h00K` 돌 벽 등은 건물형 blocker 후보 | 건설 시 정적 WPM이 아니라 동적 building pathing overlay로 막힘을 만든다고 보는 게 맞음 |
+| 1x2 방향 가설 | `h003` 울타리 모델이 `Village_Fenceshort`이고, `war3map.doo`의 시각 울타리/벽 후보들은 가로 또는 세로 라인을 이루도록 배치됨 | 현재 Phaser PoC에서는 사용자 기억에 맞춰 `가로 2 cell x 세로 1 cell` footprint로 둔다 |
 | 현재 W3X 한계 | `war3mapUnits.doo`와 정확한 pathing texture가 아직 미추출 | 방벽 footprint가 정확히 1x2인지, 1칸 gap 판정이 어떤 rawcode에서 발생했는지는 추가 도구 검증 필요 |
 
 Phaser 구현 판단:
 
 - 건설 그리드는 32px를 기본 cell로 둔다.
-- 울타리/방벽은 `footprintCells`를 별도 데이터로 둔다. 예: `fence_wood: 1x2`, gate/wall은 후속 rawcode별로 확정.
+- 울타리/방벽은 `footprintCells`를 별도 데이터로 둔다. 현재 PoC 가설은 `fence_wood: 2x1`이며, 사용자가 말한 1x2 표현을 "가로 2칸, 세로 1칸"으로 해석한다.
 - 늑대 pathing은 `clearanceCells = 2` 또는 `radiusPx` 기반으로 계산해 1칸 통로를 막힌 것으로 볼 수 있게 한다.
 - 농부 pathing은 `clearanceCells = 1`로 두어 같은 1칸 통로를 지나갈 수 있게 한다.
 - 이 규칙은 원본 기억을 재현하기 위한 MVP 변환값이며, 실제 워3 pathing texture가 확인되면 조정한다.
