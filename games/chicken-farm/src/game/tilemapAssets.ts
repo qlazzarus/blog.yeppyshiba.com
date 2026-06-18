@@ -13,6 +13,8 @@ export type ChickenFarmTilemapAsset = {
     readonly tileWidth: number;
 };
 
+const gameAssetBasePath = import.meta.env.BASE_URL;
+
 export const CHICKEN_FARM_TILEMAP_POC_01: ChickenFarmTilemapAsset = {
     defaultCameraSpeedPxPerSec: 440,
     defaultScale: 2,
@@ -20,11 +22,10 @@ export const CHICKEN_FARM_TILEMAP_POC_01: ChickenFarmTilemapAsset = {
     defaultViewportWidth: 960,
     key: 'chicken-farm-poc-01',
     license: 'CC0',
-    mapPath: '/play/chicken-farm/assets/tilemaps/chicken_farm_poc_01.json',
+    mapPath: `${gameAssetBasePath}tilemaps/chicken_farm_poc_01.json`,
     sourceName: 'Kenney Tiny Town',
     sourceUrl: 'https://kenney.nl/assets/tiny-town',
     tileHeight: 16,
-    tilesetImagePath:
-        '/play/chicken-farm/assets/tilesets/kenney-tiny-town/tilemap_packed.png',
+    tilesetImagePath: `${gameAssetBasePath}tilesets/kenney-tiny-town/tilemap_packed.png`,
     tileWidth: 16,
 };

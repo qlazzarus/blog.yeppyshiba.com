@@ -10,6 +10,7 @@
         "build": "npm run build:games && npm run build:site",
         "build:site": "astro build",
         "build:games": "node scripts/build-games.mjs",
+        "dev:games": "node scripts/dev-games.mjs",
         "preview": "astro preview",
         "tag:audit": "tsx scripts/audit-tags.ts",
         "ride:assist": "tsx scripts/assist-ride-writing.ts",
