@@ -20,15 +20,16 @@
 | 펜스/타워 라인 | 완료 | `fence_candidate_rawcodes.tsv` high confidence 라인을 building template로 축약 |
 | 배럭/연구소 테크 | 완료 | `building_tech_reference.tsv`와 `research_upgrade_provider_reference.tsv`를 Phaser build/research graph 입력값으로 사용 |
 | 아이템 획득 경로 | 완료 | `item_catalog_reference.tsv`와 `item_acquisition_reference.tsv`를 Phaser item/reward data 입력값으로 사용 |
+| Warsmash pathing/공격 전환 | 완료 | `balance.ts`의 `pathing`, enemy range/acquire/leash/windup 값으로 반영 |
+| MVP 건물 템플릿 | 완료 | high confidence 펜스/벽/타워/코어/시장/용병소/연구소를 `balance.ts`의 `buildingTemplates`로 축약 |
+| 늑대 AI 목표 갱신 규칙 | 완료 | `jass_wolf_order_flows.tsv` 결론을 `pathing.wolfAi.jassOrderModel`과 `wolfAi.ts` helper로 반영 |
 
 ## P1. 구현 전 추가 분석
 
 | 우선순위 | 항목 | 산출물 | 이유 |
 |---:|---|---|---|
-| 1 | Phaser 건물 데이터 축약 | `buildingTemplates` 후보 | 펜스/타워/용병소/워크샵/시장/닭장 구현의 입력값 |
-| 2 | Phaser 아이템/보상 데이터 축약 | `itemTemplates`, `rewardTables` 후보 | 구매/드랍/레벨/이벤트 보상을 런타임에서 같은 방식으로 지급 |
-| 3 | 늑대 AI 목표 갱신 규칙 작성 | `WolfAI` spec 또는 runtime data | 원본 attack-move 감각을 웹 AI로 옮기는 핵심 |
-| 4 | Warsmash pathing 튜닝값 반영 | `pathingConfig` 후보 | 1칸 틈, 방벽, 농부/늑대 통과 감각 재현 |
+| 1 | Phaser 아이템/보상 데이터 축약 | `itemTemplates`, `rewardTables` 후보 | 구매/드랍/레벨/이벤트 보상을 런타임에서 같은 방식으로 지급 |
+| 2 | WolfAI 상태 머신 구현 | `WolfAI` runtime | `wolfAi.ts`의 order refresh helper와 `pathing.repath`, `pathing.blockerAttackAcquire` 값을 실제 enemy update loop에서 사용 |
 
 ## P2. 구현 중 병행 검증
 

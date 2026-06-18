@@ -1512,10 +1512,10 @@ Phaser 구현 산출물은 별도 기획 문서와 데이터 파일로 분리한
 
 남은 분석은 다음 순서가 좋다.
 
-1. Warsmash behavior 기준으로 pathing/공격 전환 튜닝값을 밸런스 스키마에 반영한다.
-2. `fence_candidate_rawcodes.tsv`, `building_tech_reference.tsv`, `research_upgrade_provider_reference.tsv`의 high confidence 라인만 Phaser MVP 건물 데이터로 축약한다.
-3. `item_catalog_reference.tsv`, `item_acquisition_reference.tsv`를 Phaser item/reward 데이터로 축약한다.
-4. `jass_wolf_order_flows.tsv`의 결론을 Phaser 늑대 AI 목표 갱신 규칙으로 옮긴다.
+1. 완료: Warsmash behavior 기준 pathing/공격 전환 튜닝값을 `balance.ts`에 반영했다.
+2. 완료: `fence_candidate_rawcodes.tsv`, `building_tech_reference.tsv`, `research_upgrade_provider_reference.tsv`의 high confidence 라인을 Phaser MVP 건물 데이터로 축약했다.
+3. 완료: `jass_wolf_order_flows.tsv`의 결론을 `pathing.wolfAi.jassOrderModel`과 `wolfAi.ts` helper로 옮겼다.
+4. `item_catalog_reference.tsv`, `item_acquisition_reference.tsv`를 Phaser item/reward 데이터로 축약한다.
 5. 실제 플레이 관찰은 후순위 검증으로 유지한다.
 
 현재 단계에서는 경제 주기, 웨이브 타이밍, 난이도, 점수 구조는 기획 기준으로 사용 가능하다.
@@ -1524,4 +1524,5 @@ Phaser 구현 산출물은 별도 기획 문서와 데이터 파일로 분리한
 
 - 경제 주기, 웨이브 타이밍, 난이도, 점수 구조는 `balance.ts`와 `chicken_farm_wave_shop_disease_mvp_spec.md` 기준으로 사용한다.
 - 늑대 이동/공격/펜스 전환 감각은 `chicken_farm_warsmash_behavior_notes.md` 기준으로 사용한다.
+- 늑대 목표 갱신은 JASS처럼 스폰/60초 refresh에서 전역 공격 rect 랜덤 지점을 attack-move 목표로 주고, 구체 타깃 획득과 blocker 공격은 Warsmash식 acquisition/path failure 전환에 맡긴다.
 - 실제 플레이 관찰은 보스 순서와 체감 튜닝 검증용으로 후순위 유지한다.

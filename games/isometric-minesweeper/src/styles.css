@@ -1,16 +1,18 @@
 html,
 body {
     margin: 0;
-    min-height: 100%;
+    min-height: 100dvh;
     overflow: hidden;
     background: #10161a;
+    touch-action: none;
 }
 
 #game {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
 }
 
 canvas {
     display: block;
+    touch-action: none;
 }

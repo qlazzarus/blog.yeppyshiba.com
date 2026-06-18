@@ -5,6 +5,7 @@ export const BOARD_HEIGHT = 10;
 export const BOARD_ORIGIN_Y = 130;
 export const HOVER_INSET = 3;
 export const MINE_COUNT = 14;
+export const MIN_TILE_WIDTH = 24;
 
 export type DifficultyId = 'beginner' | 'standard' | 'expert';
 
@@ -55,9 +56,16 @@ export type BoardLayout = {
 export function createBoardLayout(
     viewportWidth: number,
     difficulty: DifficultyConfig = DIFFICULTIES[1],
+    originY = BOARD_ORIGIN_Y,
+    tileWidthLimit = TILE_WIDTH,
 ): BoardLayout {
-    const maxTileWidth = Math.floor((viewportWidth - 72) / difficulty.boardWidth);
-    const tileWidth = Math.max(46, Math.min(TILE_WIDTH, maxTileWidth));
+    const maxTileWidth = Math.floor(
+        ((viewportWidth - 48) * 2) / (difficulty.boardWidth + difficulty.boardHeight),
+    );
+    const tileWidth = Math.max(
+        MIN_TILE_WIDTH,
+        Math.min(TILE_WIDTH, tileWidthLimit, maxTileWidth),
+    );
     const tileHeight = Math.round(tileWidth / 2);
 
     return {
@@ -67,7 +75,7 @@ export function createBoardLayout(
         hoverInset: HOVER_INSET,
         mineCount: difficulty.mineCount,
         originX: viewportWidth / 2,
-        originY: BOARD_ORIGIN_Y,
+        originY,
         tileHeight,
         tileWidth,
     };

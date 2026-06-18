@@ -85,7 +85,7 @@ export function renderTileContentSystem(
                 align: 'center',
                 color: getTileLabelColor(world, entityId),
                 fontFamily: 'system-ui, sans-serif',
-                fontSize: `${Math.max(15, Math.floor(layout.tileWidth * 0.27))}px`,
+                fontSize: `${Math.max(11, Math.floor(layout.tileWidth * 0.27))}px`,
                 fontStyle: '800',
             })
             .setDepth(6)
