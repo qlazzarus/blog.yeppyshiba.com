@@ -1,0 +1,11 @@
+time_sec	phase_function	replenish_trigger	replenish_function	replenish_tiers	target_increment_trigger	target_increment_function	target_increment_period_sec	initial_target_delta	boss_spawn	message_or_notes
+120	IliiiII	IIiliI	IlillII	1-6	IIlllI	iIIIilI	35	none	none	초기 보충/명령 단계 활성화. 0.2초마다 부족한 1-6티어를 2기씩 보충.
+600	IliiiiI	IIillI	IllIIII	3-7	IiIIII	iIIiiII	35	3:+7,4:+3,5:+2,6:+1	H012 블러드 울프	블러드 울프 등장. 이후 스피릿 울프들이 등장한다고 안내.
+1100	IliiilI	IIlIII	IllIiII	4-9	IiIIiI	iIIlIlI	35	4:+5,5:+3,6:+2,7:+1	none	늑대 난이도 상승.
+1500	IliilII	IIlIiI	IllIlII	7-9	IiIIlI	iIIlliI	35	7:+4,8:+3,9:+2	H00X 와일드 울프	와일드 울프 등장.
+2000	IliiliI	IIlIlI	IlliIII	8-12	IiIiII	iIiIilI	35	8:+7,9:+5,10:+4,11:+3,12:+2	none	펠 비스트 계열 등장 안내.
+2200	IliillI	IIliII	IlliiII	10-12	IiIiiI	iIiiIiI	35	10:+7,11:+4,12:+3	H013 헬 하운드	헬 하운드 등장.
+2400	IlilIII	IIliiI	IllilII	11-15	IiIilI	iIiillI	35	11:+7,12:+6,13:+5,14:+4,15:+3	none	불사신 계열 등장 안내.
+2600	IlilIiI	IIlilI	IlllIII	13-15	IiIlII	iIiliiI	35	13:+7,14:+4,15:+3	H01B 둠 가드	둠 가드 등장. 엄청난 숫자의 인페르노 소환 안내.
+2800	IlilIlI	IIllII	IllliII	14-18	IiIliI	iIlIIlI	22	14:+9,15:+8,16:+7,17:+5,18:+4	none	사티로스 계열 등장 안내. 22초 증분으로 압박 가속.
+3000	IliliII	IIlliI	IllllII	16-18	IiIllI	iIlIliI	22	16:+9,17:+7,18:+6	H01N 아키몬드	아키몬드 등장. 다른 악마를 부리는 능력 안내.

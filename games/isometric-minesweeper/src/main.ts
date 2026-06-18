@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
 import './styles.css';
-import { createWorld, type World } from './ecs/world';
+import { createWorld, sameTile, type TilePoint, type World } from './ecs/world';
 import {
     createBoardLayout,
     DIFFICULTIES,
     type BoardLayout,
     type DifficultyConfig,
 } from './game/config';
-import { createBoardSystem } from './systems/board';
+import { createBoardSystem, updateBoardRenderSystem } from './systems/board';
 import { getMinesLeft, revealTileSystem, toggleFlagSystem } from './systems/minesweeper';
 import { clearHoveredTileSystem, updateHoveredTileSystem } from './systems/pointer';
 import {
@@ -17,6 +17,11 @@ import {
     type TileContentRenderState,
 } from './systems/render';
 
+const LONG_PRESS_FLAG_MS = 450;
+const COMPACT_UI_WIDTH = 720;
+const LANDSCAPE_SHORT_HEIGHT = 480;
+const PORTRAIT_NOTICE_WIDTH = 640;
+
 class BootScene extends Phaser.Scene {
     private boardLayout!: BoardLayout;
     private boardGraphics!: Phaser.GameObjects.Graphics;
@@ -25,8 +30,17 @@ class BootScene extends Phaser.Scene {
     private difficultyButtons: Phaser.GameObjects.Text[] = [];
     private elapsedSeconds = 0;
     private hoverGraphics!: Phaser.GameObjects.Graphics;
+    private inputHintText!: Phaser.GameObjects.Text;
+    private longPressFlagTriggered = false;
+    private longPressTimer: Phaser.Time.TimerEvent | null = null;
+    private longPressTile: TilePoint | null = null;
+    private newGameButton!: Phaser.GameObjects.Text;
+    private orientationNoticeText!: Phaser.GameObjects.Text;
+    private pointerDownTile: TilePoint | null = null;
     private statusText!: Phaser.GameObjects.Text;
+    private titleText!: Phaser.GameObjects.Text;
     private timerStartedAt: number | null = null;
+    private uiBottomY = 105;
     private world: World = createWorld();
 
     constructor() {
@@ -35,7 +49,7 @@ class BootScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor('#182026');
-        this.boardLayout = createBoardLayout(this.scale.width, this.difficulty);
+        this.boardLayout = this.createCurrentBoardLayout();
         this.boardGraphics = this.add.graphics();
         this.contentState = {
             graphics: this.add.graphics().setDepth(6),
@@ -75,6 +89,7 @@ class BootScene extends Phaser.Scene {
             if (clearHoveredTileSystem(this.world)) {
                 renderHoverSystem(this.world, this.hoverGraphics, this.boardLayout);
             }
+            this.cancelLongPress();
         });
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -90,21 +105,42 @@ class BootScene extends Phaser.Scene {
             const hoveredTile = this.world.resources.hoveredTile;
             if (!hoveredTile) return;
 
-            const previousStatus = this.world.resources.gameStatus;
-            const result =
-                pointer.rightButtonDown() || pointer.button === 2
-                    ? toggleFlagSystem(this.world, hoveredTile)
-                    : revealTileSystem(this.world, hoveredTile, this.boardLayout);
+            if (pointer.rightButtonDown() || pointer.button === 2) {
+                this.applyTileAction(hoveredTile, 'flag');
+                return;
+            }
 
-            if (!result.changed) return;
-
-            this.syncTimerAfterAction(previousStatus);
-            this.renderGame();
+            this.startLongPress(pointer, hoveredTile);
         });
+
+        this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+            if (!this.pointerDownTile) return;
+
+            const pressedTile = this.pointerDownTile;
+            const longPressFlagTriggered = this.longPressFlagTriggered;
+
+            this.cancelLongPress();
+
+            if (longPressFlagTriggered) return;
+
+            updateHoveredTileSystem(
+                this.world,
+                pointer.worldX,
+                pointer.worldY,
+                this.boardLayout,
+            );
+
+            const releasedTile = this.world.resources.hoveredTile;
+            if (!sameTile(pressedTile, releasedTile)) return;
+
+            this.applyTileAction(pressedTile, 'reveal');
+        });
+
+        this.scale.on('resize', this.handleResize, this);
     }
 
     private renderUi() {
-        this.add
+        this.titleText = this.add
             .text(24, 20, 'Isometric Minesweeper', {
                 color: '#f3efe2',
                 fontFamily: 'system-ui, sans-serif',
@@ -113,8 +149,8 @@ class BootScene extends Phaser.Scene {
             })
             .setDepth(10);
 
-        this.add
-            .text(24, 52, 'Left click reveal | Right click flag', {
+        this.inputHintText = this.add
+            .text(24, 52, 'Click/tap reveal | Right click/hold flag', {
                 color: '#aeb8b4',
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '14px',
@@ -128,6 +164,28 @@ class BootScene extends Phaser.Scene {
                 fontSize: '14px',
             })
             .setDepth(10);
+
+        this.orientationNoticeText = this.add
+            .text(0, 0, 'Rotate your phone to landscape to play', {
+                align: 'center',
+                backgroundColor: '#26343c',
+                color: '#f3efe2',
+                fixedWidth: 280,
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '14px',
+                fontStyle: '700',
+                padding: {
+                    bottom: 12,
+                    left: 14,
+                    right: 14,
+                    top: 12,
+                },
+                wordWrap: {
+                    width: 252,
+                },
+            })
+            .setDepth(30)
+            .setOrigin(0.5);
 
         this.difficultyButtons = DIFFICULTIES.map((difficulty, index) =>
             this.add
@@ -153,7 +211,7 @@ class BootScene extends Phaser.Scene {
                 }),
         );
 
-        this.add
+        this.newGameButton = this.add
             .text(774, 24, 'New game', {
                 backgroundColor: '#26343c',
                 color: '#f3efe2',
@@ -174,6 +232,7 @@ class BootScene extends Phaser.Scene {
                 this.resetGame();
             });
 
+        this.updateUiLayout();
         this.updateDifficultyButtons();
     }
 
@@ -223,6 +282,8 @@ class BootScene extends Phaser.Scene {
         this.resetTimer();
         this.world = createWorld();
         createBoardSystem(this.world, this.boardLayout);
+        clearHoveredTileSystem(this.world);
+        this.cancelLongPress();
         this.renderGame();
     }
 
@@ -230,9 +291,181 @@ class BootScene extends Phaser.Scene {
         if (this.difficulty.id === difficulty.id) return;
 
         this.difficulty = difficulty;
-        this.boardLayout = createBoardLayout(this.scale.width, difficulty);
+        this.boardLayout = this.createCurrentBoardLayout();
         this.updateDifficultyButtons();
         this.resetGame();
+    }
+
+    private applyTileAction(tile: TilePoint, action: 'flag' | 'reveal') {
+        const previousStatus = this.world.resources.gameStatus;
+        const result =
+            action === 'flag'
+                ? toggleFlagSystem(this.world, tile)
+                : revealTileSystem(this.world, tile, this.boardLayout);
+
+        if (!result.changed) return;
+
+        this.syncTimerAfterAction(previousStatus);
+        this.renderGame();
+    }
+
+    private startLongPress(pointer: Phaser.Input.Pointer, tile: TilePoint) {
+        this.cancelLongPress();
+        this.pointerDownTile = tile;
+        this.longPressTile = tile;
+        this.longPressFlagTriggered = false;
+
+        this.longPressTimer = this.time.delayedCall(LONG_PRESS_FLAG_MS, () => {
+            if (!this.longPressTile || pointer.rightButtonDown() || pointer.button === 2) return;
+
+            this.longPressFlagTriggered = true;
+            this.applyTileAction(this.longPressTile, 'flag');
+        });
+    }
+
+    private cancelLongPress() {
+        this.longPressTimer?.remove(false);
+        this.longPressTimer = null;
+        this.longPressTile = null;
+        this.pointerDownTile = null;
+    }
+
+    private handleResize() {
+        this.boardLayout = this.createCurrentBoardLayout();
+        updateBoardRenderSystem(this.world, this.boardLayout);
+        this.updateUiLayout();
+        this.renderGame();
+    }
+
+    private createCurrentBoardLayout() {
+        const compact = this.isCompactViewport();
+        const tileWidthLimit = this.getHeightBoundTileWidth();
+        const layout = createBoardLayout(
+            Math.max(280, this.scale.width - (compact ? 64 : 0)),
+            this.difficulty,
+            this.getBoardOriginY(),
+            tileWidthLimit,
+        );
+
+        return {
+            ...layout,
+            originX: this.scale.width / 2,
+        };
+    }
+
+    private getBoardOriginY() {
+        if (this.isPortraitNoticeVisible()) return 230;
+        if (this.isLandscapeShortViewport()) return 112;
+        if (this.isCompactViewport()) return 220;
+
+        return 130;
+    }
+
+    private getHeightBoundTileWidth() {
+        const bottomPadding = this.isLandscapeShortViewport() ? 18 : 36;
+        const availableHeight = Math.max(
+            120,
+            this.scale.height - this.getBoardOriginY() - bottomPadding,
+        );
+        const maxTileHeight = Math.floor(
+            (availableHeight * 2) /
+                (this.difficulty.boardWidth + this.difficulty.boardHeight - 1),
+        );
+
+        return Math.max(24, maxTileHeight * 2);
+    }
+
+    private updateUiLayout() {
+        const compact = this.isCompactViewport();
+        const landscapeShort = this.isLandscapeShortViewport();
+        const rightPadding = 24;
+        const buttonGap = compact ? 8 : 10;
+        const difficultyButtonWidth = compact ? 82 : 86;
+        const newGameButtonWidth = compact ? 96 : 104;
+        const difficultyY = landscapeShort ? 16 : compact ? 108 : 24;
+        const newGameY = landscapeShort ? 52 : compact ? 148 : 24;
+        const difficultyStartX = compact
+            ? 24
+            : Math.max(360, this.scale.width - 414);
+
+        this.uiBottomY = landscapeShort ? 92 : compact ? 198 : 105;
+
+        this.titleText.setVisible(!landscapeShort);
+        this.inputHintText.setVisible(!landscapeShort);
+
+        this.titleText.setPosition(24, landscapeShort ? 14 : 18);
+        this.titleText.setStyle({
+            fontSize: landscapeShort ? '18px' : '24px',
+        });
+        this.inputHintText.setPosition(24, landscapeShort ? 39 : compact ? 48 : 52);
+        this.inputHintText.setStyle({
+            fontSize: landscapeShort ? '12px' : '14px',
+        });
+        this.statusText.setPosition(
+            landscapeShort ? 136 : 24,
+            landscapeShort ? 62 : compact ? 76 : 78,
+        );
+        this.statusText.setWordWrapWidth(
+            compact ? Math.max(260, this.scale.width - 48) : this.scale.width - 48,
+            true,
+        );
+        this.statusText.setStyle({
+            fontSize: landscapeShort ? '12px' : '14px',
+        });
+
+        this.difficultyButtons.forEach((button, index) => {
+            button.setPosition(
+                difficultyStartX + index * (difficultyButtonWidth + buttonGap),
+                difficultyY,
+            );
+            button.setStyle({
+                fixedWidth: difficultyButtonWidth,
+                fontSize: compact ? '11px' : '12px',
+            });
+        });
+
+        this.newGameButton.setPosition(
+            compact
+                ? 24
+                : Math.max(
+                      24,
+                      this.scale.width - rightPadding - newGameButtonWidth,
+                  ),
+            newGameY,
+        );
+        this.newGameButton.setStyle({
+            fixedWidth: newGameButtonWidth,
+            fontSize: compact ? '12px' : '14px',
+        });
+
+        this.orientationNoticeText.setPosition(
+            this.scale.width / 2,
+            this.isPortraitNoticeVisible()
+                ? Math.min(this.scale.height - 120, 226)
+                : Math.min(this.scale.height - 80, 170),
+        );
+        this.orientationNoticeText.setVisible(this.isPortraitNoticeVisible());
+    }
+
+    private isCompactViewport() {
+        return (
+            this.scale.width < COMPACT_UI_WIDTH ||
+            this.scale.height < LANDSCAPE_SHORT_HEIGHT
+        );
+    }
+
+    private isLandscapeShortViewport() {
+        return (
+            this.scale.width > this.scale.height &&
+            this.scale.height < LANDSCAPE_SHORT_HEIGHT
+        );
+    }
+
+    private isPortraitNoticeVisible() {
+        return (
+            this.scale.width < PORTRAIT_NOTICE_WIDTH &&
+            this.scale.height > this.scale.width
+        );
     }
 
     private syncTimerAfterAction(previousStatus: string) {
@@ -293,7 +526,7 @@ class BootScene extends Phaser.Scene {
     }
 
     private isUiPointer(pointer: Phaser.Input.Pointer) {
-        return pointer.worldY < 105;
+        return this.isPortraitNoticeVisible() || pointer.worldY < this.uiBottomY;
     }
 }
 
@@ -304,7 +537,7 @@ new Phaser.Game({
     scale: {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         height: 560,
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         width: 900,
     },
     type: Phaser.AUTO,

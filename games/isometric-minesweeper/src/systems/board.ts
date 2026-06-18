@@ -20,3 +20,15 @@ export function createBoardSystem(world: World, layout: BoardLayout) {
         }
     }
 }
+
+export function updateBoardRenderSystem(world: World, layout: BoardLayout) {
+    for (const [entityId, position] of world.positions) {
+        const point = isoToScreen(position.x, position.y, layout);
+
+        world.renders.set(entityId, {
+            order: (position.x + position.y) * layout.boardWidth + position.x,
+            screenX: point.x,
+            screenY: point.y,
+        });
+    }
+}

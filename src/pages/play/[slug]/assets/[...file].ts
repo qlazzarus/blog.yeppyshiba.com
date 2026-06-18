@@ -2,7 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 type GameAssetPath = {
-    file: string;
+    file: string | string[];
     slug: string;
 };
 
@@ -133,8 +133,12 @@ async function readGameAsset(slug: string, file: string) {
     return null;
 }
 
-function normalizeRouteFile(file: string | undefined) {
+function normalizeRouteFile(file: string | string[] | undefined) {
     if (!file) return null;
+
+    if (Array.isArray(file)) {
+        return file.join('/').replace(/\/+$/, '');
+    }
 
     // 혹시 trailing slash로 들어온 경우 방어
     return file.replace(/\/+$/, '');

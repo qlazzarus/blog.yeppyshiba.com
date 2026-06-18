@@ -1,0 +1,15 @@
+category	rawcode	name	owner_or_source	x	y	jass_lines	abilities_or_effects	interpretation	confidence
+central_market	n006	대형 마켓	Player(PLAYER_NEUTRAL_PASSIVE)	1984.0	-2688.0	1220	A02F,Aneu,Avul,Apit	중앙 허브의 공용 대형 마켓. 부활/중앙 서비스 후보.	high
+central_market	h01R	행상인 (미구현)	Player(PLAYER_NEUTRAL_PASSIVE)	1790.1	-2781.4	1239	Aneu,Avul,Apit	중앙 상인 기억과 맞는 유닛. 이름상 판매 기능은 제한적이었을 수 있음.	medium
+central_event_npc	n01J	동물나라 사신	Player(PLAYER_NEUTRAL_PASSIVE)	2036.6	-3205.6	1015	Awan; model KoopaTroopa.mdl; icon Koopa.blp	거북이처럼 보이는 중앙 이벤트 NPC 후보. 구조/보상 트리거는 추가 확인 필요.	medium
+buildable_market	h00E	시장	unit data	-	-	-	A00C,A00I,A00V,A00W,A02H,A03I,A03K,Apit	플레이어 건설형 시장. 소/중 교환, 닭/중년닭/자이언트닭 구매 후보.	high
+buildable_market	h01X	대형 시장	unit data	-	-	-	A03P,A03Q,A03R,A03S,A02H,A03I,A03K,Apit	고급 시장. 대량/최대 교환과 고급 닭 구매 후보.	high
+market_exchange	A00C	금화 소량 교환	JASS spell handler	-	-	3066,3183-3186	100 gold -> 70 lumber	시장 교환 서비스.	high
+market_exchange	A00I	목재 소량 교환	JASS spell handler	-	-	3069,3191-3194	100 lumber -> 70 gold	시장 교환 서비스.	high
+market_exchange	A00V	금화 중량 교환	JASS spell handler	-	-	3072,3199-3202	500 gold -> 400 lumber	시장 교환 서비스.	high
+market_exchange	A00W	목재 중량 교환	JASS spell handler	-	-	3075,3207-3210	500 lumber -> 400 gold	시장 교환 서비스.	high
+market_exchange	A03P	금화 대량 교환	JASS spell handler	-	-	3117,3225-3228	1500 gold -> 1200 lumber	대형 시장 교환 서비스.	high
+market_exchange	A03Q	목재 대량 교환	JASS spell handler	-	-	3105,3216-3219	1500 lumber -> 1200 gold	대형 시장 교환 서비스.	high
+market_exchange	A03R	금화 최대량 교환	JASS spell handler	-	-	3141,3243-3246	3000 gold -> 2400 lumber	대형 시장 교환 서비스.	high
+market_exchange	A03S	목재 최대량 교환	JASS spell handler	-	-	3129,3234-3237	3000 lumber -> 2400 gold	대형 시장 교환 서비스.	high
+revive_service	A02F	부활	central n006 ability	-	-	3359,3415-3428	revive farmer; remove other units; -40% gold/lumber; add I00A	중앙 대형 마켓 부활 서비스 후보.	high

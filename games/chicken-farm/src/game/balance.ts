@@ -1,172 +1,55 @@
-export type DifficultyId = 'easy' | 'normal' | 'hard' | 'crazy';
+import type {
+    ChickenFarmBalance,
+    CombatStats,
+    DifficultyConfig,
+    DifficultyId,
+    EnemyId,
+} from './balanceTypes';
+import { BUILDING_TEMPLATES } from './buildingTemplates';
 
-export type EnemyId =
-    | 'timber_wolf'
-    | 'frost_wolf'
-    | 'giant_wolf'
-    | 'blood_wolf'
-    | 'wild_wolf'
-    | 'hell_hound'
-    | 'doom_guard'
-    | 'archimonde'
-    | 'nether_dragon';
+export type {
+    BuildingTemplateConfig,
+    ChickenFarmBalance,
+    CombatStats,
+    CoreBuildingId,
+    DefenseBuildingConfig,
+    DefenseBuildingId,
+    DefenderConfig,
+    DefenderId,
+    DifficultyConfig,
+    DifficultyId,
+    EconomyBalance,
+    EconomyBuildingId,
+    EnemyConfig,
+    EnemyId,
+    IncomeBuildingConfig,
+    IncomeBuildingId,
+    MarketBuildingId,
+    MvpBuildingId,
+    PathingBalance,
+    ProductionBuildingId,
+    ResearchBuildingId,
+    ScoreBalance,
+    SessionBalance,
+    ShopItemConfig,
+    ShopItemId,
+    SourceTrace,
+    WaveBalance,
+    WaveEvent,
+    WolfFocusRule,
+    WolfOrderRefreshRule,
+    WolfTargetClass,
+    WorldRect,
+} from './balanceTypes';
 
-export type DefenderId = 'farmer' | 'dog' | 'big_dog';
-export type IncomeBuildingId = 'coop_basic' | 'coop_mid' | 'coop_high';
-export type DefenseBuildingId = 'fence_wood' | 'tower_basic' | 'well_basic';
-export type BuildingId = IncomeBuildingId | DefenseBuildingId;
-export type ShopItemId = IncomeBuildingId | 'dog' | 'big_dog';
-
-export type SourceTrace = {
-    readonly notes?: readonly string[];
-    readonly rawcode?: string;
-};
-
-export type DifficultyConfig = {
-    readonly enemyDamageMultiplier: number;
-    readonly enemyHpMultiplier: number;
-    readonly id: DifficultyId;
-    readonly label: string;
-    readonly startingCoinsBonus: number;
-};
-
-export type SessionBalance = {
-    readonly finalPressureSec: number;
-    readonly firstWaveSec: number;
-    readonly incomeIntervalSec: number;
-    readonly targetSessionSec: number;
-    readonly waveCheckIntervalSec: number;
-};
-
-export type CombatStats = {
-    readonly armor: number;
-    readonly attackCooldownSec: number;
-    readonly attackRangePx: number;
-    readonly acquireRangePx: number;
-    readonly damage: number;
-    readonly hp: number;
-    readonly rangeLeashPx: number;
-    readonly speedPxPerSec: number;
-};
-
-export type DefenderConfig = CombatStats & {
-    readonly id: DefenderId;
-    readonly role: 'builder_hero' | 'fast_defender' | 'elite_defender';
-    readonly source: SourceTrace;
-};
-
-export type EnemyConfig = CombatStats & {
-    readonly id: EnemyId;
-    readonly score: number;
-    readonly source: SourceTrace;
-    readonly tags: readonly (
-        | 'ordinary'
-        | 'boss'
-        | 'elite'
-        | 'final'
-        | 'requires_play_observation'
-    )[];
-};
-
-export type IncomeBuildingConfig = {
-    readonly eggUnitsPerTick: number;
-    readonly hp: number;
-    readonly id: IncomeBuildingId;
-    readonly incomeIntervalSec: number;
-    readonly sellValueCoins: number;
-    readonly source: SourceTrace;
-    readonly upgradeCostCoins?: number;
-    readonly upgradeTo?: IncomeBuildingId;
-};
-
-export type DefenseBuildingConfig = {
-    readonly armor: number;
-    readonly buildTimeSec: number;
-    readonly costCoins: number;
-    readonly hp: number;
-    readonly id: DefenseBuildingId;
-    readonly blocksPath: boolean;
-    readonly targetableByWolves: boolean;
-    readonly source: SourceTrace;
-    readonly attack?: {
-        readonly cooldownSec: number;
-        readonly damage: number;
-        readonly rangePx: number;
-    };
-    readonly aura?: {
-        readonly amountPerSec: number;
-        readonly kind: 'heal';
-        readonly rangePx: number;
-    };
-};
-
-export type ShopItemConfig = {
-    readonly costCoins: number;
-    readonly id: ShopItemId;
-    readonly kind: 'income_building' | 'defender';
-    readonly produces: IncomeBuildingId | DefenderId;
-};
-
-export type EconomyBalance = {
-    readonly easyBonusCoins: number;
-    readonly eggUnitValueCoins: number;
-    readonly exchangeEnabled: boolean;
-    readonly reviveResourceLossPct: number;
-    readonly startingCoins: number;
-};
-
-export type WaveEvent = {
-    readonly atSec: number | null;
-    readonly condition?: string;
-    readonly count: number;
-    readonly enemyId: EnemyId;
-    readonly group: 'ordinary' | 'boss' | 'final';
-};
-
-export type WaveBalance = {
-    readonly replenishBatchSize: number;
-    readonly replenishMinAliveBase: number;
-    readonly replenishMinAliveMax: number;
-    readonly timeline: readonly WaveEvent[];
-};
-
-export type ScoreBalance = {
-    readonly survivalEvery10Sec: number;
-};
-
-export type DiseaseBalance = {
-    readonly cureInteractSec: number;
-    readonly durationSec: number;
-    readonly enabledByDefault: boolean;
-    readonly eventIntervalSec: number;
-    readonly sellValueMultiplierWhileInfected: number;
-    readonly startAfterSec: number;
-};
-
-export type PathingBalance = {
-    readonly baseBlockedRatioTarget: number;
-    readonly cellSize: number;
-    readonly centralHubBuildable: boolean;
-    readonly farmAreaBuildable: boolean;
-    readonly wolfBlockedByPlayerFence: boolean;
-};
-
-export type ChickenFarmBalance = {
-    readonly defenders: Record<DefenderId, DefenderConfig>;
-    readonly difficulties: Record<DifficultyId, DifficultyConfig>;
-    readonly disease: DiseaseBalance;
-    readonly economy: EconomyBalance;
-    readonly enemies: Record<EnemyId, EnemyConfig>;
-    readonly incomeBuildings: Record<IncomeBuildingId, IncomeBuildingConfig>;
-    readonly defenseBuildings: Record<DefenseBuildingId, DefenseBuildingConfig>;
-    readonly pathing: PathingBalance;
-    readonly score: ScoreBalance;
-    readonly session: SessionBalance;
-    readonly shopItems: Record<ShopItemId, ShopItemConfig>;
-    readonly waves: WaveBalance;
-};
+const WOLF_MELEE_ATTACK_RANGE_PX = 34;
+const WOLF_AUTO_ACQUIRE_RANGE_PX = 176;
+const WOLF_RANGE_LEASH_PX = 16;
+const WOLF_WINDUP_SEC = 0.18;
+const BOSS_AUTO_ACQUIRE_RANGE_PX = 208;
 
 export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
+    buildingTemplates: BUILDING_TEMPLATES,
     defenders: {
         big_dog: {
             armor: 4,
@@ -235,14 +118,6 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             startingCoinsBonus: 0,
         },
     },
-    disease: {
-        cureInteractSec: 5,
-        durationSec: 20,
-        enabledByDefault: false,
-        eventIntervalSec: 90,
-        sellValueMultiplierWhileInfected: 0.5,
-        startAfterSec: 180,
-    },
     economy: {
         easyBonusCoins: 20,
         eggUnitValueCoins: 12,
@@ -254,9 +129,12 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         archimonde: {
             armor: 4,
             attackCooldownSec: 1,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 46,
             hp: 700,
             id: 'archimonde',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 160,
             source: {
                 notes: ['Direct late boss spawn in static JASS analysis.'],
@@ -264,78 +142,102 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             },
             speedPxPerSec: 102,
             tags: ['boss', 'final'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         blood_wolf: {
             armor: 1,
             attackCooldownSec: 1,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 14,
             hp: 130,
             id: 'blood_wolf',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 40,
             source: {
                 rawcode: 'H012',
             },
             speedPxPerSec: 110,
             tags: ['boss'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         doom_guard: {
             armor: 4,
             attackCooldownSec: 1,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 40,
             hp: 600,
             id: 'doom_guard',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 140,
             source: {
                 rawcode: 'H01B',
             },
             speedPxPerSec: 105,
             tags: ['boss'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         frost_wolf: {
             armor: 1,
             attackCooldownSec: 1.1,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
             damage: 12,
             hp: 140,
             id: 'frost_wolf',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 15,
             source: {
                 rawcode: 'n008',
             },
             speedPxPerSec: 112,
             tags: ['ordinary'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         giant_wolf: {
             armor: 1,
             attackCooldownSec: 1.15,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
             damage: 16,
             hp: 175,
             id: 'giant_wolf',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 20,
             source: {
                 rawcode: 'n009',
             },
             speedPxPerSec: 108,
             tags: ['ordinary'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         hell_hound: {
             armor: 3,
             attackCooldownSec: 0.9,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 32,
             hp: 360,
             id: 'hell_hound',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 100,
             source: {
                 rawcode: 'H013',
             },
             speedPxPerSec: 112,
             tags: ['boss'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         nether_dragon: {
             armor: 5,
             attackCooldownSec: 1.05,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 48,
             hp: 900,
             id: 'nether_dragon',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 200,
             source: {
                 notes: [
@@ -345,32 +247,41 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             },
             speedPxPerSec: 100,
             tags: ['boss', 'final', 'requires_play_observation'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         timber_wolf: {
             armor: 0,
             attackCooldownSec: 1.1,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
             damage: 8,
             hp: 100,
             id: 'timber_wolf',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 10,
             source: {
                 rawcode: 'n007',
             },
             speedPxPerSec: 115,
             tags: ['ordinary'],
+            windupSec: WOLF_WINDUP_SEC,
         },
         wild_wolf: {
             armor: 2,
             attackCooldownSec: 0.95,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: BOSS_AUTO_ACQUIRE_RANGE_PX,
             damage: 22,
             hp: 220,
             id: 'wild_wolf',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 70,
             source: {
                 rawcode: 'H00X',
             },
             speedPxPerSec: 112,
             tags: ['boss', 'elite'],
+            windupSec: WOLF_WINDUP_SEC,
         },
     },
     incomeBuildings: {
@@ -409,11 +320,404 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             upgradeTo: 'coop_high',
         },
     },
+    defenseBuildings: {
+        barrier_magic: {
+            armor: 8,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 46,
+            hp: 650,
+            id: 'barrier_magic',
+            requires: 'workshop',
+            source: {
+                notes: ['Original chain h00K -> h00Y -> h014.'],
+                rawcode: 'h00Y',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 64,
+            upgradeTo: 'plasma_wall',
+        },
+        fence_bronze: {
+            armor: 2,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 22,
+            hp: 300,
+            id: 'fence_bronze',
+            source: {
+                rawcode: 'h00L',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 26,
+            upgradeTo: 'wall_stone',
+        },
+        fence_wood: {
+            armor: 1,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 8,
+            hp: 200,
+            id: 'fence_wood',
+            source: {
+                rawcode: 'h003',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 18,
+            upgradeTo: 'fence_bronze',
+        },
+        gate_wood: {
+            armor: 7,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 18,
+            hp: 300,
+            id: 'gate_wood',
+            requires: 'family_temple',
+            source: {
+                notes: ['High-confidence h006 closed gate candidate.'],
+                rawcode: 'h006',
+            },
+            targetableByWolves: true,
+        },
+        plasma_wall: {
+            armor: 20,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 110,
+            hp: 1600,
+            id: 'plasma_wall',
+            requires: 'family_temple',
+            source: {
+                notes: [
+                    'High-confidence final wall h01G; medium h014/h01D intermediates skipped for MVP.',
+                ],
+                rawcode: 'h01G',
+            },
+            targetableByWolves: true,
+        },
+        tower_arcane_grand: {
+            armor: 13,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 76,
+                rangePx: 360,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 230,
+            hp: 1000,
+            id: 'tower_arcane_grand',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h01K',
+            },
+            targetableByWolves: true,
+        },
+        tower_arcane_large: {
+            armor: 9,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 54,
+                rangePx: 330,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 160,
+            hp: 800,
+            id: 'tower_arcane_large',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h017',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 120,
+            upgradeTo: 'tower_arcane_grand',
+        },
+        tower_arcane_medium: {
+            armor: 8,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 38,
+                rangePx: 300,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 100,
+            hp: 650,
+            id: 'tower_arcane_medium',
+            requires: 'workshop',
+            source: {
+                rawcode: 'h008',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 80,
+            upgradeTo: 'tower_arcane_large',
+        },
+        tower_arcane_small: {
+            armor: 7,
+            attack: {
+                cooldownSec: 0.7,
+                damage: 26,
+                rangePx: 270,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 76,
+            hp: 400,
+            id: 'tower_arcane_small',
+            requires: 'coop_basic',
+            source: {
+                notes: ['Branch from h00D scout tower.'],
+                rawcode: 'h016',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 58,
+            upgradeTo: 'tower_arcane_medium',
+        },
+        tower_guard_black: {
+            armor: 12,
+            attack: {
+                cooldownSec: 0.9,
+                damage: 64,
+                rangePx: 345,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 220,
+            hp: 900,
+            id: 'tower_guard_black',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h01J',
+            },
+            targetableByWolves: true,
+        },
+        tower_guard_large: {
+            armor: 8,
+            attack: {
+                cooldownSec: 0.8,
+                damage: 40,
+                rangePx: 285,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 76,
+            hp: 550,
+            id: 'tower_guard_large',
+            requires: 'workshop',
+            source: {
+                rawcode: 'h00Z',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 90,
+            upgradeTo: 'tower_guard_grand',
+        },
+        tower_guard_grand: {
+            armor: 9,
+            attack: {
+                cooldownSec: 0.9,
+                damage: 46,
+                rangePx: 315,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 132,
+            hp: 750,
+            id: 'tower_guard_grand',
+            requires: 'family_temple',
+            source: {
+                rawcode: 'h00R',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 118,
+            upgradeTo: 'tower_guard_black',
+        },
+        tower_guard_medium: {
+            armor: 7,
+            attack: {
+                cooldownSec: 0.85,
+                damage: 34,
+                rangePx: 255,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 56,
+            hp: 400,
+            id: 'tower_guard_medium',
+            requires: 'coop_basic',
+            source: {
+                rawcode: 'h00Q',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 44,
+            upgradeTo: 'tower_guard_large',
+        },
+        tower_guard_small: {
+            armor: 6,
+            attack: {
+                cooldownSec: 0.9,
+                damage: 22,
+                rangePx: 225,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 44,
+            hp: 300,
+            id: 'tower_guard_small',
+            requires: 'coop_basic',
+            source: {
+                notes: ['Branch from h00D scout tower.'],
+                rawcode: 'h007',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 34,
+            upgradeTo: 'tower_guard_medium',
+        },
+        tower_scout: {
+            armor: 5,
+            attack: {
+                cooldownSec: 1.05,
+                damage: 14,
+                rangePx: 195,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 32,
+            hp: 275,
+            id: 'tower_scout',
+            source: {
+                rawcode: 'h00D',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 34,
+            upgradeTo: 'tower_guard_small',
+        },
+        wall_stone: {
+            armor: 5,
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 34,
+            hp: 450,
+            id: 'wall_stone',
+            requires: 'coop_basic',
+            source: {
+                rawcode: 'h00K',
+            },
+            targetableByWolves: true,
+            upgradeCostCoins: 40,
+            upgradeTo: 'barrier_magic',
+        },
+        well_basic: {
+            armor: 0,
+            aura: {
+                amountPerSec: 2,
+                kind: 'heal',
+                rangePx: 96,
+            },
+            blocksPath: true,
+            buildTimeSec: 0,
+            costCoins: 30,
+            hp: 100,
+            id: 'well_basic',
+            source: {
+                rawcode: 'h00M',
+            },
+            targetableByWolves: true,
+        },
+    },
     pathing: {
         baseBlockedRatioTarget: 0.04,
+        blockerAttackAcquire: {
+            blockedToBlockerDelaySec: 0.8,
+            maxRepathAttemptsBeforeBlocker: 2,
+            searchRadiusPx: 96,
+        },
         cellSize: 32,
         centralHubBuildable: false,
+        dynamicBlockersEnabled: true,
         farmAreaBuildable: true,
+        pathSmoothingEnabled: true,
+        repath: {
+            blockedGraceSec: 0.25,
+            intervalSec: 0.5,
+            targetMoveThresholdPx: 64,
+        },
+        unitClearanceCells: {
+            builder: 1,
+            defender: 1,
+            wolf: 2,
+        },
+        wolfAi: {
+            acquireIntervalSec: 0.35,
+            attackMoveEnabled: true,
+            jassOrderModel: {
+                blockerTargeting: 'path_failure_only',
+                globalAttackRect: {
+                    maxX: 7008,
+                    maxY: 2848,
+                    minX: -3168,
+                    minY: -7424,
+                },
+                optionalFocusRules: [
+                    {
+                        enabledByDefault: false,
+                        jassFlowType: 'boss_or_special_focus_position',
+                        jassFunction: 'llIIIi -> lillli',
+                        radiusPx: 6000,
+                        sourceLines: '3505-3507',
+                        translation:
+                            'Optional boss/special aggro pulse that pulls nearby wolves toward an attacked special unit position.',
+                    },
+                    {
+                        enabledByDefault: false,
+                        jassFlowType: 'low_hp_defender_taunt',
+                        jassFunction: 'lIlIIiI -> lIlIIII',
+                        radiusPx: 800,
+                        sourceLines: '9419-9430',
+                        translation:
+                            'Optional big-dog/defender taunt when the defender is attacked at very low HP.',
+                    },
+                    {
+                        enabledByDefault: false,
+                        jassFlowType: 'manual_tank_focus',
+                        jassFunction: 'llIliI -> llIlII',
+                        radiusPx: 1200,
+                        sourceLines: '1341-1343',
+                        translation:
+                            'Optional marked tank focus flow. Keep disabled until player command/taunt systems exist.',
+                    },
+                ],
+                periodicAttackRefresh: {
+                    enabled: true,
+                    intervalSec: 60,
+                    jassFlowType: 'periodic_global_attack_refresh',
+                    jassFunction: 'IliiIlI -> IliiIiI',
+                    order: 'attack_move_random_point_in_global_rect',
+                    sourceLines: '5726-5728',
+                    unitScope: 'all_wolves',
+                },
+                spawnEntryAttackRefresh: {
+                    enabled: true,
+                    jassFlowType: 'spawn_rect_enter_attack',
+                    jassFunction: 'IliiIII',
+                    order: 'attack_move_random_point_in_global_rect',
+                    sourceLines: '5720-5722',
+                    unitScope: 'trigger_wolf',
+                },
+            },
+            primaryTargetClasses: [
+                'income_building',
+                'livestock',
+                'core_building',
+                'builder_hero',
+            ],
+            proximityTargetClasses: [
+                'defender',
+                'income_building',
+                'builder_hero',
+                'defense_building',
+            ],
+        },
         wolfBlockedByPlayerFence: true,
     },
     score: {
@@ -560,5 +864,6 @@ export function getScaledEnemyStats(
         hp: Math.round(enemy.hp * config.enemyHpMultiplier),
         rangeLeashPx: enemy.rangeLeashPx,
         speedPxPerSec: enemy.speedPxPerSec,
+        windupSec: enemy.windupSec,
     };
 }

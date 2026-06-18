@@ -1,0 +1,40 @@
+category	rawcode	name	requires	upgrade_to	builds	trains	abilities	goldcost	lumbercost	food_made	food_used	hp	armor	model	inferred_mvp_role	notes
+core	h001	농가		h00H		h01W,n002,n003,n004,H002	A00F,A008,A02D,A03Y	250		30		350	5	Doodads\LordaeronSummer\Structures\Inn\Inn.mdl	farm_house	가족/보조 유닛 생산 허브. 마을회관 전 단계 또는 보조 거점.
+core	h00H	마을회관	H002	h015		h01W,n002,n003,n004,H002	A00F,A008,A00O,A02D	400	200	50		600	7	buildings\human\TownHall\TownHall.mdl	town_hall	아내/가족 테크와 상위 신전으로 연결되는 핵심 허브.
+core	h015	신전	h01X,h00C			n00E,n003,n004,H002,h01W	A00F,A008,A00O,A02D	1200	1200	65		800	9	buildings\human\AltarofKings\AltarofKings.mdl	temple_tech_hub	상위 가족/방어 유닛 및 아케인 생텀 요구조건.
+economy	h00A	럼버 밀	h001	h00J			Abds,Arlm	350			3	150		buildings\human\HumanLumbermill\HumanLumbermill	lumber_income_tier_1	30초 목재 수익 70. 타워/경제 테크 요구조건.
+economy	h00J	럼버 밀[2단계]	h015	h00W			Abds,Arlm	750			3	150		buildings\human\HumanLumbermill\HumanLumbermill	lumber_income_tier_2	30초 목재 수익 110.
+economy	h00W	럼버 밀[3단계]	h01H				Abds,Arlm	1450			3	150		buildings\human\HumanLumbermill\HumanLumbermill	lumber_income_tier_3	30초 목재 수익 170.
+economy	h004	알 보관소	h001	h00N			A00F,A00E,A00L,A009	250				100		buildings\human\Farm\Farm	egg_storage	닭장 라인 선행 건물.
+economy	h00N	닭장	h00H	h00O			A00F,A00K,A00L,A00M,A00A	700	300			200	2	buildings\human\Farm\Farm	chicken_coop_tier_1	닭 운영/알 관련 건물.
+economy	h00O	훼리카나	h00C	h01Z			A02J,A00L,A00M,A00S,A00F,A042,A00P,A02D,A008	800	500			400	4	buildings\human\Farm\Farm	chicken_coop_tier_2	상위 닭장. 자동화/보호 능력 후보.
+economy	h01Z	서양식양계장	h015				A02J,A00L,A00M,A00S,A00F,A043,A03O,A00P,A008	1200	800			600	6	buildings\human\Farm\Farm	chicken_coop_tier_3	최상위 닭장/자동화 후보.
+market	h00E	시장		h01X			A00C,A00I,A00V,A00W,A02H,A03I,A03K,Apit	75				100		buildings\other\Marketplace\Marketplace.mdl	market_tier_1	금/목재 교환과 닭 구매.
+market	h01X	대형 시장	h005				A03P,A03Q,A03R,A03S,A02H,A03I,A03K,Apit	500	150			250	2	buildings\other\Marketplace\Marketplace.mdl	market_tier_2	대량 교환/닭 구매.
+support	h005	풍차	h00H				A00J,A01L,A02G	450	300	8		250	2	Doodads\LordaeronSummer\Structures\WindMill\WindMill.mdl	windmill_support	우물/대형 시장/경제 보조 요구조건.
+support	h00M	우물	h001	h005			A01L,A003	150		5		100	100	Well.mdl	well	회복/유지 계열.
+barracks	h026	용병소	h001			h009,h00V,hrtt	Abds	350	100			600	5	buildings\human\HumanBarracks\HumanBarracks	mercenary_barracks	커스텀 빌드에서 실제 배럭 역할. 가드맨/총병/환크 훈련.
+barracks	hbar	[배럭]				hfoo,hrif,hkni	Abds	160	60			1500	5	buildings\human\HumanBarracks\HumanBarracks	legacy_barracks	표준 휴먼 배럭 행. 커스텀 닭농장 빌드 라인에서는 h026보다 신뢰도 낮음.
+research	h00B	블랙스미스	h001				Abds	300	150			300	5	buildings\human\Blacksmith\Blacksmith	blacksmith_research_hub	플라잉 머신/모탈 팀/발전기 요구조건. 공업/군사 연구 허브 후보.
+research	h00C	워크샵	h00H			n005,h00U,h00P,n00Y	Abds	800	500	10		700	5	buildings\human\Workshop\Workshop	workshop_lab	로보 고블린/모탈/플라잉 머신/팅커 훈련. 상위 타워/결계 요구조건.
+research	h01H	아케인 생텀	h015				Abds	2500	2500	10		1500	10	buildings\human\ArcaneSanctum\ArcaneSanctum	arcane_lab_final	최상위 연구소/상위 테크 허브. 플라즈마 벽, 최종 타워, 럼버 밀 3단계 요구조건.
+research	h01V	발전기	h00B				Abds	700	600			500	5	buildings\other\PowerGenerator\PowerGenerator	power_generator	아들이 건설 가능. 블랙스미스 이후 공업 보조 건물 후보.
+research	harm	workshop					Abds	140	140			1200	5	buildings\human\Workshop\Workshop	legacy_workshop	표준/레거시 워크샵 행. 커스텀 h00C보다 낮은 신뢰도.
+unit	h009	[용병]가드맨	h00H				Aihn	700				1000	2	BanditBerserker.mdl	merc_guardman	용병소/마을회관 관련 군사 유닛 후보.
+unit	h00V	[용병]총병					Aihn	350				200		units\human\Rifleman\Rifleman	merc_rifleman	용병소 훈련 후보.
+unit	hrtt	[용병]환크	h00C				_	1700				2200	2	GoblinSHTRevilgaz.mdl	merc_siege	용병소 훈련 후보. 워크샵 요구조건.
+unit	h00U	모탈 팀	h00B				Afla,Afsh	600	500			350		units\human\MortarTeam\MortarTeam	workshop_mortar	워크샵 훈련 후보, 블랙스미스 요구.
+unit	h00P	플라잉 머신	h00B				A00Q,A008,A00R,A002	1200	1200			150	2	units\human\Gyrocopter\Gyrocopter.mdl	workshop_flying_machine	워크샵 훈련 후보, 블랙스미스 요구.
+unit	n005	로보 고블린					A00Y,A032	600	400			250	10	Units\Creeps\HeroTinkerRobot\HeroTinkerRobot.mdl	workshop_robot	워크샵 훈련 후보.
+unit	n00Y	팅커	h015		h01H,h003,h006,h01I		A02A	2000	1200			400	10	Units\Creeps\HeroTinker\HeroTinker.mdl	tinker_builder	워크샵 훈련 후보. 아케인 생텀/울타리/대문/미구현 에비어리 건설 가능.
+unit	h01L	나이트	h015				Adef,A01D	450	150			600	5	units\human\Knight\Knight	temple_knight	신전/상위 군사 유닛 후보.
+unit	n00H	메디브	h00H				A016,A01A,A030,A01B	200	120			350	1	units\creeps\Medivh\Medivh	caster_support	마을회관 요구 마법 유닛 후보.
+unit	n012	하이드로맨서	h015				A016,A01A,A030,A01B	400	450			460	2	units\creeps\BanditMage\BanditMage	caster_support_advanced	신전 요구 마법 유닛 후보.
+research_upgrade	R008	가드타워 공격력증가	unknown				war3map.w3q custom Resw	unknown	unknown					unknown	upgrade_guard_tower_damage	3레벨 문자열 확인. 적용 건물/연구 위치는 추가 교차 필요.
+research_upgrade	R009	아케인타워 공격력증가	unknown				war3map.w3q custom Resw	unknown	unknown					unknown	upgrade_arcane_tower_damage	3레벨 문자열 확인. 적용 건물/연구 위치는 추가 교차 필요.
+research_upgrade	R00A	개의 발톱	unknown				war3map.w3q custom Rucr	unknown	unknown					unknown	upgrade_dog_damage	3레벨 문자열 확인.
+research_upgrade	R00B	가드맨 효과증폭	unknown				war3map.w3q custom Rehs	unknown	unknown					unknown	upgrade_guardman_effect	가드맨 효과증폭 연구 문자열 확인.
+research_upgrade	R00C	군인 공격속도상승	unknown				war3map.w3q custom Rhfc	unknown	unknown					unknown	upgrade_soldier_attack_speed	군인 공격속도 상승 연구 문자열 확인.
+research_upgrade	R00D	개의 발톱업글	unknown				war3map.w3q custom Rugf	unknown	unknown					unknown	upgrade_dog_speed_claw	개의 공격속도/이동속도 상승 설명 확인.
+research_upgrade	R00E	늑대의돌 체력	unknown				war3map.w3q custom Rehs	unknown	unknown					unknown	upgrade_wolf_stone_hp	늑대의 돌 체력 연구명 확인.
+research_upgrade	Rhpm	자동화 연구	unknown				war3map.w3q original Rhpm	unknown	unknown					unknown	upgrade_automation	자동화 연구 문자열 확인. 닭장 자동화 능력과 연결 후보.
