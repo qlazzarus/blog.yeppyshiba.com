@@ -1,0 +1,47 @@
+category	name	phaser_x	phaser_y	expected_x	expected_y	delta_x	delta_y	confidence	note
+player_start	farm_p1	4672	-6464	4672	-6464	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p2	2496	-5376	2496	-5376	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p3	384	1472	384	1472	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p4	6016	-4224	6016	-4224	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p5	-1536	-512	-1536	-512	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p6	768	-6464	768	-6464	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p7	3648	448	3648	448	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+player_start	farm_p8	4928	-1408	4928	-1408	0	0	exact	Phaser farm zone center equals W3X start slot 0-7 after trim offset.
+neutral_spider	spider_01	6868	-7342	6868	-7342	0	0	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_02	1582	-7254	1581	-7254	1	0	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_03	6768	-3274	6768	-3275	0	1	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_04	1942	2510	1941	2510	1	0	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_05	6892	2530	6891	2529	1	1	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_06	-2920	2648	-2920	2647	0	1	high	JASS coordinate preserved; left trim leaves 2-tile visual margin.
+neutral_spider	spider_07	-2776	-7352	-2776	-7353	0	1	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+neutral_spider	spider_08	-2802	-2370	-2802	-2371	0	1	high	JASS initial n01D coordinate; +/-1 rounding comes from integer tilemap JSON.
+wolf_spawn_rect	wolf_spawn_rect_01	-1600,896,-1408,1088		-1600,896,-1408,1088		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_02	1920,832,2112,1024		1920,832,2112,1024		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_03	3936,-1728,4128,-1536		3936,-1728,4128,-1536		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_04	4736,992,4928,1184		4736,992,4928,1184		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_05	64,-1280,256,-1088		64,-1280,256,-1088		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_06	-1792,-1920,-1600,-1728		-1792,-1920,-1600,-1728		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_07	6528,-2176,6720,-1984		6528,-2176,6720,-1984		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_08	-1824,-4352,-1632,-4160		-1824,-4352,-1632,-4160		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_09	256,-5504,448,-5312		256,-5504,448,-5312		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_10	4224,-4992,4416,-4800		4224,-4992,4416,-4800		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_11	-1568,-6400,-1376,-6208		-1568,-6400,-1376,-6208		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_12	2304,-6112,2496,-5920		2304,-6112,2496,-5920		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_spawn_rect	wolf_spawn_rect_13	5440,-6144,5632,-5952		5440,-6144,5632,-5952		0		exact	Compared as rect min/max from jass_wolf_spawn_points.tsv after trim offset.
+wolf_stone	wolf_stone_01	-1376	-6240	-1376	-6240	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_02	5600	-5984	5600	-5984	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_03	-1632	-1760	-1632	-1760	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_04	6688	-2016	6688	-2016	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_05	2464	-5984	2464	-5984	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_06	4384	-4832	4384	-4832	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_07	416	-5344	416	-5344	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_08	2080	992	2080	992	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_09	-1440	1056	-1440	1056	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_10	-1632	-4192	-1632	-4192	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_11	4128	-1568	4128	-1568	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_12	224	-1120	224	-1120	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+wolf_stone	wolf_stone_13	4896	1184	4896	1184	0	0	exact	JASS CreateUnit n00D direct placement after trim offset.
+ancient_wolf_stone	ancient_wolf_stone	2112	-704	2112	-704	0	0	exact	JASS CreateUnit n017 direct placement after trim offset.
+central_market	central_market_n006	1984	-2688	1984	-2688	0	0	exact	JASS CreateUnit n006 direct placement after trim offset.
+central_merchant	central_merchant_h01R	1790	-2782	1790	-2781	0	-1	high	JASS CreateUnit h01R direct placement rounded to integer tilemap JSON after trim.
+central_event_npc	central_event_npc_n01J	2036	-3206	2037	-3206	-1	0	high	JASS CreateUnit n01J direct placement rounded to integer tilemap JSON after trim.

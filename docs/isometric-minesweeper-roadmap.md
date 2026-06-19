@@ -5,11 +5,12 @@
 
 현재 구현은 ECS scaffold, isometric 보드 렌더링, pointer hover 판정, 첫 클릭 지뢰
 배치, 주변 지뢰 수 계산, 기본 reveal/flag, 빈 칸 연쇄 오픈, 새 게임 버튼, 난이도
-선택, 타이머, 1차 렌더링 polish까지 들어간 상태다.
+선택, 타이머, 1차 렌더링 polish, 모바일 landscape 대응, 난이도별 최고 기록 저장까지
+들어간 상태다.
 
-4편 글 초안과 대표 스크린샷까지 작성/생성했다. 5편 구현 준비로 모바일 tap/long press
-입력과 반응형 layout 대응까지 들어간 상태다. 이후 작업은 기록 저장, 고급 입력을
-차례로 올리는 방향으로 진행한다.
+6편 글과 대표 스크린샷까지 작성/생성했다. localStorage 기반 최고 기록 저장과 기록 UI까지
+들어간 상태로, Isometric Minesweeper 연재는 1차 완료했다. 이후 작업은 필요할 때 고급
+입력과 플레이 polish를 외전으로 올리는 방향으로 남긴다.
 
 ## 현재 상태
 
@@ -28,6 +29,14 @@
   `/images/posts/202606/isometric-minesweeper-mobile-portrait.png`
 - 5편 구현:
   모바일 long press flag, 반응형 board layout, compact/landscape HUD 재배치
+- 6편 구현 준비:
+  난이도별 최고 기록 저장, Best 표시, New best 상태 표시, 기록 초기화
+- 추가 구현:
+  열린 숫자 타일 chord reveal, 데스크톱 좌우 동시 클릭 chord reveal
+- 6편 글:
+  `contents/phaser4-isometric-minesweeper-localstorage-records-finale.md`
+- 6편 대표 이미지:
+  `/images/posts/202606/isometric-minesweeper-records.png`
 - 최근 검증:
   - `npx tsc --project games/isometric-minesweeper/tsconfig.json`
   - `npm --workspace @games/isometric-minesweeper run build`
@@ -43,8 +52,8 @@
 - 완료: 3편: 빈 칸 연쇄 오픈과 새 게임 흐름 만들기
 - 완료: 4편: 난이도, 타이머, 렌더링 polish 넣기
 - 완료: 5편: 반응형/모바일 대응과 블로그 iframe 서비스 품질 정리
-- 후보: 6편: localStorage 기록 저장과 플레이 polish
-- 후보: 7편: chord reveal과 고급 입력
+- 완료: 6편: localStorage 기록 저장과 플레이 polish
+- 외전 후보: chord reveal과 고급 입력
 - 선택 외전: 작은 게임에서 ECS를 쓰며 느낀 장단점
 
 ## 완료한 구현
@@ -117,6 +126,28 @@
 - pointerout/reset 시 long press timer 정리
 - 작은 타일에서도 숫자 라벨이 깨지지 않도록 최소 font size 조정
 
+### 6편 준비 범위
+
+- `records.ts` 추가
+- `localStorage`에 난이도별 최고 기록 저장
+- 저장 key를 versioned namespace로 관리
+- JSON parse 실패, private mode, storage 제한 상황 방어
+- 저장된 record schema를 normalize해서 잘못된 값 무시
+- 타이머 표시와 최고 기록 표시가 같은 formatter를 쓰도록 정리
+- status text에 `Best mm:ss` 표시
+- 승리 시 기존 기록보다 빠르면 `New best` 표시
+- 새 게임 시 new best 상태 초기화
+- `Reset records` 버튼으로 저장 기록 초기화
+- 낮은 height의 모바일 landscape에서는 기록 초기화 버튼 숨김
+
+### 마무리 후 추가 구현
+
+- 열린 숫자 타일을 다시 클릭/tap하면 chord reveal 실행
+- 데스크톱에서 좌우 마우스 버튼이 동시에 눌린 상태면 chord reveal 실행
+- 주변 flag 개수가 숫자와 같을 때 flag 없는 닫힌 주변 타일을 한 번에 reveal
+- 잘못 꽂은 flag로 숫자만 맞춘 상태에서 chord reveal하면 지뢰가 열리며 패배
+- chord reveal 이후 승리/패배 상태와 기록 저장 흐름 유지
+
 ## 완료한 글과 이미지
 
 - 1편 글: `contents/phaser4-isometric-minesweeper-ecs-scaffold.md`
@@ -131,6 +162,10 @@
 - 5편 이미지:
   `/images/posts/202606/isometric-minesweeper-mobile-landscape.png`
   `/images/posts/202606/isometric-minesweeper-mobile-portrait.png`
+- 6편 글:
+  `contents/phaser4-isometric-minesweeper-localstorage-records-finale.md`
+- 6편 이미지:
+  `/images/posts/202606/isometric-minesweeper-records.png`
 
 ## 4편 글감 메모
 
@@ -193,15 +228,46 @@
 - tap 입력은 pointerdown이 아니라 pointerup에서 reveal해야 long press flag와 충돌하지 않는다.
 - 블로그 iframe에서 게임을 서비스하면 game build asset 경로와 Astro dev server 동작까지 같이 봐야 한다.
 
+## 완료한 글감: 6편 범위
+
+주제:
+
+```text
+localStorage 최고 기록 저장과 플레이 polish
+```
+
+목표:
+
+- clear 시간이 다음 판의 동기가 되게 만든다.
+- 난이도별 기록을 분리해서 저장한다.
+- storage가 실패해도 게임은 계속 동작해야 한다.
+
+구현 후보:
+
+- 완료: 난이도별 best record 저장
+- 완료: best record 표시
+- 완료: new best 상태 표시
+- 완료: record reset 버튼
+- 완료: localStorage parse/write 실패 방어
+- 후보: clear 직후 작은 축하 animation
+- 후보: 기록 저장 성공 시 짧은 highlight
+- 후보: 실제 clear 상태 스크린샷 캡처
+
+글에서 다룰 포인트:
+
+- 타이머 구현에서 `elapsedSeconds`를 분리해둔 덕분에 clear 시점 기록 저장이 단순해졌다.
+- 기록은 `World`가 아니라 브라우저 session 바깥에 있는 persistence state다.
+- `localStorage`는 항상 성공한다고 가정하면 iframe/private mode에서 깨질 수 있다.
+- 저장 데이터는 오래 남으므로 읽을 때 schema를 normalize하는 편이 안전하다.
+- 난이도별 record를 한 key에 저장하면 버전 관리와 초기화가 쉽다.
+
 ## 다음 작업 후보
 
-- localStorage 최고 기록 저장
-- 난이도별 최고 기록 저장
-- chord reveal
 - sprite atlas 기반 icon 교체
 - 클릭 애니메이션
 - 실제 모바일 기기에서 tap/long press 수동 검증
-- 모바일 landscape 대표 스크린샷 캡처
+- clear/new best 상태 추가 캡처
+- Isometric Minesweeper 연재 회고 외전
 
 ## 구현 메모
 

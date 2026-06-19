@@ -53,6 +53,71 @@ export function revealTileSystem(
     return { changed: true, statusChanged: false };
 }
 
+export function chordRevealSystem(
+    world: World,
+    tile: TilePoint,
+    layout: BoardLayout,
+): GameActionResult {
+    if (world.resources.gameStatus === 'lost' || world.resources.gameStatus === 'won') {
+        return unchanged();
+    }
+
+    if (!world.resources.minefieldReady) return unchanged();
+
+    const entityId = getEntityAtTile(world, tile);
+    if (!entityId) return unchanged();
+
+    const tileState = world.tiles.get(entityId);
+    if (!tileState?.revealed) return unchanged();
+
+    const adjacentMineCount = world.adjacentMineCounts.get(entityId) ?? 0;
+    if (adjacentMineCount === 0) return unchanged();
+
+    const neighbors = getNeighborTiles(tile, layout);
+    const flagCount = neighbors.filter((neighbor) => {
+        const neighborEntityId = getEntityAtTile(world, neighbor);
+
+        return neighborEntityId ? world.flags.has(neighborEntityId) : false;
+    }).length;
+
+    if (flagCount !== adjacentMineCount) return unchanged();
+
+    let changed = false;
+
+    for (const neighbor of neighbors) {
+        const neighborEntityId = getEntityAtTile(world, neighbor);
+        if (!neighborEntityId || world.flags.has(neighborEntityId)) continue;
+
+        const neighborState = world.tiles.get(neighborEntityId);
+        if (!neighborState || neighborState.revealed) continue;
+
+        if (world.mines.has(neighborEntityId)) {
+            neighborState.revealed = true;
+            world.resources.gameStatus = 'lost';
+            revealAllMines(world);
+            return { changed: true, statusChanged: true };
+        }
+
+        const neighborMineCount = world.adjacentMineCounts.get(neighborEntityId) ?? 0;
+        if (neighborMineCount === 0) {
+            revealConnectedSafeTiles(world, neighbor, layout);
+        } else {
+            neighborState.revealed = true;
+        }
+
+        changed = true;
+    }
+
+    if (!changed) return unchanged();
+
+    if (hasWon(world)) {
+        world.resources.gameStatus = 'won';
+        return { changed: true, statusChanged: true };
+    }
+
+    return { changed: true, statusChanged: false };
+}
+
 export function getMinesLeft(world: World, layout: BoardLayout) {
     return Math.max(0, layout.mineCount - world.flags.size);
 }

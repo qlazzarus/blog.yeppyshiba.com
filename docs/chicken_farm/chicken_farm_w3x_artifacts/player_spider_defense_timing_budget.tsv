@@ -1,0 +1,9 @@
+player	nearest_spider	spider_roundtrip_sec	wolf_warning_sec	current_mvp_first_wolf_sec	original_first_replenish_sec	prep_after_roundtrip_to_warning_sec	prep_after_roundtrip_to_current_mvp_sec	prep_after_roundtrip_to_original_phase_sec	assessment	note
+P1	spider_01	39.4	80	70	120	40.6	30.6	80.6	ok	current MVP timing still leaves some setup time.
+P2	spider_02	34.8	80	70	120	45.2	35.2	85.2	ok	current MVP timing still leaves some setup time.
+P3	spider_04	31.2	80	70	120	48.8	38.8	88.8	ok	current MVP timing still leaves some setup time.
+P4	spider_03	20.2	80	70	120	59.8	49.8	99.8	ok	current MVP timing still leaves some setup time.
+P5	spider_08	37.5	80	70	120	42.5	32.5	82.5	ok	current MVP timing still leaves some setup time.
+P6	spider_02	18.9	80	70	120	61.1	51.1	101.1	ok	current MVP timing still leaves some setup time.
+P7	spider_04	44.6	80	70	120	35.4	25.4	75.4	tight	current MVP 70s leaves little room after spider route; prefer 80s warning/120s original phase for source-faithful opening.
+P8	spider_03	43.7	80	70	120	36.3	26.3	76.3	tight	current MVP 70s leaves little room after spider route; prefer 80s warning/120s original phase for source-faithful opening.

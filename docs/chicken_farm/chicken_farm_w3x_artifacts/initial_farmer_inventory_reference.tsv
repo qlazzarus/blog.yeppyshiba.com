@@ -1,0 +1,5 @@
+rawcode	name	group	charges_or_uses	source_lines	original_effect	mvp_translation	confidence	note
+I003	닭 분양서 (판매불가)	event_reward	5/6/7 charges candidate	1743-1760,1819-1820	사용 시 기본 닭 n000 생성	initialInventory.basicChickenScroll	high	난이도/분기별 charge 차이가 있는 것으로 추정. 원본 시작/재시작 지급 확인.
+I008	질병 치료제 (판매불가)	event_reward	10 uses candidate	1751,1759	질병 치료	initialInventory.diseaseCure	medium	현재 구현에서는 질병 제외. 원본 시작 인벤토리 참조로만 유지.
+I009	불터 키트 (판매불가)	event_reward	1 use	1745,1752,1760	목표 지점에 불터 건설	initialInventory.campfireKit	high	초반 소환/건설 아이템 후보. 닭 주변 모이/식량 보조 설명 확인.
+I00F	시장건설	purchase_or_start_kit	1 use candidate; purchasable 160G/50L	1746,1753,1758	목표 지점에 시장 건설	initialInventory.marketBuildKit	high	시작 지급과 구매 가능성을 모두 열어둠. 초반 상점/교환 접근성에 영향.

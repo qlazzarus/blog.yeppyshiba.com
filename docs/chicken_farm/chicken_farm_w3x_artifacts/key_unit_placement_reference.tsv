@@ -1,0 +1,26 @@
+category	rawcode	name	owner	x	y	facing	jass_line	confidence	notes
+wolf_stone	n00D	늑대의 돌 1	Player(10)	-1376	-6240	270	1176	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 2	Player(10)	5600	-5984	270	1177	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 3	Player(10)	-1632	-1760	270	1178	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 4	Player(10)	6688	-2016	270	1179	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 5	Player(10)	2464	-5984	270	1180	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 6	Player(10)	4384	-4832	270	1181	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 7	Player(10)	416	-5344	270	1182	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 8	Player(10)	2080	992	270	1183	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 9	Player(10)	-1440	1056	270	1184	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 10	Player(10)	-1632	-4192	270	1185	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 11	Player(10)	4128	-1568	270	1186	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 12	Player(10)	224	-1120	270	1187	exact	CreateUnit direct placement from scripts\war3map.j
+wolf_stone	n00D	늑대의 돌 13	Player(10)	4896	1184	270	1188	exact	CreateUnit direct placement from scripts\war3map.j
+ancient_wolf_stone	n017	고대 늑대의 돌	Player(10)	2112	-704	270	1189	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 1	Player(PLAYER_NEUTRAL_AGGRESSIVE)	6868.3	-7342.1	126.1	1197	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 2	Player(PLAYER_NEUTRAL_AGGRESSIVE)	1580.8	-7254	-3.3	1198	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 3	Player(PLAYER_NEUTRAL_AGGRESSIVE)	6768.1	-3275.3	0	1199	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 4	Player(PLAYER_NEUTRAL_AGGRESSIVE)	1940.6	2510.2	0	1200	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 5	Player(PLAYER_NEUTRAL_AGGRESSIVE)	6890.9	2528.6	231.508	1201	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 6	Player(PLAYER_NEUTRAL_AGGRESSIVE)	-2919.7	2647	305.56	1202	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 7	Player(PLAYER_NEUTRAL_AGGRESSIVE)	-2775.5	-7353	48.33	1203	exact	CreateUnit direct placement from scripts\war3map.j
+neutral_spider	n01D	거미 8	Player(PLAYER_NEUTRAL_AGGRESSIVE)	-2802.2	-2371.2	0	1204	exact	CreateUnit direct placement from scripts\war3map.j
+central_market	n006	대형 마켓	Player(PLAYER_NEUTRAL_PASSIVE)	1984	-2688	270	1220	exact	CreateUnit direct placement; central revive/service candidate
+central_merchant	h01R	행상인 (미구현)	Player(PLAYER_NEUTRAL_PASSIVE)	1790.1	-2781.4	265.12	1239	exact	CreateUnit direct placement; merchant visual/shop candidate
+central_event_npc	n01J	동물나라 사신	Player(PLAYER_NEUTRAL_PASSIVE)	2036.6	-3205.6	104.055	1015	exact	CreateUnit direct placement; Koopa/turtle event candidate

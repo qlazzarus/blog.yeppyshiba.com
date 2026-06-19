@@ -1,0 +1,9 @@
+player	start_w3x_x	start_w3x_y	nearest_1	nearest_1_w3x_x	nearest_1_w3x_y	nearest_1_distance_w3x	nearest_1_travel_sec_at_current_speed	nearest_1_roundtrip_sec	nearest_2	nearest_2_distance_w3x	nearest_3	nearest_3_distance_w3x
+P1	4672	-6464	spider_01	6868	-7342	2365	19.7	39.4	spider_02	3189	spider_03	3817
+P2	2496	-5376	spider_02	1582	-7254	2089	17.4	34.8	spider_03	4761	spider_01	4794
+P3	384	1472	spider_04	1942	2510	1872	15.6	31.2	spider_06	3507	spider_08	4991
+P4	6016	-4224	spider_03	6768	-3274	1212	10.1	20.2	spider_01	3232	spider_02	5370
+P5	-1536	-512	spider_08	-2802	-2370	2248	18.7	37.5	spider_06	3450	spider_04	4607
+P6	768	-6464	spider_02	1582	-7254	1134	9.5	18.9	spider_07	3654	spider_08	5432
+P7	3648	448	spider_04	1942	2510	2676	22.3	44.6	spider_05	3855	spider_03	4857
+P8	4928	-1408	spider_03	6768	-3274	2621	21.8	43.7	spider_05	4401	spider_04	4926
