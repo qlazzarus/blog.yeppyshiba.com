@@ -7,8 +7,20 @@ import {
     type BoardLayout,
     type DifficultyConfig,
 } from './game/config';
+import {
+    clearBestRecords,
+    formatRecordTime,
+    loadBestRecords,
+    saveBestRecord,
+    type BestRecords,
+} from './game/records';
 import { createBoardSystem, updateBoardRenderSystem } from './systems/board';
-import { getMinesLeft, revealTileSystem, toggleFlagSystem } from './systems/minesweeper';
+import {
+    chordRevealSystem,
+    getMinesLeft,
+    revealTileSystem,
+    toggleFlagSystem,
+} from './systems/minesweeper';
 import { clearHoveredTileSystem, updateHoveredTileSystem } from './systems/pointer';
 import {
     renderBoardSystem,
@@ -18,12 +30,17 @@ import {
 } from './systems/render';
 
 const LONG_PRESS_FLAG_MS = 450;
+const RIGHT_CLICK_FLAG_DELAY_MS = 80;
 const COMPACT_UI_WIDTH = 720;
 const LANDSCAPE_SHORT_HEIGHT = 480;
 const PORTRAIT_NOTICE_WIDTH = 640;
 
+const POINTER_LEFT_BUTTON = 1;
+const POINTER_RIGHT_BUTTON = 2;
+
 class BootScene extends Phaser.Scene {
     private boardLayout!: BoardLayout;
+    private bestRecords: BestRecords = loadBestRecords();
     private boardGraphics!: Phaser.GameObjects.Graphics;
     private contentState!: TileContentRenderState;
     private difficulty: DifficultyConfig = DIFFICULTIES[1];
@@ -37,6 +54,10 @@ class BootScene extends Phaser.Scene {
     private newGameButton!: Phaser.GameObjects.Text;
     private orientationNoticeText!: Phaser.GameObjects.Text;
     private pointerDownTile: TilePoint | null = null;
+    private resetRecordsButton!: Phaser.GameObjects.Text;
+    private rightClickFlagTimer: Phaser.Time.TimerEvent | null = null;
+    private rightClickFlagTile: TilePoint | null = null;
+    private roundClearedWithNewBest = false;
     private statusText!: Phaser.GameObjects.Text;
     private titleText!: Phaser.GameObjects.Text;
     private timerStartedAt: number | null = null;
@@ -90,6 +111,7 @@ class BootScene extends Phaser.Scene {
                 renderHoverSystem(this.world, this.hoverGraphics, this.boardLayout);
             }
             this.cancelLongPress();
+            this.cancelPendingFlag();
         });
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -105,8 +127,21 @@ class BootScene extends Phaser.Scene {
             const hoveredTile = this.world.resources.hoveredTile;
             if (!hoveredTile) return;
 
+            if (this.isChordPointer(pointer)) {
+                this.cancelPendingFlag();
+                this.applyTileAction(hoveredTile, 'chord');
+                return;
+            }
+
             if (pointer.rightButtonDown() || pointer.button === 2) {
-                this.applyTileAction(hoveredTile, 'flag');
+                this.startPendingFlag(hoveredTile);
+                return;
+            }
+
+            if (this.isTileRevealed(hoveredTile)) {
+                this.cancelLongPress();
+                this.pointerDownTile = hoveredTile;
+                this.longPressFlagTriggered = false;
                 return;
             }
 
@@ -114,6 +149,20 @@ class BootScene extends Phaser.Scene {
         });
 
         this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+            updateHoveredTileSystem(
+                this.world,
+                pointer.worldX,
+                pointer.worldY,
+                this.boardLayout,
+            );
+
+            if (this.isChordPointer(pointer) && this.world.resources.hoveredTile) {
+                this.cancelLongPress();
+                this.cancelPendingFlag();
+                this.applyTileAction(this.world.resources.hoveredTile, 'chord');
+                return;
+            }
+
             if (!this.pointerDownTile) return;
 
             const pressedTile = this.pointerDownTile;
@@ -123,17 +172,13 @@ class BootScene extends Phaser.Scene {
 
             if (longPressFlagTriggered) return;
 
-            updateHoveredTileSystem(
-                this.world,
-                pointer.worldX,
-                pointer.worldY,
-                this.boardLayout,
-            );
-
             const releasedTile = this.world.resources.hoveredTile;
             if (!sameTile(pressedTile, releasedTile)) return;
 
-            this.applyTileAction(pressedTile, 'reveal');
+            this.applyTileAction(
+                pressedTile,
+                this.isTileRevealed(pressedTile) ? 'chord' : 'reveal',
+            );
         });
 
         this.scale.on('resize', this.handleResize, this);
@@ -232,6 +277,30 @@ class BootScene extends Phaser.Scene {
                 this.resetGame();
             });
 
+        this.resetRecordsButton = this.add
+            .text(650, 64, 'Reset records', {
+                backgroundColor: '#26343c',
+                color: '#aeb8b4',
+                fixedWidth: 126,
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '12px',
+                fontStyle: '700',
+                padding: {
+                    bottom: 7,
+                    left: 10,
+                    right: 10,
+                    top: 7,
+                },
+            })
+            .setDepth(10)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                clearBestRecords();
+                this.bestRecords = {};
+                this.roundClearedWithNewBest = false;
+                this.renderGame();
+            });
+
         this.updateUiLayout();
         this.updateDifficultyButtons();
     }
@@ -253,7 +322,7 @@ class BootScene extends Phaser.Scene {
         const flagCount = this.world.flags.size;
         const minesLeft = getMinesLeft(this.world, this.boardLayout);
         const elapsedTime = this.formatElapsedTime();
-        const prefix = `${this.difficulty.label} | ${elapsedTime}`;
+        const prefix = `${this.difficulty.label} | ${elapsedTime} | Best ${this.getBestTimeText()}`;
 
         if (this.world.resources.gameStatus === 'ready') {
             return `${prefix} | Ready | Mines left ${minesLeft} | Flags ${flagCount}`;
@@ -264,7 +333,9 @@ class BootScene extends Phaser.Scene {
         }
 
         if (this.world.resources.gameStatus === 'won') {
-            return `${prefix} | Clear | Mines left ${minesLeft} | Flags ${flagCount}`;
+            const clearLabel = this.roundClearedWithNewBest ? 'New best' : 'Clear';
+
+            return `${prefix} | ${clearLabel} | Mines left ${minesLeft} | Flags ${flagCount}`;
         }
 
         return `${prefix} | Playing | Mines left ${minesLeft} | Flags ${flagCount}`;
@@ -280,10 +351,12 @@ class BootScene extends Phaser.Scene {
 
     private resetGame() {
         this.resetTimer();
+        this.roundClearedWithNewBest = false;
         this.world = createWorld();
         createBoardSystem(this.world, this.boardLayout);
         clearHoveredTileSystem(this.world);
         this.cancelLongPress();
+        this.cancelPendingFlag();
         this.renderGame();
     }
 
@@ -296,12 +369,14 @@ class BootScene extends Phaser.Scene {
         this.resetGame();
     }
 
-    private applyTileAction(tile: TilePoint, action: 'flag' | 'reveal') {
+    private applyTileAction(tile: TilePoint, action: 'chord' | 'flag' | 'reveal') {
         const previousStatus = this.world.resources.gameStatus;
         const result =
             action === 'flag'
                 ? toggleFlagSystem(this.world, tile)
-                : revealTileSystem(this.world, tile, this.boardLayout);
+                : action === 'chord'
+                  ? chordRevealSystem(this.world, tile, this.boardLayout)
+                  : revealTileSystem(this.world, tile, this.boardLayout);
 
         if (!result.changed) return;
 
@@ -309,8 +384,16 @@ class BootScene extends Phaser.Scene {
         this.renderGame();
     }
 
+    private isTileRevealed(tile: TilePoint) {
+        const entityId = this.world.tileEntities.get(`${tile.x},${tile.y}`);
+        if (!entityId) return false;
+
+        return this.world.tiles.get(entityId)?.revealed ?? false;
+    }
+
     private startLongPress(pointer: Phaser.Input.Pointer, tile: TilePoint) {
         this.cancelLongPress();
+        this.cancelPendingFlag();
         this.pointerDownTile = tile;
         this.longPressTile = tile;
         this.longPressFlagTriggered = false;
@@ -328,6 +411,36 @@ class BootScene extends Phaser.Scene {
         this.longPressTimer = null;
         this.longPressTile = null;
         this.pointerDownTile = null;
+    }
+
+    private startPendingFlag(tile: TilePoint) {
+        this.cancelLongPress();
+        this.cancelPendingFlag();
+        this.rightClickFlagTile = tile;
+        this.rightClickFlagTimer = this.time.delayedCall(
+            RIGHT_CLICK_FLAG_DELAY_MS,
+            () => {
+                if (!this.rightClickFlagTile) return;
+
+                const tileToFlag = this.rightClickFlagTile;
+                this.rightClickFlagTile = null;
+                this.rightClickFlagTimer = null;
+                this.applyTileAction(tileToFlag, 'flag');
+            },
+        );
+    }
+
+    private cancelPendingFlag() {
+        this.rightClickFlagTimer?.remove(false);
+        this.rightClickFlagTimer = null;
+        this.rightClickFlagTile = null;
+    }
+
+    private isChordPointer(pointer: Phaser.Input.Pointer) {
+        return (
+            (pointer.buttons & (POINTER_LEFT_BUTTON | POINTER_RIGHT_BUTTON)) ===
+            (POINTER_LEFT_BUTTON | POINTER_RIGHT_BUTTON)
+        );
     }
 
     private handleResize() {
@@ -382,8 +495,10 @@ class BootScene extends Phaser.Scene {
         const buttonGap = compact ? 8 : 10;
         const difficultyButtonWidth = compact ? 82 : 86;
         const newGameButtonWidth = compact ? 96 : 104;
+        const resetRecordsButtonWidth = compact ? 112 : 126;
         const difficultyY = landscapeShort ? 16 : compact ? 108 : 24;
         const newGameY = landscapeShort ? 52 : compact ? 148 : 24;
+        const resetRecordsY = landscapeShort ? 52 : compact ? 148 : 64;
         const difficultyStartX = compact
             ? 24
             : Math.max(360, this.scale.width - 414);
@@ -438,6 +553,23 @@ class BootScene extends Phaser.Scene {
             fontSize: compact ? '12px' : '14px',
         });
 
+        this.resetRecordsButton.setPosition(
+            landscapeShort
+                ? 24 + newGameButtonWidth + 16
+                : compact
+                  ? 24 + newGameButtonWidth + 12
+                  : Math.max(
+                        24,
+                        this.scale.width - rightPadding - resetRecordsButtonWidth,
+                    ),
+            resetRecordsY,
+        );
+        this.resetRecordsButton.setStyle({
+            fixedWidth: resetRecordsButtonWidth,
+            fontSize: compact ? '11px' : '12px',
+        });
+        this.resetRecordsButton.setVisible(!landscapeShort);
+
         this.orientationNoticeText.setPosition(
             this.scale.width / 2,
             this.isPortraitNoticeVisible()
@@ -482,6 +614,10 @@ class BootScene extends Phaser.Scene {
             this.world.resources.gameStatus === 'lost'
         ) {
             this.stopTimer();
+
+            if (this.world.resources.gameStatus === 'won') {
+                this.saveCurrentBestRecord();
+            }
         }
     }
 
@@ -507,11 +643,23 @@ class BootScene extends Phaser.Scene {
     }
 
     private formatElapsedTime() {
-        const elapsed = this.getElapsedSeconds();
-        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        return formatRecordTime(this.getElapsedSeconds());
+    }
 
-        return `${minutes}:${seconds}`;
+    private getBestTimeText() {
+        const bestRecord = this.bestRecords[this.difficulty.id];
+
+        return bestRecord ? formatRecordTime(bestRecord.elapsedSeconds) : '--:--';
+    }
+
+    private saveCurrentBestRecord() {
+        const result = saveBestRecord(
+            this.difficulty.id,
+            this.elapsedSeconds,
+        );
+
+        this.bestRecords = result.records;
+        this.roundClearedWithNewBest = result.updated;
     }
 
     private updateDifficultyButtons() {
