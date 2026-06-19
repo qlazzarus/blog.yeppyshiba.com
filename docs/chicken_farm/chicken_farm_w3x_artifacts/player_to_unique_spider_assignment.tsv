@@ -1,0 +1,9 @@
+player	assigned_spider	assignment_model	distance_w3x	travel_sec_at_current_speed	roundtrip_sec	nearest_spider	nearest_distance_w3x	extra_distance_vs_nearest_w3x	extra_roundtrip_sec_vs_nearest
+P1	spider_01	min_total_distance_unique_8p	2365	19.7	39.4	spider_01	2365	0	0.0
+P2	spider_02	min_total_distance_unique_8p	2089	17.4	34.8	spider_02	2089	0	0.0
+P3	spider_06	min_total_distance_unique_8p	3507	29.2	58.5	spider_04	1872	1635	27.2
+P4	spider_03	min_total_distance_unique_8p	1212	10.1	20.2	spider_03	1212	0	0.0
+P5	spider_08	min_total_distance_unique_8p	2248	18.7	37.5	spider_08	2248	0	0.0
+P6	spider_07	min_total_distance_unique_8p	3654	30.4	60.9	spider_02	1134	2519	42.0
+P7	spider_04	min_total_distance_unique_8p	2676	22.3	44.6	spider_04	2676	0	0.0
+P8	spider_05	min_total_distance_unique_8p	4401	36.7	73.3	spider_03	2621	1780	29.7

@@ -1,0 +1,9 @@
+player	assigned_spider	unique_roundtrip_sec	wolf_warning_sec	current_mvp_first_wolf_sec	original_first_replenish_sec	prep_after_unique_roundtrip_to_warning_sec	prep_after_unique_roundtrip_to_current_mvp_sec	prep_after_unique_roundtrip_to_original_phase_sec	assessment	note
+P1	spider_01	39.4	80	70	120	40.6	30.6	80.6	ok	unique route leaves workable setup time.
+P2	spider_02	34.8	80	70	120	45.2	35.2	85.2	ok	unique route leaves workable setup time.
+P3	spider_06	58.5	80	70	120	21.5	11.5	61.5	very_tight	current MVP 70s is tight after unique spider route; use 80s warning/120s pressure.
+P4	spider_03	20.2	80	70	120	59.8	49.8	99.8	ok	unique route leaves workable setup time.
+P5	spider_08	37.5	80	70	120	42.5	32.5	82.5	ok	unique route leaves workable setup time.
+P6	spider_07	60.9	80	70	120	19.1	9.1	59.1	very_tight	unique spider route makes 80s warning window extremely tight; this matches restart/cross-map pressure memory.
+P7	spider_04	44.6	80	70	120	35.4	25.4	75.4	tight	current MVP 70s is tight after unique spider route; use 80s warning/120s pressure.
+P8	spider_05	73.3	80	70	120	6.7	-3.3	46.7	very_tight	unique spider route makes 80s warning window extremely tight; this matches restart/cross-map pressure memory.

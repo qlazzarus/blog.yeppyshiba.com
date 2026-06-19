@@ -1,0 +1,9 @@
+slot	mvp_id	rawcode	name	count_or_role	requires	current_mvp_build_time_sec	original_build_time_status	source_or_note
+core	town_hall	h00H	마을회관	1	farm_house/H002 line in extracted tech table	0	unverified	초반 핵심 허브. current balance has placeholder buildTimeSec=0; original build time still needs SLK/W3X cross-check.
+support	well_basic	h00M	우물	1	farm_house	0	unverified	초반 유지/회복. user memory says first-night defense set includes well.
+economy	coop_basic	h00N	닭장/양계장	1	town_hall	0	unverified	닭 경제 시작. I003 닭 분양서와 함께 초기 닭 운영 감각에 필요.
+defense	tower_scout	h00D	스카우트 타워	2	none in current MVP template	0	unverified	첫 늑대 방어용 최소 공격 건물 후보.
+wall	fence_wood	h003	울타리	enough to seal path	none in current MVP template	0	unverified	늑대 지연/우회 감각 핵심. 원본 footprint/pathing 검증 계속 필요.
+item	initial_chicken_scroll	I003	닭 분양서 (판매불가)	5/6/7 charges candidate	start inventory	instant item use	high for item, not a building	시작/재시작 지급. 기본 닭 n000 생성.
+item	campfire_kit	I009	불터 키트 (판매불가)	1 charge candidate	start inventory	instant item use	high for item, not a building	불터 건설 아이템. 초반 소환 아이템 후보로 유지.
+item	market_build_kit	I00F	시장건설	start/purchase candidate	start inventory or shop	instant item use	high for item, not a building	목표 지점 시장 건설. 시작 키트와 구매 가능성을 모두 데이터에 열어둠.

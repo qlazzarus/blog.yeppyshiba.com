@@ -1,0 +1,16 @@
+step	rawcode	name	kind	available_from	requirement	cost_gold	cost_lumber	build_or_upgrade_to	relevance_to_first_wave	confidence	note
+1	H000	농부	builder	start unit	none	425	100	h00D,h004,h006,h00M,h003,h026,h00A,h00B,h00C,h001,h00E	primary_builder	high	시작 유닛. 스카우트 타워 h00D, 기본 울타리 h003, 대문 h006, 농가 h001, 시장 h00E 등을 직접 건설 가능.
+2	h00D	스카우트 타워	defense_building	H000 build menu	none	125		h007,h016	immediate_spider_and_first_wave_tower	high	테크 요구 없음. 초반 거미를 사거리 밖에서 잡는 핵심 타워. 추가 스카우트 타워도 같은 조건으로 즉시 건설 가능.
+3	h003	울타리	wall	H000 build menu	none	5		h00L	immediate_first_wave_wall	high	테크 요구 없음. 첫 방벽/길막용 기본 방벽.
+4	h006	대문	gate	H000 build menu	none	50			optional_opening_pathing	medium	농부가 직접 건설 가능. 닫힌 gate 후보이나 실제 첫 방어에서 필수인지는 추가 관찰 필요.
+5	h001	농가	core_building	H000 build menu	none	250		h00H	unlocks_well_and_family_line	high	우물 h00M의 요구조건. 가족/보조 유닛 생산 허브.
+6	h00M	우물	support_building	H000 build menu	h001	150		h005	first_wave_sustain	high	농가 이후 건설 가능. 회복/유지 계열.
+7	H002	아내	family_unit	h001/h00H train list	h001/h00H	unknown	unknown		enables_town_hall_requirement_candidate	medium	마을회관 h00H 요구조건으로 추출됨. 사용자 기억의 결혼/아내 테크와 연결 가능성이 큼.
+8	h00H	마을회관	core_building	h001 upgrade/build line	H002	400	200	h015	unlocks_chicken_coop_and_stone_wall	high	닭장 h00N, 돌 벽 h00K, 중형 타워 일부의 요구조건. H002 요구조건 때문에 결혼/아내 테크 검증 필요.
+9	h00N	닭장	economy_building	H000/build graph	h00H	700	300	h00O	chicken_economy_before_or_after_first_wave	high	마을회관 이후 닭 경제 핵심.
+10	h00L	청동 울타리	wall_upgrade	h003 upgrade	none	70		h00K	stronger_wall_before_town_hall	high	기본 울타리의 직접 상위 단계. 별도 요구조건 없음으로 추출.
+11	h00K	돌 벽	wall_upgrade	h00L upgrade	h00H	100	40	h00Y	post_town_hall_wall	high	마을회관 이후 상위 방벽.
+12	h00C	워크샵	research_building	H000 build menu	h00H	800	500		unlocks_magic_barrier_and_mid_tower	high	마법의 결계 h00Y, 중형 아케인/가드 타워 라인의 요구조건.
+13	h00Y	마법의 결계	wall_upgrade	h00K upgrade	h00C	150	80	h014	post_workshop_wall	high	워크샵 이후 방벽.
+14	h007	소형 가드 타워	tower_upgrade	h00D upgrade	h00A	250	100	h00Q	post_lumber_mill_tower	high	스카우트 타워의 가드 타워 분기. 첫 웨이브 직전보다는 이후 강화 후보.
+15	h016	소형 아케인 타워	tower_upgrade	h00D upgrade	h00H	400	350	h008	post_town_hall_tower	high	스카우트 타워의 아케인 분기. 마을회관 이후 강화 후보.
