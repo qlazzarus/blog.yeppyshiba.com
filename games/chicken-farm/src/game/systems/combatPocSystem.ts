@@ -18,9 +18,12 @@ import {
     POC_WOLF_TEST_HP,
 } from '../poc/combatPocLayout';
 import { type GridPathPoint, findGridPath } from './pathing';
+import { TerrainBlocker } from './terrainBlocker';
+import { decideWolfAiBehavior } from './wolfAiStateMachine';
 
 type CombatPocSystemConfig = {
     readonly scene: Phaser.Scene;
+    readonly terrainBlocker: TerrainBlocker;
     readonly worldObjects: Phaser.GameObjects.GameObject[];
     readonly worldSize: Phaser.Math.Vector2;
     readonly getElapsedSec: () => number;
@@ -28,6 +31,7 @@ type CombatPocSystemConfig = {
 
 export class CombatPocSystem {
     private readonly scene: Phaser.Scene;
+    private readonly terrainBlocker: TerrainBlocker;
     private readonly worldObjects: Phaser.GameObjects.GameObject[];
     private readonly worldSize: Phaser.Math.Vector2;
     private readonly getElapsedSec: () => number;
@@ -38,6 +42,7 @@ export class CombatPocSystem {
 
     constructor(config: CombatPocSystemConfig) {
         this.scene = config.scene;
+        this.terrainBlocker = config.terrainBlocker;
         this.worldObjects = config.worldObjects;
         this.worldSize = config.worldSize;
         this.getElapsedSec = config.getElapsedSec;
@@ -444,39 +449,50 @@ export class CombatPocSystem {
         const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
         this.syncWolfTargetPoint();
         const directTarget = this.getCurrentWolfTarget();
+        this.refreshWolfPathIfNeeded();
+        const blockingTarget = this.getWolfBlockingTarget();
+        const decision = decideWolfAiBehavior({
+            blockedToBlockerDelaySec:
+                CHICKEN_FARM_BALANCE.pathing.blockerAttackAcquire
+                    .blockedToBlockerDelaySec,
+            elapsedSec: this.elapsedSec,
+            hasBlockingTarget: Boolean(blockingTarget),
+            hasDirectTarget: Boolean(directTarget),
+            hasLivePathWaypoint:
+                wolf.path.length > 0 && wolf.pathIndex < wolf.path.length,
+            isBlockingTargetInAttackRange: blockingTarget
+                ? this.isWolfInAttackRange(blockingTarget)
+                : false,
+            pathFailedSinceSec: wolf.pathFailedSinceSec,
+        });
 
-        if (directTarget) {
+        wolf.state = decision.state;
+        wolf.stateAction = decision.action;
+        wolf.stateReason = decision.reason;
+
+        if (decision.action === 'attack_direct_target' && directTarget) {
             wolf.targetBuildingId = directTarget.id;
-            wolf.state = 'attack';
             this.attackCombatBuilding(directTarget, enemy.damage);
             return;
         }
 
-        this.refreshWolfPathIfNeeded();
-
-        if (wolf.path.length > 0 && wolf.pathIndex < wolf.path.length) {
+        if (decision.action === 'follow_path') {
             wolf.targetBuildingId = undefined;
             wolf.pathFailedSinceSec = undefined;
-            wolf.state = 'move';
             this.moveWolfAlongPath(enemy.speedPxPerSec, deltaSec);
             return;
         }
 
         wolf.pathFailedSinceSec ??= this.elapsedSec;
-        const blockedLongEnough =
-            this.elapsedSec - wolf.pathFailedSinceSec >=
-            CHICKEN_FARM_BALANCE.pathing.blockerAttackAcquire.blockedToBlockerDelaySec;
-        const blockingTarget = this.getWolfBlockingTarget();
 
-        if (blockingTarget && blockedLongEnough) {
+        if (decision.action === 'attack_blocker' && blockingTarget) {
             wolf.targetBuildingId = blockingTarget.id;
-            if (this.isWolfInAttackRange(blockingTarget)) {
-                wolf.state = 'attack';
-                this.attackCombatBuilding(blockingTarget, enemy.damage);
-                return;
-            }
+            this.attackCombatBuilding(blockingTarget, enemy.damage);
+            return;
+        }
 
-            wolf.state = 'blocked';
+        if (decision.action === 'approach_blocker' && blockingTarget) {
+            wolf.targetBuildingId = blockingTarget.id;
             this.moveWolfToward(
                 blockingTarget.body.x,
                 blockingTarget.body.y,
@@ -487,7 +503,6 @@ export class CombatPocSystem {
         }
 
         wolf.targetBuildingId = undefined;
-        wolf.state = 'blocked';
     }
 
     private focusWolfOnBuilding(building: CombatBuilding) {
@@ -566,8 +581,11 @@ export class CombatPocSystem {
         if (!wolf || (!force && this.elapsedSec < wolf.nextRepathAtSec)) return;
 
         const pathing = CHICKEN_FARM_BALANCE.pathing;
-        const blockedRects = this.getCombatBlockedRects();
         const bounds = this.getCombatPathBounds();
+        const blockedRects = [
+            ...this.terrainBlocker.getGroundBlockedRects(bounds),
+            ...this.getCombatBlockedRects(),
+        ];
         const clearancePx =
             ((pathing.unitClearanceCells.wolf - 1) * pathing.cellSize) / 2;
         const goalBuilding = this.getWolfGoalBuilding();
@@ -587,6 +605,7 @@ export class CombatPocSystem {
                 cellSize: pathing.cellSize,
                 clearancePx,
                 goal,
+                pathSmoothingEnabled: pathing.pathSmoothingEnabled,
                 start: { x: wolf.body.x, y: wolf.body.y },
             });
 
@@ -642,6 +661,8 @@ export class CombatPocSystem {
     }
 
     private isCombatPathPointBlocked(point: GridPathPoint) {
+        if (this.terrainBlocker.isPointGroundBlocked(point)) return true;
+
         return this.getCombatBlockedRects().some((rect) =>
             Phaser.Geom.Rectangle.Contains(
                 new Phaser.Geom.Rectangle(rect.x, rect.y, rect.width, rect.height),
@@ -926,7 +947,8 @@ export class CombatPocSystem {
 
         this.combatLabel?.setText(
             `Combat PoC | wolf ${wolf.state}${target ? ` -> ${target.name}` : ''}\n` +
-                `Tower aggro focus: ${goal?.name ?? 'none'} | HP ${Math.ceil(wolf.hp)}/${wolf.maxHp}\n` +
+                `AI ${wolf.stateAction ?? 'none'} / ${wolf.stateReason ?? 'none'} | HP ${Math.ceil(wolf.hp)}/${wolf.maxHp}\n` +
+                `Tower aggro focus: ${goal?.name ?? 'none'}\n` +
                 `A* ${wolf.path.length > 0 ? `path ${wolf.path.length}` : 'no path'} | blocker attack only after sealed path.`,
         );
     }

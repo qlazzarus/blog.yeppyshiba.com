@@ -1,6 +1,10 @@
 import Phaser from 'phaser';
 
 import type { GridPathPoint } from '../systems/pathing';
+import type {
+    WolfAiBehaviorState,
+    WolfAiDecisionAction,
+} from '../systems/wolfAiStateMachine';
 
 export type CombatBuildingKind = 'farm_core' | 'fence' | 'tower';
 
@@ -34,7 +38,9 @@ export type CombatWolf = {
     path: readonly GridPathPoint[];
     pathFailedSinceSec?: number;
     pathIndex: number;
-    state: 'attack' | 'blocked' | 'dead' | 'move';
+    state: WolfAiBehaviorState;
+    stateAction?: WolfAiDecisionAction;
+    stateReason?: string;
     targetBuildingId?: string;
     targetPoint: Phaser.Math.Vector2;
 };

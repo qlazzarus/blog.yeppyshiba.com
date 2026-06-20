@@ -16,6 +16,8 @@ export type FarmInputKeys = Record<
     | 'seven'
     | 'eight'
     | 'grid'
+    | 'microPathingFocus'
+    | 'terrainOverlay'
     | 'telemetryExport'
     | 'up',
     Phaser.Input.Keyboard.Key
@@ -62,6 +64,16 @@ export class PlayerControlSystem {
 
     get playerStartLabel() {
         return this.startLabel;
+    }
+
+    moveToDebugPoint(label: string, x: number, y: number) {
+        if (!this.playerObject) return;
+
+        this.playerObject.setPosition(x, y);
+        this.startLabel = label;
+        this.playerSlotText?.setText(`${label} PLAYER`);
+        this.camera.centerOn(x, y);
+        this.onPlayerStartChanged({ id: 0, label, x, y });
     }
 
     createAtConfiguredStart() {

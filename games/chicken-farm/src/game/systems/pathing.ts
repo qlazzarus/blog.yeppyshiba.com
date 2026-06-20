@@ -17,6 +17,7 @@ export type FindGridPathOptions = {
     readonly clearancePx?: number;
     readonly goal: GridPathPoint;
     readonly maxIterations?: number;
+    readonly pathSmoothingEnabled?: boolean;
     readonly start: GridPathPoint;
 };
 
@@ -76,7 +77,14 @@ export function findGridPath(
         closed.add(current.key);
 
         if (current.key === goalKey) {
-            return reconstructPath(current, best, options.bounds, options.cellSize);
+            const rawPath = reconstructPath(
+                current,
+                best,
+                options.bounds,
+                options.cellSize,
+            );
+            if (options.pathSmoothingEnabled === false) return rawPath;
+            return smoothPath(options.start, rawPath, options);
         }
 
         for (const neighbor of getNeighbors(current, gridWidth, gridHeight)) {
@@ -143,15 +151,79 @@ function isBlockedCell(
     const clearance = options.clearancePx ?? 0;
 
     return options.blockedRects.some((rect) => {
-        const minX = rect.x - clearance;
-        const minY = rect.y - clearance;
-        const maxX = rect.x + rect.width + clearance;
-        const maxY = rect.y + rect.height + clearance;
-
-        return (
-            center.x >= minX && center.x <= maxX && center.y >= minY && center.y <= maxY
-        );
+        return isPointInsideExpandedRect(center, rect, clearance);
     });
+}
+
+function smoothPath(
+    start: GridPathPoint,
+    path: readonly GridPathPoint[],
+    options: FindGridPathOptions,
+): readonly GridPathPoint[] {
+    if (path.length <= 2) return path;
+
+    const points = [start, ...path];
+    const smoothed: GridPathPoint[] = [];
+    let anchorIndex = 0;
+
+    while (anchorIndex < points.length - 1) {
+        let nextIndex = points.length - 1;
+
+        while (
+            nextIndex > anchorIndex + 1 &&
+            !hasLineOfSight(points[anchorIndex], points[nextIndex], options)
+        ) {
+            nextIndex -= 1;
+        }
+
+        smoothed.push(points[nextIndex]);
+        anchorIndex = nextIndex;
+    }
+
+    return smoothed;
+}
+
+function hasLineOfSight(
+    from: GridPathPoint,
+    to: GridPathPoint,
+    options: FindGridPathOptions,
+) {
+    const distance = Math.hypot(to.x - from.x, to.y - from.y);
+    const sampleStep = options.cellSize / 2;
+    const steps = Math.max(1, Math.ceil(distance / sampleStep));
+
+    for (let step = 1; step < steps; step += 1) {
+        const ratio = step / steps;
+        const point = {
+            x: from.x + (to.x - from.x) * ratio,
+            y: from.y + (to.y - from.y) * ratio,
+        };
+
+        if (isBlockedPoint(point, options)) return false;
+    }
+
+    return true;
+}
+
+function isBlockedPoint(point: GridPathPoint, options: FindGridPathOptions) {
+    const clearance = options.clearancePx ?? 0;
+
+    return options.blockedRects.some((rect) =>
+        isPointInsideExpandedRect(point, rect, clearance),
+    );
+}
+
+function isPointInsideExpandedRect(
+    point: GridPathPoint,
+    rect: GridPathRect,
+    clearance: number,
+) {
+    const minX = rect.x - clearance;
+    const minY = rect.y - clearance;
+    const maxX = rect.x + rect.width + clearance;
+    const maxY = rect.y + rect.height + clearance;
+
+    return point.x >= minX && point.x <= maxX && point.y >= minY && point.y <= maxY;
 }
 
 function getNeighbors(

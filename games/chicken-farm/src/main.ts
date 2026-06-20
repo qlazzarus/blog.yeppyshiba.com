@@ -7,6 +7,7 @@ import {
     TILEMAP_KEY,
     TILESET_KEY,
     VISIBILITY_OVERLAY,
+    WPM_PATHING_GRID_KEY,
 } from './game/config';
 import type { PlayerStart, WorldMarker } from './game/ecs/components';
 import { COMBAT_POC_LAYOUT } from './game/poc/combatPocLayout';
@@ -20,6 +21,8 @@ import {
     type FarmInputKeys,
     PlayerControlSystem,
 } from './game/systems/playerControlSystem';
+import { TerrainPathingPocSystem } from './game/systems/terrainPathingPocSystem';
+import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlocker';
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
 import { VisibilitySystem } from './game/systems/visibilitySystem';
 import { CHICKEN_FARM_TILEMAP_POC_01 } from './game/tilemapAssets';
@@ -39,6 +42,10 @@ class FarmScene extends Phaser.Scene {
     private playerStarts: PlayerStart[] = [];
     private telemetry!: TelemetryRecorder;
     private nextTelemetrySampleSec = 0;
+    private terrainBlocker?: TerrainBlocker;
+    private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
+    private terrainOverlayVisible = false;
+    private terrainPathingPoc?: TerrainPathingPocSystem;
     private uiObjects: Phaser.GameObjects.GameObject[] = [];
     private visibility!: VisibilitySystem;
     private worldCamera!: Phaser.Cameras.Scene2D.Camera;
@@ -54,6 +61,10 @@ class FarmScene extends Phaser.Scene {
     preload() {
         this.load.image(TILESET_KEY, CHICKEN_FARM_TILEMAP_POC_01.tilesetImagePath);
         this.load.tilemapTiledJSON(TILEMAP_KEY, CHICKEN_FARM_TILEMAP_POC_01.mapPath);
+        this.load.json(
+            WPM_PATHING_GRID_KEY,
+            CHICKEN_FARM_TILEMAP_POC_01.wpmPathingGridPath,
+        );
     }
 
     create() {
@@ -88,6 +99,11 @@ class FarmScene extends Phaser.Scene {
             worldObjects: this.worldObjects,
             worldScale: this.worldScale,
         });
+        const wpmGrid = this.cache.json.get(WPM_PATHING_GRID_KEY) as WpmPathingGrid;
+        this.terrainBlocker = new TerrainBlocker(wpmGrid);
+        this.terrainOverlayGraphics = this.add.graphics().setDepth(22).setVisible(false);
+        this.terrainBlocker.drawDebugOverlay(this.terrainOverlayGraphics);
+        this.worldObjects.push(this.terrainOverlayGraphics);
         this.renderTilemapObjects(map, 'farm_zones');
         this.renderTilemapObjects(map, 'spawns');
         this.telemetry = new TelemetryRecorder({
@@ -124,10 +140,17 @@ class FarmScene extends Phaser.Scene {
         this.combatPoc = new CombatPocSystem({
             getElapsedSec: () => this.elapsedSec,
             scene: this,
+            terrainBlocker: this.terrainBlocker,
             worldObjects: this.worldObjects,
             worldSize: this.worldSize,
         });
         this.createCombatPoc();
+        this.terrainPathingPoc = new TerrainPathingPocSystem({
+            scene: this,
+            terrainBlocker: this.terrainBlocker,
+            worldObjects: this.worldObjects,
+        });
+        this.terrainPathingPoc.create();
         this.visibility.updateLightingOverlay(this.worldSize);
         this.visibility.updateFogOfWar(this.playerControl.player, this.worldSize);
         this.updateMinimap();
@@ -137,9 +160,12 @@ class FarmScene extends Phaser.Scene {
         this.elapsedSec += delta / 1000;
         this.playerControl.updateSlotHotkeys();
         this.updateBuildGridHotkey();
+        this.updateTerrainOverlayHotkey();
+        this.updateMicroPathingFocusHotkey();
         this.updateTelemetryHotkey();
         this.playerControl.updateMovement(delta / 1000);
         this.combatPoc?.update(delta / 1000);
+        this.terrainPathingPoc?.update(delta / 1000);
         this.visibility.updateFogOfWar(this.playerControl.player, this.worldSize);
         this.updateMinimap();
         this.updateTelemetrySample();
@@ -197,6 +223,29 @@ class FarmScene extends Phaser.Scene {
         this.buildGridGraphics?.setVisible(this.buildGridVisible);
         this.telemetry.record('build_grid_toggled', {
             visible: this.buildGridVisible,
+        });
+    }
+
+    private updateTerrainOverlayHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.terrainOverlay)) return;
+
+        this.terrainOverlayVisible = !this.terrainOverlayVisible;
+        this.terrainOverlayGraphics?.setVisible(this.terrainOverlayVisible);
+        this.telemetry.record('terrain_overlay_toggled', {
+            visible: this.terrainOverlayVisible,
+        });
+    }
+
+    private updateMicroPathingFocusHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.microPathingFocus)) return;
+
+        const focus = this.terrainPathingPoc?.getFocusPoint();
+        if (!focus) return;
+
+        this.playerControl.moveToDebugPoint('PATH', focus.x, focus.y);
+        this.telemetry.record('micro_pathing_focus_selected', {
+            x: Number(focus.x.toFixed(1)),
+            y: Number(focus.y.toFixed(1)),
         });
     }
 
@@ -271,11 +320,13 @@ class FarmScene extends Phaser.Scene {
             four: Phaser.Input.Keyboard.KeyCodes.FOUR,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             left: Phaser.Input.Keyboard.KeyCodes.A,
+            microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
             one: Phaser.Input.Keyboard.KeyCodes.ONE,
             right: Phaser.Input.Keyboard.KeyCodes.D,
             seven: Phaser.Input.Keyboard.KeyCodes.SEVEN,
             six: Phaser.Input.Keyboard.KeyCodes.SIX,
-            telemetryExport: Phaser.Input.Keyboard.KeyCodes.T,
+            telemetryExport: Phaser.Input.Keyboard.KeyCodes.L,
+            terrainOverlay: Phaser.Input.Keyboard.KeyCodes.T,
             three: Phaser.Input.Keyboard.KeyCodes.THREE,
             two: Phaser.Input.Keyboard.KeyCodes.TWO,
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -293,7 +344,9 @@ class FarmScene extends Phaser.Scene {
                 this.worldCamera.scrollY,
             )} | zoom ${CAMERA_ZOOM}x | grid ${
                 this.buildGridVisible ? 'on' : 'off'
-            } | log ${this.telemetry?.getEventCount() ?? 0} | vision ${
+            } | terrain ${this.terrainOverlayVisible ? 'on' : 'off'} | log ${
+                this.telemetry?.getEventCount() ?? 0
+            } | vision ${
                 VISIBILITY_OVERLAY.revealRadiusPx
             }px | viewport ${this.worldCamera.width}x${this.worldCamera.height}`,
         );

@@ -11,6 +11,7 @@ export type ChickenFarmTilemapAsset = {
     readonly tileHeight: number;
     readonly tilesetImagePath: string;
     readonly tileWidth: number;
+    readonly wpmPathingGridPath: string;
 };
 
 const gameAssetBasePath = import.meta.env.BASE_URL;
@@ -28,4 +29,5 @@ export const CHICKEN_FARM_TILEMAP_POC_01: ChickenFarmTilemapAsset = {
     tileHeight: 16,
     tilesetImagePath: `${gameAssetBasePath}tilesets/kenney-tiny-town/tilemap_packed.png`,
     tileWidth: 16,
+    wpmPathingGridPath: `${gameAssetBasePath}data/wpm_pathing_grid.json`,
 };

@@ -1,90 +1,204 @@
 # Chicken Farm Next Priority Plan
 
-이 문서는 W3X 분석에서 Phaser 구현으로 넘어가기 전, 남은 작업의 우선순위를 정리한다.
+이 문서는 Chicken Farm Phaser MVP의 남은 PoC 우선순위와 다음 구현 대상을 정리한다.
 
 원칙:
 
 - PoC는 구현 리스크를 쪼개기 위한 단계이며, MVP의 원본 경험 범위를 줄이는 기준이 아니다.
 - 원본 논리 시간, 8인 슬롯, 농부+개 시작, 거미/늑대의 돌/늑대 웨이브, 가족/상점/건물 테크는 데이터 모델에 유지한다.
-- 빠른 검증은 룰 축소가 아니라 `timeScale`과 debug preset으로 처리한다.
+- 빠른 검증은 룰 축소가 아니라 `timeScale`, debug preset, 자동 측정 스크립트로 처리한다.
+- 차후 통합을 위해 PoC 로직은 가능한 한 Phaser GameObject와 분리하고, ECS component/query로 옮기기 쉬운 순수 상태/시스템 형태로 작성한다.
 
-## P0. 즉시 구현 데이터로 고정
+## 1. 현재 결정
 
-| 항목                       | 상태 | 다음 액션                                                                                                               |
-| -------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------- |
-| 시작 유닛                  | 완료 | `H000` 농부 + `n002` 개를 `createInitialState` 기본값으로 반영                                                          |
-| 시작 위치                  | 완료 | 8인 슬롯 기준 Tilemap object layer와 runtime spawn point를 연결                                                         |
-| 첫 웨이브/장기 타임라인    | 완료 | `wolf_wave_phase_reference.tsv`를 Phaser wave scheduler 데이터로 변환                                                   |
-| 일반 늑대 18티어           | 완료 | `combat_unit_stats_reference.tsv`에서 enemy template 생성                                                               |
-| 보스/소환 능력             | 완료 | `wolf_ability_reference.tsv`에서 boss ability stub 생성                                                                 |
-| 펜스/타워 라인             | 완료 | `fence_candidate_rawcodes.tsv` high confidence 라인을 building template로 축약                                          |
-| 배럭/연구소 테크           | 완료 | `building_tech_reference.tsv`와 `research_upgrade_provider_reference.tsv`를 Phaser build/research graph 입력값으로 사용 |
-| 아이템 획득 경로           | 완료 | `item_catalog_reference.tsv`와 `item_acquisition_reference.tsv`를 Phaser item/reward data 입력값으로 사용               |
-| Warsmash pathing/공격 전환 | 완료 | `balance.ts`의 `pathing`, enemy range/acquire/leash/windup 값으로 반영                                                  |
-| MVP 건물 템플릿            | 완료 | high confidence 펜스/벽/타워/코어/시장/용병소/연구소를 `balance.ts`의 `buildingTemplates`로 축약                        |
-| 늑대 AI 목표 갱신 규칙     | 완료 | `jass_wolf_order_flows.tsv` 결론을 `pathing.wolfAi.jassOrderModel`과 `wolfAi.ts` helper로 반영                          |
-| 전투 PoC                   | 진행 | Tilemap 화면 위에서 두 공격 타워, 울타리 우회, 타워 피격 어그로 전환, blocker fallback, grid 가시성을 확인              |
-| 원본 pathing 크기 검증     | 완료 | `.wpm` 352x336 cell 기준으로 `chicken_farm_poc_01.json`을 원본 크기 Tilemap으로 확장                                  |
-| 핵심 오브젝트 좌표         | 완료 | `key_unit_placement_reference.tsv` 기준 거미/늑대의 돌/고대 늑대의 돌/중앙 마켓/행상인/이벤트 NPC를 Phaser object layer에 반영 |
-| Tilemap trim               | 완료 | trim 전 백업 `chicken_farm_poc_01.backup_before_trim_352x336.json` 보관. 현재 맵은 상단 7, 왼쪽 2, 오른쪽 35 tile trim |
-| 초반 거미/방어 타이밍      | 완료 | `player_spider_defense_timing_budget.tsv`와 `early_defense_build_requirements.tsv`로 거미 왕복 후 첫 늑대 준비 시간 산정 |
+다음 우선 구현 PoC는 **PoC 7. 닭/알/수익 PoC**로 확정한다.
 
-## P1. 구현 전 추가 분석
+근거:
 
-| 우선순위 | 항목                           | 산출물                               | 이유                                                                                     |
-| -------: | ------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------- |
-|        1 | WPM terrain blocker 이식       | `wpm_pathing_grid.json`, runtime grid | 원본 지형 blocker와 동적 방벽/건물 blocker를 분리해 늑대 우회/공격 전환을 검증           |
-|        2 | Phaser 아이템/보상 데이터 축약 | `itemTemplates`, `rewardTables` 후보 | 구매/드랍/레벨/이벤트 보상을 런타임에서 같은 방식으로 지급                               |
-|        3 | WolfAI 상태 머신 고도화        | `WolfAI` runtime                     | 현재 전투 PoC의 A\* path를 전체 Tilemap grid, repath, blocker acquire 상태 머신으로 승격 |
+- WPM Terrain Blocker, Path Smoothing, WolfAI 상태 머신은 전투/이동 기반 검증을 통과했다.
+- 남은 통합 PoC 중 economy는 거미 보너스, 보스 보상, 타임라인, 8인 슬롯 통합의 공통 선행 조건이다.
+- 상점/교환, 가족 테크, FoW/미니맵은 병렬 가능하지만, 게임 루프 검증 관점에서는 30초 수익 tick과 자원 상태가 먼저 필요하다.
 
-## P2. 구현 중 병행 검증
+## 2. 완료된 기반 PoC
 
-| 항목                           | 검증 방법                                                                       |
-| ------------------------------ | ------------------------------------------------------------------------------- |
-| 거미 8개와 늑대 스폰 13개 구분 | 완료. `phaser_object_position_crosscheck.tsv`로 원본 좌표 교차검증               |
-| 중앙 상점/행상인/거북이 후보   | 완료. `n006`, `h01R`, `n01J` 실제 좌표를 object layer에 반영. reward hook은 후속 구현 |
-| 낮/밤                          | 시각/FoW 레이어로 먼저 구현, 늑대 스탯 보정은 기본 비활성                       |
-| 가족 테크                      | `marriage -> spouse -> support skill` 최소 축만 먼저 구현                       |
-| 8인 성능                       | 로컬 8슬롯 시뮬레이션으로 entity count와 pathing 비용 확인                      |
+| 항목 | 상태 | 판단 |
+| --- | --- | --- |
+| Tilemap 맵 PoC | 완료 | 원본 크기 기반 Tilemap, trim offset, 핵심 object layer 반영 |
+| PoC 2. 늑대/방벽/공격 건물 | 완료 기준 충족 | 전투/건물 blocker/공격 전환 확인용 baseline 확보 |
+| WPM Terrain Blocker 이식 | 완료 | `.wpm` 기반 terrain grid를 A* 입력과 debug overlay에 연결 |
+| Path Smoothing 이식 | 완료 | raw/smoothed 비교에서 waypoint/turn 감소 및 blocker safety 확인 |
+| WolfAI 상태 머신 PoC | 완료 | 순수 decision layer와 Warsmash fit 측정 통과 |
+| W3X 기준 데이터 고정 | 완료 | wave, unit stats, ability, building, item/reward 후보 TSV 확보 |
 
-## P2.1 초반 거미 사냥과 첫 방어 시간 예산
+완료 artifact:
 
-초반 감각은 "농부+개로 빠르게 거미를 잡고, 자기 구석으로 돌아와 타운홀/우물/닭/양계장/타워/방벽을 갖춰 첫 늑대를 막는 흐름"을 기준으로 검증한다.
+- WPM/pathing metrics: `docs/chicken_farm/chicken_farm_w3x_artifacts/terrain_pathing_poc_metrics.json`
+- WolfAI metrics: `docs/chicken_farm/chicken_farm_w3x_artifacts/wolf_ai_state_machine_metrics.json`
+- WPM runtime grid: `games/chicken-farm/assets/data/wpm_pathing_grid.json`
 
-산출물:
+핵심 측정 결과:
 
-- `player_to_spider_distance.tsv`: 각 P1-P8 시작점에서 가장 가까운 거미까지의 직선 거리.
-- `player_to_unique_spider_assignment.tsv`: 8명이 서로 다른 거미를 먹는 전제에서 총 이동거리 최소 배정.
-- `player_spider_defense_timing_budget.tsv`: 거미 왕복 후 `80초 경고`, 현재 MVP `70초 첫 웨이브`, 원본 정적 분석상 `120초 첫 주요 보충 단계`까지 남는 준비 시간.
-- `player_unique_spider_defense_timing_budget.tsv`: 겹치지 않는 거미 배정 기준의 방어 준비 시간.
-- `scout_tower_spider_clear_time.tsv`: 언리미티드 기준으로 거미 사거리 밖에 스카우트 타워를 지어 거미를 처치하는 시간.
-- `early_defense_build_requirements.tsv`: 타운홀, 우물, 닭장/양계장, 스카우트 타워 2개, 울타리, 시작 닭/불터/시장 키트 후보.
-- `initial_farmer_inventory_reference.tsv`: 시작 농부에게 지급되는 닭 분양서/불터/시장건설/질병 치료제 후보.
-- `early_defense_tech_path_reference.tsv`: 스카우트 타워 추가 건설과 기본/상위 방벽, 우물, 닭장까지의 초반 테크 요구조건.
-- `early_opening_build_order_timing.tsv`: `농부 시작 -> 스카우트 타워 -> 거미 처치 -> 불터/닭/시장 키트 -> 기본 울타리 -> 추가 스카우트 타워` 순차 빌드오더 완료 시간.
+- `micro_a`: raw waypoint `89` -> smoothed `4`, turn `9` -> `1`, detour `1.17` -> `1.13`, waypoint 감소율 `95.51%`
+- `micro_b`: raw waypoint `80` -> smoothed `3`, turn `7` -> `1`, detour `1.05` -> `1.02`, waypoint 감소율 `96.25%`
+- smoothed path의 `pathSegmentBlockedHits = 0`, `blockedWaypointCount = 0`
+- WolfAI decision table `6/6` 통과, Warsmash fit checks `5/5` 통과
 
-현재 결론:
+## 3. 남은 PoC 로드맵
 
-- P1-P8 시작점과 거미 좌표는 W3X 대응 좌표 기준으로 계산한다.
-- 단순 최단 거미 기준으로는 P2/P6, P3/P7, P4/P8이 같은 거미를 선호한다. 실제 플레이에서도 이 경우 빠른 재시작, 양보, 혹은 먼 거미 횡단이 발생할 수 있다.
-- 8명이 서로 다른 거미를 먹는 최적 배정에서는 P3 -> `spider_06`, P6 -> `spider_07`, P8 -> `spider_05`가 되며, 이 셋은 최단 거미 대비 이동 부담이 크게 늘어난다.
-- 거미 처치 시간은 단순 편도/왕복보다 "거미 사거리 밖 타워 건설 후 처치" 기준으로 봐야 한다. 언리미티드 기준에서는 농부+개 직접 교전보다 스카우트 타워 `h00D`를 거미 사거리 밖에 짓는 방식이 원본 플레이 감각에 가깝다.
-- `h00D` 스카우트 타워는 사거리 650, 평균 피해 23, 쿨다운 1.05초다. `n01D` 거미는 HP 620, 방어 2, 사거리 350이다. 방어 감소를 적용하면 평균 31회 공격, 약 31.5초에 처치한다.
-- 현재 추출 테이블에는 `h00D` 실제 건설시간 필드가 없으므로, 우선 휴먼 워치타워 계열 기본값으로 보이는 30초를 tentative로 둔다. 이 값은 MPQ/SLK 또는 Warsmash 관찰로 재검증해야 한다.
-- 거미 사거리 350 밖에 1 pathing cell 여유를 둔 382 거리에서 타워를 짓는다고 가정하면, 겹치지 않는 배정 기준 총 처리 시간은 `P1` 69.8초, `P2` 68.6초, `P3` 74.5초, `P4` 65.0초, `P5` 69.3초, `P6` 75.1초, `P7` 71.1초, `P8` 78.2초다.
-- 따라서 현재 MVP의 70초 첫 웨이브는 언리미티드식 거미 선처리 감각과 충돌한다. `80초 경고 -> 120초 본격 압박` 구조가 더 안전하다.
-- 원본 JASS 안내는 "80초 후 부터 늑대들이 출몰"이고, 정적 타이머상 첫 주요 보충/명령 단계는 120초다. 따라서 원본 감각 재현에서는 70초 고정보다 `80초 경고 -> 120초 본격 압박` 구조가 안전하다.
-- 현재 `balance.ts`의 건물 `buildTimeSec`는 대부분 0인 placeholder다. 실제 건설 시간은 외부 MPQ/SLK 또는 Warsmash 관찰로 보강해야 한다.
-- 초반 테크 기준으로 `H000` 농부는 `h00D` 스카우트 타워와 `h003` 울타리를 바로 건설할 수 있다. 따라서 거미 처리용 스카우트 타워 1개와 첫 방어용 추가 스카우트 타워/기본 방벽은 별도 테크 없이 가능하다.
-- 우물 `h00M`은 농가 `h001`, 닭장 `h00N`과 돌 벽 `h00K`는 마을회관 `h00H`가 필요하다. `h00H` 요구조건에 `H002` 아내가 추출되어 있어 결혼/아내 테크가 초반 마을회관 진입 조건인지 추가 검증해야 한다.
-- 위 순차 빌드오더 기준으로 두 번째 스카우트 타워 완성 시점은 P4 약 97초, P1/P2/P5/P7 약 101~103초, P3/P6 약 106~107초, P8 약 110초다.
-- 따라서 `70초 첫 웨이브`는 이 원본형 초반 운영과 충돌한다. `80초`는 경고/첫 출몰 체감으로 두고, 실제 방어선 검증은 `120초 첫 주요 보충/압박` 기준으로 맞추는 편이 원본 경험에 가깝다.
+| 우선순위 | PoC | 상태 | 선행 조건 | 다음 액션 |
+| ---: | --- | --- | --- | --- |
+| 1 | PoC 7. 닭/알/수익 | 다음 구현 | 현재 가능 | economy state, 30초 income tick, 자동 측정 추가 |
+| 2 | PoC 6. 중앙 상점/교환 | 병렬 가능 | object layer/UI | shop state와 교환 UI prototype |
+| 3 | PoC 12. 결혼/아내/가족 테크 | 병렬 가능 | state model | spouse/family component와 지원 스킬 구조 정의 |
+| 4 | PoC 4. 거미/초반 보너스 | PoC 7 이후 권장 | terrain + economy | 거미 보너스를 economy reward로 연결 |
+| 5 | PoC 5. 늑대의 돌 | 병렬 가능 | terrain + combat | 특정 object 공격/보상 흐름 검증 |
+| 6 | PoC 9. 보스/레벨 보상 | PoC 7 이후 | economy + reward | boss reward table과 level reward 지급 |
+| 7 | PoC 10. 원본 타임라인/배속 | PoC 7 이후 | economy tick + wave scheduler | timeScale 기반 장기 루프 측정 |
+| 8 | PoC 11. 낮/밤 + FoW + 미니맵 | 병렬 가능 | Tilemap | rendering layer 검증 |
+| 9 | PoC 8. 거북이 이벤트 NPC | PoC 6 이후 | central hub | event NPC interaction |
+| 10 | PoC 13. 8인 로컬 슬롯 | PoC 2 + 7 이후 | combat + economy | player slot별 state 분리 |
+| 11 | PoC 14. 싱글 플레이 통합 MVP/MVC | 주요 PoC 완료 후 | all core loops | playable vertical slice |
+| 12 | PoC 15. P2P 네트워크 | PoC 14 이후 | deterministic state boundary | sync model 검증 |
+| 13 | PoC 16. 8인 내부 테스트 | PoC 15 이후 | network | full scenario test |
 
-## P3. 후순위 검증
+## 4. PoC 7 구현 계획: 닭/알/수익
 
-| 항목                       | 이유                                                                    |
-| -------------------------- | ----------------------------------------------------------------------- |
-| 실제 플레이 관찰           | 보스 순서와 체감 스탯 검증에는 좋지만 현재 구현 착수의 선행 조건은 아님 |
-| wc3libs 교차 검증          | 현재 Python 파서 결과가 충분히 유효하므로, 불일치가 생길 때 보강        |
-| 원본 모델/아이콘 세부 연결 | 직접 사용하지 않고 신규 에셋 제작 참고로만 사용                         |
-| 전체 가족 테크 분기        | MVP 데이터에는 자리를 두되, 플레이 루프 안정 후 확장                    |
+### 목표
+
+PoC 7은 원본의 닭장/알/수익 루프를 Phaser MVP의 deterministic economy system으로 축약한다.
+
+검증해야 할 것:
+
+- `elapsedSec` 기반 30초 income tick이 정확히 반복되는가
+- 닭장 개수와 등급에 따라 알/코인이 기대값대로 증가하는가
+- 수익 상태가 player slot별로 분리 가능한 구조인가
+- 차후 상점, 거미 보너스, 보스 보상, revive penalty와 같은 외부 이벤트가 같은 economy API로 자원을 변경할 수 있는가
+
+### 기준 데이터
+
+현재 economy 기준은 `docs/chicken_farm/chicken_farm_wave_shop_disease_mvp_spec.md`를 따른다.
+
+| 항목 | MVP 값 |
+| --- | --- |
+| 시작 코인 | easy `140`, normal `120`, hard `120`, crazy `110` |
+| 수익 주기 | `30 sec` |
+| egg unit 환산 | `coin += eggUnits * 12`, `eggs += eggUnits` |
+| 기본 닭장 | `coop_basic`, cost `60`, `1 egg unit / 30 sec` |
+| 중급 닭장 | `coop_mid`, cost `120`, `2 egg units / 30 sec` |
+| 고급 닭장 | `coop_high`, cost `220`, `3 egg units / 30 sec` |
+| 업그레이드 | basic -> mid `80`, mid -> high `140` |
+| revive penalty | MVP 기준 자원 `25%` 손실 |
+| exchange | MVP 기본 비활성, PoC 6에서 분리 검증 |
+
+### Runtime 구조
+
+PoC 단계에서도 실제 통합을 고려해 순수 state와 adapter를 분리한다.
+
+```ts
+type EconomyPocState = {
+  elapsedSec: number;
+  nextIncomeAtSec: number;
+  players: EconomyPlayerState[];
+};
+
+type EconomyPlayerState = {
+  playerId: number;
+  coins: number;
+  eggs: number;
+  coops: IncomeCoopState[];
+};
+
+type IncomeCoopState = {
+  id: string;
+  templateId: "coop_basic" | "coop_mid" | "coop_high";
+  ownerPlayerId: number;
+};
+```
+
+권장 파일 분리:
+
+- `games/chicken-farm/src/game/systems/economyTypes.ts`: 순수 타입과 command/result 타입
+- `games/chicken-farm/src/game/systems/economySystem.ts`: income tick, buy, upgrade, resource mutation 순수 로직
+- `games/chicken-farm/src/game/poc/economyPocLayout.ts`: PoC 배치와 debug preset
+- `games/chicken-farm/src/game/systems/economyPocSystem.ts`: Phaser scene adapter, HUD/debug input
+- `scripts/measure-chicken-farm-economy.ts`: 자동 측정 스크립트
+
+### ECS 승격 기준
+
+PoC 구현은 아래 component로 옮길 수 있어야 한다.
+
+| Component | 역할 |
+| --- | --- |
+| `ResourceWallet` | `coins`, `eggs`, future resource 보관 |
+| `IncomeProducer` | 30초 tick에서 생산량 계산 |
+| `Owner` | player slot 연결 |
+| `Upgradeable` | upgrade path와 cost |
+| `EconomyCommandQueue` | buy/upgrade/reward/penalty 명령 처리 |
+| `GameClock` | `elapsedSec`, `timeScale`, next tick 계산 |
+
+Phaser adapter는 rendering, input, text label만 담당한다. Economy 계산은 scene object를 직접 참조하지 않는다.
+
+### Debug 조작안
+
+| 입력 | 동작 |
+| --- | --- |
+| `7` | PoC 7 economy debug area로 camera focus |
+| `C` | player 1 기본 닭장 구매 시도 |
+| `V` | 가장 낮은 등급 닭장 1개 업그레이드 시도 |
+| `I` | income tick 강제 실행 |
+| `O` | 30초 경과 simulation 1회 실행 |
+| `P` | current economy state를 console/export snapshot으로 출력 |
+
+기존 단축키와 충돌하면 `Shift + key` 조합으로 조정한다.
+
+### 자동 측정 지표
+
+PoC 7 구현 후 `npm run chicken:economy:measure`를 추가한다.
+
+예상 artifact:
+
+- `docs/chicken_farm/chicken_farm_w3x_artifacts/economy_poc_metrics.json`
+
+필수 지표:
+
+| 지표 | 의미 |
+| --- | --- |
+| `incomeTickCount` | simulation 동안 발생한 income tick 수 |
+| `expectedEggs` / `actualEggs` | 계산 기대값과 실제 state 비교 |
+| `expectedCoins` / `actualCoins` | 계산 기대값과 실제 state 비교 |
+| `tickDriftSec` | 30초 tick schedule 오차 |
+| `buyCommandPass` | 구매 비용 차감 및 coop 생성 성공 여부 |
+| `upgradeCommandPass` | upgrade 비용 차감 및 template 변경 성공 여부 |
+| `multiPlayerIsolationPass` | player별 wallet/coop 분리 여부 |
+| `revivePenaltyPass` | 25% resource loss 계산 여부 |
+
+통과 기준:
+
+- 5분 simulation에서 `incomeTickCount = 10`
+- tick drift는 `0` 또는 floating point tolerance 이하
+- expected/actual eggs, coins가 일치
+- player 1의 buy/upgrade/reward가 player 2 wallet에 영향을 주지 않음
+- `timeScale`을 올려도 tick 개수와 최종 자원이 동일함
+
+## 5. 구현 순서
+
+1. `balance.ts`의 economy/shop 값을 PoC 7에서 직접 사용 가능한지 확인한다.
+2. 순수 `economySystem`을 먼저 작성하고 Phaser 의존성 없는 단위 simulation을 만든다.
+3. PoC 7 debug layout과 HUD를 붙인다.
+4. `npm run chicken:economy:measure` 자동 측정 스크립트를 추가한다.
+5. 측정 artifact를 문서에 반영하고, 통과 시 PoC 7 완료로 표시한다.
+6. 다음 PoC는 측정 결과에 따라 PoC 4 거미/초반 보너스 또는 PoC 6 중앙 상점/교환 중 선택한다.
+
+## 6. 보류 및 리스크
+
+- 원본 JASS의 정확한 lumber 의미는 MVP에서 `coins/eggs`로 축약한다. 정밀 이식은 추가 로그/원본 함수 추적 후 재검토한다.
+- 중앙 상점 exchange는 PoC 6 범위다. PoC 7에서는 자원 상태와 income producer까지만 고정한다.
+- UI는 최종 상점 UI가 아니라 debug HUD로 제한한다.
+- P2P deterministic 검증은 PoC 15 범위지만, PoC 7부터 순수 state transition 형태를 유지해 network 승격 비용을 줄인다.
+
+## 7. 참고 문서
+
+- 전체 PoC 목록: `docs/chicken_farm/chicken_farm_phaser_p2p_game_plan.md`
+- Economy 기준: `docs/chicken_farm/chicken_farm_wave_shop_disease_mvp_spec.md`
+- W3X artifact: `docs/chicken_farm/chicken_farm_w3x_artifacts/`
+- Phaser 구현: `games/chicken-farm/src/game/`

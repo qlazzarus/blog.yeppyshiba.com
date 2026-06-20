@@ -1,0 +1,186 @@
+{
+  "generatedAt": "2026-06-19T23:55:55.486Z",
+  "parameters": {
+    "blockedToBlockerDelaySec": 0.8,
+    "blockerSearchRadiusCells": 3,
+    "blockerSearchRadiusPx": 96,
+    "cellSize": 32,
+    "repathIntervalSec": 0.5
+  },
+  "warsmashReference": {
+    "blockedToBlockerDelayRangeSec": [
+      0.6,
+      1
+    ],
+    "blockerSearchRadiusCells": [
+      2,
+      3
+    ],
+    "blockerTargeting": "movement_failure_result",
+    "notesSource": "docs/chicken_farm/chicken_farm_warsmash_behavior_notes.md",
+    "repathIntervalSec": 0.5
+  },
+  "cases": [
+    {
+      "expectedAction": "attack_direct_target",
+      "id": "direct_target_has_priority",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": true,
+        "hasDirectTarget": true,
+        "hasLivePathWaypoint": true,
+        "isBlockingTargetInAttackRange": true,
+        "pathFailedSinceSec": 9
+      },
+      "note": "Attackable direct target should override path following and blocker handling.",
+      "actual": {
+        "action": "attack_direct_target",
+        "reason": "attackable_target_in_range",
+        "state": "attack"
+      },
+      "pass": true
+    },
+    {
+      "expectedAction": "follow_path",
+      "id": "path_available_prefers_move",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": true,
+        "hasDirectTarget": false,
+        "hasLivePathWaypoint": true,
+        "isBlockingTargetInAttackRange": true,
+        "pathFailedSinceSec": 8
+      },
+      "note": "A live path should prevent premature blocker attacks.",
+      "actual": {
+        "action": "follow_path",
+        "reason": "path_available",
+        "state": "move"
+      },
+      "pass": true
+    },
+    {
+      "expectedAction": "wait_for_repath",
+      "id": "path_missing_waits_before_blocker_delay",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": true,
+        "hasDirectTarget": false,
+        "hasLivePathWaypoint": false,
+        "isBlockingTargetInAttackRange": true,
+        "pathFailedSinceSec": 9.209999999999999
+      },
+      "note": "Path failure should not immediately become blocker attack.",
+      "actual": {
+        "action": "wait_for_repath",
+        "reason": "path_missing_waiting_for_blocker_delay",
+        "state": "repath"
+      },
+      "pass": true
+    },
+    {
+      "expectedAction": "approach_blocker",
+      "id": "blocked_delay_elapsed_approaches_blocker",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": true,
+        "hasDirectTarget": false,
+        "hasLivePathWaypoint": false,
+        "isBlockingTargetInAttackRange": false,
+        "pathFailedSinceSec": 9.2
+      },
+      "note": "After the blocked delay, an out-of-range blocker should be approached.",
+      "actual": {
+        "action": "approach_blocker",
+        "reason": "blocker_found_after_path_failure",
+        "state": "blocked"
+      },
+      "pass": true
+    },
+    {
+      "expectedAction": "attack_blocker",
+      "id": "blocked_delay_elapsed_attacks_blocker_in_range",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": true,
+        "hasDirectTarget": false,
+        "hasLivePathWaypoint": false,
+        "isBlockingTargetInAttackRange": true,
+        "pathFailedSinceSec": 9.2
+      },
+      "note": "After the blocked delay, an in-range blocker should be attacked.",
+      "actual": {
+        "action": "attack_blocker",
+        "reason": "blocker_attack_range_reached",
+        "state": "attack_blocker"
+      },
+      "pass": true
+    },
+    {
+      "expectedAction": "wait_for_repath",
+      "id": "no_blocker_waits_for_repath",
+      "input": {
+        "blockedToBlockerDelaySec": 0.8,
+        "elapsedSec": 10,
+        "hasBlockingTarget": false,
+        "hasDirectTarget": false,
+        "hasLivePathWaypoint": false,
+        "isBlockingTargetInAttackRange": false,
+        "pathFailedSinceSec": 5
+      },
+      "note": "Without a blocking target, the wolf should stay in repath/wait behavior.",
+      "actual": {
+        "action": "wait_for_repath",
+        "reason": "path_missing_waiting_for_blocker_delay",
+        "state": "repath"
+      },
+      "pass": true
+    }
+  ],
+  "warsmashFitChecks": [
+    {
+      "id": "blocked_to_blocker_delay_range",
+      "expected": "0.6 <= delay <= 1.0",
+      "actual": 0.8,
+      "pass": true
+    },
+    {
+      "id": "repath_interval",
+      "expected": 0.5,
+      "actual": 0.5,
+      "pass": true
+    },
+    {
+      "id": "blocker_search_radius_cells",
+      "expected": "2 <= cells <= 3",
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "id": "path_available_does_not_attack_blocker",
+      "expected": "follow_path",
+      "actual": "follow_path",
+      "pass": true
+    },
+    {
+      "id": "blocked_delay_guards_attack_blocker",
+      "expected": "wait_for_repath",
+      "actual": "wait_for_repath",
+      "pass": true
+    }
+  ],
+  "summary": {
+    "failed": 0,
+    "passed": 6,
+    "total": 6,
+    "warsmashFit": "pass",
+    "warsmashFitFailed": 0,
+    "warsmashFitPassed": 5,
+    "warsmashFitTotal": 5
+  }
+}
