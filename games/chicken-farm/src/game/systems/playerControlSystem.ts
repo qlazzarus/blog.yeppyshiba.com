@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { PLAYER_SPEED_PX_PER_SEC, POC_FIXED_PLAYER_SLOT_ID } from '../config';
+import { POC_FIXED_PLAYER_SLOT_ID } from '../config';
 import type { PlayerStart } from '../ecs/components';
 
 export type FarmInputKeys = Record<
@@ -16,6 +16,9 @@ export type FarmInputKeys = Record<
     | 'seven'
     | 'eight'
     | 'grid'
+    | 'microPathingFocus'
+    | 'stop'
+    | 'terrainOverlay'
     | 'telemetryExport'
     | 'up',
     Phaser.Input.Keyboard.Key
@@ -23,37 +26,31 @@ export type FarmInputKeys = Record<
 
 type PlayerControlSystemConfig = {
     readonly camera: Phaser.Cameras.Scene2D.Camera;
-    readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     readonly keys: FarmInputKeys;
     readonly onPlayerStartChanged: (start: PlayerStart) => void;
     readonly playerStarts: readonly PlayerStart[];
     readonly scene: Phaser.Scene;
     readonly worldObjects: Phaser.GameObjects.GameObject[];
-    readonly worldSize: Phaser.Math.Vector2;
 };
 
 export class PlayerControlSystem {
     private readonly camera: Phaser.Cameras.Scene2D.Camera;
-    private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     private readonly keys: FarmInputKeys;
     private readonly onPlayerStartChanged: (start: PlayerStart) => void;
     private readonly playerStarts: readonly PlayerStart[];
     private readonly scene: Phaser.Scene;
     private readonly worldObjects: Phaser.GameObjects.GameObject[];
-    private readonly worldSize: Phaser.Math.Vector2;
     private playerSlotText?: Phaser.GameObjects.Text;
     private playerObject?: Phaser.GameObjects.Container;
     private startLabel = 'P?';
 
     constructor(config: PlayerControlSystemConfig) {
         this.camera = config.camera;
-        this.cursors = config.cursors;
         this.keys = config.keys;
         this.onPlayerStartChanged = config.onPlayerStartChanged;
         this.playerStarts = config.playerStarts;
         this.scene = config.scene;
         this.worldObjects = config.worldObjects;
-        this.worldSize = config.worldSize;
     }
 
     get player() {
@@ -62,6 +59,16 @@ export class PlayerControlSystem {
 
     get playerStartLabel() {
         return this.startLabel;
+    }
+
+    moveToDebugPoint(label: string, x: number, y: number) {
+        if (!this.playerObject) return;
+
+        this.playerObject.setPosition(x, y);
+        this.startLabel = label;
+        this.playerSlotText?.setText(`${label} PLAYER`);
+        this.camera.centerOn(x, y);
+        this.onPlayerStartChanged({ id: 0, label, x, y });
     }
 
     createAtConfiguredStart() {
@@ -76,33 +83,6 @@ export class PlayerControlSystem {
             ];
         this.createPlayerMarker();
         this.moveToStart(start);
-    }
-
-    updateMovement(deltaSec: number) {
-        if (!this.playerObject) return;
-
-        const move = new Phaser.Math.Vector2(0, 0);
-
-        if (this.cursors.left.isDown || this.keys.left.isDown) move.x -= 1;
-        if (this.cursors.right.isDown || this.keys.right.isDown) move.x += 1;
-        if (this.cursors.up.isDown || this.keys.up.isDown) move.y -= 1;
-        if (this.cursors.down.isDown || this.keys.down.isDown) move.y += 1;
-
-        if (move.lengthSq() <= 0) return;
-
-        move.normalize().scale(PLAYER_SPEED_PX_PER_SEC * deltaSec);
-
-        const nextX = Phaser.Math.Clamp(
-            this.playerObject.x + move.x,
-            12,
-            this.worldSize.x - 12,
-        );
-        const nextY = Phaser.Math.Clamp(
-            this.playerObject.y + move.y,
-            12,
-            this.worldSize.y - 12,
-        );
-        this.playerObject.setPosition(nextX, nextY);
     }
 
     updateSlotHotkeys() {

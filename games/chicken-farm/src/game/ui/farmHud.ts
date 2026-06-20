@@ -51,7 +51,7 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         .text(
             164,
             WORLD_VIEW_HEIGHT + 48,
-            'Arrow keys / WASD move player, 1-8 switch spawn, G grid, T export log',
+            'Drag select, right-click move/attack, WASD pan (S stop), 1-8 focus, G grid, T terrain, L log',
             {
                 color: '#bcc9a6',
                 fontFamily: 'system-ui, sans-serif',

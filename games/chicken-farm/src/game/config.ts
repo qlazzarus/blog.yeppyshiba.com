@@ -4,6 +4,7 @@ export const UI_HEIGHT = 180;
 export const WORLD_VIEW_HEIGHT = CANVAS_HEIGHT - UI_HEIGHT;
 export const TILESET_KEY = 'kenney-tiny-town-tiles';
 export const TILEMAP_KEY = 'chicken-farm-poc-01-map';
+export const WPM_PATHING_GRID_KEY = 'chicken-farm-wpm-pathing-grid';
 export const CAMERA_ZOOM = 0.85;
 export const MINIMAP_HEIGHT = 124;
 export const MINIMAP_WIDTH = 132;

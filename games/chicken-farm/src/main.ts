@@ -7,6 +7,7 @@ import {
     TILEMAP_KEY,
     TILESET_KEY,
     VISIBILITY_OVERLAY,
+    WPM_PATHING_GRID_KEY,
 } from './game/config';
 import type { PlayerStart, WorldMarker } from './game/ecs/components';
 import { COMBAT_POC_LAYOUT } from './game/poc/combatPocLayout';
@@ -15,11 +16,17 @@ import {
     createTileLayer,
     renderObjectLayer,
 } from './game/rendering/tilemapObjectRenderer';
+import { CameraControlSystem } from './game/systems/cameraControlSystem';
 import { CombatPocSystem } from './game/systems/combatPocSystem';
+import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
+import { DragSelectionInputSystem } from './game/systems/dragSelectionInputSystem';
 import {
     type FarmInputKeys,
     PlayerControlSystem,
 } from './game/systems/playerControlSystem';
+import { PerformanceProfiler } from './game/systems/performanceProfiler';
+import { TerrainPathingPocSystem } from './game/systems/terrainPathingPocSystem';
+import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlocker';
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
 import { VisibilitySystem } from './game/systems/visibilitySystem';
 import { CHICKEN_FARM_TILEMAP_POC_01 } from './game/tilemapAssets';
@@ -32,13 +39,21 @@ class FarmScene extends Phaser.Scene {
     private keys!: FarmInputKeys;
     private buildGridGraphics?: Phaser.GameObjects.Graphics;
     private buildGridVisible = true;
+    private cameraControl!: CameraControlSystem;
     private combatPoc?: CombatPocSystem;
+    private controllableUnits!: ControllableUnitSystem;
+    private dragSelectionInput?: DragSelectionInputSystem;
     private elapsedSec = 0;
     private minimapGraphics?: Phaser.GameObjects.Graphics;
+    private performanceProfiler = new PerformanceProfiler();
     private playerControl!: PlayerControlSystem;
     private playerStarts: PlayerStart[] = [];
     private telemetry!: TelemetryRecorder;
     private nextTelemetrySampleSec = 0;
+    private terrainBlocker?: TerrainBlocker;
+    private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
+    private terrainOverlayVisible = false;
+    private terrainPathingPoc?: TerrainPathingPocSystem;
     private uiObjects: Phaser.GameObjects.GameObject[] = [];
     private visibility!: VisibilitySystem;
     private worldCamera!: Phaser.Cameras.Scene2D.Camera;
@@ -54,6 +69,10 @@ class FarmScene extends Phaser.Scene {
     preload() {
         this.load.image(TILESET_KEY, CHICKEN_FARM_TILEMAP_POC_01.tilesetImagePath);
         this.load.tilemapTiledJSON(TILEMAP_KEY, CHICKEN_FARM_TILEMAP_POC_01.mapPath);
+        this.load.json(
+            WPM_PATHING_GRID_KEY,
+            CHICKEN_FARM_TILEMAP_POC_01.wpmPathingGridPath,
+        );
     }
 
     create() {
@@ -88,6 +107,11 @@ class FarmScene extends Phaser.Scene {
             worldObjects: this.worldObjects,
             worldScale: this.worldScale,
         });
+        const wpmGrid = this.cache.json.get(WPM_PATHING_GRID_KEY) as WpmPathingGrid;
+        this.terrainBlocker = new TerrainBlocker(wpmGrid);
+        this.terrainOverlayGraphics = this.add.graphics().setDepth(22).setVisible(false);
+        this.terrainBlocker.drawDebugOverlay(this.terrainOverlayGraphics);
+        this.worldObjects.push(this.terrainOverlayGraphics);
         this.renderTilemapObjects(map, 'farm_zones');
         this.renderTilemapObjects(map, 'spawns');
         this.telemetry = new TelemetryRecorder({
@@ -106,44 +130,102 @@ class FarmScene extends Phaser.Scene {
         });
         this.visibility.createOverlays();
         this.configureControls();
+        this.input.mouse?.disableContextMenu();
+        this.controllableUnits = new ControllableUnitSystem({
+            damageEnemyTarget: (targetId, damage) =>
+                this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+            getAttackableEnemyTarget: (targetId) =>
+                this.combatPoc?.getAttackableEnemyTarget(targetId) ?? null,
+            getDynamicBlockedRects: () =>
+                this.combatPoc?.getDynamicBlockedRects() ?? [],
+            getElapsedSec: () => this.elapsedSec,
+            recordPerformance: (label, elapsedMs) =>
+                this.performanceProfiler.record(label, elapsedMs),
+            scene: this,
+            terrainBlocker: this.terrainBlocker,
+            worldObjects: this.worldObjects,
+            worldSize: this.worldSize,
+        });
         this.playerControl = new PlayerControlSystem({
             camera: this.worldCamera,
-            cursors: this.cursors,
             keys: this.keys,
             onPlayerStartChanged: (start) => this.handlePlayerStartChanged(start),
             playerStarts: this.playerStarts,
             scene: this,
             worldObjects: this.worldObjects,
-            worldSize: this.worldSize,
         });
         this.playerControl.createAtConfiguredStart();
+        this.cameraControl = new CameraControlSystem({
+            camera: this.worldCamera,
+            cursors: this.cursors,
+            keys: this.keys,
+            speedPxPerSec: CHICKEN_FARM_TILEMAP_POC_01.defaultCameraSpeedPxPerSec,
+            worldSize: this.worldSize,
+        });
         const hud = createFarmHud({ scene: this, uiObjects: this.uiObjects });
         this.debugText = hud.debugText;
         this.minimapGraphics = hud.minimapGraphics;
         this.configureCameras(map);
+        this.configurePointerSelection();
         this.combatPoc = new CombatPocSystem({
+            damageControllableUnit: (unitId, damage) =>
+                this.controllableUnits.damageUnit(unitId, damage),
             getElapsedSec: () => this.elapsedSec,
+            getWolfTargetableUnits: () =>
+                this.controllableUnits.getWolfTargetableUnits(),
+            recordPerformance: (label, elapsedMs) =>
+                this.performanceProfiler.record(label, elapsedMs),
             scene: this,
+            terrainBlocker: this.terrainBlocker,
             worldObjects: this.worldObjects,
             worldSize: this.worldSize,
         });
         this.createCombatPoc();
+        this.terrainPathingPoc = new TerrainPathingPocSystem({
+            scene: this,
+            terrainBlocker: this.terrainBlocker,
+            worldObjects: this.worldObjects,
+        });
+        this.terrainPathingPoc.create();
         this.visibility.updateLightingOverlay(this.worldSize);
-        this.visibility.updateFogOfWar(this.playerControl.player, this.worldSize);
+        this.visibility.updateFogOfWar(this.getVisionAnchor(), this.worldSize);
         this.updateMinimap();
     }
 
     update(_time: number, delta: number) {
+        this.performanceProfiler.beginFrame(delta);
         this.elapsedSec += delta / 1000;
-        this.playerControl.updateSlotHotkeys();
-        this.updateBuildGridHotkey();
-        this.updateTelemetryHotkey();
-        this.playerControl.updateMovement(delta / 1000);
-        this.combatPoc?.update(delta / 1000);
-        this.visibility.updateFogOfWar(this.playerControl.player, this.worldSize);
-        this.updateMinimap();
-        this.updateTelemetrySample();
-        this.updateDebugText();
+        this.performanceProfiler.measure('update.hotkeys', () => {
+            this.playerControl.updateSlotHotkeys();
+            this.updateBuildGridHotkey();
+            this.updateTerrainOverlayHotkey();
+            this.updateMicroPathingFocusHotkey();
+            this.updateTelemetryHotkey();
+            this.updateStopHotkey();
+        });
+        this.performanceProfiler.measure('update.camera', () =>
+            this.cameraControl.update(delta / 1000),
+        );
+        this.performanceProfiler.measure('update.units', () =>
+            this.controllableUnits.update(delta / 1000),
+        );
+        this.performanceProfiler.measure('update.combat', () =>
+            this.combatPoc?.update(delta / 1000),
+        );
+        this.performanceProfiler.measure('update.terrainPathPoc', () =>
+            this.terrainPathingPoc?.update(delta / 1000),
+        );
+        this.performanceProfiler.measure('update.fog', () =>
+            this.visibility.updateFogOfWar(this.getVisionAnchor(), this.worldSize),
+        );
+        this.performanceProfiler.measure('update.minimap', () => this.updateMinimap());
+        this.performanceProfiler.measure('update.telemetrySample', () =>
+            this.updateTelemetrySample(),
+        );
+        this.performanceProfiler.measure('update.debugText', () =>
+            this.updateDebugText(),
+        );
+        this.performanceProfiler.endFrame(this.elapsedSec);
     }
 
     private renderTilemapObjects(map: Phaser.Tilemaps.Tilemap, layerName: string) {
@@ -187,7 +269,10 @@ class FarmScene extends Phaser.Scene {
             x: Number(start.x.toFixed(1)),
             y: Number(start.y.toFixed(1)),
         });
-        this.visibility.revealAroundPlayer(this.playerControl.player, this.worldSize);
+        if (start.id > 0) {
+            this.controllableUnits?.createForStart(start);
+        }
+        this.visibility.revealAroundPlayer(this.getVisionAnchor(), this.worldSize);
     }
 
     private updateBuildGridHotkey() {
@@ -200,6 +285,29 @@ class FarmScene extends Phaser.Scene {
         });
     }
 
+    private updateTerrainOverlayHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.terrainOverlay)) return;
+
+        this.terrainOverlayVisible = !this.terrainOverlayVisible;
+        this.terrainOverlayGraphics?.setVisible(this.terrainOverlayVisible);
+        this.telemetry.record('terrain_overlay_toggled', {
+            visible: this.terrainOverlayVisible,
+        });
+    }
+
+    private updateMicroPathingFocusHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.microPathingFocus)) return;
+
+        const focus = this.terrainPathingPoc?.getFocusPoint();
+        if (!focus) return;
+
+        this.playerControl.moveToDebugPoint('PATH', focus.x, focus.y);
+        this.telemetry.record('micro_pathing_focus_selected', {
+            x: Number(focus.x.toFixed(1)),
+            y: Number(focus.y.toFixed(1)),
+        });
+    }
+
     private updateTelemetryHotkey() {
         if (!Phaser.Input.Keyboard.JustDown(this.keys.telemetryExport)) return;
 
@@ -207,7 +315,7 @@ class FarmScene extends Phaser.Scene {
     }
 
     private updateTelemetrySample() {
-        const player = this.playerControl.player;
+        const player = this.getVisionAnchor();
         if (!player || this.elapsedSec < this.nextTelemetrySampleSec) return;
 
         this.telemetry.record('player_position_sample', {
@@ -226,7 +334,7 @@ class FarmScene extends Phaser.Scene {
         this.visibility.updateMinimap({
             camera: this.worldCamera,
             graphics: this.minimapGraphics,
-            player: this.playerControl.player,
+            player: this.getVisionAnchor(),
             playerStarts: this.playerStarts,
             worldMarkers: this.worldMarkers,
             worldSize: this.worldSize,
@@ -243,7 +351,6 @@ class FarmScene extends Phaser.Scene {
 
         const player = this.playerControl.player;
         if (player) {
-            this.worldCamera.startFollow(player, true, 0.16, 0.16);
             this.worldCamera.centerOn(player.x, player.y);
         } else {
             this.worldCamera.centerOn(worldWidth / 2, worldHeight / 2);
@@ -271,21 +378,103 @@ class FarmScene extends Phaser.Scene {
             four: Phaser.Input.Keyboard.KeyCodes.FOUR,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             left: Phaser.Input.Keyboard.KeyCodes.A,
+            microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
             one: Phaser.Input.Keyboard.KeyCodes.ONE,
             right: Phaser.Input.Keyboard.KeyCodes.D,
             seven: Phaser.Input.Keyboard.KeyCodes.SEVEN,
             six: Phaser.Input.Keyboard.KeyCodes.SIX,
-            telemetryExport: Phaser.Input.Keyboard.KeyCodes.T,
+            stop: Phaser.Input.Keyboard.KeyCodes.S,
+            telemetryExport: Phaser.Input.Keyboard.KeyCodes.L,
+            terrainOverlay: Phaser.Input.Keyboard.KeyCodes.T,
             three: Phaser.Input.Keyboard.KeyCodes.THREE,
             two: Phaser.Input.Keyboard.KeyCodes.TWO,
             up: Phaser.Input.Keyboard.KeyCodes.W,
         }) as FarmScene['keys'];
     }
 
+    private updateStopHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.stop)) return;
+
+        const stoppedUnitCount = this.controllableUnits.stopSelectedUnits();
+        this.telemetry.record('unit_stop_command_issued', {
+            stoppedUnitCount,
+        });
+    }
+
+    private configurePointerSelection() {
+        this.dragSelectionInput = new DragSelectionInputSystem({
+            camera: this.worldCamera,
+            onClick: (worldPoint) => {
+                const selected = this.controllableUnits.selectAt(
+                    worldPoint.x,
+                    worldPoint.y,
+                );
+                this.telemetry.record('unit_selection_changed', {
+                    mode: 'click',
+                    selectedUnitCount: selected ? 1 : 0,
+                    selectedUnitId: selected?.id ?? null,
+                    selectedUnitType: selected?.templateId ?? null,
+                    x: Number(worldPoint.x.toFixed(1)),
+                    y: Number(worldPoint.y.toFixed(1)),
+                });
+            },
+            onDragSelect: (rect) => {
+                const selectedUnits = this.controllableUnits.selectInRect(rect);
+                this.telemetry.record('unit_selection_changed', {
+                    height: Number(rect.height.toFixed(1)),
+                    mode: 'drag',
+                    selectedUnitCount: selectedUnits.length,
+                    selectedUnitIds: selectedUnits.map((unit) => unit.id),
+                    width: Number(rect.width.toFixed(1)),
+                    x: Number(rect.x.toFixed(1)),
+                    y: Number(rect.y.toFixed(1)),
+                });
+            },
+            scene: this,
+            viewportHeight: CHICKEN_FARM_TILEMAP_POC_01.defaultViewportHeight,
+            worldObjects: this.worldObjects,
+        });
+        this.dragSelectionInput.bind();
+        this.input.on(
+            Phaser.Input.Events.POINTER_DOWN,
+            (pointer: Phaser.Input.Pointer) => {
+                if (!pointer.rightButtonDown()) return;
+                if (pointer.y > CHICKEN_FARM_TILEMAP_POC_01.defaultViewportHeight) return;
+
+                const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
+                const enemyTarget = this.combatPoc?.hitTestEnemy(
+                    worldPoint.x,
+                    worldPoint.y,
+                );
+                const result = this.performanceProfiler.measure(
+                    'command.smart.total',
+                    () =>
+                        this.controllableUnits.issueSmartCommandToSelected(
+                            {
+                                x: worldPoint.x,
+                                y: worldPoint.y,
+                            },
+                            enemyTarget?.id,
+                        ),
+                );
+
+                this.telemetry.record('unit_smart_command_issued', {
+                    action: result.action,
+                    affectedUnitCount: result.affectedUnitCount,
+                    targetEntityId: enemyTarget?.id ?? null,
+                    x: Number(worldPoint.x.toFixed(1)),
+                    y: Number(worldPoint.y.toFixed(1)),
+                });
+            },
+        );
+    }
+
     private updateDebugText() {
         if (!this.debugText) return;
 
         const player = this.playerControl.player;
+        const primaryUnit = this.controllableUnits.getPrimaryUnit();
+        const selectedUnits = this.controllableUnits.getSelectedUnits();
         this.debugText.setText(
             `${this.playerControl.playerStartLabel} player ${Math.round(player?.x ?? 0)}, ${Math.round(
                 player?.y ?? 0,
@@ -293,10 +482,22 @@ class FarmScene extends Phaser.Scene {
                 this.worldCamera.scrollY,
             )} | zoom ${CAMERA_ZOOM}x | grid ${
                 this.buildGridVisible ? 'on' : 'off'
-            } | log ${this.telemetry?.getEventCount() ?? 0} | vision ${
+            } | terrain ${this.terrainOverlayVisible ? 'on' : 'off'} | log ${
+                this.telemetry?.getEventCount() ?? 0
+            } | vision ${
                 VISIBILITY_OVERLAY.revealRadiusPx
-            }px | viewport ${this.worldCamera.width}x${this.worldCamera.height}`,
+            }px | ${this.controllableUnits.getUnitSummary()} | unit speed ${
+                primaryUnit?.speedPxPerSec ?? 0
+            } | selected ${
+                selectedUnits.map((unit) => unit.templateId).join(',') || 'none'
+            } | viewport ${this.worldCamera.width}x${
+                this.worldCamera.height
+            }\n${this.performanceProfiler.getOverlayText()}`,
         );
+    }
+
+    private getVisionAnchor() {
+        return this.controllableUnits?.getPrimaryUnitObject() ?? this.playerControl.player;
     }
 }
 

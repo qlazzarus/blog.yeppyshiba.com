@@ -1,0 +1,112 @@
+{
+  "generatedAt": "2026-06-19T23:43:30.901Z",
+  "parameters": {
+    "cellSize": 32,
+    "clearancePx": 16,
+    "directSampleStepPx": 16,
+    "sourceGrid": "games/chicken-farm/assets/data/wpm_pathing_grid.json",
+    "wolfSpeedPxPerSec": 115
+  },
+  "metrics": [
+    {
+      "direct": {
+        "blockedHits": 8,
+        "blockedPct": 4.97,
+        "distance": 2560,
+        "maxBlockedRun": 4
+      },
+      "label": "Terrain path A",
+      "probeId": "micro_a",
+      "raw": {
+        "blockedWaypointCount": 0,
+        "expectedTravelSec": 26.08,
+        "minClearanceCells": 1.5,
+        "pathComputeMs": 48.98,
+        "pathDistance": 2999.14,
+        "pathSegmentBlockedHits": 0,
+        "pathFound": true,
+        "detourRatio": 1.17,
+        "turnCount": 9,
+        "waypointCount": 89
+      },
+      "smoothed": {
+        "blockedWaypointCount": 0,
+        "expectedTravelSec": 25.24,
+        "minClearanceCells": 1.58,
+        "pathComputeMs": 31.85,
+        "pathDistance": 2903,
+        "pathSegmentBlockedHits": 0,
+        "pathFound": true,
+        "detourRatio": 1.13,
+        "turnCount": 1,
+        "waypointCount": 4
+      },
+      "smoothingDelta": {
+        "detourRatioDelta": -0.04,
+        "distanceDelta": -96.14,
+        "expectedTravelSecDelta": -0.84,
+        "turnReduction": 8,
+        "waypointReduction": 85,
+        "waypointReductionPct": 95.51
+      },
+      "start": {
+        "x": 3776,
+        "y": 4800
+      },
+      "target": {
+        "x": 6336,
+        "y": 4800
+      }
+    },
+    {
+      "direct": {
+        "blockedHits": 40,
+        "blockedPct": 24.84,
+        "distance": 2560,
+        "maxBlockedRun": 20
+      },
+      "label": "Terrain path B",
+      "probeId": "micro_b",
+      "raw": {
+        "blockedWaypointCount": 0,
+        "expectedTravelSec": 23.34,
+        "minClearanceCells": 1.5,
+        "pathComputeMs": 3.7,
+        "pathDistance": 2684.64,
+        "pathSegmentBlockedHits": 0,
+        "pathFound": true,
+        "detourRatio": 1.05,
+        "turnCount": 7,
+        "waypointCount": 80
+      },
+      "smoothed": {
+        "blockedWaypointCount": 0,
+        "expectedTravelSec": 22.77,
+        "minClearanceCells": 1.5,
+        "pathComputeMs": 8.89,
+        "pathDistance": 2618.23,
+        "pathSegmentBlockedHits": 0,
+        "pathFound": true,
+        "detourRatio": 1.02,
+        "turnCount": 1,
+        "waypointCount": 3
+      },
+      "smoothingDelta": {
+        "detourRatioDelta": -0.03,
+        "distanceDelta": -66.41,
+        "expectedTravelSecDelta": -0.57,
+        "turnReduction": 6,
+        "waypointReduction": 77,
+        "waypointReductionPct": 96.25
+      },
+      "start": {
+        "x": 3776,
+        "y": 3392
+      },
+      "target": {
+        "x": 6336,
+        "y": 3392
+      }
+    }
+  ]
+}

@@ -76,6 +76,9 @@ export const COMBAT_POC_LAYOUT: CombatPocLayout = {
         { fromY: 3, id: 'fence_left', toY: 15, x: 4 },
         { fromY: 2, id: 'fence_right', toY: 6, x: 19 },
         { fromY: 7, id: 'fence_inner_turn', toY: 13, x: 8 },
+        { fromY: 10, id: 'fence_inner_turn', toY: 15, x: 12 },
+        { fromY: 7, id: 'fence_inner_turn', toY: 13, x: 16 },
+        { fromY: 10, id: 'fence_inner_turn', toY: 15, x: 20 },
     ],
     fenceRows: [
         { fromX: 4, id: 'fence_top', toX: 19, y: 2 },
