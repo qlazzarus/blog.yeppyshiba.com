@@ -61,7 +61,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'n00E',
             },
-            speedPxPerSec: 122,
+            speedPxPerSec: 330,
         },
         dog: {
             armor: 2,
@@ -73,7 +73,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'n002',
             },
-            speedPxPerSec: 118,
+            speedPxPerSec: 290,
         },
         farmer: {
             armor: 0,
@@ -85,7 +85,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'H000',
             },
-            speedPxPerSec: 100,
+            speedPxPerSec: 240,
         },
     },
     difficulties: {
@@ -140,7 +140,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
                 notes: ['Direct late boss spawn in static JASS analysis.'],
                 rawcode: 'H01N',
             },
-            speedPxPerSec: 102,
+            speedPxPerSec: 330,
             tags: ['boss', 'final'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -157,7 +157,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'H012',
             },
-            speedPxPerSec: 110,
+            speedPxPerSec: 330,
             tags: ['boss'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -174,7 +174,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'H01B',
             },
-            speedPxPerSec: 105,
+            speedPxPerSec: 330,
             tags: ['boss'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -191,7 +191,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'n008',
             },
-            speedPxPerSec: 112,
+            speedPxPerSec: 330,
             tags: ['ordinary'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -208,7 +208,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'n009',
             },
-            speedPxPerSec: 108,
+            speedPxPerSec: 330,
             tags: ['ordinary'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -225,7 +225,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'H013',
             },
-            speedPxPerSec: 112,
+            speedPxPerSec: 330,
             tags: ['boss'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -245,7 +245,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
                 ],
                 rawcode: 'H01O',
             },
-            speedPxPerSec: 100,
+            speedPxPerSec: 330,
             tags: ['boss', 'final', 'requires_play_observation'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -262,7 +262,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'n007',
             },
-            speedPxPerSec: 115,
+            speedPxPerSec: 330,
             tags: ['ordinary'],
             windupSec: WOLF_WINDUP_SEC,
         },
@@ -279,7 +279,7 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             source: {
                 rawcode: 'H00X',
             },
-            speedPxPerSec: 112,
+            speedPxPerSec: 330,
             tags: ['boss', 'elite'],
             windupSec: WOLF_WINDUP_SEC,
         },

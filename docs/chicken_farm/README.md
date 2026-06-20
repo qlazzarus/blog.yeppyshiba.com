@@ -30,6 +30,9 @@
 8. [Actual Play Observation Protocol](./chicken_farm_actual_play_observation_protocol.md)  
    실제 플레이 관찰이 가능해졌을 때 보스 순서, 체감 스탯, 웨이브 압박을 검증하기 위한 절차. 현재는 Warsmash behavior 관찰로 일부 대체한다.
 
+9. [Sprite Asset Generation Plan](./chicken_farm_sprite_asset_generation_plan.md)  
+   Phaser MVP에 필요한 신규 스프라이트/아이콘 목록, GPT 이미지 생성 프롬프트, 후처리 기준, 생성 우선순위.
+
 ## 핵심 분석 산출물
 
 분석 스크립트는 파생 파일을 [chicken_farm_w3x_artifacts](./chicken_farm_w3x_artifacts/)에 생성한다.
