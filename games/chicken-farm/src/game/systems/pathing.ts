@@ -115,6 +115,20 @@ export function findGridPath(
             ) {
                 continue;
             }
+            if (
+                isDiagonalMove(current, neighbor) &&
+                isDiagonalCornerCutBlocked(
+                    current,
+                    neighbor,
+                    options,
+                    gridWidth,
+                    gridHeight,
+                    startKey,
+                    goalKey,
+                )
+            ) {
+                continue;
+            }
 
             const g = current.g + movementCost(current, neighbor);
             const previous = best.get(key);
@@ -134,6 +148,31 @@ export function findGridPath(
     }
 
     return null;
+}
+
+function isDiagonalMove(from: GridCell, to: GridCell) {
+    return from.x !== to.x && from.y !== to.y;
+}
+
+function isDiagonalCornerCutBlocked(
+    from: GridCell,
+    to: GridCell,
+    options: FindGridPathOptions,
+    gridWidth: number,
+    gridHeight: number,
+    startKey: string,
+    goalKey: string,
+) {
+    const sideA = { x: to.x, y: from.y };
+    const sideB = { x: from.x, y: to.y };
+
+    return [sideA, sideB].some((cell) => {
+        const key = cellKey(cell);
+        return (
+            isBlockedCell(cell, options, gridWidth, gridHeight) &&
+            !isAllowedBlockedEndpoint(key, startKey, goalKey, options)
+        );
+    });
 }
 
 function worldToCell(

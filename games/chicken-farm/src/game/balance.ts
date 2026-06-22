@@ -42,7 +42,7 @@ export type {
     WorldRect,
 } from './balanceTypes';
 
-const WOLF_MELEE_ATTACK_RANGE_PX = 34;
+const WOLF_MELEE_ATTACK_RANGE_PX = 96;
 const WOLF_AUTO_ACQUIRE_RANGE_PX = 176;
 const WOLF_RANGE_LEASH_PX = 16;
 const WOLF_WINDUP_SEC = 0.18;
@@ -254,12 +254,15 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             attackCooldownSec: 1.35,
             attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
             acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
-            damage: 12,
+            damage: 13,
             hp: 450,
             id: 'timber_wolf',
             rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 10,
             source: {
+                notes: [
+                    'Original n007 damage is base 11 + 1d2, so Phaser fixed damage uses rounded average 13.',
+                ],
                 rawcode: 'n007',
             },
             speedPxPerSec: 330,
@@ -578,7 +581,10 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             attack: {
                 cooldownSec: 1.05,
                 damage: 23,
-                rangePx: 650,
+                // Feel-test candidates: 384px barely covers diagonal fence,
+                // 448px reaches a tower-gap-fence line with margin,
+                // 512px covers tighter turns, 650px is the original W3X h00D range.
+                rangePx: 384,
             },
             blocksPath: true,
             buildTimeSec: 0,
@@ -586,6 +592,9 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             hp: 275,
             id: 'tower_scout',
             source: {
+                notes: [
+                    'Original h00D attack range is 650 War3 world units. Phaser runtime uses 384px; test candidates are 384/448/512/650.',
+                ],
                 rawcode: 'h00D',
             },
             targetableByWolves: true,

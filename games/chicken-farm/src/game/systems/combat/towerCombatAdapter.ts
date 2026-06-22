@@ -4,10 +4,17 @@ import { CHICKEN_FARM_BALANCE } from '../../balance';
 import type { CombatBuilding, CombatWolf } from '../../ecs/components';
 import { POC_TOWER_ID } from '../../poc/combatPocLayout';
 
+const WOLF_TOWER_TARGET_RADIUS_PX = 32;
+
 export function updateTowerCombat(config: {
     readonly combatBuildings: readonly CombatBuilding[];
     readonly elapsedSec: number;
     readonly focusWolfOnBuilding: (wolf: CombatWolf, building: CombatBuilding) => void;
+    readonly onTowerHit?: (event: {
+        readonly damage: number;
+        readonly target: CombatWolf;
+        readonly tower: CombatBuilding;
+    }) => void;
     readonly wolves: readonly CombatWolf[];
 }) {
     const towerAttack = CHICKEN_FARM_BALANCE.buildingTemplates[POC_TOWER_ID].attack;
@@ -28,7 +35,11 @@ export function updateTowerCombat(config: {
                     ),
                     wolf,
                 }))
-                .filter((candidate) => candidate.distance <= towerAttack.rangePx)
+                .filter(
+                    (candidate) =>
+                        candidate.distance <=
+                        towerAttack.rangePx + WOLF_TOWER_TARGET_RADIUS_PX,
+                )
                 .sort((a, b) => a.distance - b.distance)[0]?.wolf;
             if (!target) return;
 
@@ -39,6 +50,7 @@ export function updateTowerCombat(config: {
             target.hp = Math.max(0, target.hp - scaledDamage);
             target.hpFill.width = 38 * (target.hp / target.maxHp);
             tower.nextAttackAtSec = config.elapsedSec + towerAttack.cooldownSec;
+            config.onTowerHit?.({ damage: scaledDamage, target, tower });
             config.focusWolfOnBuilding(target, tower);
 
             if (target.hp <= 0) {

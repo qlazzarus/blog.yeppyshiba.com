@@ -212,7 +212,7 @@ export function refreshWolfPath(config: {
             cellSize: pathing.cellSize,
             clearancePx,
             goal,
-            pathSmoothingEnabled: pathing.pathSmoothingEnabled,
+            pathSmoothingEnabled: false,
             start: { x: config.wolf.body.x, y: config.wolf.body.y },
         });
         config.recordPerformance?.(

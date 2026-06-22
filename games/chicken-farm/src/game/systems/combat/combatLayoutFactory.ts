@@ -16,6 +16,11 @@ type CellRect = {
     readonly y: number;
 };
 
+const FENCE_FOOTPRINT_CELLS = {
+    h: 4,
+    w: 4,
+} as const;
+
 export type CombatBuildingSpec = {
     readonly armor: number;
     readonly blocksPath: boolean;
@@ -119,19 +124,24 @@ export function createCombatLayoutPlan(config: {
     });
 
     const addFence = (id: string, cellX: number, cellY: number) => {
-        const position = cellCenter({ h: 1, w: 2, x: cellX, y: cellY });
+        const position = cellCenter({
+            h: FENCE_FOOTPRINT_CELLS.h,
+            w: FENCE_FOOTPRINT_CELLS.w,
+            x: cellX,
+            y: cellY,
+        });
         buildings.push({
             attackDamageScale: 1,
             armor: fenceTemplate.armor,
             blocksPath: fenceTemplate.blocksPath,
             color: 0x9b7a4a,
-            height: COMBAT_GRID_PX,
+            height: COMBAT_GRID_PX * FENCE_FOOTPRINT_CELLS.h,
             hp: fenceTemplate.hp,
             id,
             kind: 'fence',
             name: fenceTemplate.displayName,
             targetableByWolves: fenceTemplate.targetableByWolves,
-            width: COMBAT_GRID_PX * 2,
+            width: COMBAT_GRID_PX * FENCE_FOOTPRINT_CELLS.w,
             x: position.x,
             y: position.y,
         });
@@ -166,20 +176,10 @@ export function createCombatLayoutPlan(config: {
         });
     };
 
-    layout.fenceRows.forEach((row) => {
-        for (let cellX = row.fromX; cellX <= row.toX; cellX += 2) {
-            addFence(`${row.id}_${cellX}`, cellX, row.y);
-        }
-    });
-    layout.fenceColumns.forEach((column) => {
-        for (let cellY = column.fromY; cellY <= column.toY; cellY += 1) {
-            addFence(`${column.id}_${cellY}`, column.x, cellY);
-        }
-    });
-    layout.fenceSingles.forEach((fence) => addFence(fence.id, fence.x, fence.y));
+    layout.fences.forEach((fence) => addFence(fence.id, fence.x, fence.y));
     layout.stoneRows.forEach((row) => {
-        for (let cellX = row.fromX; cellX <= row.toX; cellX += 2) {
-            addStoneWall(`${row.id}_${cellX}`, cellX, row.y, 2, 1);
+        for (let cellX = row.fromX; cellX <= row.toX; cellX += 4) {
+            addStoneWall(`${row.id}_${cellX}`, cellX, row.y, 4, 4);
         }
     });
 

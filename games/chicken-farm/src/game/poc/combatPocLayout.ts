@@ -7,20 +7,6 @@ export const POC_WOLF_COUNT = 5;
 export const POC_WOLF_SPAWN_SPACING_PX = 26;
 export const COMBAT_GRID_PX = 32;
 
-type CombatPocFenceRow = {
-    readonly fromX: number;
-    readonly id: string;
-    readonly toX: number;
-    readonly y: number;
-};
-
-type CombatPocFenceColumn = {
-    readonly fromY: number;
-    readonly id: string;
-    readonly toY: number;
-    readonly x: number;
-};
-
 type CombatPocSingleCell = {
     readonly id: string;
     readonly x: number;
@@ -42,9 +28,7 @@ export type CombatPocLayout = {
         readonly x: number;
         readonly y: number;
     };
-    readonly fenceColumns: readonly CombatPocFenceColumn[];
-    readonly fenceRows: readonly CombatPocFenceRow[];
-    readonly fenceSingles: readonly CombatPocSingleCell[];
+    readonly fences: readonly CombatPocSingleCell[];
     readonly label: string;
     readonly originOffsetCells: { readonly x: number; readonly y: number };
     readonly stoneRows: readonly CombatPocStoneRow[];
@@ -68,55 +52,70 @@ export type CombatPocLayout = {
     };
 };
 
-// Pre-scale backup. It matched the entrance feel, but h00D's original 650 range
-// caused the two scout tower ranges to overlap heavily.
+// Compact lower-left defense PoC. Coordinates are 32px minor cells.
+// It targets the 12x9-major-tile farm defense feel; tower ranges are scaled in
+// balance data instead of stretching the layout to fit original War3 world units.
 export const COMBAT_POC_COMPACT_LAYOUT_BACKUP: CombatPocLayout = {
     anchorSlotId: 3,
     farm: { h: 2, w: 3, x: -3, y: 11 },
-    fenceColumns: [
-        { fromY: 3, id: 'fence_left', toY: 15, x: 4 },
-        { fromY: 2, id: 'fence_right', toY: 6, x: 19 },
-        { fromY: 7, id: 'fence_inner_turn', toY: 13, x: 8 },
-        { fromY: 10, id: 'fence_inner_turn', toY: 15, x: 12 },
-        { fromY: 7, id: 'fence_inner_turn', toY: 13, x: 16 },
-        { fromY: 10, id: 'fence_inner_turn', toY: 15, x: 20 },
+    fences: [
+        { id: 'fence_left_3', x: 4, y: 3 },
+        { id: 'fence_left_11', x: 4, y: 11 },
+        { id: 'fence_right_2', x: 19, y: 2 },
+        { id: 'fence_inner_turn_a_7', x: 8, y: 7 },
+        { id: 'fence_inner_turn_b_10', x: 12, y: 10 },
+        { id: 'fence_inner_turn_c_7', x: 16, y: 7 },
+        { id: 'fence_inner_turn_d_10', x: 20, y: 10 },
+        { id: 'fence_top_4', x: 4, y: 2 },
+        { id: 'fence_top_16', x: 16, y: 2 },
+        { id: 'fence_inner_bottom_8', x: 8, y: 7 },
+        { id: 'fence_tower_a_right', x: 4, y: 12 },
     ],
-    fenceRows: [
-        { fromX: 4, id: 'fence_top', toX: 19, y: 2 },
-        { fromX: 8, id: 'fence_inner_bottom', toX: 19, y: 7 },
-    ],
-    fenceSingles: [{ id: 'fence_tower_a_right', x: 4, y: 12 }],
     label: 'p3-lower-left-defense-backup',
     originOffsetCells: { x: -13, y: -1 },
     stoneRows: [{ fromX: 0, id: 'stone_bottom_lock', toX: 22, y: 16 }],
-    towerA: { h: 2, w: 2, x: 1, y: 11 },
-    towerB: { h: 2, w: 2, x: 16, y: 4 },
+    towerA: { h: 4, w: 4, x: 1, y: 11 },
+    towerB: { h: 4, w: 4, x: 16, y: 4 },
     wolf: { h: 1, w: 1, x: 22, y: 9 },
 };
 
-// Expanded lower-left defense PoC. Coordinates are 32px minor cells.
-// The two h00D scout towers are separated by about 1374px, so their original
-// 650px attack ranges no longer overlap.
+// Current PoC uses the compact layout with Phaser-scaled combat ranges.
 export const COMBAT_POC_LAYOUT: CombatPocLayout = {
     anchorSlotId: 3,
-    farm: { h: 2, w: 3, x: -3, y: 24 },
-    fenceColumns: [
-        { fromY: 3, id: 'fence_left', toY: 30, x: 4 },
-        { fromY: 2, id: 'fence_right', toY: 12, x: 43 },
-        { fromY: 16, id: 'fence_inner_turn', toY: 30, x: 12 },
-        { fromY: 14, id: 'fence_inner_turn', toY: 25, x: 20 },
-        { fromY: 16, id: 'fence_inner_turn', toY: 30, x: 28 },
-        { fromY: 14, id: 'fence_inner_turn', toY: 25, x: 36 },
+    farm: { h: 8, w: 8, x: -13, y: 6 },
+    fences: [
+        { id: 'fence_left_1', x: 7, y: -6 },
+        { id: 'fence_left_2', x: 7, y: -2 },
+        { id: 'fence_left_3', x: 7, y: 2 },
+        { id: 'fence_left_4', x: 7, y: 6 },
+        { id: 'fence_left_5', x: 7, y: 10 },
+        { id: 'fence_left_6', x: 7, y: 14 },
+        { id: 'fence_left_7', x: 7, y: 18 },
+        { id: 'fence_left_8', x: 7, y: 22 },
+        { id: 'fence_top_1', x: 7, y: -10 },
+        { id: 'fence_top_2', x: 11, y: -10 },
+        { id: 'fence_top_3', x: 15, y: -10 },
+        { id: 'fence_top_4', x: 19, y: -10 },
+        { id: 'fence_top_5', x: 23, y: -10 },
+        { id: 'fence_top_6', x: 27, y: -10 },
+        { id: 'fence_right_1', x: 27, y: -6 },
+        { id: 'fence_right_2', x: 27, y: -2 },
+        { id: 'fence_right_3', x: 27, y: 2 },
+        { id: 'fence_bottom_1', x: 27, y: 6 },
+        { id: 'fence_bottom_2', x: 23, y: 6 },
+        { id: 'fence_bottom_3', x: 19, y: 6 },
+        { id: 'fence_bottom_4', x: 15, y: 6 },
+        { id: 'fence_inner_turn_a_1', x: 15, y: 10 },
+        { id: 'fence_inner_turn_a_2', x: 15, y: 14 },
+        { id: 'fence_inner_turn_a_3', x: 15, y: 18 },
+        { id: 'fence_inner_turn_b_1', x: 23, y: 14 },
+        { id: 'fence_inner_turn_b_2', x: 23, y: 18 },
+        { id: 'fence_inner_turn_b_3', x: 23, y: 22 },
     ],
-    fenceRows: [
-        { fromX: 4, id: 'fence_top', toX: 43, y: 2 },
-        { fromX: 12, id: 'fence_inner_bottom', toX: 43, y: 13 },
-    ],
-    fenceSingles: [{ id: 'fence_tower_a_right', x: 4, y: 25 }],
-    label: 'p3-lower-left-defense-expanded-range',
+    label: 'p3-lower-left-defense-minor-range',
     originOffsetCells: { x: -13, y: -1 },
-    stoneRows: [{ fromX: 0, id: 'stone_bottom_lock', toX: 60, y: 31 }],
-    towerA: { h: 2, w: 2, x: 1, y: 24 },
-    towerB: { h: 2, w: 2, x: 39, y: 4 },
-    wolf: { h: 1, w: 1, x: 48, y: 16 },
+    stoneRows: [{ fromX: -13, id: 'stone_bottom_lock', toX: 30, y: 26 }],
+    towerA: { h: 4, w: 4, x: -1, y: 10 },
+    towerB: { h: 4, w: 4, x: 19, y: -2 },
+    wolf: { h: 1, w: 1, x: 32, y: 9 },
 };
