@@ -633,8 +633,8 @@ export const BUILDING_TEMPLATES = {
         armor: 5,
         attack: {
             cooldownSec: 1.05,
-            damage: 14,
-            rangePx: 195,
+            damage: 23,
+            rangePx: 650,
         },
         blocksPath: true,
         buildTimeSec: 0,

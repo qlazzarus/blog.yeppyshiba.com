@@ -2,8 +2,9 @@ export const POC_WOLF_ID = 'timber_wolf';
 export const POC_FENCE_ID = 'fence_wood';
 export const POC_TOWER_ID = 'tower_scout';
 export const POC_PATH_BOUNDS_PADDING = 512;
-export const POC_WOLF_TEST_HP = 1400;
 export const POC_TOWER_FOCUS_LOCK_SEC = 0.45;
+export const POC_WOLF_COUNT = 5;
+export const POC_WOLF_SPAWN_SPACING_PX = 26;
 export const COMBAT_GRID_PX = 32;
 
 type CombatPocFenceRow = {
@@ -67,9 +68,9 @@ export type CombatPocLayout = {
     };
 };
 
-// Backup of the current lower-left defense PoC. Move the whole setup by editing
-// originOffsetCells; keep individual x/y values for relative fence/tower layout.
-export const COMBAT_POC_LAYOUT: CombatPocLayout = {
+// Pre-scale backup. It matched the entrance feel, but h00D's original 650 range
+// caused the two scout tower ranges to overlap heavily.
+export const COMBAT_POC_COMPACT_LAYOUT_BACKUP: CombatPocLayout = {
     anchorSlotId: 3,
     farm: { h: 2, w: 3, x: -3, y: 11 },
     fenceColumns: [
@@ -91,4 +92,31 @@ export const COMBAT_POC_LAYOUT: CombatPocLayout = {
     towerA: { h: 2, w: 2, x: 1, y: 11 },
     towerB: { h: 2, w: 2, x: 16, y: 4 },
     wolf: { h: 1, w: 1, x: 22, y: 9 },
+};
+
+// Expanded lower-left defense PoC. Coordinates are 32px minor cells.
+// The two h00D scout towers are separated by about 1374px, so their original
+// 650px attack ranges no longer overlap.
+export const COMBAT_POC_LAYOUT: CombatPocLayout = {
+    anchorSlotId: 3,
+    farm: { h: 2, w: 3, x: -3, y: 24 },
+    fenceColumns: [
+        { fromY: 3, id: 'fence_left', toY: 30, x: 4 },
+        { fromY: 2, id: 'fence_right', toY: 12, x: 43 },
+        { fromY: 16, id: 'fence_inner_turn', toY: 30, x: 12 },
+        { fromY: 14, id: 'fence_inner_turn', toY: 25, x: 20 },
+        { fromY: 16, id: 'fence_inner_turn', toY: 30, x: 28 },
+        { fromY: 14, id: 'fence_inner_turn', toY: 25, x: 36 },
+    ],
+    fenceRows: [
+        { fromX: 4, id: 'fence_top', toX: 43, y: 2 },
+        { fromX: 12, id: 'fence_inner_bottom', toX: 43, y: 13 },
+    ],
+    fenceSingles: [{ id: 'fence_tower_a_right', x: 4, y: 25 }],
+    label: 'p3-lower-left-defense-expanded-range',
+    originOffsetCells: { x: -13, y: -1 },
+    stoneRows: [{ fromX: 0, id: 'stone_bottom_lock', toX: 60, y: 31 }],
+    towerA: { h: 2, w: 2, x: 1, y: 24 },
+    towerB: { h: 2, w: 2, x: 39, y: 4 },
+    wolf: { h: 1, w: 1, x: 48, y: 16 },
 };

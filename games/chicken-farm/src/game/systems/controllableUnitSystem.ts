@@ -50,10 +50,15 @@ const COLLISION_RADIUS_BY_TEMPLATE: Record<ControllableUnitTemplateId, number> =
 const UNIT_PUSH_DISTANCE_SCALE = 0.78;
 const UNIT_PUSH_MAX_STEP_PX = 10;
 const MULTI_UNIT_DESTINATION_OFFSET_PX = 34;
+const MAX_CONTROLLABLE_UNIT_MOVEMENT_DELTA_SEC = 1 / 60;
+const PLAYER_PATH_BOUNDS_PADDING_PX = 512;
 
 const UNIT_OFFSETS: Record<ControllableUnitTemplateId, Phaser.Math.Vector2> = {
-    dog: new Phaser.Math.Vector2(42, 18),
-    farmer: new Phaser.Math.Vector2(0, 0),
+    // Original command-control PoC offsets, restore after wolf maze validation:
+    // dog: new Phaser.Math.Vector2(42, 18),
+    // farmer: new Phaser.Math.Vector2(0, 0),
+    dog: new Phaser.Math.Vector2(-640, -520),
+    farmer: new Phaser.Math.Vector2(-700, -560),
 };
 
 export class ControllableUnitSystem {
@@ -253,14 +258,18 @@ export class ControllableUnitSystem {
     }
 
     update(deltaSec: number) {
+        const movementDeltaSec = Math.min(
+            deltaSec,
+            MAX_CONTROLLABLE_UNIT_MOVEMENT_DELTA_SEC,
+        );
         this.units.forEach((unit) => {
             if (unit.currentCommand?.type === 'move') {
-                this.updateMoveCommand(unit, deltaSec);
+                this.updateMoveCommand(unit, movementDeltaSec);
                 return;
             }
 
             if (unit.currentCommand?.type === 'attack') {
-                this.updateAttackCommand(unit, deltaSec);
+                this.updateAttackCommand(unit, movementDeltaSec);
             }
         });
         this.resolveUnitPush();
@@ -403,15 +412,10 @@ export class ControllableUnitSystem {
     private findMovePath(from: Point, to: Point) {
         if (!this.canUnitOccupyPoint(to)) return null;
 
-        const bounds: GridPathRect = {
-            height: this.worldSize.y,
-            width: this.worldSize.x,
-            x: 0,
-            y: 0,
-        };
+        const bounds = this.getMovePathBounds(from, to);
         const terrainBlockedRects =
             this.terrainBlocker?.getGroundBlockedRects(bounds) ?? [];
-        const dynamicBlockedRects = this.getDynamicBlockedRects?.() ?? [];
+        const dynamicBlockedRects = this.getDynamicBlockedRectsInBounds(bounds);
 
         const startedAt = performance.now();
         const path = findGridPath({
@@ -430,6 +434,43 @@ export class ControllableUnitSystem {
         );
 
         return path;
+    }
+
+    private getMovePathBounds(from: Point, to: Point): GridPathRect {
+        const minX = Math.max(
+            0,
+            Math.min(from.x, to.x) - PLAYER_PATH_BOUNDS_PADDING_PX,
+        );
+        const minY = Math.max(
+            0,
+            Math.min(from.y, to.y) - PLAYER_PATH_BOUNDS_PADDING_PX,
+        );
+        const maxX = Math.min(
+            this.worldSize.x,
+            Math.max(from.x, to.x) + PLAYER_PATH_BOUNDS_PADDING_PX,
+        );
+        const maxY = Math.min(
+            this.worldSize.y,
+            Math.max(from.y, to.y) + PLAYER_PATH_BOUNDS_PADDING_PX,
+        );
+
+        return {
+            height: Math.max(32, maxY - minY),
+            width: Math.max(32, maxX - minX),
+            x: minX,
+            y: minY,
+        };
+    }
+
+    private getDynamicBlockedRectsInBounds(bounds: GridPathRect) {
+        return (this.getDynamicBlockedRects?.() ?? []).filter((rect) => {
+            return (
+                rect.x < bounds.x + bounds.width &&
+                rect.x + rect.width > bounds.x &&
+                rect.y < bounds.y + bounds.height &&
+                rect.y + rect.height > bounds.y
+            );
+        });
     }
 
     private updateMoveCommand(unit: ControllableUnitState, deltaSec: number) {

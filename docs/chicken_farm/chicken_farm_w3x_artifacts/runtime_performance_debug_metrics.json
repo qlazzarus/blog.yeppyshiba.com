@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-06-22T00:21:45.792Z",
+  "parameters": {
+    "commandIterations": 5,
+    "dynamicBlockedRectCount": 164,
+    "loopIterations": 60,
+    "sourceMap": "games/chicken-farm/assets/tilemaps/chicken_farm_poc_01.json",
+    "sourceWpmGrid": "games/chicken-farm/assets/data/wpm_pathing_grid.json",
+    "pathBoundsPaddingPx": 512,
+    "worldScale": 2,
+    "worldSize": {
+      "x": 10080,
+      "y": 10528
+    }
+  },
+  "metrics": {
+    "fogLoop": {
+      "avgMs": 1.05,
+      "id": "fog.loop",
+      "iterations": 60,
+      "maxMs": 8.68,
+      "minMs": 0.7,
+      "resultSummary": {
+        "cols": 210,
+        "drawOps": 46110,
+        "rows": 220
+      },
+      "totalMs": 62.74
+    },
+    "minimapLoop": {
+      "avgMs": 3.91,
+      "id": "minimap.loop",
+      "iterations": 60,
+      "maxMs": 13.52,
+      "minMs": 3.29,
+      "resultSummary": {
+        "cols": 210,
+        "drawOps": 90,
+        "exploredCells": 90,
+        "rows": 220
+      },
+      "totalMs": 234.78
+    },
+    "playerPathCommands": [
+      {
+        "avgMs": 3.23,
+        "id": "player.farmer.short_defense_move",
+        "iterations": 5,
+        "maxMs": 9.57,
+        "minMs": 0.81,
+        "resultSummary": {
+          "arrayLength": 1,
+          "nestedLengths": [
+            null
+          ]
+        },
+        "totalMs": 16.13
+      },
+      {
+        "avgMs": 0.75,
+        "id": "player.farmer.blocker_edge_move",
+        "iterations": 5,
+        "maxMs": 1.06,
+        "minMs": 0.48,
+        "resultSummary": {
+          "arrayLength": 2,
+          "nestedLengths": [
+            null,
+            null
+          ]
+        },
+        "totalMs": 3.73
+      },
+      {
+        "avgMs": 24.42,
+        "id": "player.dog.multi_select_offset_move",
+        "iterations": 5,
+        "maxMs": 34.52,
+        "minMs": 15.38,
+        "resultSummary": null,
+        "totalMs": 122.12
+      }
+    ],
+    "wolfBlockerPriorityRegression": {
+      "avgMs": 0.14,
+      "id": "wolf.blocker_line_priority",
+      "iterations": 5,
+      "maxMs": 0.45,
+      "minMs": 0.03,
+      "resultSummary": {
+        "pass": true,
+        "selectedId": "target_line_blocker"
+      },
+      "totalMs": 0.7
+    },
+    "wolfBlockedGoalRegression": {
+      "avgMs": 0.16,
+      "id": "wolf.blocked_tower_goal_rejected",
+      "iterations": 5,
+      "maxMs": 0.72,
+      "minMs": 0.01,
+      "resultSummary": {
+        "pass": true,
+        "pathLength": 0
+      },
+      "totalMs": 0.81
+    },
+    "wolfRepath": {
+      "avgMs": 18.64,
+      "id": "wolf.repath.candidates",
+      "iterations": 5,
+      "maxMs": 22.32,
+      "minMs": 15.29,
+      "resultSummary": {
+        "arrayLength": 1,
+        "nestedLengths": [
+          5
+        ]
+      },
+      "totalMs": 93.19
+    }
+  },
+  "interpretation": {
+    "note": "Node automation measures logic cost only. Browser-only Phaser Graphics draw cost still needs Playwright or manual runtime profiler overlay.",
+    "likelyRuntimeLabels": [
+      "command.smart.total",
+      "path.player.findGridPath",
+      "path.wolf.findGridPath",
+      "update.fog",
+      "update.minimap"
+    ]
+  }
+}

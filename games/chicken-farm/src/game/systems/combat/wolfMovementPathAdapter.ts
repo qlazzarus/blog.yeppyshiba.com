@@ -11,6 +11,17 @@ import { findGridPath, type GridPathPoint, type GridPathRect } from '../pathing'
 import type { ControllableUnitCombatTarget } from '../playerCommandTypes';
 import type { TerrainBlocker } from '../terrainBlocker';
 
+const WOLF_REPATH_MAX_GOAL_CANDIDATES = 4;
+const WOLF_WAYPOINT_REACHED_PX = 12;
+
+type WolfPathCacheEntry = {
+    readonly dynamicBlockerCount: number;
+    readonly goalX: number;
+    readonly goalY: number;
+};
+
+const wolfPathCache = new WeakMap<CombatWolf, WolfPathCacheEntry>();
+
 export function moveWolfToward(config: {
     readonly deltaSec: number;
     readonly dynamicBlockedRects: readonly GridPathRect[];
@@ -22,29 +33,58 @@ export function moveWolfToward(config: {
     readonly wolf: CombatWolf;
     readonly worldSize: Phaser.Math.Vector2;
 }) {
-    const direction = new Phaser.Math.Vector2(
+    const toTarget = new Phaser.Math.Vector2(
         config.targetX - config.wolf.body.x,
         config.targetY - config.wolf.body.y,
     );
-    if (direction.lengthSq() < 16) return;
-
-    direction.normalize().scale(config.speedPxPerSec * config.deltaSec);
-    const nextX = config.wolf.body.x + direction.x;
-    const nextY = config.wolf.body.y + direction.y;
-    if (
-        !canWolfOccupyPoint({
-            dynamicBlockedRects: config.dynamicBlockedRects,
-            terrainBlocker: config.terrainBlocker,
-            worldSize: config.worldSize,
-            x: nextX,
-            y: nextY,
-        })
-    ) {
+    const distance = toTarget.length();
+    const step = Math.min(config.speedPxPerSec * config.deltaSec, distance);
+    if (distance <= step) {
+        if (
+            canWolfOccupyPoint({
+                dynamicBlockedRects: config.dynamicBlockedRects,
+                terrainBlocker: config.terrainBlocker,
+                worldSize: config.worldSize,
+                x: config.targetX,
+                y: config.targetY,
+            })
+        ) {
+            config.wolf.body.setPosition(config.targetX, config.targetY);
+        }
         return;
     }
 
-    config.wolf.body.setPosition(nextX, nextY);
-    config.separateWolfFromControllableUnits();
+    const direction = toTarget.normalize().scale(step);
+    const moveCandidates = [
+        {
+            x: config.wolf.body.x + direction.x,
+            y: config.wolf.body.y + direction.y,
+        },
+        {
+            x: config.wolf.body.x + direction.x,
+            y: config.wolf.body.y,
+        },
+        {
+            x: config.wolf.body.x,
+            y: config.wolf.body.y + direction.y,
+        },
+    ].sort(
+        (a, b) =>
+            Phaser.Math.Distance.Between(a.x, a.y, config.targetX, config.targetY) -
+            Phaser.Math.Distance.Between(b.x, b.y, config.targetX, config.targetY),
+    );
+    const next = moveCandidates.find((candidate) =>
+        canWolfOccupyPoint({
+            dynamicBlockedRects: config.dynamicBlockedRects,
+            terrainBlocker: config.terrainBlocker,
+            worldSize: config.worldSize,
+            x: candidate.x,
+            y: candidate.y,
+        }),
+    );
+    if (!next) return;
+
+    config.wolf.body.setPosition(next.x, next.y);
 }
 
 export function moveWolfAlongPath(config: {
@@ -56,6 +96,10 @@ export function moveWolfAlongPath(config: {
     readonly wolf: CombatWolf;
     readonly worldSize: Phaser.Math.Vector2;
 }) {
+    while (isCurrentWaypointReached(config.wolf)) {
+        config.wolf.pathIndex += 1;
+    }
+
     const waypoint = config.wolf.path[config.wolf.pathIndex];
     if (!waypoint) return;
 
@@ -71,16 +115,23 @@ export function moveWolfAlongPath(config: {
         worldSize: config.worldSize,
     });
 
-    if (
-        Phaser.Math.Distance.Between(
-            config.wolf.body.x,
-            config.wolf.body.y,
-            waypoint.x,
-            waypoint.y,
-        ) < 8
-    ) {
+    if (isCurrentWaypointReached(config.wolf)) {
         config.wolf.pathIndex += 1;
     }
+}
+
+function isCurrentWaypointReached(wolf: CombatWolf) {
+    const waypoint = wolf.path[wolf.pathIndex];
+    if (!waypoint) return false;
+
+    return (
+        Phaser.Math.Distance.Between(
+            wolf.body.x,
+            wolf.body.y,
+            waypoint.x,
+            waypoint.y,
+        ) <= WOLF_WAYPOINT_REACHED_PX
+    );
 }
 
 export function refreshWolfPath(config: {
@@ -103,6 +154,27 @@ export function refreshWolfPath(config: {
 
     const refreshStartedAt = performance.now();
     const pathing = CHICKEN_FARM_BALANCE.pathing;
+    const cached = wolfPathCache.get(config.wolf);
+    if (
+        !config.force &&
+        cached &&
+        config.wolf.path.length > config.wolf.pathIndex &&
+        cached.dynamicBlockerCount === config.dynamicBlockedRects.length &&
+        Phaser.Math.Distance.Between(
+            cached.goalX,
+            cached.goalY,
+            config.wolf.targetPoint.x,
+            config.wolf.targetPoint.y,
+        ) < pathing.repath.targetMoveThresholdPx
+    ) {
+        config.wolf.nextRepathAtSec = config.elapsedSec + pathing.repath.intervalSec;
+        config.recordPerformance?.(
+            'path.wolf.refresh.skip',
+            performance.now() - refreshStartedAt,
+        );
+        return;
+    }
+
     const bounds = getCombatPathBounds({
         combatBuildings: config.combatBuildings,
         targetPoint: config.wolf.targetPoint,
@@ -122,14 +194,19 @@ export function refreshWolfPath(config: {
         ? config.getPathGoalCandidates(goalBuilding)
         : [{ x: config.wolf.targetPoint.x, y: config.wolf.targetPoint.y }];
     let path: readonly GridPathPoint[] | null = null;
-    let pathGoal = goalCandidates[0] ?? {
+    const limitedGoalCandidates = goalCandidates.slice(
+        0,
+        WOLF_REPATH_MAX_GOAL_CANDIDATES,
+    );
+    let pathGoal = limitedGoalCandidates[0] ?? {
         x: config.wolf.targetPoint.x,
         y: config.wolf.targetPoint.y,
     };
-
-    for (const goal of goalCandidates) {
+    const findPathToGoal = (goal: GridPathPoint) => {
         const pathStartedAt = performance.now();
         const candidatePath = findGridPath({
+            allowBlockedGoal: false,
+            allowBlockedStart: false,
             blockedRects,
             bounds,
             cellSize: pathing.cellSize,
@@ -142,11 +219,24 @@ export function refreshWolfPath(config: {
             'path.wolf.findGridPath',
             performance.now() - pathStartedAt,
         );
+        return candidatePath;
+    };
 
+    for (const goal of limitedGoalCandidates) {
+        const candidatePath = findPathToGoal(goal);
         if (!candidatePath) continue;
-        if (!path || candidatePath.length < path.length) {
+        path = candidatePath;
+        pathGoal = goal;
+        break;
+    }
+    if (!path && goalCandidates.length > limitedGoalCandidates.length) {
+        config.recordPerformance?.('path.wolf.candidateFallback', 0);
+        for (const goal of goalCandidates.slice(WOLF_REPATH_MAX_GOAL_CANDIDATES)) {
+            const candidatePath = findPathToGoal(goal);
+            if (!candidatePath) continue;
             path = candidatePath;
             pathGoal = goal;
+            break;
         }
     }
 
@@ -154,6 +244,11 @@ export function refreshWolfPath(config: {
     config.wolf.path = path ?? [];
     config.wolf.pathIndex = 0;
     config.wolf.nextRepathAtSec = config.elapsedSec + pathing.repath.intervalSec;
+    wolfPathCache.set(config.wolf, {
+        dynamicBlockerCount: config.dynamicBlockedRects.length,
+        goalX: pathGoal.x,
+        goalY: pathGoal.y,
+    });
 
     if (path) {
         config.wolf.pathFailedSinceSec = undefined;

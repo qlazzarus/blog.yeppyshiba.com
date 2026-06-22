@@ -74,7 +74,7 @@ P2P 멀티플레이에서는 `hostEpoch`가 현재 방장 세대를 나타낸다
 
 - 모든 반복 이벤트는 `elapsedSec` 기준으로 판정한다.
 - `elapsedSec`는 원본 논리 시간이며, 테스트 배속은 `realDeltaSec * timeScale`로만 반영한다.
-- 30초 수익 tick, 20초 웨이브 보충 tick은 별도 타이머 객체보다 `elapsedSec >= nextAtSec` 방식이 재접속/동기화에 유리하다.
+- 30초 egg drop tick, 20초 웨이브 보충 tick은 별도 타이머 객체보다 `elapsedSec >= nextAtSec` 방식이 재접속/동기화에 유리하다.
 - 원본 rawcode는 데이터의 `sourceRawcode` 필드에만 남기고 런타임 로직에서는 새 id를 사용한다.
 
 테스트 프로파일:
@@ -268,18 +268,26 @@ type WaveRuntime = {
 | 부활      | `liilIi` 3415-3445  | 현재 골드/목재 40% 차감, 영웅 부활                           |
 | 주기 수익 | `lIiillI` 9352-9366 | 30초마다 `h00A`/`h00J`/`h00W` 수에 따라 70/110/170 목재 지급 |
 
-### 3.2 MVP 자원 모델
+### 3.2 MVP 자원/알 모델
 
-원본 골드/목재를 웹 MVP에서는 `coins`와 `eggs`로 단순화한다.
+원본 골드/목재를 웹 MVP에서는 우선 `coins` wallet으로 단순화한다. 알은 금/나무처럼 즉시 누적되는 wallet resource가 아니라, 필드에 드롭되고 수집/거래/부화에 쓰이는 item/object로 취급한다.
 
 ```ts
 type PlayerResources = {
     coins: number;
-    eggs: number;
+};
+
+type FieldEggItem = {
+    id: string;
+    ownerPlayerId: number;
+    position: Point;
+    stackCount: number;
+    droppedAtSec: number;
+    sourceEntityId?: string;
 };
 
 type ShopRuntime = {
-    nextIncomeAtSec: number;
+    nextEggDropAtSec: number;
 };
 ```
 
@@ -296,9 +304,9 @@ type ShopRuntime = {
 
 | id           | sourceRawcode |  MVP 비용 | 결과                 |
 | ------------ | ------------- | --------: | -------------------- |
-| `coop_basic` | `h00A`        |  60 coins | 30초마다 1 egg unit  |
-| `coop_mid`   | `h00J`        | 120 coins | 30초마다 2 egg units |
-| `coop_high`  | `h00W`        | 220 coins | 30초마다 3 egg units |
+| `coop_basic` | `h00A`        |  60 coins | 30초마다 1 egg item 생성 |
+| `coop_mid`   | `h00J`        | 120 coins | 30초마다 2 egg items 생성 |
+| `coop_high`  | `h00W`        | 220 coins | 30초마다 3 egg items 생성 |
 | `dog`        | `n002`        |  45 coins | 빠른 방어 유닛       |
 | `big_dog`    | `n00E`        | 180 coins | 고급 방어 유닛       |
 
@@ -309,16 +317,15 @@ type ShopRuntime = {
 - 업그레이드 중에도 건물 위치와 소유자는 유지한다.
 - 업그레이드 완료는 즉시 처리한다. 별도 건설 시간은 MVP 이후로 미룬다.
 
-### 3.4 Income Tick
+### 3.4 Egg Drop Tick
 
 ```ts
-function applyIncomeTick(state: RuntimeState) {
+function applyEggDropTick(state: RuntimeState) {
     for (const player of state.players) {
         const eggUnits = player.buildings.reduce((sum, building) => {
             return sum + incomeByBuilding[building.kind].eggUnitsPer30Sec;
         }, 0);
-        player.resources.eggs += eggUnits;
-        player.resources.coins += eggUnits * 12;
+        spawnFieldEggItems(state, player.id, eggUnits);
     }
 }
 ```
@@ -326,8 +333,10 @@ function applyIncomeTick(state: RuntimeState) {
 규칙:
 
 - 30초마다 실행한다.
-- 원본은 목재 지급이지만 MVP에서는 eggs와 coins를 함께 올려 초반 정체를 줄인다.
-- `eggs`는 점수/업적/후속 성장 재료로 남긴다.
+- 원본은 목재 지급이지만 MVP에서는 field egg item 생성으로 해석한다.
+- 알은 농부가 수집하거나 상점/교환 API를 통해 판매해야 `coins`가 된다.
+- 알은 닭장 부화 액션의 입력으로도 사용한다.
+- 즉시 `player.resources.eggs += n` 또는 `coins += n` 처리는 하지 않는다.
 
 ### 3.5 Revive and Penalty
 
@@ -336,11 +345,12 @@ function applyIncomeTick(state: RuntimeState) {
 ```ts
 function revivePlayer(player: PlayerState) {
     player.resources.coins = Math.floor(player.resources.coins * 0.75);
-    player.resources.eggs = Math.floor(player.resources.eggs * 0.75);
     player.hero.hp = player.hero.maxHp;
     player.hero.position = player.spawnPoint;
 }
 ```
+
+field egg item의 사망/부활 시 소멸, 드롭 유지, 약탈 가능 여부는 PvP/협동 UX에 영향이 커서 후속 밸런스 결정으로 둔다.
 
 ### 3.6 Exchange
 
@@ -348,7 +358,7 @@ function revivePlayer(player: PlayerState) {
 
 비활성화 이유:
 
-- coins/eggs 2자원만으로도 충분하다.
+- PoC 7은 `coins wallet + field egg item`만으로도 충분하다.
 - P2P 동기화와 UI를 단순하게 유지한다.
 - 필요 시 후속 버전에서 `100 coins -> 70 egg value` 계열로 복원한다.
 
@@ -398,7 +408,7 @@ type DiseaseEvent = {
 | 이벤트 간격    |                                         90초 |
 | 지속 시간      |                                         20초 |
 | 대상           | 살아 있는 플레이어의 수익 건물 중 무작위 1개 |
-| 효과           |                 해당 건물 수익 tick 비활성화 |
+| 효과           |                 해당 건물 egg drop tick 비활성화 |
 
 ### 4.3 Disease Flow
 
@@ -449,10 +459,10 @@ cleanup
 
 상점:
 
-- `coins`, `eggs` 리소스 추가.
+- `coins` wallet과 `FieldEggItem` state 추가.
 - 수익 건물 3단계 구매/업그레이드.
 - 방어 유닛 `dog`, `big_dog` 구매.
-- 30초 수익 tick과 25% 부활 패널티.
+- 30초 egg drop tick, 알 수집/판매/부화, 25% 부활 패널티.
 
 검증:
 

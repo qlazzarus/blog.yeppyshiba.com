@@ -31,7 +31,7 @@ export class CameraControlSystem {
         if (this.cursors.left.isDown || this.keys.left.isDown) pan.x -= 1;
         if (this.cursors.right.isDown || this.keys.right.isDown) pan.x += 1;
         if (this.cursors.up.isDown || this.keys.up.isDown) pan.y -= 1;
-        if (this.cursors.down.isDown) pan.y += 1;
+        if (this.cursors.down.isDown || this.keys.down.isDown) pan.y += 1;
 
         if (pan.lengthSq() <= 0) return;
 

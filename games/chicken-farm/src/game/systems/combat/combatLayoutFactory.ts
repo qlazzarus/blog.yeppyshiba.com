@@ -86,7 +86,7 @@ export function createCombatLayoutPlan(config: {
 
     const towerACell = cellCenter(layout.towerA);
     buildings.push({
-        attackDamageScale: 0.55,
+        attackDamageScale: 1,
         armor: towerTemplate.armor,
         blocksPath: towerTemplate.blocksPath,
         color: 0xd9bb73,

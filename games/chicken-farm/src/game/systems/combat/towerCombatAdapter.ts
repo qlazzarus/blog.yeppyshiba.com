@@ -7,42 +7,43 @@ import { POC_TOWER_ID } from '../../poc/combatPocLayout';
 export function updateTowerCombat(config: {
     readonly combatBuildings: readonly CombatBuilding[];
     readonly elapsedSec: number;
-    readonly focusWolfOnBuilding: (building: CombatBuilding) => void;
-    readonly wolf: CombatWolf;
+    readonly focusWolfOnBuilding: (wolf: CombatWolf, building: CombatBuilding) => void;
+    readonly wolves: readonly CombatWolf[];
 }) {
     const towerAttack = CHICKEN_FARM_BALANCE.buildingTemplates[POC_TOWER_ID].attack;
-    if (!towerAttack || config.wolf.hp <= 0) return;
+    if (!towerAttack) return;
 
     config.combatBuildings
         .filter((building) => building.kind === 'tower' && building.hp > 0)
         .forEach((tower) => {
-            if (config.wolf.hp <= 0) return;
-
-            const distance = Phaser.Math.Distance.Between(
-                tower.body.x,
-                tower.body.y,
-                config.wolf.body.x,
-                config.wolf.body.y,
-            );
-            if (
-                distance > towerAttack.rangePx ||
-                config.elapsedSec < tower.nextAttackAtSec
-            ) {
-                return;
-            }
+            if (config.elapsedSec < tower.nextAttackAtSec) return;
+            const target = config.wolves
+                .filter((wolf) => wolf.hp > 0)
+                .map((wolf) => ({
+                    distance: Phaser.Math.Distance.Between(
+                        tower.body.x,
+                        tower.body.y,
+                        wolf.body.x,
+                        wolf.body.y,
+                    ),
+                    wolf,
+                }))
+                .filter((candidate) => candidate.distance <= towerAttack.rangePx)
+                .sort((a, b) => a.distance - b.distance)[0]?.wolf;
+            if (!target) return;
 
             const scaledDamage = Math.max(
                 1,
                 Math.round(towerAttack.damage * tower.attackDamageScale),
             );
-            config.wolf.hp = Math.max(0, config.wolf.hp - scaledDamage);
-            config.wolf.hpFill.width = 38 * (config.wolf.hp / config.wolf.maxHp);
+            target.hp = Math.max(0, target.hp - scaledDamage);
+            target.hpFill.width = 38 * (target.hp / target.maxHp);
             tower.nextAttackAtSec = config.elapsedSec + towerAttack.cooldownSec;
-            config.focusWolfOnBuilding(tower);
+            config.focusWolfOnBuilding(target, tower);
 
-            if (config.wolf.hp <= 0) {
-                config.wolf.state = 'dead';
-                config.wolf.body.setAlpha(0.35);
+            if (target.hp <= 0) {
+                target.state = 'dead';
+                target.body.setAlpha(0.35);
             }
         });
 }

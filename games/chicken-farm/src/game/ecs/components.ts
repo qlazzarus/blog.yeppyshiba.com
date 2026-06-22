@@ -33,6 +33,7 @@ export type CombatWolf = {
     focusUnitId?: string;
     readonly hpFill: Phaser.GameObjects.Rectangle;
     hp: number;
+    readonly id: string;
     readonly maxHp: number;
     nextAttackAtSec: number;
     nextRepathAtSec: number;
