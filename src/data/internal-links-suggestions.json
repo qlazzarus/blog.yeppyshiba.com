@@ -1,57 +1,71 @@
 {
-  "topPost": "/article/apptech-income-may-2026",
-  "topPostViews": 130,
+  "topPost": "/article/phaser4-isometric-minesweeper-difficulty-timer-render-polish",
+  "topPostViews": 22,
   "relatedSuggestions": [
-    "/apptech-income-may-2026/",
-    "/how-i-build-pocket-money-with-apptech/"
+    "/phaser4-isometric-minesweeper-difficulty-timer-render-polish/",
+    "/phaser4-isometric-minesweeper-ecs-scaffold/",
+    "/phaser4-isometric-minesweeper-localstorage-records-finale/",
+    "/phaser4-isometric-minesweeper-minefield-first-click/",
+    "/phaser4-isometric-minesweeper-mobile-landscape-responsive/",
+    "/phaser4-isometric-minesweeper-reveal-cascade-reset/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "path": "/article/apptech-income-may-2026",
       "views": 4,
-      "avgSec": 134.36
-    },
-    {
-      "path": "/article/how-i-build-pocket-money-with-apptech",
-      "views": 2,
-      "avgSec": 734.28
+      "avgSec": 88.36
     },
     {
       "path": "/article/ansan-bono-dong-gukbapjip-review",
-      "views": 1,
-      "avgSec": 225.86
+      "views": 3,
+      "avgSec": 152.14
     },
     {
-      "path": "/article/gpx-risk-analyzer",
+      "path": "/article/20260606-evening-ride",
       "views": 1,
-      "avgSec": 85.72
-    },
-    {
-      "path": "/article/newborn-loan-review",
-      "views": 1,
-      "avgSec": 130.45
-    },
-    {
-      "path": "/article/thinking-math-variables",
-      "views": 1,
-      "avgSec": 124.25
+      "avgSec": 65.16
     }
   ],
   "fixCandidates": [
     {
+      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
+      "views": 7,
+      "avgSec": 3.19
+    },
+    {
       "path": "/article/20260525-dahon-dash-d16-evening-ride",
-      "views": 1,
-      "avgSec": 2.21
+      "views": 2,
+      "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
+      "path": "/article/a-look-back-in-november-2023",
+      "views": 1,
+      "avgSec": 7.17
+    },
+    {
+      "path": "/article/phaser3-with-parallax-scroll",
+      "views": 1,
+      "avgSec": 5.99
+    },
+    {
+      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
+      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
       "views": 1,
       "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/uiwang-serendipity",
+      "views": 1,
+      "avgSec": 6.59
     }
   ]
 }
