@@ -4,15 +4,15 @@
 
 ## 1. 현재 결정
 
-다음 우선 구현 PoC는 **War3 Player Command Control PoC**로 확정한다.
+다음 우선 구현 PoC는 **Economy / Build / Shop PoC**로 확정한다.
 
-기존 다음 후보였던 **PoC 7. 닭/알/수익**은 한 단계 뒤로 미룬다. Economy 순수 로직은 독립 개발이 가능하지만, 실제 플레이 검증은 워3식 선택/명령/이동 체계 위에서 해야 한다.
+**War3 Player Command Control PoC**는 MVP 경제/건설/상점 PoC를 붙일 수 있는 최소 조작 기반으로 완료 판단한다. 단, 원본 Warcraft III 조작 전체 구현은 아니므로 신뢰도 부족 범위는 별도 관리한다.
 
 판단 근거:
 
-- 현재 `PlayerControlSystem`은 WASD/방향키로 플레이어 marker를 직접 움직이는 debug 조작이다.
-- 이 방식은 WPM terrain blocker, path smoothing, unit order, smart command를 우회한다.
-- 닭장 구매, 거미 사냥, 상점 이용, 건설, 전투 방어는 모두 "유닛 선택 -> 명령 발행 -> 시스템 실행" 흐름 위에서 검증되어야 한다.
+- 카메라/선택/우클릭 이동/우클릭 공격/stop/drag selection/path follow가 동작한다.
+- WPM terrain blocker, dynamic blocker, path smoothing, 최소 unit push가 command path에 연결됐다.
+- 닭장 구매, 거미 사냥, 상점 이용, 건설, 전투 방어는 이제 "유닛 선택 -> 명령 발행 -> 시스템 실행" 흐름 위에 붙일 수 있다.
 - 차후 P2P에서는 위치 변경이 아니라 player input command stream을 동기화해야 한다.
 
 ## 2. 진행 원칙
@@ -47,11 +47,11 @@
 - smoothed path의 `pathSegmentBlockedHits = 0`, `blockedWaypointCount = 0`
 - WolfAI decision table `6/6` 통과, Warsmash fit checks `5/5` 통과
 
-## 4. 다음 PoC: War3 Player Command Control
+## 4. 완료 기반: War3 Player Command Control
 
 ### 목표
 
-현재 debug 이동을 실제 플레이 입력 모델로 교체한다.
+debug 직접 이동을 실제 플레이 입력 모델로 교체하고, 경제/건설/상점 PoC가 붙을 command 기반을 확보한다.
 
 서브 마일스톤 상태:
 
@@ -65,7 +65,7 @@
 | M5.5 | 완료 | Warsmash 기준 보정: acquisition range 안의 농부/개 직접 공격 후보화, 늑대/플레이어 유닛 겹침 방지, blocker는 path failure fallback 유지 |
 | M5.6 | 완료 | Warsmash smart order 보정: 우클릭 늑대 hit test, farmer/dog attack command, 사거리 접근 후 쿨다운 공격 |
 | M5.7 | 완료 | 늑대 속도/추격 보정: 원본 `n007` speed `330` 기준 재조정, 공격 대상이 사거리 밖으로 이동하면 추격/repath |
-| M6 | 다음 | Attack-move 최소판: `A` 입력 후 지면 클릭, 이동 중 자동 target acquisition 후 공격 전환 |
+| M6 | 보류 | Attack-move 최소판: `A` 입력 후 지면 클릭, 이동 중 자동 target acquisition 후 공격 전환 |
 | M7 | 완료 | Drag Selection 최소판: farmer/dog 다중 선택, control group/formation 제외 |
 | M8 | 완료 | Unit Push 최소판: 농부/개/늑대 완전 중첩 방지, 약한 push-out과 목적지 offset으로 다중 유닛 뭉침 완화 |
 
@@ -150,7 +150,7 @@ type ControllableUnit = {
 - `games/chicken-farm/src/game/systems/playerCommandSystem.ts`: selection, command 발행, smart order 분기
 - `games/chicken-farm/src/game/systems/controllableUnitSystem.ts`: path follow, stop, command 실행
 - `games/chicken-farm/src/game/poc/playerCommandPocLayout.ts`: 농부/개 시작 배치와 command test target
-- `scripts/measure-chicken-farm-player-command.ts`: 자동 측정 스크립트 후보
+- `scripts/measure-chicken-farm-runtime-perf.ts`: command pathfinding, wolf repath, fog/minimap loop 자동 성능 측정
 
 ### ECS 승격 기준
 
@@ -174,15 +174,17 @@ type ControllableUnit = {
 
 ### 검증 지표
 
-PoC 구현 후 자동 측정은 다음 기준으로 추가한다.
+PoC 구현 후 자동 측정은 다음 기준으로 유지한다.
 
-예상 명령:
+측정 명령:
 
-- `npm run chicken:command:measure`
+- `npm run chicken:perf:measure`
+- `npm run chicken:browser-perf:measure`
 
-예상 artifact:
+Artifact:
 
-- `docs/chicken_farm/chicken_farm_w3x_artifacts/player_command_poc_metrics.json`
+- `docs/chicken_farm/chicken_farm_w3x_artifacts/runtime_performance_debug_metrics.json`
+- `docs/chicken_farm/chicken_farm_w3x_artifacts/browser_performance_debug_metrics.json`
 
 필수 지표:
 
@@ -197,38 +199,178 @@ PoC 구현 후 자동 측정은 다음 기준으로 추가한다.
 | `attackMoveAcquirePass` | attack-move 중 acquisition range 안의 늑대를 자동 공격으로 전환하는지 |
 | `unitOverlapClampPass` | M8 이후 농부/개/늑대가 최소 거리 이하로 완전 중첩되지 않는지 |
 | `commandDeterminismPass` | 같은 command sequence의 최종 위치가 반복 실행에서 같은지 |
+| `playerPathCommandMs` | 농부/개 우클릭 이동 pathfinding 동기 비용 |
+| `wolfRepathCandidateMs` | 늑대가 여러 attack range 후보로 A*를 반복하는 비용 |
+| `fogLoopMs` / `minimapLoopMs` | 렌더 제외 fog/minimap full-cell loop 비용 |
 
 통과 기준:
 
 - 이동 경로의 `blockedWaypointCount = 0`
 - smoothed segment의 `pathSegmentBlockedHits = 0`
 - 동일 command script를 3회 실행했을 때 최종 위치 오차가 tolerance 이하
+- `wolfRepathCandidateMs`가 프레임 budget을 초과하면 후보 수 축소, bounds 축소, repath throttling, path cache를 우선 검토한다.
+- `fogLoopMs`/`minimapLoopMs`가 높으면 매 프레임 갱신을 중단하고 dirty/throttle 갱신으로 전환한다.
 - stop command 이후 추가 이동 거리가 tolerance 이하
 - player 1 command가 player 2 unit state를 변경하지 않음
 
-## 5. 다음 단계: PoC 7 닭/알/수익
+### 성능 최적화 관리
 
-Player Command Control PoC가 통과되면 PoC 7을 진행한다.
+측정 artifact:
 
-PoC 7의 역할:
+- `docs/chicken_farm/chicken_farm_w3x_artifacts/runtime_performance_debug_metrics.json`
+- `docs/chicken_farm/chicken_farm_w3x_artifacts/browser_performance_debug_metrics.json`
 
-- `elapsedSec` 기반 30초 income tick 검증
-- 닭장 개수/등급에 따른 eggs/coins 증가 검증
-- player slot별 resource wallet 분리
+완료한 최적화:
+
+- `update.fog`와 `update.minimap`을 매 프레임 전체 갱신에서 dirty/throttle 갱신으로 전환했다. Fog는 150ms 또는 anchor 24px 이동, minimap은 250ms 또는 anchor/camera 32px 이동 기준으로 갱신한다.
+- `wolfRepath`는 후보 수 축소, 기존 path reuse, A* open set heap 최적화로 단일 프레임 spike를 낮췄다. 거리순 상위 4개 후보만 평가하고 첫 유효 path를 즉시 사용한다.
+- player command path는 start/goal 주변 512px padding bounds로 축소하고, dynamic blocker도 해당 bounds와 교차하는 것만 넘긴다.
+- `drawCombatDebug()`는 전투 판정과 무관한 개발용 시각화이므로 150ms throttle을 적용했다.
+
+주요 개선 결과:
+
+- `update.fog total`은 703.9ms에서 267.3ms로 감소했다.
+- `update.minimap total`은 443.1ms에서 114.0ms로 감소했다.
+- `update.fog + update.minimap` 평균은 1.98ms로 1차 목표인 4ms 이하를 만족했다.
+- Node logic 기준 `wolf.repath.candidates`는 평균 20.85ms/최대 38.61ms에서 평균 4.51ms/최대 6.49ms로 감소했다.
+- Playwright Chromium 기준 `path.wolf.refresh max`는 51.0ms에서 30.0ms로 감소했다.
+- `update.combat max`도 52.1ms에서 32.1ms로 감소해 `wolfRepath` spike는 1차 목표인 33ms 이하에 들어왔다.
+- Playwright Chromium 기준 `command.smart.total max`는 17.7ms에서 2.0ms로 감소했고, `path.player.findGridPath`는 hot label에서 사라졌다.
+
+최신 참조 메트릭:
+
+| 항목 | 최신 값 | 판단 |
+| --- | --- | --- |
+| Browser `frameAvgMs` | 39.3ms | headless frame pacing 영향 포함 가능 |
+| Browser `frameMaxMs` | 68.41ms | hot label JS 비용과 완전히 일치하지 않아 별도 해석 필요 |
+| `update.fog` | avg 1.25ms / max 8.0ms / total 251.3ms | 남은 누적 비용 1순위 |
+| `update.minimap` | avg 0.55ms / max 5.3ms / total 107.0ms | 추가 최적화 가능하지만 체감 리스크 있음 |
+| `path.wolf.refresh` | avg 14.2ms / max 40.0ms / total 85.2ms | 초기 focus/repath spike 후보 |
+| `path.wolf.findGridPath` | avg 5.16ms / max 10.6ms / total 82.6ms | path cache/bounds 추가 후보 |
+| `command.smart.total` | avg 2.0ms / max 3.1ms / total 4.0ms | 현 시점 병목 아님 |
+| `update.debugText` | avg 0.21ms / max 0.7ms / total 16.6ms | 현 시점 병목 아님 |
+
+남은 최적화 후보:
+
+1. `update.fog` draw 방식 개선
+   - 후보: fog 전체 rect redraw 대신 dirty cell/viewport 중심 갱신, 또는 fog bitmap/cache texture 방식 검토.
+   - 리스크: 시야 반응성/미니맵 표시 감각이 둔해질 수 있으므로 추가 throttle만으로 접근하지 않는다.
+2. 초기 `path.wolf.refresh` spike 축소
+   - 후보: tower focus 직후 path cache 재사용 범위 확대, 초기 path prewarm, repath를 한 프레임 뒤로 defer.
+   - 리스크: 최근 늑대 우회/속도 회귀가 많았으므로 전투 감각 확인 없이는 추가 변경하지 않는다.
+3. Browser `frameMaxMs` 분리 분석
+   - 후보: Playwright headless frame pacing 영향과 실제 JS hot label을 분리하기 위해 in-game movement speed sample 또는 visible Chrome 측정 추가.
+   - 리스크: 현재 hot label 합계만으로 gameplay 코드를 더 줄이면 잘못된 최적화가 될 수 있다.
+
+다음 최적화 전 검증 명령:
+
+- `npm run chicken:perf:measure`
+- `npm run chicken:browser-perf:measure`
+- `npm --workspace @games/chicken-farm run build`
+
+다음 목표:
+
+- `command.smart.total max <= 5ms` 유지
+- `update.fog + update.minimap avg <= 4ms` 유지
+- 늑대 우회, 타워 focus, 농부/개 이동 속도 회귀가 없는 상태에서만 추가 최적화 진행
+
+성능 최적화 회귀 수정 기록:
+
+- 거리순 상위 후보만 보는 최적화가 실제 우회 가능한 후보를 놓치면 늑대가 `path failed -> blocker attack`으로 전환할 수 있다.
+- 목표 건물 후보는 해당 위치에서 목표 건물을 방벽 너머로 때리지 않는지 attack line을 검사한다.
+- 상위 4개 후보에서 path를 못 찾으면 나머지 후보를 fallback으로 검사한다. 성능 최적화는 유지하되, 우회 가능한 path가 있는데 방벽을 때리는 회귀를 막는다.
+- 울타리 사이 이동 흔들림은 waypoint 근처 dead-zone과 대각선 이동이 clearance에 걸리는 corner collision이 겹칠 때 발생할 수 있다.
+- 늑대 이동은 waypoint 12px 이내 도달 처리, 점유 가능한 waypoint에만 snap, diagonal blocked 시 x/y axis slide 후보를 적용해 좁은 통로 흔들림을 줄인다.
+- 공격 이동 중 순간 가속은 waypoint snap과 분리 보정이 한 tick에 중복 적용되면 발생할 수 있다. 늑대 이동은 `speedPxPerSec * deltaSec` 이내에서만 목표점 snap을 허용하고, 유닛 분리 보정은 `CombatPocSystem.update()` 끝에서 한 번만 적용한다.
+- 가속 방지 이후 우회 중 멈춤은 `moveWolfToward()`의 waypoint 근처 dead-zone return이 pathIndex advance보다 먼저 실행되면서 발생할 수 있다. path follow는 가까운 waypoint를 먼저 consume한 뒤 다음 waypoint로 이동하고, 이동 함수 자체에서는 dead-zone return을 제거한다.
+- 타워 공격 직후 focus/repath로 프레임이 길어지면 실제 `deltaSec`가 커져 한 프레임 이동량이 증가할 수 있다. 전투 시간/쿨다운은 실제 elapsed time을 유지하되, 늑대 이동용 delta만 `1/60s`로 clamp해 시각적 순간 가속을 막는다.
+- 개/농부도 path follow와 attack chase에서 `speedPxPerSec * deltaSec`를 쓰기 때문에 같은 문제가 발생할 수 있다. controllable unit 이동용 delta도 `1/60s`로 clamp하고, 공격 쿨다운/게임 시간은 기존 elapsed time 기준을 유지한다.
+- 타워 focus 후 늑대가 울타리 안쪽으로 들어가 멈추는 회귀는 A*가 `startKey`/`goalKey`를 blocked cell이어도 허용하면서 발생할 수 있다. 타워 중심 또는 울타리 clearance 안쪽 후보가 path goal로 인정되면 path는 존재하지만 실제 movement guard가 이동을 막아 stuck 상태가 된다.
+- 전역 pathing 동작은 유지하되, wolf combat path에는 `allowBlockedStart: false`, `allowBlockedGoal: false`를 적용한다. blocked tower/fence goal은 path로 인정하지 않고 `path missing -> blocker fallback`으로 처리한다.
+- 자동 회귀 지표 `wolf.blocked_tower_goal_rejected`를 runtime perf 측정에 추가했다. 기대값은 `pass = true`, `pathLength = 0`이다.
+- Warsmash 기준 blocker 공격은 "가까운 아무 울타리"가 아니라 현재 목표/실패 경로를 막는 blocker를 치는 흐름에 가깝다. `getWolfBlockingTarget()`은 target line과 교차하는 blocker를 먼저 고르고, 없을 때만 주변 2~3 cell 근접 blocker를 fallback으로 선택한다.
+- 자동 회귀 지표 `wolf.blocker_line_priority`를 runtime perf 측정에 추가했다. 기대값은 가까운 off-line blocker가 있어도 `selectedId = target_line_blocker`다.
+- 실제 플레이 관찰 기준으로는 초반 스카우트 타워 화력이 여러 일반 늑대를 모두 지우지 못하면, 남은 늑대들이 울타리 미로 내부에서 blocker를 부수고 타워까지 파괴하는 시나리오가 가능하다. Warsmash 기준으로도 일반 늑대는 attack-move/acquisition으로 목표를 계속 찾고, path가 막히면 blocker 공격으로 전환하므로 이 경험은 타당하다.
+- PoC 전투 재현은 단일 고HP 테스트 늑대가 아니라 원본 `n007` 팀버 울프 여러 마리로 맞춘다. 기준값은 `n007` HP `450`, armor `0`, speed `330`, attack range `100`, cooldown `1.35`, damage `11 + 1d2`의 평균값 근처인 `12`다.
+- 초반 압박 수는 원본 웨이브/보충 기준 `4~6`마리 범위가 확인되므로, PoC는 사용자가 관찰한 재현성과 성능 부담의 중간값인 `5`마리로 고정한다.
+- 스카우트 타워 `h00D`는 원본 추출값 HP `275`, armor `5`, range `650`, cooldown `1.05`, damage `21 + 1d3` 평균 근처인 `23`으로 맞춘다. 기존 PoC의 range `195`, damage `14`, tower A damage scale `0.55`는 축약/측정용 값이므로 제거했다.
+- 기본 울타리 `h003`은 원본 추출값 HP `200`, armor `1`을 유지한다. 따라서 5마리 늑대가 한 blocker를 때리면 타워 화력보다 빠르게 울타리를 부수는 상황이 재현될 수 있다.
+- 타워 사거리 `650`은 원본 `h00D` 기준으로 맞다. 따라서 사거리 값을 줄이지 않고, 압축되어 있던 PoC 울타리 미로를 확대하는 방향으로 확정한다.
+- 기존 압축 미로는 두 타워 중심 거리가 약 `529px`라 `650px` 사거리 원이 크게 겹쳤다. 확장 미로는 입구/꺾임 감각은 유지하되 타워 A/B 중심 거리를 약 `1374px`로 벌려 두 `650px` 공격 사거리가 겹치지 않게 했다.
+- Warsmash/War3 기준 `650`은 약 `5.08` terrain tiles 또는 `20.31` WPM pathing cells다. 다만 현재 Phaser PoC의 실제 이동/pathing/build 검증은 WPM cell과 맞는 `32px` minor grid 기준으로 유지한다.
+- major grid 전환 실험은 화면 체감상 타일/건물 크기와 기존 object 배치 해석을 더 혼란스럽게 만들었으므로 철회한다. `CAMERA_ZOOM`은 `0.85`, build grid는 minor line + major 강조 표시로 되돌린다.
+- 전투 PoC의 울타리/타워/돌벽 배치도 `32px` minor cell 기준으로 유지한다. 이후 사거리와 배치 보정은 minor grid 위에서 별도 scale/balance 값을 조정한다.
+- 혼선을 줄이기 위해 `buildingTemplates.tower_scout`와 `defenseBuildings.tower_scout`의 range/damage를 모두 `650`/`23`으로 맞췄다. 시각 표시만 fill alpha를 낮춰 판정 범위와 화면 가독성을 분리했다. 기존 압축 레이아웃은 `COMBAT_POC_COMPACT_LAYOUT_BACKUP`으로 보관해 비교/롤백할 수 있게 한다.
+
+## 5. 현재 신뢰도: War3 Player Command Control
+
+현재 판단:
+
+- Command Control PoC는 MVP의 다음 경제/건설/상점 PoC를 붙일 수 있는 최소 조작 기반으로는 통과다.
+- 원본 Warcraft III 조작 전체 구현은 아니며, 닭농장 MVP에 필요한 선택/이동/공격/정지/경로 추종 중심의 축약판이다.
+- 다음 단계로 진행하되, 아래 한계는 PoC 7/6 구현 중 계속 관리한다.
+
+확보된 범위:
+
+- 카메라 이동, 클릭 선택, 드래그 선택, 우클릭 이동, 우클릭 공격, stop command.
+- 농부/개 controllable unit state와 원본 기준 이동속도.
+- WPM terrain blocker + dynamic blocker + smoothed path follow.
+- 농부/개/늑대 완전 중첩 방지와 최소 push-out.
+- 늑대의 농부/개 acquisition, target follow/repath, blocker fallback.
+- Node/Playwright 기반 성능 측정과 regression artifact.
+
+신뢰도가 부족한 범위:
+
+| 범위 | 현재 수준 | 리스크 | 관리 방침 |
+| --- | --- | --- | --- |
+| Attack-move | 미구현/보류 | 거미 사냥, 늑대 대응 자동 공격 검증 부족 | PoC 4 또는 전투 확장 전에 M6로 구현 |
+| Command queue/control group | 미구현 | 원본 워3 조작 완성도 부족 | MVP 필수 전까지 보류 |
+| ECS 분리 | 부분 분리 | `ControllableUnitSystem`, `CombatPocSystem`에 view/state 혼재 | 경제/상점은 처음부터 state/system/view adapter로 작성 |
+| Unit collision/local avoidance | 최소판 | 다중 유닛/좁은 통로에서 흔들림 가능 | 회귀 발견 시 movement adapter에서 국소 수정 |
+| Pathing 정확도 | WPM + dynamic blocker 축약판 | 원본 워3 pathing texture/collision과 차이 가능 | 측정 artifact와 수동 플레이 확인 병행 |
+| Browser frame pacing | 일부 불명확 | Playwright headless `frameMaxMs`가 hot label과 불일치 | 최적화 판단은 hot label + 수동 체감 기준으로 병행 |
+| Deterministic replay | 미구현 | P2P 승격 시 command 재현성 검증 부족 | PoC 13/15 전에 command log/replay 측정 추가 |
+
+다음 단계 진입 기준:
+
+- PoC 7 경제/건설/상점은 진행한다.
+- 단, 구현 중 attack/interact/build command hook을 늘릴 때 `main.ts` 직접 분기보다 command/system API를 우선한다.
+- 신뢰도 부족 범위는 지금 더 파고들지 않고, 실제 경제/상점 루프에 걸리는 순간에 보강한다.
+
+## 6. 다음 단계: Economy / Build / Shop PoC
+
+기존 **PoC 7. 닭/알/수익**을 시작하되, 실제 플레이 루프상 건설/상점과 분리하기 어렵기 때문에 다음 턴의 작업 단위는 **Economy / Build / Shop PoC**로 묶는다.
+
+목표:
+
+- `elapsedSec` 기반 30초 egg drop tick 검증
+- 닭/닭장 개수와 등급에 따른 field egg item 생성 검증
+- player slot별 coin wallet과 field egg ownership 분리
 - buy/upgrade/reward/penalty를 command 또는 system API로 통일
+- 농부 command/interact 흐름으로 닭장 구매/업그레이드/알 수집/알 거래/부화를 검증
+- 중앙 상점은 최종 UI가 아니라 debug interaction/service API로 먼저 검증
+
+알 모델 결정:
+
+- 알은 금/나무처럼 HUD에 누적되는 wallet resource가 아니라 필드에 드롭되는 item/object로 취급한다.
+- 경제의 핵심은 `field egg item 생성 -> 농부 수집 또는 상점 거래 -> coins 획득` 루프다.
+- 성장의 핵심은 `field egg item 또는 egg stack -> 닭장 부화 -> 닭 증가` 루프다.
+- 따라서 `eggs += n` 형태의 즉시 자원 증가는 PoC 7 범위에서 사용하지 않는다.
 
 Economy 기준값:
 
 | 항목 | MVP 값 |
 | --- | --- |
 | 시작 코인 | easy `140`, normal `120`, hard `120`, crazy `110` |
-| 수익 주기 | `30 sec` |
-| egg unit 환산 | `coins += eggUnits * 12`, `eggs += eggUnits` |
-| 기본 닭장 | `coop_basic`, cost `60`, `1 egg unit / 30 sec` |
-| 중급 닭장 | `coop_mid`, cost `120`, `2 egg units / 30 sec` |
-| 고급 닭장 | `coop_high`, cost `220`, `3 egg units / 30 sec` |
+| 알 생성 주기 | `30 sec` |
+| 알 표현 | `FieldEggItem`, wallet resource 아님 |
+| 알 거래 | 수집/보유 중인 egg item stack 판매 시 `coins += eggCount * 12` |
+| 알 부화 | 닭장이 egg item stack을 소비하고 일정 시간 후 닭 생성 |
+| 기본 닭장 | `coop_basic`, cost `60`, `1 egg item / 30 sec` 또는 기본 부화 슬롯 1 |
+| 중급 닭장 | `coop_mid`, cost `120`, `2 egg items / 30 sec` 또는 부화 슬롯 2 |
+| 고급 닭장 | `coop_high`, cost `220`, `3 egg items / 30 sec` 또는 부화 슬롯 3 |
 | 업그레이드 | basic -> mid `80`, mid -> high `140` |
-| revive penalty | MVP 기준 자원 `25%` 손실 |
+| revive penalty | MVP 기준 coin `25%` 손실, field egg item은 별도 드롭/소멸 정책 후속 결정 |
 | exchange | MVP 기본 비활성, PoC 6에서 분리 검증 |
 
 PoC 7 측정 후보:
@@ -236,13 +378,43 @@ PoC 7 측정 후보:
 - `npm run chicken:economy:measure`
 - `docs/chicken_farm/chicken_farm_w3x_artifacts/economy_poc_metrics.json`
 
-## 6. 전체 PoC 로드맵
+서브 마일스톤:
+
+| 단계 | 상태 | 내용 | 산출물 |
+| --- | --- | --- | --- |
+| E1 | 다음 | Economy state 최소판: coin wallet, field egg items, chickens, coops, nextEggDropAtSec | `economyTypes`, `economySystem` |
+| E2 | 대기 | 30초 egg drop tick: 닭/닭장 등급별 field egg item 생성, timeScale/debug tick 대응 | `chicken:economy:measure` |
+| E3 | 대기 | Egg collect/trade service: 농부 수집, egg stack 소유권, 판매 시 coin 증가 | collect/trade API |
+| E4 | 대기 | Coop build/hatch service: farm zone 안에 coop_basic 배치, egg 소비 후 닭 부화, WPM buildBlocked 검사 | build/hatch API |
+| E5 | 대기 | Upgrade service: coop basic -> mid -> high, 비용/알 생성량/부화 슬롯 변경 | upgrade command/API |
+| E6 | 대기 | Shop/interact hook: 농부 우클릭 egg/shop/coop 대상 분기, UI 없이 debug sell/hatch/upgrade 호출 | smart/interact command extension |
+| E7 | 대기 | Browser/Node 측정: 30초 drop, 수집/판매/부화, 구매/업그레이드, player slot 분리 | economy metrics artifact |
+| E8 | 대기 | 문서/밸런스 고정: PoC 7 완료 기준과 PoC 6 중앙 상점 확장 범위 결정 | next priority update |
+
+다음 턴 권장 구현 순서:
+
+1. `economyTypes.ts`와 순수 `economySystem.ts`를 만든다.
+2. `scripts/measure-chicken-farm-economy.ts`로 30초 egg drop, 수집, 판매, 부화 단위 테스트를 먼저 고정한다.
+3. Phaser 런타임에는 debug HUD/keyboard 또는 command API로 `collect egg`, `sell egg`, `hatch chicken`, `buy coop_basic`, `upgrade coop`을 붙인다.
+4. 그 다음 농부 smart/interact command와 build placement를 연결한다.
+
+PoC 7 완료 기준:
+
+- player별 coin wallet과 field egg item ownership이 분리된다.
+- 30초 egg drop tick이 deterministic하게 반복된다.
+- 농부가 field egg item을 수집하고 상점 또는 debug trade API로 coin화할 수 있다.
+- coop이 egg item을 소비해 닭을 부화시킬 수 있다.
+- coop 구매/업그레이드가 비용 부족/성공/알 생성량/부화 슬롯 변경을 모두 처리한다.
+- 최소 하나의 runtime interaction으로 농부가 경제 액션을 실행할 수 있다.
+- Node 측정 artifact가 통과하고, browser smoke에서 HUD 값이 갱신된다.
+
+## 7. 전체 PoC 로드맵
 
 | 우선순위 | PoC | 상태 | 선행 조건 | 다음 액션 |
 | ---: | --- | --- | --- | --- |
-| 1 | War3 Player Command Control | 다음 구현 | WPM + smoothing 완료 | 선택/명령/path follow 구현 |
-| 2 | PoC 7. 닭/알/수익 | 대기 | command control 권장 | economy state, 30초 income tick, 자동 측정 |
-| 3 | PoC 6. 중앙 상점/교환 | 병렬 가능 | command/interact hook 권장 | shop state와 교환 UI prototype |
+| 1 | Economy / Build / Shop PoC | 다음 구현 | command control 최소 통과 | economy state, 30초 egg drop tick, egg collect/trade/hatch, coop build/upgrade |
+| 2 | War3 Player Command Control 보강 | 필요 시 | 경제/전투 루프 중 회귀 발견 | attack-move, replay, ECS 분리 보강 |
+| 3 | PoC 6. 중앙 상점/교환 | PoC 7 이후 | command/interact hook | shop state와 교환 UI prototype |
 | 4 | PoC 12. 결혼/아내/가족 테크 | 병렬 가능 | state model | spouse/family component와 지원 스킬 구조 정의 |
 | 5 | PoC 4. 거미/초반 보너스 | PoC 7 이후 권장 | command + terrain + economy | 거미 사냥을 reward/economy로 연결 |
 | 6 | PoC 5. 늑대의 돌 | 병렬 가능 | command + combat | 특정 object 공격/보상 흐름 검증 |
@@ -250,12 +422,12 @@ PoC 7 측정 후보:
 | 8 | PoC 10. 원본 타임라인/배속 | PoC 7 이후 | economy tick + wave scheduler | timeScale 기반 장기 루프 측정 |
 | 9 | PoC 11. 낮/밤 + FoW + 미니맵 | 병렬 가능 | Tilemap | rendering layer 검증 |
 | 10 | PoC 8. 거북이 이벤트 NPC | PoC 6 이후 | central hub | event NPC interaction |
-| 11 | PoC 13. 8인 로컬 슬롯 | command + economy 이후 | player slot state 분리 | 8 slot local simulation |
+| 11 | PoC 13. 8인 로컬 슬롯 | economy 이후 | player slot state 분리 | 8 slot local simulation |
 | 12 | PoC 14. 싱글 플레이 통합 MVP/MVC | 주요 PoC 완료 후 | all core loops | playable vertical slice |
 | 13 | PoC 15. P2P 네트워크 | PoC 14 이후 | deterministic command/state boundary | sync model 검증 |
 | 14 | PoC 16. 8인 내부 테스트 | PoC 15 이후 | network | full scenario test |
 
-## 7. 구현 순서
+## 8. 구현 순서 기록
 
 1. 완료: 기존 `PlayerControlSystem`의 WASD 직접 이동을 debug 전용으로 격리한다. 완료 시 키보드는 Warsmash 참고 범위의 camera pan으로 전환한다.
 2. 완료: 농부/개 controllable unit을 별도 state로 만든다.
@@ -266,20 +438,20 @@ PoC 7 측정 후보:
 7. 완료: 늑대가 acquisition range 안의 농부/개를 직접 공격 후보로 보고, 경로가 막힌 경우에만 blocker 공격으로 전환하게 보정한다.
 8. 완료: 우클릭 대상이 늑대이면 smart order를 attack command로 분기하고 farmer/dog가 사거리 접근 후 공격하게 한다.
 9. 완료: 늑대 속도를 원본 기준으로 보정하고, 전투 target follow/repath를 구현한다.
-10. 다음: attack-move 최소판을 구현한다.
+10. 보류: attack-move 최소판은 거미/전투 확장 전까지 미룬다.
 11. 완료: drag selection 최소판을 구현한다. 좌클릭 click selection은 유지하고, threshold 이상 드래그하면 rectangle과 교차하는 farmer/dog를 다중 선택한다.
 12. 완료: unit push 최소판을 구현한다. 목표는 워3식 정밀 회피가 아니라 완전 중첩 방지, 약한 push-out, 다중 선택 목적지 offset이다.
 13. 자동 측정 스크립트와 artifact를 추가한다.
-14. 문서에 측정 결과를 반영하고 통과 시 PoC 7 economy로 이동한다.
+14. 완료: 문서에 측정 결과를 반영하고 Economy / Build / Shop PoC로 이동한다.
 
-## 8. 보류 및 리스크
+## 9. 보류 및 리스크
 
 - 멀티 선택과 control group은 MVP 체감에는 중요하지만 이번 PoC의 선행 조건은 아니다.
 - command card UI는 추후 build/shop PoC에서 필요할 때 확장한다.
 - 현재 Phaser object 중심 구조를 한 번에 ECS로 갈아엎지 않는다. 먼저 command/state boundary를 만들고, 이후 component로 승격한다.
 - P2P deterministic 검증은 PoC 15 범위지만, 이번 PoC부터 command replay가 가능하도록 설계해야 한다.
 
-## 9. 참고 문서
+## 10. 참고 문서
 
 - 전체 PoC 목록: `docs/chicken_farm/chicken_farm_phaser_p2p_game_plan.md`
 - Warsmash 조작/명령 참고: `docs/chicken_farm/chicken_farm_warsmash_behavior_notes.md`

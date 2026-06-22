@@ -15,6 +15,8 @@ export type FindGridPathOptions = {
     readonly bounds: GridPathRect;
     readonly cellSize: number;
     readonly clearancePx?: number;
+    readonly allowBlockedGoal?: boolean;
+    readonly allowBlockedStart?: boolean;
     readonly goal: GridPathPoint;
     readonly maxIterations?: number;
     readonly pathSmoothingEnabled?: boolean;
@@ -56,8 +58,23 @@ export function findGridPath(
     const goalKey = cellKey(goal);
     const maxIterations = options.maxIterations ?? gridWidth * gridHeight;
     const open = new Map<string, SearchNode>();
+    const openHeap = new SearchNodeMinHeap();
     const closed = new Set<string>();
     const best = new Map<string, SearchNode>();
+
+    if (
+        options.allowBlockedStart === false &&
+        isBlockedCell(start, options, gridWidth, gridHeight)
+    ) {
+        return null;
+    }
+
+    if (
+        options.allowBlockedGoal === false &&
+        isBlockedCell(goal, options, gridWidth, gridHeight)
+    ) {
+        return null;
+    }
 
     const startNode: SearchNode = {
         ...start,
@@ -66,13 +83,15 @@ export function findGridPath(
         key: startKey,
     };
     open.set(startKey, startNode);
+    openHeap.push(startNode);
     best.set(startKey, startNode);
 
     let iterations = 0;
 
     while (open.size > 0 && iterations < maxIterations) {
         iterations += 1;
-        const current = getLowestF(open);
+        const current = popBestOpenNode(open, openHeap);
+        if (!current) break;
         open.delete(current.key);
         closed.add(current.key);
 
@@ -91,9 +110,8 @@ export function findGridPath(
             const key = cellKey(neighbor);
             if (closed.has(key)) continue;
             if (
-                key !== goalKey &&
-                key !== startKey &&
-                isBlockedCell(neighbor, options, gridWidth, gridHeight)
+                isBlockedCell(neighbor, options, gridWidth, gridHeight) &&
+                !isAllowedBlockedEndpoint(key, startKey, goalKey, options)
             ) {
                 continue;
             }
@@ -111,6 +129,7 @@ export function findGridPath(
             };
             best.set(key, node);
             open.set(key, node);
+            openHeap.push(node);
         }
     }
 
@@ -153,6 +172,17 @@ function isBlockedCell(
     return options.blockedRects.some((rect) => {
         return isPointInsideExpandedRect(center, rect, clearance);
     });
+}
+
+function isAllowedBlockedEndpoint(
+    key: string,
+    startKey: string,
+    goalKey: string,
+    options: FindGridPathOptions,
+) {
+    if (key === startKey) return options.allowBlockedStart !== false;
+    if (key === goalKey) return options.allowBlockedGoal !== false;
+    return false;
 }
 
 function smoothPath(
@@ -251,17 +281,94 @@ function getNeighbors(
     );
 }
 
-function getLowestF(open: Map<string, SearchNode>): SearchNode {
-    let best: SearchNode | undefined;
+function popBestOpenNode(
+    open: Map<string, SearchNode>,
+    heap: SearchNodeMinHeap,
+): SearchNode | undefined {
+    let candidate = heap.pop();
 
-    open.forEach((node) => {
-        if (!best || node.f < best.f || (node.f === best.f && node.g < best.g)) {
-            best = node;
+    while (candidate) {
+        if (open.get(candidate.key) === candidate) return candidate;
+        candidate = heap.pop();
+    }
+
+    return undefined;
+}
+
+class SearchNodeMinHeap {
+    private readonly nodes: SearchNode[] = [];
+
+    push(node: SearchNode) {
+        this.nodes.push(node);
+        this.bubbleUp(this.nodes.length - 1);
+    }
+
+    pop() {
+        const first = this.nodes[0];
+        const last = this.nodes.pop();
+        if (!first || !last) return first;
+
+        this.nodes[0] = last;
+        this.bubbleDown(0);
+        return first;
+    }
+
+    private bubbleUp(index: number) {
+        let currentIndex = index;
+
+        while (currentIndex > 0) {
+            const parentIndex = Math.floor((currentIndex - 1) / 2);
+            if (
+                compareSearchNodes(
+                    this.nodes[currentIndex],
+                    this.nodes[parentIndex],
+                ) >= 0
+            ) {
+                return;
+            }
+
+            this.swap(currentIndex, parentIndex);
+            currentIndex = parentIndex;
         }
-    });
+    }
 
-    if (!best) throw new Error('A* open set unexpectedly empty');
-    return best;
+    private bubbleDown(index: number) {
+        let currentIndex = index;
+
+        while (true) {
+            const leftIndex = currentIndex * 2 + 1;
+            const rightIndex = leftIndex + 1;
+            let bestIndex = currentIndex;
+
+            if (
+                leftIndex < this.nodes.length &&
+                compareSearchNodes(this.nodes[leftIndex], this.nodes[bestIndex]) < 0
+            ) {
+                bestIndex = leftIndex;
+            }
+            if (
+                rightIndex < this.nodes.length &&
+                compareSearchNodes(this.nodes[rightIndex], this.nodes[bestIndex]) < 0
+            ) {
+                bestIndex = rightIndex;
+            }
+            if (bestIndex === currentIndex) return;
+
+            this.swap(currentIndex, bestIndex);
+            currentIndex = bestIndex;
+        }
+    }
+
+    private swap(a: number, b: number) {
+        const temp = this.nodes[a];
+        this.nodes[a] = this.nodes[b];
+        this.nodes[b] = temp;
+    }
+}
+
+function compareSearchNodes(a: SearchNode, b: SearchNode) {
+    if (a.f !== b.f) return a.f - b.f;
+    return a.g - b.g;
 }
 
 function reconstructPath(

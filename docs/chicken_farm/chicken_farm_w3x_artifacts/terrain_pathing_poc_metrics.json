@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-19T23:43:30.901Z",
+  "generatedAt": "2026-06-20T22:36:18.900Z",
   "parameters": {
     "cellSize": 32,
     "clearancePx": 16,
     "directSampleStepPx": 16,
     "sourceGrid": "games/chicken-farm/assets/data/wpm_pathing_grid.json",
-    "wolfSpeedPxPerSec": 115
+    "wolfSpeedPxPerSec": 330
   },
   "metrics": [
     {
@@ -19,9 +19,9 @@
       "probeId": "micro_a",
       "raw": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 26.08,
+        "expectedTravelSec": 9.09,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 48.98,
+        "pathComputeMs": 64.59,
         "pathDistance": 2999.14,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
@@ -31,9 +31,9 @@
       },
       "smoothed": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 25.24,
+        "expectedTravelSec": 8.8,
         "minClearanceCells": 1.58,
-        "pathComputeMs": 31.85,
+        "pathComputeMs": 65.21,
         "pathDistance": 2903,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
@@ -44,7 +44,7 @@
       "smoothingDelta": {
         "detourRatioDelta": -0.04,
         "distanceDelta": -96.14,
-        "expectedTravelSecDelta": -0.84,
+        "expectedTravelSecDelta": -0.29,
         "turnReduction": 8,
         "waypointReduction": 85,
         "waypointReductionPct": 95.51
@@ -69,9 +69,9 @@
       "probeId": "micro_b",
       "raw": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 23.34,
+        "expectedTravelSec": 8.14,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 3.7,
+        "pathComputeMs": 3.97,
         "pathDistance": 2684.64,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
@@ -81,9 +81,9 @@
       },
       "smoothed": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 22.77,
+        "expectedTravelSec": 7.93,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 8.89,
+        "pathComputeMs": 7.72,
         "pathDistance": 2618.23,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
@@ -94,7 +94,7 @@
       "smoothingDelta": {
         "detourRatioDelta": -0.03,
         "distanceDelta": -66.41,
-        "expectedTravelSecDelta": -0.57,
+        "expectedTravelSecDelta": -0.21,
         "turnReduction": 6,
         "waypointReduction": 77,
         "waypointReductionPct": 96.25

@@ -1,0 +1,369 @@
+{
+  "generatedAt": "2026-06-22T00:22:11.376Z",
+  "parameters": {
+    "baseUrl": "http://127.0.0.1:4174/game-assets/chicken-farm/",
+    "browser": "playwright.chromium",
+    "viewport": {
+      "height": 720,
+      "width": 960
+    }
+  },
+  "consoleMessages": [
+    "warning: [.WebGL-0x12400534800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "pageErrors": [],
+  "snapshots": [
+    {
+      "perf": {
+        "frameAvgMs": 16.427698550679303,
+        "frameCount": 92,
+        "frameMaxMs": 16.666666666666664,
+        "hotLabels": [
+          {
+            "avgMs": 1.666304347631724,
+            "count": 92,
+            "label": "update.combat",
+            "maxMs": 73.7999999821186,
+            "totalMs": 153.2999999821186
+          },
+          {
+            "avgMs": 13.116666669646898,
+            "count": 6,
+            "label": "path.wolf.refresh",
+            "maxMs": 27.899999976158142,
+            "totalMs": 78.7000000178814
+          },
+          {
+            "avgMs": 12.833333333333334,
+            "count": 6,
+            "label": "path.wolf.findGridPath",
+            "maxMs": 27.5,
+            "totalMs": 77
+          },
+          {
+            "avgMs": 0.511956521998281,
+            "count": 92,
+            "label": "update.fog",
+            "maxMs": 6,
+            "totalMs": 47.10000002384186
+          },
+          {
+            "avgMs": 0.2054347829974216,
+            "count": 92,
+            "label": "update.minimap",
+            "maxMs": 4.100000023841858,
+            "totalMs": 18.900000035762787
+          }
+        ],
+        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+      },
+      "scenario": "baseline_idle",
+      "state": {
+        "elapsedSec": 1.5280149333291573,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 2692,
+          "y": 8368
+        },
+        "selectedUnitCount": 0,
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 16.427698550679303,
+        "frameCount": 92,
+        "frameMaxMs": 16.666666666666664,
+        "hotLabels": [
+          {
+            "avgMs": 1.666304347631724,
+            "count": 92,
+            "label": "update.combat",
+            "maxMs": 73.7999999821186,
+            "totalMs": 153.2999999821186
+          },
+          {
+            "avgMs": 13.116666669646898,
+            "count": 6,
+            "label": "path.wolf.refresh",
+            "maxMs": 27.899999976158142,
+            "totalMs": 78.7000000178814
+          },
+          {
+            "avgMs": 12.833333333333334,
+            "count": 6,
+            "label": "path.wolf.findGridPath",
+            "maxMs": 27.5,
+            "totalMs": 77
+          },
+          {
+            "avgMs": 0.511956521998281,
+            "count": 92,
+            "label": "update.fog",
+            "maxMs": 6,
+            "totalMs": 47.10000002384186
+          },
+          {
+            "avgMs": 0.2054347829974216,
+            "count": 92,
+            "label": "update.minimap",
+            "maxMs": 4.100000023841858,
+            "totalMs": 18.900000035762787
+          }
+        ],
+        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+      },
+      "scenario": "select_all_units_2",
+      "state": {
+        "elapsedSec": 2.1745249333291548,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 2692,
+          "y": 8368
+        },
+        "selectedUnitCount": 2,
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 34.55459259259259,
+        "frameCount": 45,
+        "frameMaxMs": 71.7699999999999,
+        "hotLabels": [
+          {
+            "avgMs": 1.3000000006622738,
+            "count": 45,
+            "label": "update.combat",
+            "maxMs": 34.599999994039536,
+            "totalMs": 58.50000002980232
+          },
+          {
+            "avgMs": 1.0000000006622738,
+            "count": 45,
+            "label": "update.fog",
+            "maxMs": 6.300000011920929,
+            "totalMs": 45.00000002980232
+          },
+          {
+            "avgMs": 11.466666668653488,
+            "count": 3,
+            "label": "path.wolf.refresh",
+            "maxMs": 34.20000001788139,
+            "totalMs": 34.400000005960464
+          },
+          {
+            "avgMs": 1.7,
+            "count": 20,
+            "label": "path.wolf.findGridPath",
+            "maxMs": 34,
+            "totalMs": 34
+          },
+          {
+            "avgMs": 0.4977777772479587,
+            "count": 45,
+            "label": "update.minimap",
+            "maxMs": 4.299999982118607,
+            "totalMs": 22.399999976158142
+          }
+        ],
+        "summary": "perf frame avg 34.6ms max 71.8ms slow max 71.8ms | update.combat avg 1.30 max 34.60 | update.fog avg 1.00 max 6.30 | path.wolf.refresh avg 11.47 max 34.20 | path.wolf.findGridPath avg 1.70 max 34.00 | update.minimap avg 0.50 max 4.30"
+      },
+      "scenario": "smart_command_short_defense_move",
+      "state": {
+        "elapsedSec": 4.227924933329154,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 2799.222409939195,
+          "y": 8335.637138463462
+        },
+        "selectedUnitCount": 2,
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 68.47863636363638,
+        "frameCount": 22,
+        "frameMaxMs": 71.67999999999992,
+        "hotLabels": [
+          {
+            "avgMs": 1.986363637176427,
+            "count": 22,
+            "label": "update.fog",
+            "maxMs": 5.699999988079071,
+            "totalMs": 43.70000001788139
+          },
+          {
+            "avgMs": 1.0181818184527485,
+            "count": 22,
+            "label": "update.minimap",
+            "maxMs": 4,
+            "totalMs": 22.400000005960464
+          },
+          {
+            "avgMs": 0.49999999729069794,
+            "count": 22,
+            "label": "update.combat",
+            "maxMs": 0.5999999940395355,
+            "totalMs": 10.999999940395355
+          },
+          {
+            "avgMs": 0.222727278416807,
+            "count": 22,
+            "label": "update.debugText",
+            "maxMs": 0.30000001192092896,
+            "totalMs": 4.900000125169754
+          },
+          {
+            "avgMs": 0.02727272700179707,
+            "count": 22,
+            "label": "update.units",
+            "maxMs": 0.10000002384185791,
+            "totalMs": 0.5999999940395355
+          }
+        ],
+        "summary": "perf frame avg 68.5ms max 71.7ms slow max 71.7ms | update.fog avg 1.99 max 5.70 | update.minimap avg 1.02 max 4.00 | update.combat avg 0.50 max 0.60 | update.debugText avg 0.22 max 0.30 | update.units avg 0.03 max 0.10"
+      },
+      "scenario": "smart_command_blocker_edge_move",
+      "state": {
+        "elapsedSec": 6.2228249333291545,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 2699.614644050808,
+          "y": 8377.431974480745
+        },
+        "selectedUnitCount": 2,
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 69.2509090909091,
+        "frameCount": 22,
+        "frameMaxMs": 71.66999999999989,
+        "hotLabels": [
+          {
+            "avgMs": 1.9181818203492598,
+            "count": 22,
+            "label": "update.fog",
+            "maxMs": 6.5999999940395355,
+            "totalMs": 42.200000047683716
+          },
+          {
+            "avgMs": 0.8727272708307613,
+            "count": 22,
+            "label": "update.minimap",
+            "maxMs": 4.899999976158142,
+            "totalMs": 19.19999995827675
+          },
+          {
+            "avgMs": 0.5090909085490487,
+            "count": 22,
+            "label": "update.combat",
+            "maxMs": 0.6000000238418579,
+            "totalMs": 11.199999988079071
+          },
+          {
+            "avgMs": 0.25454545562917535,
+            "count": 22,
+            "label": "update.debugText",
+            "maxMs": 0.4000000059604645,
+            "totalMs": 5.600000023841858
+          },
+          {
+            "avgMs": 0.5,
+            "count": 1,
+            "label": "command.smart.total",
+            "maxMs": 0.5,
+            "totalMs": 0.5
+          }
+        ],
+        "summary": "perf frame avg 69.3ms max 71.7ms slow max 71.7ms | update.fog avg 1.92 max 6.60 | update.minimap avg 0.87 max 4.90 | update.combat avg 0.51 max 0.60 | update.debugText avg 0.25 max 0.40 | command.smart.total avg 0.50 max 0.50"
+      },
+      "scenario": "smart_command_wide_move",
+      "state": {
+        "elapsedSec": 8.224264933329154,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 2803.5204490407295,
+          "y": 8410.050367471713
+        },
+        "selectedUnitCount": 2,
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    }
+  ],
+  "summary": {
+    "frameAvgMs": 41.03,
+    "frameMaxMs": 71.77,
+    "hotLabels": [
+      {
+        "avgMs": 1.13,
+        "label": "update.combat",
+        "maxMs": 73.8,
+        "totalMs": 387.3
+      },
+      {
+        "avgMs": 1.19,
+        "label": "update.fog",
+        "maxMs": 6.6,
+        "totalMs": 225.1
+      },
+      {
+        "avgMs": 12.57,
+        "label": "path.wolf.refresh",
+        "maxMs": 34.2,
+        "totalMs": 191.8
+      },
+      {
+        "avgMs": 9.12,
+        "label": "path.wolf.findGridPath",
+        "maxMs": 34,
+        "totalMs": 188
+      },
+      {
+        "avgMs": 0.56,
+        "label": "update.minimap",
+        "maxMs": 4.9,
+        "totalMs": 101.8
+      },
+      {
+        "avgMs": 0.24,
+        "label": "update.debugText",
+        "maxMs": 0.4,
+        "totalMs": 10.5
+      },
+      {
+        "avgMs": 0.03,
+        "label": "update.units",
+        "maxMs": 0.1,
+        "totalMs": 0.6
+      },
+      {
+        "avgMs": 0.5,
+        "label": "command.smart.total",
+        "maxMs": 0.5,
+        "totalMs": 0.5
+      }
+    ]
+  }
+}

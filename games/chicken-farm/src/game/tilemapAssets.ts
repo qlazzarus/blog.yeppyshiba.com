@@ -17,7 +17,8 @@ export type ChickenFarmTilemapAsset = {
 const gameAssetBasePath = import.meta.env.BASE_URL;
 
 export const CHICKEN_FARM_TILEMAP_POC_01: ChickenFarmTilemapAsset = {
-    defaultCameraSpeedPxPerSec: 440,
+    //defaultCameraSpeedPxPerSec: 440,
+    defaultCameraSpeedPxPerSec: 440 * 3,
     defaultScale: 2,
     defaultViewportHeight: 540,
     defaultViewportWidth: 960,

@@ -33,6 +33,37 @@ import { CHICKEN_FARM_TILEMAP_POC_01 } from './game/tilemapAssets';
 import { createFarmHud } from './game/ui/farmHud';
 import './styles.css';
 
+declare global {
+    interface Window {
+        __chickenFarmDebug?: {
+            getPerfSnapshot: () => ReturnType<PerformanceProfiler['getSnapshot']>;
+            getState: () => {
+                readonly elapsedSec: number;
+                readonly primaryUnit:
+                    | {
+                          readonly id: string;
+                          readonly x: number;
+                          readonly y: number;
+                      }
+                    | null;
+                readonly selectedUnitCount: number;
+                readonly worldSize: { readonly x: number; readonly y: number };
+            };
+            issueSmartCommand: (
+                x: number,
+                y: number,
+                targetEntityId?: string,
+            ) => { readonly action: string; readonly affectedUnitCount: number };
+            selectAllUnits: () => number;
+        };
+    }
+}
+
+const FOG_UPDATE_INTERVAL_SEC = 0.15;
+const FOG_DIRTY_DISTANCE_PX = 24;
+const MINIMAP_UPDATE_INTERVAL_SEC = 0.25;
+const MINIMAP_DIRTY_DISTANCE_PX = 32;
+
 class FarmScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private debugText!: Phaser.GameObjects.Text;
@@ -50,6 +81,11 @@ class FarmScene extends Phaser.Scene {
     private playerStarts: PlayerStart[] = [];
     private telemetry!: TelemetryRecorder;
     private nextTelemetrySampleSec = 0;
+    private nextFogUpdateSec = 0;
+    private nextMinimapUpdateSec = 0;
+    private lastFogAnchor?: Phaser.Math.Vector2;
+    private lastMinimapAnchor?: Phaser.Math.Vector2;
+    private lastMinimapCamera?: Phaser.Math.Vector2;
     private terrainBlocker?: TerrainBlocker;
     private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
     private terrainOverlayVisible = false;
@@ -188,8 +224,9 @@ class FarmScene extends Phaser.Scene {
         });
         this.terrainPathingPoc.create();
         this.visibility.updateLightingOverlay(this.worldSize);
-        this.visibility.updateFogOfWar(this.getVisionAnchor(), this.worldSize);
-        this.updateMinimap();
+        this.updateFogOfWarIfNeeded(true);
+        this.updateMinimapIfNeeded(true);
+        this.exposeDebugAutomation();
     }
 
     update(_time: number, delta: number) {
@@ -216,9 +253,11 @@ class FarmScene extends Phaser.Scene {
             this.terrainPathingPoc?.update(delta / 1000),
         );
         this.performanceProfiler.measure('update.fog', () =>
-            this.visibility.updateFogOfWar(this.getVisionAnchor(), this.worldSize),
+            this.updateFogOfWarIfNeeded(),
         );
-        this.performanceProfiler.measure('update.minimap', () => this.updateMinimap());
+        this.performanceProfiler.measure('update.minimap', () =>
+            this.updateMinimapIfNeeded(),
+        );
         this.performanceProfiler.measure('update.telemetrySample', () =>
             this.updateTelemetrySample(),
         );
@@ -273,6 +312,8 @@ class FarmScene extends Phaser.Scene {
             this.controllableUnits?.createForStart(start);
         }
         this.visibility.revealAroundPlayer(this.getVisionAnchor(), this.worldSize);
+        this.updateFogOfWarIfNeeded(true);
+        this.updateMinimapIfNeeded(true);
     }
 
     private updateBuildGridHotkey() {
@@ -339,6 +380,70 @@ class FarmScene extends Phaser.Scene {
             worldMarkers: this.worldMarkers,
             worldSize: this.worldSize,
         });
+    }
+
+    private updateFogOfWarIfNeeded(force = false) {
+        const anchor = this.getVisionAnchor();
+        if (!anchor) return;
+
+        const moved = this.hasMovedBeyond(
+            this.lastFogAnchor,
+            anchor.x,
+            anchor.y,
+            FOG_DIRTY_DISTANCE_PX,
+        );
+        if (!force && !moved && this.elapsedSec < this.nextFogUpdateSec) return;
+
+        this.visibility.updateFogOfWar(anchor, this.worldSize);
+        this.lastFogAnchor = new Phaser.Math.Vector2(anchor.x, anchor.y);
+        this.nextFogUpdateSec = this.elapsedSec + FOG_UPDATE_INTERVAL_SEC;
+    }
+
+    private updateMinimapIfNeeded(force = false) {
+        const anchor = this.getVisionAnchor();
+        const anchorMoved = anchor
+            ? this.hasMovedBeyond(
+                  this.lastMinimapAnchor,
+                  anchor.x,
+                  anchor.y,
+                  MINIMAP_DIRTY_DISTANCE_PX,
+              )
+            : false;
+        const cameraMoved = this.hasMovedBeyond(
+            this.lastMinimapCamera,
+            this.worldCamera.scrollX,
+            this.worldCamera.scrollY,
+            MINIMAP_DIRTY_DISTANCE_PX,
+        );
+        if (
+            !force &&
+            !anchorMoved &&
+            !cameraMoved &&
+            this.elapsedSec < this.nextMinimapUpdateSec
+        ) {
+            return;
+        }
+
+        this.updateMinimap();
+        if (anchor) {
+            this.lastMinimapAnchor = new Phaser.Math.Vector2(anchor.x, anchor.y);
+        }
+        this.lastMinimapCamera = new Phaser.Math.Vector2(
+            this.worldCamera.scrollX,
+            this.worldCamera.scrollY,
+        );
+        this.nextMinimapUpdateSec = this.elapsedSec + MINIMAP_UPDATE_INTERVAL_SEC;
+    }
+
+    private hasMovedBeyond(
+        lastPosition: Phaser.Math.Vector2 | undefined,
+        x: number,
+        y: number,
+        distancePx: number,
+    ) {
+        if (!lastPosition) return true;
+
+        return Phaser.Math.Distance.Between(lastPosition.x, lastPosition.y, x, y) >= distancePx;
     }
 
     private configureCameras(map: Phaser.Tilemaps.Tilemap) {
@@ -467,6 +572,46 @@ class FarmScene extends Phaser.Scene {
                 });
             },
         );
+    }
+
+    private exposeDebugAutomation() {
+        window.__chickenFarmDebug = {
+            getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
+            getState: () => {
+                const primaryUnit = this.controllableUnits.getPrimaryUnit();
+                return {
+                    elapsedSec: this.elapsedSec,
+                    primaryUnit: primaryUnit
+                        ? {
+                              id: primaryUnit.id,
+                              x: primaryUnit.position.x,
+                              y: primaryUnit.position.y,
+                          }
+                        : null,
+                    selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
+                    worldSize: {
+                        x: this.worldSize.x,
+                        y: this.worldSize.y,
+                    },
+                };
+            },
+            issueSmartCommand: (x, y, targetEntityId) =>
+                this.performanceProfiler.measure('command.smart.total', () =>
+                    this.controllableUnits.issueSmartCommandToSelected(
+                        { x, y },
+                        targetEntityId,
+                    ),
+                ),
+            selectAllUnits: () =>
+                this.controllableUnits.selectInRect(
+                    new Phaser.Geom.Rectangle(
+                        0,
+                        0,
+                        this.worldSize.x,
+                        this.worldSize.y,
+                    ),
+                ).length,
+        };
     }
 
     private updateDebugText() {
