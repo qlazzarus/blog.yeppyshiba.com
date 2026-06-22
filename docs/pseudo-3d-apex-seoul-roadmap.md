@@ -44,6 +44,21 @@ Pseudo 3D Arcade Drift Racing
 games/apex-seoul/
 ```
 
+현재 구현 상태
+
+- `games/apex-seoul/` Vite + Phaser 4 프로젝트 세팅
+- `/games/apex-seoul/` 소개 페이지 연결
+- `/play/apex-seoul/` 플레이 경로 연결
+- Pseudo 3D Camera Resource 구현
+- Horizon, FOV, Camera Height 기반 원근 투영 구현
+- 직선 도로 형태의 카메라 검증용 projected ground 렌더링
+- Arrow/AWSD로 lateral offset과 camera height 조정
+- Q/E로 pitch 조정
+
+현재 작성된 글
+
+- [Phaser 4로 Pseudo 3D 레이싱 게임 만들기 — Apex Seoul 카메라 구현](/article/phaser4-apex-seoul-pseudo-3d-camera/)
+
 ---
 
 # 시리즈 공통 태그
