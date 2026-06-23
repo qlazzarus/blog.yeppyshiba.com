@@ -10,7 +10,7 @@ Apex Seoul은 단순 레이싱 게임이 아니라 드리프트를 중심으로 
 - Drift Physics 구현
 - 블로그 장기 연재 콘텐츠 확보
 
-전체 연재는 16편 내외를 목표로 하며, 최종적으로 모바일 브라우저에서도 플레이 가능한 완성 게임을 공개한다.
+전체 연재는 13편 내외를 목표로 하며, 최종적으로 모바일 브라우저에서도 플레이 가능한 완성 게임을 공개한다.
 
 ---
 
@@ -44,7 +44,7 @@ Pseudo 3D Arcade Drift Racing
 games/apex-seoul/
 ```
 
-현재 구현 상태
+# 현재 구현 상태
 
 - `games/apex-seoul/` Vite + Phaser 4 프로젝트 세팅
 - `/games/apex-seoul/` 소개 페이지 연결
@@ -54,10 +54,41 @@ games/apex-seoul/
 - 직선 도로 형태의 카메라 검증용 projected ground 렌더링
 - Arrow/AWSD로 lateral offset과 camera height 조정
 - Q/E로 pitch 조정
+- `RoadSegment` 기반 테스트 트랙 데이터 분리
+- segment별 `curve`, `laneCount`, `length` 기반 도로 렌더링
+- 직선-좌커브-우커브가 이어지는 첫 커브 렌더링 구현
+- smoothstep 기반 curve ease-in/ease-out 테스트 트랙 구성
+- 카메라 height/offset/pitch 입력 velocity 보간 적용
 
-현재 작성된 글
+# 완료된 연재
 
-- [Phaser 4로 Pseudo 3D 레이싱 게임 만들기 — Apex Seoul 카메라 구현](/article/phaser4-apex-seoul-pseudo-3d-camera/)
+## 1편
+
+[Phaser 4로 Pseudo 3D 레이싱 게임 만들기 — Apex Seoul 카메라 구현](/article/phaser4-apex-seoul-pseudo-3d-camera/)
+
+구현 범위
+
+- `games/apex-seoul/` 프로젝트 세팅
+- Astro `/games/apex-seoul/`, `/play/apex-seoul/` 연결
+- Pseudo 3D Camera Resource
+- Horizon, FOV, Camera Height 기반 원근 투영
+- 직선 도로 형태의 카메라 검증용 projected ground
+- 카메라 z 스크롤
+
+---
+
+## 2편
+
+[Phaser 4 Pseudo 3D 레이싱 게임 — RoadSegment로 커브 도로 만들기](/article/phaser4-apex-seoul-roadsegment-curve-rendering/)
+
+구현 범위
+
+- `RoadSegment`, `RoadTrack`, 테스트 트랙 데이터 구조
+- segment별 `curve`, `laneCount`, `length` 기반 도로 렌더링
+- 직선-좌커브-우커브 테스트 트랙
+- smoothstep 기반 curve ease-in/ease-out
+- boundary center 누적 방식의 커브 렌더링
+- 카메라 height/offset/pitch 입력 velocity 보간
 
 ---
 
@@ -108,89 +139,9 @@ tags:
 
 ---
 
-# 연재 계획
-
-## 1편
-
-Phaser 4로 Pseudo 3D 프로젝트 시작하기
-
-주제
-
-- 프로젝트 구조
-- ECS Scaffold
-- World Resource
-- Game Loop
-
-결과
-
-- 빈 게임 프로젝트 실행
-
----
-
-## 2편
-
-Pseudo 3D Camera 만들기
-
-주제
-
-- Horizon
-- Perspective Projection
-- Camera Resource
-
-결과
-
-- 원근 투영 구현
-
----
+# 남은 연재 계획
 
 ## 3편
-
-직선 도로 렌더링
-
-주제
-
-- Road Segment
-- Lane Rendering
-- Grass Rendering
-
-결과
-
-- 정적 도로 렌더링
-
----
-
-## 4편
-
-도로 스크롤 구현
-
-주제
-
-- Camera Z
-- Segment Loop
-- Speed
-
-결과
-
-- 도로가 앞으로 흐르는 상태
-
----
-
-## 5편
-
-커브 구현
-
-주제
-
-- Curve Segment
-- Camera Offset
-
-결과
-
-- 좌우 커브 구현
-
----
-
-## 6편
 
 언덕 구현
 
@@ -202,26 +153,33 @@ Pseudo 3D Camera 만들기
 
 결과
 
-- 입체감 있는 도로
+- `RoadSegment`에 elevation 추가
+- 언덕과 내리막이 있는 테스트 트랙
+- horizon shift와 camera height 보정
+- 커브 + 언덕 조합 렌더링
 
 ---
 
-## 7편
+## 4편
 
 플레이어 차량 렌더링
 
 주제
 
 - Vehicle Entity
-- Lane Movement
+- Sprite 또는 primitive vehicle renderer
+- Screen-space anchor
+- 차량 x offset
 
 결과
 
 - 플레이어 차량 표시
+- 좌우 입력으로 차량 위치 변경
+- 도로 중심 기준 lane position 표시
 
 ---
 
-## 8편
+## 5편
 
 가속과 브레이크
 
@@ -234,10 +192,12 @@ Pseudo 3D Camera 만들기
 결과
 
 - 차량 주행 가능
+- 카메라 z 속도를 차량 속도와 연결
+- HUD에 speed 표시
 
 ---
 
-## 9편
+## 6편
 
 조향 시스템
 
@@ -246,14 +206,17 @@ Pseudo 3D Camera 만들기
 - Steering
 - Cornering
 - Track Boundary
+- Curve pull
+- Off-road slowdown
 
 결과
 
 - 정상적인 코너링
+- 커브에서 차량이 바깥쪽으로 밀리는 기본 주행감
 
 ---
 
-## 10편
+## 7편
 
 Drift Physics
 
@@ -271,7 +234,7 @@ Drift Physics
 
 ---
 
-## 11편
+## 8편
 
 Drift Score
 
@@ -287,7 +250,7 @@ Drift Score
 
 ---
 
-## 12편
+## 9편
 
 Tire Mark와 Smoke
 
@@ -303,7 +266,7 @@ Tire Mark와 Smoke
 
 ---
 
-## 13편
+## 10편
 
 차량 선택
 
@@ -319,7 +282,7 @@ Tire Mark와 Smoke
 
 ---
 
-## 14편
+## 11편
 
 AI 차량과 장애물
 
@@ -335,7 +298,7 @@ AI 차량과 장애물
 
 ---
 
-## 15편
+## 12편
 
 모바일 대응
 
@@ -351,7 +314,7 @@ AI 차량과 장애물
 
 ---
 
-## 16편
+## 13편
 
 기록 저장과 최종 Polish
 
