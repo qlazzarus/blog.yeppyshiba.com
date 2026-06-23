@@ -51,11 +51,13 @@ export function updateTowerCombat(config: {
             target.hpFill.width = 38 * (target.hp / target.maxHp);
             tower.nextAttackAtSec = config.elapsedSec + towerAttack.cooldownSec;
             config.onTowerHit?.({ damage: scaledDamage, target, tower });
-            config.focusWolfOnBuilding(target, tower);
 
             if (target.hp <= 0) {
                 target.state = 'dead';
                 target.body.setAlpha(0.35);
+                return;
             }
+
+            config.focusWolfOnBuilding(target, tower);
         });
 }

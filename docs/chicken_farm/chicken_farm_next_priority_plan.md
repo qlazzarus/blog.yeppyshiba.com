@@ -83,13 +83,20 @@ M8 후속 안정화 결정:
 - `ControllableUnitSystem`은 아직 view 생성과 state mutation이 함께 있지만, command/state 중심 구조는 유지된다. 다음 분리 후보는 unit view factory와 command executor다.
 - `CombatPocSystem`은 combat layout factory, wolf movement/path adapter, tower combat adapter를 분리했다. 아직 view 생성, wolf target acquisition, debug draw가 남아 있어 다음 분리 후보는 combat view factory와 wolf target acquisition policy다.
 
-### Combat PoC 후속 확인: 스카우트 타워 미파괴 이슈
+### Combat PoC 후속 확인: 2026-06-23 전투 로그 분석
 
-현재 증상:
+분석 로그:
 
-- 타워가 늑대를 공격하는 노란 hit marker는 보이지만, 타워 B에 어그로가 끌린 늑대가 스카우트 타워를 실제로 부수지 못하는 것으로 관찰된다.
-- 늑대의 건물 공격 marker와 `tower_a/tower_b` HP debug 값으로 확인하려 했으나, 여전히 타워 공격 이벤트가 명확히 보이지 않는다.
-- debug label은 UI 카메라 고정 라벨로 키웠지만, 작은 라벨이 함께 보인다는 관찰이 있었다. 큰 라벨만 유지하고 world-camera 중복 렌더 여부를 다시 확인해야 한다.
+- `chicken-farm-poc_2026-06-23T11-31-20-258Z_i09opx.jsonl`
+
+관찰 결과:
+
+- `combat_poc_snapshot`, `wolf_state_changed`, `tower_attack_landed`, `wolf_attack_landed`, `building_destroyed`, `wolf_died`, `combat_poc_result` 기록이 들어오면서 전투 흐름을 분리해 볼 수 있게 됐다.
+- 59초 종료 시점에 `farm_core`는 `500/500`으로 피해가 없고, `tower_a`는 파괴, `tower_b`는 `3/275`, 늑대는 5마리 중 4마리가 사망했다.
+- `combat-wolf-3`은 `10.891s`부터 `49.656s`까지 약 38.8초 동안 `repath / wait_for_repath / path_missing_waiting_for_blocker_delay`에 머물렀다.
+- `combat-wolf-3`의 장기 정지 위치는 대략 `(2832,8936)`이고, `farm_core` footprint는 대략 `x=2560..2816`, `y=9088..9344`다. 즉 farm 공격 사거리 밖에서 path도 blocker도 잡지 못한 상태로 대기했다.
+- 늑대 공격 69회는 모두 `tower_a`/`tower_b` 대상이었고, `farm_core`/fence/unit 공격은 0회였다. 현재 PoC는 farm 침공보다 타워 focus와 path failure fallback을 검증하는 흐름으로 기울어졌다.
+- `unit_selection_changed`의 nearest unit 기록으로 선택 실패 원인도 확인됐다. 클릭 위치는 가장 가까운 `p3-dog`에서 약 `596px` 떨어져 있었다.
 
 원본 W3X 기준 수치:
 
@@ -101,32 +108,83 @@ M8 후속 안정화 결정:
 
 유력 원인 후보:
 
-1. **레이아웃 봉인 상태**
-   - 현재 `COMBAT_POC_LAYOUT`에 `fence_bottom_1`, `fence_bottom_2`가 다시 포함되어 있다.
-   - 4x4 minor footprint 기준으로 B 하단 통로가 막히면, 타워 B에 접근하기 전에 늑대가 우선 펜스를 때리는 것이 정상이다.
-   - 다음 검증에서는 `fence_bottom_1/2`를 제거한 open-B preset과 현재 sealed-B preset을 분리해 비교한다.
+1. **경로 실패 fallback이 약함**
+   - path 후보가 farm 근접 후보에 실패했을 때, line blocker나 `searchRadiusPx=96` 안의 blocker를 못 찾으면 `wait_for_repath`에 오래 머문다.
+   - path failure가 일정 시간 이상 지속되면 `searchRadiusPx` 밖이라도 가장 가까운 `targetableByWolves` blocker/farm을 fallback target으로 삼아야 한다.
 
-2. **포커스 타워 직접 공격 전환 실패**
-   - `focusBuildingId=tower_b` 상태에서도 `attack_direct_target`으로 전환되지 않는지 확인해야 한다.
-   - 현재 debug row의 `f`, `t`, `stateAction/stateReason`, `p` 값을 늑대별로 읽어 `follow_path`, `wait_for_repath`, `approach_blocker`, `attack_blocker`, `attack_direct_target` 중 어디에 머무는지 기록한다.
-   - 필요하면 `CombatWolf`에 `lastAttackTargetId`, `lastAttackAtSec`, `lastAttackDamage`를 추가해 label에 직접 출력한다.
+2. **타워 focus가 기본 farm 목표를 과점**
+   - 타워가 늑대를 공격하면 `focusBuildingId=tower_*`가 남아 farm 침공 목표를 계속 덮는다.
+   - `POC_TOWER_FOCUS_LOCK_SEC`는 타워 focus 전환 lock으로 쓰되, focus 자체도 만료되면 기본 `farm_core` 목표로 돌아가게 해야 한다.
 
-3. **타워/건물 공격 사거리 후보 불일치**
-   - path 목표 후보는 `attackRange - 10` 계열 margin으로 잡고, 실제 공격 판정은 `attackRange + rangeLeash`를 사용한다.
-   - 그러나 building footprint와 closest-point line-of-sight, dynamic blocker, waypoint reached 값이 섞여 포커스 타워 주변에서 경계값 문제가 남을 수 있다.
-   - 다음 수정 후보는 포커스 타워에 한해 `isWolfInAttackRange`가 true이면 line-of-sight와 blocker target보다 `attack_direct_target`을 최우선으로 강제하는 것이다.
+3. **dead 늑대 상태 정리 부족**
+   - 죽은 늑대의 `focusBuildingId`, `targetBuildingId`, `stateAction`이 snapshot에 남아 분석 노이즈가 생긴다.
+   - 사망 처리 시 path/focus/target/action/reason을 정리한다.
 
-4. **UI 카메라/월드 카메라 중복 렌더**
-   - UI 고정 debug label은 `setScrollFactor(0)`만으로 충분하지 않고, world camera ignore와 ui camera ignore 목록이 서로 충돌할 수 있다.
-   - debug label은 `worldObjects`에 넣지 않고, 생성 직후 `scene.cameras.main.ignore(label)`만 적용한다.
-   - 만약 여전히 두 개가 보이면 기존 `combatLabel` destroy 시점과 scene 재생성 시 world object 배열에 남은 stale text를 제거해야 한다.
+4. **레이아웃 봉인 상태 검증은 후순위**
+   - 현재 레이아웃은 타워/farm 주변 동적 blocker가 빽빽하다.
+   - AI fallback을 먼저 안정화한 뒤, 필요하면 `open-B`/`sealed-B` preset을 나눠 타워 접근성과 fence 우선 공격을 비교한다.
 
 다음 작업 순서:
 
-1. 큰 debug label만 남는지 먼저 확인한다.
-2. `fence_bottom_1/2` 제거 preset으로 B 하단 통로를 열고, 늑대가 `tower_b`에 도달해 공격 marker/HP 감소를 만드는지 확인한다.
-3. sealed preset에서는 타워가 아니라 펜스를 먼저 때리는 것이 의도인지 확인하고, `attack_blocker` marker와 HP 감소를 기준으로 판정한다.
-4. 타워 포커스 상태에서 사거리 안인데도 공격하지 않으면, `getCurrentWolfTarget`과 `decideWolfAiBehavior` 사이에 포커스 타워 우선 분기를 추가한다.
+1. 경로 실패 직후 `pathFailedSinceSec`를 즉시 세팅하고, fallback blocker/farm 선택을 명시한다.
+2. 타워 focus 만료 처리를 추가해 마지막 피격 후 일정 시간이 지나면 기본 farm 목표로 복귀한다.
+3. 사망 늑대의 focus/target/action/path 상태를 정리한다.
+4. 같은 telemetry로 재검증해 `farm_core` 공격 또는 fence/blocker 공격 전환이 발생하는지 확인한다.
+
+### Combat PoC 검증: W3X/Warsmash 기준 어그로 반응
+
+사용자 기억:
+
+- 늑대 한 마리가 타워/방어 대상에게 공격받으면 주변 늑대들도 함께 어그로가 끌렸던 것 같다.
+
+근거 검토:
+
+- Warsmash 일반 attack-move 관찰에서는 각 유닛이 자기 acquisition range 안의 공격 가능 유닛을 자동 획득한다. 한 유닛이 맞았다는 이유만으로 모든 주변 유닛이 같은 attacker를 공유 focus하는 일반 규칙은 확인되지 않았다.
+- W3X 정적 분석에는 attacked-event 기반 group pull이 있다. `boss_or_special_focus_position`은 반경 `6000` 안의 Player(10) 유닛을 trigger unit 위치로 `attack` 명령하는 흐름이다. 다만 산출물 분류상 ordinary wolf baseline이 아니라 special/boss 계열 후보로 둔다.
+- `low_hp_defender_taunt`와 `manual_tank_focus`도 attacked-event 기반 집단 focus처럼 보일 수 있지만, 각각 큰 개 low HP taunt와 수동 탱커 표식 후보로 분류되어 baseline 일반 늑대 규칙으로 보기는 어렵다.
+- 따라서 사용자의 체감은 "전체 공유 어그로"라기보다 attack-move 자동 획득, 최근 피격 반응, 특수 attacked-event group pull, 미로/타워 배치가 겹친 결과로 해석하는 것이 현재 근거에 가장 맞다.
+
+현재 구현 감사:
+
+| 항목 | 현재 구현 | W3X/Warsmash 기준 판단 |
+| --- | --- | --- |
+| 스폰/기본 목표 | compact PoC의 `farm_core`를 deterministic target으로 사용 | 원본은 넓은 rect 랜덤 attack 명령 후 엔진 acquire에 맡김. PoC 축약으로 허용 |
+| 일반 acquisition | 농부/개 유닛은 acquire range 안에서 직접 target 가능 | Warsmash식 unit 중심 auto acquire와 부합 |
+| 건물 직접 공격 | `farm_core`/tower 등 targetable building이 사거리 안이면 직접 공격 | MVP 축약으로 허용. 원본의 concrete target 선택은 엔진에 위임 |
+| blocker 공격 | path failure 이후 line/near/fallback blocker 공격 | Warsmash behavior notes의 blocker는 movement failure 결과라는 기준과 부합 |
+| 타워 피격 focus | 맞은 늑대 1마리만 `focusWolfOnBuilding` 적용 | 일반 규칙으로는 과하지 않지만, 사용자 기억의 group pull 체감은 부족 |
+| 타워 focus 지속 | 짧은 lock 후 기본 목표로 복귀하도록 보정 | 최근 보정 후 기준에 더 가까움 |
+| dead 상태 | 사망 늑대 action/path는 정리, 단 tower adapter 순서로 focus가 다시 붙을 수 있음 | 수정 필요. 죽은 늑대에는 focus를 재부여하지 않아야 함 |
+| global refresh | 60초 주기 전체 늑대 attack refresh 미구현 | compact PoC에서는 생략 가능. 장기 stuck 검증에는 후속 후보 |
+| 타워 사거리 | h00D 원본 650 대신 Phaser 384 | 의도적 체감 튜닝. 원본 수치 재현은 아님 |
+| 늑대 속도 | n007 원본 speed 330 기준 사용 | 원본 raw stat 기준과 부합. 과거 MVP 108~115 문서값보다 최신 결정 우선 |
+
+제안 구현 기준: 제한적 aggro pulse
+
+- 목적은 ordinary wolf baseline을 바꾸는 것이 아니라, W3X attacked-event group pull 체감을 PoC 옵션으로 검증하는 것이다.
+- tower가 늑대를 공격하면 직접 맞은 늑대는 기존처럼 tower focus를 받는다.
+- 동시에 주변 alive wolves 중 `aggroAssistRadiusPx` 안의 늑대에게 짧은 pulse를 보낸다.
+- pulse 대상은 `farm_core`를 직접 공격 중인 늑대를 기본 제외한다. farm을 물고 있는 늑대까지 모두 끊으면 원본의 농장 압박 감각이 약해진다.
+- pulse는 hard target lock보다 soft nudge로 둔다. 즉, target tower를 향해 repath/focus를 걸되 `aggroAssistLockSec` 후 기본 목표로 복귀한다.
+- 사망 늑대에는 pulse/focus를 적용하지 않는다.
+- telemetry에는 `wolf_aggro_pulse`를 기록해 어떤 늑대가 어떤 tower hit에 반응했는지 검증한다.
+
+초기 튜닝 후보:
+
+| 값 | 후보 |
+| --- | ---: |
+| `aggroAssistRadiusPx` | 256~384 |
+| `aggroAssistLockSec` | 0.45~0.8 |
+| `includeFarmAttackers` | false |
+| `includeBlockerAttackers` | true |
+| `maxAssistWolvesPerHit` | 2~4 |
+
+다음 구현 순서:
+
+1. `towerCombatAdapter`에서 죽은 target에 `focusWolfOnBuilding`을 호출하지 않도록 순서를 고친다.
+2. `CombatPocSystem`에 `pulseWolfAggroFromTowerHit(hitWolf, tower)`를 추가한다.
+3. pulse 대상 필터를 alive, radius, not direct farm attacker 기준으로 둔다.
+4. `wolf_aggro_pulse` telemetry를 추가하고, 다음 로그에서 tower hit 직후 주변 늑대 state가 같이 움직이는지 검증한다.
 
 M5.7 확인/구현 결과:
 
