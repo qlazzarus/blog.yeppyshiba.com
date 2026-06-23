@@ -3,24 +3,28 @@ import './styles.css';
 import {
     createDefaultCamera,
     getHorizonY,
-    projectGroundPoint,
     type Pseudo3dCamera,
     type Viewport,
 } from './game/pseudo3dCamera';
+import { createTestTrack, wrapDistance, type RoadTrack } from './game/road';
+import { renderRoad, type RoadRenderStats } from './game/roadRenderer';
 
-const ROAD_HALF_WIDTH = 960;
-const RUMBLE_WIDTH = 130;
-const LANE_MARK_WIDTH = 18;
-const SEGMENT_LENGTH = 240;
-const DRAW_SEGMENTS = 56;
 const CAMERA_SCROLL_SPEED = 440;
+const CAMERA_INPUT_RESPONSE = 14;
 
 class ApexSeoulScene extends Phaser.Scene {
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
+    private cameraVelocity = {
+        height: 0,
+        lateral: 0,
+        pitch: 0,
+    };
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
     private keys!: Record<'a' | 'd' | 'e' | 'q' | 's' | 'w', Phaser.Input.Keyboard.Key>;
+    private roadStats: RoadRenderStats | null = null;
+    private roadTrack: RoadTrack = createTestTrack();
 
     constructor() {
         super('apex-seoul');
@@ -56,26 +60,36 @@ class ApexSeoulScene extends Phaser.Scene {
         const seconds = delta / 1000;
         const camera = this.cameraResource;
 
-        camera.z += CAMERA_SCROLL_SPEED * seconds;
+        camera.z = wrapDistance(camera.z + CAMERA_SCROLL_SPEED * seconds, this.roadTrack.length);
 
-        if (this.cursors.left.isDown || this.keys.a.isDown) {
-            camera.lateralOffset -= 820 * seconds;
-        }
-        if (this.cursors.right.isDown || this.keys.d.isDown) {
-            camera.lateralOffset += 820 * seconds;
-        }
-        if (this.cursors.up.isDown || this.keys.w.isDown) {
-            camera.height += 520 * seconds;
-        }
-        if (this.cursors.down.isDown || this.keys.s.isDown) {
-            camera.height -= 520 * seconds;
-        }
-        if (this.keys.q.isDown) {
-            camera.pitch -= 260 * seconds;
-        }
-        if (this.keys.e.isDown) {
-            camera.pitch += 260 * seconds;
-        }
+        const targetLateralVelocity =
+            getAxis(this.cursors.right.isDown || this.keys.d.isDown, this.cursors.left.isDown || this.keys.a.isDown) *
+            820;
+        const targetHeightVelocity =
+            getAxis(this.cursors.up.isDown || this.keys.w.isDown, this.cursors.down.isDown || this.keys.s.isDown) *
+            520;
+        const targetPitchVelocity = getAxis(this.keys.e.isDown, this.keys.q.isDown) * 260;
+        const inputBlend = 1 - Math.exp(-CAMERA_INPUT_RESPONSE * seconds);
+
+        this.cameraVelocity.lateral = Phaser.Math.Linear(
+            this.cameraVelocity.lateral,
+            targetLateralVelocity,
+            inputBlend,
+        );
+        this.cameraVelocity.height = Phaser.Math.Linear(
+            this.cameraVelocity.height,
+            targetHeightVelocity,
+            inputBlend,
+        );
+        this.cameraVelocity.pitch = Phaser.Math.Linear(
+            this.cameraVelocity.pitch,
+            targetPitchVelocity,
+            inputBlend,
+        );
+
+        camera.lateralOffset += this.cameraVelocity.lateral * seconds;
+        camera.height += this.cameraVelocity.height * seconds;
+        camera.pitch += this.cameraVelocity.pitch * seconds;
 
         camera.height = Phaser.Math.Clamp(camera.height, 360, 1800);
         camera.pitch = Phaser.Math.Clamp(camera.pitch, -180, 180);
@@ -90,7 +104,7 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.graphics.clear();
         this.drawBackground(viewport, horizonY);
-        this.drawProjectedGround(viewport);
+        this.roadStats = renderRoad(this.graphics, this.roadTrack, this.cameraResource, viewport);
         this.drawProjectionGuides(viewport);
         this.renderHud();
     }
@@ -111,119 +125,6 @@ class ApexSeoulScene extends Phaser.Scene {
         this.graphics.fillRect(0, horizonY, viewport.width, viewport.height - horizonY);
     }
 
-    private drawProjectedGround(viewport: Viewport) {
-        const camera = this.cameraResource;
-        const baseSegment = Math.floor(camera.z / SEGMENT_LENGTH);
-
-        for (let i = DRAW_SEGMENTS; i >= 1; i -= 1) {
-            const nearWorldZ = (baseSegment + i) * SEGMENT_LENGTH;
-            const farWorldZ = nearWorldZ + SEGMENT_LENGTH;
-            const stripeIndex = baseSegment + i;
-
-            const nearLeft = projectGroundPoint(
-                { x: -ROAD_HALF_WIDTH, z: nearWorldZ },
-                camera,
-                viewport,
-            );
-            const nearRight = projectGroundPoint(
-                { x: ROAD_HALF_WIDTH, z: nearWorldZ },
-                camera,
-                viewport,
-            );
-            const farLeft = projectGroundPoint(
-                { x: -ROAD_HALF_WIDTH, z: farWorldZ },
-                camera,
-                viewport,
-            );
-            const farRight = projectGroundPoint(
-                { x: ROAD_HALF_WIDTH, z: farWorldZ },
-                camera,
-                viewport,
-            );
-
-            if (!nearLeft.visible || !nearRight.visible || !farLeft.visible || !farRight.visible) {
-                continue;
-            }
-
-            this.fillQuad(
-                farLeft,
-                farRight,
-                nearRight,
-                nearLeft,
-                stripeIndex % 2 === 0 ? 0x34383b : 0x303437,
-            );
-
-            this.drawRoadShoulder(-1, nearWorldZ, farWorldZ, stripeIndex, viewport);
-            this.drawRoadShoulder(1, nearWorldZ, farWorldZ, stripeIndex, viewport);
-            this.drawCenterLaneMark(nearWorldZ, farWorldZ, stripeIndex, viewport);
-        }
-    }
-
-    private drawRoadShoulder(
-        side: -1 | 1,
-        nearWorldZ: number,
-        farWorldZ: number,
-        stripeIndex: number,
-        viewport: Viewport,
-    ) {
-        const camera = this.cameraResource;
-        const innerX = side * ROAD_HALF_WIDTH;
-        const outerX = side * (ROAD_HALF_WIDTH + RUMBLE_WIDTH);
-        const innerNear = projectGroundPoint({ x: innerX, z: nearWorldZ }, camera, viewport);
-        const outerNear = projectGroundPoint({ x: outerX, z: nearWorldZ }, camera, viewport);
-        const innerFar = projectGroundPoint({ x: innerX, z: farWorldZ }, camera, viewport);
-        const outerFar = projectGroundPoint({ x: outerX, z: farWorldZ }, camera, viewport);
-
-        if (!innerNear.visible || !outerNear.visible || !innerFar.visible || !outerFar.visible) {
-            return;
-        }
-
-        this.fillQuad(
-            innerFar,
-            outerFar,
-            outerNear,
-            innerNear,
-            stripeIndex % 2 === 0 ? 0xe7ecef : 0xc73938,
-        );
-    }
-
-    private drawCenterLaneMark(
-        nearWorldZ: number,
-        farWorldZ: number,
-        stripeIndex: number,
-        viewport: Viewport,
-    ) {
-        if (stripeIndex % 3 !== 0) return;
-
-        const camera = this.cameraResource;
-        const nearLeft = projectGroundPoint(
-            { x: -LANE_MARK_WIDTH, z: nearWorldZ },
-            camera,
-            viewport,
-        );
-        const nearRight = projectGroundPoint(
-            { x: LANE_MARK_WIDTH, z: nearWorldZ },
-            camera,
-            viewport,
-        );
-        const farLeft = projectGroundPoint(
-            { x: -LANE_MARK_WIDTH, z: farWorldZ },
-            camera,
-            viewport,
-        );
-        const farRight = projectGroundPoint(
-            { x: LANE_MARK_WIDTH, z: farWorldZ },
-            camera,
-            viewport,
-        );
-
-        if (!nearLeft.visible || !nearRight.visible || !farLeft.visible || !farRight.visible) {
-            return;
-        }
-
-        this.fillQuad(farLeft, farRight, nearRight, nearLeft, 0xf2d266);
-    }
-
     private drawProjectionGuides(viewport: Viewport) {
         const horizonY = getHorizonY(this.cameraResource, viewport);
 
@@ -234,31 +135,18 @@ class ApexSeoulScene extends Phaser.Scene {
         this.graphics.lineBetween(viewport.width / 2, horizonY, viewport.width / 2, viewport.height);
     }
 
-    private fillQuad(
-        a: { x: number; y: number },
-        b: { x: number; y: number },
-        c: { x: number; y: number },
-        d: { x: number; y: number },
-        color: number,
-    ) {
-        this.graphics.fillStyle(color, 1);
-        this.graphics.beginPath();
-        this.graphics.moveTo(a.x, a.y);
-        this.graphics.lineTo(b.x, b.y);
-        this.graphics.lineTo(c.x, c.y);
-        this.graphics.lineTo(d.x, d.y);
-        this.graphics.closePath();
-        this.graphics.fillPath();
-    }
-
     private renderHud() {
         const camera = this.cameraResource;
+        const stats = this.roadStats;
 
         this.hudText.setText(
             [
-                'Apex Seoul - Pseudo 3D Camera',
+                'Apex Seoul - RoadSegment Curve Renderer',
                 `horizon ${(camera.horizonRatio * 100).toFixed(0)}% + pitch ${camera.pitch.toFixed(0)}px`,
                 `height ${camera.height.toFixed(0)} | fov ${camera.fovDegrees.toFixed(0)} | z ${camera.z.toFixed(0)}`,
+                stats
+                    ? `segment ${stats.baseSegmentIndex} | curve ${stats.currentCurve.toFixed(2)} | visible ${stats.visibleSegments}`
+                    : 'segment -- | curve -- | visible --',
                 'Arrow/AWSD: offset + height | Q/E: pitch',
             ].join('\n'),
         );
@@ -283,3 +171,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 new Phaser.Game(config);
+
+function getAxis(positive: boolean, negative: boolean) {
+    return Number(positive) - Number(negative);
+}

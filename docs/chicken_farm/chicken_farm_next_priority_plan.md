@@ -83,6 +83,51 @@ M8 후속 안정화 결정:
 - `ControllableUnitSystem`은 아직 view 생성과 state mutation이 함께 있지만, command/state 중심 구조는 유지된다. 다음 분리 후보는 unit view factory와 command executor다.
 - `CombatPocSystem`은 combat layout factory, wolf movement/path adapter, tower combat adapter를 분리했다. 아직 view 생성, wolf target acquisition, debug draw가 남아 있어 다음 분리 후보는 combat view factory와 wolf target acquisition policy다.
 
+### Combat PoC 후속 확인: 스카우트 타워 미파괴 이슈
+
+현재 증상:
+
+- 타워가 늑대를 공격하는 노란 hit marker는 보이지만, 타워 B에 어그로가 끌린 늑대가 스카우트 타워를 실제로 부수지 못하는 것으로 관찰된다.
+- 늑대의 건물 공격 marker와 `tower_a/tower_b` HP debug 값으로 확인하려 했으나, 여전히 타워 공격 이벤트가 명확히 보이지 않는다.
+- debug label은 UI 카메라 고정 라벨로 키웠지만, 작은 라벨이 함께 보인다는 관찰이 있었다. 큰 라벨만 유지하고 world-camera 중복 렌더 여부를 다시 확인해야 한다.
+
+원본 W3X 기준 수치:
+
+| 대상 | rawcode | 원본 HP | 방어 | 공격/쿨다운 | 현재 Phaser 판단 |
+| --- | --- | ---: | ---: | --- | --- |
+| 기본 울타리 | `h003` | 200 | 1 | - | `fence_wood` HP/방어는 원본과 일치 |
+| 스카우트 타워 | `h00D` | 275 | 5 | `21 + 1d3`, 1.05s | HP/방어/평균 공격력 23은 원본과 일치, 사거리는 체감값 384px |
+| 팀버 울프 | `n007` | 450 | 0 | `11 + 1d2`, 1.35s | 고정 damage 13, 방어 적용 후 타워에 8 damage |
+
+유력 원인 후보:
+
+1. **레이아웃 봉인 상태**
+   - 현재 `COMBAT_POC_LAYOUT`에 `fence_bottom_1`, `fence_bottom_2`가 다시 포함되어 있다.
+   - 4x4 minor footprint 기준으로 B 하단 통로가 막히면, 타워 B에 접근하기 전에 늑대가 우선 펜스를 때리는 것이 정상이다.
+   - 다음 검증에서는 `fence_bottom_1/2`를 제거한 open-B preset과 현재 sealed-B preset을 분리해 비교한다.
+
+2. **포커스 타워 직접 공격 전환 실패**
+   - `focusBuildingId=tower_b` 상태에서도 `attack_direct_target`으로 전환되지 않는지 확인해야 한다.
+   - 현재 debug row의 `f`, `t`, `stateAction/stateReason`, `p` 값을 늑대별로 읽어 `follow_path`, `wait_for_repath`, `approach_blocker`, `attack_blocker`, `attack_direct_target` 중 어디에 머무는지 기록한다.
+   - 필요하면 `CombatWolf`에 `lastAttackTargetId`, `lastAttackAtSec`, `lastAttackDamage`를 추가해 label에 직접 출력한다.
+
+3. **타워/건물 공격 사거리 후보 불일치**
+   - path 목표 후보는 `attackRange - 10` 계열 margin으로 잡고, 실제 공격 판정은 `attackRange + rangeLeash`를 사용한다.
+   - 그러나 building footprint와 closest-point line-of-sight, dynamic blocker, waypoint reached 값이 섞여 포커스 타워 주변에서 경계값 문제가 남을 수 있다.
+   - 다음 수정 후보는 포커스 타워에 한해 `isWolfInAttackRange`가 true이면 line-of-sight와 blocker target보다 `attack_direct_target`을 최우선으로 강제하는 것이다.
+
+4. **UI 카메라/월드 카메라 중복 렌더**
+   - UI 고정 debug label은 `setScrollFactor(0)`만으로 충분하지 않고, world camera ignore와 ui camera ignore 목록이 서로 충돌할 수 있다.
+   - debug label은 `worldObjects`에 넣지 않고, 생성 직후 `scene.cameras.main.ignore(label)`만 적용한다.
+   - 만약 여전히 두 개가 보이면 기존 `combatLabel` destroy 시점과 scene 재생성 시 world object 배열에 남은 stale text를 제거해야 한다.
+
+다음 작업 순서:
+
+1. 큰 debug label만 남는지 먼저 확인한다.
+2. `fence_bottom_1/2` 제거 preset으로 B 하단 통로를 열고, 늑대가 `tower_b`에 도달해 공격 marker/HP 감소를 만드는지 확인한다.
+3. sealed preset에서는 타워가 아니라 펜스를 먼저 때리는 것이 의도인지 확인하고, `attack_blocker` marker와 HP 감소를 기준으로 판정한다.
+4. 타워 포커스 상태에서 사거리 안인데도 공격하지 않으면, `getCurrentWolfTarget`과 `decideWolfAiBehavior` 사이에 포커스 타워 우선 분기를 추가한다.
+
 M5.7 확인/구현 결과:
 
 - 원본 닭농장 `combat_unit_stats_reference.tsv` 기준 일반 늑대는 대부분 `speed = 330`이고, 일부 후반 펠 계열은 `350`이다.
@@ -292,15 +337,20 @@ Artifact:
 - 자동 회귀 지표 `wolf.blocker_line_priority`를 runtime perf 측정에 추가했다. 기대값은 가까운 off-line blocker가 있어도 `selectedId = target_line_blocker`다.
 - 실제 플레이 관찰 기준으로는 초반 스카우트 타워 화력이 여러 일반 늑대를 모두 지우지 못하면, 남은 늑대들이 울타리 미로 내부에서 blocker를 부수고 타워까지 파괴하는 시나리오가 가능하다. Warsmash 기준으로도 일반 늑대는 attack-move/acquisition으로 목표를 계속 찾고, path가 막히면 blocker 공격으로 전환하므로 이 경험은 타당하다.
 - PoC 전투 재현은 단일 고HP 테스트 늑대가 아니라 원본 `n007` 팀버 울프 여러 마리로 맞춘다. 기준값은 `n007` HP `450`, armor `0`, speed `330`, attack range `100`, cooldown `1.35`, damage `11 + 1d2`의 평균값 근처인 `12`다.
+- Phaser 런타임의 일반 늑대 근접 사거리는 원본 `100`에 맞춰 `96px = 3 minor cells`로 둔다. 이 값은 공격 판정뿐 아니라 타워/건물 접근 A* 후보 거리에도 쓰이므로, 너무 작으면 4x4 blocker 모서리에 목표 후보가 붙어 우회 대신 펜스 공격으로 빠질 수 있다.
 - 초반 압박 수는 원본 웨이브/보충 기준 `4~6`마리 범위가 확인되므로, PoC는 사용자가 관찰한 재현성과 성능 부담의 중간값인 `5`마리로 고정한다.
-- 스카우트 타워 `h00D`는 원본 추출값 HP `275`, armor `5`, range `650`, cooldown `1.05`, damage `21 + 1d3` 평균 근처인 `23`으로 맞춘다. 기존 PoC의 range `195`, damage `14`, tower A damage scale `0.55`는 축약/측정용 값이므로 제거했다.
+- 스카우트 타워 `h00D`는 원본 추출값 HP `275`, armor `5`, original range `650`, cooldown `1.05`, damage `21 + 1d3` 평균 근처인 `23`을 reference로 둔다. 단, Phaser 런타임 사거리는 세로 `9` major tile 화면에서 `4x4 minor` 펜스 방어선을 커버하도록 `384px`로 별도 변환한다. 후보값은 `384px` 대각 펜스 최소, `448px` 타워-빈칸-펜스 이후 약간 커버, `512px` 꺾인 방어선 커버, `650px` 원본이다.
 - 기본 울타리 `h003`은 원본 추출값 HP `200`, armor `1`을 유지한다. 따라서 5마리 늑대가 한 blocker를 때리면 타워 화력보다 빠르게 울타리를 부수는 상황이 재현될 수 있다.
-- 타워 사거리 `650`은 원본 `h00D` 기준으로 맞다. 따라서 사거리 값을 줄이지 않고, 압축되어 있던 PoC 울타리 미로를 확대하는 방향으로 확정한다.
-- 기존 압축 미로는 두 타워 중심 거리가 약 `529px`라 `650px` 사거리 원이 크게 겹쳤다. 확장 미로는 입구/꺾임 감각은 유지하되 타워 A/B 중심 거리를 약 `1374px`로 벌려 두 `650px` 공격 사거리가 겹치지 않게 했다.
+- 원본 타워 사거리 `650`은 문서/분석 표에만 남기고, 실제 판정에는 사용하지 않는다. 런타임 사거리는 `chicken_farm_phaser_p2p_game_plan.md`와 `chicken_farm_w3x_analysis.md`의 Phaser 런타임 사거리 표로 관리한다.
+- 기존 압축 미로는 두 타워 중심 거리가 약 `529px`라 `650px` 사거리 원이 크게 겹쳤다. 이제 `tower_scout` 런타임 사거리가 `384px`이므로 원본보다는 작지만, `4x4` minor 펜스 방어선의 커버 체감은 살린다.
 - Warsmash/War3 기준 `650`은 약 `5.08` terrain tiles 또는 `20.31` WPM pathing cells다. 다만 현재 Phaser PoC의 실제 이동/pathing/build 검증은 WPM cell과 맞는 `32px` minor grid 기준으로 유지한다.
-- major grid 전환 실험은 화면 체감상 타일/건물 크기와 기존 object 배치 해석을 더 혼란스럽게 만들었으므로 철회한다. `CAMERA_ZOOM`은 `0.85`, build grid는 minor line + major 강조 표시로 되돌린다.
-- 전투 PoC의 울타리/타워/돌벽 배치도 `32px` minor cell 기준으로 유지한다. 이후 사거리와 배치 보정은 minor grid 위에서 별도 scale/balance 값을 조정한다.
-- 혼선을 줄이기 위해 `buildingTemplates.tower_scout`와 `defenseBuildings.tower_scout`의 range/damage를 모두 `650`/`23`으로 맞췄다. 시각 표시만 fill alpha를 낮춰 판정 범위와 화면 가독성을 분리했다. 기존 압축 레이아웃은 `COMBAT_POC_COMPACT_LAYOUT_BACKUP`으로 보관해 비교/롤백할 수 있게 한다.
+- 타일 기준은 `minor = 32px`, `major = 4 minor = 128px`로 고정한다. 이동/pathing/build blocked 판정은 minor 기준이고, 화면 배치 UX와 플레이어가 보는 굵은 그리드는 major 기준이다.
+- 워3 실제 플레이 이미지의 체감 기준은 세로 `9 major tiles`가 보이는 상태로 둔다. 오른쪽 월드 영역도 살리기 위해 PoC 월드 뷰포트는 `960 x 540`을 유지하고, `CAMERA_ZOOM = 0.46875`를 사용해 `2048 x 1152 world px`, 즉 `16 x 9 major`를 표시한다. 가로 시야가 원본 캡처의 `12` major보다 넓어지는 것은 허용한다.
+- build grid는 minor line을 아주 옅게 그리고, major line을 기본 배치 그리드로 읽히게 강조한다. `G` 토글은 이 전체 배치 그리드를 켜고 끈다.
+- 타워 footprint는 `1 x 1 major tile`, 즉 `4 x 4 minor cells`로 맞춘다. 현재 `2 x 2 minor` 타워 PoC는 워3식 배치 체감보다 작으므로 수정 대상이다.
+- 펜스 footprint는 원본 `h003`/벽 계열의 `pathTex=PathTextures\4x4SimpleSolid.tga` 근거에 맞춰 `4 x 4 minor cells`, 즉 `1 x 1 major tile`로 맞춘다. 전투 PoC의 펜스 배치는 반복 범위가 아니라 `{ id, x, y }` 좌표 하나가 `4x4 minor` blocker 하나를 의미한다.
+- 전투 PoC의 울타리/타워/돌벽 배치도 minor cell 좌표로 저장한다. 타워와 펜스 footprint는 둘 다 `1x1 major = 4x4 minor`로 두되, fence sprite는 얇은 울타리처럼 보이게 렌더링에서 조정할 수 있다.
+- `buildingTemplates.tower_*`와 `defenseBuildings.tower_scout`의 damage/range는 Phaser 런타임 표를 따른다. `COMBAT_POC_LAYOUT`은 compact minor-grid 레이아웃을 유지하되 타워 footprint와 화면 그리드 기준을 major UX에 맞춘다.
 
 ## 5. 현재 신뢰도: War3 Player Command Control
 

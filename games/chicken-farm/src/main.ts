@@ -537,6 +537,7 @@ class FarmScene extends Phaser.Scene {
             },
             scene: this,
             viewportHeight: CHICKEN_FARM_TILEMAP_POC_01.defaultViewportHeight,
+            viewportWidth: CHICKEN_FARM_TILEMAP_POC_01.defaultViewportWidth,
             worldObjects: this.worldObjects,
         });
         this.dragSelectionInput.bind();
@@ -544,6 +545,7 @@ class FarmScene extends Phaser.Scene {
             Phaser.Input.Events.POINTER_DOWN,
             (pointer: Phaser.Input.Pointer) => {
                 if (!pointer.rightButtonDown()) return;
+                if (pointer.x > CHICKEN_FARM_TILEMAP_POC_01.defaultViewportWidth) return;
                 if (pointer.y > CHICKEN_FARM_TILEMAP_POC_01.defaultViewportHeight) return;
 
                 const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);

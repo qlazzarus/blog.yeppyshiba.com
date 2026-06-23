@@ -16,6 +16,7 @@ type DragSelectionInputSystemConfig = {
     readonly onDragSelect: (rect: Phaser.Geom.Rectangle) => void;
     readonly scene: Phaser.Scene;
     readonly viewportHeight: number;
+    readonly viewportWidth: number;
     readonly worldObjects: Phaser.GameObjects.GameObject[];
     readonly thresholdPx?: number;
 };
@@ -28,6 +29,7 @@ export class DragSelectionInputSystem {
     private readonly scene: Phaser.Scene;
     private readonly thresholdPx: number;
     private readonly viewportHeight: number;
+    private readonly viewportWidth: number;
     private dragSelection?: DragSelectionState;
 
     constructor(config: DragSelectionInputSystemConfig) {
@@ -37,6 +39,7 @@ export class DragSelectionInputSystem {
         this.scene = config.scene;
         this.thresholdPx = config.thresholdPx ?? DEFAULT_DRAG_SELECT_THRESHOLD_PX;
         this.viewportHeight = config.viewportHeight;
+        this.viewportWidth = config.viewportWidth;
         this.graphics = config.scene.add.graphics().setDepth(49);
         config.worldObjects.push(this.graphics);
     }
@@ -101,7 +104,7 @@ export class DragSelectionInputSystem {
     }
 
     private isInWorldViewport(pointer: Phaser.Input.Pointer) {
-        return pointer.y <= this.viewportHeight;
+        return pointer.x <= this.viewportWidth && pointer.y <= this.viewportHeight;
     }
 
     private isDragSelectionActive(pointer: Phaser.Input.Pointer) {

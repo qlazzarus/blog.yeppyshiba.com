@@ -849,6 +849,29 @@ MVP 반영:
 | 아케인 | 3 | `h017` | 대형 아케인 타워 | `h015` | 900G/800L | 800 | 9 | 1100 | 0.7 | chaos, base 84 + 1d18 |
 | 아케인 | 4 | `h01K` | 초대형 아케인 타워 | `h01H` | 1300G/1000L | 1000 | 13 | 1200 | 0.7 | chaos, base 118 + 1d21 |
 
+Phaser 런타임 사거리 변환:
+
+원본 사거리는 W3X 분석 기준으로 위 표에 남긴다. 실제 웹 MVP에서는 `32px` minor tile과 `4 minor = 1 major` 배치 감각을 기준으로 별도 사거리를 사용한다. 목표는 카메라 세로에 약 `9` major tile이 보이는 상태에서, 초반 타워 하나가 화면 대부분을 덮지 않고 울타리/타워 배치 선택이 생기도록 하는 것이다. 브라우저 화면의 오른쪽 월드 영역은 살려 가로 `16` major tile까지 표시할 수 있다.
+
+| MVP id | 원본 rawcode | 원본 사거리 | Phaser 런타임 사거리 | minor tile | major tile |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `tower_scout` | `h00D` | 650 | 384px | 12.0 | 3.0 |
+| `tower_guard_small` | `h007` | 750 | 225px | 7.03 | 1.76 |
+| `tower_guard_medium` | `h00Q` | 850 | 255px | 7.97 | 1.99 |
+| `tower_guard_large` | `h00Z` | 950 | 285px | 8.91 | 2.23 |
+| `tower_guard_grand` | `h00R` | 1050 | 315px | 9.84 | 2.46 |
+| `tower_guard_black` | `h01J` | 1150 | 345px | 10.78 | 2.70 |
+| `tower_arcane_small` | `h016` | 900 | 270px | 8.44 | 2.11 |
+| `tower_arcane_medium` | `h008` | 1000 | 300px | 9.38 | 2.34 |
+| `tower_arcane_large` | `h017` | 1100 | 330px | 10.31 | 2.58 |
+| `tower_arcane_grand` | `h01K` | 1200 | 360px | 11.25 | 2.81 |
+
+Phaser 런타임 footprint 변환:
+
+W3X 정적 추출표의 타워 행은 공격 수치와 모델/업그레이드 라인은 확인되지만, 정확한 건설 pathing texture 크기는 아직 별도 추출 대상이다. 실제 플레이 이미지에서는 타워가 배치 그리드 한 칸을 차지하는 것으로 보이므로, MVP에서는 `tower_* = 1 x 1 major tile = 4 x 4 minor cells`로 둔다. Warsmash 기준으로도 건물은 `.wpm` 정적 pathing이 아니라 pathing texture를 dynamic overlay로 올리는 구조이므로, Phaser에서는 건물별 footprint 데이터를 별도 런타임 값으로 관리한다.
+
+펜스는 실제 배치/blocked footprint 기준 `4 x 4 minor cells = 1 x 1 major tile`로 둔다. 원본 `h003`과 벽 업그레이드 계열의 `pathTex`가 `PathTextures\4x4SimpleSolid.tga`로 확인되므로, major grid 한 칸을 차지하는 solid blocker로 처리한다. 다만 모델은 `Village_Fenceshort` 계열이라 시각적으로는 얇은 울타리처럼 보일 수 있다.
+
 별도 업그레이드 연구:
 
 | rawcode | 이름/설명 단서                    | 웹 MVP 해석                    |
@@ -1161,13 +1184,13 @@ MVP pathing 권장:
 | 이동 판정 | Warsmash 관찰상 pathfinding은 32 world-unit grid와 유닛 collision size를 함께 사용 | 같은 지형 gap이어도 유닛 크기에 따라 통과 가능 여부가 달라질 수 있음 |
 | 농부/늑대 이동 타입 | `H000` 농부와 늑대류 모두 `movetp=foot`이지만, 실제 통과 가능성은 이동 타입만이 아니라 collision/pathing clearance 영향을 받음 | "농부는 통과, 늑대는 막힘"은 엔진 판정상 가능 |
 | 방벽/울타리 | `h003` 울타리, `h00L` 청동 울타리, `h00K` 돌 벽 등은 건물형 blocker 후보 | 건설 시 정적 WPM이 아니라 동적 building pathing overlay로 막힘을 만든다고 보는 게 맞음 |
-| 1x2 방향 가설 | `h003` 울타리 모델이 `Village_Fenceshort`이고, `war3map.doo`의 시각 울타리/벽 후보들은 가로 또는 세로 라인을 이루도록 배치됨 | 현재 Phaser PoC에서는 사용자 기억에 맞춰 `가로 2 cell x 세로 1 cell` footprint로 둔다 |
+| 1x2 방향 가설 | `h003` 울타리 모델이 `Village_Fenceshort`라 시각적으로 얇고 긴 울타리처럼 보일 수 있음 | 원본 `pathTex=PathTextures\4x4SimpleSolid.tga`가 확인되므로 Phaser PoC의 blocked footprint는 `4 x 4 minor = 1 x 1 major`로 둔다 |
 | 현재 W3X 한계 | `war3mapUnits.doo`와 정확한 pathing texture가 아직 미추출 | 방벽 footprint가 정확히 1x2인지, 1칸 gap 판정이 어떤 rawcode에서 발생했는지는 추가 도구 검증 필요 |
 
 Phaser 구현 판단:
 
-- 건설 그리드는 32px를 기본 cell로 둔다.
-- 울타리/방벽은 `footprintCells`를 별도 데이터로 둔다. 현재 PoC 가설은 `fence_wood: 2x1`이며, 사용자가 말한 1x2 표현을 "가로 2칸, 세로 1칸"으로 해석한다.
+- 건설 판정은 32px minor cell을 기본으로 두고, 배치 UX는 4 minor 단위 major grid를 기준으로 둔다.
+- 울타리/방벽은 `footprintCells`를 별도 데이터로 둔다. 현재 PoC 기준은 원본 `pathTex=PathTextures\4x4SimpleSolid.tga`에 맞춘 `fence_wood: 4x4 minor = 1x1 major`다.
 - 늑대 pathing은 `clearanceCells = 2` 또는 `radiusPx` 기반으로 계산해 1칸 통로를 막힌 것으로 볼 수 있게 한다.
 - 농부 pathing은 `clearanceCells = 1`로 두어 같은 1칸 통로를 지나갈 수 있게 한다.
 - 이 규칙은 원본 기억을 재현하기 위한 MVP 변환값이며, 실제 워3 pathing texture가 확인되면 조정한다.
