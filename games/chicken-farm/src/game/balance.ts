@@ -658,7 +658,24 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         },
         wolfAi: {
             acquireIntervalSec: 0.35,
+            aggroAssist: {
+                enabled: true,
+                includeBlockerAttackers: true,
+                includeFarmAttackers: false,
+                lockSec: 0.7,
+                maxAssistWolvesPerHit: 3,
+                radiusPx: 384,
+            },
             attackMoveEnabled: true,
+            attackMoveRefresh: {
+                localRectPaddingPx: 448,
+                stuckSec: 3.5,
+                targetReachedDistancePx: 64,
+            },
+            postObjectiveCleanup: {
+                enabled: false,
+                targetFences: true,
+            },
             jassOrderModel: {
                 blockerTargeting: 'path_failure_only',
                 globalAttackRect: {

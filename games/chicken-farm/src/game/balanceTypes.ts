@@ -246,7 +246,24 @@ export type PathingBalance = {
     };
     readonly wolfAi: {
         readonly acquireIntervalSec: number;
+        readonly aggroAssist: {
+            readonly enabled: boolean;
+            readonly includeBlockerAttackers: boolean;
+            readonly includeFarmAttackers: boolean;
+            readonly lockSec: number;
+            readonly maxAssistWolvesPerHit: number;
+            readonly radiusPx: number;
+        };
         readonly attackMoveEnabled: boolean;
+        readonly attackMoveRefresh: {
+            readonly localRectPaddingPx: number;
+            readonly stuckSec: number;
+            readonly targetReachedDistancePx: number;
+        };
+        readonly postObjectiveCleanup: {
+            readonly enabled: boolean;
+            readonly targetFences: boolean;
+        };
         readonly jassOrderModel: {
             readonly blockerTargeting: 'path_failure_only';
             readonly globalAttackRect: WorldRect;

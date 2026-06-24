@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import type { GridPathPoint } from '../systems/pathing';
+import type { WolfOrderRefreshReason } from '../systems/wolfAi';
 import type {
     WolfAiBehaviorState,
     WolfAiDecisionAction,
@@ -34,6 +35,8 @@ export type CombatWolf = {
     readonly hpFill: Phaser.GameObjects.Rectangle;
     hp: number;
     readonly id: string;
+    lastAttackMoveRefreshAtSec: number;
+    lastAttackMoveRefreshReason?: WolfOrderRefreshReason;
     readonly maxHp: number;
     nextAttackAtSec: number;
     nextRepathAtSec: number;
