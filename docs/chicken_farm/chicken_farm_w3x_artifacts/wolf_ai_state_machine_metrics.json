@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T08:23:17.993Z",
+  "generatedAt": "2026-06-24T11:02:47.480Z",
   "parameters": {
     "blockedToBlockerDelaySec": 0.8,
     "blockerSearchRadiusCells": 3,
@@ -14,6 +14,15 @@
       "lockSec": 0.7,
       "maxAssistWolvesPerHit": 3,
       "radiusPx": 384
+    },
+    "wolfAttackMoveRefresh": {
+      "localRectPaddingPx": 448,
+      "stuckSec": 3.5,
+      "targetReachedDistancePx": 64
+    },
+    "wolfPostObjectiveCleanup": {
+      "enabled": false,
+      "targetFences": true
     }
   },
   "warsmashReference": {
@@ -26,6 +35,7 @@
       3
     ],
     "blockerTargeting": "movement_failure_result",
+    "attackMoveRefresh": "Spawn and 60s global attack refresh issue attack orders to random points; concrete targets are acquired while moving.",
     "notesSource": "docs/chicken_farm/chicken_farm_warsmash_behavior_notes.md",
     "repathIntervalSec": 0.5
   },
@@ -200,6 +210,45 @@
         "radiusPx": 384
       },
       "pass": true
+    },
+    {
+      "id": "attack_move_refresh_enabled",
+      "expected": "attackMove enabled, spawn refresh, 60s periodic refresh",
+      "actual": {
+        "attackMoveEnabled": true,
+        "periodic": {
+          "enabled": true,
+          "intervalSec": 60,
+          "jassFlowType": "periodic_global_attack_refresh",
+          "jassFunction": "IliiIlI -> IliiIiI",
+          "order": "attack_move_random_point_in_global_rect",
+          "sourceLines": "5726-5728",
+          "unitScope": "all_wolves"
+        },
+        "spawn": {
+          "enabled": true,
+          "jassFlowType": "spawn_rect_enter_attack",
+          "jassFunction": "IliiIII",
+          "order": "attack_move_random_point_in_global_rect",
+          "sourceLines": "5720-5722",
+          "unitScope": "trigger_wolf"
+        },
+        "stuckRefresh": {
+          "localRectPaddingPx": 448,
+          "stuckSec": 3.5,
+          "targetReachedDistancePx": 64
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "post_objective_cleanup_is_not_primary_ai",
+      "expected": "disabled; blocker destruction comes from attack-move/path failure",
+      "actual": {
+        "enabled": false,
+        "targetFences": true
+      },
+      "pass": true
     }
   ],
   "summary": {
@@ -208,7 +257,7 @@
     "total": 6,
     "warsmashFit": "pass",
     "warsmashFitFailed": 0,
-    "warsmashFitPassed": 7,
-    "warsmashFitTotal": 7
+    "warsmashFitPassed": 9,
+    "warsmashFitTotal": 9
   }
 }

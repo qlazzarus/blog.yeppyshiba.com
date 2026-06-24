@@ -255,6 +255,15 @@ export type PathingBalance = {
             readonly radiusPx: number;
         };
         readonly attackMoveEnabled: boolean;
+        readonly attackMoveRefresh: {
+            readonly localRectPaddingPx: number;
+            readonly stuckSec: number;
+            readonly targetReachedDistancePx: number;
+        };
+        readonly postObjectiveCleanup: {
+            readonly enabled: boolean;
+            readonly targetFences: boolean;
+        };
         readonly jassOrderModel: {
             readonly blockerTargeting: 'path_failure_only';
             readonly globalAttackRect: WorldRect;

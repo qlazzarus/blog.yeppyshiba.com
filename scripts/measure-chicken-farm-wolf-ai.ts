@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { CHICKEN_FARM_BALANCE } from '../games/chicken-farm/src/game/balance';
 import { POC_TOWER_FOCUS_LOCK_SEC } from '../games/chicken-farm/src/game/poc/combatPocLayout';
 import {
-    decideWolfAiBehavior,
     type WolfAiDecision,
     type WolfAiDecisionAction,
     type WolfAiDecisionInput,
+    decideWolfAiBehavior,
 } from '../games/chicken-farm/src/game/systems/wolfAiStateMachine';
 
 type WolfAiCase = {
@@ -20,10 +20,7 @@ type WolfAiCase = {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-const outputDir = path.join(
-    rootDir,
-    'docs/chicken_farm/chicken_farm_w3x_artifacts',
-);
+const outputDir = path.join(rootDir, 'docs/chicken_farm/chicken_farm_w3x_artifacts');
 const outputPath = path.join(outputDir, 'wolf_ai_state_machine_metrics.json');
 
 const pathing = CHICKEN_FARM_BALANCE.pathing;
@@ -185,8 +182,45 @@ async function main() {
                 CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.enabled &&
                 CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.radiusPx >= 256 &&
                 CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.radiusPx <= 512 &&
-                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit >= 2 &&
-                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit <= 4,
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit >=
+                    2 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit <=
+                    4,
+        },
+        {
+            id: 'attack_move_refresh_enabled',
+            expected: 'attackMove enabled, spawn refresh, 60s periodic refresh',
+            actual: {
+                attackMoveEnabled:
+                    CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveEnabled,
+                periodic:
+                    CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel
+                        .periodicAttackRefresh,
+                spawn: CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel
+                    .spawnEntryAttackRefresh,
+                stuckRefresh: CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh,
+            },
+            pass:
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveEnabled &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel
+                    .spawnEntryAttackRefresh.enabled &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel.periodicAttackRefresh
+                    .enabled &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel.periodicAttackRefresh
+                    .intervalSec === 60 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh
+                    .localRectPaddingPx >= 256 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh
+                    .localRectPaddingPx <= 512 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh.stuckSec >= 3 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh.stuckSec <= 8,
+        },
+        {
+            id: 'post_objective_cleanup_is_not_primary_ai',
+            expected:
+                'disabled; blocker destruction comes from attack-move/path failure',
+            actual: CHICKEN_FARM_BALANCE.pathing.wolfAi.postObjectiveCleanup,
+            pass: !CHICKEN_FARM_BALANCE.pathing.wolfAi.postObjectiveCleanup.enabled,
         },
     ];
     const failedFitChecks = warsmashFitChecks.filter((check) => !check.pass);
@@ -200,13 +234,16 @@ async function main() {
             repathIntervalSec: pathing.repath.intervalSec,
             towerFocusLockSec: POC_TOWER_FOCUS_LOCK_SEC,
             wolfAggroAssist: pathing.wolfAi.aggroAssist,
+            wolfAttackMoveRefresh: pathing.wolfAi.attackMoveRefresh,
+            wolfPostObjectiveCleanup: pathing.wolfAi.postObjectiveCleanup,
         },
         warsmashReference: {
             blockedToBlockerDelayRangeSec: [0.6, 1.0],
             blockerSearchRadiusCells: [2, 3],
             blockerTargeting: 'movement_failure_result',
-            notesSource:
-                'docs/chicken_farm/chicken_farm_warsmash_behavior_notes.md',
+            attackMoveRefresh:
+                'Spawn and 60s global attack refresh issue attack orders to random points; concrete targets are acquired while moving.',
+            notesSource: 'docs/chicken_farm/chicken_farm_warsmash_behavior_notes.md',
             repathIntervalSec: 0.5,
         },
         cases: measuredCases,
@@ -220,8 +257,7 @@ async function main() {
                     ? 'pass'
                     : 'fail',
             warsmashFitFailed: failedFitChecks.length,
-            warsmashFitPassed:
-                warsmashFitChecks.length - failedFitChecks.length,
+            warsmashFitPassed: warsmashFitChecks.length - failedFitChecks.length,
             warsmashFitTotal: warsmashFitChecks.length,
         },
     };

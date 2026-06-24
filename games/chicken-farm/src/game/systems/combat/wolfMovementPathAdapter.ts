@@ -3,11 +3,8 @@ import Phaser from 'phaser';
 import { CHICKEN_FARM_BALANCE } from '../../balance';
 import type { CombatBuilding, CombatWolf } from '../../ecs/components';
 import { POC_PATH_BOUNDS_PADDING, POC_WOLF_ID } from '../../poc/combatPocLayout';
-import {
-    canOccupyPoint,
-    DEFAULT_UNIT_BLOCKER_CLEARANCE_PX,
-} from '../movementGuards';
-import { findGridPath, type GridPathPoint, type GridPathRect } from '../pathing';
+import { DEFAULT_UNIT_BLOCKER_CLEARANCE_PX, canOccupyPoint } from '../movementGuards';
+import { type GridPathPoint, type GridPathRect, findGridPath } from '../pathing';
 import type { ControllableUnitCombatTarget } from '../playerCommandTypes';
 import type { TerrainBlocker } from '../terrainBlocker';
 
@@ -141,7 +138,9 @@ export function refreshWolfPath(config: {
     readonly focusedUnit: ControllableUnitCombatTarget | null;
     readonly force?: boolean;
     readonly getGoalBuilding: () => CombatBuilding | null;
-    readonly getPathGoalCandidates: (building: CombatBuilding) => readonly GridPathPoint[];
+    readonly getPathGoalCandidates: (
+        building: CombatBuilding,
+    ) => readonly GridPathPoint[];
     readonly getUnitPathGoalCandidates: (
         unit: ControllableUnitCombatTarget,
     ) => readonly GridPathPoint[];
@@ -185,14 +184,13 @@ export function refreshWolfPath(config: {
         ...config.terrainBlocker.getGroundBlockedRects(bounds),
         ...config.dynamicBlockedRects,
     ];
-    const clearancePx =
-        ((pathing.unitClearanceCells.wolf - 1) * pathing.cellSize) / 2;
+    const clearancePx = ((pathing.unitClearanceCells.wolf - 1) * pathing.cellSize) / 2;
     const goalBuilding = config.focusedUnit ? null : config.getGoalBuilding();
     const goalCandidates = config.focusedUnit
         ? config.getUnitPathGoalCandidates(config.focusedUnit)
         : goalBuilding
-        ? config.getPathGoalCandidates(goalBuilding)
-        : [{ x: config.wolf.targetPoint.x, y: config.wolf.targetPoint.y }];
+          ? config.getPathGoalCandidates(goalBuilding)
+          : [{ x: config.wolf.targetPoint.x, y: config.wolf.targetPoint.y }];
     let path: readonly GridPathPoint[] | null = null;
     const limitedGoalCandidates = goalCandidates.slice(
         0,
@@ -284,23 +282,17 @@ export function getCombatPathBounds(config: {
     readonly worldSize: Phaser.Math.Vector2;
 }): GridPathRect {
     const points = [
-        ...(config.wolf
-            ? [{ x: config.wolf.body.x, y: config.wolf.body.y }]
-            : []),
+        ...(config.wolf ? [{ x: config.wolf.body.x, y: config.wolf.body.y }] : []),
         { x: config.targetPoint.x, y: config.targetPoint.y },
         ...config.combatBuildings.map((building) => ({
             x: building.body.x,
             y: building.body.y,
         })),
     ];
-    const minX =
-        Math.min(...points.map((point) => point.x)) - POC_PATH_BOUNDS_PADDING;
-    const minY =
-        Math.min(...points.map((point) => point.y)) - POC_PATH_BOUNDS_PADDING;
-    const maxX =
-        Math.max(...points.map((point) => point.x)) + POC_PATH_BOUNDS_PADDING;
-    const maxY =
-        Math.max(...points.map((point) => point.y)) + POC_PATH_BOUNDS_PADDING;
+    const minX = Math.min(...points.map((point) => point.x)) - POC_PATH_BOUNDS_PADDING;
+    const minY = Math.min(...points.map((point) => point.y)) - POC_PATH_BOUNDS_PADDING;
+    const maxX = Math.max(...points.map((point) => point.x)) + POC_PATH_BOUNDS_PADDING;
+    const maxY = Math.max(...points.map((point) => point.y)) + POC_PATH_BOUNDS_PADDING;
     const x = Math.max(0, minX);
     const y = Math.max(0, minY);
     const width = Math.min(config.worldSize.x, maxX) - x;
@@ -319,9 +311,8 @@ export function getWolfUnitPathGoalCandidates(config: {
     readonly wolf?: CombatWolf;
     readonly isBlocked: (point: GridPathPoint) => boolean;
 }): GridPathPoint[] {
-    const attackRange =
-        CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID].attackRangePx ?? 34;
-    const margin = Math.max(8, attackRange + config.unit.radius - 6);
+    const attackRange = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID].attackRangePx ?? 34;
+    const margin = Math.max(8, attackRange + config.unit.radius - 18);
     const candidates: GridPathPoint[] = [
         { x: config.unit.x - margin, y: config.unit.y },
         { x: config.unit.x + margin, y: config.unit.y },
