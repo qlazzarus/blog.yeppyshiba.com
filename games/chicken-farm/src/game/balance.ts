@@ -658,6 +658,14 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         },
         wolfAi: {
             acquireIntervalSec: 0.35,
+            aggroAssist: {
+                enabled: true,
+                includeBlockerAttackers: true,
+                includeFarmAttackers: false,
+                lockSec: 0.7,
+                maxAssistWolvesPerHit: 3,
+                radiusPx: 384,
+            },
             attackMoveEnabled: true,
             jassOrderModel: {
                 blockerTargeting: 'path_failure_only',

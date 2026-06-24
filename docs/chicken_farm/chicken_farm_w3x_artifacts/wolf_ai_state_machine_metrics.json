@@ -1,11 +1,20 @@
 {
-  "generatedAt": "2026-06-20T22:42:40.815Z",
+  "generatedAt": "2026-06-24T08:23:17.993Z",
   "parameters": {
     "blockedToBlockerDelaySec": 0.8,
     "blockerSearchRadiusCells": 3,
     "blockerSearchRadiusPx": 96,
     "cellSize": 32,
-    "repathIntervalSec": 0.5
+    "repathIntervalSec": 0.5,
+    "towerFocusLockSec": 2.25,
+    "wolfAggroAssist": {
+      "enabled": true,
+      "includeBlockerAttackers": true,
+      "includeFarmAttackers": false,
+      "lockSec": 0.7,
+      "maxAssistWolvesPerHit": 3,
+      "radiusPx": 384
+    }
   },
   "warsmashReference": {
     "blockedToBlockerDelayRangeSec": [
@@ -172,6 +181,25 @@
       "expected": "wait_for_repath",
       "actual": "wait_for_repath",
       "pass": true
+    },
+    {
+      "id": "tower_focus_lock_supports_retaliation",
+      "expected": ">= timber wolf attack cooldown",
+      "actual": 2.25,
+      "pass": true
+    },
+    {
+      "id": "aggro_assist_enabled_for_tower_hits",
+      "expected": "enabled, 256 <= radius <= 512, max assists 2..4",
+      "actual": {
+        "enabled": true,
+        "includeBlockerAttackers": true,
+        "includeFarmAttackers": false,
+        "lockSec": 0.7,
+        "maxAssistWolvesPerHit": 3,
+        "radiusPx": 384
+      },
+      "pass": true
     }
   ],
   "summary": {
@@ -180,7 +208,7 @@
     "total": 6,
     "warsmashFit": "pass",
     "warsmashFitFailed": 0,
-    "warsmashFitPassed": 5,
-    "warsmashFitTotal": 5
+    "warsmashFitPassed": 7,
+    "warsmashFitTotal": 7
   }
 }

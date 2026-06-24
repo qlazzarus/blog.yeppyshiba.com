@@ -452,9 +452,72 @@ export class CombatPocSystem {
                 if (target.hp <= 0) {
                     this.markWolfDead(target);
                     this.recordWolfDied(target, tower.id);
+                    return;
                 }
+                this.pulseWolfAggroFromTowerHit(target, tower);
             },
             wolves,
+        });
+    }
+
+    private pulseWolfAggroFromTowerHit(hitWolf: CombatWolf, tower: CombatBuilding) {
+        const config = CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist;
+        if (!config.enabled) return;
+
+        const candidates = this.getAliveWolves()
+            .filter((wolf) => wolf.id !== hitWolf.id)
+            .filter((wolf) => {
+                const distance = Phaser.Math.Distance.Between(
+                    hitWolf.body.x,
+                    hitWolf.body.y,
+                    wolf.body.x,
+                    wolf.body.y,
+                );
+                if (distance > config.radiusPx) return false;
+                if (!config.includeFarmAttackers && this.isWolfAttackingFarmCore(wolf)) {
+                    return false;
+                }
+                if (!config.includeBlockerAttackers && wolf.state === 'attack_blocker') {
+                    return false;
+                }
+                return true;
+            })
+            .sort(
+                (a, b) =>
+                    Phaser.Math.Distance.Between(
+                        hitWolf.body.x,
+                        hitWolf.body.y,
+                        a.body.x,
+                        a.body.y,
+                    ) -
+                    Phaser.Math.Distance.Between(
+                        hitWolf.body.x,
+                        hitWolf.body.y,
+                        b.body.x,
+                        b.body.y,
+                    ),
+            )
+            .slice(0, config.maxAssistWolvesPerHit);
+
+        candidates.forEach((wolf) => {
+            const fromFocusBuildingId = wolf.focusBuildingId ?? null;
+            const applied = this.focusWolfOnBuilding(wolf, tower, config.lockSec);
+            this.recordTelemetry?.('wolf_aggro_pulse', {
+                applied,
+                assistWolfId: wolf.id,
+                distanceFromHitWolf: Number(
+                    Phaser.Math.Distance.Between(
+                        hitWolf.body.x,
+                        hitWolf.body.y,
+                        wolf.body.x,
+                        wolf.body.y,
+                    ).toFixed(1),
+                ),
+                fromFocusBuildingId,
+                hitWolfId: hitWolf.id,
+                lockSec: config.lockSec,
+                towerId: tower.id,
+            });
         });
     }
 
@@ -497,6 +560,22 @@ export class CombatPocSystem {
             ? this.getWolfGoalBuilding(wolf)
             : null;
         if (
+            focusedGoal?.kind === 'tower' &&
+            !directTarget &&
+            (decision.action === 'wait_for_repath' ||
+                decision.action === 'approach_blocker')
+        ) {
+            wolf.targetBuildingId = focusedGoal.id;
+            this.moveWolfTowardFocusedBuilding(
+                wolf,
+                focusedGoal,
+                enemy.speedPxPerSec,
+                movementDeltaSec,
+            );
+            return;
+        }
+
+        if (
             decision.action === 'wait_for_repath' &&
             focusedGoal &&
             focusedGoal.kind !== 'fence' &&
@@ -504,23 +583,12 @@ export class CombatPocSystem {
             !blockingTarget
         ) {
             wolf.targetBuildingId = focusedGoal.id;
-            const targetPoint = this.getClosestPointOnBuildingFootprint(
-                wolf.body.x,
-                wolf.body.y,
-                focusedGoal,
-            );
-            moveWolfTowardAdapter({
-                deltaSec: movementDeltaSec,
-                dynamicBlockedRects: this.getCombatBlockedRects(),
-                separateWolfFromControllableUnits: () =>
-                    this.separateWolfFromControllableUnits(wolf),
-                speedPxPerSec: enemy.speedPxPerSec,
-                targetX: targetPoint.x,
-                targetY: targetPoint.y,
-                terrainBlocker: this.terrainBlocker,
+            this.moveWolfTowardFocusedBuilding(
                 wolf,
-                worldSize: this.worldSize,
-            });
+                focusedGoal,
+                enemy.speedPxPerSec,
+                movementDeltaSec,
+            );
             return;
         }
 
@@ -595,15 +663,44 @@ export class CombatPocSystem {
         wolf.targetBuildingId = undefined;
     }
 
-    private focusWolfOnBuilding(wolf: CombatWolf, building: CombatBuilding) {
-        if (building.hp <= 0 || !building.targetableByWolves) return;
-        if (wolf.focusUnitId && this.getWolfFocusedUnit(wolf)) return;
+    private moveWolfTowardFocusedBuilding(
+        wolf: CombatWolf,
+        building: CombatBuilding,
+        speedPxPerSec: number,
+        deltaSec: number,
+    ) {
+        const targetPoint = this.getClosestPointOnBuildingFootprint(
+            wolf.body.x,
+            wolf.body.y,
+            building,
+        );
+        moveWolfTowardAdapter({
+            deltaSec,
+            dynamicBlockedRects: this.getCombatBlockedRects(),
+            separateWolfFromControllableUnits: () =>
+                this.separateWolfFromControllableUnits(wolf),
+            speedPxPerSec,
+            targetX: targetPoint.x,
+            targetY: targetPoint.y,
+            terrainBlocker: this.terrainBlocker,
+            wolf,
+            worldSize: this.worldSize,
+        });
+    }
+
+    private focusWolfOnBuilding(
+        wolf: CombatWolf,
+        building: CombatBuilding,
+        lockSec = POC_TOWER_FOCUS_LOCK_SEC,
+    ) {
+        if (building.hp <= 0 || !building.targetableByWolves) return false;
+        if (wolf.focusUnitId && this.getWolfFocusedUnit(wolf)) return false;
         if (
             wolf.focusBuildingId &&
             wolf.focusBuildingId !== building.id &&
             this.elapsedSec < wolf.focusLockedUntilSec
         ) {
-            return;
+            return false;
         }
 
         if (wolf.focusBuildingId !== building.id) {
@@ -613,8 +710,31 @@ export class CombatPocSystem {
             wolf.nextRepathAtSec = 0;
             wolf.pathFailedSinceSec = undefined;
         }
-        wolf.focusLockedUntilSec = this.elapsedSec + POC_TOWER_FOCUS_LOCK_SEC;
+        wolf.focusLockedUntilSec = this.elapsedSec + lockSec;
         wolf.targetPoint.set(building.body.x, building.body.y);
+        return true;
+    }
+
+    private isWolfAttackingFarmCore(wolf: CombatWolf) {
+        if (wolf.state !== 'attack' || wolf.stateAction !== 'attack_direct_target') {
+            return false;
+        }
+
+        if (wolf.targetBuildingId) {
+            return (
+                this.combatBuildings.find(
+                    (building) =>
+                        building.id === wolf.targetBuildingId &&
+                        building.kind === 'farm_core' &&
+                        building.hp > 0,
+                ) !== undefined
+            );
+        }
+
+        const farmCore = this.combatBuildings.find(
+            (building) => building.kind === 'farm_core' && building.hp > 0,
+        );
+        return farmCore ? this.isWolfInAttackRange(wolf, farmCore) : false;
     }
 
     private syncWolfTargetPoint(wolf: CombatWolf) {
@@ -659,10 +779,15 @@ export class CombatPocSystem {
         wolf: CombatWolf,
         building: CombatBuilding,
     ): GridPathPoint[] {
+        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
         const attackRange =
-            CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID].attackRangePx ?? 34;
-        const baseMargin = Math.max(12, attackRange - 10);
-        const margins = [baseMargin, baseMargin + 32, baseMargin + 64];
+            (enemy.attackRangePx ?? 34) + (enemy.rangeLeashPx ?? 0);
+        const baseMargin = Math.max(12, attackRange - 8);
+        const margins = [
+            baseMargin,
+            Math.max(12, attackRange - 24),
+            Math.max(12, attackRange - 40),
+        ];
         const left = building.footprint.left;
         const right = building.footprint.right;
         const top = building.footprint.top;
@@ -950,7 +1075,8 @@ export class CombatPocSystem {
         if (
             focused &&
             focused.kind === 'tower' &&
-            this.elapsedSec >= wolf.focusLockedUntilSec
+            this.elapsedSec >= wolf.focusLockedUntilSec &&
+            !this.isWolfInAttackRange(wolf, focused)
         ) {
             wolf.focusBuildingId = undefined;
             wolf.targetBuildingId = undefined;
@@ -959,13 +1085,31 @@ export class CombatPocSystem {
         }
 
         wolf.focusBuildingId = undefined;
+        const defaultGoal = this.combatBuildings.find(
+            (building) =>
+                building.id === wolf.defaultTargetBuildingId &&
+                building.hp > 0 &&
+                building.targetableByWolves,
+        );
+        if (defaultGoal) return defaultGoal;
+
+        return this.getWolfFallbackGoalBuilding(wolf);
+    }
+
+    private getWolfFallbackGoalBuilding(wolf: CombatWolf) {
+        const targetableBuildings = this.combatBuildings.filter(
+            (building) => building.hp > 0 && building.targetableByWolves,
+        );
+        const byDistanceFromWolf = (a: CombatBuilding, b: CombatBuilding) =>
+            this.getDistanceFromWolfToBuildingFootprint(wolf, a) -
+            this.getDistanceFromWolfToBuildingFootprint(wolf, b);
+
         return (
-            this.combatBuildings.find(
-                (building) =>
-                    building.id === wolf.defaultTargetBuildingId &&
-                    building.hp > 0 &&
-                    building.targetableByWolves,
-            ) ?? null
+            targetableBuildings
+                .filter((building) => building.kind !== 'fence')
+                .sort(byDistanceFromWolf)[0] ??
+            targetableBuildings.sort(byDistanceFromWolf)[0] ??
+            null
         );
     }
 

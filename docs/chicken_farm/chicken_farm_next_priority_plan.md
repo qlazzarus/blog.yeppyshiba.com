@@ -153,21 +153,22 @@ M8 후속 안정화 결정:
 | 건물 직접 공격 | `farm_core`/tower 등 targetable building이 사거리 안이면 직접 공격 | MVP 축약으로 허용. 원본의 concrete target 선택은 엔진에 위임 |
 | blocker 공격 | path failure 이후 line/near/fallback blocker 공격 | Warsmash behavior notes의 blocker는 movement failure 결과라는 기준과 부합 |
 | 타워 피격 focus | 맞은 늑대 1마리만 `focusWolfOnBuilding` 적용 | 일반 규칙으로는 과하지 않지만, 사용자 기억의 group pull 체감은 부족 |
-| 타워 focus 지속 | 짧은 lock 후 기본 목표로 복귀하도록 보정 | 최근 보정 후 기준에 더 가까움 |
+| 타워 focus 지속 | 타워 피격 후 2.25초 lock, 근접 사거리 진입 시 교전 유지, repath/blocker 대기 중에도 focus 타워로 직접 접근 | 타워에게 맞은 늑대가 실제로 반격할 시간과 접근 우선권을 확보해 Warsmash식 attacked-unit 반응에 가까움 |
 | dead 상태 | 사망 늑대 action/path는 정리, 단 tower adapter 순서로 focus가 다시 붙을 수 있음 | 수정 필요. 죽은 늑대에는 focus를 재부여하지 않아야 함 |
 | global refresh | 60초 주기 전체 늑대 attack refresh 미구현 | compact PoC에서는 생략 가능. 장기 stuck 검증에는 후속 후보 |
 | 타워 사거리 | h00D 원본 650 대신 Phaser 384 | 의도적 체감 튜닝. 원본 수치 재현은 아님 |
 | 늑대 속도 | n007 원본 speed 330 기준 사용 | 원본 raw stat 기준과 부합. 과거 MVP 108~115 문서값보다 최신 결정 우선 |
 
-제안 구현 기준: 제한적 aggro pulse
+구현 기준: 제한적 aggro pulse
 
-- 목적은 ordinary wolf baseline을 바꾸는 것이 아니라, W3X attacked-event group pull 체감을 PoC 옵션으로 검증하는 것이다.
+- 목적은 ordinary wolf baseline을 과도하게 바꾸는 것이 아니라, W3X attacked-event group pull 체감을 게임 AI 정책으로 축약하는 것이다.
 - tower가 늑대를 공격하면 직접 맞은 늑대는 기존처럼 tower focus를 받는다.
 - 동시에 주변 alive wolves 중 `aggroAssistRadiusPx` 안의 늑대에게 짧은 pulse를 보낸다.
 - pulse 대상은 `farm_core`를 직접 공격 중인 늑대를 기본 제외한다. farm을 물고 있는 늑대까지 모두 끊으면 원본의 농장 압박 감각이 약해진다.
 - pulse는 hard target lock보다 soft nudge로 둔다. 즉, target tower를 향해 repath/focus를 걸되 `aggroAssistLockSec` 후 기본 목표로 복귀한다.
 - 사망 늑대에는 pulse/focus를 적용하지 않는다.
 - telemetry에는 `wolf_aggro_pulse`를 기록해 어떤 늑대가 어떤 tower hit에 반응했는지 검증한다.
+- 런타임 값은 `CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist`에 둔다. PoC 전용 상수가 아니라 이후 게임 AI 코드가 공유할 밸런스 정책이다.
 
 초기 튜닝 후보:
 
@@ -179,12 +180,12 @@ M8 후속 안정화 결정:
 | `includeBlockerAttackers` | true |
 | `maxAssistWolvesPerHit` | 2~4 |
 
-다음 구현 순서:
+구현 상태:
 
-1. `towerCombatAdapter`에서 죽은 target에 `focusWolfOnBuilding`을 호출하지 않도록 순서를 고친다.
-2. `CombatPocSystem`에 `pulseWolfAggroFromTowerHit(hitWolf, tower)`를 추가한다.
-3. pulse 대상 필터를 alive, radius, not direct farm attacker 기준으로 둔다.
-4. `wolf_aggro_pulse` telemetry를 추가하고, 다음 로그에서 tower hit 직후 주변 늑대 state가 같이 움직이는지 검증한다.
+1. 완료: `towerCombatAdapter`에서 죽은 target에 `focusWolfOnBuilding`을 호출하지 않도록 순서를 고쳤다.
+2. 완료: `CombatPocSystem`에 `pulseWolfAggroFromTowerHit(hitWolf, tower)`를 추가했다.
+3. 완료: pulse 대상 필터를 alive, radius, not direct farm attacker 기준으로 둔다.
+4. 완료: `wolf_aggro_pulse` telemetry를 추가했다. 다음 로그에서 tower hit 직후 주변 늑대 state가 같이 움직이는지 검증한다.
 
 M5.7 확인/구현 결과:
 

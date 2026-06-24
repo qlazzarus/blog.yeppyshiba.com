@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { CHICKEN_FARM_BALANCE } from '../games/chicken-farm/src/game/balance';
+import { POC_TOWER_FOCUS_LOCK_SEC } from '../games/chicken-farm/src/game/poc/combatPocLayout';
 import {
     decideWolfAiBehavior,
     type WolfAiDecision,
@@ -168,6 +169,25 @@ async function main() {
                     measuredCases,
                 )?.actual.action === 'wait_for_repath',
         },
+        {
+            id: 'tower_focus_lock_supports_retaliation',
+            expected: '>= timber wolf attack cooldown',
+            actual: POC_TOWER_FOCUS_LOCK_SEC,
+            pass:
+                POC_TOWER_FOCUS_LOCK_SEC >=
+                CHICKEN_FARM_BALANCE.enemies.timber_wolf.attackCooldownSec,
+        },
+        {
+            id: 'aggro_assist_enabled_for_tower_hits',
+            expected: 'enabled, 256 <= radius <= 512, max assists 2..4',
+            actual: CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist,
+            pass:
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.enabled &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.radiusPx >= 256 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.radiusPx <= 512 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit >= 2 &&
+                CHICKEN_FARM_BALANCE.pathing.wolfAi.aggroAssist.maxAssistWolvesPerHit <= 4,
+        },
     ];
     const failedFitChecks = warsmashFitChecks.filter((check) => !check.pass);
     const payload = {
@@ -178,6 +198,8 @@ async function main() {
             blockerSearchRadiusPx: pathing.blockerAttackAcquire.searchRadiusPx,
             cellSize: pathing.cellSize,
             repathIntervalSec: pathing.repath.intervalSec,
+            towerFocusLockSec: POC_TOWER_FOCUS_LOCK_SEC,
+            wolfAggroAssist: pathing.wolfAi.aggroAssist,
         },
         warsmashReference: {
             blockedToBlockerDelayRangeSec: [0.6, 1.0],
