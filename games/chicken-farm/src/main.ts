@@ -211,6 +211,7 @@ class FarmScene extends Phaser.Scene {
                 this.controllableUnits.getWolfTargetableUnits(),
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
+            recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
             scene: this,
             terrainBlocker: this.terrainBlocker,
             worldObjects: this.worldObjects,
@@ -352,6 +353,7 @@ class FarmScene extends Phaser.Scene {
     private updateTelemetryHotkey() {
         if (!Phaser.Input.Keyboard.JustDown(this.keys.telemetryExport)) return;
 
+        this.combatPoc?.recordCombatResult();
         void this.telemetry.downloadCompressed();
     }
 
@@ -514,8 +516,17 @@ class FarmScene extends Phaser.Scene {
                     worldPoint.x,
                     worldPoint.y,
                 );
+                const nearestUnit = this.controllableUnits.getNearestUnitSummary(
+                    worldPoint.x,
+                    worldPoint.y,
+                );
                 this.telemetry.record('unit_selection_changed', {
                     mode: 'click',
+                    nearestUnitDistance: nearestUnit?.distance ?? null,
+                    nearestUnitId: nearestUnit?.id ?? null,
+                    nearestUnitType: nearestUnit?.templateId ?? null,
+                    nearestUnitX: nearestUnit?.x ?? null,
+                    nearestUnitY: nearestUnit?.y ?? null,
                     selectedUnitCount: selected ? 1 : 0,
                     selectedUnitId: selected?.id ?? null,
                     selectedUnitType: selected?.templateId ?? null,
@@ -568,6 +579,9 @@ class FarmScene extends Phaser.Scene {
                 this.telemetry.record('unit_smart_command_issued', {
                     action: result.action,
                     affectedUnitCount: result.affectedUnitCount,
+                    selectedUnitIds: this.controllableUnits
+                        .getSelectedUnits()
+                        .map((unit) => unit.id),
                     targetEntityId: enemyTarget?.id ?? null,
                     x: Number(worldPoint.x.toFixed(1)),
                     y: Number(worldPoint.y.toFixed(1)),

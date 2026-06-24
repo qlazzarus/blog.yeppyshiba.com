@@ -159,6 +159,30 @@ export class ControllableUnitSystem {
         return this.units.filter((unit) => unit.selected);
     }
 
+    getNearestUnitSummary(worldX: number, worldY: number) {
+        const nearest = [...this.units]
+            .map((unit) => ({
+                distance: Phaser.Math.Distance.Between(
+                    worldX,
+                    worldY,
+                    unit.position.x,
+                    unit.position.y,
+                ),
+                unit,
+            }))
+            .sort((a, b) => a.distance - b.distance)[0];
+
+        if (!nearest) return null;
+
+        return {
+            distance: Number(nearest.distance.toFixed(1)),
+            id: nearest.unit.id,
+            templateId: nearest.unit.templateId,
+            x: Number(nearest.unit.position.x.toFixed(1)),
+            y: Number(nearest.unit.position.y.toFixed(1)),
+        };
+    }
+
     getWolfTargetableUnits(): readonly ControllableUnitCombatTarget[] {
         return this.units
             .filter((unit) => unit.hp > 0)

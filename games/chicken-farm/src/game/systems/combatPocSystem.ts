@@ -45,6 +45,7 @@ type CombatPocSystemConfig = {
     readonly getElapsedSec: () => number;
     readonly getWolfTargetableUnits?: () => readonly ControllableUnitCombatTarget[];
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
+    readonly recordTelemetry?: (type: string, payload?: Record<string, unknown>) => void;
 };
 
 type WolfDirectTarget =
@@ -84,6 +85,7 @@ const COMBAT_DEBUG_DRAW_INTERVAL_SEC = 0.15;
 const TOWER_HIT_MARKER_DURATION_SEC = 0.35;
 const WOLF_BUILDING_HIT_MARKER_DURATION_SEC = 0.42;
 const WOLF_HP_BAR_WIDTH_PX = 48;
+const COMBAT_TELEMETRY_SNAPSHOT_INTERVAL_SEC = 1;
 
 export class CombatPocSystem {
     private readonly scene: Phaser.Scene;
@@ -94,11 +96,16 @@ export class CombatPocSystem {
     private readonly getElapsedSec: () => number;
     private readonly getWolfTargetableUnits: () => readonly ControllableUnitCombatTarget[];
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
+    private readonly recordTelemetry?: (
+        type: string,
+        payload?: Record<string, unknown>,
+    ) => void;
     private combatBuildings: CombatBuilding[] = [];
     private combatGraphics?: Phaser.GameObjects.Graphics;
     private combatLabel?: Phaser.GameObjects.Text;
     private combatWolves: CombatWolf[] = [];
     private nextCombatDebugDrawAtSec = 0;
+    private nextCombatTelemetrySnapshotAtSec = 0;
     private towerHitMarkers: TowerHitMarker[] = [];
     private wolfBuildingHitMarkers: WolfBuildingHitMarker[] = [];
 
@@ -111,6 +118,7 @@ export class CombatPocSystem {
         this.getElapsedSec = config.getElapsedSec;
         this.getWolfTargetableUnits = config.getWolfTargetableUnits ?? (() => []);
         this.recordPerformance = config.recordPerformance;
+        this.recordTelemetry = config.recordTelemetry;
     }
 
     private get elapsedSec() {
@@ -131,6 +139,7 @@ export class CombatPocSystem {
         this.combatWolves = [];
         this.towerHitMarkers = [];
         this.wolfBuildingHitMarkers = [];
+        this.nextCombatTelemetrySnapshotAtSec = 0;
         const layoutPlan = createCombatLayoutPlan({
             anchor,
             worldSize: this.worldSize,
@@ -169,6 +178,7 @@ export class CombatPocSystem {
         this.combatBuildings.forEach((building) =>
             this.updateCombatBuildingHealth(building),
         );
+        this.recordCombatTelemetrySnapshot('created');
     }
 
     private addCombatBuilding(config: CombatBuildingSpec): CombatBuilding {
@@ -325,7 +335,28 @@ export class CombatPocSystem {
             this.separateWolfFromControllableUnits(wolf),
         );
         this.separateWolvesFromEachOther();
+        this.recordCombatTelemetrySnapshot();
         this.drawCombatDebug();
+    }
+
+    recordCombatResult() {
+        const farmCore = this.combatBuildings.find(
+            (building) => building.kind === 'farm_core',
+        );
+        const aliveWolves = this.getAliveWolves();
+        this.recordTelemetry?.('combat_poc_result', {
+            aliveWolfCount: aliveWolves.length,
+            deadWolfCount: this.combatWolves.length - aliveWolves.length,
+            elapsedSec: Number(this.elapsedSec.toFixed(3)),
+            farmHp: farmCore ? Math.ceil(farmCore.hp) : null,
+            farmMaxHp: farmCore?.maxHp ?? null,
+            result:
+                farmCore && farmCore.hp <= 0
+                    ? 'farm_destroyed'
+                    : aliveWolves.length === 0
+                      ? 'wolves_defeated'
+                      : 'in_progress',
+        });
     }
 
     getAttackableEnemyTarget(targetId: string): AttackableEnemyTarget | null {
@@ -364,14 +395,13 @@ export class CombatPocSystem {
         const wolf = this.getTargetWolf(targetId);
         if (!wolf) return false;
 
-        wolf.hp = Math.max(0, wolf.hp - Math.max(1, damage));
+        const appliedDamage = Math.max(1, damage);
+        wolf.hp = Math.max(0, wolf.hp - appliedDamage);
         wolf.hpFill.width = WOLF_HP_BAR_WIDTH_PX * (wolf.hp / wolf.maxHp);
 
         if (wolf.hp <= 0) {
-            wolf.state = 'dead';
-            wolf.body.setAlpha(0.35);
-            wolf.path = [];
-            wolf.pathIndex = 0;
+            this.markWolfDead(wolf);
+            this.recordWolfDied(wolf, 'controllable_unit');
         }
 
         return true;
@@ -398,6 +428,17 @@ export class CombatPocSystem {
             focusWolfOnBuilding: (wolf, building) =>
                 this.focusWolfOnBuilding(wolf, building),
             onTowerHit: ({ damage, target, tower }) => {
+                this.recordTelemetry?.('tower_attack_landed', {
+                    damage,
+                    towerHp: Math.ceil(tower.hp),
+                    towerId: tower.id,
+                    targetHpAfter: Math.ceil(target.hp),
+                    targetWolfId: target.id,
+                    targetX: Number(target.body.x.toFixed(1)),
+                    targetY: Number(target.body.y.toFixed(1)),
+                    towerX: Number(tower.body.x.toFixed(1)),
+                    towerY: Number(tower.body.y.toFixed(1)),
+                });
                 this.towerHitMarkers.push({
                     damage,
                     expiresAtSec: this.elapsedSec + TOWER_HIT_MARKER_DURATION_SEC,
@@ -408,6 +449,10 @@ export class CombatPocSystem {
                     towerX: tower.body.x,
                     towerY: tower.body.y,
                 });
+                if (target.hp <= 0) {
+                    this.markWolfDead(target);
+                    this.recordWolfDied(target, tower.id);
+                }
             },
             wolves,
         });
@@ -420,6 +465,13 @@ export class CombatPocSystem {
         this.syncWolfTargetPoint(wolf);
         const directTarget = this.getCurrentWolfTarget(wolf);
         this.refreshWolfPathIfNeeded(wolf);
+        if (
+            !directTarget &&
+            wolf.path.length <= wolf.pathIndex &&
+            wolf.pathFailedSinceSec === undefined
+        ) {
+            wolf.pathFailedSinceSec = this.elapsedSec;
+        }
         const blockingTarget = this.getWolfBlockingTarget(wolf);
         const decision = decideWolfAiBehavior({
             blockedToBlockerDelaySec:
@@ -436,9 +488,41 @@ export class CombatPocSystem {
             pathFailedSinceSec: wolf.pathFailedSinceSec,
         });
 
+        this.recordWolfStateChange(wolf, decision.state, decision.action, decision.reason);
         wolf.state = decision.state;
         wolf.stateAction = decision.action;
         wolf.stateReason = decision.reason;
+
+        const focusedGoal = wolf.focusBuildingId
+            ? this.getWolfGoalBuilding(wolf)
+            : null;
+        if (
+            decision.action === 'wait_for_repath' &&
+            focusedGoal &&
+            focusedGoal.kind !== 'fence' &&
+            !directTarget &&
+            !blockingTarget
+        ) {
+            wolf.targetBuildingId = focusedGoal.id;
+            const targetPoint = this.getClosestPointOnBuildingFootprint(
+                wolf.body.x,
+                wolf.body.y,
+                focusedGoal,
+            );
+            moveWolfTowardAdapter({
+                deltaSec: movementDeltaSec,
+                dynamicBlockedRects: this.getCombatBlockedRects(),
+                separateWolfFromControllableUnits: () =>
+                    this.separateWolfFromControllableUnits(wolf),
+                speedPxPerSec: enemy.speedPxPerSec,
+                targetX: targetPoint.x,
+                targetY: targetPoint.y,
+                terrainBlocker: this.terrainBlocker,
+                wolf,
+                worldSize: this.worldSize,
+            });
+            return;
+        }
 
         if (decision.action === 'attack_direct_target' && directTarget) {
             wolf.targetBuildingId =
@@ -863,7 +947,16 @@ export class CombatPocSystem {
                       building.targetableByWolves,
               )
             : undefined;
-        if (focused) return focused;
+        if (
+            focused &&
+            focused.kind === 'tower' &&
+            this.elapsedSec >= wolf.focusLockedUntilSec
+        ) {
+            wolf.focusBuildingId = undefined;
+            wolf.targetBuildingId = undefined;
+        } else if (focused) {
+            return focused;
+        }
 
         wolf.focusBuildingId = undefined;
         return (
@@ -888,18 +981,8 @@ export class CombatPocSystem {
             );
         });
         const byDistanceFromWolf = (a: CombatBuilding, b: CombatBuilding) =>
-            Phaser.Math.Distance.Between(
-                wolf.body.x,
-                wolf.body.y,
-                a.body.x,
-                a.body.y,
-            ) -
-            Phaser.Math.Distance.Between(
-                wolf.body.x,
-                wolf.body.y,
-                b.body.x,
-                b.body.y,
-            );
+            this.getDistanceFromWolfToBuildingFootprint(wolf, a) -
+            this.getDistanceFromWolfToBuildingFootprint(wolf, b);
         const lineBlockers = targetableBlockers
             .filter((building) =>
                 Phaser.Geom.Intersects.LineToRectangle(pathLine, building.footprint),
@@ -909,14 +992,7 @@ export class CombatPocSystem {
 
         const closeBlockers = targetableBlockers
             .filter((building) => {
-                if (
-                    Phaser.Math.Distance.Between(
-                        wolf.body.x,
-                        wolf.body.y,
-                        building.body.x,
-                        building.body.y,
-                    ) > searchRadius
-                ) {
+                if (this.getDistanceFromWolfToBuildingFootprint(wolf, building) > searchRadius) {
                     return false;
                 }
 
@@ -924,7 +1000,37 @@ export class CombatPocSystem {
             })
             .sort(byDistanceFromWolf);
 
-        return closeBlockers[0] ?? null;
+        if (closeBlockers[0]) return closeBlockers[0];
+
+        if (
+            wolf.pathFailedSinceSec !== undefined &&
+            wolf.path.length <= wolf.pathIndex
+        ) {
+            const goal = this.getWolfGoalBuilding(wolf);
+            if (goal && goal.targetableByWolves && goal.hp > 0) return goal;
+
+            return [...targetableBlockers].sort(byDistanceFromWolf)[0] ?? null;
+        }
+
+        return null;
+    }
+
+    private getDistanceFromWolfToBuildingFootprint(
+        wolf: CombatWolf,
+        building: CombatBuilding,
+    ) {
+        const closest = this.getClosestPointOnBuildingFootprint(
+            wolf.body.x,
+            wolf.body.y,
+            building,
+        );
+
+        return Phaser.Math.Distance.Between(
+            wolf.body.x,
+            wolf.body.y,
+            closest.x,
+            closest.y,
+        );
     }
 
     private isWolfInAttackRange(wolf: CombatWolf, building: CombatBuilding) {
@@ -975,6 +1081,17 @@ export class CombatPocSystem {
             wolfX: wolf.body.x,
             wolfY: wolf.body.y,
         });
+        this.recordTelemetry?.('wolf_attack_landed', {
+            buildingHpAfter: Math.ceil(building.hp),
+            buildingId: building.id,
+            buildingKind: building.kind,
+            damage: appliedDamage,
+            targetX: Number(targetPoint.x.toFixed(1)),
+            targetY: Number(targetPoint.y.toFixed(1)),
+            wolfId: wolf.id,
+            wolfX: Number(wolf.body.x.toFixed(1)),
+            wolfY: Number(wolf.body.y.toFixed(1)),
+        });
 
         if (building.hp <= 0) {
             building.body.setAlpha(0.22);
@@ -983,6 +1100,11 @@ export class CombatPocSystem {
             if (wolf.focusBuildingId === building.id) {
                 wolf.focusBuildingId = undefined;
             }
+            this.recordTelemetry?.('building_destroyed', {
+                buildingId: building.id,
+                buildingKind: building.kind,
+                destroyedByWolfId: wolf.id,
+            });
             this.getAliveWolves().forEach((aliveWolf) =>
                 this.refreshWolfPathIfNeeded(aliveWolf, true),
             );
@@ -1002,8 +1124,117 @@ export class CombatPocSystem {
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
         const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
-        this.damageControllableUnit?.(target.value.id, damage);
+        const damaged = this.damageControllableUnit?.(target.value.id, damage) ?? false;
         wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
+        this.recordTelemetry?.('wolf_attack_landed', {
+            damage,
+            targetHpAfter: Math.max(0, target.value.hp - damage),
+            targetId: target.value.id,
+            targetKind: 'unit',
+            targetType: target.value.templateId,
+            wolfId: wolf.id,
+            wolfX: Number(wolf.body.x.toFixed(1)),
+            wolfY: Number(wolf.body.y.toFixed(1)),
+            wasApplied: damaged,
+        });
+    }
+
+    private recordCombatTelemetrySnapshot(reason = 'interval') {
+        if (!this.recordTelemetry) return;
+        if (reason === 'interval' && this.elapsedSec < this.nextCombatTelemetrySnapshotAtSec) {
+            return;
+        }
+
+        this.nextCombatTelemetrySnapshotAtSec =
+            this.elapsedSec + COMBAT_TELEMETRY_SNAPSHOT_INTERVAL_SEC;
+        this.recordTelemetry('combat_poc_snapshot', {
+            buildings: this.combatBuildings.map((building) => ({
+                hp: Math.ceil(building.hp),
+                id: building.id,
+                kind: building.kind,
+                maxHp: building.maxHp,
+                x: Number(building.body.x.toFixed(1)),
+                y: Number(building.body.y.toFixed(1)),
+            })),
+            reason,
+            units: this.getWolfTargetableUnits().map((unit) => ({
+                hp: Math.ceil(unit.hp),
+                id: unit.id,
+                maxHp: unit.maxHp,
+                templateId: unit.templateId,
+                x: Number(unit.x.toFixed(1)),
+                y: Number(unit.y.toFixed(1)),
+            })),
+            wolves: this.combatWolves.map((wolf) => ({
+                focusBuildingId: wolf.focusBuildingId ?? null,
+                focusUnitId: wolf.focusUnitId ?? null,
+                hp: Math.ceil(wolf.hp),
+                id: wolf.id,
+                maxHp: wolf.maxHp,
+                pathRemaining: Math.max(0, wolf.path.length - wolf.pathIndex),
+                state: wolf.state,
+                stateAction: wolf.stateAction ?? null,
+                stateReason: wolf.stateReason ?? null,
+                targetBuildingId: wolf.targetBuildingId ?? null,
+                targetPointX: Number(wolf.targetPoint.x.toFixed(1)),
+                targetPointY: Number(wolf.targetPoint.y.toFixed(1)),
+                x: Number(wolf.body.x.toFixed(1)),
+                y: Number(wolf.body.y.toFixed(1)),
+            })),
+        });
+    }
+
+    private recordWolfStateChange(
+        wolf: CombatWolf,
+        nextState: CombatWolf['state'],
+        nextAction: CombatWolf['stateAction'],
+        nextReason: CombatWolf['stateReason'],
+    ) {
+        if (
+            wolf.state === nextState &&
+            wolf.stateAction === nextAction &&
+            wolf.stateReason === nextReason
+        ) {
+            return;
+        }
+
+        this.recordTelemetry?.('wolf_state_changed', {
+            focusBuildingId: wolf.focusBuildingId ?? null,
+            focusUnitId: wolf.focusUnitId ?? null,
+            fromAction: wolf.stateAction ?? null,
+            fromReason: wolf.stateReason ?? null,
+            fromState: wolf.state,
+            pathRemaining: Math.max(0, wolf.path.length - wolf.pathIndex),
+            targetBuildingId: wolf.targetBuildingId ?? null,
+            toAction: nextAction ?? null,
+            toReason: nextReason ?? null,
+            toState: nextState,
+            wolfId: wolf.id,
+            x: Number(wolf.body.x.toFixed(1)),
+            y: Number(wolf.body.y.toFixed(1)),
+        });
+    }
+
+    private recordWolfDied(wolf: CombatWolf, killedBy: string) {
+        this.recordTelemetry?.('wolf_died', {
+            killedBy,
+            wolfId: wolf.id,
+            x: Number(wolf.body.x.toFixed(1)),
+            y: Number(wolf.body.y.toFixed(1)),
+        });
+    }
+
+    private markWolfDead(wolf: CombatWolf) {
+        wolf.state = 'dead';
+        wolf.stateAction = undefined;
+        wolf.stateReason = undefined;
+        wolf.focusBuildingId = undefined;
+        wolf.focusUnitId = undefined;
+        wolf.targetBuildingId = undefined;
+        wolf.path = [];
+        wolf.pathIndex = 0;
+        wolf.pathFailedSinceSec = undefined;
+        wolf.body.setAlpha(0.35);
     }
 
     private separateWolfFromControllableUnits(wolf: CombatWolf) {
