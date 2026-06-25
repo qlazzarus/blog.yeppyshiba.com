@@ -1,0 +1,50 @@
+{
+  "cellSize": 256,
+  "columns": 3,
+  "model": "race-future",
+  "output": "assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png",
+  "poses": [
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "center"
+    },
+    {
+      "camera": [
+        -1.25,
+        1.16,
+        -5.02
+      ],
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-left-1"
+    },
+    {
+      "camera": [
+        -1.9,
+        1.12,
+        -4.82
+      ],
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-left-2"
+    }
+  ],
+  "rows": 1,
+  "sourceModel": "assets/vehicles/kenney-car-kit/Models/GLB format/race-future.glb",
+  "vehicleId": "raven-coupe"
+}

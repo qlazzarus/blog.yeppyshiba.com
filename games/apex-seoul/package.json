@@ -9,6 +9,7 @@
         "download:vehicles": "node scripts/download-kenney-car-kit.mjs",
         "extract:bugak-reference": "node scripts/extract-bugak-ridge-reference.mjs",
         "preview": "vite preview --host 0.0.0.0",
+        "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
         "render:vehicles": "node scripts/render-vehicle-sprites.mjs"
     },
     "dependencies": {
