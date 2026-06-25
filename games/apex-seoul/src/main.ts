@@ -10,14 +10,20 @@ import {
     type Pseudo3dCamera,
     type Viewport,
 } from './game/pseudo3dCamera';
-import { createTestTrack, wrapDistance, type RoadTrack } from './game/road';
-import { renderRoad, type RoadRenderStats } from './game/roadRenderer';
+import {
+    createBugakRidgeDownhillTrack,
+    getRoadElevationAt,
+    wrapDistance,
+    type RoadTrack,
+} from './game/road';
+import { ELEVATION_VISUAL_SCALE, renderRoad, type RoadRenderStats } from './game/roadRenderer';
 
 const CAMERA_INPUT_RESPONSE = 14;
 const CAMERA_LATERAL_SPEED = 820;
 const CAMERA_BASE_FOV = 72;
 const CAMERA_FOV_RESPONSE = 1.25;
 const CAMERA_SPEED_FOV_BONUS = 2.4;
+const ENABLE_DEBUG_CAMERA_CONTROLS = false;
 const PLAYER_ACCELERATION = 185;
 const PLAYER_BRAKE_SPEED = 0;
 const PLAYER_BRAKING = 260;
@@ -28,6 +34,9 @@ const PLAYER_CRUISE_PULL = 115;
 const PLAYER_INPUT_RESPONSE = 12;
 const PLAYER_MAX_ROAD_OFFSET = 700;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
+const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
+const PLAYER_SCREEN_ANCHOR_RESPONSE = 0.06;
+const PLAYER_SHADOW_MAX_ALPHA = 0.32;
 const PLAYER_STEER_ACCELERATION = 1500;
 const PLAYER_STEER_DAMPING = 7.8;
 
@@ -36,6 +45,12 @@ type PlayerVehicleState = {
     speed: number;
     steering: number;
     steeringVelocity: number;
+};
+
+type VehicleAnchor = {
+    scale: number;
+    x: number;
+    y: number;
 };
 
 class ApexSeoulScene extends Phaser.Scene {
@@ -58,7 +73,7 @@ class ApexSeoulScene extends Phaser.Scene {
         steeringVelocity: 0,
     };
     private roadStats: RoadRenderStats | null = null;
-    private roadTrack: RoadTrack = createTestTrack();
+    private roadTrack: RoadTrack = createBugakRidgeDownhillTrack();
 
     constructor() {
         super('apex-seoul');
@@ -104,9 +119,15 @@ class ApexSeoulScene extends Phaser.Scene {
         const seconds = delta / 1000;
         const camera = this.cameraResource;
 
-        const targetLateralVelocity = getAxis(this.keys.d.isDown, this.keys.a.isDown) * CAMERA_LATERAL_SPEED;
-        const targetHeightVelocity = getAxis(this.keys.w.isDown, this.keys.s.isDown) * 520;
-        const targetPitchVelocity = getAxis(this.keys.e.isDown, this.keys.q.isDown) * 260;
+        const targetLateralVelocity = ENABLE_DEBUG_CAMERA_CONTROLS
+            ? getAxis(this.keys.d.isDown, this.keys.a.isDown) * CAMERA_LATERAL_SPEED
+            : 0;
+        const targetHeightVelocity = ENABLE_DEBUG_CAMERA_CONTROLS
+            ? getAxis(this.keys.w.isDown, this.keys.s.isDown) * 520
+            : 0;
+        const targetPitchVelocity = ENABLE_DEBUG_CAMERA_CONTROLS
+            ? getAxis(this.keys.e.isDown, this.keys.q.isDown) * 260
+            : 0;
         const inputBlend = 1 - Math.exp(-CAMERA_INPUT_RESPONSE * seconds);
 
         this.cameraVelocity.lateral = Phaser.Math.Linear(
@@ -147,6 +168,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.drawBackground(viewport, horizonY);
         this.roadStats = renderRoad(this.graphics, this.roadTrack, this.cameraResource, viewport);
         this.drawProjectionGuides(viewport);
+        this.renderPlayerShadow(viewport);
         this.renderPlayerVehicle(viewport);
         this.renderHud();
     }
@@ -184,14 +206,16 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.hudText.setText(
             [
-                'Apex Seoul - RoadSegment Curve Renderer',
+                'Apex Seoul - Bugak Ridge Downhill',
                 `horizon ${(camera.horizonRatio * 100).toFixed(0)}% + pitch ${camera.pitch.toFixed(0)}px`,
                 `height ${camera.height.toFixed(0)} | fov ${camera.fovDegrees.toFixed(1)} | z ${camera.z.toFixed(0)}`,
                 stats
-                    ? `segment ${stats.baseSegmentIndex} | curve ${stats.currentCurve.toFixed(2)} | visible ${stats.visibleSegments}`
+                    ? `segment ${stats.baseSegmentIndex} | curve ${stats.currentCurve.toFixed(2)} | elevation ${stats.currentElevation.toFixed(0)} | visible ${stats.visibleSegments}`
                     : 'segment -- | curve -- | visible --',
                 `speed ${player.speed.toFixed(0)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)}`,
-                'Up: accel | Down: brake | Left/Right: steer | WASD: camera | Q/E: pitch',
+                ENABLE_DEBUG_CAMERA_CONTROLS
+                    ? 'Up: accel | Down: brake | Left/Right: steer | WASD: camera | Q/E: pitch'
+                    : 'Up: accel | Down: brake | Left/Right: steer | debug camera locked',
             ].join('\n'),
         );
     }
@@ -259,28 +283,76 @@ class ApexSeoulScene extends Phaser.Scene {
                     ? 'player-car-rear-right'
                     : 'player-car-rear';
         const spriteSize = Phaser.Math.Clamp(viewport.width * 0.34, 220, 360);
+        const anchor = this.getVehicleAnchor(viewport, spriteSize);
+
+        this.playerCar
+            .setTexture(steerTexture)
+            .setPosition(anchor.x, anchor.y)
+            .setDisplaySize(spriteSize, spriteSize)
+            .setRotation(Phaser.Math.DegToRad(player.steering * 3.5));
+    }
+
+    private renderPlayerShadow(viewport: Viewport) {
+        const spriteSize = Phaser.Math.Clamp(viewport.width * 0.34, 220, 360);
+        const anchor = this.getVehicleAnchor(viewport, spriteSize);
+        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+        const width = spriteSize * Phaser.Math.Linear(0.38, 0.46, speedRatio);
+        const height = spriteSize * 0.11;
+        const centerY = anchor.y - spriteSize * 0.065;
+        const steeringOffset = this.playerVehicle.steering * spriteSize * 0.025;
+        const alpha = PLAYER_SHADOW_MAX_ALPHA * Phaser.Math.Clamp(anchor.scale * 13, 0.7, 1);
+
+        this.graphics.fillStyle(0x071013, alpha * 0.92);
+        this.graphics.fillEllipse(anchor.x + steeringOffset, centerY, width, height);
+
+        this.graphics.lineStyle(2, 0x11191c, alpha);
+
+        for (let stripe = -3; stripe <= 3; stripe += 1) {
+            const stripeY = centerY + stripe * (height / 8);
+            const stripeRatio = 1 - Math.abs(stripe) / 4;
+            const stripeHalfWidth = (width / 2) * Math.sqrt(Math.max(0, stripeRatio));
+
+            this.graphics.lineBetween(
+                anchor.x + steeringOffset - stripeHalfWidth,
+                stripeY,
+                anchor.x + steeringOffset + stripeHalfWidth,
+                stripeY,
+            );
+        }
+    }
+
+    private getVehicleAnchor(viewport: Viewport, spriteSize: number): VehicleAnchor {
+        const player = this.playerVehicle;
+        const anchorZ = this.cameraResource.z + PLAYER_ROAD_ANCHOR_DISTANCE;
+        const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
         const roadAnchor = projectGroundPoint(
             {
                 x: player.lateralOffset,
-                z: this.cameraResource.z + PLAYER_ROAD_ANCHOR_DISTANCE,
+                y: (getRoadElevationAt(this.roadTrack, anchorZ) - currentRoadElevation) * ELEVATION_VISUAL_SCALE,
+                z: anchorZ,
             },
             this.cameraResource,
             viewport,
         );
-        const fallbackY = viewport.height * 0.86;
+        const fixedAnchorY = viewport.height * PLAYER_SCREEN_ANCHOR_RATIO;
+        const fallbackY = fixedAnchorY;
         const fallbackX = viewport.width / 2;
         const anchorX = roadAnchor.visible
             ? Phaser.Math.Clamp(roadAnchor.x, spriteSize * 0.35, viewport.width - spriteSize * 0.35)
             : fallbackX;
         const anchorY = roadAnchor.visible
-            ? Phaser.Math.Clamp(roadAnchor.y + spriteSize * 0.1, viewport.height * 0.68, viewport.height * 0.96)
+            ? Phaser.Math.Clamp(
+                Phaser.Math.Linear(fixedAnchorY, roadAnchor.y + spriteSize * 0.08, PLAYER_SCREEN_ANCHOR_RESPONSE),
+                viewport.height * 0.84,
+                viewport.height * 0.93,
+            )
             : fallbackY;
 
-        this.playerCar
-            .setTexture(steerTexture)
-            .setPosition(anchorX, anchorY)
-            .setDisplaySize(spriteSize, spriteSize)
-            .setRotation(Phaser.Math.DegToRad(player.steering * 3.5));
+        return {
+            scale: roadAnchor.scale,
+            x: anchorX,
+            y: anchorY,
+        };
     }
 
     private updateCameraFov(seconds: number) {
