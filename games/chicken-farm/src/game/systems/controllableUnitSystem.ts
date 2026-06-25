@@ -214,14 +214,27 @@ export class ControllableUnitSystem {
 
     issueMoveCommandToSelected(targetPoint: Point) {
         const selectedUnits = this.getSelectedUnits();
-        if (!selectedUnits.length) return { movedUnitCount: 0, pathFoundCount: 0 };
+        return this.issueMoveCommandToUnits(
+            selectedUnits.map((unit) => unit.id),
+            targetPoint,
+        );
+    }
+
+    issueMoveCommandToUnits(unitIds: readonly string[], targetPoint: Point) {
+        const unitIdSet = new Set(unitIds);
+        const targetUnits = this.units.filter(
+            (unit) =>
+                unitIdSet.has(unit.id) &&
+                unit.currentCommand?.type !== 'build',
+        );
+        if (!targetUnits.length) return { movedUnitCount: 0, pathFoundCount: 0 };
 
         let pathFoundCount = 0;
-        selectedUnits.forEach((unit, index) => {
+        targetUnits.forEach((unit, index) => {
             const unitTargetPoint = this.getMoveTargetPointForUnit(
                 targetPoint,
                 index,
-                selectedUnits.length,
+                targetUnits.length,
             );
             const path = this.findMovePath(unit.position, unitTargetPoint);
             unit.currentCommand = {
@@ -236,7 +249,33 @@ export class ControllableUnitSystem {
         });
         this.drawMoveMarker(targetPoint, pathFoundCount > 0);
 
-        return { movedUnitCount: selectedUnits.length, pathFoundCount };
+        return { movedUnitCount: targetUnits.length, pathFoundCount };
+    }
+
+    setUnitBuildCommand(unitId: string, siteId: string, targetPoint: Point) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit || unit.hp <= 0) return false;
+
+        unit.currentCommand = {
+            siteId,
+            targetPoint,
+            type: 'build',
+            unitIds: [unit.id],
+        };
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.updateView(unit);
+        return true;
+    }
+
+    clearBuildCommand(unitId: string, siteId: string) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit || unit.currentCommand?.type !== 'build') return false;
+        if (unit.currentCommand.siteId !== siteId) return false;
+
+        unit.currentCommand = undefined;
+        this.updateView(unit);
+        return true;
     }
 
     issueSmartCommandToSelected(targetPoint: Point, targetEntityId?: string) {
@@ -252,6 +291,8 @@ export class ControllableUnitSystem {
         }
 
         selectedUnits.forEach((unit) => {
+            if (unit.currentCommand?.type === 'build') return;
+
             unit.currentCommand = {
                 targetEntityId,
                 targetPoint,
@@ -269,6 +310,8 @@ export class ControllableUnitSystem {
     stopSelectedUnits() {
         const selectedUnits = this.getSelectedUnits();
         selectedUnits.forEach((unit) => {
+            if (unit.currentCommand?.type === 'build') return;
+
             unit.currentCommand = {
                 type: 'stop',
                 unitIds: [unit.id],

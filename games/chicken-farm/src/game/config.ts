@@ -18,6 +18,11 @@ export const MINIMAP_Y = WORLD_VIEW_HEIGHT + 20;
 export const PLAYER_SPEED_PX_PER_SEC = 240 * 2;
 export const BUILD_GRID_MAJOR_EVERY = MAJOR_TILE_MINOR_SIZE;
 export const POC_FIXED_PLAYER_SLOT_ID: number | null = 3;
+export const CHICKEN_FARM_POC_FLAGS = {
+    combat: false,
+    construction: true,
+    terrainPathingDebug: true,
+} as const;
 
 export type VisibilityOverlayConfig = {
     readonly cellSize: number;
