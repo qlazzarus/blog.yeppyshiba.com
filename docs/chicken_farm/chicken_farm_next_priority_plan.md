@@ -576,6 +576,7 @@ PoC 7 완료 기준:
 - command card UI는 추후 build/shop PoC에서 필요할 때 확장한다.
 - 현재 Phaser object 중심 구조를 한 번에 ECS로 갈아엎지 않는다. 먼저 command/state boundary를 만들고, 이후 component로 승격한다.
 - P2P deterministic 검증은 PoC 15 범위지만, 이번 PoC부터 command replay가 가능하도록 설계해야 한다.
+- worker 도입은 렌더러 교체가 아니라 simulation/presenter 분리가 선행이다. 시스템별 경계는 `docs/chicken_farm/chicken_farm_worker_simulation_boundary_plan.md`를 기준으로 고정한다.
 
 ## 10. 참고 문서
 
@@ -585,3 +586,4 @@ PoC 7 완료 기준:
 - W3X artifact: `docs/chicken_farm/chicken_farm_w3x_artifacts/`
 - Phaser 구현: `games/chicken-farm/src/game/`
 - Network/suspend 기준: `docs/chicken_farm/chicken_farm_network_and_suspend_plan.md`
+- Worker/simulation 경계 기준: `docs/chicken_farm/chicken_farm_worker_simulation_boundary_plan.md`

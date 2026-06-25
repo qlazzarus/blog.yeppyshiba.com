@@ -267,7 +267,7 @@ const roadAnchor = projectGroundPoint(
 
 ## 경사별 차량 sprite 검토
 
-차량 sprite는 지금 단계에서는 그대로 둔다. 다만 장기적으로는 고저차가 강해질수록 후면 sprite 한 세트만으로는 차가 도로 경사에 붙어 있다는 느낌이 부족해질 수 있다.
+차량 sprite는 현재 구현에서는 그대로 둔다. 다만 장기적으로는 고저차가 강해질수록 후면 sprite 한 세트만으로는 차가 도로 경사에 붙어 있다는 느낌이 부족해질 수 있다.
 
 추가 후보
 
@@ -279,7 +279,7 @@ const roadAnchor = projectGroundPoint(
 
 다운힐 sprite는 차량의 roofline과 rear bumper가 조금 더 위에서 보이고, 앞쪽으로 기울어 내려가는 느낌이 있어야 한다. 반대로 업힐 sprite는 rear bumper가 더 크게 보이고, 차체가 위쪽으로 들리는 느낌이 필요할 수 있다.
 
-다만 이 작업은 지금 하지 않는다. 현재 차량 sprite는 고저차 렌더링과 주행 anchor 검증용으로 충분하다. 먼저 도로 고저차, 그림자, 카메라 감각을 안정화한 뒤 전용 차량 sprite를 만든다.
+다만 이 작업은 지금 바로 전체 제작하지 않는다. 현재 차량 sprite는 고저차 렌더링과 주행 anchor 검증용으로 충분하다. 먼저 도로 고저차, 그림자, 카메라 감각을 안정화한 뒤, 아래의 `아웃런 스타일 차량 sprite 구성 검토` 기준에 맞춰 `base body sprite`, `flipX`, `effect overlay`를 분리해서 확장한다.
 
 ## 차량 그림자 검토
 
@@ -325,19 +325,30 @@ shadow.fillEllipse(anchorX, anchorY + spriteSize * 0.08, spriteSize * 0.45, spri
 - 코너 진입 시 카메라 lateral follow를 아주 약하게 지연
 - 브레이크 시 FOV 회복과 그림자/차체 반응을 조금 빠르게 처리
 
+WebGL / Phaser effect 후보
+
+- 현재 `Apex Seoul`은 pseudo 3D 도로를 `Phaser.Graphics`로 직접 그리는 구조라, 풀스크린 motion blur보다 화면 주변부 effect가 더 안전하다.
+- `Phaser.CANVAS`에서는 lane mark, rumble strip, speed line 같은 도형 기반 연출을 먼저 넣고, `WebGL` 전환 이후 postFX 성격의 효과를 검토한다.
+- 1차 WebGL 후보는 화면 좌우 가장자리 `edge speed line` 또는 낮은 alpha의 streak overlay다. 도로 본체를 흐리지 않고 속도감을 추가하기 쉽다.
+- 2차 WebGL 후보는 악셀 입력 순간에만 짧게 반응하는 `FOV impulse + peripheral distortion` 조합이다. 지속 blur보다 읽기성과 도로 라인을 덜 해친다.
+- 3차 WebGL 후보는 차량 하단 또는 도로 근거리 영역에만 제한적으로 거는 `heat haze / refractive streak`다. 공기가 갈리는 느낌은 줄 수 있지만 과하면 pseudo 3D 도로 경계가 깨져 보일 수 있다.
+- 외곽 `chromatic fringe`나 vignette pulse는 보조 효과로만 쓰고, HUD 텍스트와 중앙 도로 판독성을 해치지 않도록 적용 범위를 제한한다.
+
 주의점
 
 - 차량 자체 y 위치를 흔들어 속도감을 만들지 않는다.
 - 카메라 shake는 마지막 단계에서만 아주 약하게 쓴다.
 - 고저차와 속도감이 동시에 강하면 도로가 찢어져 보일 수 있으므로, 먼저 도로 표식과 주변 오브젝트 흐름부터 강화한다.
+- 장시간 유지되는 풀스크린 blur는 문서상 후보에서 후순위로 둔다. 현재 도로 렌더는 lane mark와 shoulder 대비가 중요한데, blur가 들어가면 속도감보다 가독성 손실이 먼저 온다.
 
 다음 구현 권장 순서
 
 1. lane mark와 rumble strip의 속도감 튜닝
 2. 도로변 반복 오브젝트 추가
 3. FOV impulse와 horizon micro response 추가
-4. 화면 가장자리 speed line 검토
+4. 필요 시 `WebGL` 전환 후 화면 가장자리 speed line 검토
 5. 코너 진입 시 카메라 follow 지연 검토
+6. peripheral distortion 또는 heat haze 계열 보조 effect 검토
 
 ## Bugak Ridge Downhill 방향
 
@@ -371,6 +382,40 @@ steeper downhill
 recovery straight
 finish curve
 ```
+
+## 단방향 런 구조
+
+`Bugak Ridge Downhill`은 순환 트랙보다 단방향 다운힐 런에 가깝게 설계한다. 따라서 코스 시작과 종료를 명확하게 보이는 표식으로 두고, 플레이어가 현재 어디쯤 내려왔는지 바로 읽을 수 있어야 한다.
+
+구성 원칙
+
+- 코스 시작부에 `start line`을 둔다.
+- 코스 마지막 구간에 `finish line`을 둔다.
+- 중간에는 2~4개의 `check line`을 둬서 구간 진행감을 만든다.
+- 현재 단계의 체크라인은 `time check` 용도가 아니라, 단순 통과 기준점과 코스 리듬 표식으로만 사용한다.
+- 한 런의 목표는 랩 반복이 아니라 정상에서 시작해 피니쉬까지 내려오는 완결된 주행이다.
+
+라인 배치 방향
+
+- `start line`은 출발 직후 짧은 직선에 둬서 첫 입력과 동시에 라인을 넘는 감각을 만든다.
+- `check line`은 헤어핀 전후, 전망 구간 진입부, 긴 내리막 시작점처럼 섹션 전환이 분명한 위치에 둔다.
+- `finish line`은 마지막 코너를 빠져나온 뒤 짧은 안정 구간에서 통과하게 둔다. 코너 안쪽에서 바로 종료되지 않게 한다.
+- 각 라인은 도로 위 체커 밴드, overhead 간판, 작은 roadside marker 가운데 현재 렌더 구조에 맞는 가장 단순한 방식부터 적용한다.
+
+체크라인 역할
+
+- 플레이어에게 "지금 코스의 어느 지점을 통과했는가"를 알려준다.
+- 미니맵과 함께 다음 섹션 기대감을 만든다.
+- 나중에 타임어택, 섹터 기록, 리스타트 포인트를 붙일 수 있는 확장 지점으로 남긴다.
+- 현재 단계에서는 시간 측정, 보너스 시간, 카운트다운 연장은 넣지 않는다.
+
+HUD / 미니맵 방향
+
+- 우측 상단에 작은 고정형 `mini map`을 둔다.
+- 미니맵은 실제 지도처럼 자세히 그리기보다 코스 중심선의 축약 라인만 보여준다.
+- `start`, `finish`, `check line` 위치를 미니맵 위에 작게 표시한다.
+- 플레이어 위치는 점 또는 짧은 마커 하나로 표시한다.
+- 첫 버전에서는 회전 미니맵보다 고정형 프로파일이 낫다. 본 화면 horizon과 도로 판독성을 해치지 않도록 크기를 작게 유지한다.
 
 ## OSM/DEM 참고 데이터 추출
 
@@ -437,6 +482,10 @@ games/apex-seoul/assets/tracks/reference/bugak-ridge-downhill-reference.json
 - 차량은 화면 하단 주행 기준점에 고정하고 카메라/도로 투영으로 경사 표현
 - 차량 아래 Phaser Graphics 기반 레트로 스트라이프 그림자 추가
 - HUD에 current elevation 또는 grade 표시
+- `start line`, `finish line`, 중간 `check line` 배치
+- 우측 상단 고정형 `mini map` 추가
+- 미니맵에 플레이어 위치와 `check line` 마커 표시
+- 체크라인은 현재 단계에서 시간 측정 없이 통과 상태만 관리
 - 테스트 트랙을 hill/downhill 중심으로 교체
 - 데스크톱/모바일 캡처로 도로 polygon 겹침 확인
 
@@ -609,9 +658,13 @@ tags:
 
 입문용 후륜구동 쿠페
 
+- 엔진 성격: `NA`
+- 컨셉 기준: `FT86 inspired`
 - 출력 ★★★
 - 그립 ★★★★
 - 드리프트 ★★★★★
+- 응답성 ★★★★★
+- 메모: 짧은 wheelbase와 자연흡기 응답을 살린, 가볍고 날렵한 FR 쿠페 감각.
 
 ---
 
@@ -619,9 +672,13 @@ tags:
 
 고출력 GT
 
+- 엔진 성격: `Twin Turbo`
+- 컨셉 기준: `Stinger inspired`
 - 출력 ★★★★★
 - 그립 ★★★
 - 드리프트 ★★★
+- 부스트감 ★★★★★
+- 메모: 긴 GT 비율과 트윈터보 고속 가속을 강조한, 묵직하지만 폭발력 있는 그랜드 투어러 감각.
 
 ---
 
@@ -629,9 +686,63 @@ tags:
 
 밸런스형 스포츠 세단
 
+- 엔진 성격: `Single Turbo`
+- 컨셉 기준: `G70 inspired`
 - 출력 ★★★★
 - 그립 ★★★★
 - 드리프트 ★★★★
+- 안정감 ★★★★
+- 메모: 짧은 스포츠 세단 비율과 싱글터보 중속 토크를 살린, 단단하고 정제된 응답.
+
+---
+
+## 차량 성격 차별화 방향
+
+차량 3종은 최고속도만 다르게 두기보다, `NA`와 `Turbo`의 체감 차이를 주행 감각과 UI에서 함께 드러내는 편이 좋다. Apex Seoul은 시뮬레이터보다 아케이드 드리프트 게임이므로, 완전한 엔진 모델보다 "보는 순간 다른 차처럼 느껴지는 drivetrain 표현"이 더 중요하다.
+
+핵심 원칙
+
+- 차량 차이는 `절대 출력`보다 `스로틀 응답`, `RPM 상승감`, `변속 리듬`, `boost 연출`에서 먼저 느껴지게 한다.
+- 현재 단계의 `RPM`, `gear`, `boost`는 정밀 물리보다 플레이 감각용 상태값으로 관리한다.
+- `NA` 차량은 선형적이고 즉각적인 응답을, `Single Turbo`는 두터운 중속 토크를, `Twin Turbo`는 고속에서 크게 터지는 감각을 강조한다.
+- 같은 코스를 달려도 차량마다 "언제 힘이 붙는가"가 다르게 읽혀야 한다.
+
+차량별 감각 초안
+
+- `Raven Coupe`: `FT86 inspired` 경량 `NA` 입문차. 변속 실패 페널티가 약하고, 리듬 게임처럼 다루기 쉽다.
+- `Vortex GT`: `Stinger inspired` `Twin Turbo` GT. boost zone에 들어가면 속도감 연출과 함께 차가 크게 살아난다.
+- `Apex S`: `G70 inspired` `Single Turbo` 스포츠 세단. 저회전부터 두터운 토크가 붙고, 안정적인 라인 유지가 장점이다.
+
+## RPM / Shift / Boost UI 방향
+
+현재 HUD는 디버그 정보 중심이지만, 장기적으로는 차량 성격을 보여주는 주행 UI로 전환한다.
+
+권장 구성
+
+- 화면 하단 또는 하단 우측에 `tachometer`를 둔다.
+- 현재 `gear`를 큰 숫자로 표시한다.
+- `NA` 차량은 RPM band와 redline 근처 색 변화를 중심으로 보여준다.
+- `Single Turbo`와 `Twin Turbo` 차량은 RPM과 함께 `boost gauge` 또는 `boost bar`를 추가한다.
+- 변속 순간에는 짧은 RPM drop, 배기/부스트 연출, speed effect 반응을 같이 준다.
+
+UI 감성 방향
+
+- `Raven Coupe`: 단순한 아날로그 계기 느낌. 바늘이 빠르게 튀어 오르는 감각.
+- `Vortex GT`: 트윈터보 압력이 차오르는 디지털/혼합형 계기. boost 진입 시 계기 색과 주변 속도 연출이 함께 반응.
+- `Apex S`: 단정한 스포츠 세단 계기 위에 싱글터보 boost 정보가 얹히는 균형형 UI.
+
+구현 원칙
+
+- 1차는 `자동 변속 + RPM 시각화`부터 시작한다.
+- 2차에서 `Single Turbo`, `Twin Turbo` 차량에 boost 상태와 boost UI를 붙인다.
+- 수동 변속 입력은 후순위로 둔다. 먼저 차량 선택만으로 주행 감각 차이가 읽히는 것이 우선이다.
+- boost는 실제 엔진 압력 재현보다, 특정 RPM/스로틀 조건에서 힘이 살아나는 아케이드 상태값으로 구현한다.
+
+주의점
+
+- drivetrain 시스템이 도로, 체크라인, 미니맵보다 먼저 무거워지면 구현축이 분산된다.
+- 따라서 실제 구현은 `코스 구조와 HUD 뼈대`가 잡힌 뒤 시작하는 편이 안전하다.
+- UI가 늘어나더라도 horizon과 road readability를 해치지 않도록 HUD 면적을 제한한다.
 
 ---
 
@@ -706,13 +817,15 @@ Create a transparent-background 2D game sprite of the "Raven Coupe", an original
 
 Use a rear three-quarter, slightly top-down camera view. The car should face away from the viewer as if driving into a pseudo-3D racing road.
 
-The Raven Coupe should feel lightweight, agile, and beginner-friendly:
-- short coupe body
+The Raven Coupe should feel lightweight, agile, and beginner-friendly, inspired by the proportions and spirit of an FT86-style compact FR coupe, but clearly original and not a copy:
+- short wheelbase coupe body
+- compact cabin pushed slightly rearward
 - clean drift tuner silhouette
 - graphite black paint
 - small red accent stripe
 - bright but simple rear lights
 - modest wing
+- naturally aspirated lightweight driver-car mood
 - no real brand marks or readable text
 
 Style: polished arcade racing game sprite, crisp edges, transparent background, readable at small on-screen size, centered on a square canvas with padding.
@@ -725,14 +838,15 @@ Create a transparent-background 2D game sprite of the "Vortex GT", an original f
 
 Rear three-quarter, slightly top-down view. The car faces away from the viewer toward the road horizon.
 
-The Vortex GT should feel powerful and slightly aggressive:
-- long GT body
+The Vortex GT should feel powerful and slightly aggressive, inspired by the stance and grand touring attitude of a Stinger-like twin-turbo liftback, but clearly original and not a copy:
+- long fastback GT body
 - wide rear stance
 - larger rear wing
 - deep metallic blue-black paint
 - cool white racing accents
 - strong rear diffuser
 - bright rear lights
+- twin-turbo high-speed expressway mood
 - no real-world logos or readable trademarks
 
 Style: semi-realistic arcade racing sprite, clean silhouette, transparent PNG, centered square canvas, enough padding for in-game rotation.
@@ -745,13 +859,15 @@ Create a transparent-background 2D game sprite of the "Apex S", an original fict
 
 Rear three-quarter, slightly top-down view. The car faces away from the viewer, centered for a pseudo-3D arcade racing game.
 
-The Apex S should feel balanced, precise, and modern:
+The Apex S should feel balanced, precise, and modern, inspired by the character of a G70-style single-turbo sport sedan, but clearly original and not a copy:
 - sporty sedan body
+- short-deck premium sport sedan proportions
 - stable stance
 - subtle aero kit
 - pearl white body with black roof
 - restrained red and cyan accent details
 - clean rear lights
+- single-turbo torque-rich sport sedan mood
 - no real-world logos, badges, or readable text
 
 Style: polished arcade game sprite, crisp outline, transparent background, readable at small size, square canvas with padding.
@@ -765,6 +881,339 @@ Style: polished arcade game sprite, crisp outline, transparent background, reada
 - 후면 시점이 약하면 "more rear-facing, less side view"로 재생성한다.
 - 너무 사실적이면 "cleaner arcade game sprite, stronger silhouette"를 추가한다.
 - 로고나 문자 비슷한 요소가 나오면 제거 요청 후 재생성한다.
+
+---
+
+## 아웃런 스타일 차량 sprite 구성 검토
+
+현재 구현은 `rear`, `rear-left`, `rear-right` 3장만 사용한다. 이 조합은 기본 조향 반응 확인에는 충분하지만, 아웃런 계열의 풍부한 차체 반응을 만들기에는 부족하다. 특히 코너 진입, 드리프트, 브레이크, 부스트 상태가 모두 같은 차처럼 보여서 속도감과 차량 성격 차별화가 약해진다.
+
+아웃런 스타일에 가까운 후보 프레임 종류
+
+- `center`: 기본 직진 후면
+- `steer-left-1`, `steer-right-1`: 약한 조향
+- `steer-left-2`, `steer-right-2`: 강한 조향
+- `drift-left`, `drift-right`: 차체가 더 크게 비틀린 슬립 상태
+- `brake-center`: 브레이크 시 차체가 약간 눌리고 tail light가 강해진 상태
+- `brake-left`, `brake-right`: 조향 + 브레이크 복합 상태
+- `boost-center`: 가속/부스트 시 차체가 약간 들리고 배기/광원 연출이 붙는 상태
+- `boost-left`, `boost-right`: 조향 + 부스트 복합 상태
+- `crest`, `dip`, `uphill`, `downhill`: 고저차 변화로 차체 pitch가 달라 보이는 보조 상태
+- `spin-left-1`, `spin-right-1`: 그립을 잃고 차가 한쪽으로 털리는 초기 스핀 상태
+- `spin-left-2`, `spin-right-2`: 더 크게 돌아간 심화 스핀 상태
+- `contact-left`, `contact-right`: 가드레일이나 차량 접촉 순간의 비틀림 상태
+- `damage-light`: 벽이나 장애물 접촉 이후의 경미한 변형 상태
+- `recover-left`, `recover-right`: 스핀이나 접촉 뒤 자세를 되찾는 복구 상태
+
+구현 우선순위
+
+- 1차 필수: `center`, `steer-left-1`, `steer-right-1`
+- 2차 권장: `steer-left-2`, `steer-right-2`, `brake-center`, `boost-center`
+- 3차 확장: `drift-left`, `drift-right`, `brake-left`, `brake-right`, `boost-left`, `boost-right`
+- 4차 확장: `crest`, `dip`, `uphill`, `downhill`
+- 5차 확장: `spin-left/right`, `contact-left/right`, `recover-left/right`, `damage-light`
+
+상태 묶음 기준
+
+- `주행 상태`: `center`, `steer`, `drift`, `brake`, `boost`
+- `고저차 상태`: `crest`, `dip`, `uphill`, `downhill`
+- `사고 상태`: `spin`, `contact`, `damage`, `recover`
+
+`flipX` 활용 검토
+
+- `steer-left-1` / `steer-right-1`
+- `steer-left-2` / `steer-right-2`
+- `drift-left` / `drift-right`
+- `spin-left-1` / `spin-right-1`
+- `spin-left-2` / `spin-right-2`
+- `recover-left` / `recover-right`
+
+이 상태들은 프로토타입 단계에서 `left` 원본 1장과 런타임 `flipX`로 대응할 여지가 크다. 차체 데칼, 배기 위치, 라이트 비대칭이 강하지 않다면 제작량을 꽤 줄일 수 있다.
+
+`flipX` 비권장 또는 주의 상태
+
+- `crest`, `dip`, `uphill`, `downhill`
+- `contact-left`, `contact-right`
+- `damage-light`
+
+이 상태들은 단순 좌우 대칭보다 `차체 pitch`, `충돌 방향`, `후미등/배기광`, `변형 위치`가 중요해서 별도 sprite나 overlay가 더 자연스럽다. 단, `contact-right`는 프로토타입에서만 `contact-left + flipX + spark overlay`로 먼저 검증하고, 어색하면 별도 sprite로 승격한다.
+
+효과 overlay sprite 검토
+
+별도 효과를 차체 sprite에 bake하지 않고, 위에 얹는 overlay sprite로 해결하는 방향은 긍정적이다. 특히 프로토타입에서는 차체 base sprite 수를 과도하게 늘리지 않고도 상태 피드백을 풍부하게 만들 수 있다.
+
+overlay로 해결하기 좋은 후보
+
+- `brake glow`: 후미등 발광 강화, 얇은 red bloom, brake dust 느낌
+- `boost flame` 또는 `boost glow`: 배기 화염, 터보 발광, 하단 blue/orange glow
+- `speed streak`: 차체 뒤나 양옆에 짧게 붙는 streak
+- `skid smoke`: 드리프트/스핀 진입 시 타이어 연기
+- `contact spark`: 가드레일 접촉 순간의 스파크
+- `damage decal`: 큰 차체 변경 대신 범퍼 스크래치, 깨짐, 찌그러짐 오버레이
+- `crest shadow` / `dip shadow`: 고저차에서 그림자 위치와 길이만 바꾸는 보조 레이어
+
+overlay로 먼저 풀고, base body sprite는 최소화하는 방향이 좋은 상태
+
+- `brake-left`, `brake-right`: `steer` base + `brake glow` overlay
+- `boost-left`, `boost-right`: `steer` base + `boost flame/glow` overlay
+- `brake-center`: `center` base + `brake glow` overlay
+- `boost-center`: `center` base + `boost flame/glow` overlay
+- `damage-light`: `center` 또는 현재 주행 base + `damage decal` overlay
+- `contact-left/right`: 짧은 `contact spark` overlay와 순간 pose 조합
+- `crest`, `dip`, `uphill`, `downhill`: 차체를 완전히 새로 그리기 전에 shadow/ride-height overlay로 먼저 검토
+
+overlay 한계
+
+- 큰 스핀이나 강한 contact는 overlay만으로 해결하기 어렵다. 차체 yaw 자체가 달라 보여야 하므로 base sprite pose가 필요하다.
+- crest와 dip도 차체 pitch 변화가 크면 shadow만으로는 부족할 수 있다.
+- overlay가 너무 많아지면 오히려 상태 조합 관리가 복잡해지므로, `효과 레이어`는 2~3개 범주로 제한하는 편이 낫다.
+
+왜 더 필요한가
+
+- crest를 넘을 때와 dip으로 눌릴 때는 같은 후면 스프라이트로는 차체 pitch 감각이 잘 안 난다.
+- downhill에서 다시 uphill로 넘어가는 구간은 도로만 바뀌고 차는 같은 모양이면 접지감이 약해진다.
+- 스핀은 단순 `drift-left/right`보다 더 과장된 yaw와 차체 비틀림이 필요하다.
+- 접촉 사고는 속도 저하만으로는 체감이 약해서, 최소한 순간적인 `contact` 자세나 `damage-light` 인상이 있으면 반응이 훨씬 명확해진다.
+
+프로토타입 권장 세트
+
+프로토타입은 차량 1대로만 진행하고, sprite 세트만 먼저 늘리는 편이 맞다. 지금 단계에서 차량 3종을 모두 늘리면 렌더링, UI, 주행 피드백 작업축이 동시에 커진다.
+
+프로토타입 1차 동작 상태는 다음 7개를 권장한다.
+
+- `center`
+- `steer-left-1`
+- `steer-right-1`
+- `steer-left-2`
+- `steer-right-2`
+- `brake-center`
+- `boost-center`
+
+이 7개 상태로 다음을 확인할 수 있다.
+
+- 직진과 약/강 조향의 시각 차이
+- 브레이크 시 후미등과 감속 피드백
+- 부스트 시 배기광과 속도감 반응
+- RPM / boost UI와 sprite 반응의 연결
+
+프로토타입 2차 동작 상태는 다음 추가 상태를 권장한다.
+
+- `drift-left`
+- `drift-right`
+- `crest`
+- `dip`
+- `spin-left-1`
+- `spin-right-1`
+- `contact-left`
+- `contact-right`
+
+이 추가 세트로 다음을 확인할 수 있다.
+
+- 미끄러짐과 스핀 시작 상태의 시각 차이
+- crest / dip에서 차체 pitch 인상 변화
+- 벽이나 가드레일 접촉 순간의 피드백 강화
+- 단순 속도 감소가 아닌 "실패 상태가 보이는가" 검증
+
+프로토타입 1차 최소 base body sprite 원본
+
+- `center`
+- `steer-left-1`
+- `steer-left-2`
+
+프로토타입 1차 effect overlay 원본
+
+- `brake-glow`
+- `boost-glow` 또는 `boost-flame`
+
+프로토타입 2차 최소 base body sprite 원본
+
+- `drift-left`
+- `crest`
+- `dip`
+- `spin-left-1`
+- `contact-left`
+
+프로토타입 런타임 재사용 규칙
+
+- `steer-right-1`, `steer-right-2`는 `flipX`
+- `drift-right`는 `flipX`
+- `spin-right-1`은 `flipX`
+- `contact-right`는 가능하면 `flipX + spark overlay`로 시작하고, 어색하면 별도 sprite로 승격
+- `brake-left/right`, `boost-left/right`는 base steer sprite 위에 overlay를 얹어 해결
+- `brake-center`, `boost-center`는 별도 body sprite가 아니라 `center` 위의 overlay 조합으로 시작
+
+프로토타입 차량 운영 원칙
+
+- 1차 프로토타입에서는 대표 차량 1대만 사용한다.
+- 차량 선택 UI는 보류하고, 단일 차량 주행 감각과 sprite 상태 전환을 먼저 검증한다.
+- 단일 차량이 충분히 읽히면 이후 같은 프레임 규격을 `Raven Coupe`, `Vortex GT`, `Apex S`에 확장한다.
+- 프로토타입 대표 차량은 현재 기획상 `Raven Coupe`가 가장 무난하다. `NA` 응답형 입문차라 조향, 브레이크, RPM 변화를 읽기 쉽다.
+
+렌더링 자동화 확장 메모
+
+- 현재 스크립트는 `rear`, `rear-left`, `rear-right` 3개 view만 렌더한다.
+- 다음 확장에서는 카메라 각도만 늘리는 방식과, 동일 각도에서 차체 pose/광원만 바꾸는 방식을 분리해서 관리한다.
+- `steer-left-2`, `steer-right-2`는 단순 카메라 회전보다 실제 wheel angle 또는 차체 yaw를 약간 더 준 pose가 필요할 수 있다.
+- `brake`와 `boost`는 후면등 밝기, 배기광, 차체 pitch 차이까지 포함해야 효과가 난다.
+- `crest`, `dip`, `uphill`, `downhill`은 카메라 각도보다 차체 pitch와 그림자 위치 차이 관리가 더 중요하다.
+- `spin`과 `contact`는 최종 품질에서는 단순 좌우 반전만으로 끝내지 말고, rear bumper, body yaw, tire angle이 더 크게 무너진 pose가 필요하다.
+- 렌더 파이프라인은 `base body sprite`, `flipX eligibility`, `effect overlay sprite`를 분리해 관리하는 편이 장기적으로 낫다.
+
+3D 뼈대 + image-to-image 자동화 검토
+
+Apex Seoul의 목표가 아웃런 스타일 도트 레트로 게임이라면, 3D 렌더를 최종 그래픽으로 직접 쓰는 것보다 `3D 뼈대 -> image-to-image -> 도트/레트로 sprite 정리` 파이프라인을 검토하는 편이 맞다. 이 방식은 자동화 여지가 크지만, 최종 품질 검수는 반드시 필요하다.
+
+자동화 가능한 단계
+
+- `3D pose batch render`: 차량별 `center`, `steer`, `drift`, `spin`, `crest`, `dip`, `contact` 기준 이미지를 일괄 캡처한다.
+- `pose manifest`: 각 캡처에 `vehicleId`, `state`, `view`, `flipX 가능 여부`, `overlay anchor`를 기록한다.
+- `image-to-image batch`: 3D 캡처 이미지를 같은 프롬프트와 스타일 기준으로 아웃런풍 도트/레트로 sprite 후보로 변환한다.
+- `palette pass`: 후보 이미지를 제한 팔레트나 차량별 paint preset에 맞춰 후처리한다.
+- `sprite QA`: 투명 배경, silhouette bbox, anchor 위치, 좌우 flip 일관성, 프레임 크기를 자동 검사한다.
+- `atlas build`: 통과한 sprite와 overlay를 atlas PNG + JSON metadata로 묶는다.
+
+자동화가 어려운 단계
+
+- image-to-image 결과가 프레임마다 차체 디테일을 다르게 해석하는 문제
+- 후미등, 창문, 범퍼, 휠 아치 같은 반복 디테일의 일관성 유지
+- 접촉/스핀처럼 차체가 크게 무너지는 pose의 의도 확인
+- 아웃런풍 도트 감성이 과한 AI 회화 스타일로 흐르는지 판단
+
+권장 검증 순서
+
+1. `Raven Coupe` 한 대만 대상으로 `center`, `steer-left-1`, `steer-left-2`를 3D 뼈대에서 캡처한다.
+2. 같은 세 장을 image-to-image로 변환하고, 프레임 간 차체 비율과 후미등 일관성을 확인한다.
+3. `brake-glow`, `boost-glow`, `skid-smoke`는 image-to-image에 섞지 않고 overlay sprite로 분리한다.
+4. 결과가 안정적이면 `drift-left`, `crest`, `dip`, `spin-left-1`, `contact-left`까지 확장한다.
+5. 그 다음에 색상 팔레트 변경과 차량 3종 확장을 검토한다.
+
+판단 기준
+
+- 3장 테스트에서 차체 실루엣과 주요 디테일이 흔들리지 않으면 자동화 후보로 유지한다.
+- 프레임마다 차종이 달라 보이면 3D 캡처는 reference로만 쓰고, 최종 sprite는 수동 보정 비중을 높인다.
+- 팔레트 변경은 image-to-image 재생성보다 `palette pass` 또는 material preset 캡처가 안정적인지 비교한다.
+- 최종 런타임에는 3D를 직접 쓰지 않고, 검수된 2D sprite와 overlay만 사용한다.
+
+구현안
+
+자동화 라인은 `source`, `generated`, `approved`를 분리한다. `source`는 사람이 관리하는 원본과 manifest이고, `generated`는 언제든 지워도 다시 만들 수 있는 중간 산출물이며, `approved`는 게임에 들어갈 검수 완료 asset이다.
+
+디렉터리 초안
+
+```text
+games/apex-seoul/assets/vehicles/source/
+games/apex-seoul/assets/vehicles/source/models/
+games/apex-seoul/assets/vehicles/source/manifests/
+games/apex-seoul/assets/vehicles/generated/pose-renders/
+games/apex-seoul/assets/vehicles/generated/img2img-candidates/
+games/apex-seoul/assets/vehicles/generated/layers/
+games/apex-seoul/assets/vehicles/generated/qa/
+games/apex-seoul/assets/vehicles/approved/sprites/
+games/apex-seoul/assets/vehicles/approved/overlays/
+games/apex-seoul/assets/vehicles/approved/atlases/
+```
+
+manifest 구조 초안
+
+```json
+{
+  "vehicleId": "raven-coupe",
+  "style": "neo-drift-out-inspired-retro-pixel",
+  "sourceModel": "source/models/raven-coupe.glb",
+  "states": [
+    {
+      "id": "center",
+      "pose": "center",
+      "view": "rear",
+      "flipXSource": null,
+      "layers": ["base-body", "paint-mask", "shade-highlight"],
+      "overlayAnchors": {
+        "brakeGlow": [128, 178],
+        "boostGlow": [128, 205]
+      }
+    },
+    {
+      "id": "steer-right-1",
+      "flipXSource": "steer-left-1"
+    }
+  ],
+  "paintPresets": [
+    { "id": "graphite-red", "body": "#1f2528", "highlight": "#687176", "shadow": "#0b0e10", "accent": "#cf3131" },
+    { "id": "pearl-white", "body": "#d8d7cf", "highlight": "#fff6e1", "shadow": "#6f7472", "accent": "#36bfd0" }
+  ]
+}
+```
+
+자동화 단계
+
+1. `render poses`
+   3D model과 manifest를 읽고 `center`, `steer-left-1`, `steer-left-2` 같은 기준 pose를 투명 배경 PNG로 캡처한다.
+
+2. `img2img candidates`
+   pose render를 Stable Diffusion img2img 입력으로 넣고, 동일 seed 그룹과 동일 프롬프트 기준으로 후보를 여러 장 만든다.
+
+3. `layer extraction`
+   후보 sprite에서 `base-body`, `paint-mask`, `shade-highlight`, `glass`, `lights`, `tires` 레이어를 분리한다. 초기에는 자동 분리보다 사람이 보정 가능한 반자동 단계로 둔다.
+
+4. `palette pass`
+   `paint-mask`에 paint preset을 적용해 여러 색상 차량을 만든다. 하이라이트와 그림자는 별도 레이어로 유지해 색만 바꿔도 차체 볼륨이 무너지지 않게 한다.
+
+5. `overlay compose`
+   `brake-glow`, `boost-glow`, `skid-smoke`, `contact-spark`, `damage-decal`을 anchor 기준으로 합성한다.
+
+6. `qa`
+   bbox, anchor, 투명 배경, 팔레트 색 수, 좌우 flip 결과, 프레임 크기, 주요 레이어 누락 여부를 검사한다.
+
+7. `atlas build`
+   통과한 `approved` sprite와 overlay를 atlas로 묶고, 게임 런타임이 읽을 JSON metadata를 만든다.
+
+Stable Diffusion img2img 설정 방향
+
+- 3D pose의 실루엣을 유지해야 하므로 denoise strength는 낮게 시작한다.
+- 프레임별 seed를 완전히 랜덤으로 두지 말고 차량별 seed group을 둔다.
+- prompt는 "retro arcade racing sprite", "Neo Geo style pixel art", "rear three-quarter car sprite", "limited palette", "transparent background" 계열을 기준으로 둔다.
+- negative prompt에는 "photorealistic", "modern 3D render", "text", "logo", "extra wheels", "changed car design" 계열을 둔다.
+- ControlNet, lineart, depth, canny 같은 입력을 사용할 수 있으면 3D pose의 실루엣 고정에 우선 사용한다.
+
+레이어 분리 기준
+
+- `base-body`: 차체 형태와 주요 실루엣
+- `paint-mask`: 바디 컬러가 바뀌는 영역
+- `shade-highlight`: 색상 변경 뒤에도 유지할 명암과 광택
+- `glass`: 유리와 실내 어두운 영역
+- `lights`: 기본 후미등과 램프
+- `tires`: 타이어와 휠
+- `effect-overlay`: 브레이크, 부스트, 연기, 스파크, 데미지
+
+QA 체크
+
+- 모든 sprite는 같은 canvas size와 같은 anchor 정책을 가진다.
+- `center`, `steer-left-1`, `steer-left-2`의 차체가 같은 차량으로 보여야 한다.
+- `flipX` 결과가 수동 오른쪽 sprite처럼 보이는지 확인한다.
+- paint preset을 바꿔도 후미등, 유리, 타이어 색이 같이 오염되지 않아야 한다.
+- overlay가 차체보다 앞/뒤 depth를 잘못 타지 않아야 한다.
+- 작은 표시 크기에서도 차체 방향과 브레이크/부스트 상태가 읽혀야 한다.
+
+1차 PoC 범위
+
+- 차량: `Raven Coupe`
+- 상태: `center`, `steer-left-1`, `steer-left-2`
+- overlay: `brake-glow`, `boost-glow`
+- paint preset: `graphite-red`, `pearl-white`
+- 목표: 3D pose render에서 image-to-image 후보를 만들고, 같은 sprite에 팔레트 체인지가 안정적으로 적용되는지 확인한다.
+
+예상 스크립트
+
+```bash
+npm run apex:vehicles:render-poses
+npm run apex:vehicles:img2img
+npm run apex:vehicles:extract-layers
+npm run apex:vehicles:palette
+npm run apex:vehicles:qa
+npm run apex:vehicles:atlas
+```
+
+초기에는 `img2img`와 `extract-layers`가 완전 자동이 아닐 수 있다. 이 두 단계는 후보 생성과 수동 보정 파일을 받아 다음 단계로 넘기는 반자동 파이프라인으로 시작한다.
 
 ---
 
@@ -805,12 +1254,33 @@ Style: polished arcade game sprite, crisp outline, transparent background, reada
 결과
 
 - 임시 Kenney 차량에서 Apex Seoul 전용 차량으로 교체 준비
+- 아웃런 스타일 기준의 1차 sprite 세트 정의
 - 조향/드리프트 표현 가능한 sprite 각도 확장
 - 차량별 시각 정체성 정리
 
 ---
 
 ## 7편
+
+차량 성격과 주행 UI 차별화
+
+주제
+
+- NA vs Turbo Character
+- RPM and Gear HUD
+- Turbo Boost UI
+- Arcade Drivetrain Feel
+
+결과
+
+- 차량 3종의 가속 응답과 회전 상승감 차이 정리
+- `RPM`, `gear`, `boost` 기반 HUD 초안 확정
+- `Turbo` 차량 전용 boost 연출 방향 정리
+- 차량 선택이 단순 스킨이 아니라 주행 감각 차이로 읽히는 기준 마련
+
+---
+
+## 8편
 
 코너 원심력과 도로 이탈
 
@@ -831,7 +1301,7 @@ Style: polished arcade game sprite, crisp outline, transparent background, reada
 
 ---
 
-## 8편
+## 9편
 
 Drift Physics
 
