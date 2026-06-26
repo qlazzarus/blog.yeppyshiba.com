@@ -54,12 +54,6 @@ type BuildRequest = {
 
 const BUILDING_FOOTPRINT_CELL_PX = 32;
 const BUILDING_PLACEMENT_GRID_PX = 64;
-const CONSTRUCTION_POC_BUILD_TIMES: Partial<Record<MvpBuildingId, number>> = {
-    coop_basic: 4,
-    farm_house: 4,
-    fence_wood: 1.5,
-    tower_scout: 3,
-};
 
 const CATEGORY_COLORS: Record<BuildingTemplateConfig['category'], number> = {
     barracks: 0x8c7f68,
@@ -130,10 +124,7 @@ export class BuildingSystem {
             armor: template.armor,
             blocksPath: template.blocksPath,
             completesAtSec:
-                startedAtSec +
-                (CONSTRUCTION_POC_BUILD_TIMES[request.templateId] ??
-                    template.buildTimeSec ??
-                    0),
+                startedAtSec + template.buildTimeSec,
             footprint,
             hp: template.hp,
             id: `player-building-${this.nextBuildingId}`,

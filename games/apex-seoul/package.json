@@ -11,6 +11,7 @@
         "extract:bugak-reference": "node scripts/extract-bugak-ridge-reference.mjs",
         "finalize:vehicle-sprite-sheet": "node scripts/finalize-vehicle-sprite-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
+        "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",
         "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
         "render:vehicles": "node scripts/render-vehicle-sprites.mjs"
     },
