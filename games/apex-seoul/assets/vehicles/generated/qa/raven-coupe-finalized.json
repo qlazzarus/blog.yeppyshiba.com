@@ -1,0 +1,93 @@
+{
+  "alpha": {
+    "opaque": 124860,
+    "semiTransparent": 0,
+    "transparent": 1448004
+  },
+  "cellHeight": 1024,
+  "cellWidth": 512,
+  "columns": 3,
+  "commonBaselineY": 609,
+  "dropAlphaBelow": 48,
+  "input": "assets/vehicles/generated/img2img-candidates/raven-coupe-cleaned.png",
+  "output": "assets/vehicles/generated/img2img-candidates/raven-coupe-finalized.png",
+  "poses": [
+    {
+      "anchor": {
+        "x": 271.5,
+        "y": 609
+      },
+      "baselineY": 609,
+      "bbox": {
+        "height": 196,
+        "width": 269,
+        "x": 137,
+        "y": 414
+      },
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "darkBottomPixels": 727,
+      "opaquePixels": 31422,
+      "shadowReviewNeeded": false,
+      "drawOffset": {
+        "x": -15,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 239.5,
+        "y": 604
+      },
+      "baselineY": 604,
+      "bbox": {
+        "height": 192,
+        "width": 403,
+        "x": 38,
+        "y": 413
+      },
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "darkBottomPixels": 1307,
+      "opaquePixels": 46300,
+      "shadowReviewNeeded": false,
+      "drawOffset": {
+        "x": 17,
+        "y": 5
+      }
+    },
+    {
+      "anchor": {
+        "x": 226,
+        "y": 608
+      },
+      "baselineY": 608,
+      "bbox": {
+        "height": 196,
+        "width": 422,
+        "x": 15,
+        "y": 413
+      },
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "darkBottomPixels": 783,
+      "opaquePixels": 47138,
+      "shadowReviewNeeded": false,
+      "drawOffset": {
+        "x": 30,
+        "y": 1
+      }
+    }
+  ],
+  "removedLowAlphaPixels": 1527,
+  "resetTransparentRgbPixels": 1380097,
+  "rows": 1,
+  "sourceQa": "assets/vehicles/generated/qa/raven-coupe-cleaned.json",
+  "hardenedPixels": 51743
+}

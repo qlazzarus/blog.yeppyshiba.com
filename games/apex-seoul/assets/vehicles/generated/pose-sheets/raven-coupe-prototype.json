@@ -1,0 +1,53 @@
+{
+  "cellSize": 256,
+  "columns": 3,
+  "model": "sedan-sports",
+  "output": "assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png",
+  "poses": [
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "center",
+      "rearAngleDeg": 0
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-1",
+      "rearAngleDeg": 24
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-2",
+      "rearAngleDeg": 44
+    }
+  ],
+  "rows": 1,
+  "sourceModel": "assets/vehicles/kenney-car-kit/Models/GLB format/sedan-sports.glb",
+  "vehicleId": "raven-coupe"
+}

@@ -6,6 +6,15 @@
 
 다음 우선 구현 PoC는 **Economy / Build / Shop PoC**로 확정한다.
 
+현재 바로 진행할 하위 단계는 **Construction Placement PoC**다. 구현 계획은
+[`chicken_farm_construction_poc_plan.md`](./chicken_farm_construction_poc_plan.md)에
+별도로 고정한다.
+
+이번 단계에서는 `CombatPocSystem`을 삭제하지 않고 feature flag로 비활성화한다.
+초점은 전투 검증이 아니라 "농부 선택 -> 워3식 명령 타일 -> 건설 메뉴 -> footprint
+ghost -> 배치 -> 완성 -> dynamic blocker 반영" 흐름을 만드는 것이다. 경제 tick,
+상점, 웨이브는 Construction Placement PoC 완료 후 이어 붙인다.
+
 **War3 Player Command Control PoC**는 MVP 경제/건설/상점 PoC를 붙일 수 있는 최소 조작 기반으로 완료 판단한다. 단, 원본 Warcraft III 조작 전체 구현은 아니므로 신뢰도 부족 범위는 별도 관리한다.
 
 판단 근거:
@@ -15,6 +24,15 @@
 - 닭장 구매, 거미 사냥, 상점 이용, 건설, 전투 방어는 이제 "유닛 선택 -> 명령 발행 -> 시스템 실행" 흐름 위에 붙일 수 있다.
 - 차후 P2P에서는 위치 변경이 아니라 player input command stream을 동기화해야 한다.
 
+Construction Placement PoC 1차 완료 기준:
+
+- 농부 선택 후 `B` 또는 command card 버튼으로 Build page에 진입한다.
+- `F`/`T`/`H`/`C` 단축키로 `fence_wood`, `tower_scout`, `farm_house`, `coop_basic` 배치 모드에 들어간다.
+- 마우스 위치에 grid-snapped footprint ghost를 표시하고, 가능/불가능 상태를 색상으로 구분한다.
+- 좌클릭으로 건설을 시작하고, `Esc` 또는 우클릭으로 취소한다.
+- 완성된 건물은 player-built dynamic blocker로 등록되어 유닛 이동을 막는다.
+- combat flag를 다시 켰을 때 늑대 blocker/target 후보로 연결할 수 있는 API 경계를 남긴다.
+
 ## 2. 진행 원칙
 
 - PoC는 구현 리스크를 쪼개기 위한 단계이며, MVP의 원본 경험 범위를 줄이는 기준이 아니다.
@@ -22,6 +40,8 @@
 - Phaser GameObject 직접 조작은 adapter에만 둔다.
 - 핵심 게임 진행은 command, component, pure system 형태로 유지해 ECS/P2P로 승격하기 쉽게 만든다.
 - 워3식 조작은 Warsmash 전체 복제가 아니라 Chicken Farm MVP에 필요한 최소 command model로 축약한다.
+- 명령 타일 UI 클릭과 단축키 입력은 같은 command action dispatcher를 호출한다.
+- 전투 PoC 비활성화는 임시 focus 전환이며, 전투 로직을 제거하거나 과거 검증 결과를 폐기하지 않는다.
 
 ## 3. 완료된 기반 PoC
 
@@ -576,6 +596,7 @@ PoC 7 완료 기준:
 - command card UI는 추후 build/shop PoC에서 필요할 때 확장한다.
 - 현재 Phaser object 중심 구조를 한 번에 ECS로 갈아엎지 않는다. 먼저 command/state boundary를 만들고, 이후 component로 승격한다.
 - P2P deterministic 검증은 PoC 15 범위지만, 이번 PoC부터 command replay가 가능하도록 설계해야 한다.
+- worker 도입은 렌더러 교체가 아니라 simulation/presenter 분리가 선행이다. 시스템별 경계는 `docs/chicken_farm/chicken_farm_worker_simulation_boundary_plan.md`를 기준으로 고정한다.
 
 ## 10. 참고 문서
 
@@ -585,3 +606,4 @@ PoC 7 완료 기준:
 - W3X artifact: `docs/chicken_farm/chicken_farm_w3x_artifacts/`
 - Phaser 구현: `games/chicken-farm/src/game/`
 - Network/suspend 기준: `docs/chicken_farm/chicken_farm_network_and_suspend_plan.md`
+- Worker/simulation 경계 기준: `docs/chicken_farm/chicken_farm_worker_simulation_boundary_plan.md`

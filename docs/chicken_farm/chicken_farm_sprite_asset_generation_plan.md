@@ -51,8 +51,8 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 1. 문서의 asset row 단위로 GPT 이미지 후보를 3~6개 생성한다.
 2. 가장 읽히는 실루엣을 고른다.
 3. 배경 제거와 alpha cleanup을 수행한다.
-4. anchor point를 통일한다.
-5. footprint grid에 맞춰 scale을 정규화한다.
+4. anchor point를 통일한다. 유닛은 발밑 중심, 건물은 footprint 바닥 중심을 기본으로 둔다.
+5. footprint grid에 맞춰 scale을 정규화한다. 건물 collision footprint와 sprite source 크기는 분리한다.
 6. 그림자, 선택 ring, HP bar, team color는 runtime layer로 분리한다.
 7. animation이 필요한 유닛은 idle/move/attack frame을 별도 sheet로 만든다.
 8. 최종 파일명과 runtime id를 asset manifest에 기록한다.
@@ -70,6 +70,74 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 | 4x4 건물 | `256x256` | 마을회관, 신전 |
 | UI 아이콘 | `96x96` source -> `48x48` runtime | ability/shop/reward |
 
+건물 크기 기준:
+
+- `footprintCells`는 pathing/collision/build placement의 논리 크기다.
+- 현재 runtime footprint cell은 32px이고, placement snap은 minor tile 2개 단위인 64px이다.
+- sprite source 크기는 시각 품질 기준이다. 예를 들어 3x3 건물은 collision footprint가 `96x96`이어도 source sprite는 `192x192`로 둔다.
+- 건물 sprite는 footprint 바닥 중심에 anchor를 맞춘다. 지붕/장식은 footprint 밖으로 살짝 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
+- HP bar, 건설 progress bar, selection outline, range indicator는 runtime overlay로 처리한다.
+- 워3식 하단 정보 패널에 쓰는 건물 portrait는 1차에서는 `iconId`를 재사용한다. 필요하면 후속으로 `portraitId`를 manifest에 추가한다.
+
+## 3.1 Building Data and Asset Manifest Fields
+
+건설 PoC 이후 건물은 데이터와 에셋이 같은 id 체계를 공유해야 한다. `buildingTemplates.ts`의 building id마다 아래 manifest 필드를 매핑한다.
+
+```ts
+type BuildingAssetManifestEntry = {
+    readonly id: MvpBuildingId;
+    readonly spriteId: string;
+    readonly constructionSpriteId: string;
+    readonly iconId: string;
+    readonly footprintCells: { readonly w: number; readonly h: number };
+    readonly selectionBoundsPx?: { readonly w: number; readonly h: number };
+    readonly sourceSizePx: { readonly w: number; readonly h: number };
+    readonly anchor: 'footprint_bottom_center';
+};
+```
+
+건물 데이터에서 우선 채워야 하는 runtime 필드:
+
+| 필드 | 목적 |
+| --- | --- |
+| `footprintCells` | pathing, build placement, blocker 크기 |
+| `hp` / `armor` | 늑대 공격, 수리, 파괴 판정 |
+| `buildTimeSec` | 농부 작업 시간과 progress bar |
+| `costCoins` / `costLumber` | 건설 비용 |
+| `blocksPath` | dynamic blocker 등록 여부 |
+| `targetableByWolves` | 늑대 공격 후보 여부 |
+| `spriteId` | 완성 건물 sprite |
+| `constructionSpriteId` | 건설 중 scaffold 또는 단계별 sprite |
+| `iconId` | command card/build menu icon |
+| `selectionBoundsPx` | sprite가 footprint보다 크거나 작을 때 클릭/선택 보정 |
+
+원본 build time은 아직 SLK/W3X 교차 검증이 부족하므로, MVP에서는 체감값을 먼저 채우고 `source.notes` 또는 별도 TSV에 원본 검증 상태를 남긴다.
+
+## 3.2 Building Runtime Visual States
+
+건물 sprite는 최소 5개 상태를 고려한다.
+
+| 상태 | 의미 | 시각 처리 |
+| --- | --- | --- |
+| `planned` | 농부가 이동 중인 예정 부지 | 노란 footprint outline, sprite 없음 |
+| `constructing` | 농부가 작업 중 | scaffold sprite + progress bar |
+| `complete` | 완성 | 완성 sprite + HP bar |
+| `damaged` | 완성 후 피해 | 완성 sprite 위에 damage overlay/cracks 후보 |
+| `destroyed` | 파괴 | 잔해 sprite 또는 runtime debris |
+
+1차 에셋 범위:
+
+- `planned`는 runtime graphics만 사용한다.
+- `constructing`은 footprint 크기별 공통 scaffold sprite를 사용한다.
+- `complete`는 building별 sprite를 사용한다.
+- `damaged`와 `destroyed`는 MVP 후속으로 미룬다. 단, sprite manifest에는 미래 확장을 위한 id 규칙을 남긴다.
+
+건설 중 blocker 정책 후보:
+
+- 현재 구현은 `complete` 상태만 dynamic blocker로 등록한다.
+- 워3 체감에 가까운 후속 정책은 `constructing`도 blocker로 등록하되, 농부가 footprint 밖 접근점에 도착한 뒤 착공하게 보장하는 것이다.
+- 늑대 combat 재연결 시 `constructing` 건물을 targetable로 볼지 별도 결정한다.
+
 ## 4. 우선순위별 Asset Manifest
 
 ### P0. 현재/다음 PoC 필수
@@ -82,6 +150,14 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 | `unit_spider_basic` | 초반 거미 사냥 | unit | `64x64` | oversized field spider, readable legs, not horror realistic |
 | `building_fence_wood` | 기본 울타리 | building | `64x128` | wooden fence segment, defensive farm barricade |
 | `building_tower_scout` | 초반 스카우트 타워 | building | `128x128` | small wooden watch tower, farm defense, simple roof |
+| `building_farm_house` | 건설 PoC core 건물 | building | `192x192` | cozy farm house, defensive homestead |
+| `building_coop_basic` | 건설 PoC economy 건물 | building | `192x192` | small chicken coop, hay, red-brown wood |
+| `building_scaffold_3x3` | 3x3 건설 중 공통 scaffold | building_state | `192x192` | wooden construction scaffold, partial frame, hay and planks |
+| `building_scaffold_4x4` | 4x4 건설 중 공통 scaffold | building_state | `256x256` | larger wooden construction scaffold, sturdy frame, planks |
+| `icon_build` | build page 진입 command | icon | `96x96` | rustic hammer and blueprint, construction command |
+| `icon_cancel` | placement/build 취소 | icon | `96x96` | crossed wooden stakes, cancel construction motif |
+| `icon_repair` | 건물 수리 command 후보 | icon | `96x96` | wooden hammer with green repair spark |
+| `icon_sell` | 건물 판매 command 후보 | icon | `96x96` | coin and small house silhouette, rustic market |
 | `marker_move_command` | 우클릭 이동 feedback | fx/ui | `64x64` | small glowing ground marker, green-blue, transparent |
 | `marker_target_command` | 우클릭 대상 feedback | fx/ui | `64x64` | sharp target ping, amber, transparent |
 | `icon_stop` | stop command | icon | `96x96` | hand stop symbol, wooden shield motif |
@@ -94,7 +170,6 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 | `unit_chicken_basic` | 기본 닭 | unit | `64x64` | plump white chicken, cute but readable |
 | `unit_chicken_mid` | 중급 닭 | unit | `64x64` | larger golden chicken, slightly proud |
 | `unit_chicken_giant` | 고급/후반 닭 | unit | `96x96` | oversized prize chicken, fantasy farm |
-| `building_coop_basic` | 기본 닭장 | building | `192x192` | small chicken coop, hay, red-brown wood |
 | `building_coop_mid` | 중급 닭장 | building | `192x192` | upgraded chicken house, more sturdy, farm machinery hints |
 | `building_coop_high` | 고급 양계장 | building | `192x192` | advanced fantasy poultry house, clean roof, premium look |
 | `building_egg_storage` | 알 보관소 | building | `128x128` | small egg storage shed, crates of eggs |
@@ -106,7 +181,6 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
-| `building_farm_house` | 농가 | building | `192x192` | cozy farm house, defensive homestead |
 | `building_town_hall` | 마을회관 | building | `256x256` | larger rural town hall, fortified farm center |
 | `building_family_temple` | 신전/가족 테크 | building | `256x256` | warm rustic shrine, family blessing theme |
 | `building_market` | 시장 | building | `128x128` | small farm market stall, crates and canopy |
@@ -201,8 +275,10 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 Create one {building_name} building sprite for a top-down farm defense game.
 Gameplay role: {gameplay_role}.
 Footprint: {footprint_cells} grid cells.
+Runtime footprint: {runtime_footprint_px}.
+Source sprite size: {source_size_px}.
 Visual traits: {visual_traits}.
-The building must read clearly from top-down view, fit inside a square sprite, have no background, and leave space around the base for runtime selection/placement indicators.
+The building must read clearly from top-down view, fit inside a square sprite, have no background, and leave space around the base for runtime selection/placement indicators. The base should align to a footprint-bottom-center anchor.
 
 {COMMON_NEGATIVE_PROMPT}
 ```
@@ -214,11 +290,29 @@ original stylized top-down fantasy farm defense game sprite, chunky readable sil
 
 Create one small wooden watch tower building sprite for a top-down farm defense game.
 Gameplay role: early defensive tower.
-Footprint: 2x2 grid cells.
+Footprint: 4x4 grid cells.
+Runtime footprint: 128x128 px.
+Source sprite size: 128x128 px.
 Visual traits: wooden legs, compact lookout platform, simple red-brown roof, tiny farm-defense banner, readable attack tower silhouette.
-The building must read clearly from top-down view, fit inside a square sprite, have no background, and leave space around the base for runtime selection/placement indicators.
+The building must read clearly from top-down view, fit inside a square sprite, have no background, and leave space around the base for runtime selection/placement indicators. The base should align to a footprint-bottom-center anchor.
 
 no text, no logo, no watermark, no UI frame, no health bar, no selection circle, no existing game character, no Warcraft asset, no photorealism, no isometric city builder scale, no background scene, no cropped object
+```
+
+### Construction Scaffold Sprite
+
+```text
+{COMMON_POSITIVE_PROMPT}
+
+Create one construction scaffold sprite for a top-down farm defense game.
+Purpose: shared building-under-construction visual.
+Footprint: {footprint_cells} grid cells.
+Runtime footprint: {runtime_footprint_px}.
+Source sprite size: {source_size_px}.
+Visual traits: unfinished wooden frame, planks, rope, hay bundles, simple foundation, readable as in-progress construction, no complete building roof.
+The sprite must fit the footprint-bottom-center anchor and leave room for runtime progress bar and worker unit.
+
+{COMMON_NEGATIVE_PROMPT}
 ```
 
 ### UI Icon
@@ -264,15 +358,17 @@ No props, no units, no buildings, no text, no logos.
 ## 7. 현재 추천 생성 순서
 
 1. `unit_farmer`, `unit_dog_basic`
-2. `marker_move_command`, `marker_target_command`, `icon_stop`
-3. `unit_wolf_basic`, `building_fence_wood`, `building_tower_scout`
-4. `unit_chicken_basic`, `building_coop_basic`, `icon_egg`, `icon_coin`
-5. `building_farm_house`, `building_market`, `building_well_basic`
-6. 방어/경제 upgrade line
-7. 가족/보스/이벤트 NPC
-8. map tile/doodad polish
+2. `icon_build`, `icon_stop`, `marker_move_command`, `marker_target_command`
+3. `building_scaffold_3x3`, `building_scaffold_4x4`
+4. `building_fence_wood`, `building_tower_scout`, `building_farm_house`, `building_coop_basic`
+5. `unit_wolf_basic`, `unit_spider_basic`
+6. `unit_chicken_basic`, `icon_egg`, `icon_coin`
+7. `building_market`, `building_well_basic`
+8. 방어/경제 upgrade line
+9. 가족/보스/이벤트 NPC
+10. map tile/doodad polish
 
-이 순서는 현재 PoC 우선순위와 맞춘다. 먼저 War3 Player Command Control PoC에 필요한 조작 유닛/명령 feedback을 만들고, 그 다음 PoC 7 economy asset으로 넘어간다.
+이 순서는 현재 Construction Placement PoC 우선순위와 맞춘다. 먼저 농부/명령 UI/건설 중 상태/4개 배치 건물을 만들고, 그 다음 combat/economy asset으로 넘어간다.
 
 ## 8. 품질 체크리스트
 
@@ -280,6 +376,10 @@ No props, no units, no buildings, no text, no logos.
 - 같은 카테고리 안에서 palette와 light direction이 일관되는가
 - runtime selection ring과 HP bar가 겹치지 않게 여백이 있는가
 - 건물 footprint와 시각 크기가 크게 어긋나지 않는가
+- 건물 sprite anchor가 footprint bottom center 기준으로 맞는가
+- construction scaffold가 완성 건물과 명확히 구분되는가
+- 64px placement snap에서 건물 바닥이 grid에 어색하게 떠 보이지 않는가
+- 32px footprint cell과 64px placement snap의 차이가 asset scale에 반영되었는가
 - silhouette가 기존 유명 게임 asset과 혼동되지 않는가
 - alpha edge가 지저분하지 않은가
 - 최종 sprite sheet packing 전에 anchor point가 통일되었는가

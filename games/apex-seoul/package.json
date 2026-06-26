@@ -6,9 +6,12 @@
     "scripts": {
         "dev": "vite --host 0.0.0.0",
         "build": "vite build",
+        "clean:vehicle-sprite-sheet": "node scripts/clean-vehicle-sprite-sheet.mjs",
         "download:vehicles": "node scripts/download-kenney-car-kit.mjs",
         "extract:bugak-reference": "node scripts/extract-bugak-ridge-reference.mjs",
+        "finalize:vehicle-sprite-sheet": "node scripts/finalize-vehicle-sprite-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
+        "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
         "render:vehicles": "node scripts/render-vehicle-sprites.mjs"
     },
     "dependencies": {

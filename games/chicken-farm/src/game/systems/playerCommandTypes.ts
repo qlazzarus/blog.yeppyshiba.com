@@ -23,6 +23,12 @@ export type UnitCommand =
           readonly unitIds: readonly string[];
       }
     | {
+          readonly siteId: string;
+          readonly targetPoint: Point;
+          readonly type: 'build';
+          readonly unitIds: readonly string[];
+      }
+    | {
           readonly type: 'stop';
           readonly unitIds: readonly string[];
       };

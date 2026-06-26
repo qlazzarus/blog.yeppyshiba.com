@@ -14,7 +14,14 @@ type FarmHudConfig = {
     readonly uiObjects: Phaser.GameObjects.GameObject[];
 };
 
+export type CommandButtonView = {
+    readonly background: Phaser.GameObjects.Rectangle;
+    readonly hotkeyText: Phaser.GameObjects.Text;
+    readonly labelText: Phaser.GameObjects.Text;
+};
+
 export type FarmHud = {
+    readonly commandButtons: readonly CommandButtonView[];
     readonly debugText: Phaser.GameObjects.Text;
     readonly minimapGraphics: Phaser.GameObjects.Graphics;
 };
@@ -39,6 +46,7 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         .setOrigin(0, 0)
         .setStrokeStyle(2, 0x8d7d58)
         .setDepth(102);
+    const commandButtons = createCommandButtons(config.scene);
     const title = config.scene.add
         .text(164, WORLD_VIEW_HEIGHT + 18, 'Chicken Farm Tilemap PoC', {
             color: '#f5e6ae',
@@ -89,7 +97,56 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         help,
         debugText,
         legend,
+        ...commandButtons.flatMap((button) => [
+            button.background,
+            button.hotkeyText,
+            button.labelText,
+        ]),
     );
 
-    return { debugText, minimapGraphics };
+    return { commandButtons, debugText, minimapGraphics };
+}
+
+function createCommandButtons(scene: Phaser.Scene): readonly CommandButtonView[] {
+    const buttons: CommandButtonView[] = [];
+    const buttonWidth = 42;
+    const buttonHeight = 36;
+    const gap = 6;
+    const startX = CANVAS_WIDTH - 202;
+    const startY = WORLD_VIEW_HEIGHT + 24;
+
+    for (let row = 0; row < 2; row += 1) {
+        for (let col = 0; col < 4; col += 1) {
+            const x = startX + col * (buttonWidth + gap);
+            const y = startY + row * (buttonHeight + gap);
+            const background = scene.add
+                .rectangle(x, y, buttonWidth, buttonHeight, 0x303329, 1)
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, 0x776f53, 0.92)
+                .setDepth(104)
+                .setInteractive({ useHandCursor: true });
+            const hotkeyText = scene.add
+                .text(x + 5, y + 4, '', {
+                    color: '#f6df8b',
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    fontSize: '10px',
+                    fontStyle: '700',
+                })
+                .setDepth(105);
+            const labelText = scene.add
+                .text(x + buttonWidth / 2, y + 20, '', {
+                    align: 'center',
+                    color: '#d9d2ba',
+                    fontFamily: 'system-ui, sans-serif',
+                    fontSize: '10px',
+                    wordWrap: { width: buttonWidth - 6 },
+                })
+                .setDepth(105)
+                .setOrigin(0.5);
+
+            buttons.push({ background, hotkeyText, labelText });
+        }
+    }
+
+    return buttons;
 }
