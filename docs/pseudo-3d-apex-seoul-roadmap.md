@@ -757,14 +757,15 @@ UI 감성 방향
 
 ## ChatGPT 앱 사용 검토
 
-전용 차량 이미지는 우선 ChatGPT 앱에서 생성하는 방식을 권장한다.
+전용 차량 이미지는 우선 ChatGPT 앱에서 생성하는 방식을 권장한다. 다만 생성 방식은 개별 차량 sprite를 한 장씩 새로 그리는 흐름이 아니라, `3D pose sheet`를 입력으로 넣고 같은 레이아웃을 유지한 채 2D retro sprite sheet로 변환하는 흐름으로 통일한다.
 
 이유는 다음과 같다.
 
 - 차량 디자인은 초기에는 반복 피드백이 중요하다.
 - ChatGPT Images는 대화 맥락을 유지하면서 이미지를 다듬을 수 있다.
 - 배경 투명 이미지 생성과 기존 이미지 편집을 지원한다.
-- 프롬프트를 한 번에 고정하기보다, 생성 결과를 보고 차체 비율과 색상, 각도, 그림자 강도를 조정하기 좋다.
+- 프롬프트를 한 번에 고정하기보다, 생성 결과를 보고 차체 비율, 색상, 각도 차이, 그림자 강도를 조정하기 좋다.
+- 3D pose sheet를 기준 입력으로 두면 frame마다 차량 정체성이 흔들리는 문제를 줄일 수 있다.
 
 다만 최종 빌드 파이프라인까지 자동화해야 할 때는 API 기반 이미지 생성으로 옮기는 편이 낫다. 블로그 연재와 소규모 게임 아트 탐색 단계에서는 ChatGPT 앱으로 후보 이미지를 만들고, 선택된 결과와 최종 프롬프트를 문서에 남기는 방식이 더 빠르다.
 
@@ -776,111 +777,70 @@ UI 감성 방향
 
 ## 생성 목표
 
-- pseudo 3D 레이싱 게임 화면 하단에 배치할 플레이어 차량 sprite
-- 후면 3/4 시점 또는 거의 후면 시점
-- 도로와 조명에 맞는 아케이드 레이싱 스타일
-- 배경 투명 PNG
-- 게임 내 크롭을 고려한 넉넉한 여백
+- pseudo 3D 레이싱 게임 화면 하단에 배치할 플레이어 차량 sprite sheet
+- 입력 3D pose sheet와 같은 grid, pose order, per-cell alignment 유지
+- 실제 런타임 기준은 `center`, `steer-right-1`, `steer-right-2` 원본 3장과 `flipX`로 만든 왼쪽 2장
+- 도로와 조명에 맞는 아웃런풍 아케이드 레이싱 스타일
+- 배경 투명 PNG 또는 후처리로 투명화 가능한 단색 배경
+- 게임 내 크롭과 스케일링을 고려한 넉넉한 셀 여백
 - 실제 브랜드, 로고, 상표를 사용하지 않는 가상 차량
 
-## 기본 프롬프트
+## 차량 정체성 문구
+
+개별 sprite를 직접 생성하는 프롬프트는 더 이상 기본 경로로 쓰지 않는다. 아래 문구는 `3D pose sheet 기반 sprite sheet 변환 프롬프트` 뒤에 붙이는 차량 정체성 블록으로만 사용한다.
+
+Raven Coupe
 
 ```text
-Create a transparent-background 2D game sprite of an original fictional sports coupe for a pseudo-3D arcade drift racing game named "Apex Seoul".
-
-Camera/view:
-- rear three-quarter view, slightly top-down
-- the car is facing away from the viewer, aligned toward the road horizon
-- centered composition
-
-Design:
-- compact Korean urban night-racing sports coupe
-- no real-world brand logos, no readable trademarks
-- wide body kit, clean aerodynamic silhouette
-- subtle cyber Seoul street-racing mood
-- glossy deep graphite body with restrained red and cool white accents
-- visible rear lights, rear bumper, rear window, roofline, and rear wheels
-
-Rendering style:
-- polished game sprite
-- semi-realistic arcade style
-- crisp silhouette
-- readable at small size
-- soft under-car shadow separated as transparent pixels if possible
-- no background, transparent PNG
-
-Output:
-- square canvas
-- high resolution
-- leave padding around the car for rotation and scaling
+Vehicle identity: Raven Coupe, an original fictional lightweight NA rear-wheel-drive compact FR coupe.
+It is inspired by the proportions and spirit of an FT86-style compact driver car, but must remain clearly original and not a copy.
+Keep it short, agile, beginner-friendly, and grounded: a low two-door compact driver coupe with a long-ish hood, short rear deck, compact cabin, simple rear lights, modest wing, graphite body, and restrained red accents.
+It should feel like an affordable street drift coupe rather than a futuristic hypercar, concept car, exotic race car, or sci-fi vehicle.
+Avoid wedge-shaped supercar proportions, exposed race-car wheels, jet-like bodywork, glowing future-tech panels, oversized aero, and cyberpunk concept-car details.
+No real brand marks, readable text, numbers, or badges.
 ```
 
-## Raven Coupe 변형 프롬프트
+Vortex GT
 
 ```text
-Create a transparent-background 2D game sprite of the "Raven Coupe", an original fictional entry-level rear-wheel-drive drift car for Apex Seoul.
-
-Use a rear three-quarter, slightly top-down camera view. The car should face away from the viewer as if driving into a pseudo-3D racing road.
-
-The Raven Coupe should feel lightweight, agile, and beginner-friendly, inspired by the proportions and spirit of an FT86-style compact FR coupe, but clearly original and not a copy:
-- short wheelbase coupe body
-- compact cabin pushed slightly rearward
-- clean drift tuner silhouette
-- graphite black paint
-- small red accent stripe
-- bright but simple rear lights
-- modest wing
-- naturally aspirated lightweight driver-car mood
-- no real brand marks or readable text
-
-Style: polished arcade racing game sprite, crisp edges, transparent background, readable at small on-screen size, centered on a square canvas with padding.
+Vehicle identity: Vortex GT, an original fictional twin-turbo high-power fastback GT.
+It is inspired by the stance and grand touring attitude of a Stinger-like twin-turbo liftback, but must remain clearly original and not a copy.
+Keep it long, wide, powerful, slightly aggressive, with a strong rear diffuser, bright rear lights, deep blue-black body, and cool white accents.
+No real brand marks, readable text, numbers, or badges.
 ```
 
-## Vortex GT 변형 프롬프트
+Apex S
 
 ```text
-Create a transparent-background 2D game sprite of the "Vortex GT", an original fictional high-power GT drift car for Apex Seoul.
-
-Rear three-quarter, slightly top-down view. The car faces away from the viewer toward the road horizon.
-
-The Vortex GT should feel powerful and slightly aggressive, inspired by the stance and grand touring attitude of a Stinger-like twin-turbo liftback, but clearly original and not a copy:
-- long fastback GT body
-- wide rear stance
-- larger rear wing
-- deep metallic blue-black paint
-- cool white racing accents
-- strong rear diffuser
-- bright rear lights
-- twin-turbo high-speed expressway mood
-- no real-world logos or readable trademarks
-
-Style: semi-realistic arcade racing sprite, clean silhouette, transparent PNG, centered square canvas, enough padding for in-game rotation.
-```
-
-## Apex S 변형 프롬프트
-
-```text
-Create a transparent-background 2D game sprite of the "Apex S", an original fictional balanced sports sedan for Apex Seoul.
-
-Rear three-quarter, slightly top-down view. The car faces away from the viewer, centered for a pseudo-3D arcade racing game.
-
-The Apex S should feel balanced, precise, and modern, inspired by the character of a G70-style single-turbo sport sedan, but clearly original and not a copy:
-- sporty sedan body
-- short-deck premium sport sedan proportions
-- stable stance
-- subtle aero kit
-- pearl white body with black roof
-- restrained red and cyan accent details
-- clean rear lights
-- single-turbo torque-rich sport sedan mood
-- no real-world logos, badges, or readable text
-
-Style: polished arcade game sprite, crisp outline, transparent background, readable at small size, square canvas with padding.
+Vehicle identity: Apex S, an original fictional single-turbo balanced sport sedan.
+It is inspired by the character of a G70-style compact sport sedan, but must remain clearly original and not a copy.
+Keep it precise, stable, modern, with short-deck sedan proportions, pearl white body, black roof, clean rear lights, and restrained red/cyan accents.
+No real brand marks, readable text, numbers, or badges.
 ```
 
 ## 3D pose sheet 기반 sprite sheet 변환 프롬프트
 
-개별 프레임을 따로 생성하면 차량 디테일이 흔들릴 가능성이 크다. 프로토타입에서는 3D pose sheet를 먼저 만들고, 그 이미지를 입력으로 넣어 한 번에 retro sprite sheet로 변환하는 방식을 우선 검토한다.
+개별 프레임을 따로 생성하면 차량 디테일이 흔들릴 가능성이 크다. 프로토타입에서는 3D pose sheet를 먼저 만들고, 그 이미지를 입력으로 넣어 한 번에 retro sprite sheet로 변환하는 방식을 기본 생성 경로로 고정한다.
+
+초기 pose sheet는 스프라이트 수를 아끼기 위해 오른쪽 방향 원본만 만든다. 런타임에서는 오른쪽 원본을 `flipX`해서 왼쪽 조향 상태로 재사용한다.
+
+기본 3셀 구성
+
+```text
+cell 1: center rear view
+cell 2: rear-right steering angle, moderate
+cell 3: rear-right steering angle, strong
+```
+
+권장 3D pose 차이
+
+```text
+center: 0 degrees
+steer-right-1: about 22 to 25 degrees from rear
+steer-right-2: about 42 to 45 degrees from rear
+```
+
+`steer-right-1`과 `steer-right-2`는 픽셀풍 변환 뒤에도 구분되어야 한다. 3D 입력 단계에서 차이를 충분히 벌리지 않으면 image-to-image 단계가 두 셀을 거의 같은 포즈로 해석한다.
 
 기본 변환 프롬프트
 
@@ -888,6 +848,19 @@ Style: polished arcade game sprite, crisp outline, transparent background, reada
 Transform the attached 3D vehicle pose sheet into a retro arcade racing sprite sheet for a pseudo-3D drift racing game named "Apex Seoul".
 
 Preserve the exact layout, pose order, silhouette, vehicle proportions, camera angle, and per-cell alignment from the input pose sheet.
+
+The three cells are:
+1. center rear view
+2. rear-right steering angle, moderate
+3. rear-right steering angle, strong
+
+Left-facing sprites will be created later with horizontal flipX in the game runtime.
+Do not add left-facing frames.
+
+Important pose distinction:
+- The second cell and third cell must not look like duplicates.
+- The third cell must show more side body, stronger wheel separation, and a more diagonal rear bumper than the second cell.
+- Preserve the visible difference between the moderate rear-right angle and the strong rear-right angle.
 
 Target style:
 - Outrun inspired retro arcade racing sprite
@@ -913,36 +886,12 @@ Output:
 - enough padding around every vehicle frame for in-game rotation and scaling
 ```
 
-Raven Coupe 적용 문구
-
-```text
-Vehicle identity: Raven Coupe, an original fictional lightweight NA rear-wheel-drive compact FR coupe.
-It is inspired by the proportions and spirit of an FT86-style compact driver car, but must remain clearly original and not a copy.
-Keep it short, agile, beginner-friendly, with a compact cabin, simple rear lights, modest wing, graphite body, and restrained red accents.
-```
-
-Vortex GT 적용 문구
-
-```text
-Vehicle identity: Vortex GT, an original fictional twin-turbo high-power fastback GT.
-It is inspired by the stance and grand touring attitude of a Stinger-like twin-turbo liftback, but must remain clearly original and not a copy.
-Keep it long, wide, powerful, slightly aggressive, with a strong rear diffuser, bright rear lights, deep blue-black body, and cool white accents.
-```
-
-Apex S 적용 문구
-
-```text
-Vehicle identity: Apex S, an original fictional single-turbo balanced sport sedan.
-It is inspired by the character of a G70-style compact sport sedan, but must remain clearly original and not a copy.
-Keep it precise, stable, modern, with short-deck sedan proportions, pearl white body, black roof, clean rear lights, and restrained red/cyan accents.
-```
-
 pose sheet 입력 기준
 
 - 1차 테스트는 `Raven Coupe`만 사용한다.
-- 그리드는 `center`, `steer-left-1`, `steer-left-2` 3프레임부터 시작한다.
-- 확장 테스트는 `drift-left`, `crest`, `dip`, `spin-left-1`, `contact-left`를 추가한다.
-- 오른쪽 상태는 가능하면 생성하지 않고, 런타임 `flipX`로 재사용한다.
+- 그리드는 `center`, `steer-right-1`, `steer-right-2` 3프레임부터 시작한다.
+- 확장 테스트도 원칙적으로 오른쪽 원본을 먼저 만든다. 예: `drift-right`, `spin-right-1`, `contact-right`.
+- 왼쪽 상태는 가능하면 생성하지 않고, 런타임 `flipX`로 재사용한다.
 - 브레이크와 부스트는 base sheet에 섞지 않고 별도 overlay로 만든다.
 
 ## 후처리 메모
@@ -951,6 +900,7 @@ pose sheet 입력 기준
 - 차량이 화면 하단 anchor에 맞게 아래쪽이 너무 잘리지 않았는지 확인한다.
 - sprite 회전 시 여백이 충분한지 확인한다.
 - 후면 시점이 약하면 "more rear-facing, less side view"로 재생성한다.
+- `steer-right-1`과 `steer-right-2`가 비슷하면 3D pose sheet부터 각도 차이를 더 벌린 뒤 다시 변환한다.
 - 너무 사실적이면 "cleaner arcade game sprite, stronger silhouette"를 추가한다.
 - 로고나 문자 비슷한 요소가 나오면 제거 요청 후 재생성한다.
 - pose sheet 변환 결과에서 cell 간 차량 비율, 후미등, 창문, 범퍼 형태가 유지되는지 확인한다.
@@ -961,6 +911,8 @@ pose sheet 입력 기준
 ## 아웃런 스타일 차량 sprite 구성 검토
 
 현재 구현은 `rear`, `rear-left`, `rear-right` 3장만 사용한다. 이 조합은 기본 조향 반응 확인에는 충분하지만, 아웃런 계열의 풍부한 차체 반응을 만들기에는 부족하다. 특히 코너 진입, 드리프트, 브레이크, 부스트 상태가 모두 같은 차처럼 보여서 속도감과 차량 성격 차별화가 약해진다.
+
+전용 sprite 제작에서는 원본 방향을 오른쪽으로 통일한다. 즉 사람이 만들거나 image-to-image로 변환하는 base body sprite는 `center`, `steer-right-1`, `steer-right-2`를 기준으로 두고, 왼쪽 상태는 런타임 `flipX`로 만든다. 좌우가 거의 대칭인 차량만 이 정책을 적용하며, 배기구, 데칼, 파손, 접촉 방향처럼 비대칭성이 강한 경우에는 별도 sprite 또는 overlay로 승격한다.
 
 아웃런 스타일에 가까운 후보 프레임 종류
 
@@ -981,9 +933,10 @@ pose sheet 입력 기준
 
 구현 우선순위
 
-- 1차 필수: `center`, `steer-left-1`, `steer-right-1`
-- 2차 권장: `steer-left-2`, `steer-right-2`, `brake-center`, `boost-center`
-- 3차 확장: `drift-left`, `drift-right`, `brake-left`, `brake-right`, `boost-left`, `boost-right`
+- 1차 필수 원본: `center`, `steer-right-1`, `steer-right-2`
+- 1차 런타임 상태: `steer-left-1`, `steer-left-2`는 오른쪽 원본 `flipX`
+- 2차 권장: `brake-center`, `boost-center`, `drift-right`
+- 3차 확장: `drift-left`, `brake-left`, `brake-right`, `boost-left`, `boost-right`
 - 4차 확장: `crest`, `dip`, `uphill`, `downhill`
 - 5차 확장: `spin-left/right`, `contact-left/right`, `recover-left/right`, `damage-light`
 
@@ -995,14 +948,14 @@ pose sheet 입력 기준
 
 `flipX` 활용 검토
 
-- `steer-left-1` / `steer-right-1`
-- `steer-left-2` / `steer-right-2`
-- `drift-left` / `drift-right`
-- `spin-left-1` / `spin-right-1`
-- `spin-left-2` / `spin-right-2`
-- `recover-left` / `recover-right`
+- `steer-left-1` = `flipX(steer-right-1)`
+- `steer-left-2` = `flipX(steer-right-2)`
+- `drift-left` = `flipX(drift-right)`
+- `spin-left-1` = `flipX(spin-right-1)`
+- `spin-left-2` = `flipX(spin-right-2)`
+- `recover-left` = `flipX(recover-right)`
 
-이 상태들은 프로토타입 단계에서 `left` 원본 1장과 런타임 `flipX`로 대응할 여지가 크다. 차체 데칼, 배기 위치, 라이트 비대칭이 강하지 않다면 제작량을 꽤 줄일 수 있다.
+이 상태들은 프로토타입 단계에서 `right` 원본 1장과 런타임 `flipX`로 대응할 여지가 크다. 차체 데칼, 배기 위치, 라이트 비대칭이 강하지 않다면 제작량을 꽤 줄일 수 있다.
 
 `flipX` 비권장 또는 주의 상태
 
@@ -1010,7 +963,7 @@ pose sheet 입력 기준
 - `contact-left`, `contact-right`
 - `damage-light`
 
-이 상태들은 단순 좌우 대칭보다 `차체 pitch`, `충돌 방향`, `후미등/배기광`, `변형 위치`가 중요해서 별도 sprite나 overlay가 더 자연스럽다. 단, `contact-right`는 프로토타입에서만 `contact-left + flipX + spark overlay`로 먼저 검증하고, 어색하면 별도 sprite로 승격한다.
+이 상태들은 단순 좌우 대칭보다 `차체 pitch`, `충돌 방향`, `후미등/배기광`, `변형 위치`가 중요해서 별도 sprite나 overlay가 더 자연스럽다. 단, `contact-left`는 프로토타입에서만 `contact-right + flipX + spark overlay`로 먼저 검증하고, 어색하면 별도 sprite로 승격한다.
 
 효과 overlay sprite 검토
 
@@ -1053,7 +1006,7 @@ overlay 한계
 
 프로토타입은 차량 1대로만 진행하고, sprite 세트만 먼저 늘리는 편이 맞다. 지금 단계에서 차량 3종을 모두 늘리면 렌더링, UI, 주행 피드백 작업축이 동시에 커진다.
 
-프로토타입 1차 동작 상태는 다음 7개를 권장한다.
+프로토타입 1차 런타임 동작 상태는 다음 7개를 권장한다.
 
 - `center`
 - `steer-left-1`
@@ -1072,14 +1025,14 @@ overlay 한계
 
 프로토타입 2차 동작 상태는 다음 추가 상태를 권장한다.
 
-- `drift-left`
 - `drift-right`
+- `drift-left`
 - `crest`
 - `dip`
-- `spin-left-1`
 - `spin-right-1`
-- `contact-left`
+- `spin-left-1`
 - `contact-right`
+- `contact-left`
 
 이 추가 세트로 다음을 확인할 수 있다.
 
@@ -1091,8 +1044,8 @@ overlay 한계
 프로토타입 1차 최소 base body sprite 원본
 
 - `center`
-- `steer-left-1`
-- `steer-left-2`
+- `steer-right-1`
+- `steer-right-2`
 
 프로토타입 1차 effect overlay 원본
 
@@ -1101,18 +1054,18 @@ overlay 한계
 
 프로토타입 2차 최소 base body sprite 원본
 
-- `drift-left`
+- `drift-right`
 - `crest`
 - `dip`
-- `spin-left-1`
-- `contact-left`
+- `spin-right-1`
+- `contact-right`
 
 프로토타입 런타임 재사용 규칙
 
-- `steer-right-1`, `steer-right-2`는 `flipX`
-- `drift-right`는 `flipX`
-- `spin-right-1`은 `flipX`
-- `contact-right`는 가능하면 `flipX + spark overlay`로 시작하고, 어색하면 별도 sprite로 승격
+- `steer-left-1`, `steer-left-2`는 오른쪽 원본 `flipX`
+- `drift-left`는 `flipX`
+- `spin-left-1`은 `flipX`
+- `contact-left`는 가능하면 `flipX + spark overlay`로 시작하고, 어색하면 별도 sprite로 승격
 - `brake-left/right`, `boost-left/right`는 base steer sprite 위에 overlay를 얹어 해결
 - `brake-center`, `boost-center`는 별도 body sprite가 아니라 `center` 위의 overlay 조합으로 시작
 
@@ -1126,8 +1079,10 @@ overlay 한계
 렌더링 자동화 확장 메모
 
 - 현재 스크립트는 `rear`, `rear-left`, `rear-right` 3개 view만 렌더한다.
-- 다음 확장에서는 카메라 각도만 늘리는 방식과, 동일 각도에서 차체 pose/광원만 바꾸는 방식을 분리해서 관리한다.
-- `steer-left-2`, `steer-right-2`는 단순 카메라 회전보다 실제 wheel angle 또는 차체 yaw를 약간 더 준 pose가 필요할 수 있다.
+- 다음 확장에서는 `rear`, `rear-right-1`, `rear-right-2`를 표준 원본 view로 삼고, `rear-left-*`는 런타임 `flipX`로 만든다.
+- 카메라 각도만 늘리는 방식과, 동일 각도에서 차체 pose/광원만 바꾸는 방식을 분리해서 관리한다.
+- `steer-right-1`과 `steer-right-2`는 2D 변환 후에도 구분되도록 3D 기준 각도 차이를 충분히 벌린다.
+- `steer-right-2`는 단순 카메라 회전보다 실제 wheel angle 또는 차체 yaw를 약간 더 준 pose가 필요할 수 있다.
 - `brake`와 `boost`는 후면등 밝기, 배기광, 차체 pitch 차이까지 포함해야 효과가 난다.
 - `crest`, `dip`, `uphill`, `downhill`은 카메라 각도보다 차체 pitch와 그림자 위치 차이 관리가 더 중요하다.
 - `spin`과 `contact`는 최종 품질에서는 단순 좌우 반전만으로 끝내지 말고, rear bumper, body yaw, tire angle이 더 크게 무너진 pose가 필요하다.
@@ -1156,10 +1111,10 @@ Apex Seoul의 목표가 아웃런 스타일 도트 레트로 게임이라면, 3D
 
 권장 검증 순서
 
-1. `Raven Coupe` 한 대만 대상으로 `center`, `steer-left-1`, `steer-left-2`를 3D pose sheet로 캡처한다.
+1. `Raven Coupe` 한 대만 대상으로 `center`, `steer-right-1`, `steer-right-2`를 3D pose sheet로 캡처한다.
 2. 같은 pose sheet를 image-to-image로 변환하고, cell 간 차체 비율과 후미등 일관성을 확인한다.
 3. `brake-glow`, `boost-glow`, `skid-smoke`는 image-to-image에 섞지 않고 overlay sprite로 분리한다.
-4. 결과가 안정적이면 `drift-left`, `crest`, `dip`, `spin-left-1`, `contact-left`까지 확장한다.
+4. 결과가 안정적이면 `drift-right`, `crest`, `dip`, `spin-right-1`, `contact-right`까지 확장한다.
 5. 그 다음에 색상 팔레트 변경과 차량 3종 확장을 검토한다.
 
 판단 기준
@@ -1192,6 +1147,8 @@ manifest 구조 초안
 
 ```json
 {
+    "cellSize": 256,
+    "columns": 3,
     "paintPresets": [
         {
             "id": "graphite-red",
@@ -1209,11 +1166,11 @@ manifest 구조 초안
         }
     ],
     "sourceModel": "source/models/raven-coupe.glb",
-    "states": [
+    "sourcePoses": [
         {
             "id": "center",
-            "pose": "center",
             "view": "rear",
+            "rearAngleDeg": 0,
             "flipXSource": null,
             "layers": ["base-body", "paint-mask", "shade-highlight"],
             "overlayAnchors": {
@@ -1223,7 +1180,37 @@ manifest 구조 초안
         },
         {
             "id": "steer-right-1",
-            "flipXSource": "steer-left-1"
+            "view": "rear-right",
+            "rearAngleDeg": 24,
+            "flipXSource": null
+        },
+        {
+            "id": "steer-right-2",
+            "view": "rear-right-strong",
+            "rearAngleDeg": 44,
+            "flipXSource": null
+        }
+    ],
+    "runtimeStates": [
+        {
+            "id": "steer-left-2",
+            "flipXSource": "steer-right-2"
+        },
+        {
+            "id": "steer-left-1",
+            "flipXSource": "steer-right-1"
+        },
+        {
+            "id": "center",
+            "flipXSource": null
+        },
+        {
+            "id": "steer-right-1",
+            "flipXSource": null
+        },
+        {
+            "id": "steer-right-2",
+            "flipXSource": null
         }
     ],
     "style": "neo-drift-out-inspired-retro-pixel",
@@ -1234,7 +1221,7 @@ manifest 구조 초안
 자동화 단계
 
 1. `render poses`
-   3D model과 manifest를 읽고 `center`, `steer-left-1`, `steer-left-2` 같은 기준 pose를 투명 배경 PNG로 캡처한다.
+   3D model과 manifest를 읽고 `center`, `steer-right-1`, `steer-right-2` 같은 오른쪽 기준 pose를 투명 배경 PNG로 캡처한다. `rearAngleDeg`를 기준으로 카메라 위치를 계산해서 pose 차이를 수치로 관리한다.
 
 2. `build pose sheet`
    pose render들을 manifest 순서대로 grid에 배치해 하나의 pose sheet를 만든다.
@@ -1243,21 +1230,30 @@ manifest 구조 초안
    pose sheet를 ChatGPT 이미지 생성 또는 Stable Diffusion img2img 입력으로 넣고, 동일 프롬프트 기준으로 sprite sheet 후보를 여러 장 만든다.
 
 4. `cell crop`
-   생성된 sprite sheet를 cell 단위로 자르고 anchor 후보를 계산한다.
+   생성된 sprite sheet를 cell 단위로 자르고 anchor 후보를 계산한다. GPT 생성 결과에 검은 배경, 세로 점선, stray pixel이 남으면 `clean:vehicle-sprite-sheet`로 먼저 alpha cleanup을 수행한다.
 
-5. `layer extraction`
+5. `alpha harden`
+   `clean:vehicle-sprite-sheet` 결과는 배경이 투명해져도 차체 가장자리와 그림자에 반투명 alpha가 많이 남을 수 있다. 런타임 base body sprite는 픽셀풍 선명도가 중요하므로 낮은 alpha 픽셀을 제거하고, 남길 픽셀은 불투명에 가깝게 정리한다. alpha가 0인 픽셀의 숨은 RGB도 `0,0,0,0`으로 초기화한다.
+
+6. `shadow cleanup`
+   차량 아래 그림자는 base sprite에 bake하지 않는 것을 기본으로 둔다. 1차 후처리에서는 그림자를 완전히 자동 제거하기보다, alpha harden 후 그림자 영역을 QA에서 표시하고 런타임 Phaser Graphics 그림자로 대체할지 판단한다. 그림자가 차체/타이어와 붙어 있어 자동 제거가 위험하면 base sprite에는 약하게 남기고, 최종 approved 단계에서 수동 보정한다.
+
+7. `anchor metadata`
+   bbox center는 회전 각도에 따라 좌우로 이동하므로 런타임 anchor로 직접 쓰지 않는다. 각 셀의 bottom center와 공통 baseline을 계산해 `center`, `steer-right-1`, `steer-right-2`가 같은 도로 접지선 위에 놓이도록 metadata를 만든다.
+
+8. `layer extraction`
    후보 sprite에서 `base-body`, `paint-mask`, `shade-highlight`, `glass`, `lights`, `tires` 레이어를 분리한다. 초기에는 자동 분리보다 사람이 보정 가능한 반자동 단계로 둔다.
 
-6. `palette pass`
+9. `palette pass`
    `paint-mask`에 paint preset을 적용해 여러 색상 차량을 만든다. 하이라이트와 그림자는 별도 레이어로 유지해 색만 바꿔도 차체 볼륨이 무너지지 않게 한다.
 
-7. `overlay compose`
+10. `overlay compose`
    `brake-glow`, `boost-glow`, `skid-smoke`, `contact-spark`, `damage-decal`을 anchor 기준으로 합성한다.
 
-8. `qa`
-   bbox, anchor, 투명 배경, 팔레트 색 수, 좌우 flip 결과, 프레임 크기, 주요 레이어 누락 여부를 검사한다.
+11. `qa`
+   bbox, anchor, alpha 분포, 투명 배경, 팔레트 색 수, `flipX` 결과, `steer-right-1`/`steer-right-2`의 각도 차이, 프레임 크기, 주요 레이어 누락 여부를 검사한다.
 
-9. `atlas build`
+12. `atlas build`
    통과한 `approved` sprite와 overlay를 atlas로 묶고, 게임 런타임이 읽을 JSON metadata를 만든다.
 
 Stable Diffusion img2img 설정 방향
@@ -1281,9 +1277,13 @@ Stable Diffusion img2img 설정 방향
 QA 체크
 
 - 모든 sprite는 같은 canvas size와 같은 anchor 정책을 가진다.
-- `center`, `steer-left-1`, `steer-left-2`의 차체가 같은 차량으로 보여야 한다.
+- `center`, `steer-right-1`, `steer-right-2`의 차체가 같은 차량으로 보여야 한다.
+- `steer-right-1`과 `steer-right-2`는 작은 표시 크기에서도 서로 다른 조향 단계로 읽혀야 한다.
 - sprite sheet의 cell grid가 크게 흐트러지지 않아야 한다.
-- `flipX` 결과가 수동 오른쪽 sprite처럼 보이는지 확인한다.
+- alpha 0 픽셀은 숨은 RGB까지 `0,0,0,0`이어야 한다.
+- base body sprite의 반투명 alpha는 제한한다. 부드러운 glow나 그림자는 overlay 또는 런타임 그림자로 분리한다.
+- 차량 접지 baseline은 세 원본 pose가 공유해야 하며, bbox center만으로 anchor를 결정하지 않는다.
+- `flipX`로 만든 왼쪽 상태가 수동 제작 sprite처럼 자연스러운지 확인한다.
 - paint preset을 바꿔도 후미등, 유리, 타이어 색이 같이 오염되지 않아야 한다.
 - overlay가 차체보다 앞/뒤 depth를 잘못 타지 않아야 한다.
 - 작은 표시 크기에서도 차체 방향과 브레이크/부스트 상태가 읽혀야 한다.
@@ -1291,7 +1291,8 @@ QA 체크
 1차 PoC 범위
 
 - 차량: `Raven Coupe`
-- 상태: `center`, `steer-left-1`, `steer-left-2`
+- source pose: `center`, `steer-right-1`, `steer-right-2`
+- runtime state: `steer-left-2`, `steer-left-1`, `center`, `steer-right-1`, `steer-right-2`
 - overlay: `brake-glow`, `boost-glow`
 - paint preset: `graphite-red`, `pearl-white`
 - 목표: 3D pose sheet에서 image-to-image sprite sheet 후보를 만들고, 같은 sprite에 팔레트 체인지가 안정적으로 적용되는지 확인한다.
@@ -1303,6 +1304,8 @@ npm run render:vehicle-pose-sheet
 npm run apex:vehicles:render-poses
 npm run apex:vehicles:build-pose-sheet
 npm run apex:vehicles:img2img
+npm run clean:vehicle-sprite-sheet
+npm run finalize:vehicle-sprite-sheet
 npm run apex:vehicles:crop-cells
 npm run apex:vehicles:extract-layers
 npm run apex:vehicles:palette
@@ -1317,7 +1320,7 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png
 games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.json
 ```
 
-현재 `render:vehicle-pose-sheet`는 기존 Kenney `race-future.glb`를 사용해 `center`, `steer-left-1`, `steer-left-2` 3프레임 pose sheet를 만든다. 이후 Apex Seoul 전용 `Raven Coupe` 3D source model이 준비되면 같은 스크립트에 `--model` 또는 manifest 기반 입력을 연결한다.
+현재 `render:vehicle-pose-sheet`는 기존 Kenney `sedan-sports.glb`를 임시 source model로 사용해 `center`, `steer-right-1`, `steer-right-2` 3프레임 pose sheet를 만든다. `race-future.glb`는 너무 미래형 실루엣이라 Raven Coupe의 FT86풍 compact FR coupe 의도와 충돌하므로 pose sheet 입력에서는 제외한다. 이후 Apex Seoul 전용 `Raven Coupe` 3D source model이 준비되면 같은 스크립트에 `--model` 또는 manifest 기반 입력을 연결한다.
 
 초기에는 `img2img`와 `extract-layers`가 완전 자동이 아닐 수 있다. 이 두 단계는 후보 생성과 수동 보정 파일을 받아 다음 단계로 넘기는 반자동 파이프라인으로 시작한다.
 
@@ -1353,6 +1356,8 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.jso
 주제
 
 - Custom Vehicle Sprite
+- 3D Pose Sheet to 2D Sprite Sheet Pipeline
+- Right Source Poses and Runtime flipX
 - Additional Steering Frames
 - Drift Angle Frames
 - Brake/Boost Pose
@@ -1360,6 +1365,8 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.jso
 결과
 
 - 임시 Kenney 차량에서 Apex Seoul 전용 차량으로 교체 준비
+- `center`, `steer-right-1`, `steer-right-2` 기준 source pose sheet 확정
+- 왼쪽 조향 상태는 런타임 `flipX`로 재사용
 - 아웃런 스타일 기준의 1차 sprite 세트 정의
 - 조향/드리프트 표현 가능한 sprite 각도 확장
 - 차량별 시각 정체성 정리
