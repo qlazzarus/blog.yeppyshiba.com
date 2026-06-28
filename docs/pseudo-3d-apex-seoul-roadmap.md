@@ -1737,3 +1737,528 @@ AI 차량과 장애물
 - Drift Physics를 프로젝트의 핵심 시스템으로 둔다.
 
 최종 목표는 단순 기술 데모가 아니라 블로그 연재와 함께 성장하는 완성형 웹 게임이다.
+
+---
+
+# 실제 차량 모델 기반 POC 기록
+
+작성일: 2026-06-28
+
+배경
+
+현재 Apex Seoul의 차량 asset 완성도가 낮아 보이므로, image-to-image 반복이나 절차형 모델 개선만 계속하기 전에 실제 차량 3D 모델을 source로 넣어 비교한다. 목적은 실제 차명 자산을 최종 게임에 쓰는 것이 아니라, pseudo 3D 후방 시점에서 잘 읽히는 실루엣과 포즈 기준선을 확보하는 것이다.
+
+검토 대상
+
+- Toyota FT86 / GT86 / 86 / Subaru BRZ 계열
+- Kia Stinger
+- Genesis G70
+
+우선순위
+
+1. FT86 / GT86 계열
+   - Raven Coupe의 compact FR coupe 의도와 가장 가깝다.
+   - 후방, 짧은 데크, 낮은 캐빈, 넓은 스탠스가 256px 스프라이트에서 읽힐 가능성이 높다.
+2. Kia Stinger
+   - fastback 실루엣은 좋지만 차체가 길어 플레이어 쿠페보다 라이벌/보스 차량 후보에 가깝다.
+3. Genesis G70
+   - 실제 차량 매력과 별개로 작은 후방 스프라이트에서는 일반 세단으로 뭉개질 위험이 있다.
+
+2026-06-28 조사 결과
+
+- Sketchfab API에서 세 차종 모두 다운로드 가능 후보를 확인했다.
+- GT86 후보 중 `Toyota GT86` 모델은 GLB 약 2.1MB, CC Attribution으로 확인했다.
+- Kia Stinger 후보는 GLB 약 17MB에서 73MB 사이, CC Attribution 후보가 있다.
+- Genesis G70 후보는 GLB 약 35MB 이상, CC Attribution 후보가 있다.
+- Sketchfab 실제 download URL 발급은 인증 토큰이 필요하다. 토큰 없이 공개 검색 metadata 확인은 가능하지만, API 다운로드 endpoint는 `Authentication credentials were not provided.`로 막힌다.
+
+POC 정책
+
+- 실제 차명/상표/엠블럼은 최종 공개 게임 asset으로 직접 쓰지 않는다.
+- POC 산출물은 source quality 비교와 Raven Coupe 재모델링 reference로만 사용한다.
+- 공개 가능한 최종 차량명은 `Raven Coupe`처럼 가상화한다.
+- CC Attribution 모델을 쓰더라도 attribution 문서와 출처 metadata를 함께 남긴다.
+- NonCommercial 모델은 공개 게임 후보에서 제외하고, 내부 reference 여부도 별도로 판단한다.
+
+렌더링 파이프라인 변경
+
+`render-vehicle-pose-sheet.mjs`에 `--model-path` 옵션을 추가한다. 기존 Kenney 모델명 기반 사용법은 유지하고, 외부 GLB는 프로젝트 내부 경로로 직접 지정한다.
+
+```bash
+npm run render:vehicle-pose-sheet --workspace @games/apex-seoul -- \
+  --model gt86-poc \
+  --model-path assets/vehicles/source/models/gt86-poc.glb \
+  --vehicle-id gt86-poc \
+  --output assets/vehicles/generated/pose-sheets/gt86-poc.png
+```
+
+임시 로컬 검증
+
+외부 모델 다운로드 전, 기존 CC0 Kenney GLB로 같은 렌더러가 11포즈 sheet를 안정적으로 생성하는지 확인했다.
+
+```text
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-sedan-sports.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-hatchback-sports.png
+```
+
+다음 단계
+
+1. Sketchfab 토큰 또는 수동 다운로드로 GT86 계열 GLB를 `assets/vehicles/source/models/`에 둔다.
+2. `--model-path`로 GT86 POC sheet를 생성한다.
+3. Stinger와 G70은 GT86 결과가 유의미할 때 같은 기준으로 추가 비교한다.
+4. 결과 비교 기준은 `center`, `steer-right-1`, `steer-right-2`, `spin-right-*`에서 후방 실루엣, 휠 위치, 캐빈/트렁크 비율, 픽셀화 후 식별성을 우선한다.
+
+2026-06-28 POC 진행 결과
+
+사용자가 Sketchfab에서 직접 받은 세 GLB로 실제 렌더를 진행했다.
+
+```text
+games/apex-seoul/assets/vehicles/toyota_gt86.glb
+games/apex-seoul/assets/vehicles/kia_stinger.glb
+games/apex-seoul/assets/vehicles/genesis_g70.glb
+```
+
+원본 모델 문제
+
+- 기존 normalize는 모델 bbox center를 뺀 뒤 scale을 적용했기 때문에, 원점에서 멀리 떨어진 GLB는 화면 밖으로 밀릴 수 있었다.
+- GT86과 Stinger는 길이축이 Z, 높이축이 Y다.
+- G70은 길이축이 Y, 높이축이 Z라서 축 회전이 필요하다.
+- G70은 단순 Euler 회전만으로는 후방/상하가 동시에 맞지 않아 mirror scale 보정이 필요하다.
+- 대형 GLB를 병렬로 여러 개 렌더하면 local static server fetch가 끊길 수 있으므로 real vehicle POC는 순차 렌더한다.
+
+적용한 파이프라인 보정
+
+- `--scale-mode vehicle-length`
+- `--vehicle-length-m`
+- `--reference-length-m`
+- `--reference-length-units`
+- `--frame-size-units`
+- `--model-pitch-offset`
+- `--model-yaw-offset`
+- `--model-scale-x/y/z`
+
+기준값
+
+- 기준 차량: GT86
+- 기준 전장: 4.24m
+- 기준 렌더 길이: 2.2 units
+- 고정 카메라 frame: 2.95 units
+- padding: 1.08
+
+차량별 POC 설정
+
+```text
+toyota-gt86-poc
+- lengthM: 4.24
+- yaw offset: 180
+
+kia-stinger-poc
+- lengthM: 4.83
+- yaw offset: 0
+
+genesis-g70-poc
+- lengthM: 4.69
+- pitch offset: 90
+- scaleX: -1
+- scaleZ: -1
+```
+
+반복 실행용 manifest
+
+```text
+games/apex-seoul/assets/vehicles/source/manifests/real-vehicle-poc.json
+```
+
+반복 실행 명령
+
+```bash
+npm run optimize:real-vehicle-models --workspace @games/apex-seoul
+npm run render:real-vehicle-pocs --workspace @games/apex-seoul
+```
+
+GLB 최적화
+
+원본 Sketchfab GLB는 source archive로 유지하고, 렌더 입력은 `assets/vehicles/optimized/*-optimized.glb`를 사용한다. 최적화는 `@gltf-transform/cli`의 `optimize`를 통해 `meshopt` geometry 압축, WebP texture 압축, 1024px texture cap을 적용한다. Three.js `GLTFLoader`는 `MeshoptDecoder`를 연결해야 압축 GLB를 바로 읽을 수 있다.
+
+2026-06-28 기준 압축 결과:
+
+```text
+toyota_gt86.glb      3.1M -> 332K
+kia_stinger.glb       29M -> 7.1M
+genesis_g70.glb       41M -> 2.5M
+```
+
+현재 POC manifest는 최적화본을 기본 입력으로 사용한다.
+
+최종 POC 산출물
+
+```text
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-final.png
+```
+
+판단
+
+- GT86은 Raven Coupe 플레이어 차량의 실루엣 기준선으로 가장 적합하다.
+- Stinger는 전장 차이가 고정 frame에서 잘 드러나며, 플레이어보다는 큰 라이벌 차량 후보로 적합하다.
+- G70은 후방 실루엣은 읽히지만 모델 자체가 세단 느낌이 강해서 Raven Coupe 기준선으로는 GT86보다 약하다.
+- 다음 단계는 GT86 POC를 기준으로 pixel pass/outline을 태워보고, 실제 사진풍 디테일이 256px sprite에서 얼마나 남는지 확인하는 것이다.
+
+---
+
+# 실제 차량 렌더 이미지 후처리 추천안
+
+작성일: 2026-06-28
+
+목표
+
+실제 차량 GLB에서 얻은 사진풍 pose sheet를 Apex Seoul용 pseudo 3D sprite로 가공한다. 목표는 "실차 렌더를 그대로 축소"가 아니라, 작은 표시 크기에서도 차종별 실루엣, 후미등, 유리, 휠 위치, 조향 각도가 읽히는 2D game sprite를 만드는 것이다.
+
+추천 결론
+
+기본 경로는 `deterministic local pixel pass`로 둔다. GPT image-to-image는 최종 asset 생성기가 아니라 style exploration, paint-over reference, 수동 보정 지시서 생성에만 쓴다.
+
+추천 파이프라인
+
+```text
+1. real vehicle GLB render
+2. alpha cleanup / crop QA
+3. low-res downscale
+4. tone flatten / posterize
+5. limited palette quantization
+6. silhouette outline
+7. key detail restore
+8. magenta color-key / transparent output
+9. GPT style reference review
+10. manual touch-up
+11. runtime QA
+```
+
+1단계: deterministic local pixel pass
+
+우선 `sharp` 기반 스크립트로 직접 구현한다. 이미 프로젝트가 `sharp`를 쓰고 있고, cell grid, alpha, bbox, anchor metadata를 같은 Node 파이프라인에서 관리할 수 있기 때문이다.
+
+권장 처리 순서
+
+- source: `poc-toyota-gt86-scaled.png`
+- cell 단위 crop
+- low-res target으로 downscale
+  - 1차 후보: 96px cell
+  - 2차 후보: 128px cell
+  - 최종 게임 표시가 작으면 96px 쪽이 더 낫다.
+- tone flatten
+  - 너무 사진처럼 부드러운 그라데이션을 줄인다.
+  - shadow/highlight 단계 수를 줄인다.
+- palette quantization
+  - body white/gray 4-5색
+  - glass 2-3색
+  - tire/dark trim 3-4색
+  - rear light red/amber 2-3색
+- nearest upscale
+  - working preview는 2x 또는 3x로 확인한다.
+  - runtime source는 원래 cell size로 둘지, low-res sheet를 그대로 쓸지 별도 결정한다.
+- alpha harden
+  - base body에는 반투명 픽셀을 거의 남기지 않는다.
+  - glow/shadow는 overlay 또는 runtime graphics로 분리한다.
+
+`sharp` 선택 이유
+
+- 현재 스크립트와 같은 JS/Node 환경에서 처리할 수 있다.
+- resize, extract, extend, raw pixel buffer 처리가 가능하다.
+- `nearest` resize를 명시할 수 있어 pixel pass가 재현 가능하다.
+- cell별 QA JSON을 같은 코드에서 만들 수 있다.
+
+2단계: outline pass
+
+outline은 자동화하되, 과하게 두껍게 넣지 않는다. 실제 차량 렌더는 이미 형태 정보가 많기 때문에 전면적인 검은 외곽선보다 "읽힘이 약한 곳만 보강"하는 편이 낫다.
+
+권장 규칙
+
+- alpha mask의 외곽 1px에 dark outline 후보를 만든다.
+- 차량 하단, rear bumper, roofline, rear glass, wheel arch에 우선 적용한다.
+- 차체 흰색 highlight 안쪽까지 outline이 침범하면 실패로 본다.
+- rear light 주변은 검은 outline보다 dark red / dark gray trim을 우선한다.
+
+3단계: palette pass
+
+전체 이미지에 단순 posterize를 걸면 GT86의 흰 차체가 죽거나, Stinger/G70의 유리와 차체가 섞인다. 따라서 palette pass는 전역 1회보다 material-like color buckets로 나누는 편이 좋다.
+
+권장 palette bucket
+
+```text
+body-light: white / light gray / mid gray / shadow gray
+glass: near black / blue gray / highlight gray
+trim: black / charcoal / dark gray
+tire: black / tire gray / rim light
+rear-light: dark red / red / amber / small white
+```
+
+4단계: pngquant / ImageMagick 비교 실험
+
+`pngquant`와 `ImageMagick`은 최종 기본 파이프라인보다 비교 실험용으로 둔다.
+
+- `pngquant`
+  - 장점: PNG palette reduction 결과를 빠르게 볼 수 있다.
+  - 단점: sprite 의미를 모른다. rear light나 wheel detail이 사라질 수 있다.
+  - 사용처: "몇 색까지 줄여도 읽히는가"를 빠르게 확인한다.
+- `ImageMagick`
+  - 장점: posterize, ordered dither, colors 제한 같은 실험을 CLI로 빠르게 반복할 수 있다.
+  - 단점: cell별 anchor/QA/레이어 분리와는 따로 논다.
+  - 사용처: dither와 posterize 감도 탐색에만 사용한다.
+
+5단계: GPT 사용 위치
+
+GPT image-to-image를 최종 sheet 생성기로 쓰지 않는다. 이유는 이미 이전 실험에서 pose order, 빈 cell, alpha, anchor, 차량 디테일이 흔들렸기 때문이다.
+
+GPT 권장 사용처
+
+- GT86 렌더 sheet를 넣고 retro arcade sprite style 후보를 2-3개 얻는다.
+- 후보 이미지를 최종 asset으로 쓰지 않고, palette/outline/디테일 유지 방향의 reference로만 쓴다.
+- "어떤 디테일을 남기고 어떤 디테일을 버릴지" 보정 지시서를 생성한다.
+- 수동 touch-up 전 checklist를 만든다.
+
+GPT에 맡기면 안 되는 것
+
+- 최종 alpha sheet 생성
+- pose cell order 유지
+- exact anchor 유지
+- 좌우 flip 호환성 판단
+- 최종 atlas metadata 생성
+
+GPT reference prompt 초안
+
+```text
+Transform this 3D vehicle pose sheet into a reference-only retro arcade racing sprite style.
+
+Keep the exact 3 columns x 4 rows layout, exact pose order, and transparent background.
+Do not invent new poses.
+Do not add brake glow, boost glow, shadow, smoke, text, road, or UI.
+
+Style target:
+- late 80s / early 90s pseudo-3D arcade racing sprite
+- crisp hard-edged highlights
+- limited palette
+- readable rear lights, rear glass, roofline, bumper, wheel arches
+- preserve GT86 compact coupe proportions
+
+This image is only for style reference.
+Do not optimize for photorealism.
+Do not change vehicle identity between cells.
+```
+
+GPT review prompt 초안
+
+```text
+Review this vehicle sprite sheet candidate for a pseudo-3D racing game.
+
+Return a concise correction checklist, not a new image.
+Check:
+- pose order consistency
+- center / steer-right-1 / steer-right-2 readability
+- rear silhouette
+- wheel arch readability
+- rear light readability
+- excess photorealistic noise
+- alpha or shadow contamination risk
+- whether left states can be made with flipX
+
+Prioritize corrections that can be implemented with deterministic pixel processing.
+```
+
+6단계: 수동 보정 도구
+
+오픈소스 수동 보정 후보
+
+- Pixelorama
+  - 가장 먼저 추천한다.
+  - 현대적인 pixel art editor이고 Windows/macOS/Linux/Web을 지원한다.
+  - GT86 후보 sheet를 열어 rear light, wheel arch, roofline을 수동으로 정리하기 좋다.
+- LibreSprite
+  - Aseprite의 마지막 GPL 계열 fork다.
+  - sprite sheet와 frame 단위 편집 감각이 좋다.
+  - UI/안정성은 직접 확인이 필요하다.
+- GrafX2
+  - 제한 palette와 고전 pixel art 작업에 강하다.
+  - modern sprite sheet workflow는 Pixelorama보다 불편할 수 있지만 palette 감각을 잡기 좋다.
+
+Aseprite는 도구로는 훌륭하지만 현재 완전한 오픈소스가 아니므로, 이 문서의 "오픈소스 추천"에는 넣지 않는다. 개인 작업 도구로 별도 선택할 수는 있다.
+
+7단계: Apex Seoul 추천 실행 순서
+
+1. GT86만 먼저 진행한다.
+2. `poc-toyota-gt86-scaled.png`를 source로 `pixel-pass` 스크립트를 만든다.
+3. 96px cell / 128px cell 두 후보를 만든다.
+4. 각 후보에 outline pass를 적용한다.
+5. GPT에는 두 후보를 넣고 "이미지 생성"이 아니라 "수정 checklist"를 받는다.
+6. Pixelorama에서 11개 pose 중 `center`, `steer-right-1`, `steer-right-2`만 먼저 수동 보정한다.
+7. Phaser 런타임에 임시 연결해서 실제 도로 위 스케일에서 읽히는지 확인한다.
+8. 통과하면 나머지 uphill/downhill/spin pose로 확장한다.
+9. Stinger/G70은 GT86 pixel pass가 안정화된 뒤 같은 파이프라인으로 비교한다.
+
+8단계: 성공 기준
+
+- 1x 표시에서 GT86이 compact coupe로 읽힌다.
+- `steer-right-1`과 `steer-right-2`가 구분된다.
+- 후미등과 rear glass가 최소한의 픽셀로 읽힌다.
+- 차체 아래 그림자가 base sprite에 과하게 붙어 있지 않다.
+- 좌측 상태를 `flipX`로 만들었을 때 어색한 비대칭이 크지 않다.
+- cell별 bbox와 baseline이 QA JSON에서 크게 흔들리지 않는다.
+- 3D 렌더를 다시 돌려도 같은 결과를 재생성할 수 있다.
+
+9단계: PerfectPixel 참고 자동화
+
+PerfectPixel Studio는 캐릭터 애니메이션 sprite 생성 도구지만, Apex Seoul의 차량 후처리 자동화에 참고할 만한 구조가 많다. 특히 "AI output은 불안정하므로 deterministic post-processing으로 품질을 수렴시킨다"는 방향이 현재 Apex Seoul 원칙과 맞다.
+
+검토 대상
+
+```text
+https://github.com/qlazzarus/perfectpixel-studio
+upstream: https://github.com/gykim80/perfectpixel-studio
+license: MIT
+```
+
+도입 판단
+
+- 앱 전체 도입은 하지 않는다.
+- Go/Wails GUI, 8-direction character workflow, motion preset catalog는 Apex Seoul 차량 파이프라인과 범위가 다르다.
+- 대신 `internal/sprite`의 알고리즘 구조를 JS/Sharp 파이프라인으로 부분 포팅하거나 재구현한다.
+- PerfectPixel은 "오픈소스 자동화 참고 구현"으로 문서화한다.
+
+참고할 모듈 방향
+
+```text
+internal/sprite/chroma.go
+- YCbCr chroma matting
+- magenta/key background 제거, despill, flood fill 참고
+
+internal/sprite/segment.go
+- projection profile + DP optimal cut
+- GPT/img2img가 만든 불균등 filmstrip split에 참고
+- 단, Three.js 직접 렌더 결과는 이미 fixed grid이므로 우선순위 낮음
+
+internal/sprite/extract.go
+- alpha-weighted centroid
+- bbox center가 아니라 차체 mass 중심/foot pivot 개념 참고
+
+internal/sprite/pixelize.go
+- shared palette quantization
+- grid snap
+- fake pixel-art를 실제 blocky sprite로 정리하는 단계 참고
+
+internal/sprite/quantize.go
+- median-cut/shared palette 설계 참고
+
+internal/sprite/inspect.go
+- frame count, identity drift, motion presence 검사 구조 참고
+- 차량에서는 pose order, silhouette drift, anchor jitter 검사로 바꾼다.
+
+internal/sprite/score.go
+- quality score를 수치화하는 방식 참고
+```
+
+Apex Seoul에 맞춘 자동화 항목
+
+```text
+apex vehicle pixel pass
+1. read pose sheet + metadata
+2. split fixed 3x4 cells
+3. alpha cleanup
+4. low-res downscale
+5. shared palette extraction across all used cells
+6. palette quantization
+7. grid snap
+8. silhouette outline
+9. alpha harden
+10. anchor / baseline / bbox QA
+11. magenta color-key preview
+12. score report
+```
+
+PerfectPixel에서 그대로 가져오지 않을 것
+
+- text-to-character generation
+- 100+ motion preset
+- 8-direction generation loop
+- provider abstraction
+- corrective regenerate loop
+- GUI/session/gallery/export UI
+
+PerfectPixel에서 우선 참고할 것
+
+1. `shared-palette quantization`
+   - pose별 색 흔들림을 막기 위해 GT86 11개 pose 전체에서 공통 palette를 만든다.
+   - per-cell quantization은 금지한다.
+2. `alpha-weighted centroid`
+   - 차량 anchor는 bbox center보다 alpha centroid + rear baseline 조합이 낫다.
+   - Apex Seoul에서는 차체 하단 중앙 또는 rear axle 근처를 anchor 후보로 둔다.
+3. `score report`
+   - 사람이 보기 전에 후보를 탈락시킬 수 있어야 한다.
+   - score는 "게임에서 읽히는가" 기준으로 재정의한다.
+4. `grid snap`
+   - 사진풍 렌더를 단순 posterize하면 픽셀풍이 아니라 축소 사진처럼 보인다.
+   - low-res grid에서 dominant color를 고정해 crisp한 블록감을 만든다.
+
+Apex Seoul vehicle score 초안
+
+```text
+score starts at 100
+-20 if any required cell is empty
+-15 if bbox width/height varies too much between center/downhill/uphill variants
+-15 if anchor x jitter exceeds threshold
+-15 if center, steer-right-1, steer-right-2 silhouette difference is too small
+-10 if semi-transparent base pixels exceed threshold
+-10 if palette color count exceeds target
+-10 if bottom shadow contamination exceeds threshold
+-10 if rear light pixels are lost in center pose
+```
+
+권장 구현 순서
+
+1. `scripts/pixel-pass-vehicle-sheet.mjs`를 만든다.
+2. 입력은 `poc-toyota-gt86-scaled.png`와 해당 JSON metadata로 제한한다.
+3. 96px cell과 128px cell 후보를 둘 다 만든다.
+4. shared palette extraction을 먼저 구현한다.
+5. alpha centroid / bbox / baseline QA JSON을 만든다.
+6. score report를 만든다.
+7. outline은 score report 이후에 붙인다.
+8. GPT review prompt에는 score report와 preview PNG를 함께 넣는다.
+9. Pixelorama 수동 보정은 score가 일정 기준 이상인 후보에만 한다.
+
+파일 구조 제안
+
+```text
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/
+  gt86-96/
+    sheet.png
+    preview-magenta.png
+    qa.json
+    score.json
+  gt86-128/
+    sheet.png
+    preview-magenta.png
+    qa.json
+    score.json
+
+games/apex-seoul/scripts/
+  pixel-pass-vehicle-sheet.mjs
+  score-vehicle-sprite-sheet.mjs
+```
+
+자동화 기준
+
+- deterministic script가 만든 결과만 `generated/pixel-candidates`에 둔다.
+- 수동 보정 결과는 `approved/sprites`로 승격한다.
+- GPT 생성 이미지는 `img2img-candidates`에만 둔다.
+- GPT가 만든 이미지를 바로 `approved`로 올리지 않는다.
+- score report와 사람이 보는 preview가 모두 있어야 다음 단계로 넘긴다.
+
+참고 후보
+
+- sharp: https://sharp.pixelplumbing.com/api-resize
+- pngquant: https://pngquant.org/
+- ImageMagick: https://imagemagick.org/
+- PerfectPixel Studio: https://github.com/qlazzarus/perfectpixel-studio
+- Pixelorama: https://github.com/Orama-Interactive/Pixelorama
+- LibreSprite: https://github.com/LibreSprite/LibreSprite
+- GrafX2: https://gitlab.com/GrafX2/grafX2

@@ -17,9 +17,21 @@ const config = {
     cellSize: 256,
     columns: 3,
     model: 'raven-coupe-procedural',
+    modelPitchOffsetDeg: 0,
+    modelPath: null,
+    modelRollOffsetDeg: 0,
+    modelScaleX: 1,
+    modelScaleY: 1,
+    modelScaleZ: 1,
+    modelYawOffsetDeg: 0,
     output: 'assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png',
     padding: 1.18,
+    referenceLengthM: 4.24,
+    referenceLengthUnits: 2.2,
+    scaleMode: 'max-dimension',
+    frameSizeUnits: null,
     vehicleId: 'raven-coupe',
+    vehicleLengthM: null,
 };
 
 const poses = [
@@ -120,8 +132,48 @@ for (let index = 2; index < process.argv.length; index += 1) {
     if (arg === '--model' && next) {
         config.model = next;
         index += 1;
+    } else if (arg === '--model-path' && next) {
+        config.modelPath = next;
+        index += 1;
+    } else if (arg === '--model-pitch-offset' && next) {
+        config.modelPitchOffsetDeg = parseFiniteNumber(arg, next);
+        index += 1;
+    } else if (arg === '--model-yaw-offset' && next) {
+        config.modelYawOffsetDeg = parseFiniteNumber(arg, next);
+        index += 1;
+    } else if (arg === '--model-roll-offset' && next) {
+        config.modelRollOffsetDeg = parseFiniteNumber(arg, next);
+        index += 1;
+    } else if (arg === '--model-scale-x' && next) {
+        config.modelScaleX = parseNonZeroNumber(arg, next);
+        index += 1;
+    } else if (arg === '--model-scale-y' && next) {
+        config.modelScaleY = parseNonZeroNumber(arg, next);
+        index += 1;
+    } else if (arg === '--model-scale-z' && next) {
+        config.modelScaleZ = parseNonZeroNumber(arg, next);
+        index += 1;
     } else if (arg === '--output' && next) {
         config.output = next;
+        index += 1;
+    } else if (arg === '--scale-mode' && next) {
+        if (!['max-dimension', 'vehicle-length'].includes(next)) {
+            throw new Error(`Invalid --scale-mode value: ${next}`);
+        }
+
+        config.scaleMode = next;
+        index += 1;
+    } else if (arg === '--vehicle-length-m' && next) {
+        config.vehicleLengthM = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--reference-length-m' && next) {
+        config.referenceLengthM = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--reference-length-units' && next) {
+        config.referenceLengthUnits = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--frame-size-units' && next) {
+        config.frameSizeUnits = parsePositiveNumber(arg, next);
         index += 1;
     } else if (arg === '--cell-size' && next) {
         const cellSize = Number(next);
@@ -148,9 +200,7 @@ for (let index = 2; index < process.argv.length; index += 1) {
 }
 
 const isProceduralModel = config.model === 'raven-coupe-procedural';
-const modelPath = isProceduralModel
-    ? null
-    : `assets/vehicles/kenney-car-kit/Models/GLB format/${config.model}.glb`;
+const modelPath = resolveModelPath(config, isProceduralModel);
 const outputPath = path.resolve(projectRoot, config.output);
 const metadataPath = outputPath.replace(/\.png$/i, '.json');
 const server = await startStaticServer(projectRoot);
@@ -185,11 +235,22 @@ try {
         const renderConfig = {
             camera: pose.camera,
             height: config.cellSize,
+            frameSizeUnits: config.frameSizeUnits,
+            modelPitchOffsetDeg: config.modelPitchOffsetDeg,
             modelPath,
             modelPitchDeg: pose.modelPitchDeg,
+            modelRollOffsetDeg: config.modelRollOffsetDeg,
+            modelScaleX: config.modelScaleX,
+            modelScaleY: config.modelScaleY,
+            modelScaleZ: config.modelScaleZ,
+            modelYawOffsetDeg: config.modelYawOffsetDeg,
             modelYawDeg: pose.modelYawDeg,
             padding: config.padding,
             proceduralModel: isProceduralModel ? config.model : null,
+            referenceLengthM: config.referenceLengthM,
+            referenceLengthUnits: config.referenceLengthUnits,
+            scaleMode: config.scaleMode,
+            vehicleLengthM: config.vehicleLengthM,
             width: config.cellSize,
         };
         const url = `${server.url}/__vehicle-renderer?config=${encodeURIComponent(JSON.stringify(renderConfig))}`;
@@ -226,7 +287,14 @@ try {
     const metadata = {
         cellSize: config.cellSize,
         columns: config.columns,
+        frameSizeUnits: config.frameSizeUnits,
         model: config.model,
+        modelPitchOffsetDeg: config.modelPitchOffsetDeg,
+        modelRollOffsetDeg: config.modelRollOffsetDeg,
+        modelScaleX: config.modelScaleX,
+        modelScaleY: config.modelScaleY,
+        modelScaleZ: config.modelScaleZ,
+        modelYawOffsetDeg: config.modelYawOffsetDeg,
         output: path.relative(projectRoot, outputPath),
         poses: renderedPoses.map((pose, index) => ({
             camera: pose.camera,
@@ -241,8 +309,12 @@ try {
             rearAngleDeg: pose.rearAngleDeg,
         })),
         rows,
+        scaleMode: config.scaleMode,
         sourceModel: modelPath ?? `procedural:${config.model}`,
         vehicleId: config.vehicleId,
+        referenceLengthM: config.referenceLengthM,
+        referenceLengthUnits: config.referenceLengthUnits,
+        vehicleLengthM: config.vehicleLengthM,
     };
 
     await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
@@ -299,7 +371,7 @@ async function startStaticServer(root) {
     });
 
     await new Promise((resolve) => {
-        server.listen(0, '0.0.0.0', resolve);
+        server.listen(0, '127.0.0.1', resolve);
     });
 
     const address = server.address();
@@ -310,6 +382,56 @@ async function startStaticServer(root) {
         }),
         url: `http://127.0.0.1:${address.port}`,
     };
+}
+
+function resolveModelPath(renderConfig, isProcedural) {
+    if (isProcedural) {
+        return null;
+    }
+
+    if (!renderConfig.modelPath) {
+        return `assets/vehicles/kenney-car-kit/Models/GLB format/${renderConfig.model}.glb`;
+    }
+
+    const absolutePath = path.isAbsolute(renderConfig.modelPath)
+        ? path.resolve(renderConfig.modelPath)
+        : path.resolve(projectRoot, renderConfig.modelPath);
+
+    if (!absolutePath.startsWith(projectRoot)) {
+        throw new Error(`--model-path must point inside ${projectRoot}`);
+    }
+
+    return path.relative(projectRoot, absolutePath);
+}
+
+function parseFiniteNumber(option, value) {
+    const parsed = Number(value);
+
+    if (!Number.isFinite(parsed)) {
+        throw new Error(`Invalid ${option} value: ${value}`);
+    }
+
+    return parsed;
+}
+
+function parsePositiveNumber(option, value) {
+    const parsed = parseFiniteNumber(option, value);
+
+    if (parsed <= 0) {
+        throw new Error(`Invalid ${option} value: ${value}`);
+    }
+
+    return parsed;
+}
+
+function parseNonZeroNumber(option, value) {
+    const parsed = parseFiniteNumber(option, value);
+
+    if (parsed === 0) {
+        throw new Error(`Invalid ${option} value: ${value}`);
+    }
+
+    return parsed;
 }
 
 async function renderPoseWithPlaywright(page, url, poseId, browserLogs) {
@@ -458,6 +580,7 @@ function createRendererHtml(rawConfig, screenshotMode) {
         import * as THREE from 'three';
         import { RoundedBoxGeometry } from '/node_modules/three/examples/jsm/geometries/RoundedBoxGeometry.js';
         import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+        import { MeshoptDecoder } from '/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js';
 
         const config = JSON.parse(decodeURIComponent('${encodeURIComponent(rawConfig)}'));
         const status = document.getElementById('status');
@@ -492,6 +615,7 @@ function createRendererHtml(rawConfig, screenshotMode) {
             model = createRavenCoupeModel();
         } else {
             const loader = new GLTFLoader();
+            loader.setMeshoptDecoder(MeshoptDecoder);
             if (status) status.textContent = 'loading glb';
             const gltf = await loader.loadAsync('/' + config.modelPath);
             model = gltf.scene;
@@ -499,8 +623,9 @@ function createRendererHtml(rawConfig, screenshotMode) {
 
         if (status) status.textContent = 'rendering';
         scene.add(model);
+        applyModelBaseTransform(model, config);
         normalizeModel(model);
-        applyModelTransform(model, config);
+        applyModelPoseTransform(model, config);
 
         const camera = buildCamera(model, config);
         renderer.render(scene, camera);
@@ -511,18 +636,33 @@ function createRendererHtml(rawConfig, screenshotMode) {
             const box = new THREE.Box3().setFromObject(target);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
-            const maxDimension = Math.max(size.x, size.y, size.z);
+            const sourceLength = Math.max(size.x, size.z);
+            const targetLength = (config.scaleMode === 'vehicle-length' && Number.isFinite(config.vehicleLengthM))
+                ? config.referenceLengthUnits * (config.vehicleLengthM / config.referenceLengthM)
+                : 2.2;
+            const scale = config.scaleMode === 'vehicle-length'
+                ? targetLength / sourceLength
+                : 2.2 / Math.max(size.x, size.y, size.z);
+            const scaleX = scale * (config.modelScaleX ?? 1);
+            const scaleY = scale * (config.modelScaleY ?? 1);
+            const scaleZ = scale * (config.modelScaleZ ?? 1);
 
-            target.position.sub(center);
-            target.scale.setScalar(2.2 / maxDimension);
+            target.scale.set(scaleX, scaleY, scaleZ);
+            target.position.set(-center.x * scaleX, -center.y * scaleY, -center.z * scaleZ);
 
             const scaledBox = new THREE.Box3().setFromObject(target);
             target.position.y -= scaledBox.min.y;
         }
 
-        function applyModelTransform(target, renderConfig) {
-            target.rotation.x = THREE.MathUtils.degToRad(renderConfig.modelPitchDeg ?? 0);
-            target.rotation.y = THREE.MathUtils.degToRad(renderConfig.modelYawDeg ?? 0);
+        function applyModelBaseTransform(target, renderConfig) {
+            target.rotation.x = THREE.MathUtils.degToRad(renderConfig.modelPitchOffsetDeg ?? 0);
+            target.rotation.y = THREE.MathUtils.degToRad(renderConfig.modelYawOffsetDeg ?? 0);
+            target.rotation.z = THREE.MathUtils.degToRad(renderConfig.modelRollOffsetDeg ?? 0);
+        }
+
+        function applyModelPoseTransform(target, renderConfig) {
+            target.rotation.x += THREE.MathUtils.degToRad(renderConfig.modelPitchDeg ?? 0);
+            target.rotation.y += THREE.MathUtils.degToRad(renderConfig.modelYawDeg ?? 0);
         }
 
         function createRavenCoupeModel() {
@@ -663,7 +803,7 @@ function createRendererHtml(rawConfig, screenshotMode) {
             const box = new THREE.Box3().setFromObject(target);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
-            const maxDimension = Math.max(size.x, size.y, size.z) * renderConfig.padding;
+            const maxDimension = (renderConfig.frameSizeUnits ?? Math.max(size.x, size.y, size.z)) * renderConfig.padding;
             const aspect = renderConfig.width / renderConfig.height;
             const halfHeight = maxDimension / 2;
             const halfWidth = halfHeight * aspect;
