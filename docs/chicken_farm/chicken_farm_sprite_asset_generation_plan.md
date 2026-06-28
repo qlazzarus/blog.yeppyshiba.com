@@ -67,7 +67,8 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 | 1x1 prop | `64x64` | item pickup, 작은 장식 |
 | 2x2 건물 | `128x128` | 타워, 우물, 시장 소형 |
 | 3x3 건물 | `192x192` | 닭장, 연구소, 배럭 |
-| 4x4 건물 | `256x256` | 마을회관, 신전 |
+| 4x4 건물 | `128x128` 또는 `256x256` | blocker는 128px, source는 detail 필요 시 256px |
+| 8x8 건물 | `256x256` 또는 `320x320` | 농가, 마을회관, 대형 핵심 건물 |
 | UI 아이콘 | `96x96` source -> `48x48` runtime | ability/shop/reward |
 
 건물 크기 기준:
@@ -75,6 +76,7 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 - `footprintCells`는 pathing/collision/build placement의 논리 크기다.
 - 현재 runtime footprint cell은 32px이고, placement snap은 minor tile 2개 단위인 64px이다.
 - sprite source 크기는 시각 품질 기준이다. 예를 들어 3x3 건물은 collision footprint가 `96x96`이어도 source sprite는 `192x192`로 둔다.
+- W3X/Warsmash 근접 footprint는 `pathTex`를 우선한다. `4x4SimpleSolid`는 `4x4`, `8x8SimpleSolid`는 `8x8`로 해석한다.
 - 건물 sprite는 footprint 바닥 중심에 anchor를 맞춘다. 지붕/장식은 footprint 밖으로 살짝 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
 - HP bar, 건설 progress bar, selection outline, range indicator는 runtime overlay로 처리한다.
 - 워3식 하단 정보 패널에 쓰는 건물 portrait는 1차에서는 `iconId`를 재사용한다. 필요하면 후속으로 `portraitId`를 manifest에 추가한다.
@@ -148,12 +150,12 @@ type BuildingAssetManifestEntry = {
 | `unit_dog_basic` | 시작 개 `n002` 대응 | unit | `64x64` | loyal farm dog, alert stance, compact silhouette |
 | `unit_wolf_basic` | 일반 늑대 baseline | unit | `64x64` | lean hungry wolf, dark gray fur, aggressive posture |
 | `unit_spider_basic` | 초반 거미 사냥 | unit | `64x64` | oversized field spider, readable legs, not horror realistic |
-| `building_fence_wood` | 기본 울타리 | building | `64x128` | wooden fence segment, defensive farm barricade |
+| `building_fence_wood` | 기본 울타리, W3X 4x4 blocker | building | `128x128` | wooden fence segment inside 4x4 footprint, defensive farm barricade |
 | `building_tower_scout` | 초반 스카우트 타워 | building | `128x128` | small wooden watch tower, farm defense, simple roof |
-| `building_farm_house` | 건설 PoC core 건물 | building | `192x192` | cozy farm house, defensive homestead |
-| `building_coop_basic` | 건설 PoC economy 건물 | building | `192x192` | small chicken coop, hay, red-brown wood |
-| `building_scaffold_3x3` | 3x3 건설 중 공통 scaffold | building_state | `192x192` | wooden construction scaffold, partial frame, hay and planks |
+| `building_farm_house` | 건설 PoC core 건물, W3X 8x8 blocker | building | `256x256` | cozy large farm house, defensive homestead |
+| `building_coop_basic` | 건설 PoC economy 건물, W3X 4x4 blocker | building | `128x128` 또는 `256x256` | small chicken coop, hay, red-brown wood |
 | `building_scaffold_4x4` | 4x4 건설 중 공통 scaffold | building_state | `256x256` | larger wooden construction scaffold, sturdy frame, planks |
+| `building_scaffold_8x8` | 8x8 건설 중 공통 scaffold | building_state | `256x256` 또는 `320x320` | large wooden construction scaffold, broad foundation, planks |
 | `icon_build` | build page 진입 command | icon | `96x96` | rustic hammer and blueprint, construction command |
 | `icon_cancel` | placement/build 취소 | icon | `96x96` | crossed wooden stakes, cancel construction motif |
 | `icon_repair` | 건물 수리 command 후보 | icon | `96x96` | wooden hammer with green repair spark |
@@ -359,7 +361,7 @@ No props, no units, no buildings, no text, no logos.
 
 1. `unit_farmer`, `unit_dog_basic`
 2. `icon_build`, `icon_stop`, `marker_move_command`, `marker_target_command`
-3. `building_scaffold_3x3`, `building_scaffold_4x4`
+3. `building_scaffold_4x4`, `building_scaffold_8x8`
 4. `building_fence_wood`, `building_tower_scout`, `building_farm_house`, `building_coop_basic`
 5. `unit_wolf_basic`, `unit_spider_basic`
 6. `unit_chicken_basic`, `icon_egg`, `icon_coin`

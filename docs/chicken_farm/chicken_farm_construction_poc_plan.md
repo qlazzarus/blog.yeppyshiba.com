@@ -269,23 +269,21 @@ type PlayerBuilding = {
 - complete building은 `getDynamicBlockedRects()`에 포함한다.
 - 이후 combat 재연결을 위해 `getWolfTargetableBuildings()` 형태의 API를 열 수 있게 둔다.
 
-초기 build time override:
+현재 PoC build time:
 
 ```ts
-const CONSTRUCTION_POC_BUILD_TIMES = {
-    fence_wood: 1.5,
-    tower_scout: 3,
-    farm_house: 4,
-    coop_basic: 4,
-} as const;
+BUILDING_TEMPLATES.fence_wood.buildTimeSec = 1;
+BUILDING_TEMPLATES.tower_scout.buildTimeSec = 5;
+BUILDING_TEMPLATES.farm_house.buildTimeSec = 15;
+BUILDING_TEMPLATES.coop_basic.buildTimeSec = 25;
 ```
 
 후속 정리 방향:
 
-- 위 override는 임시값이다. 다음 단계에서는 `buildingTemplates.ts`의 `buildTimeSec`를 source of truth로 채운다.
-- 원본 build time은 아직 SLK/W3X 교차 검증이 부족하므로 `source.notes`에 `mvp_build_time_tuned` 또는 `original_build_time_unverified`를 남긴다.
+- `BuildingSystem`은 별도 override를 두지 않고 `buildingTemplates.ts`의 `buildTimeSec`를 source of truth로 사용한다.
+- `buildTimeSec`는 W3X `unit_balance.bldtm` 기준으로 채운다.
 - 건물 스프라이트는 `spriteId`, `constructionSpriteId`, `iconId`를 별도 asset manifest로 매핑한다.
-- 건설 중 시각은 공통 scaffold sprite를 우선 사용한다. 3x3/4x4 scaffold가 P0 에셋이다.
+- 건설 중 시각은 공통 scaffold sprite를 우선 사용한다. W3X footprint 기준으로 4x4/8x8 scaffold가 P0 에셋이다.
 
 ## 8.1 Building Data Cleanup Checklist
 
@@ -306,10 +304,57 @@ P0 건물 우선 정리:
 
 | Building | 현재 역할 | 우선 결정 |
 | --- | --- | --- |
-| `fence_wood` | 길막/방어 baseline | 4x4 footprint가 segment 시각과 맞는지 재검토 |
+| `fence_wood` | 길막/방어 baseline | W3X `PathTextures\\4x4SimpleSolid.tga` 기준 4x4 유지. 시각은 segment처럼 보이되 blocker는 4x4 |
 | `tower_scout` | 초반 방어 타워 | complete 후 공격 활성화, 건설 중 공격 불가 |
-| `farm_house` | core/가족 생산 허브 | command card root 건물 선택 UI 후보 |
-| `coop_basic` | economy baseline | 다음 economy tick PoC의 수익 건물 |
+| `farm_house` | core/가족 생산 허브 | W3X `PathTextures\\8x8SimpleSolid.tga` 기준 8x8로 보정 |
+| `coop_basic` | economy baseline | W3X `PathTextures\\4x4SimpleSolid.tga` 기준 4x4로 보정. 다음 economy tick PoC의 수익 건물 |
+
+## 8.1.1 W3X / Warsmash Footprint Verification
+
+2026-06-26 기준으로 `닭농장1.3a.w3x` 내부 SLK/INI를 다시 확인했다. `unit_rawcode_crosscheck.tsv`에는 pathing texture가 빠져 있었으므로, `scripts/analyze_chicken_w3x.py`의 MPQ/SLK parser를 재사용해 `unit_data.pathTex`, `unit_balance.collision`, `unit_ui.scale`, `unit_ui.modelScale`를 직접 확인했다.
+
+Warsmash/Warcraft III 기준에서 건물 점유 크기는 모델의 시각 scale이 아니라 `pathTex`가 우선이다. 따라서 Phaser footprint는 `PathTextures\\4x4SimpleSolid.tga` -> `4x4`, `PathTextures\\8x8SimpleSolid.tga` -> `8x8`로 해석한다. 현재 runtime footprint cell은 32px이므로 4x4는 128x128px, 8x8은 256x256px이다.
+
+건설 시간은 같은 SLK의 `unit_balance.bldtm`을 사용한다.
+
+| Runtime id | Rawcode | W3X name | pathTex | bldtm | collision | model | scale / modelScale | Phaser footprint |
+| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| `fence_wood` | `h003` | 울타리 | `4x4SimpleSolid` | 1 | 72 | `Village_Fenceshort.mdl` | `1.8 / 1` | `4x4` |
+| `tower_scout` | `h00D` | 스카우트 타워 | `4x4SimpleSolid` | 5 | 72 | `HumanTower` | `2.5 / 0.8` | `4x4` |
+| `farm_house` | `h001` | 농가 | `8x8SimpleSolid` | 15 | 100 | `Inn.mdl` | `3.5 / 0.6` | `8x8` |
+| `coop_basic` | `h00N` | 닭장 | `4x4SimpleSolid` | 25 | 72 | `Farm` | `1.8 / 0.9` | `4x4` |
+
+보조 건물 후보도 같은 규칙을 따른다.
+
+| Runtime id | Rawcode | W3X name | pathTex | bldtm | Phaser footprint |
+| --- | --- | --- | --- | ---: | --- |
+| `egg_storage` | `h004` | 알 보관소 | `4x4SimpleSolid` | 18 | `4x4` |
+| `town_hall` | `h00H` | 마을회관 | `8x8SimpleSolid` | 30 | `8x8` |
+| `well_basic` | `h00M` | 우물 | `4x4SimpleSolid` | 13 | `4x4` |
+| `market` | `h00E` | 시장 | `4x4SimpleSolid` | 4 | `4x4` |
+| `lumber_mill` | `h00A` | 럼버 밀 | `4x4SimpleSolid` | 12 | `4x4` |
+| `gate_wood` | `h006` | 대문 | `4x4SimpleSolid` | 15 | `4x4` |
+
+현재 코드 반영:
+
+- `fence_wood`: `4x4` 유지
+- `tower_scout`: `4x4` 유지
+- `farm_house`: `3x3` -> `8x8` 보정
+- `coop_basic`: `3x3` -> `4x4` 보정
+- `egg_storage`: `2x2` -> `4x4` 보정
+- `town_hall`: `4x4` -> `8x8` 보정
+- `well_basic`: `2x2` -> `4x4` 보정
+- `market`: `2x2` -> `4x4` 보정
+- `lumber_mill`: `3x3` -> `4x4` 보정
+- `coop_mid` / `coop_high`: `3x3` -> `4x4` 보정
+- `blacksmith` / `workshop_lab` / `arcane_lab` / `mercenary_barracks` / `power_generator`: `8x8`로 보정
+- 전체 `buildingTemplates.ts`의 `buildTimeSec`를 W3X `bldtm`과 일치하도록 보정
+
+주의:
+
+- `collision` 값은 유닛/선택/충돌 반경 성격의 보조값으로 보고, 건물 footprint source of truth로 쓰지 않는다.
+- `scale` / `modelScale`은 sprite source 크기와 selectionBounds를 정할 때 참고하되, blocker 크기는 `pathTex`를 따른다.
+- fence는 시각적으로 길쭉한 segment처럼 보여도 pathTex가 4x4이므로, 원본 근접 모드에서는 4x4 blocker로 둔다. 후속 UX에서 segment형 벽을 원하면 별도 web-MVP 변환 규칙으로 분리한다.
 
 ## 8.2 Building Visual State Policy
 

@@ -367,6 +367,7 @@ function createRendererHtml(rawConfig, screenshotMode) {
     <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+        import { MeshoptDecoder } from '/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js';
 
         const config = JSON.parse(decodeURIComponent('${encodeURIComponent(rawConfig)}'));
         const status = document.getElementById('status');
@@ -395,6 +396,7 @@ function createRendererHtml(rawConfig, screenshotMode) {
         scene.add(rim);
 
         const loader = new GLTFLoader();
+        loader.setMeshoptDecoder(MeshoptDecoder);
         if (status) status.textContent = 'loading glb';
         const gltf = await loader.loadAsync('/' + config.modelPath);
         const model = gltf.scene;

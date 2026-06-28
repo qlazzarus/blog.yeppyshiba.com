@@ -1,0 +1,210 @@
+{
+  "cellHeight": 384,
+  "cellWidth": 341.3333333333333,
+  "colorKey": "#ff00ff",
+  "columnEdges": [
+    0,
+    341,
+    683,
+    1024
+  ],
+  "columns": 3,
+  "input": "assets/vehicles/generated/img2img-candidates/raven-coupe-generated.png",
+  "outputColorKey": "assets/vehicles/generated/img2img-candidates/raven-coupe-color-key-magenta.png",
+  "outputPreview": "assets/vehicles/generated/img2img-candidates/raven-coupe-preview-magenta.png",
+  "outputTransparent": "assets/vehicles/generated/img2img-candidates/raven-coupe-transparent.png",
+  "poseCount": 11,
+  "poses": [
+    {
+      "bbox": {
+        "height": 121,
+        "width": 191,
+        "x": 42,
+        "y": 163
+      },
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "componentCount": 283,
+      "isUnusedCell": false,
+      "keptComponentCount": 5,
+      "keptPixels": 17882,
+      "removedPixels": 357
+    },
+    {
+      "bbox": {
+        "height": 129,
+        "width": 314,
+        "x": 14,
+        "y": 163
+      },
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "componentCount": 310,
+      "isUnusedCell": false,
+      "keptComponentCount": 16,
+      "keptPixels": 27315,
+      "removedPixels": 152
+    },
+    {
+      "bbox": {
+        "height": 124,
+        "width": 304,
+        "x": 24,
+        "y": 163
+      },
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "componentCount": 273,
+      "isUnusedCell": false,
+      "keptComponentCount": 9,
+      "keptPixels": 26296,
+      "removedPixels": 353
+    },
+    {
+      "bbox": {
+        "height": 126,
+        "width": 306,
+        "x": 9,
+        "y": 75
+      },
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "componentCount": 282,
+      "isUnusedCell": false,
+      "keptComponentCount": 12,
+      "keptPixels": 25925,
+      "removedPixels": 1710
+    },
+    {
+      "bbox": {
+        "height": 134,
+        "width": 328,
+        "x": 0,
+        "y": 68
+      },
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "componentCount": 239,
+      "isUnusedCell": false,
+      "keptComponentCount": 9,
+      "keptPixels": 29429,
+      "removedPixels": 2546
+    },
+    {
+      "bbox": {
+        "height": 142,
+        "width": 290,
+        "x": 38,
+        "y": 71
+      },
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "componentCount": 210,
+      "isUnusedCell": false,
+      "keptComponentCount": 13,
+      "keptPixels": 28069,
+      "removedPixels": 31
+    },
+    {
+      "bbox": {
+        "height": 384,
+        "width": 341,
+        "x": 0,
+        "y": 0
+      },
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "componentCount": 395,
+      "isUnusedCell": false,
+      "keptComponentCount": 22,
+      "keptPixels": 50141,
+      "removedPixels": 0
+    },
+    {
+      "bbox": {
+        "height": 384,
+        "width": 328,
+        "x": 0,
+        "y": 0
+      },
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "componentCount": 336,
+      "isUnusedCell": false,
+      "keptComponentCount": 17,
+      "keptPixels": 54069,
+      "removedPixels": 4
+    },
+    {
+      "bbox": null,
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "componentCount": 126,
+      "isUnusedCell": false,
+      "keptComponentCount": 0,
+      "keptPixels": 0,
+      "removedPixels": 141
+    },
+    {
+      "bbox": null,
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "componentCount": 270,
+      "isUnusedCell": false,
+      "keptComponentCount": 0,
+      "keptPixels": 0,
+      "removedPixels": 2627
+    },
+    {
+      "bbox": null,
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "componentCount": 248,
+      "isUnusedCell": false,
+      "keptComponentCount": 0,
+      "keptPixels": 0,
+      "removedPixels": 3404
+    },
+    {
+      "bbox": null,
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "isUnusedCell": true,
+      "keptComponentCount": 0,
+      "keptPixels": 0,
+      "removedPixels": 315
+    }
+  ],
+  "rowEdges": [
+    0,
+    384,
+    768,
+    1152,
+    1536
+  ],
+  "rows": 4
+}

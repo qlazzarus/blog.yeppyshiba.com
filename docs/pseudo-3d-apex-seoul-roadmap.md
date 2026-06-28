@@ -757,17 +757,17 @@ UI 감성 방향
 
 ## ChatGPT 앱 사용 검토
 
-전용 차량 이미지는 우선 ChatGPT 앱에서 생성하는 방식을 권장한다. 다만 생성 방식은 개별 차량 sprite를 한 장씩 새로 그리는 흐름이 아니라, `3D pose sheet`를 입력으로 넣고 같은 레이아웃을 유지한 채 2D retro sprite sheet로 변환하는 흐름으로 통일한다.
+전용 차량 이미지는 한때 ChatGPT 앱의 image-to-image 생성도 검토했지만, 런타임 asset의 기본 제작 경로에서는 제외한다. 생성 방식이 pose order, 빈 cell, anchor, alpha, 차량 디테일을 안정적으로 유지하지 못했기 때문이다. ChatGPT 앱은 스타일 탐색, 블로그 설명용 이미지, 수동 paint-over reference 후보를 만들 때만 사용한다.
 
 이유는 다음과 같다.
 
-- 차량 디자인은 초기에는 반복 피드백이 중요하다.
-- ChatGPT Images는 대화 맥락을 유지하면서 이미지를 다듬을 수 있다.
-- 배경 투명 이미지 생성과 기존 이미지 편집을 지원한다.
-- 프롬프트를 한 번에 고정하기보다, 생성 결과를 보고 차체 비율, 색상, 각도 차이, 그림자 강도를 조정하기 좋다.
-- 3D pose sheet를 기준 입력으로 두면 frame마다 차량 정체성이 흔들리는 문제를 줄일 수 있다.
+- 차량 디자인 탐색 초기에는 반복 피드백이 빠르다.
+- ChatGPT Images는 대화 맥락을 유지하면서 후보 이미지를 다듬을 수 있다.
+- 컨셉 이미지나 paint-over reference에는 충분히 유용하다.
+- 하지만 최종 sprite sheet에서는 cell마다 차체 디테일이 바뀌거나, 12번째 빈 cell을 채우거나, alpha/noise가 흔들릴 수 있다.
+- 같은 3D pose sheet를 기준 입력으로 두어도 steer/spin/uphill/downhill 차이를 안정적으로 보존하지 못할 수 있다.
 
-다만 최종 빌드 파이프라인까지 자동화해야 할 때는 API 기반 이미지 생성으로 옮기는 편이 낫다. 블로그 연재와 소규모 게임 아트 탐색 단계에서는 ChatGPT 앱으로 후보 이미지를 만들고, 선택된 결과와 최종 프롬프트를 문서에 남기는 방식이 더 빠르다.
+따라서 최종 빌드 파이프라인은 이미지 생성 API가 아니라 deterministic Three.js render + pixel pass로 둔다. 블로그 연재와 소규모 게임 아트 탐색 단계에서만 ChatGPT 앱 후보 이미지와 프롬프트를 보조 자료로 남긴다.
 
 참고 자료
 
@@ -779,7 +779,7 @@ UI 감성 방향
 
 - pseudo 3D 레이싱 게임 화면 하단에 배치할 플레이어 차량 sprite sheet
 - 입력 3D pose sheet와 같은 grid, pose order, per-cell alignment 유지
-- 실제 런타임 기준은 `center`, `steer-right-1`, `steer-right-2` 원본 3장과 `flipX`로 만든 왼쪽 2장
+- 실제 런타임 기준은 오른쪽 source pose와 `flipX`로 만든 왼쪽 steer/spin/downhill/uphill 상태
 - 도로와 조명에 맞는 아웃런풍 아케이드 레이싱 스타일
 - 배경 투명 PNG 또는 후처리로 투명화 가능한 단색 배경
 - 게임 내 크롭과 스케일링을 고려한 넉넉한 셀 여백
@@ -794,7 +794,7 @@ Raven Coupe
 ```text
 Vehicle identity: Raven Coupe, an original fictional lightweight NA rear-wheel-drive compact FR coupe.
 It is inspired by the proportions and spirit of an FT86-style compact driver car, but must remain clearly original and not a copy.
-Keep it short, agile, beginner-friendly, and grounded: a low two-door compact driver coupe with a long-ish hood, short rear deck, compact cabin, simple rear lights, modest wing, graphite body, and restrained red accents.
+Keep it short, agile, beginner-friendly, and grounded: a low two-door compact driver coupe with a long-ish hood, short clean rear deck, compact cabin, simple rear lights, no rear wing or spoiler, graphite body, and restrained red accents.
 It should feel like an affordable street drift coupe rather than a futuristic hypercar, concept car, exotic race car, or sci-fi vehicle.
 Avoid wedge-shaped supercar proportions, exposed race-car wheels, jet-like bodywork, glowing future-tech panels, oversized aero, and cyberpunk concept-car details.
 No real brand marks, readable text, numbers, or badges.
@@ -818,18 +818,26 @@ Keep it precise, stable, modern, with short-deck sedan proportions, pearl white 
 No real brand marks, readable text, numbers, or badges.
 ```
 
-## 3D pose sheet 기반 sprite sheet 변환 프롬프트
+## image-to-image reference 프롬프트
 
-개별 프레임을 따로 생성하면 차량 디테일이 흔들릴 가능성이 크다. 프로토타입에서는 3D pose sheet를 먼저 만들고, 그 이미지를 입력으로 넣어 한 번에 retro sprite sheet로 변환하는 방식을 기본 생성 경로로 고정한다.
+개별 프레임을 따로 생성하면 차량 디테일이 흔들릴 가능성이 크다. image-to-image를 보조 reference로 쓸 때도 3D pose sheet를 먼저 만들고, 그 이미지를 입력으로 넣어 한 번에 retro sprite sheet로 변환한다. 단, 이 경로는 최종 런타임 asset 제작 경로가 아니다.
 
-초기 pose sheet는 스프라이트 수를 아끼기 위해 오른쪽 방향 원본만 만든다. 런타임에서는 오른쪽 원본을 `flipX`해서 왼쪽 조향 상태로 재사용한다.
+초기 pose sheet는 스프라이트 수를 아끼기 위해 오른쪽 방향 원본만 만든다. 런타임에서는 오른쪽 원본을 `flipX`해서 왼쪽 조향, 스핀, 고저차 상태로 재사용한다.
 
-기본 3셀 구성
+기본 source pose 구성
 
 ```text
 cell 1: center rear view
 cell 2: rear-right steering angle, moderate
 cell 3: rear-right steering angle, strong
+cell 4: spin-right, moderate
+cell 5: spin-right, strong
+cell 6: downhill center rear view
+cell 7: downhill rear-right steering angle, moderate
+cell 8: downhill rear-right steering angle, strong
+cell 9: uphill center rear view
+cell 10: uphill rear-right steering angle, moderate
+cell 11: uphill rear-right steering angle, strong
 ```
 
 권장 3D pose 차이
@@ -840,26 +848,36 @@ steer-right-1: about 22 to 25 degrees from rear
 steer-right-2: about 42 to 45 degrees from rear
 ```
 
-`steer-right-1`과 `steer-right-2`는 픽셀풍 변환 뒤에도 구분되어야 한다. 3D 입력 단계에서 차이를 충분히 벌리지 않으면 image-to-image 단계가 두 셀을 거의 같은 포즈로 해석한다.
+`steer-right-1`과 `steer-right-2`는 픽셀풍 변환 뒤에도 구분되어야 한다. 3D 입력 단계에서 차이를 충분히 벌리지 않으면 image-to-image 단계가 두 셀을 거의 같은 포즈로 해석한다. 이 문제가 반복되면 image-to-image를 더 시도하지 말고 Three.js source model과 직접 pixel pass를 개선한다.
 
-기본 변환 프롬프트
+보조 reference 변환 프롬프트
 
 ```text
 Transform the attached 3D vehicle pose sheet into a retro arcade racing sprite sheet for a pseudo-3D drift racing game named "Apex Seoul".
 
 Preserve the exact layout, pose order, silhouette, vehicle proportions, camera angle, and per-cell alignment from the input pose sheet.
 
-The three cells are:
+The source pose cells are:
 1. center rear view
 2. rear-right steering angle, moderate
 3. rear-right steering angle, strong
+4. spin-right, moderate body yaw
+5. spin-right, strong body yaw
+6. downhill center rear view, nose pitched slightly downward
+7. downhill rear-right steering angle, moderate
+8. downhill rear-right steering angle, strong
+9. uphill center rear view, nose pitched slightly upward
+10. uphill rear-right steering angle, moderate
+11. uphill rear-right steering angle, strong
 
-Left-facing sprites will be created later with horizontal flipX in the game runtime.
+Left-facing steer, spin, downhill, and uphill sprites will be created later with horizontal flipX in the game runtime.
 Do not add left-facing frames.
 
 Important pose distinction:
 - The second cell and third cell must not look like duplicates.
 - The third cell must show more side body, stronger wheel separation, and a more diagonal rear bumper than the second cell.
+- The fourth and fifth cells must read as spin/recovery poses, not normal steering duplicates.
+- Downhill and uphill rows must keep the same yaw order while changing only the body pitch and contact feel.
 - Preserve the visible difference between the moderate rear-right angle and the strong rear-right angle.
 
 Target style:
@@ -889,8 +907,8 @@ Output:
 pose sheet 입력 기준
 
 - 1차 테스트는 `Raven Coupe`만 사용한다.
-- 그리드는 `center`, `steer-right-1`, `steer-right-2` 3프레임부터 시작한다.
-- 확장 테스트도 원칙적으로 오른쪽 원본을 먼저 만든다. 예: `drift-right`, `spin-right-1`, `contact-right`.
+- 그리드는 `center`, `steer-right-1`, `steer-right-2`, `spin-right-1`, `spin-right-2`, `downhill-*`, `uphill-*` 11프레임을 기본으로 한다.
+- 확장 테스트도 원칙적으로 오른쪽 원본을 먼저 만든다. 예: `drift-right`, `contact-right`.
 - 왼쪽 상태는 가능하면 생성하지 않고, 런타임 `flipX`로 재사용한다.
 - 브레이크와 부스트는 base sheet에 섞지 않고 별도 overlay로 만든다.
 
@@ -899,12 +917,12 @@ pose sheet 입력 기준
 - 결과 이미지에서 배경이 완전히 투명한지 확인한다.
 - 차량이 화면 하단 anchor에 맞게 아래쪽이 너무 잘리지 않았는지 확인한다.
 - sprite 회전 시 여백이 충분한지 확인한다.
-- 후면 시점이 약하면 "more rear-facing, less side view"로 재생성한다.
+- 후면 시점이 약하면 image-to-image를 반복하기보다 source render의 camera/pose를 먼저 조정한다.
 - `steer-right-1`과 `steer-right-2`가 비슷하면 3D pose sheet부터 각도 차이를 더 벌린 뒤 다시 변환한다.
-- 너무 사실적이면 "cleaner arcade game sprite, stronger silhouette"를 추가한다.
+- 너무 사실적이면 deterministic pixel pass의 posterize/palette/outline 값을 먼저 조정한다.
 - 로고나 문자 비슷한 요소가 나오면 제거 요청 후 재생성한다.
 - pose sheet 변환 결과에서 cell 간 차량 비율, 후미등, 창문, 범퍼 형태가 유지되는지 확인한다.
-- cell grid가 흐트러지면 sprite sheet로 바로 쓰지 말고 crop/anchor 보정 스크립트로 후처리한다.
+- cell grid가 흐트러지면 런타임 asset으로 쓰지 않고 reference 후보로만 보관한다.
 
 ---
 
@@ -912,7 +930,7 @@ pose sheet 입력 기준
 
 현재 구현은 `rear`, `rear-left`, `rear-right` 3장만 사용한다. 이 조합은 기본 조향 반응 확인에는 충분하지만, 아웃런 계열의 풍부한 차체 반응을 만들기에는 부족하다. 특히 코너 진입, 드리프트, 브레이크, 부스트 상태가 모두 같은 차처럼 보여서 속도감과 차량 성격 차별화가 약해진다.
 
-전용 sprite 제작에서는 원본 방향을 오른쪽으로 통일한다. 즉 사람이 만들거나 image-to-image로 변환하는 base body sprite는 `center`, `steer-right-1`, `steer-right-2`를 기준으로 두고, 왼쪽 상태는 런타임 `flipX`로 만든다. 좌우가 거의 대칭인 차량만 이 정책을 적용하며, 배기구, 데칼, 파손, 접촉 방향처럼 비대칭성이 강한 경우에는 별도 sprite 또는 overlay로 승격한다.
+전용 sprite 제작에서는 원본 방향을 오른쪽으로 통일한다. 즉 직접 렌더링하고 후처리하는 base body sprite는 `center`, `steer-right-*`, `spin-right-*`, `downhill-*`, `uphill-*`를 기준으로 두고, 왼쪽 상태는 런타임 `flipX`로 만든다. 좌우가 거의 대칭인 차량만 이 정책을 적용하며, 배기구, 데칼, 파손, 접촉 방향처럼 비대칭성이 강한 경우에는 별도 sprite 또는 overlay로 승격한다.
 
 아웃런 스타일에 가까운 후보 프레임 종류
 
@@ -933,12 +951,11 @@ pose sheet 입력 기준
 
 구현 우선순위
 
-- 1차 필수 원본: `center`, `steer-right-1`, `steer-right-2`
-- 1차 런타임 상태: `steer-left-1`, `steer-left-2`는 오른쪽 원본 `flipX`
+- 1차 필수 원본: `center`, `steer-right-1`, `steer-right-2`, `spin-right-1`, `spin-right-2`, `downhill-center`, `downhill-right-1`, `downhill-right-2`, `uphill-center`, `uphill-right-1`, `uphill-right-2`
+- 1차 런타임 상태: 왼쪽 steer/spin/downhill/uphill은 오른쪽 원본 `flipX`
 - 2차 권장: `brake-center`, `boost-center`, `drift-right`
 - 3차 확장: `drift-left`, `brake-left`, `brake-right`, `boost-left`, `boost-right`
-- 4차 확장: `crest`, `dip`, `uphill`, `downhill`
-- 5차 확장: `spin-left/right`, `contact-left/right`, `recover-left/right`, `damage-light`
+- 4차 확장: `crest`, `dip`, `contact-left/right`, `recover-left/right`, `damage-light`
 
 상태 묶음 기준
 
@@ -1088,45 +1105,102 @@ overlay 한계
 - `spin`과 `contact`는 최종 품질에서는 단순 좌우 반전만으로 끝내지 말고, rear bumper, body yaw, tire angle이 더 크게 무너진 pose가 필요하다.
 - 렌더 파이프라인은 `base body sprite`, `flipX eligibility`, `effect overlay sprite`를 분리해 관리하는 편이 장기적으로 낫다.
 
-3D pose sheet + image-to-image 자동화 검토
+3D source model 개선 + deterministic sprite 처리
 
-Apex Seoul의 목표가 아웃런 스타일 도트 레트로 게임이라면, 3D 렌더를 최종 그래픽으로 직접 쓰는 것보다 `3D pose sheet -> image-to-image -> 도트/레트로 sprite sheet 정리` 파이프라인을 검토하는 편이 맞다. 이 방식은 한 프레임씩 따로 생성하는 것보다 차량 정체성과 스타일을 유지하기 쉽지만, 최종 품질 검수는 반드시 필요하다.
+`3D pose sheet -> image-to-image -> 도트/레트로 sprite sheet 정리` 파이프라인은 컨셉 탐색에는 유용했지만, 게임 런타임 asset의 기본 경로로 삼기에는 불안정하다. pose order, 빈 cell, anchor, alpha, 차량 디테일 일관성이 매번 흔들리기 때문이다.
+
+따라서 기본 제작 경로는 `Three.js procedural source model 개선 -> 직접 pose render -> 픽셀화/팔레트/outline/color-key 후처리 -> Phaser 투입`으로 전환한다. image-to-image는 최종 asset 생성 단계가 아니라 스타일 탐색, 블로그 소재, 수동 paint-over reference 후보로만 둔다.
 
 자동화 가능한 단계
 
-- `3D pose batch render`: 차량별 `center`, `steer`, `drift`, `spin`, `crest`, `dip`, `contact` 기준 이미지를 일괄 캡처한다.
-- `pose sheet build`: 여러 pose render를 하나의 grid 이미지로 묶어 image-to-image 입력으로 사용한다.
+- `procedural model build`: Raven Coupe의 차체, 캐빈, 휠 아치, 후미등, 유리, 범퍼를 Three.js geometry와 decal plane으로 구성한다.
+- `3D pose batch render`: 차량별 `center`, `steer`, `spin`, `uphill`, `downhill`, `contact` 기준 이미지를 일괄 캡처한다.
+- `pose sheet build`: 여러 pose render를 하나의 grid 이미지로 묶어 deterministic 후처리 입력으로 사용한다.
 - `pose manifest`: 각 cell에 `vehicleId`, `state`, `view`, `flipX 가능 여부`, `overlay anchor`를 기록한다.
-- `image-to-image batch`: 3D pose sheet를 같은 프롬프트와 스타일 기준으로 아웃런풍 도트/레트로 sprite sheet 후보로 변환한다.
+- `pixel pass`: 직접 렌더한 pose sheet를 저해상도 downscale, posterize, palette quantization, nearest upscale로 처리한다.
+- `outline pass`: 차체 외곽선과 후면 주요 실루엣을 hard edge로 정리한다.
 - `palette pass`: 후보 이미지를 제한 팔레트나 차량별 paint preset에 맞춰 후처리한다.
+- `color-key pass`: 투명 PNG와 함께 Phaser용 magenta color-key preview를 만든다.
 - `sprite QA`: 투명 배경, silhouette bbox, anchor 위치, 좌우 flip 일관성, 프레임 크기를 자동 검사한다.
 - `atlas build`: 통과한 sprite와 overlay를 atlas PNG + JSON metadata로 묶는다.
 
 자동화가 어려운 단계
 
-- image-to-image 결과가 cell마다 차체 디테일을 다르게 해석하는 문제
-- 후미등, 창문, 범퍼, 휠 아치 같은 반복 디테일의 일관성 유지
+- procedural geometry만으로 FT86풍 compact FR coupe 느낌을 충분히 내는 작업
+- 검은 차체와 검은 배경을 자동 alpha 처리에서 안전하게 분리하는 작업
 - 접촉/스핀처럼 차체가 크게 무너지는 pose의 의도 확인
-- 아웃런풍 도트 감성이 과한 AI 회화 스타일로 흐르는지 판단
+- 픽셀화 후에도 후미등, 창문, 범퍼, 휠 아치가 작은 표시 크기에서 읽히게 만드는 작업
 
 권장 검증 순서
 
-1. `Raven Coupe` 한 대만 대상으로 `center`, `steer-right-1`, `steer-right-2`를 3D pose sheet로 캡처한다.
-2. 같은 pose sheet를 image-to-image로 변환하고, cell 간 차체 비율과 후미등 일관성을 확인한다.
-3. `brake-glow`, `boost-glow`, `skid-smoke`는 image-to-image에 섞지 않고 overlay sprite로 분리한다.
-4. 결과가 안정적이면 `drift-right`, `crest`, `dip`, `spin-right-1`, `contact-right`까지 확장한다.
-5. 그 다음에 색상 팔레트 변경과 차량 3종 확장을 검토한다.
+1. `Raven Coupe` procedural source model을 먼저 개선한다.
+2. 차체 비율, 캐빈 위치, short rear deck, rear wing 없음, 후미등, 휠 아치가 3D render 단계에서 읽히는지 확인한다.
+3. 오른쪽 기준 11개 source pose를 직접 렌더링한다.
+4. 픽셀화/팔레트/outline/color-key 후처리를 적용하고, 작은 표시 크기에서 방향과 상태가 읽히는지 확인한다.
+5. `brake-glow`, `boost-glow`, `skid-smoke`는 base body에 bake하지 않고 overlay sprite로 분리한다.
+6. 결과가 안정적이면 `drift-right`, `contact-right`, `damage-*` 같은 이벤트성 pose를 추가한다.
+7. 그 다음에 색상 팔레트 변경과 차량 3종 확장을 검토한다.
 
 판단 기준
 
-- 3프레임 pose sheet 테스트에서 차체 실루엣과 주요 디테일이 흔들리지 않으면 자동화 후보로 유지한다.
-- cell마다 차종이 달라 보이면 3D pose sheet는 reference로만 쓰고, 최종 sprite는 수동 보정 비중을 높인다.
-- 팔레트 변경은 image-to-image 재생성보다 `palette pass` 또는 material preset 캡처가 안정적인지 비교한다.
-- 최종 런타임에는 3D를 직접 쓰지 않고, 검수된 2D sprite와 overlay만 사용한다.
+- 11프레임 source pose sheet 테스트에서 차체 실루엣과 주요 디테일이 흔들리지 않으면 자동화 후보로 유지한다.
+- 픽셀화 후 `steer-right-1`과 `steer-right-2`, `spin-right-1`과 `spin-right-2`가 구분되면 deterministic pipeline을 유지한다.
+- 모델이 너무 박스형이면 image-to-image를 다시 반복하지 말고 procedural model의 geometry/decal부터 개선한다.
+- 팔레트 변경은 material preset 캡처 또는 `palette pass` 중 더 안정적인 쪽을 선택한다.
+- 최종 런타임에는 3D를 직접 쓰지 않고, 검수된 2D sprite, magenta color-key sheet, overlay만 사용한다.
 
 구현안
 
 자동화 라인은 `source`, `generated`, `approved`를 분리한다. `source`는 사람이 관리하는 원본과 manifest이고, `generated`는 언제든 지워도 다시 만들 수 있는 중간 산출물이며, `approved`는 게임에 들어갈 검수 완료 asset이다.
+
+## Blender 없는 Raven Coupe source model 방향
+
+Raven Coupe 전용 3D source model은 Blender 없이 Three.js procedural geometry로 먼저 만든다.
+
+이 모델은 최종 게임 런타임에 쓰는 3D 모델이 아니라, deterministic 2D sprite를 만들기 위한 `render source`다. 따라서 곡면 완성도보다 다음 요소를 안정적으로 고정하는 것이 우선이다.
+
+- 낮은 2도어 compact FR coupe 비율
+- long-ish hood, short rear deck
+- 뒤쪽으로 살짝 밀린 compact cabin
+- 단순한 직사각형 후미등
+- rear wing 없음
+- 4개 휠의 위치와 크기
+- graphite body, dark glass, restrained red accent
+- sci-fi panel, hypercar wedge, exposed race wheel 금지
+
+Three.js procedural source model은 `render:vehicle-pose-sheet`의 `--model raven-coupe-procedural` 모드로 렌더링한다. 이후 필요하면 같은 geometry를 GLB로 export하거나, Blender/수동 모델링으로 승격한다.
+
+다음 개선은 primitive 박스 조합을 유지하되, 차량 정체성이 더 잘 읽히도록 geometry와 decal을 보강한다.
+
+```text
+bodyBase: 낮고 긴 메인 차체
+hood: 낮게 뻗은 앞쪽 볼륨
+cabin: 뒤쪽으로 밀린 낮은 캐빈
+rearDeck: 짧은 뒤쪽 데크
+bumper: 두꺼운 후면 범퍼
+rearLights: 단순 직사각형 후미등
+wheelArches: 차체에서 잘 읽히는 둥근 휠 아치
+wheels: 4개 실린더 + 밝은 rim
+glass: rear/side window dark material
+decalPlanes: rear light, license plate, glass highlight, belt line
+outlineHints: 픽셀화 후 남을 얇은 dark trim
+accent: 절제된 red stripe
+```
+
+이 접근의 장점은 다음과 같다.
+
+- Blender 설치 없이 repo 안에서 재현 가능하다.
+- 차량 비율을 코드 상수로 조정할 수 있다.
+- Raven Coupe, Vortex GT, Apex S를 같은 방식으로 확장할 수 있다.
+- pose sheet 각도와 source model 변경 이력이 git diff로 남는다.
+
+단점도 있다.
+
+- 곡면 차체 표현은 약하다.
+- 실루엣이 너무 박스형으로 보일 수 있다.
+- 최종 sprite 품질은 source model, 조명, 픽셀화/outline pass 품질에 직접 의존한다.
+
+그래도 현재 단계에서는 "한 번 잘 나온 AI 이미지"보다 "같은 차로 반복 렌더링되는 통제 가능한 source"가 더 중요하므로, procedural model 개선이 우선이다.
 
 디렉터리 초안
 
@@ -1136,6 +1210,7 @@ games/apex-seoul/assets/vehicles/source/models/
 games/apex-seoul/assets/vehicles/source/manifests/
 games/apex-seoul/assets/vehicles/generated/pose-renders/
 games/apex-seoul/assets/vehicles/generated/img2img-candidates/
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/
 games/apex-seoul/assets/vehicles/generated/layers/
 games/apex-seoul/assets/vehicles/generated/qa/
 games/apex-seoul/assets/vehicles/approved/sprites/
@@ -1171,6 +1246,8 @@ manifest 구조 초안
             "id": "center",
             "view": "rear",
             "rearAngleDeg": 0,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 0,
             "flipXSource": null,
             "layers": ["base-body", "paint-mask", "shade-highlight"],
             "overlayAnchors": {
@@ -1182,12 +1259,80 @@ manifest 구조 초안
             "id": "steer-right-1",
             "view": "rear-right",
             "rearAngleDeg": 24,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 0,
             "flipXSource": null
         },
         {
             "id": "steer-right-2",
             "view": "rear-right-strong",
             "rearAngleDeg": 44,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 0,
+            "flipXSource": null
+        },
+        {
+            "id": "spin-right-1",
+            "view": "spin-right",
+            "rearAngleDeg": 62,
+            "modelYawDeg": 12,
+            "modelPitchDeg": 0,
+            "flipXSource": null
+        },
+        {
+            "id": "spin-right-2",
+            "view": "spin-right-strong",
+            "rearAngleDeg": 78,
+            "modelYawDeg": 24,
+            "modelPitchDeg": 0,
+            "flipXSource": null
+        },
+        {
+            "id": "downhill-center",
+            "view": "rear-downhill",
+            "rearAngleDeg": 0,
+            "modelYawDeg": 0,
+            "modelPitchDeg": -8,
+            "flipXSource": null
+        },
+        {
+            "id": "downhill-right-1",
+            "view": "rear-right-downhill",
+            "rearAngleDeg": 24,
+            "modelYawDeg": 0,
+            "modelPitchDeg": -8,
+            "flipXSource": null
+        },
+        {
+            "id": "downhill-right-2",
+            "view": "rear-right-strong-downhill",
+            "rearAngleDeg": 44,
+            "modelYawDeg": 0,
+            "modelPitchDeg": -8,
+            "flipXSource": null
+        },
+        {
+            "id": "uphill-center",
+            "view": "rear-uphill",
+            "rearAngleDeg": 0,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 8,
+            "flipXSource": null
+        },
+        {
+            "id": "uphill-right-1",
+            "view": "rear-right-uphill",
+            "rearAngleDeg": 24,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 8,
+            "flipXSource": null
+        },
+        {
+            "id": "uphill-right-2",
+            "view": "rear-right-strong-uphill",
+            "rearAngleDeg": 44,
+            "modelYawDeg": 0,
+            "modelPitchDeg": 8,
             "flipXSource": null
         }
     ],
@@ -1220,49 +1365,53 @@ manifest 구조 초안
 
 자동화 단계
 
-1. `render poses`
-   3D model과 manifest를 읽고 `center`, `steer-right-1`, `steer-right-2` 같은 오른쪽 기준 pose를 투명 배경 PNG로 캡처한다. `rearAngleDeg`를 기준으로 카메라 위치를 계산해서 pose 차이를 수치로 관리한다.
+1. `improve source model`
+   Raven Coupe procedural geometry를 개선한다. 차체 base, hood, cabin, rear deck, bumper, wheel arch, rear light decal, glass highlight, belt line이 렌더 단계에서 읽혀야 한다.
 
-2. `build pose sheet`
+2. `render poses`
+   3D model과 manifest를 읽고 오른쪽 기준 source pose를 투명 배경 PNG로 캡처한다. 기본 주행은 `center`, `steer-right-1`, `steer-right-2`, 스핀은 `spin-right-1`, `spin-right-2`, 고저차는 `downhill-*`, `uphill-*`를 사용한다. `rearAngleDeg`, `modelYawDeg`, `modelPitchDeg`를 기준으로 pose 차이를 수치로 관리한다.
+
+3. `build pose sheet`
    pose render들을 manifest 순서대로 grid에 배치해 하나의 pose sheet를 만든다.
 
-3. `img2img candidates`
-   pose sheet를 ChatGPT 이미지 생성 또는 Stable Diffusion img2img 입력으로 넣고, 동일 프롬프트 기준으로 sprite sheet 후보를 여러 장 만든다.
+4. `pixel candidates`
+   pose sheet를 직접 후처리해 sprite 후보를 만든다. 권장 순서는 `low-res downscale`, `posterize`, `palette quantization`, `nearest upscale`, `hard-edge cleanup`이다.
 
-4. `cell crop`
-   생성된 sprite sheet를 cell 단위로 자르고 anchor 후보를 계산한다. GPT 생성 결과에 검은 배경, 세로 점선, stray pixel이 남으면 `clean:vehicle-sprite-sheet`로 먼저 alpha cleanup을 수행한다.
+5. `outline pass`
+   차체 외곽, 후면 범퍼, roofline, rear window, wheel arch가 작은 표시 크기에서도 읽히도록 dark outline과 hard highlight를 정리한다.
 
-5. `alpha harden`
-   `clean:vehicle-sprite-sheet` 결과는 배경이 투명해져도 차체 가장자리와 그림자에 반투명 alpha가 많이 남을 수 있다. 런타임 base body sprite는 픽셀풍 선명도가 중요하므로 낮은 alpha 픽셀을 제거하고, 남길 픽셀은 불투명에 가깝게 정리한다. alpha가 0인 픽셀의 숨은 RGB도 `0,0,0,0`으로 초기화한다.
+6. `alpha/color-key prepare`
+   런타임 base body sprite는 픽셀풍 선명도가 중요하므로 낮은 alpha 픽셀을 제거하고, 남길 픽셀은 불투명에 가깝게 정리한다. 투명 PNG와 Phaser용 magenta color-key sheet를 함께 만든다. alpha가 0인 픽셀의 숨은 RGB도 `0,0,0,0`으로 초기화한다.
 
-6. `shadow cleanup`
+7. `shadow cleanup`
    차량 아래 그림자는 base sprite에 bake하지 않는 것을 기본으로 둔다. 1차 후처리에서는 그림자를 완전히 자동 제거하기보다, alpha harden 후 그림자 영역을 QA에서 표시하고 런타임 Phaser Graphics 그림자로 대체할지 판단한다. 그림자가 차체/타이어와 붙어 있어 자동 제거가 위험하면 base sprite에는 약하게 남기고, 최종 approved 단계에서 수동 보정한다.
 
-7. `anchor metadata`
+8. `anchor metadata`
    bbox center는 회전 각도에 따라 좌우로 이동하므로 런타임 anchor로 직접 쓰지 않는다. 각 셀의 bottom center와 공통 baseline을 계산해 `center`, `steer-right-1`, `steer-right-2`가 같은 도로 접지선 위에 놓이도록 metadata를 만든다.
 
-8. `layer extraction`
-   후보 sprite에서 `base-body`, `paint-mask`, `shade-highlight`, `glass`, `lights`, `tires` 레이어를 분리한다. 초기에는 자동 분리보다 사람이 보정 가능한 반자동 단계로 둔다.
+9. `layer extraction`
+   후보 sprite 또는 source render에서 `base-body`, `paint-mask`, `shade-highlight`, `glass`, `lights`, `tires` 레이어를 분리한다. 초기에는 자동 분리보다 material id나 decal id를 이용한 반자동 단계로 둔다.
 
-9. `palette pass`
+10. `palette pass`
    `paint-mask`에 paint preset을 적용해 여러 색상 차량을 만든다. 하이라이트와 그림자는 별도 레이어로 유지해 색만 바꿔도 차체 볼륨이 무너지지 않게 한다.
 
-10. `overlay compose`
+11. `overlay compose`
    `brake-glow`, `boost-glow`, `skid-smoke`, `contact-spark`, `damage-decal`을 anchor 기준으로 합성한다.
 
-11. `qa`
+12. `qa`
    bbox, anchor, alpha 분포, 투명 배경, 팔레트 색 수, `flipX` 결과, `steer-right-1`/`steer-right-2`의 각도 차이, 프레임 크기, 주요 레이어 누락 여부를 검사한다.
 
-12. `atlas build`
+13. `atlas build`
    통과한 `approved` sprite와 overlay를 atlas로 묶고, 게임 런타임이 읽을 JSON metadata를 만든다.
 
-Stable Diffusion img2img 설정 방향
+image-to-image의 역할
 
+- image-to-image는 기본 런타임 asset 경로가 아니다.
+- 스타일 탐색, 블로그 설명용 이미지, 수동 paint-over reference 후보로만 사용한다.
 - 3D pose sheet의 실루엣과 grid를 유지해야 하므로 denoise strength는 낮게 시작한다.
 - 프레임별 seed를 완전히 랜덤으로 두지 말고 차량별 seed group을 둔다.
-- prompt는 "retro arcade racing sprite sheet", "Neo Geo style pixel art", "rear three-quarter car sprite", "limited palette", "transparent background", "preserve the input grid" 계열을 기준으로 둔다.
-- negative prompt에는 "photorealistic", "modern 3D render", "text", "logo", "extra wheels", "changed car design" 계열을 둔다.
-- ControlNet, lineart, depth, canny 같은 입력을 사용할 수 있으면 3D pose sheet의 실루엣과 cell 구조 고정에 우선 사용한다.
+- cell order, 빈 cell, anchor, alpha가 흔들리면 더 반복하지 않고 deterministic source model/pixel pass 개선으로 돌아간다.
+- ControlNet, lineart, depth, canny 같은 입력을 사용할 수 있으면 reference 안정화 실험에만 사용한다.
 
 레이어 분리 기준
 
@@ -1282,6 +1431,7 @@ QA 체크
 - sprite sheet의 cell grid가 크게 흐트러지지 않아야 한다.
 - alpha 0 픽셀은 숨은 RGB까지 `0,0,0,0`이어야 한다.
 - base body sprite의 반투명 alpha는 제한한다. 부드러운 glow나 그림자는 overlay 또는 런타임 그림자로 분리한다.
+- magenta color-key sheet에서는 배경이 정확히 `#ff00ff`이어야 하고, 차량 픽셀에는 `#ff00ff`가 섞이지 않아야 한다.
 - 차량 접지 baseline은 세 원본 pose가 공유해야 하며, bbox center만으로 anchor를 결정하지 않는다.
 - `flipX`로 만든 왼쪽 상태가 수동 제작 sprite처럼 자연스러운지 확인한다.
 - paint preset을 바꿔도 후미등, 유리, 타이어 색이 같이 오염되지 않아야 한다.
@@ -1291,11 +1441,11 @@ QA 체크
 1차 PoC 범위
 
 - 차량: `Raven Coupe`
-- source pose: `center`, `steer-right-1`, `steer-right-2`
-- runtime state: `steer-left-2`, `steer-left-1`, `center`, `steer-right-1`, `steer-right-2`
+- source pose: `center`, `steer-right-1`, `steer-right-2`, `spin-right-1`, `spin-right-2`, `downhill-center`, `downhill-right-1`, `downhill-right-2`, `uphill-center`, `uphill-right-1`, `uphill-right-2`
+- runtime state: 오른쪽 source pose와 `flipX`로 만든 왼쪽 steer/spin/downhill/uphill 상태
 - overlay: `brake-glow`, `boost-glow`
 - paint preset: `graphite-red`, `pearl-white`
-- 목표: 3D pose sheet에서 image-to-image sprite sheet 후보를 만들고, 같은 sprite에 팔레트 체인지가 안정적으로 적용되는지 확인한다.
+- 목표: 개선된 Three.js source model에서 직접 sprite sheet를 만들고, 픽셀화/팔레트/color-key 후처리가 안정적으로 적용되는지 확인한다.
 
 예상 스크립트
 
@@ -1303,9 +1453,10 @@ QA 체크
 npm run render:vehicle-pose-sheet
 npm run apex:vehicles:render-poses
 npm run apex:vehicles:build-pose-sheet
-npm run apex:vehicles:img2img
+npm run apex:vehicles:pixel-pass
 npm run clean:vehicle-sprite-sheet
 npm run finalize:vehicle-sprite-sheet
+npm run prepare:vehicle-sprite-sheet
 npm run apex:vehicles:crop-cells
 npm run apex:vehicles:extract-layers
 npm run apex:vehicles:palette
@@ -1320,9 +1471,9 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png
 games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.json
 ```
 
-현재 `render:vehicle-pose-sheet`는 기존 Kenney `sedan-sports.glb`를 임시 source model로 사용해 `center`, `steer-right-1`, `steer-right-2` 3프레임 pose sheet를 만든다. `race-future.glb`는 너무 미래형 실루엣이라 Raven Coupe의 FT86풍 compact FR coupe 의도와 충돌하므로 pose sheet 입력에서는 제외한다. 이후 Apex Seoul 전용 `Raven Coupe` 3D source model이 준비되면 같은 스크립트에 `--model` 또는 manifest 기반 입력을 연결한다.
+현재 `render:vehicle-pose-sheet`는 Three.js procedural geometry 기반 `raven-coupe-procedural`을 source model로 사용해 오른쪽 기준 11프레임 pose sheet를 만든다. 포함 pose는 `center`, `steer-right-1`, `steer-right-2`, `spin-right-1`, `spin-right-2`, `downhill-center`, `downhill-right-1`, `downhill-right-2`, `uphill-center`, `uphill-right-1`, `uphill-right-2`다. 왼쪽 steer/spin/downhill/uphill 상태는 런타임에서 `flipX`로 만든다. `race-future.glb`는 너무 미래형 실루엣이라 Raven Coupe의 FT86풍 compact FR coupe 의도와 충돌하고, `sedan-sports.glb`는 임시 개선안으로는 쓸 수 있지만 Raven Coupe 전용 source로는 부족하므로 기본값에서 제외한다. 이후 필요하면 procedural geometry를 GLB로 export하거나, 별도 수동 모델링 source로 승격한다.
 
-초기에는 `img2img`와 `extract-layers`가 완전 자동이 아닐 수 있다. 이 두 단계는 후보 생성과 수동 보정 파일을 받아 다음 단계로 넘기는 반자동 파이프라인으로 시작한다.
+다음 작업은 image-to-image 반복이 아니라 `raven-coupe-procedural` source model 품질 개선이다. 모델 개선 후 직접 render 결과에 픽셀화, 팔레트 제한, outline, magenta color-key pass를 적용한다. `img2img`와 `extract-layers`는 후보 생성과 수동 보정 reference를 받아 다음 단계로 넘기는 보조/반자동 파이프라인으로만 유지한다.
 
 ---
 
@@ -1359,16 +1510,17 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/raven-coupe-prototype.jso
 - 3D Pose Sheet to 2D Sprite Sheet Pipeline
 - Right Source Poses and Runtime flipX
 - Additional Steering Frames
+- Spin and Elevation Frames
 - Drift Angle Frames
 - Brake/Boost Pose
 
 결과
 
 - 임시 Kenney 차량에서 Apex Seoul 전용 차량으로 교체 준비
-- `center`, `steer-right-1`, `steer-right-2` 기준 source pose sheet 확정
-- 왼쪽 조향 상태는 런타임 `flipX`로 재사용
+- 오른쪽 기준 11프레임 source pose sheet 확정
+- 왼쪽 조향/스핀/고저차 상태는 런타임 `flipX`로 재사용
 - 아웃런 스타일 기준의 1차 sprite 세트 정의
-- 조향/드리프트 표현 가능한 sprite 각도 확장
+- 조향/스핀/고저차 표현 가능한 sprite 각도 확장
 - 차량별 시각 정체성 정리
 
 ---
@@ -1585,3 +1737,528 @@ AI 차량과 장애물
 - Drift Physics를 프로젝트의 핵심 시스템으로 둔다.
 
 최종 목표는 단순 기술 데모가 아니라 블로그 연재와 함께 성장하는 완성형 웹 게임이다.
+
+---
+
+# 실제 차량 모델 기반 POC 기록
+
+작성일: 2026-06-28
+
+배경
+
+현재 Apex Seoul의 차량 asset 완성도가 낮아 보이므로, image-to-image 반복이나 절차형 모델 개선만 계속하기 전에 실제 차량 3D 모델을 source로 넣어 비교한다. 목적은 실제 차명 자산을 최종 게임에 쓰는 것이 아니라, pseudo 3D 후방 시점에서 잘 읽히는 실루엣과 포즈 기준선을 확보하는 것이다.
+
+검토 대상
+
+- Toyota FT86 / GT86 / 86 / Subaru BRZ 계열
+- Kia Stinger
+- Genesis G70
+
+우선순위
+
+1. FT86 / GT86 계열
+   - Raven Coupe의 compact FR coupe 의도와 가장 가깝다.
+   - 후방, 짧은 데크, 낮은 캐빈, 넓은 스탠스가 256px 스프라이트에서 읽힐 가능성이 높다.
+2. Kia Stinger
+   - fastback 실루엣은 좋지만 차체가 길어 플레이어 쿠페보다 라이벌/보스 차량 후보에 가깝다.
+3. Genesis G70
+   - 실제 차량 매력과 별개로 작은 후방 스프라이트에서는 일반 세단으로 뭉개질 위험이 있다.
+
+2026-06-28 조사 결과
+
+- Sketchfab API에서 세 차종 모두 다운로드 가능 후보를 확인했다.
+- GT86 후보 중 `Toyota GT86` 모델은 GLB 약 2.1MB, CC Attribution으로 확인했다.
+- Kia Stinger 후보는 GLB 약 17MB에서 73MB 사이, CC Attribution 후보가 있다.
+- Genesis G70 후보는 GLB 약 35MB 이상, CC Attribution 후보가 있다.
+- Sketchfab 실제 download URL 발급은 인증 토큰이 필요하다. 토큰 없이 공개 검색 metadata 확인은 가능하지만, API 다운로드 endpoint는 `Authentication credentials were not provided.`로 막힌다.
+
+POC 정책
+
+- 실제 차명/상표/엠블럼은 최종 공개 게임 asset으로 직접 쓰지 않는다.
+- POC 산출물은 source quality 비교와 Raven Coupe 재모델링 reference로만 사용한다.
+- 공개 가능한 최종 차량명은 `Raven Coupe`처럼 가상화한다.
+- CC Attribution 모델을 쓰더라도 attribution 문서와 출처 metadata를 함께 남긴다.
+- NonCommercial 모델은 공개 게임 후보에서 제외하고, 내부 reference 여부도 별도로 판단한다.
+
+렌더링 파이프라인 변경
+
+`render-vehicle-pose-sheet.mjs`에 `--model-path` 옵션을 추가한다. 기존 Kenney 모델명 기반 사용법은 유지하고, 외부 GLB는 프로젝트 내부 경로로 직접 지정한다.
+
+```bash
+npm run render:vehicle-pose-sheet --workspace @games/apex-seoul -- \
+  --model gt86-poc \
+  --model-path assets/vehicles/source/models/gt86-poc.glb \
+  --vehicle-id gt86-poc \
+  --output assets/vehicles/generated/pose-sheets/gt86-poc.png
+```
+
+임시 로컬 검증
+
+외부 모델 다운로드 전, 기존 CC0 Kenney GLB로 같은 렌더러가 11포즈 sheet를 안정적으로 생성하는지 확인했다.
+
+```text
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-sedan-sports.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-hatchback-sports.png
+```
+
+다음 단계
+
+1. Sketchfab 토큰 또는 수동 다운로드로 GT86 계열 GLB를 `assets/vehicles/source/models/`에 둔다.
+2. `--model-path`로 GT86 POC sheet를 생성한다.
+3. Stinger와 G70은 GT86 결과가 유의미할 때 같은 기준으로 추가 비교한다.
+4. 결과 비교 기준은 `center`, `steer-right-1`, `steer-right-2`, `spin-right-*`에서 후방 실루엣, 휠 위치, 캐빈/트렁크 비율, 픽셀화 후 식별성을 우선한다.
+
+2026-06-28 POC 진행 결과
+
+사용자가 Sketchfab에서 직접 받은 세 GLB로 실제 렌더를 진행했다.
+
+```text
+games/apex-seoul/assets/vehicles/toyota_gt86.glb
+games/apex-seoul/assets/vehicles/kia_stinger.glb
+games/apex-seoul/assets/vehicles/genesis_g70.glb
+```
+
+원본 모델 문제
+
+- 기존 normalize는 모델 bbox center를 뺀 뒤 scale을 적용했기 때문에, 원점에서 멀리 떨어진 GLB는 화면 밖으로 밀릴 수 있었다.
+- GT86과 Stinger는 길이축이 Z, 높이축이 Y다.
+- G70은 길이축이 Y, 높이축이 Z라서 축 회전이 필요하다.
+- G70은 단순 Euler 회전만으로는 후방/상하가 동시에 맞지 않아 mirror scale 보정이 필요하다.
+- 대형 GLB를 병렬로 여러 개 렌더하면 local static server fetch가 끊길 수 있으므로 real vehicle POC는 순차 렌더한다.
+
+적용한 파이프라인 보정
+
+- `--scale-mode vehicle-length`
+- `--vehicle-length-m`
+- `--reference-length-m`
+- `--reference-length-units`
+- `--frame-size-units`
+- `--model-pitch-offset`
+- `--model-yaw-offset`
+- `--model-scale-x/y/z`
+
+기준값
+
+- 기준 차량: GT86
+- 기준 전장: 4.24m
+- 기준 렌더 길이: 2.2 units
+- 고정 카메라 frame: 2.95 units
+- padding: 1.08
+
+차량별 POC 설정
+
+```text
+toyota-gt86-poc
+- lengthM: 4.24
+- yaw offset: 180
+
+kia-stinger-poc
+- lengthM: 4.83
+- yaw offset: 0
+
+genesis-g70-poc
+- lengthM: 4.69
+- pitch offset: 90
+- scaleX: -1
+- scaleZ: -1
+```
+
+반복 실행용 manifest
+
+```text
+games/apex-seoul/assets/vehicles/source/manifests/real-vehicle-poc.json
+```
+
+반복 실행 명령
+
+```bash
+npm run optimize:real-vehicle-models --workspace @games/apex-seoul
+npm run render:real-vehicle-pocs --workspace @games/apex-seoul
+```
+
+GLB 최적화
+
+원본 Sketchfab GLB는 source archive로 유지하고, 렌더 입력은 `assets/vehicles/optimized/*-optimized.glb`를 사용한다. 최적화는 `@gltf-transform/cli`의 `optimize`를 통해 `meshopt` geometry 압축, WebP texture 압축, 1024px texture cap을 적용한다. Three.js `GLTFLoader`는 `MeshoptDecoder`를 연결해야 압축 GLB를 바로 읽을 수 있다.
+
+2026-06-28 기준 압축 결과:
+
+```text
+toyota_gt86.glb      3.1M -> 332K
+kia_stinger.glb       29M -> 7.1M
+genesis_g70.glb       41M -> 2.5M
+```
+
+현재 POC manifest는 최적화본을 기본 입력으로 사용한다.
+
+최종 POC 산출물
+
+```text
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.png
+games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-final.png
+```
+
+판단
+
+- GT86은 Raven Coupe 플레이어 차량의 실루엣 기준선으로 가장 적합하다.
+- Stinger는 전장 차이가 고정 frame에서 잘 드러나며, 플레이어보다는 큰 라이벌 차량 후보로 적합하다.
+- G70은 후방 실루엣은 읽히지만 모델 자체가 세단 느낌이 강해서 Raven Coupe 기준선으로는 GT86보다 약하다.
+- 다음 단계는 GT86 POC를 기준으로 pixel pass/outline을 태워보고, 실제 사진풍 디테일이 256px sprite에서 얼마나 남는지 확인하는 것이다.
+
+---
+
+# 실제 차량 렌더 이미지 후처리 추천안
+
+작성일: 2026-06-28
+
+목표
+
+실제 차량 GLB에서 얻은 사진풍 pose sheet를 Apex Seoul용 pseudo 3D sprite로 가공한다. 목표는 "실차 렌더를 그대로 축소"가 아니라, 작은 표시 크기에서도 차종별 실루엣, 후미등, 유리, 휠 위치, 조향 각도가 읽히는 2D game sprite를 만드는 것이다.
+
+추천 결론
+
+기본 경로는 `deterministic local pixel pass`로 둔다. GPT image-to-image는 최종 asset 생성기가 아니라 style exploration, paint-over reference, 수동 보정 지시서 생성에만 쓴다.
+
+추천 파이프라인
+
+```text
+1. real vehicle GLB render
+2. alpha cleanup / crop QA
+3. low-res downscale
+4. tone flatten / posterize
+5. limited palette quantization
+6. silhouette outline
+7. key detail restore
+8. magenta color-key / transparent output
+9. GPT style reference review
+10. manual touch-up
+11. runtime QA
+```
+
+1단계: deterministic local pixel pass
+
+우선 `sharp` 기반 스크립트로 직접 구현한다. 이미 프로젝트가 `sharp`를 쓰고 있고, cell grid, alpha, bbox, anchor metadata를 같은 Node 파이프라인에서 관리할 수 있기 때문이다.
+
+권장 처리 순서
+
+- source: `poc-toyota-gt86-scaled.png`
+- cell 단위 crop
+- low-res target으로 downscale
+  - 1차 후보: 96px cell
+  - 2차 후보: 128px cell
+  - 최종 게임 표시가 작으면 96px 쪽이 더 낫다.
+- tone flatten
+  - 너무 사진처럼 부드러운 그라데이션을 줄인다.
+  - shadow/highlight 단계 수를 줄인다.
+- palette quantization
+  - body white/gray 4-5색
+  - glass 2-3색
+  - tire/dark trim 3-4색
+  - rear light red/amber 2-3색
+- nearest upscale
+  - working preview는 2x 또는 3x로 확인한다.
+  - runtime source는 원래 cell size로 둘지, low-res sheet를 그대로 쓸지 별도 결정한다.
+- alpha harden
+  - base body에는 반투명 픽셀을 거의 남기지 않는다.
+  - glow/shadow는 overlay 또는 runtime graphics로 분리한다.
+
+`sharp` 선택 이유
+
+- 현재 스크립트와 같은 JS/Node 환경에서 처리할 수 있다.
+- resize, extract, extend, raw pixel buffer 처리가 가능하다.
+- `nearest` resize를 명시할 수 있어 pixel pass가 재현 가능하다.
+- cell별 QA JSON을 같은 코드에서 만들 수 있다.
+
+2단계: outline pass
+
+outline은 자동화하되, 과하게 두껍게 넣지 않는다. 실제 차량 렌더는 이미 형태 정보가 많기 때문에 전면적인 검은 외곽선보다 "읽힘이 약한 곳만 보강"하는 편이 낫다.
+
+권장 규칙
+
+- alpha mask의 외곽 1px에 dark outline 후보를 만든다.
+- 차량 하단, rear bumper, roofline, rear glass, wheel arch에 우선 적용한다.
+- 차체 흰색 highlight 안쪽까지 outline이 침범하면 실패로 본다.
+- rear light 주변은 검은 outline보다 dark red / dark gray trim을 우선한다.
+
+3단계: palette pass
+
+전체 이미지에 단순 posterize를 걸면 GT86의 흰 차체가 죽거나, Stinger/G70의 유리와 차체가 섞인다. 따라서 palette pass는 전역 1회보다 material-like color buckets로 나누는 편이 좋다.
+
+권장 palette bucket
+
+```text
+body-light: white / light gray / mid gray / shadow gray
+glass: near black / blue gray / highlight gray
+trim: black / charcoal / dark gray
+tire: black / tire gray / rim light
+rear-light: dark red / red / amber / small white
+```
+
+4단계: pngquant / ImageMagick 비교 실험
+
+`pngquant`와 `ImageMagick`은 최종 기본 파이프라인보다 비교 실험용으로 둔다.
+
+- `pngquant`
+  - 장점: PNG palette reduction 결과를 빠르게 볼 수 있다.
+  - 단점: sprite 의미를 모른다. rear light나 wheel detail이 사라질 수 있다.
+  - 사용처: "몇 색까지 줄여도 읽히는가"를 빠르게 확인한다.
+- `ImageMagick`
+  - 장점: posterize, ordered dither, colors 제한 같은 실험을 CLI로 빠르게 반복할 수 있다.
+  - 단점: cell별 anchor/QA/레이어 분리와는 따로 논다.
+  - 사용처: dither와 posterize 감도 탐색에만 사용한다.
+
+5단계: GPT 사용 위치
+
+GPT image-to-image를 최종 sheet 생성기로 쓰지 않는다. 이유는 이미 이전 실험에서 pose order, 빈 cell, alpha, anchor, 차량 디테일이 흔들렸기 때문이다.
+
+GPT 권장 사용처
+
+- GT86 렌더 sheet를 넣고 retro arcade sprite style 후보를 2-3개 얻는다.
+- 후보 이미지를 최종 asset으로 쓰지 않고, palette/outline/디테일 유지 방향의 reference로만 쓴다.
+- "어떤 디테일을 남기고 어떤 디테일을 버릴지" 보정 지시서를 생성한다.
+- 수동 touch-up 전 checklist를 만든다.
+
+GPT에 맡기면 안 되는 것
+
+- 최종 alpha sheet 생성
+- pose cell order 유지
+- exact anchor 유지
+- 좌우 flip 호환성 판단
+- 최종 atlas metadata 생성
+
+GPT reference prompt 초안
+
+```text
+Transform this 3D vehicle pose sheet into a reference-only retro arcade racing sprite style.
+
+Keep the exact 3 columns x 4 rows layout, exact pose order, and transparent background.
+Do not invent new poses.
+Do not add brake glow, boost glow, shadow, smoke, text, road, or UI.
+
+Style target:
+- late 80s / early 90s pseudo-3D arcade racing sprite
+- crisp hard-edged highlights
+- limited palette
+- readable rear lights, rear glass, roofline, bumper, wheel arches
+- preserve GT86 compact coupe proportions
+
+This image is only for style reference.
+Do not optimize for photorealism.
+Do not change vehicle identity between cells.
+```
+
+GPT review prompt 초안
+
+```text
+Review this vehicle sprite sheet candidate for a pseudo-3D racing game.
+
+Return a concise correction checklist, not a new image.
+Check:
+- pose order consistency
+- center / steer-right-1 / steer-right-2 readability
+- rear silhouette
+- wheel arch readability
+- rear light readability
+- excess photorealistic noise
+- alpha or shadow contamination risk
+- whether left states can be made with flipX
+
+Prioritize corrections that can be implemented with deterministic pixel processing.
+```
+
+6단계: 수동 보정 도구
+
+오픈소스 수동 보정 후보
+
+- Pixelorama
+  - 가장 먼저 추천한다.
+  - 현대적인 pixel art editor이고 Windows/macOS/Linux/Web을 지원한다.
+  - GT86 후보 sheet를 열어 rear light, wheel arch, roofline을 수동으로 정리하기 좋다.
+- LibreSprite
+  - Aseprite의 마지막 GPL 계열 fork다.
+  - sprite sheet와 frame 단위 편집 감각이 좋다.
+  - UI/안정성은 직접 확인이 필요하다.
+- GrafX2
+  - 제한 palette와 고전 pixel art 작업에 강하다.
+  - modern sprite sheet workflow는 Pixelorama보다 불편할 수 있지만 palette 감각을 잡기 좋다.
+
+Aseprite는 도구로는 훌륭하지만 현재 완전한 오픈소스가 아니므로, 이 문서의 "오픈소스 추천"에는 넣지 않는다. 개인 작업 도구로 별도 선택할 수는 있다.
+
+7단계: Apex Seoul 추천 실행 순서
+
+1. GT86만 먼저 진행한다.
+2. `poc-toyota-gt86-scaled.png`를 source로 `pixel-pass` 스크립트를 만든다.
+3. 96px cell / 128px cell 두 후보를 만든다.
+4. 각 후보에 outline pass를 적용한다.
+5. GPT에는 두 후보를 넣고 "이미지 생성"이 아니라 "수정 checklist"를 받는다.
+6. Pixelorama에서 11개 pose 중 `center`, `steer-right-1`, `steer-right-2`만 먼저 수동 보정한다.
+7. Phaser 런타임에 임시 연결해서 실제 도로 위 스케일에서 읽히는지 확인한다.
+8. 통과하면 나머지 uphill/downhill/spin pose로 확장한다.
+9. Stinger/G70은 GT86 pixel pass가 안정화된 뒤 같은 파이프라인으로 비교한다.
+
+8단계: 성공 기준
+
+- 1x 표시에서 GT86이 compact coupe로 읽힌다.
+- `steer-right-1`과 `steer-right-2`가 구분된다.
+- 후미등과 rear glass가 최소한의 픽셀로 읽힌다.
+- 차체 아래 그림자가 base sprite에 과하게 붙어 있지 않다.
+- 좌측 상태를 `flipX`로 만들었을 때 어색한 비대칭이 크지 않다.
+- cell별 bbox와 baseline이 QA JSON에서 크게 흔들리지 않는다.
+- 3D 렌더를 다시 돌려도 같은 결과를 재생성할 수 있다.
+
+9단계: PerfectPixel 참고 자동화
+
+PerfectPixel Studio는 캐릭터 애니메이션 sprite 생성 도구지만, Apex Seoul의 차량 후처리 자동화에 참고할 만한 구조가 많다. 특히 "AI output은 불안정하므로 deterministic post-processing으로 품질을 수렴시킨다"는 방향이 현재 Apex Seoul 원칙과 맞다.
+
+검토 대상
+
+```text
+https://github.com/qlazzarus/perfectpixel-studio
+upstream: https://github.com/gykim80/perfectpixel-studio
+license: MIT
+```
+
+도입 판단
+
+- 앱 전체 도입은 하지 않는다.
+- Go/Wails GUI, 8-direction character workflow, motion preset catalog는 Apex Seoul 차량 파이프라인과 범위가 다르다.
+- 대신 `internal/sprite`의 알고리즘 구조를 JS/Sharp 파이프라인으로 부분 포팅하거나 재구현한다.
+- PerfectPixel은 "오픈소스 자동화 참고 구현"으로 문서화한다.
+
+참고할 모듈 방향
+
+```text
+internal/sprite/chroma.go
+- YCbCr chroma matting
+- magenta/key background 제거, despill, flood fill 참고
+
+internal/sprite/segment.go
+- projection profile + DP optimal cut
+- GPT/img2img가 만든 불균등 filmstrip split에 참고
+- 단, Three.js 직접 렌더 결과는 이미 fixed grid이므로 우선순위 낮음
+
+internal/sprite/extract.go
+- alpha-weighted centroid
+- bbox center가 아니라 차체 mass 중심/foot pivot 개념 참고
+
+internal/sprite/pixelize.go
+- shared palette quantization
+- grid snap
+- fake pixel-art를 실제 blocky sprite로 정리하는 단계 참고
+
+internal/sprite/quantize.go
+- median-cut/shared palette 설계 참고
+
+internal/sprite/inspect.go
+- frame count, identity drift, motion presence 검사 구조 참고
+- 차량에서는 pose order, silhouette drift, anchor jitter 검사로 바꾼다.
+
+internal/sprite/score.go
+- quality score를 수치화하는 방식 참고
+```
+
+Apex Seoul에 맞춘 자동화 항목
+
+```text
+apex vehicle pixel pass
+1. read pose sheet + metadata
+2. split fixed 3x4 cells
+3. alpha cleanup
+4. low-res downscale
+5. shared palette extraction across all used cells
+6. palette quantization
+7. grid snap
+8. silhouette outline
+9. alpha harden
+10. anchor / baseline / bbox QA
+11. magenta color-key preview
+12. score report
+```
+
+PerfectPixel에서 그대로 가져오지 않을 것
+
+- text-to-character generation
+- 100+ motion preset
+- 8-direction generation loop
+- provider abstraction
+- corrective regenerate loop
+- GUI/session/gallery/export UI
+
+PerfectPixel에서 우선 참고할 것
+
+1. `shared-palette quantization`
+   - pose별 색 흔들림을 막기 위해 GT86 11개 pose 전체에서 공통 palette를 만든다.
+   - per-cell quantization은 금지한다.
+2. `alpha-weighted centroid`
+   - 차량 anchor는 bbox center보다 alpha centroid + rear baseline 조합이 낫다.
+   - Apex Seoul에서는 차체 하단 중앙 또는 rear axle 근처를 anchor 후보로 둔다.
+3. `score report`
+   - 사람이 보기 전에 후보를 탈락시킬 수 있어야 한다.
+   - score는 "게임에서 읽히는가" 기준으로 재정의한다.
+4. `grid snap`
+   - 사진풍 렌더를 단순 posterize하면 픽셀풍이 아니라 축소 사진처럼 보인다.
+   - low-res grid에서 dominant color를 고정해 crisp한 블록감을 만든다.
+
+Apex Seoul vehicle score 초안
+
+```text
+score starts at 100
+-20 if any required cell is empty
+-15 if bbox width/height varies too much between center/downhill/uphill variants
+-15 if anchor x jitter exceeds threshold
+-15 if center, steer-right-1, steer-right-2 silhouette difference is too small
+-10 if semi-transparent base pixels exceed threshold
+-10 if palette color count exceeds target
+-10 if bottom shadow contamination exceeds threshold
+-10 if rear light pixels are lost in center pose
+```
+
+권장 구현 순서
+
+1. `scripts/pixel-pass-vehicle-sheet.mjs`를 만든다.
+2. 입력은 `poc-toyota-gt86-scaled.png`와 해당 JSON metadata로 제한한다.
+3. 96px cell과 128px cell 후보를 둘 다 만든다.
+4. shared palette extraction을 먼저 구현한다.
+5. alpha centroid / bbox / baseline QA JSON을 만든다.
+6. score report를 만든다.
+7. outline은 score report 이후에 붙인다.
+8. GPT review prompt에는 score report와 preview PNG를 함께 넣는다.
+9. Pixelorama 수동 보정은 score가 일정 기준 이상인 후보에만 한다.
+
+파일 구조 제안
+
+```text
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/
+  gt86-96/
+    sheet.png
+    preview-magenta.png
+    qa.json
+    score.json
+  gt86-128/
+    sheet.png
+    preview-magenta.png
+    qa.json
+    score.json
+
+games/apex-seoul/scripts/
+  pixel-pass-vehicle-sheet.mjs
+  score-vehicle-sprite-sheet.mjs
+```
+
+자동화 기준
+
+- deterministic script가 만든 결과만 `generated/pixel-candidates`에 둔다.
+- 수동 보정 결과는 `approved/sprites`로 승격한다.
+- GPT 생성 이미지는 `img2img-candidates`에만 둔다.
+- GPT가 만든 이미지를 바로 `approved`로 올리지 않는다.
+- score report와 사람이 보는 preview가 모두 있어야 다음 단계로 넘긴다.
+
+참고 후보
+
+- sharp: https://sharp.pixelplumbing.com/api-resize
+- pngquant: https://pngquant.org/
+- ImageMagick: https://imagemagick.org/
+- PerfectPixel Studio: https://github.com/qlazzarus/perfectpixel-studio
+- Pixelorama: https://github.com/Orama-Interactive/Pixelorama
+- LibreSprite: https://github.com/LibreSprite/LibreSprite
+- GrafX2: https://gitlab.com/GrafX2/grafX2

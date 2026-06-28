@@ -1,0 +1,195 @@
+{
+  "cellSize": 256,
+  "columns": 3,
+  "frameSizeUnits": 2.95,
+  "model": "genesis-g70-poc",
+  "modelPitchOffsetDeg": -90,
+  "modelRollOffsetDeg": 0,
+  "modelYawOffsetDeg": 180,
+  "output": "assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-rear.png",
+  "poses": [
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "center",
+      "modelPitchDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-1",
+      "modelPitchDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-2",
+      "modelPitchDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44
+    },
+    {
+      "camera": [
+        -4.6,
+        1.02,
+        -2.72
+      ],
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "spin-right-1",
+      "modelPitchDeg": 0,
+      "modelYawDeg": 12,
+      "rearAngleDeg": 62
+    },
+    {
+      "camera": [
+        -5,
+        0.98,
+        -1.15
+      ],
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "spin-right-2",
+      "modelPitchDeg": 0,
+      "modelYawDeg": 24,
+      "rearAngleDeg": 78
+    },
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "downhill-center",
+      "modelPitchDeg": -8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "downhill-right-1",
+      "modelPitchDeg": -8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "downhill-right-2",
+      "modelPitchDeg": -8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44
+    },
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "uphill-center",
+      "modelPitchDeg": 8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "flipXSource": null,
+      "id": "uphill-right-1",
+      "modelPitchDeg": 8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "flipXSource": null,
+      "id": "uphill-right-2",
+      "modelPitchDeg": 8,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44
+    }
+  ],
+  "rows": 4,
+  "scaleMode": "vehicle-length",
+  "sourceModel": "assets/vehicles/genesis_g70.glb",
+  "vehicleId": "genesis-g70-poc",
+  "referenceLengthM": 4.24,
+  "referenceLengthUnits": 2.2,
+  "vehicleLengthM": 4.69
+}

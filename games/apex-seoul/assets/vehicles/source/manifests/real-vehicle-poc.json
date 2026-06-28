@@ -1,0 +1,31 @@
+{
+  "frameSizeUnits": 2.95,
+  "padding": 1.08,
+  "referenceLengthM": 4.24,
+  "referenceLengthUnits": 2.2,
+  "scaleMode": "vehicle-length",
+  "vehicles": [
+    {
+      "id": "toyota-gt86-poc",
+      "lengthM": 4.24,
+      "modelPath": "assets/vehicles/optimized/toyota_gt86-optimized.glb",
+      "modelYawOffsetDeg": 180,
+      "output": "assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.png"
+    },
+    {
+      "id": "kia-stinger-poc",
+      "lengthM": 4.83,
+      "modelPath": "assets/vehicles/optimized/kia_stinger-optimized.glb",
+      "output": "assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.png"
+    },
+    {
+      "id": "genesis-g70-poc",
+      "lengthM": 4.69,
+      "modelPath": "assets/vehicles/optimized/genesis_g70-optimized.glb",
+      "modelPitchOffsetDeg": 90,
+      "modelScaleX": -1,
+      "modelScaleZ": -1,
+      "output": "assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-final.png"
+    }
+  ]
+}
