@@ -1,71 +1,86 @@
 {
-  "topPost": "/article/phaser4-isometric-minesweeper-difficulty-timer-render-polish",
-  "topPostViews": 22,
+  "topPost": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
+  "topPostViews": 46,
   "relatedSuggestions": [
-    "/phaser4-isometric-minesweeper-difficulty-timer-render-polish/",
-    "/phaser4-isometric-minesweeper-ecs-scaffold/",
-    "/phaser4-isometric-minesweeper-localstorage-records-finale/",
-    "/phaser4-isometric-minesweeper-minefield-first-click/",
-    "/phaser4-isometric-minesweeper-mobile-landscape-responsive/",
-    "/phaser4-isometric-minesweeper-reveal-cascade-reset/"
+    "/phaser4-apex-seoul-raven-coupe-sprite-pipeline/",
+    "/phaser4-apex-seoul-downhill-elevation-rendering/",
+    "/phaser4-apex-seoul-player-car-speed-control/",
+    "/phaser4-apex-seoul-pseudo-3d-camera/",
+    "/phaser4-apex-seoul-real-car-source-model-poc/",
+    "/phaser4-apex-seoul-roadsegment-curve-rendering/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/apptech-income-may-2026",
+      "path": "/article/aviation-si-onboarding-01",
       "views": 4,
-      "avgSec": 88.36
+      "avgSec": 173.27
     },
     {
-      "path": "/article/ansan-bono-dong-gukbapjip-review",
-      "views": 3,
-      "avgSec": 152.14
-    },
-    {
-      "path": "/article/20260606-evening-ride",
+      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
       "views": 1,
-      "avgSec": 65.16
+      "avgSec": 1762.02
+    },
+    {
+      "path": "/article/what-we-expect-from-software-developers-on-each-level",
+      "views": 1,
+      "avgSec": 478.13
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
-      "views": 7,
-      "avgSec": 3.19
+      "path": "/article/phaser4-apex-seoul-player-car-speed-control",
+      "views": 12,
+      "avgSec": 8.55
     },
     {
-      "path": "/article/20260525-dahon-dash-d16-evening-ride",
+      "path": "/article/20260510-morning-ride",
       "views": 2,
       "avgSec": 0
     },
     {
-      "path": "/article/a-look-back-in-november-2023",
+      "path": "/article/migration-to-gatsby",
       "views": 1,
-      "avgSec": 7.17
+      "avgSec": 2.81
     },
     {
-      "path": "/article/phaser3-with-parallax-scroll",
-      "views": 1,
-      "avgSec": 5.99
-    },
-    {
-      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
+      "path": "/article/my-browser-gone",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
+      "path": "/article/phaser4-apex-seoul-downhill-elevation-rendering",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/uiwang-serendipity",
+      "path": "/article/phaser4-apex-seoul-roadsegment-curve-rendering",
       "views": 1,
-      "avgSec": 6.59
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-roadsegment-curve-rendering",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-isometric-minesweeper-difficulty-timer-render-polish",
+      "views": 1,
+      "avgSec": 2.26
+    },
+    {
+      "path": "/article/phaser4-isometric-minesweeper-ecs-scaffold",
+      "views": 1,
+      "avgSec": 7.83
+    },
+    {
+      "path": "/article/why-swim",
+      "views": 1,
+      "avgSec": 2.52
     }
   ]
 }

@@ -1,40 +1,28 @@
 {
-  "generatedAt": "2026-06-15T08:59:43.682Z",
+  "generatedAt": "2026-06-29T07:28:03.406Z",
   "trending": [
     {
-      "path": "/article/apptech-income-may-2026",
-      "views": 130,
+      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
+      "views": 46,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "path": "/article/aviation-si-onboarding-01",
       "views": 4,
-      "avgSec": 134.36,
+      "avgSec": 173.27,
       "reason": "amplify"
     },
     {
-      "path": "/article/how-i-build-pocket-money-with-apptech",
-      "views": 2,
-      "avgSec": 734.28,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/ansan-bono-dong-gukbapjip-review",
+      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
       "views": 1,
-      "avgSec": 225.86,
+      "avgSec": 1762.02,
       "reason": "amplify"
     },
     {
-      "path": "/article/gpx-risk-analyzer",
+      "path": "/article/what-we-expect-from-software-developers-on-each-level",
       "views": 1,
-      "avgSec": 85.72,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/newborn-loan-review",
-      "views": 1,
-      "avgSec": 130.45,
+      "avgSec": 478.13,
       "reason": "amplify"
     }
   ]
