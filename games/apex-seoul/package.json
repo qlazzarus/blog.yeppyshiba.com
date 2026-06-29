@@ -16,6 +16,7 @@
         "pixel-pass:vehicle-sheet": "node scripts/pixel-pass-vehicle-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
         "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",
+        "qa:runtime-vehicle": "node scripts/capture-runtime-vehicle-qa.mjs",
         "qa:vehicle-steering": "node scripts/qa-vehicle-steering.mjs",
         "render:real-vehicle-pocs": "node scripts/render-real-vehicle-pocs.mjs",
         "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",

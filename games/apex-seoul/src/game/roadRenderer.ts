@@ -104,6 +104,39 @@ export function renderRoad(
     };
 }
 
+export function getRoadCenterOffsetAhead(
+    track: RoadTrack,
+    cameraZ: number,
+    distanceAhead: number,
+) {
+    if (distanceAhead <= 0) return 0;
+
+    const baseSegment = Math.floor(cameraZ / track.segmentLength);
+    const progress = getCameraSegmentProgress(track, cameraZ);
+    const boundaryCenters = getVisibleBoundaryCenters(track, baseSegment, progress);
+    const boundaryDistances = [0];
+    let distance = track.segmentLength * (1 - progress);
+
+    boundaryDistances.push(distance);
+
+    for (let index = 2; index < boundaryCenters.length; index += 1) {
+        distance += track.segmentLength;
+        boundaryDistances.push(distance);
+    }
+
+    for (let index = 1; index < boundaryDistances.length; index += 1) {
+        if (distanceAhead > boundaryDistances[index]) continue;
+
+        const segmentDistance = boundaryDistances[index] - boundaryDistances[index - 1];
+        const localDistance = distanceAhead - boundaryDistances[index - 1];
+        const ratio = segmentDistance > 0 ? localDistance / segmentDistance : 0;
+
+        return Phaser.Math.Linear(boundaryCenters[index - 1], boundaryCenters[index], ratio);
+    }
+
+    return boundaryCenters.at(-1) ?? 0;
+}
+
 function getVisibleBoundaryCenters(
     track: RoadTrack,
     baseSegment: number,

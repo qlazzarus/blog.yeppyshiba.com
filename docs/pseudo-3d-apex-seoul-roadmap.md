@@ -80,7 +80,7 @@ games/apex-seoul/
 - 차량 y 기준점을 화면 하단에 강하게 고정하고 도로 투영 y는 보조 보정만 하도록 조정
 - OSM/SRTM reference JSON 추출 및 내부 참고 자료화
 - GT86, Kia Stinger, Genesis G70 실제 차량 GLB 기반 pose sheet POC 완료
-- 현재 차량 asset 방향은 실차 3D 모델 기준으로 OutRun식 자동차 위치/방향 설계를 참조해 렌더 포즈를 확장하고, 그 뒤 pixel/anchor 보정과 런타임 5분기 steering 선택으로 연결한다. 이벤트 포즈는 앞방향으로 돌아가는 스핀과 rollover/overturned 뒤집힘 연출까지 포함한다.
+- 현재 차량 asset 방향은 실차 3D 모델 기준으로 OutRun식 자동차 위치/방향 설계를 참조해 렌더 포즈를 확장하고, 그 뒤 pixel/anchor 보정과 런타임 grip 3way steering 선택으로 연결한다. 5way steering은 drift/slip 상태에서만 확장하고, 이벤트 포즈는 앞방향으로 돌아가는 스핀과 rollover/overturned 뒤집힘 연출까지 포함한다.
 
 # 다음 구현 방향
 
@@ -95,7 +95,7 @@ games/apex-seoul/
 1. GT86, Stinger, G70 POC 기준으로 차량 렌더 포즈와 카메라 각도 확정
 2. OutRun식 자동차 위치/방향 설계를 참조해 `center`, `steer-right-1`, `steer-right-2`의 간격과 앵커를 픽스하고, 이벤트용 `spin-front-*`, `rollover-*`, `overturned` 포즈를 별도 crash state로 분리
 3. GT86 기준 pixel pass, outline, palette, baseline QA를 먼저 적용
-4. Phaser 런타임에서 steering 값을 5분기 포즈 선택으로 변경
+4. Phaser 런타임에서 grip steering 값을 `left / center / right` 3분기 포즈 선택으로 연결
 5. `Bugak Ridge Downhill` 코스 섹션 설계와 차량 pose 전환을 함께 검증
 6. 코너 원심력, 바깥쪽 밀림, 도로 이탈 감속 구현
 7. 드리프트 판정과 점수 시스템 구현
@@ -271,7 +271,7 @@ const roadAnchor = projectGroundPoint(
 
 차량 sprite는 더 이상 단순히 현재 3장 구성을 유지하는 방향으로 보지 않는다. 기본 방향은 실제 차량 3D 모델 POC에서 얻은 후방 렌더를 기준으로, OutRun식 자동차 위치/방향 설계를 참조해 포즈 체계를 먼저 확정하는 것이다.
 
-다만 첫 보정 대상은 경사 포즈가 아니라 기본 주행 포즈다. `center`, `steer-right-1`, `steer-right-2`가 같은 차량으로 읽히고, 작은 표시 크기에서 5단계 조향 상태로 구분되는지 먼저 확인한다. 이후 같은 앵커와 baseline 규칙을 `downhill-*`, `uphill-*`로 확장한다.
+다만 첫 보정 대상은 경사 포즈가 아니라 기본 주행 포즈다. Grip 주행은 `center`, `steer-right-1` 중심의 3way 상태가 같은 차량으로 읽히는지 먼저 확인한다. `steer-right-2`는 drift/slip 진입 이후의 강한 yaw 후보로 보존하고, 같은 앵커와 baseline 규칙을 `downhill-*`, `uphill-*`로 확장한다.
 
 추가 후보
 
@@ -295,7 +295,7 @@ const roadAnchor = projectGroundPoint(
 
 - 차량 image보다 낮은 depth에 `Graphics` 타원 그림자를 그린다.
 - 기본 타원 위에 짧은 가로 stripe를 여러 줄 그려 레트로 scanline 느낌을 만든다.
-- 그림자 위치는 차량 anchor와 같은 road anchor를 사용한다.
+- 그림자 위치는 차량 anchor와 같은 road anchor를 사용하되, 화면 좌표에서는 차량 baseline보다 약간 아래에 둔다. 그림자가 baseline 위에 오면 차량 y가 맞아도 공중에 떠 보인다.
 - 그림자 scale은 차량 sprite 크기와 roadAnchor scale을 기준으로 조정한다.
 - 그림자 alpha는 속도, 경사, 화면 y 위치에 따라 약하게 보정한다.
 - 강한 경사에서도 그림자는 차량에 붙은 느낌을 주되, 도로 polygon을 가리지 않도록 어둡고 낮은 alpha로 둔다.
@@ -941,15 +941,15 @@ pose sheet 입력 기준
 - 렌더 source 기준은 GT86, Stinger, G70 실제 차량 3D 모델 POC다.
 - GT86은 Raven Coupe 플레이어 차량의 compact FR coupe 기준선으로 사용한다.
 - Stinger와 G70은 같은 포즈 규격에서 비교하되, GT86 보정이 안정화된 뒤 확장한다.
-- 먼저 `center`, `steer-right-1`, `steer-right-2`를 픽스하고, 런타임은 이 오른쪽 원본과 `flipX`로 5분기 steering 상태를 만든다.
+- 먼저 `center`, `steer-right-1`, `steer-right-2`를 픽스하되, grip 런타임은 `center`와 `steer-right-1` 원본 및 `flipX`만 사용해 3way steering 상태를 만든다. `steer-right-2`는 drift/slip 전용 강한 조향 후보로 남긴다.
 
 현재 작업 순서
 
 1. 실차 3D 모델 기준 렌더 포즈를 확장하고 고정한다.
 2. OutRun식 위치/방향 설계를 참조해 각 pose의 카메라 각도, 차체 yaw, frame padding, baseline을 보정한다.
 3. GT86 기준으로 pixel pass, outline, palette, alpha, anchor QA를 적용한다.
-4. Phaser 런타임에서 `steering` 값을 `steer-left-2`, `steer-left-1`, `center`, `steer-right-1`, `steer-right-2` 5분기로 매핑한다.
-5. 이 5분기 조향이 도로 위에서 안정적으로 읽히면 downhill/uphill/spin pose로 확장한다.
+4. Phaser 런타임에서 grip `steering` 값을 `steer-left-1`, `center`, `steer-right-1` 3분기로 매핑한다.
+5. Grip 3way 조향이 도로 위에서 안정적으로 읽히면 drift/slip 상태에서 `steer-left-2`, `steer-right-2`까지 열어 5way로 확장한다.
 
 전용 sprite 제작에서는 원본 방향을 오른쪽으로 통일한다. 즉 직접 렌더링하고 후처리하는 base body sprite는 `center`, `steer-right-*`, `spin-right-*`, `downhill-*`, `uphill-*`를 기준으로 두고, 왼쪽 상태는 런타임 `flipX`로 만든다. 좌우가 거의 대칭인 차량만 이 정책을 적용하며, 배기구, 데칼, 파손, 접촉 방향처럼 비대칭성이 강한 경우에는 별도 sprite 또는 overlay로 승격한다.
 
@@ -957,7 +957,7 @@ pose sheet 입력 기준
 
 - `center`: 기본 직진 후면
 - `steer-left-1`, `steer-right-1`: 약한 조향
-- `steer-left-2`, `steer-right-2`: 강한 조향
+- `steer-left-2`, `steer-right-2`: grip 기본 상태가 아니라 drift/slip 진입 이후의 강한 yaw 후보
 - `drift-left`, `drift-right`: 차체가 더 크게 비틀린 슬립 상태
 - `brake-center`: 브레이크 시 차체가 약간 눌리고 tail light가 강해진 상태
 - `brake-left`, `brake-right`: 조향 + 브레이크 복합 상태
@@ -974,7 +974,8 @@ pose sheet 입력 기준
 
 - 0차 기준 확정: GT86, Stinger, G70 POC의 카메라/scale/frame 규칙 고정
 - 1차 필수 원본: `center`, `steer-right-1`, `steer-right-2`
-- 1차 런타임 상태: `steer-left-2`, `steer-left-1`, `center`, `steer-right-1`, `steer-right-2`
+- 1차 grip 런타임 상태: `steer-left-1`, `center`, `steer-right-1`
+- 2차 drift/slip 런타임 상태: `steer-left-2`, `steer-right-2`
 - 2차 원본 확장: `downhill-center`, `downhill-right-1`, `downhill-right-2`, `uphill-center`, `uphill-right-1`, `uphill-right-2`
 - 3차 이벤트 원본: `spin-right-1`, `spin-right-2`, `drift-right`
 - 4차 overlay: `brake-center`, `boost-center`, `brake-glow`, `boost-glow`
@@ -1161,14 +1162,14 @@ overlay 한계
 1. GT86, Stinger, G70 POC의 렌더 frame, scale, axis 보정값을 reference로 고정한다.
 2. `fictional-vehicle-procedural.json`에 Raven Coupe의 material bucket과 핵심 치수를 manifest로 고정한다.
 3. `raven-coupe-procedural`을 manifest 기반으로 렌더하고, GT86 POC와 같은 pose/pixel/score/atlas 파이프라인에 태운다.
-4. Phaser 런타임에서 5분기 steering 상태가 도로 위에서 읽히는지 확인한다.
+4. Phaser 런타임에서 grip 3way steering 상태가 도로 위에서 읽히는지 확인한다.
 5. 통과하면 같은 규칙으로 `downhill-*`, `uphill-*`, `spin-right-*`를 확장한다.
 6. `brake-glow`, `boost-glow`, `skid-smoke`는 base body에 bake하지 않고 overlay sprite로 분리한다.
 7. 그 다음에 `Vortex GT`, `Apex S`를 같은 manifest schema로 확장한다.
 
 판단 기준
 
-- GT86 3프레임 주행 pose 테스트에서 차체 실루엣과 주요 디테일이 흔들리지 않으면 5분기 런타임 연결 후보로 유지한다.
+- GT86 3프레임 주행 pose 테스트에서 차체 실루엣과 주요 디테일이 흔들리지 않으면 grip 3way 런타임 연결 후보로 유지한다.
 - 픽셀화 후 `steer-right-1`과 `steer-right-2`, 이후 `spin-right-1`과 `spin-right-2`가 구분되면 deterministic pipeline을 유지한다.
 - 모델이 너무 박스형이면 image-to-image를 다시 반복하지 말고 3D source의 geometry/decal 또는 카메라/pose 기준부터 개선한다.
 - 팔레트 변경은 material preset 캡처 또는 `palette pass` 중 더 안정적인 쪽을 선택한다.
@@ -1942,7 +1943,7 @@ games/apex-seoul/assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-fi
 - GT86은 Raven Coupe 플레이어 차량의 실루엣 기준선으로 가장 적합하다.
 - Stinger는 전장 차이가 고정 frame에서 잘 드러나며, 플레이어보다는 큰 라이벌 차량 후보로 적합하다.
 - G70은 후방 실루엣은 읽히지만 모델 자체가 세단 느낌이 강해서 Raven Coupe 기준선으로는 GT86보다 약하다.
-- 다음 단계는 OutRun식 자동차 위치/방향 설계를 참조해 GT86 POC의 `center`, `steer-right-1`, `steer-right-2` 렌더 포즈를 먼저 고정하고, pixel pass/outline/anchor QA를 적용한 뒤 Phaser 런타임의 steering 값을 5분기 포즈 선택으로 바꾸는 것이다. 그와 별도로 `spin-front-*`, `rollover-*`, `overturned`는 드리프트 실패/충돌/crash 전용 state로 유지한다.
+- 다음 단계는 OutRun식 자동차 위치/방향 설계를 참조해 GT86 POC의 `center`, `steer-right-1`, `steer-right-2` 렌더 포즈를 먼저 고정하고, pixel pass/outline/anchor QA를 적용한 뒤 Phaser 런타임의 grip steering 값을 3way 포즈 선택으로 바꾸는 것이다. `steer-right-2`는 drift/slip 확장 후보로 유지하고, `spin-front-*`, `rollover-*`, `overturned`는 드리프트 실패/충돌/crash 전용 state로 유지한다.
 - Stinger와 G70은 GT86 기준이 안정화된 뒤 같은 포즈 규격으로 다시 비교한다. 지금은 세 차량을 동시에 보정하지 않는다.
 
 ---
@@ -2135,9 +2136,9 @@ Aseprite는 도구로는 훌륭하지만 현재 완전한 오픈소스가 아니
 4. 96px cell / 128px cell 두 후보를 만들고 outline pass를 적용한다.
 5. GPT에는 두 후보를 넣고 "이미지 생성"이 아니라 "수정 checklist"를 받는다.
 6. Pixelorama에서는 우선 `center`, `steer-right-1`, `steer-right-2`만 수동 보정한다.
-7. Phaser 런타임에 임시 연결해서 `steer-left-2`, `steer-left-1`, `center`, `steer-right-1`, `steer-right-2` 5분기 steering이 실제 도로 위 스케일에서 읽히는지 확인한다.
+7. Phaser 런타임에 임시 연결해서 grip 상태의 `steer-left-1`, `center`, `steer-right-1` 3way steering이 실제 도로 위 스케일에서 읽히는지 확인한다.
 8. 통과하면 나머지 uphill/downhill/spin pose로 확장한다.
-9. Stinger/G70은 GT86 pixel pass와 5분기 런타임 연결이 안정화된 뒤 같은 파이프라인으로 비교한다.
+9. Stinger/G70은 GT86 pixel pass와 grip 3way 런타임 연결이 안정화된 뒤 같은 파이프라인으로 비교한다.
 
 초기 실행 명령
 
@@ -2341,7 +2342,7 @@ locked pose sheet
 
 1. `anchor / draw-offset generator`
    - `qa.json`의 `anchor`와 `baselineY`로 Phaser draw offset 후보를 만든다.
-   - 기본 주행 5분기 pose는 baseline jitter가 1px 이내인지 검사한다.
+   - 기본 grip 3way pose는 baseline jitter가 1px 이내인지 검사한다.
    - crash pose는 별도 anchor group으로 분리한다.
 2. `required-pose score gate`
    - `center`, `steer-right-1`, `steer-right-2`는 runtime 연결 필수 pose로 둔다.
@@ -2369,15 +2370,92 @@ locked pose sheet
    - Phaser 연결은 이 metadata를 기준으로 하고, bbox center에 의존하지 않는다.
 8. `steering feel QA`
    - 사람이 눈으로만 조향 감각을 판단하지 않도록 `center`, `steer-right-1`, `steer-right-2`의 silhouette width delta와 changed pixel ratio를 자동 측정한다.
-   - `steer-left-1`, `steer-left-2`는 atlas의 `flipX` metadata와 origin이 안전한지 검사한다.
-   - 이 단계는 "재미있다/아니다"를 최종 판정하는 대신, 약/강 조향이 거의 같은 sprite로 보이는 후보를 자동으로 review/fail로 보내는 게 목적이다.
+   - Grip 런타임은 `steer-left-1`, `center`, `steer-right-1` 3way만 사용한다.
+   - `steer-left-2`, `steer-right-2`는 drift/slip 확장 후보로 atlas에 남기고, `flipX` metadata와 origin이 안전한지 검사한다.
+   - 이 단계는 "재미있다/아니다"를 최종 판정하는 대신, grip 3way와 drift/slip 확장 pose가 거의 같은 sprite로 보이는 후보를 자동으로 review/fail로 보내는 게 목적이다.
 9. `runtime sprite/FOV tuning`
    - atlas/sprite가 통과한 뒤에는 렌더를 다시 돌리기 전에 runtime camera와 sprite placement를 먼저 맞춘다.
-   - Apex Seoul 런타임은 URL query로 `fov`, `fovBonus`, `carScale`, `carMin`, `carMax`, `carRoll`, `anchorZ`, `anchorY`, `anchorResponse`, `steerWeak`, `steerStrong`, `terrainThreshold`, `terrainBias`를 조정할 수 있다.
+   - Apex Seoul 런타임은 URL query로 `fov`, `fovBonus`, `carScale`, `carMin`, `carMax`, `carRoll`, `anchorZ`, `anchorY`, `anchorResponse`, `steerWeak`, `terrainThreshold`, `terrainBias`, `curveCarBias`, `debugGuides`를 조정할 수 있다.
    - G70 128px 기준 기본 FOV는 69로 낮추고, road anchor response는 0.18로 올려서 고저차가 차량 위치에 더 직접 반영되게 한다.
-   - 기본 비교 순서는 `fov` 68-70, `carScale` 0.30-0.36, `anchorZ` 560-700, `steerWeak` 0.14-0.22, `steerStrong` 0.48-0.62 범위에서 본다.
+   - 기본 비교 순서는 `fov` 68-70, `carScale` 0.30-0.36, `anchorZ` 560-700, `steerWeak` 0.14-0.22 범위에서 본다.
    - 도로 앞쪽 elevation delta가 일정 threshold를 넘으면 `downhill-*` 또는 `uphill-*` pose를 선택하고, 좌측 조향은 해당 오른쪽 pose를 `flipX`해서 재사용한다.
    - 이 값들은 차량 sprite 자체의 정답이 아니라, 현재 도로 폭/카메라/128px atlas가 함께 읽히는 runtime calibration 값이다.
+
+OutRun식 화면 중앙/차량 위치 검증
+
+- OutRun 계열 pseudo 3D에서는 플레이어 차량이 화면 하단 중앙에 비교적 안정적으로 놓이는 것이 기본값이다. 도로가 휘어도 카메라는 플레이어 차량을 중심으로 따라가고, 도로 원근과 horizon 움직임이 커브를 전달한다.
+- 다만 "항상 정확히 중앙선에 붙은 차"처럼 보이면 아케이드 레이싱 감각이 죽는다. 중앙 고정은 기준점이고, 조향 입력, lateral offset, 커브 원심감, 고저차에 따른 작은 화면상 이동은 허용한다.
+- 차량 anchor는 반드시 road renderer가 쓰는 누적 road center offset을 공유해야 한다. 도로만 curve center를 누적하고 차량이 `player.lateralOffset`만 투영하면 도로와 차가 따로 노는 느낌이 난다.
+- 현재 차량 anchor는 `roadCenterOffsetAhead + player.lateralOffset`을 투영한다. `curveCarBias`는 도로 중심선 sync를 대체하는 값이 아니라, 아주 작은 화면상 원심감 보조값으로만 둔다.
+- 현재 기본값은 debug projection guide를 끄고, `curveCarBias=8`로 커브 방향의 반대쪽에 차량을 아주 약하게 밀어 OutRun식 바깥쪽 원심감을 준다.
+- `curveCarBias=0`은 도로 중심선 완전 추적 비교용이고, `curveCarBias=8-24`는 약한 OutRun식 커브 반응 비교용이다.
+- `debugGuides=1`은 검증용으로만 사용한다. 중앙 guide가 켜져 있으면 실제 게임 감각보다 차량이 중앙에 박혀 보이므로 review screenshot 기본값에서는 끈다.
+- 검증 기준은 "차가 중앙에서 움직이는가"가 아니라 "차량 접지점이 도로 위에 있고, 커브에서 도로가 휘는 동안 차량이 화면 하단 기준을 잃지 않으며, 조향/terrain pose가 읽히는가"다.
+
+OutRun식 grip steering 감각
+
+- Grip 기본 주행은 `steer-left-1`, `center`, `steer-right-1` 3way만 사용한다. `steer-left-2`, `steer-right-2`는 drift/slip 이후의 강한 yaw 후보로 유지한다.
+- 입력 반응은 빠르게 두되, lateral offset은 damping과 centering으로 안정화한다. 버튼을 누르면 차가 즉시 반응하지만 정상 grip 상태에서는 과도하게 옆으로 눕거나 drift pose로 가지 않아야 한다.
+- 커브에서는 현재 road curve가 차량에 약한 바깥쪽 압력을 준다. 이 압력은 drift 판정이 아니라 OutRun식 원심감 cue이며, 도로가 휘는데 차량이 완전히 죽은 중앙 물체처럼 보이는 문제를 줄이는 목적이다.
+- visual steering 값은 입력, lateral velocity cue, curve cue를 합성하되 3way threshold 안에서 읽히게 유지한다.
+- 코너에서 도로와 차량 움직임이 따로 노는 느낌이 나면 먼저 corner speed limit force를 낮춘다. 현재 grip 기준은 강한 커브에서 accel speed 상한을 최대 150 낮추고, curve force와 screen bias는 과하지 않게 유지한다.
+- 커브 감속은 drift 판정이 아니라 OutRun식 가독성 보정이다. 도로가 빠르게 휘는데 차량이 같은 속도로 전진하면 pseudo-3D road motion과 sprite anchor가 분리되어 보일 수 있다.
+- 속도가 올라갈수록 같은 좌우 입력으로 꺾이는 양도 줄인다. 현재 grip 기준은 최고속 근처에서 steering force를 최대 42%, visual steering을 최대 34% 낮춘다.
+- 고속 조향 감소는 차량을 둔하게 만들기 위한 것이 아니라, 고속에서 도로 원근이 빠르게 흐를 때 조향 sprite와 lateral 이동이 과장되어 보이는 것을 막기 위한 보정이다.
+- 이후 drift/slip 구현 시에는 slip angle, brake/throttle 조건, road curve를 별도 판정해서 `steer-left-2`, `steer-right-2`, `drift-*` 포즈를 연다.
+
+속도 / 경사 / RPM 감각
+
+- 속도는 더 이상 `cruise speed`로 빠르게 보간하지 않는다. 현재 모델은 `engine force + slope acceleration - brake - engine brake - rolling resistance - aero drag - corner limit force`를 합산해 매 프레임 speed를 갱신한다.
+- 내리막은 현재 카메라 위치와 앞쪽 sample 지점의 elevation 차이를 보고 positive acceleration을 더한다. 오르막은 같은 값이 negative acceleration이 되어 속도를 깎는다.
+- `PLAYER_SLOPE_SAMPLE_DISTANCE`는 도로 바로 앞의 작은 요철보다 실제 주행자가 곧 들어갈 경사 흐름을 읽기 위한 값이다. 너무 짧으면 속도가 흔들리고, 너무 길면 언덕 반응이 늦어진다.
+- 현재 기본 튜닝은 엑셀 입력 시 서서히 올라가고, 스로틀을 놓으면 flat road에서는 천천히 감속하며, 충분한 내리막에서는 스로틀 없이도 속도가 붙는 방향이다.
+- RPM은 아직 정밀 drivetrain이 아니라 감각용 feedback state다. speed ratio를 gear band처럼 나누고, throttle 입력에는 RPM lift, brake 입력에는 RPM drop을 얹어 HUD와 사운드/이펙트 연결 기반으로 쓴다.
+- 이후 자동 변속을 넣을 때는 RPM drop, gear index, boost/torque curve를 분리한다. 현재 단계에서는 acceleration이 너무 빠른지, 내리막 가속이 읽히는지, 고속에서 조향이 과하지 않은지 검증하는 것이 먼저다.
+- Runtime QA state에는 `speed`, `rpm`, `slopeAcceleration`, `steering`, `road.currentCurve`를 함께 남긴다. 이후 screenshot metric과 로그를 묶어서 "같은 맵 위치에서 경사/RPM/속도 변화가 일관되는가"를 자동 비교한다.
+
+고저차 테스트 트랙
+
+- 기본 `Bugak Ridge Downhill` 섹션은 `BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS`로 보존한다. 이 값은 실제 코스 감각을 다듬는 기준선이므로, 경사 테스트를 위해 직접 과장하지 않는다.
+- 고저차/속도/RPM 검증용으로 `elevation-test` 트랙을 별도 추가한다. URL에 `?track=elevation-test`를 붙이면 강한 내리막 우코너, 좌코너 dip, 짧은 업힐, 긴 내리막, 복귀 업힐이 순서대로 나온다.
+- 이 테스트 트랙은 최종 맵 후보가 아니라 runtime calibration fixture다. 목적은 내리막 가속, 오르막 감속, `downhill-*` / `uphill-*` 차량 pose, anchor y 보정, corner speed limit force가 한 화면에서 잘 읽히는지 확인하는 것이다.
+- 경사가 큰 테스트 코스에서는 차량 y를 앞쪽 도로 투영값에 그대로 따라붙이면 차가 붕뜨는 느낌이 난다. 따라서 차량 접지 y는 화면 하단 기준선에 강하게 lock하고, 경사에 따른 y shift는 작은 픽셀 범위로 clamp한다.
+- 고저차 표현의 우선순위는 도로 투영, horizon, 속도 변화, 차량 terrain pose, shadow 변화이며, 플레이어 차량 자체의 큰 상하 이동은 마지막 보조 수단으로 둔다.
+- 내리막/오르막에서 카메라가 완전히 고정되어도 도로와 차량이 따로 노는 느낌이 난다. 대안은 `차량 y 이동`, `카메라 pitch/horizon 반응`, `차량 pitch pose + shadow 반응` 세 가지인데, 현재 기본값은 카메라 pitch/horizon 반응을 중심으로 둔다.
+- 내리막에서는 slope acceleration 비율에 따라 camera pitch를 음수 방향으로 보간해 horizon을 살짝 올리고, 오르막에서는 양수 방향으로 보간해 horizon을 내려 도로가 막히는 느낌을 준다. 이 반응은 속도가 높을수록 커지고, 차량 y lock을 대체하지 않는다.
+- 차량 자체는 큰 상하 이동 대신 `downhill-*` / `uphill-*` pose, shadow 변화, 제한된 terrain scale로 경사를 읽힌다. 이후 crest/dip 전용 포즈가 생기면 camera pitch impulse와 pose 전환을 함께 튜닝한다.
+- 차량이 여전히 공중에 떠 보이면 먼저 shadow center가 차량 baseline 아래에 있는지 확인한다. 현재 G70 128px runtime은 shadow center를 baseline 아래로 두고, terrain cue에 따라 shadow 높이를 조금 줄여 접지감을 보강한다.
+- `terrainScale`은 차량 접지점을 움직이는 값이 아니라, anchor/origin은 유지한 채 sprite display size만 3-5% 안쪽으로 보정하는 시각 cue다. 현재 기본은 downhill에서 살짝 작아지고 uphill에서 살짝 커지는 방향이며, URL query `terrainScale=0..0.09`로 조정한다.
+- QA 자동화에서 기본 맵과 테스트 맵을 모두 돌릴 수 있도록 runtime QA state에는 track `id`, `name`, `length`, `segments`를 남긴다.
+10. `runtime experience QA`
+   - 게임 맵과 게임 안 sprite 경험은 별도 자동화 단계로 둔다. 목적은 "asset이 좋다"가 아니라 "현재 도로, FOV, 차량 크기, 조향, 고저차가 한 화면에서 같이 읽힌다"를 확인하는 것이다.
+   - 런타임은 QA query로 `qaFreeze`, `qaSteer`, `qaSpeed`, `qaZ`, `qaOffset`을 받는다. 이 값으로 같은 도로 위치와 같은 조향 상태를 반복 재현한다.
+   - `capture-runtime-vehicle-qa.mjs`는 `downhill`, `level`, `uphill` x `left`, `center`, `right` 조합을 headless browser로 캡처하고 `runtime-qa.manifest.json`과 `contact-sheet.png`를 만든다.
+   - 자동화 산출물은 `assets/vehicles/generated/runtime-qa/<vehicle-id>/` 아래에 둔다.
+   - 이 단계의 첫 목적은 자동 승인보다 review 비용 절감이다. 사람이 게임을 계속 조작하지 않아도 같은 화면 세트를 보고 FOV, anchor, terrain threshold 후보를 비교할 수 있어야 한다.
+
+runtime experience QA 루프
+
+```text
+approved atlas/sprite
+-> runtime tuning preset
+-> frozen scenario URLs
+-> headless screenshots
+-> contact sheet + manifest
+-> visual review / metric score
+-> tuning preset update
+-> repeat
+```
+
+자동화로 맞추는 방법
+
+1. `qaFreeze=1`로 카메라 진행을 멈추고 `qaZ`로 도로 위치를 고정한다.
+2. `qaSteer=-1/0/1`로 좌/중앙/우 조향 frame이 실제 화면에서 바뀌는지 확인한다.
+3. `terrainThreshold`와 `qaZ` 조합으로 `downhill`, `level`, `uphill` 상태를 반복 캡처한다.
+4. `fov`, `carScale`, `anchorZ`, `anchorResponse`, `terrainBias`를 preset 후보로 바꾸며 contact sheet를 비교한다.
+5. `curveCarBias=0/24/32/48`을 비교해 완전 중앙 고정, 약한 원심감, 과한 밀림을 구분한다.
+6. 후보가 좁혀지면 해당 값을 기본 상수로 올리고, 다시 build + runtime QA를 돌린다.
+7. 이후 metric scoring은 screenshot에서 차량 bbox, road center, shadow offset, screen anchor y, frame id debug state, curve bias delta를 비교하는 방식으로 확장한다.
 
 PerfectPixel에서 그대로 가져오지 않을 것
 
@@ -2444,7 +2522,7 @@ score starts at 100
 2. 다음으로 `score-vehicle-sprite-sheet.mjs`를 추가해 pass / review / fail을 자동 판정한다.
 3. `auto-fix-vehicle-sprite-sheet.mjs` 또는 pixel-pass 내 옵션으로 detail restore, outline tuning, palette pass를 반복 실행한다.
 4. `export-vehicle-atlas.mjs`를 추가해 approved 후보의 Phaser frame metadata를 생성한다.
-5. `qa-vehicle-steering.mjs`를 추가해 5분기 steering pose가 runtime atlas 기준으로 충분히 구분되는지 검사한다.
+5. `qa-vehicle-steering.mjs`를 추가해 grip 3way와 drift/slip 확장 pose가 runtime atlas 기준으로 충분히 구분되는지 검사한다.
 6. `generate-vehicle-flipx-preview.mjs`를 추가해 좌측 2포즈 preview와 symmetry QA를 만든다.
 7. GPT review prompt에는 score report, QA JSON, steering QA JSON, magenta preview PNG를 함께 넣는다.
 8. Pixelorama 수동 보정은 review queue에 들어간 cell에만 쓴다.
@@ -2470,6 +2548,7 @@ games/apex-seoul/scripts/
   auto-fix-vehicle-sprite-sheet.mjs
   export-vehicle-atlas.mjs
   qa-vehicle-steering.mjs
+  capture-runtime-vehicle-qa.mjs
   generate-vehicle-flipx-preview.mjs
 ```
 
@@ -2481,7 +2560,8 @@ games/apex-seoul/scripts/
 - GPT 생성 이미지는 `img2img-candidates`에만 둔다.
 - GPT가 만든 이미지를 바로 `approved`로 올리지 않는다.
 - score report와 사람이 보는 preview가 모두 있어야 다음 단계로 넘긴다.
-- 5분기 steering을 런타임에 연결하는 후보는 steering QA report까지 남긴다.
+- grip 3way steering을 런타임에 연결하는 후보는 steering QA report까지 남긴다.
+- runtime에 연결한 후보는 frozen scenario screenshot과 contact sheet를 남긴다.
 
 참고 후보
 

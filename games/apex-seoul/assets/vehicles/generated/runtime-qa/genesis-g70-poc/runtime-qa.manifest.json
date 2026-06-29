@@ -1,0 +1,207 @@
+{
+  "baseUrl": "http://localhost:5173/game-assets/apex-seoul/",
+  "browser": "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "contactSheet": null,
+  "generatedAt": "2026-06-29T12:18:35.338Z",
+  "notes": [
+    "Screenshots are deterministic runtime experience samples, not final aesthetic approval.",
+    "Use qaFreeze/qaSteer/qaSpeed/qaZ to compare the same map and sprite state repeatedly."
+  ],
+  "outputDir": "assets/vehicles/generated/runtime-qa/genesis-g70-poc",
+  "track": "elevation-test",
+  "scenarios": [
+    {
+      "expected": {
+        "steering": "left-strong",
+        "terrain": "downhill"
+      },
+      "id": "fov69-downhill-left-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": -1,
+        "qaZ": 1200,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-downhill-left-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=-1&qaZ=1200&terrainThreshold=12"
+    },
+    {
+      "expected": {
+        "steering": "center",
+        "terrain": "downhill"
+      },
+      "id": "fov69-downhill-center",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 0,
+        "qaZ": 1200,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-downhill-center.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=0&qaZ=1200&terrainThreshold=12"
+    },
+    {
+      "expected": {
+        "steering": "right-strong",
+        "terrain": "downhill"
+      },
+      "id": "fov69-downhill-right-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 1,
+        "qaZ": 1200,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-downhill-right-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=1&qaZ=1200&terrainThreshold=12"
+    },
+    {
+      "expected": {
+        "steering": "left-strong",
+        "terrain": "level"
+      },
+      "id": "fov69-level-left-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": -1,
+        "qaZ": 1200,
+        "terrainThreshold": 80
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-level-left-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=-1&qaZ=1200&terrainThreshold=80"
+    },
+    {
+      "expected": {
+        "steering": "center",
+        "terrain": "level"
+      },
+      "id": "fov69-level-center",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 0,
+        "qaZ": 1200,
+        "terrainThreshold": 80
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-level-center.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=0&qaZ=1200&terrainThreshold=80"
+    },
+    {
+      "expected": {
+        "steering": "right-strong",
+        "terrain": "level"
+      },
+      "id": "fov69-level-right-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 1,
+        "qaZ": 1200,
+        "terrainThreshold": 80
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-level-right-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=1&qaZ=1200&terrainThreshold=80"
+    },
+    {
+      "expected": {
+        "steering": "left-strong",
+        "terrain": "uphill"
+      },
+      "id": "fov69-uphill-left-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": -1,
+        "qaZ": 66240,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-uphill-left-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=-1&qaZ=66240&terrainThreshold=12"
+    },
+    {
+      "expected": {
+        "steering": "center",
+        "terrain": "uphill"
+      },
+      "id": "fov69-uphill-center",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 0,
+        "qaZ": 66240,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-uphill-center.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=0&qaZ=66240&terrainThreshold=12"
+    },
+    {
+      "expected": {
+        "steering": "right-strong",
+        "terrain": "uphill"
+      },
+      "id": "fov69-uphill-right-strong",
+      "params": {
+        "anchorResponse": 0.22,
+        "curveCarBias": 32,
+        "fov": 69,
+        "track": "elevation-test",
+        "qaFreeze": 1,
+        "qaSpeed": 440,
+        "qaSteer": 1,
+        "qaZ": 66240,
+        "terrainThreshold": 12
+      },
+      "screenshot": "assets/vehicles/generated/runtime-qa/genesis-g70-poc/screenshots/fov69-uphill-right-strong.png",
+      "status": "manifest-only",
+      "url": "http://localhost:5173/game-assets/apex-seoul/?anchorResponse=0.22&curveCarBias=32&fov=69&track=elevation-test&qaFreeze=1&qaSpeed=440&qaSteer=1&qaZ=66240&terrainThreshold=12"
+    }
+  ],
+  "viewport": {
+    "height": 760,
+    "width": 1200
+  }
+}

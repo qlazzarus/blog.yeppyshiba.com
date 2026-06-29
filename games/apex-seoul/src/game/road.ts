@@ -7,7 +7,9 @@ export type RoadSegment = {
 };
 
 export type RoadTrack = {
+    id: RoadTrackId;
     length: number;
+    name: string;
     segmentLength: number;
     segments: RoadSegment[];
 };
@@ -15,6 +17,8 @@ export type RoadTrack = {
 export const SEGMENT_LENGTH = 240;
 
 const DEFAULT_LANE_COUNT = 2;
+
+export type RoadTrackId = 'bugak-ridge-downhill' | 'elevation-test';
 
 type TrackSection = {
     endCurve: number;
@@ -24,7 +28,7 @@ type TrackSection = {
     segments: number;
 };
 
-const BUGAK_RIDGE_DOWNHILL_SECTIONS: TrackSection[] = [
+const BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS: TrackSection[] = [
     { endCurve: 0, endElevation: 540, segments: 8, startCurve: 0, startElevation: 560 },
     { endCurve: 0.22, endElevation: 360, segments: 20, startCurve: 0, startElevation: 540 },
     { endCurve: 0.62, endElevation: 220, segments: 28, startCurve: 0.22, startElevation: 360 },
@@ -39,8 +43,48 @@ const BUGAK_RIDGE_DOWNHILL_SECTIONS: TrackSection[] = [
     { endCurve: 0, endElevation: -500, segments: 16, startCurve: 0, startElevation: -500 },
 ];
 
+const BUGAK_RIDGE_DOWNHILL_SECTIONS = BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS;
+
+const ELEVATION_TEST_SECTIONS: TrackSection[] = [
+    { endCurve: 0, endElevation: 620, segments: 8, startCurve: 0, startElevation: 620 },
+    { endCurve: 0.78, endElevation: 300, segments: 16, startCurve: 0, startElevation: 620 },
+    { endCurve: -0.82, endElevation: 40, segments: 14, startCurve: 0.78, startElevation: 300 },
+    { endCurve: -0.25, endElevation: 260, segments: 12, startCurve: -0.82, startElevation: 40 },
+    { endCurve: 0.72, endElevation: -80, segments: 18, startCurve: -0.25, startElevation: 260 },
+    { endCurve: 0.1, endElevation: -260, segments: 10, startCurve: 0.72, startElevation: -80 },
+    { endCurve: 0, endElevation: 620, segments: 24, startCurve: 0.1, startElevation: -260 },
+];
+
 export function createBugakRidgeDownhillTrack(): RoadTrack {
-    const segments = BUGAK_RIDGE_DOWNHILL_SECTIONS.flatMap((section) =>
+    return createTrackFromSections(
+        'bugak-ridge-downhill',
+        'Bugak Ridge Downhill',
+        BUGAK_RIDGE_DOWNHILL_SECTIONS,
+    );
+}
+
+export function createElevationTestTrack(): RoadTrack {
+    return createTrackFromSections(
+        'elevation-test',
+        'Elevation Test Hairpins',
+        ELEVATION_TEST_SECTIONS,
+    );
+}
+
+export function createRoadTrack(trackId: RoadTrackId): RoadTrack {
+    if (trackId === 'elevation-test') return createElevationTestTrack();
+
+    return createBugakRidgeDownhillTrack();
+}
+
+export function parseRoadTrackId(value: string | null): RoadTrackId {
+    if (value === 'elevation-test') return value;
+
+    return 'bugak-ridge-downhill';
+}
+
+function createTrackFromSections(id: RoadTrackId, name: string, sections: TrackSection[]): RoadTrack {
+    const segments = sections.flatMap((section) =>
         Array.from({ length: section.segments }, (_, sectionIndex) => ({
             curve: ease(section.startCurve, section.endCurve, sectionIndex, section.segments),
             elevation: ease(section.startElevation, section.endElevation, sectionIndex, section.segments),
@@ -54,7 +98,9 @@ export function createBugakRidgeDownhillTrack(): RoadTrack {
     }));
 
     return {
+        id,
         length: segments.length * SEGMENT_LENGTH,
+        name,
         segmentLength: SEGMENT_LENGTH,
         segments,
     };
