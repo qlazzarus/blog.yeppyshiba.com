@@ -1,0 +1,38 @@
+{
+  "anchorJitterThreshold": 1,
+  "baselineJitterThreshold": 1,
+  "decision": "pass",
+  "deductions": [
+    {
+      "code": "semi_transparent_pixels_exceed_threshold",
+      "message": "Max pre-harden semi-transparent pixels is 517.",
+      "points": 10
+    }
+  ],
+  "input": "assets/vehicles/generated/pixel-candidates/kia-stinger-128/sheet-128.qa.json",
+  "maxPaletteColors": 16,
+  "minSteerWidthDelta": 8,
+  "metrics": {
+    "anchorXJitter": 0.5,
+    "baselineJitter": 0,
+    "maxPaletteColorCount": 15,
+    "maxSemiTransparentPixels": 517,
+    "minSteerWidthDelta": 21,
+    "poseCount": 16
+  },
+  "missingRequiredPoses": [],
+  "outputCandidate": "assets/vehicles/generated/pixel-candidates/kia-stinger-128/sheet-128.png",
+  "passScore": 80,
+  "posePlanId": "outrun-inspired-driving-and-crash-poses",
+  "requiredPoses": [
+    "center",
+    "steer-right-1",
+    "steer-right-2"
+  ],
+  "reviewScore": 65,
+  "score": 90,
+  "semiTransparentThreshold": 512,
+  "targetCellSize": 128,
+  "vehicleId": "kia-stinger-poc",
+  "warnings": []
+}

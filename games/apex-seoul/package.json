@@ -9,14 +9,18 @@
         "clean:vehicle-sprite-sheet": "node scripts/clean-vehicle-sprite-sheet.mjs",
         "download:sketchfab-model": "node scripts/download-sketchfab-model.mjs",
         "download:vehicles": "node scripts/download-kenney-car-kit.mjs",
+        "export:vehicle-atlas": "node scripts/export-vehicle-atlas.mjs",
         "extract:bugak-reference": "node scripts/extract-bugak-ridge-reference.mjs",
         "finalize:vehicle-sprite-sheet": "node scripts/finalize-vehicle-sprite-sheet.mjs",
         "optimize:real-vehicle-models": "node scripts/optimize-real-vehicle-models.mjs",
+        "pixel-pass:vehicle-sheet": "node scripts/pixel-pass-vehicle-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
         "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",
+        "qa:vehicle-steering": "node scripts/qa-vehicle-steering.mjs",
         "render:real-vehicle-pocs": "node scripts/render-real-vehicle-pocs.mjs",
         "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
-        "render:vehicles": "node scripts/render-vehicle-sprites.mjs"
+        "render:vehicles": "node scripts/render-vehicle-sprites.mjs",
+        "score:vehicle-sheet": "node scripts/score-vehicle-sprite-sheet.mjs"
     },
     "dependencies": {
         "phaser": "^4.1.0",

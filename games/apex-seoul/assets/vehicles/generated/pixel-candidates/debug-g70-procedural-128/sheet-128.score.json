@@ -1,0 +1,38 @@
+{
+  "anchorJitterThreshold": 1,
+  "baselineJitterThreshold": 1,
+  "decision": "pass",
+  "deductions": [
+    {
+      "code": "semi_transparent_pixels_exceed_threshold",
+      "message": "Max pre-harden semi-transparent pixels is 703.",
+      "points": 10
+    }
+  ],
+  "input": "assets/vehicles/generated/pixel-candidates/debug-g70-procedural-128/sheet-128.qa.json",
+  "maxPaletteColors": 16,
+  "minSteerWidthDelta": 8,
+  "metrics": {
+    "anchorXJitter": 0,
+    "baselineJitter": 0,
+    "maxPaletteColorCount": 12,
+    "maxSemiTransparentPixels": 703,
+    "minSteerWidthDelta": 14,
+    "poseCount": 16
+  },
+  "missingRequiredPoses": [],
+  "outputCandidate": "assets/vehicles/generated/pixel-candidates/debug-g70-procedural-128/sheet-128.png",
+  "passScore": 80,
+  "posePlanId": "outrun-inspired-driving-and-crash-poses",
+  "requiredPoses": [
+    "center",
+    "steer-right-1",
+    "steer-right-2"
+  ],
+  "reviewScore": 65,
+  "score": 90,
+  "semiTransparentThreshold": 512,
+  "targetCellSize": 128,
+  "vehicleId": "debug-g70",
+  "warnings": []
+}

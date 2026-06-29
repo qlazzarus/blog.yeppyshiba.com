@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 import './styles.css';
-import playerCarRearLeftUrl from '../assets/vehicles/rendered/player-car-rear-left.png';
-import playerCarRearRightUrl from '../assets/vehicles/rendered/player-car-rear-right.png';
-import playerCarRearUrl from '../assets/vehicles/rendered/player-car-rear.png';
+import genesisG70VehicleAtlas from '../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
+import genesisG70VehicleSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128.png';
 import {
     createDefaultCamera,
     getHorizonY,
@@ -20,7 +19,7 @@ import { ELEVATION_VISUAL_SCALE, renderRoad, type RoadRenderStats } from './game
 
 const CAMERA_INPUT_RESPONSE = 14;
 const CAMERA_LATERAL_SPEED = 820;
-const CAMERA_BASE_FOV = 72;
+const CAMERA_BASE_FOV = 69;
 const CAMERA_FOV_RESPONSE = 1.25;
 const CAMERA_SPEED_FOV_BONUS = 2.4;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
@@ -35,10 +34,72 @@ const PLAYER_INPUT_RESPONSE = 12;
 const PLAYER_MAX_ROAD_OFFSET = 700;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
-const PLAYER_SCREEN_ANCHOR_RESPONSE = 0.06;
+const PLAYER_SCREEN_ANCHOR_RESPONSE = 0.18;
 const PLAYER_SHADOW_MAX_ALPHA = 0.32;
 const PLAYER_STEER_ACCELERATION = 1500;
 const PLAYER_STEER_DAMPING = 7.8;
+const PLAYER_VEHICLE_TEXTURE_KEY = 'player-vehicle-genesis-g70-poc';
+const PLAYER_VEHICLE_VIEWPORT_RATIO = 0.34;
+const PLAYER_VEHICLE_MIN_SIZE = 220;
+const PLAYER_VEHICLE_MAX_SIZE = 360;
+const PLAYER_VEHICLE_ROTATION_DEG = 3.5;
+const PLAYER_STEER_WEAK_THRESHOLD = 0.18;
+const PLAYER_STEER_STRONG_THRESHOLD = 0.55;
+const PLAYER_TERRAIN_CUE_THRESHOLD = 24;
+const PLAYER_TERRAIN_ANCHOR_Y_BIAS = 0.06;
+
+type RuntimeTuning = {
+    cameraBaseFov: number;
+    cameraSpeedFovBonus: number;
+    playerRoadAnchorDistance: number;
+    playerScreenAnchorRatio: number;
+    playerScreenAnchorResponse: number;
+    steerStrongThreshold: number;
+    steerWeakThreshold: number;
+    terrainCueThreshold: number;
+    terrainYOffsetRatio: number;
+    vehicleMaxSize: number;
+    vehicleMinSize: number;
+    vehicleRotationDeg: number;
+    vehicleViewportRatio: number;
+};
+
+const RUNTIME_TUNING = createRuntimeTuning();
+
+type PlayerSteeringStateId =
+    | 'center'
+    | 'steer-left-1'
+    | 'steer-left-2'
+    | 'steer-right-1'
+    | 'steer-right-2';
+
+type VehicleAtlasFrame = {
+    frame: {
+        h: number;
+        w: number;
+        x: number;
+        y: number;
+    };
+    origin: {
+        x: number;
+        y: number;
+    };
+};
+
+type VehicleAtlas = {
+    apex: {
+        steeringStates: Record<PlayerSteeringStateId, {
+            flipX: boolean;
+            frame: string;
+        }>;
+        targetCellSize: number;
+    };
+    frames: Record<string, VehicleAtlasFrame>;
+};
+
+const PLAYER_VEHICLE_ATLAS = genesisG70VehicleAtlas as VehicleAtlas;
+
+type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 
 type PlayerVehicleState = {
     lateralOffset: number;
@@ -48,14 +109,16 @@ type PlayerVehicleState = {
 };
 
 type VehicleAnchor = {
+    elevationDelta: number;
     scale: number;
+    terrainCue: VehicleTerrainCue;
     x: number;
     y: number;
 };
 
 class ApexSeoulScene extends Phaser.Scene {
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
-    private cameraFov = CAMERA_BASE_FOV;
+    private cameraFov = RUNTIME_TUNING.cameraBaseFov;
     private cameraVelocity = {
         height: 0,
         lateral: 0,
@@ -80,18 +143,23 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('player-car-rear', playerCarRearUrl);
-        this.load.image('player-car-rear-left', playerCarRearLeftUrl);
-        this.load.image('player-car-rear-right', playerCarRearRightUrl);
+        this.load.spritesheet(PLAYER_VEHICLE_TEXTURE_KEY, genesisG70VehicleSpriteUrl, {
+            frameHeight: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
+            frameWidth: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
+        });
     }
 
     create() {
+        this.cameraResource.fovDegrees = RUNTIME_TUNING.cameraBaseFov;
         this.cameras.main.setBackgroundColor('#11161b');
         this.graphics = this.add.graphics();
         this.playerCar = this.add
-            .image(0, 0, 'player-car-rear')
+            .image(0, 0, PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex('center'))
             .setDepth(6)
-            .setOrigin(0.5, 0.78);
+            .setOrigin(
+                PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
+                PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
+            );
         this.hudText = this.add
             .text(20, 18, '', {
                 color: '#eef2f3',
@@ -212,7 +280,8 @@ class ApexSeoulScene extends Phaser.Scene {
                 stats
                     ? `segment ${stats.baseSegmentIndex} | curve ${stats.currentCurve.toFixed(2)} | elevation ${stats.currentElevation.toFixed(0)} | visible ${stats.visibleSegments}`
                     : 'segment -- | curve -- | visible --',
-                `speed ${player.speed.toFixed(0)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)}`,
+                `speed ${player.speed.toFixed(0)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${this.getVehicleTerrainCue()}`,
+                `sprite ${(RUNTIME_TUNING.vehicleViewportRatio * 100).toFixed(0)}vw | anchor ${RUNTIME_TUNING.playerRoadAnchorDistance.toFixed(0)}z | thresholds ${RUNTIME_TUNING.steerWeakThreshold.toFixed(2)}/${RUNTIME_TUNING.steerStrongThreshold.toFixed(2)}`,
                 ENABLE_DEBUG_CAMERA_CONTROLS
                     ? 'Up: accel | Down: brake | Left/Right: steer | WASD: camera | Q/E: pitch'
                     : 'Up: accel | Down: brake | Left/Right: steer | debug camera locked',
@@ -276,24 +345,22 @@ class ApexSeoulScene extends Phaser.Scene {
 
     private renderPlayerVehicle(viewport: Viewport) {
         const player = this.playerVehicle;
-        const steerTexture =
-            player.steering < -0.18
-                ? 'player-car-rear-left'
-                : player.steering > 0.18
-                    ? 'player-car-rear-right'
-                    : 'player-car-rear';
-        const spriteSize = Phaser.Math.Clamp(viewport.width * 0.34, 220, 360);
+        const spriteSize = getPlayerVehicleSpriteSize(viewport);
         const anchor = this.getVehicleAnchor(viewport, spriteSize);
+        const vehicleFrame = selectPlayerVehicleFrame(player.steering, anchor.terrainCue);
+        const frame = PLAYER_VEHICLE_ATLAS.frames[vehicleFrame.frame];
 
         this.playerCar
-            .setTexture(steerTexture)
+            .setTexture(PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(vehicleFrame.frame))
+            .setFlipX(vehicleFrame.flipX)
+            .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x, anchor.y)
             .setDisplaySize(spriteSize, spriteSize)
-            .setRotation(Phaser.Math.DegToRad(player.steering * 3.5));
+            .setRotation(Phaser.Math.DegToRad(player.steering * RUNTIME_TUNING.vehicleRotationDeg));
     }
 
     private renderPlayerShadow(viewport: Viewport) {
-        const spriteSize = Phaser.Math.Clamp(viewport.width * 0.34, 220, 360);
+        const spriteSize = getPlayerVehicleSpriteSize(viewport);
         const anchor = this.getVehicleAnchor(viewport, spriteSize);
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
         const width = spriteSize * Phaser.Math.Linear(0.38, 0.46, speedRatio);
@@ -323,18 +390,21 @@ class ApexSeoulScene extends Phaser.Scene {
 
     private getVehicleAnchor(viewport: Viewport, spriteSize: number): VehicleAnchor {
         const player = this.playerVehicle;
-        const anchorZ = this.cameraResource.z + PLAYER_ROAD_ANCHOR_DISTANCE;
+        const anchorZ = this.cameraResource.z + RUNTIME_TUNING.playerRoadAnchorDistance;
         const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
+        const anchorElevation = getRoadElevationAt(this.roadTrack, anchorZ);
+        const elevationDelta = anchorElevation - currentRoadElevation;
+        const terrainCue = selectVehicleTerrainCue(elevationDelta);
         const roadAnchor = projectGroundPoint(
             {
                 x: player.lateralOffset,
-                y: (getRoadElevationAt(this.roadTrack, anchorZ) - currentRoadElevation) * ELEVATION_VISUAL_SCALE,
+                y: elevationDelta * ELEVATION_VISUAL_SCALE,
                 z: anchorZ,
             },
             this.cameraResource,
             viewport,
         );
-        const fixedAnchorY = viewport.height * PLAYER_SCREEN_ANCHOR_RATIO;
+        const fixedAnchorY = viewport.height * RUNTIME_TUNING.playerScreenAnchorRatio;
         const fallbackY = fixedAnchorY;
         const fallbackX = viewport.width / 2;
         const anchorX = roadAnchor.visible
@@ -342,14 +412,20 @@ class ApexSeoulScene extends Phaser.Scene {
             : fallbackX;
         const anchorY = roadAnchor.visible
             ? Phaser.Math.Clamp(
-                Phaser.Math.Linear(fixedAnchorY, roadAnchor.y + spriteSize * 0.08, PLAYER_SCREEN_ANCHOR_RESPONSE),
-                viewport.height * 0.84,
-                viewport.height * 0.93,
+                Phaser.Math.Linear(
+                    fixedAnchorY,
+                    roadAnchor.y + spriteSize * getTerrainAnchorBias(terrainCue),
+                    RUNTIME_TUNING.playerScreenAnchorResponse,
+                ),
+                viewport.height * 0.8,
+                viewport.height * 0.95,
             )
             : fallbackY;
 
         return {
+            elevationDelta,
             scale: roadAnchor.scale,
+            terrainCue,
             x: anchorX,
             y: anchorY,
         };
@@ -361,12 +437,22 @@ class ApexSeoulScene extends Phaser.Scene {
             0,
             1,
         );
-        const targetFov = CAMERA_BASE_FOV + speedRatio * CAMERA_SPEED_FOV_BONUS;
+        const targetFov = RUNTIME_TUNING.cameraBaseFov + speedRatio * RUNTIME_TUNING.cameraSpeedFovBonus;
         const fovBlend = 1 - Math.exp(-CAMERA_FOV_RESPONSE * seconds);
 
         this.cameraFov = Phaser.Math.Linear(this.cameraFov, targetFov, fovBlend);
 
         return this.cameraFov;
+    }
+
+    private getVehicleTerrainCue() {
+        const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
+        const anchorElevation = getRoadElevationAt(
+            this.roadTrack,
+            this.cameraResource.z + RUNTIME_TUNING.playerRoadAnchorDistance,
+        );
+
+        return selectVehicleTerrainCue(anchorElevation - currentRoadElevation);
     }
 }
 
@@ -391,4 +477,158 @@ new Phaser.Game(config);
 
 function getAxis(positive: boolean, negative: boolean) {
     return Number(positive) - Number(negative);
+}
+
+function selectPlayerSteeringState(steering: number): PlayerSteeringStateId {
+    if (steering <= -RUNTIME_TUNING.steerStrongThreshold) return 'steer-left-2';
+    if (steering <= -RUNTIME_TUNING.steerWeakThreshold) return 'steer-left-1';
+    if (steering >= RUNTIME_TUNING.steerStrongThreshold) return 'steer-right-2';
+    if (steering >= RUNTIME_TUNING.steerWeakThreshold) return 'steer-right-1';
+
+    return 'center';
+}
+
+function selectPlayerVehicleFrame(steering: number, terrainCue: VehicleTerrainCue) {
+    const steeringState = selectPlayerSteeringState(steering);
+    const fallback = PLAYER_VEHICLE_ATLAS.apex.steeringStates[steeringState];
+
+    if (terrainCue === 'level') return fallback;
+
+    const frameId = getTerrainFrameId(steeringState, terrainCue);
+
+    if (!frameId || !PLAYER_VEHICLE_ATLAS.frames[frameId]) return fallback;
+
+    return {
+        flipX: steeringState.startsWith('steer-left'),
+        frame: frameId,
+    };
+}
+
+function getTerrainFrameId(steeringState: PlayerSteeringStateId, terrainCue: Exclude<VehicleTerrainCue, 'level'>) {
+    if (steeringState === 'center') return `${terrainCue}-center`;
+    if (steeringState.endsWith('-1')) return `${terrainCue}-right-1`;
+    if (steeringState.endsWith('-2')) return `${terrainCue}-right-2`;
+
+    return null;
+}
+
+function selectVehicleTerrainCue(elevationDelta: number): VehicleTerrainCue {
+    if (elevationDelta <= -RUNTIME_TUNING.terrainCueThreshold) return 'downhill';
+    if (elevationDelta >= RUNTIME_TUNING.terrainCueThreshold) return 'uphill';
+
+    return 'level';
+}
+
+function getTerrainAnchorBias(terrainCue: VehicleTerrainCue) {
+    if (terrainCue === 'downhill') return RUNTIME_TUNING.terrainYOffsetRatio + 0.025;
+    if (terrainCue === 'uphill') return RUNTIME_TUNING.terrainYOffsetRatio - 0.02;
+
+    return RUNTIME_TUNING.terrainYOffsetRatio;
+}
+
+function getPlayerVehicleSpriteSize(viewport: Viewport) {
+    return Phaser.Math.Clamp(
+        viewport.width * RUNTIME_TUNING.vehicleViewportRatio,
+        RUNTIME_TUNING.vehicleMinSize,
+        RUNTIME_TUNING.vehicleMaxSize,
+    );
+}
+
+function getVehicleFrameIndex(frameId: string) {
+    const frame = PLAYER_VEHICLE_ATLAS.frames[frameId]?.frame;
+    const cellSize = PLAYER_VEHICLE_ATLAS.apex.targetCellSize;
+
+    if (!frame) {
+        throw new Error(`Unknown player vehicle frame: ${frameId}`);
+    }
+
+    return (frame.y / cellSize) * 3 + frame.x / cellSize;
+}
+
+function createRuntimeTuning(): RuntimeTuning {
+    const params = new URLSearchParams(window.location.search);
+    const weakThreshold = readTuningNumber(
+        params,
+        'steerWeak',
+        PLAYER_STEER_WEAK_THRESHOLD,
+        0.05,
+        0.45,
+    );
+    const strongThreshold = readTuningNumber(
+        params,
+        'steerStrong',
+        PLAYER_STEER_STRONG_THRESHOLD,
+        weakThreshold + 0.05,
+        0.95,
+    );
+
+    return {
+        cameraBaseFov: readTuningNumber(params, 'fov', CAMERA_BASE_FOV, 58, 82),
+        cameraSpeedFovBonus: readTuningNumber(params, 'fovBonus', CAMERA_SPEED_FOV_BONUS, 0, 8),
+        playerRoadAnchorDistance: readTuningNumber(
+            params,
+            'anchorZ',
+            PLAYER_ROAD_ANCHOR_DISTANCE,
+            420,
+            900,
+        ),
+        playerScreenAnchorRatio: readTuningNumber(
+            params,
+            'anchorY',
+            PLAYER_SCREEN_ANCHOR_RATIO,
+            0.82,
+            0.94,
+        ),
+        playerScreenAnchorResponse: readTuningNumber(
+            params,
+            'anchorResponse',
+            PLAYER_SCREEN_ANCHOR_RESPONSE,
+            0,
+            0.3,
+        ),
+        steerStrongThreshold: strongThreshold,
+        steerWeakThreshold: weakThreshold,
+        terrainCueThreshold: readTuningNumber(
+            params,
+            'terrainThreshold',
+            PLAYER_TERRAIN_CUE_THRESHOLD,
+            4,
+            80,
+        ),
+        terrainYOffsetRatio: readTuningNumber(
+            params,
+            'terrainBias',
+            PLAYER_TERRAIN_ANCHOR_Y_BIAS,
+            0,
+            0.14,
+        ),
+        vehicleMaxSize: readTuningNumber(params, 'carMax', PLAYER_VEHICLE_MAX_SIZE, 160, 520),
+        vehicleMinSize: readTuningNumber(params, 'carMin', PLAYER_VEHICLE_MIN_SIZE, 120, 420),
+        vehicleRotationDeg: readTuningNumber(params, 'carRoll', PLAYER_VEHICLE_ROTATION_DEG, 0, 8),
+        vehicleViewportRatio: readTuningNumber(
+            params,
+            'carScale',
+            PLAYER_VEHICLE_VIEWPORT_RATIO,
+            0.2,
+            0.48,
+        ),
+    };
+}
+
+function readTuningNumber(
+    params: URLSearchParams,
+    key: string,
+    fallback: number,
+    min: number,
+    max: number,
+) {
+    const rawValue = params.get(key);
+
+    if (rawValue === null) return fallback;
+
+    const parsed = Number(rawValue);
+
+    if (!Number.isFinite(parsed)) return fallback;
+
+    return Phaser.Math.Clamp(parsed, min, max);
 }

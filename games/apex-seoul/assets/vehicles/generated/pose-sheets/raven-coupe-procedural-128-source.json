@@ -2,17 +2,24 @@
   "cellSize": 256,
   "columns": 3,
   "frameSizeUnits": 2.95,
-  "model": "toyota-gt86-poc",
+  "model": "raven-coupe-procedural",
   "modelPitchOffsetDeg": 0,
   "modelRollOffsetDeg": 0,
   "modelScaleX": 1,
   "modelScaleY": 1,
   "modelScaleZ": 1,
-  "modelYawOffsetDeg": 180,
-  "output": "assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.png",
+  "modelYawOffsetDeg": 0,
+  "debugMaterials": false,
+  "materialOverrides": {},
+  "output": "assets/vehicles/generated/pose-sheets/raven-coupe-procedural-128-source.png",
   "poseManifest": "assets/vehicles/source/manifests/outrun-inspired-pose-plan.json",
   "posePlanId": "outrun-inspired-driving-and-crash-poses",
   "poseReferencePolicy": "Reference only. Use the attached OutRun-style sheet to study rear-view pose spacing, front-facing spin poses, rollover/overturned crash poses, vehicle baseline, and direction readability; do not copy or extract original sprite pixels.",
+  "proceduralVehicle": {
+    "id": "raven-coupe",
+    "manifest": "assets/vehicles/source/manifests/fictional-vehicle-procedural.json",
+    "referencePolicy": "Original fictional compact FR coupe. Uses GT86/Stinger/G70 POC only for pose, scale, and readability reference; do not copy trade dress."
+  },
   "poses": [
     {
       "camera": [
@@ -326,10 +333,10 @@
     }
   ],
   "rows": 6,
-  "scaleMode": "vehicle-length",
-  "sourceModel": "assets/vehicles/optimized/toyota_gt86-optimized.glb",
-  "vehicleId": "toyota-gt86-poc",
+  "scaleMode": "max-dimension",
+  "sourceModel": "procedural:raven-coupe-procedural",
+  "vehicleId": "raven-coupe",
   "referenceLengthM": 4.24,
   "referenceLengthUnits": 2.2,
-  "vehicleLengthM": 4.24
+  "vehicleLengthM": null
 }

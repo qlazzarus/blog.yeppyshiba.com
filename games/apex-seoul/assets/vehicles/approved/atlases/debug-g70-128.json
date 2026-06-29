@@ -1,0 +1,608 @@
+{
+  "apex": {
+    "anchorPolicy": "Use per-frame origin for draw offset. Left steering frames reuse right steering art with flipX.",
+    "approvedFrom": {
+      "qa": "assets/vehicles/generated/pixel-candidates/debug-g70-procedural-128/sheet-128.qa.json",
+      "score": "assets/vehicles/generated/pixel-candidates/debug-g70-procedural-128/sheet-128.score.json",
+      "source": "assets/vehicles/generated/pixel-candidates/debug-g70-procedural-128/sheet-128.png"
+    },
+    "decision": "pass",
+    "score": 90,
+    "steeringStates": {
+      "steer-left-2": {
+        "flipX": true,
+        "frame": "steer-right-2"
+      },
+      "steer-left-1": {
+        "flipX": true,
+        "frame": "steer-right-1"
+      },
+      "center": {
+        "flipX": false,
+        "frame": "center"
+      },
+      "steer-right-1": {
+        "flipX": false,
+        "frame": "steer-right-1"
+      },
+      "steer-right-2": {
+        "flipX": false,
+        "frame": "steer-right-2"
+      }
+    },
+    "targetCellSize": 128,
+    "vehicleId": "debug-g70"
+  },
+  "frames": {
+    "center": {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "straight rear driving frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "steer-right-1": {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 128,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "steer-right-2": {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 256,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer frame, still normal driving"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-right-1": {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 128
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 12,
+        "referenceRole": "near-side slip or recovery frame, not normal steering"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-right-2": {
+      "anchor": {
+        "x": 64.5,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 128,
+        "y": 128
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 24,
+        "referenceRole": "side-heavy spin frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-front-right-1": {
+      "anchor": {
+        "x": 64,
+        "y": 88
+      },
+      "baselineY": 88,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 256,
+        "y": 128
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": -12,
+        "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-front-right-2": {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 256
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": -24,
+        "referenceRole": "strong front-facing spin frame, near full front-quarter exposure"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "rollover-right-1": {
+      "anchor": {
+        "x": 64.5,
+        "y": 110
+      },
+      "baselineY": 110,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 128,
+        "y": 256
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.859375
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 70,
+        "modelYawDeg": 18,
+        "referenceRole": "crash rollover frame, car lifting onto its side"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "rollover-right-2": {
+      "anchor": {
+        "x": 64,
+        "y": 107
+      },
+      "baselineY": 107,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 256,
+        "y": 256
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.8359375
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 138,
+        "modelYawDeg": 28,
+        "referenceRole": "crash rollover frame, underside becoming visible"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "overturned": {
+      "anchor": {
+        "x": 64,
+        "y": 104
+      },
+      "baselineY": 104,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.8125
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 180,
+        "modelYawDeg": 20,
+        "referenceRole": "crash aftermath frame, car fully upside down"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-center": {
+      "anchor": {
+        "x": 64,
+        "y": 89
+      },
+      "baselineY": 89,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 128,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6953125
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "rear frame with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-right-1": {
+      "anchor": {
+        "x": 64,
+        "y": 90
+      },
+      "baselineY": 90,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 256,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.703125
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-right-2": {
+      "anchor": {
+        "x": 64.5,
+        "y": 90
+      },
+      "baselineY": 90,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 512
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.703125
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-center": {
+      "anchor": {
+        "x": 64,
+        "y": 82
+      },
+      "baselineY": 82,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 128,
+        "y": 512
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.640625
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "rear frame with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-right-1": {
+      "anchor": {
+        "x": 64.5,
+        "y": 84
+      },
+      "baselineY": 84,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 256,
+        "y": 512
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.65625
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-right-2": {
+      "anchor": {
+        "x": 64.5,
+        "y": 86
+      },
+      "baselineY": 86,
+      "frame": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 640
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.671875
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 128,
+        "w": 128
+      },
+      "spriteSourceSize": {
+        "h": 128,
+        "w": 128,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    }
+  },
+  "meta": {
+    "app": "apex-seoul vehicle atlas exporter",
+    "format": "RGBA8888",
+    "image": "debug-g70-128.png",
+    "scale": "1",
+    "size": {
+      "h": 768,
+      "w": 384
+    }
+  }
+}

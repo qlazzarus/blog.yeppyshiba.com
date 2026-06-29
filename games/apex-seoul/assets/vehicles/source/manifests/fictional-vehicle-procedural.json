@@ -1,0 +1,179 @@
+{
+  "id": "apex-seoul-fictional-procedural-vehicles",
+  "vehicles": {
+    "raven-coupe": {
+      "id": "raven-coupe",
+      "referencePolicy": "Original fictional compact FR coupe. Uses GT86/Stinger/G70 POC only for pose, scale, and readability reference; do not copy trade dress.",
+      "model": "raven-coupe-procedural",
+      "output": "assets/vehicles/generated/pose-sheets/raven-coupe-procedural-128-source.png",
+      "dimensions": {
+        "bodyLength": 4.08,
+        "bodyWidth": 2.76,
+        "bodyHeight": 0.5,
+        "cabinDepth": 1.16,
+        "cabinWidth": 1.58,
+        "frontWheelZ": 1.28,
+        "rearWheelZ": -1.22,
+        "wheelRadius": 0.44,
+        "wheelTrackX": 1.18
+      },
+      "materials": {
+        "body": {
+          "color": "#242932",
+          "metalness": 0.18,
+          "roughness": 0.52
+        },
+        "bodyDark": {
+          "color": "#111722",
+          "metalness": 0.12,
+          "roughness": 0.62
+        },
+        "glass": {
+          "color": "#6e7680",
+          "metalness": 0.02,
+          "roughness": 0.28
+        },
+        "tire": {
+          "color": "#080a0f",
+          "metalness": 0.05,
+          "roughness": 0.7
+        },
+        "rim": {
+          "color": "#d8dde8",
+          "metalness": 0.55,
+          "roughness": 0.32
+        },
+        "trim": {
+          "color": "#05070b",
+          "metalness": 0.05,
+          "roughness": 0.68
+        },
+        "highlight": {
+          "color": "#8f9aa7",
+          "metalness": 0.18,
+          "roughness": 0.38
+        },
+        "lightRed": {
+          "color": "#e02832",
+          "emissive": "#5a0508",
+          "emissiveIntensity": 0.45,
+          "roughness": 0.25
+        },
+        "lightAmber": {
+          "color": "#ff8a1d",
+          "emissive": "#442000",
+          "emissiveIntensity": 0.22,
+          "roughness": 0.28
+        },
+        "accent": {
+          "color": "#d23035",
+          "roughness": 0.45
+        },
+        "plate": {
+          "color": "#e8edf5",
+          "metalness": 0.08,
+          "roughness": 0.35
+        }
+      }
+    },
+    "debug-ft86": {
+      "id": "debug-ft86",
+      "referencePolicy": "Internal debug-only fictional compact coupe variant. GT86-like proportion reference only; do not copy trade dress.",
+      "model": "raven-coupe-procedural",
+      "output": "assets/vehicles/generated/pose-sheets/debug-ft86-procedural.png",
+      "dimensions": {
+        "bodyLength": 4.04,
+        "bodyWidth": 2.7,
+        "bodyHeight": 0.48,
+        "cabinDepth": 1.1,
+        "cabinWidth": 1.52,
+        "cabinZ": -0.35,
+        "frontDeckZ": 1.04,
+        "rearDeckZ": -1.5,
+        "frontWheelZ": 1.24,
+        "rearWheelZ": -1.18,
+        "wheelRadius": 0.43,
+        "wheelTrackX": 1.16
+      },
+      "materials": {
+        "body": { "color": "#252b34", "metalness": 0.18, "roughness": 0.52 },
+        "bodyDark": { "color": "#101722", "metalness": 0.12, "roughness": 0.62 },
+        "glass": { "color": "#67737d", "metalness": 0.02, "roughness": 0.28 },
+        "tire": { "color": "#080a0f", "metalness": 0.05, "roughness": 0.7 },
+        "rim": { "color": "#d8dde8", "metalness": 0.55, "roughness": 0.32 },
+        "trim": { "color": "#05070b", "metalness": 0.05, "roughness": 0.68 },
+        "highlight": { "color": "#8f9aa7", "metalness": 0.18, "roughness": 0.38 },
+        "lightRed": { "color": "#e02832", "emissive": "#5a0508", "emissiveIntensity": 0.45, "roughness": 0.25 },
+        "lightAmber": { "color": "#ff8a1d", "emissive": "#442000", "emissiveIntensity": 0.22, "roughness": 0.28 },
+        "accent": { "color": "#d23035", "roughness": 0.45 },
+        "plate": { "color": "#e8edf5", "metalness": 0.08, "roughness": 0.35 }
+      }
+    },
+    "debug-stinger": {
+      "id": "debug-stinger",
+      "referencePolicy": "Internal debug-only fictional fastback GT variant. Stinger-like proportion reference only; do not copy trade dress.",
+      "model": "raven-coupe-procedural",
+      "output": "assets/vehicles/generated/pose-sheets/debug-stinger-procedural.png",
+      "dimensions": {
+        "bodyLength": 4.62,
+        "bodyWidth": 2.86,
+        "bodyHeight": 0.52,
+        "cabinDepth": 1.42,
+        "cabinWidth": 1.68,
+        "cabinZ": -0.2,
+        "frontDeckZ": 1.05,
+        "rearDeckZ": -1.65,
+        "frontWheelZ": 1.42,
+        "rearWheelZ": -1.4,
+        "wheelRadius": 0.45,
+        "wheelTrackX": 1.22
+      },
+      "materials": {
+        "body": { "color": "#262c35", "metalness": 0.2, "roughness": 0.5 },
+        "bodyDark": { "color": "#101722", "metalness": 0.12, "roughness": 0.62 },
+        "glass": { "color": "#61717c", "metalness": 0.02, "roughness": 0.28 },
+        "tire": { "color": "#080a0f", "metalness": 0.05, "roughness": 0.7 },
+        "rim": { "color": "#d8dde8", "metalness": 0.55, "roughness": 0.32 },
+        "trim": { "color": "#05070b", "metalness": 0.05, "roughness": 0.68 },
+        "highlight": { "color": "#8a99a6", "metalness": 0.18, "roughness": 0.38 },
+        "lightRed": { "color": "#de2632", "emissive": "#5a0508", "emissiveIntensity": 0.45, "roughness": 0.25 },
+        "lightAmber": { "color": "#ff8a1d", "emissive": "#442000", "emissiveIntensity": 0.22, "roughness": 0.28 },
+        "accent": { "color": "#cf2b35", "roughness": 0.45 },
+        "plate": { "color": "#e8edf5", "metalness": 0.08, "roughness": 0.35 }
+      }
+    },
+    "debug-g70": {
+      "id": "debug-g70",
+      "referencePolicy": "Internal debug-only fictional sport sedan variant. G70-like proportion reference only; do not copy trade dress.",
+      "model": "raven-coupe-procedural",
+      "output": "assets/vehicles/generated/pose-sheets/debug-g70-procedural.png",
+      "dimensions": {
+        "bodyLength": 4.38,
+        "bodyWidth": 2.78,
+        "bodyHeight": 0.54,
+        "cabinDepth": 1.34,
+        "cabinWidth": 1.62,
+        "cabinZ": -0.18,
+        "frontDeckZ": 0.95,
+        "rearDeckZ": -1.42,
+        "frontWheelZ": 1.34,
+        "rearWheelZ": -1.28,
+        "wheelRadius": 0.44,
+        "wheelTrackX": 1.2
+      },
+      "materials": {
+        "body": { "color": "#29303a", "metalness": 0.2, "roughness": 0.5 },
+        "bodyDark": { "color": "#111822", "metalness": 0.12, "roughness": 0.62 },
+        "glass": { "color": "#61727c", "metalness": 0.02, "roughness": 0.28 },
+        "tire": { "color": "#07090d", "metalness": 0.05, "roughness": 0.74 },
+        "rim": { "color": "#d6dce6", "metalness": 0.55, "roughness": 0.32 },
+        "trim": { "color": "#05070b", "metalness": 0.05, "roughness": 0.68 },
+        "highlight": { "color": "#8997a4", "metalness": 0.18, "roughness": 0.38 },
+        "lightRed": { "color": "#df2532", "emissive": "#5a0508", "emissiveIntensity": 0.45, "roughness": 0.25 },
+        "lightAmber": { "color": "#ff8a1d", "emissive": "#442000", "emissiveIntensity": 0.22, "roughness": 0.28 },
+        "accent": { "color": "#ca2d34", "roughness": 0.45 },
+        "plate": { "color": "#e8edf5", "metalness": 0.08, "roughness": 0.35 }
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "atlas": "assets/vehicles/approved/atlases/genesis-g70-poc-128.json",
+  "decision": "pass",
+  "deductions": [],
+  "frameMetrics": {
+    "steer-right-2": {
+      "bbox": {
+        "height": 35,
+        "width": 89,
+        "x": 20,
+        "y": 53
+      },
+      "centroid": {
+        "x": 61.99134396355353,
+        "y": 70.21138952164009
+      },
+      "opaquePixels": 2195
+    },
+    "steer-right-1": {
+      "bbox": {
+        "height": 34,
+        "width": 70,
+        "x": 30,
+        "y": 54
+      },
+      "centroid": {
+        "x": 63.0475138121547,
+        "y": 70.35193370165746
+      },
+      "opaquePixels": 1810
+    },
+    "center": {
+      "bbox": {
+        "height": 34,
+        "width": 46,
+        "x": 41,
+        "y": 54
+      },
+      "centroid": {
+        "x": 63.520217729393465,
+        "y": 70.2239502332815
+      },
+      "opaquePixels": 1286
+    }
+  },
+  "minChangedPixelRatio": 0.08,
+  "minWidthDelta": 8,
+  "metrics": {
+    "minChangedPixelRatio": 0.5300522648083623,
+    "minWidthDelta": 19,
+    "pairMetrics": [
+      {
+        "changedPixelRatio": 0.6393700787401575,
+        "changedPixels": 1218,
+        "id": "center_to_steer_right_1",
+        "unionPixels": 1905
+      },
+      {
+        "changedPixelRatio": 0.5300522648083623,
+        "changedPixels": 1217,
+        "id": "steer_right_1_to_steer_right_2",
+        "unionPixels": 2296
+      }
+    ]
+  },
+  "missingStates": [],
+  "score": 100,
+  "sprite": "assets/vehicles/approved/sprites/genesis-g70-poc-128.png",
+  "steeringStates": {
+    "steer-left-2": {
+      "flipX": true,
+      "frame": "steer-right-2"
+    },
+    "steer-left-1": {
+      "flipX": true,
+      "frame": "steer-right-1"
+    },
+    "center": {
+      "flipX": false,
+      "frame": "center"
+    },
+    "steer-right-1": {
+      "flipX": false,
+      "frame": "steer-right-1"
+    },
+    "steer-right-2": {
+      "flipX": false,
+      "frame": "steer-right-2"
+    }
+  },
+  "vehicleId": "genesis-g70-poc",
+  "warnings": []
+}
