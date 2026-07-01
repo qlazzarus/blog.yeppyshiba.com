@@ -4,6 +4,7 @@
     "type": "module",
     "version": "0.0.1",
     "scripts": {
+        "analyze:drive-telemetry": "node scripts/analyze-drive-telemetry.mjs",
         "dev": "vite --host 0.0.0.0",
         "build": "vite build",
         "clean:vehicle-sprite-sheet": "node scripts/clean-vehicle-sprite-sheet.mjs",
@@ -13,6 +14,7 @@
         "extract:bugak-reference": "node scripts/extract-bugak-ridge-reference.mjs",
         "finalize:vehicle-sprite-sheet": "node scripts/finalize-vehicle-sprite-sheet.mjs",
         "optimize:real-vehicle-models": "node scripts/optimize-real-vehicle-models.mjs",
+        "qa:drive-telemetry": "node scripts/capture-drive-telemetry.mjs",
         "pixel-pass:vehicle-sheet": "node scripts/pixel-pass-vehicle-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
         "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",

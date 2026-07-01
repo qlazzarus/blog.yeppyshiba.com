@@ -2375,7 +2375,7 @@ locked pose sheet
    - 이 단계는 "재미있다/아니다"를 최종 판정하는 대신, grip 3way와 drift/slip 확장 pose가 거의 같은 sprite로 보이는 후보를 자동으로 review/fail로 보내는 게 목적이다.
 9. `runtime sprite/FOV tuning`
    - atlas/sprite가 통과한 뒤에는 렌더를 다시 돌리기 전에 runtime camera와 sprite placement를 먼저 맞춘다.
-   - Apex Seoul 런타임은 URL query로 `fov`, `fovBonus`, `carScale`, `carMin`, `carMax`, `carRoll`, `anchorZ`, `anchorY`, `anchorResponse`, `steerWeak`, `terrainThreshold`, `terrainBias`, `curveCarBias`, `debugGuides`를 조정할 수 있다.
+   - Apex Seoul 런타임은 URL query로 `fov`, `fovBonus`, `carScale`, `carMin`, `carMax`, `carRoll`, `anchorZ`, `contactZ`, `anchorY`, `steerWeak`, `terrainThreshold`, `terrainScale`, `curveCarBias`, `debugGuides`를 조정할 수 있다.
    - G70 128px 기준 기본 FOV는 69로 낮추고, road anchor response는 0.18로 올려서 고저차가 차량 위치에 더 직접 반영되게 한다.
    - 기본 비교 순서는 `fov` 68-70, `carScale` 0.30-0.36, `anchorZ` 560-700, `steerWeak` 0.14-0.22 범위에서 본다.
    - 도로 앞쪽 elevation delta가 일정 threshold를 넘으면 `downhill-*` 또는 `uphill-*` pose를 선택하고, 좌측 조향은 해당 오른쪽 pose를 `flipX`해서 재사용한다.
@@ -2419,20 +2419,58 @@ OutRun식 grip steering 감각
 - 기본 `Bugak Ridge Downhill` 섹션은 `BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS`로 보존한다. 이 값은 실제 코스 감각을 다듬는 기준선이므로, 경사 테스트를 위해 직접 과장하지 않는다.
 - 고저차/속도/RPM 검증용으로 `elevation-test` 트랙을 별도 추가한다. URL에 `?track=elevation-test`를 붙이면 강한 내리막 우코너, 좌코너 dip, 짧은 업힐, 긴 내리막, 복귀 업힐이 순서대로 나온다.
 - 이 테스트 트랙은 최종 맵 후보가 아니라 runtime calibration fixture다. 목적은 내리막 가속, 오르막 감속, `downhill-*` / `uphill-*` 차량 pose, anchor y 보정, corner speed limit force가 한 화면에서 잘 읽히는지 확인하는 것이다.
-- 경사가 큰 테스트 코스에서는 차량 y를 앞쪽 도로 투영값에 그대로 따라붙이면 차가 붕뜨는 느낌이 난다. 따라서 차량 접지 y는 화면 하단 기준선에 강하게 lock하고, 경사에 따른 y shift는 작은 픽셀 범위로 clamp한다.
+- 경사가 큰 테스트 코스에서는 차량 y를 앞쪽 도로 투영값에 그대로 따라붙이면 차가 붕뜨는 느낌이 난다. 반대로 내리막 projection을 과하게 따라가도 차량 기준점이 흔들려 조작감이 약해진다. 따라서 차량 y는 화면 하단의 fixed screen contact plane을 기준으로 두고, 경사 반응은 작은 screen-space offset과 shadow/pose/road compensation으로만 준다.
+- OutRun 계열 pseudo-3D에서는 플레이어 차량을 멀리 있는 언덕 위 3D 좌표에 정확히 붙이는 것이 아니라, 화면 하단 near/base road contact에 붙이고 도로/호라이즌/배경 변화로 고저차를 속인다. Apex Seoul도 `anchorZ`는 terrain pose를 고르는 lookahead로 두고, `contactZ`는 가까운 도로의 x/curve/lateral 기준에만 사용한다. 차량 y는 `projectGroundPoint(contactZ)` 결과에 의존하지 않는다.
+- 차량 y만 fixed contact plane에 둬도, 도로 projection이 차량 아래에서 계속 내려가면 차가 하늘에 떠 보인다. 별도 foreground road overlay를 덮으면 앞쪽 도로와 잘려 붙어 더 어색해진다. 따라서 roadRenderer 자체가 camera.z 바로 앞의 partial segment를 그려 차량 밑 near road가 같은 도로 strip으로 이어지게 한다.
+- 도로 elevation projection 자체는 `ahead elevation - current elevation` 방향을 유지한다. `projectGroundPoint` 기준으로 높은 도로는 화면 위로, 낮은 도로는 화면 아래로 가야 오르막/내리막 묘사가 뒤집히지 않는다. 내리막에서 차가 뜨는 문제는 도로 부호를 반전해서 해결하지 않고, downhill contact assist, shadow, horizon/pitch, pose 보정으로 차량 기준선이 노면을 타는 느낌을 추가한다.
+- 도로와 차량 묘사가 딜레이된 것처럼 보이면 y 접지와 pose lookahead를 섞어 쓰고 있는지 먼저 확인한다. 차량 y와 shadow 위치는 screen contact plane 기준으로 두고, `downhill-*` / `uphill-*` pose 및 scale은 더 먼 `anchorZ` lookahead를 사용한다. 카메라 pitch도 `camera.z` 이동 후 계산해 road render와 같은 위치 기준을 보게 한다.
+- drive telemetry 1차 로그에서는 `terrainCue`가 `downhill`으로 바뀌는 동안 `contactTerrainCue`가 계속 `level`로 남는 문제가 확인됐다. 원인은 먼 pose lookahead의 `elevationDelta`와 가까운 contact sample의 `contactElevationDelta`에 같은 threshold를 적용한 것이다. 따라서 접지/그림자/y 보정은 `contactCueThreshold` 기본 8px 상당의 별도 민감도로 판단하고, pose 선택은 기존 `terrainThreshold` 기본 24를 유지한다.
+- 접지 cue를 별도 threshold로 나눠도 y/shadow를 `level -> downhill` 판정값에 직접 물리면 `contactElevationDelta`가 threshold를 넘는 순간 차량이 위아래로 튄다. 그래서 y/shadow 보정은 `contactTerrainCue`의 on/off가 아니라 `contactTerrainRatio` 연속값을 쓰고, 작은 dead zone 뒤에 smoothstep으로 보간한다.
+- 다음 로그 검증 기준은 `terrainContactMismatchRatio`가 줄어드는지, `vehicle.anchor.y`가 고저차에서 0이 아닌 제한된 범위로 부드럽게 움직이는지, `contactTerrainCue`와 shadow height가 내리막 구간에서 함께 반응하는지다. 차량 y는 여전히 fixed screen contact plane이 기준이며, 보정 폭은 `PLAYER_MAX_TERRAIN_SCREEN_Y_SHIFT` 안쪽으로 제한한다.
 - 고저차 표현의 우선순위는 도로 투영, horizon, 속도 변화, 차량 terrain pose, shadow 변화이며, 플레이어 차량 자체의 큰 상하 이동은 마지막 보조 수단으로 둔다.
 - 내리막/오르막에서 카메라가 완전히 고정되어도 도로와 차량이 따로 노는 느낌이 난다. 대안은 `차량 y 이동`, `카메라 pitch/horizon 반응`, `차량 pitch pose + shadow 반응` 세 가지인데, 현재 기본값은 카메라 pitch/horizon 반응을 중심으로 둔다.
 - 내리막에서는 slope acceleration 비율에 따라 camera pitch를 음수 방향으로 보간해 horizon을 살짝 올리고, 오르막에서는 양수 방향으로 보간해 horizon을 내려 도로가 막히는 느낌을 준다. 이 반응은 속도가 높을수록 커지고, 차량 y lock을 대체하지 않는다.
 - 차량 자체는 큰 상하 이동 대신 `downhill-*` / `uphill-*` pose, shadow 변화, 제한된 terrain scale로 경사를 읽힌다. 이후 crest/dip 전용 포즈가 생기면 camera pitch impulse와 pose 전환을 함께 튜닝한다.
 - 차량이 여전히 공중에 떠 보이면 먼저 shadow center가 차량 baseline 아래에 있는지 확인한다. 현재 G70 128px runtime은 shadow center를 baseline 아래로 두고, terrain cue에 따라 shadow 높이를 조금 줄여 접지감을 보강한다.
+- 현재 Phaser 런타임은 `type: Phaser.CANVAS`라 WebGL shader/pipeline 기반 sprite deformation은 바로 쓰지 않는다. shadow 개선은 우선 sprite anchor/origin과 `contactTerrainRatio`를 기준으로 한 `Graphics` 변형 pass로 처리한다. 단일 큰 ellipse 대신 약한 chassis soft shadow와 좌/우 tire contact shadow를 분리해, 현재 sprite를 다시 그리지 않고도 접지감을 보강한다.
+- approved 128px 차량 atlas에는 `apex.shadowProfiles`를 둔다. G70, Stinger, GT86 profile은 frame cell 기준 normalized 좌표로 `chassis`와 `tireContacts`를 정의하고, 런타임은 현재 frame origin과 `flipX`를 적용해 화면 좌표로 변환한다. 이 단계는 Canvas Graphics용이지만, 이후 WebGL shader/pipeline으로 전환해도 동일 metadata를 shadow mask/blur/deformation 입력으로 재사용한다.
+- tire contact shadow는 원형 ellipse가 아니라 얇은 rounded contact patch로 그린다. 큰 타원은 차체 밑 soft shadow에만 약하게 쓰고, 타이어 접지 정보는 납작한 패치로 분리해야 차가 노면에 붙어 보인다.
+- 접지감 튜닝은 `차에 붙이기`, `앞쪽으로 길게 빼기`, `전체 농도 올리기` 순서로 본다. 현재 값은 tire contact patch를 진하게 하고, chassis patch를 차체 쪽으로 당겨 중앙의 둥근 얼룩보다 노면에 눌린 그림자가 먼저 읽히도록 한다.
+- 다만 Graphics 도형만으로는 큰 그림자가 결국 동그란 타원/얼룩으로 읽히는 한계가 있다. OutRun식 sprite-scaling 감각에서는 차량 하단 픽셀과 실루엣이 그림자처럼 같이 읽히므로, 다음 구현은 `sprite silhouette shadow pass`로 전환한다.
+- `sprite silhouette shadow pass`는 현재 선택된 차량 frame을 같은 atlas에서 한 번 더 그리되, 검정/짙은 남색 tint, 낮은 alpha, y축 squash, x축 소폭 stretch, 화면상 위쪽/앞쪽 offset을 적용해 노면 위 실루엣 그림자로 사용한다. 그 위에 기존 차량 sprite를 정상 렌더링한다. 실루엣이 충분히 읽히는 경우 `tireContacts` metadata 기반 contact patch는 비활성화하고, 필요할 때만 보조 debug/tuning layer로 되돌린다.
+- 이 방식은 Canvas에서도 `Image` game object의 `tint`, `alpha`, `scale`, `origin`, `flipX`를 이용해 구현 가능하다. WebGL로 전환하면 같은 silhouette sprite를 blur/mask/pipeline으로 고급화할 수 있지만, 1차 목표는 WebGL 이전에 동그란 도형 shadow를 차량 실루엣 기반 shadow로 대체하는 것이다.
+- 1차 구현은 `playerShadowCar` image를 추가해 vehicle frame/flip/origin을 동기화하고, shadow depth를 road와 car 사이에 배치한다. `contactTerrainRatio`에 따라 silhouette squash/stretch를 적용하며, 기존 Graphics chassis ellipse는 매우 약화하고 tire contact patch는 실루엣이 깨지는 경우에만 다시 켠다.
+- Canvas renderer에서 tint fill이 검정 마스크처럼 안정적으로 보이지 않으면, 원본 sprite sheet의 alpha만 유지하고 RGB를 검정으로 바꾼 shadow 전용 sheet를 쓴다. approved 128px 차량군은 `*-shadow.png`를 별도로 생성하고 atlas `meta.shadowImage`에 연결해 회색 원본 복제처럼 보이는 문제를 피한다.
 - `terrainScale`은 차량 접지점을 움직이는 값이 아니라, anchor/origin은 유지한 채 sprite display size만 3-5% 안쪽으로 보정하는 시각 cue다. 현재 기본은 downhill에서 살짝 작아지고 uphill에서 살짝 커지는 방향이며, URL query `terrainScale=0..0.09`로 조정한다.
 - QA 자동화에서 기본 맵과 테스트 맵을 모두 돌릴 수 있도록 runtime QA state에는 track `id`, `name`, `length`, `segments`를 남긴다.
+
+OutRun식 고저차 케이스 스터디
+
+- 차량 크기를 줄여도 내리막에서 붕 뜨는 느낌이 유지되면, 원인을 차량 sprite size보다 downhill road/background compensation 부족으로 본다. 큰 차량은 접지 오차를 증폭할 수 있지만, 내리막에서 도로가 아래로 빠지고 차량이 화면 anchor에 남는 구조 자체를 해결하지는 못한다.
+- Jake Gordon의 JavaScript Racer hill 구현은 road segment의 `world.y`로 언덕을 만들지만, 플레이어 차량을 지형 좌표에 정확히 붙이는 물리보다 렌더링 착시를 우선한다. 배경/호라이즌도 `playerY`와 함께 움직여 도로 경사와 화면 전체가 같은 방향의 cue를 갖게 한다. 참고: https://jakesgordon.com/writing/javascript-racer-v3-hills/
+- Lou's Pseudo 3D Page는 고전 레이싱의 언덕을 정확한 3D 카메라보다 scanline/road strip의 stretch, compress, horizon 처리로 설명한다. 특히 내리막에서 road top이 horizon 아래로 내려가거나 빈 영역이 생기면 이를 방치하지 않고 terrain fill, horizon shift, object visibility 처리로 착시를 유지한다. 참고: https://www.extentofthejam.com/pseudo/
+- Apex Seoul의 현재 방향은 "도로 geometry는 정상 elevation projection을 유지하고, downhill visual compensation pass를 추가한다"이다. 즉 도로 부호를 뒤집거나 차량 y를 크게 흔들어 해결하지 않는다.
+- 구현 전 체크리스트는 `near road가 차량 contact zone까지 이어지는가`, `내리막에서 horizon/background가 road drop과 같이 반응하는가`, `road top gap 또는 sky/ground gap이 terrain fill 없이 노출되는가`, `차량 shadow가 contactZ 기준으로 노면 위에 있는가`다.
+- 다음 구현 후보는 `downhill visual compensation pass`다. 구체적으로는 내리막 slope ratio에 따라 horizon/background offset을 보정하고, road polygon이 horizon 아래로 꺼지는 구간에는 terrain fill band를 넣고, 차량 바로 아래 near strip이 끊기지 않도록 roadRenderer의 foreground continuity를 우선 검증한다.
+
+차량 y/contactZ 싱크 원인
+
+- `contactZ=220`은 이름과 달리 현재 카메라/FOV/height 기준으로 차량 밑 화면 y에 투영되지 않는다. 760px 높이, camera height 980, FOV 69 근처에서는 `projectGroundPoint(contactZ=220)`의 y가 화면 아래 수천 px로 나가며, 이후 clamp/deadband가 이를 0.8-0.95 viewport 안으로 억지로 끌어온다.
+- 이 구조에서는 도로는 실제 projection y로 움직이지만 차량은 offscreen projection을 screen anchor로 재해석하므로, 내리막에서 경사와 차량이 딜레이되거나 서로 다른 y축을 쓰는 것처럼 보인다.
+- 현재 구현은 `vehicle Y = fixed screen contact plane + small slope offset`으로 두고, `contactZ`는 x/curve/lateral 및 terrain sampling에만 사용한다. 과거 `projectedRoadY` 기반 compression은 제거했다.
+- roadRenderer는 차량 y를 따라 움직이는 것이 아니라, 차량 밑 near road/terrain fill이 screen contact plane까지 시각적으로 이어지도록 보강한다.
+
 10. `runtime experience QA`
    - 게임 맵과 게임 안 sprite 경험은 별도 자동화 단계로 둔다. 목적은 "asset이 좋다"가 아니라 "현재 도로, FOV, 차량 크기, 조향, 고저차가 한 화면에서 같이 읽힌다"를 확인하는 것이다.
    - 런타임은 QA query로 `qaFreeze`, `qaSteer`, `qaSpeed`, `qaZ`, `qaOffset`을 받는다. 이 값으로 같은 도로 위치와 같은 조향 상태를 반복 재현한다.
    - `capture-runtime-vehicle-qa.mjs`는 `downhill`, `level`, `uphill` x `left`, `center`, `right` 조합을 headless browser로 캡처하고 `runtime-qa.manifest.json`과 `contact-sheet.png`를 만든다.
    - 자동화 산출물은 `assets/vehicles/generated/runtime-qa/<vehicle-id>/` 아래에 둔다.
    - 이 단계의 첫 목적은 자동 승인보다 review 비용 절감이다. 사람이 게임을 계속 조작하지 않아도 같은 화면 세트를 보고 FOV, anchor, terrain threshold 후보를 비교할 수 있어야 한다.
+   - 실제 주행 감각 분석은 `qa:drive-telemetry`로 별도 수집한다. 이 스크립트는 브라우저를 열고 `window.__apexSeoulQaState`를 10Hz 기본값으로 샘플링해 JSONL과 summary JSON을 남긴다.
+   - drive telemetry의 1차 분석 포인트는 `slopeAcceleration`, `camera.pitch`, `horizonGapY`, `vehicle.anchor.y`, `vehicle.frame`, `terrainCue`, `contactTerrainCue`가 같은 시점에 움직이는지 보는 것이다.
+   - `analyze:drive-telemetry` summary는 `terrainContactMismatchCount`와 `terrainContactMismatchRatio`를 남긴다. 이 값이 높으면 차량 pose lookahead와 접지/shadow cue가 서로 다른 경사 상태를 보고 있다는 뜻이다.
+   - 같은 summary의 `maxVehicleYDeltaSameViewport`는 viewport resize로 생긴 anchor jump를 제외한 실제 주행 중 차량 y 튐을 본다. `maxVehicleYDelta`만 보면 브라우저 크기 변경과 주행 보정 점프가 섞일 수 있다.
+   - 헤드리스 브라우저 의존성이 막힌 환경에서는 URL query 기반 in-browser telemetry를 쓴다. `?telemetry=1&telemetryDuration=60&telemetryHz=10`을 붙이면 게임이 자체적으로 주행 상태를 샘플링하고 시간이 끝나면 `apex-seoul-drive-*.jsonl`을 다운로드한다. `telemetryAutoExport=0`이면 자동 다운로드를 끄고, `L` 키로 수동 export한다.
 
 runtime experience QA 루프
 
@@ -2447,12 +2485,25 @@ approved atlas/sprite
 -> repeat
 ```
 
+runtime drive telemetry 루프
+
+```text
+dev server
+-> browser URL ?telemetry=1&telemetryDuration=60&telemetryHz=10
+-> Downloads/apex-seoul-drive-*.jsonl
+-> npm run analyze:drive-telemetry --workspace @games/apex-seoul -- --input <jsonl>
+-> optional: npm run qa:drive-telemetry --workspace @games/apex-seoul
+-> optional: assets/telemetry/generated/drive-logs/*.jsonl
+-> summary ranges / terrain counts / frame counts
+-> slope-camera-vehicle sync review
+```
+
 자동화로 맞추는 방법
 
 1. `qaFreeze=1`로 카메라 진행을 멈추고 `qaZ`로 도로 위치를 고정한다.
 2. `qaSteer=-1/0/1`로 좌/중앙/우 조향 frame이 실제 화면에서 바뀌는지 확인한다.
 3. `terrainThreshold`와 `qaZ` 조합으로 `downhill`, `level`, `uphill` 상태를 반복 캡처한다.
-4. `fov`, `carScale`, `anchorZ`, `anchorResponse`, `terrainBias`를 preset 후보로 바꾸며 contact sheet를 비교한다.
+4. `fov`, `carScale`, `anchorZ`, `contactZ`, `anchorY`, `terrainScale`을 preset 후보로 바꾸며 contact sheet를 비교한다. `anchorResponse`와 `terrainBias`는 projected road y 기반 보정이 제거되면서 더 이상 기본 튜닝 축으로 쓰지 않는다.
 5. `curveCarBias=0/24/32/48`을 비교해 완전 중앙 고정, 약한 원심감, 과한 밀림을 구분한다.
 6. 후보가 좁혀지면 해당 값을 기본 상수로 올리고, 다시 build + runtime QA를 돌린다.
 7. 이후 metric scoring은 screenshot에서 차량 bbox, road center, shadow offset, screen anchor y, frame id debug state, curve bias delta를 비교하는 방식으로 확장한다.

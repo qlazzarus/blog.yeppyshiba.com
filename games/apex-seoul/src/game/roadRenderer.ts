@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+    getHorizonY,
     projectGroundPoint,
     type Pseudo3dCamera,
     type ScreenPoint,
@@ -16,7 +17,12 @@ export type RoadRenderStats = {
     baseSegmentIndex: number;
     currentCurve: number;
     currentElevation: number;
+    horizonGapY: number | null;
     visibleSegments: number;
+};
+
+type RoadRenderOptions = {
+    downhillCueRatio?: number;
 };
 
 type ProjectedSegment = {
@@ -32,6 +38,7 @@ const RUMBLE_WIDTH = 130;
 const LANE_MARK_WIDTH = 18;
 const DRAW_SEGMENTS = 76;
 const CURVE_STEP = 86;
+const NEAR_CLIP_DISTANCE = 18;
 export const ELEVATION_VISUAL_SCALE = 4.2;
 
 export function renderRoad(
@@ -39,6 +46,7 @@ export function renderRoad(
     track: RoadTrack,
     camera: Pseudo3dCamera,
     viewport: Viewport,
+    options: RoadRenderOptions = {},
 ): RoadRenderStats {
     const baseSegment = Math.floor(camera.z / track.segmentLength);
     const baseSegmentIndex = getRoadSegment(track, baseSegment).index;
@@ -49,16 +57,21 @@ export function renderRoad(
     const boundaryCenters = getVisibleBoundaryCenters(track, baseSegment, progress);
     const boundaryElevations = getVisibleBoundaryElevations(track, baseSegment, progress);
     let visibleSegments = 0;
+    let horizonGapY: number | null = null;
 
-    for (let i = 1; i <= DRAW_SEGMENTS; i += 1) {
+    for (let i = 0; i <= DRAW_SEGMENTS; i += 1) {
         const absoluteIndex = baseSegment + i;
         const segment = getRoadSegment(track, absoluteIndex);
-        const nearWorldZ = absoluteIndex * track.segmentLength;
-        const farWorldZ = nearWorldZ + track.segmentLength;
-        const nearCenterX = boundaryCenters[i - 1];
-        const farCenterX = boundaryCenters[i];
-        const nearElevation = boundaryElevations[i - 1];
-        const farElevation = boundaryElevations[i];
+        const nearWorldZ = i === 0
+            ? camera.z + NEAR_CLIP_DISTANCE
+            : absoluteIndex * track.segmentLength;
+        const farWorldZ = i === 0
+            ? (baseSegment + 1) * track.segmentLength
+            : nearWorldZ + track.segmentLength;
+        const nearCenterX = boundaryCenters[i];
+        const farCenterX = boundaryCenters[i + 1];
+        const nearElevation = boundaryElevations[i];
+        const farElevation = boundaryElevations[i + 1];
         const road = projectRoadSlice(
             nearCenterX,
             farCenterX,
@@ -73,12 +86,15 @@ export function renderRoad(
         if (!road) continue;
 
         visibleSegments += 1;
+        horizonGapY = getNearestHorizonGapY(horizonGapY, road);
         projectedSegments.push({
             absoluteIndex,
             road,
             segment,
         });
     }
+
+    drawDownhillTerrainFill(graphics, projectedSegments, camera, viewport, options.downhillCueRatio ?? 0);
 
     for (let i = projectedSegments.length - 1; i >= 0; i -= 1) {
         const projected = projectedSegments[i];
@@ -100,6 +116,7 @@ export function renderRoad(
         baseSegmentIndex,
         currentCurve,
         currentElevation,
+        horizonGapY,
         visibleSegments,
     };
 }
@@ -258,6 +275,49 @@ function drawRoadBody(
         road.roadNearLeft,
         absoluteIndex % 2 === 0 ? 0x34383b : 0x303437,
     );
+}
+
+function getNearestHorizonGapY(currentGapY: number | null, road: ProjectedRoadSlice) {
+    const topY = Math.min(
+        road.roadFarLeft.y,
+        road.roadFarRight.y,
+        road.roadNearLeft.y,
+        road.roadNearRight.y,
+    );
+
+    if (currentGapY === null) return topY;
+
+    return Math.min(currentGapY, topY);
+}
+
+function drawDownhillTerrainFill(
+    graphics: Phaser.GameObjects.Graphics,
+    projectedSegments: ProjectedSegment[],
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+    downhillCueRatio: number,
+) {
+    if (downhillCueRatio <= 0 || projectedSegments.length === 0) return;
+
+    const horizonY = getHorizonY(camera, viewport);
+    const farthestRoad = projectedSegments.at(-1)?.road;
+
+    if (!farthestRoad) return;
+
+    const farRoadTopY = Math.min(farthestRoad.roadFarLeft.y, farthestRoad.roadFarRight.y);
+    const gapTopY = horizonY - 2;
+    const gapBottomY = Phaser.Math.Clamp(
+        farRoadTopY,
+        horizonY + 8,
+        horizonY + Phaser.Math.Linear(34, 92, downhillCueRatio),
+    );
+
+    if (gapBottomY <= gapTopY) return;
+
+    graphics.fillStyle(0x2f4a3d, 0.95);
+    graphics.fillRect(0, gapTopY, viewport.width, gapBottomY - gapTopY);
+    graphics.fillStyle(0x49624b, 0.45);
+    graphics.fillRect(0, gapBottomY - 3, viewport.width, 3);
 }
 
 function drawShoulder(
