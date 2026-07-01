@@ -12,6 +12,24 @@
 - 이번 PoC는 "농부 선택 -> 명령 타일 -> 건설 메뉴 -> 건물 선택 -> footprint ghost -> 배치 -> 완성 -> blocker 반영"까지를 완료 기준으로 둔다.
 - 완성된 player-built building은 이후 Combat PoC를 다시 켰을 때 늑대 path blocker와 targetable building으로 연결할 수 있어야 한다.
 
+### 1.1 현재 구현 스냅샷
+
+2026-07-01 기준 Construction Placement PoC는 1차 조작 루프가 동작한다.
+
+- `CombatPocSystem`은 `CHICKEN_FARM_POC_FLAGS.combat = false`로 비활성화한다.
+- `construction = true` 상태에서 command card, placement, building runtime, HUD selection info가 연결되어 있다.
+- 기본 시작은 P3 farm zone이며, 실제 조작 대상은 controllable `farmer`/`dog`다.
+- `P3 PLAYER` debug marker는 `playerDebugMarker = false`로 숨긴다. 슬롯/카메라 디버깅이 필요할 때만 켠다.
+- 건설 snap은 64px, footprint/blocker는 W3X `pathTex` 기반 32px cell count를 유지한다.
+- 농부가 현장 접근점으로 이동한 뒤 착공하고, active worker 작업 시간만 건설 progress에 누적한다.
+- 농부에게 move/stop/attack 명령을 내리면 현재 건설은 pause된다.
+- pause된 건설 건물은 농부 선택 후 우클릭으로 resume할 수 있다.
+- 건설 중 건물 선택 시 중앙 정보 패널에 HP, progress, remaining time, worker/paused 상태를 표시한다.
+- 건설 취소 command tile은 연결되어 있으며 PoC 환불은 75% 기준이다.
+- Shift 이동/스마트 명령/건설 예약은 P0 구현 상태다. 생산 queue는 아직 아니다.
+- 완성 건물은 dynamic blocker가 되고, 건물 시야 source도 FoW/minimap reveal에 합산된다.
+- zoom은 닭농장 맵 거리감 기준 때문에 유지한다. 가시성 보강은 render scale/overlay/pulse로 처리한다.
+
 ## 2. 1차 완료 기준
 
 - 농부 선택 후 `B` 키 또는 command card 버튼으로 Build page에 진입한다.
@@ -25,6 +43,10 @@
 - 배치 가능 상태는 초록색, 불가능 상태는 빨간색으로 표시한다.
 - 좌클릭으로 배치 명령을 내리면 농부가 현장 접근점으로 이동한다.
 - 농부가 현장에 도착한 뒤 construction이 시작되고, 완료될 때까지 build command 상태로 작업한다.
+- Warsmash/Warcraft III식으로 건설 진행은 단순 wall-clock timer가 아니라 worker가 작업 중인 시간만 누적한다.
+- 건설 중 농부에게 이동/정지/공격 명령을 내리면 construction은 pause되고 진행률을 유지한다.
+- pause된 건설 건물을 농부 선택 상태에서 우클릭하면 농부가 현장 접근점으로 이동한 뒤 construction을 resume한다.
+- 건설 중 건물을 선택하면 command card에 `X Cancel`을 표시하고, 취소 시 건물을 제거하고 비용 일부를 환불한다.
 - `Esc` 또는 우클릭으로 아직 확정하지 않은 placement mode를 취소한다.
 - 배치 불가능한 위치를 클릭하면 건물이 생성되지 않고 telemetry에 reject reason을 남긴다.
 - 완성된 건물은 유닛 이동의 dynamic blocker에 포함된다.
@@ -38,6 +60,7 @@
 export const CHICKEN_FARM_POC_FLAGS = {
     combat: false,
     construction: true,
+    playerDebugMarker: false,
     terrainPathingDebug: true,
 } as const;
 ```
@@ -47,6 +70,7 @@ export const CHICKEN_FARM_POC_FLAGS = {
 - `CombatPocSystem` 생성은 `combat` flag가 true일 때만 수행한다.
 - `createCombatPoc()` 호출도 `combat` flag가 true일 때만 수행한다.
 - `update.combat`은 optional call을 유지하되 combat flag 기준으로 명확히 비활성화한다.
+- `playerDebugMarker`는 슬롯 marker/dummy view만 제어한다. 실제 farmer/dog 생성, 시야 anchor, 카메라 center는 이 flag에 의존하지 않는다.
 - `getDynamicBlockedRects()`는 이후 `combatPoc` blockers와 `buildingSystem` blockers를 합쳐 반환할 수 있도록 구성한다.
 
 ## 4. Input Priority
@@ -154,13 +178,21 @@ export type FarmHud = {
 
 후속 구현에서는 중앙 영역을 `SelectionInfoPanel`로 승격한다. debug text는 개발 overlay로 축소하거나 별도 toggle로 이동한다.
 
+현재 구현:
+
+- 중앙 하단 HUD는 `SelectionInfoPanel`로 사용한다.
+- 우상단에는 개발 debug overlay를 두고, `DBG` 버튼으로 표시/숨김을 토글한다.
+- 선택 대상이 유닛이면 HP, armor, damage, cooldown, range, speed, current command를 표시한다.
+- 선택 대상이 건물이면 W3X rawcode, HP, armor, footprint cells, build progress percent, remaining build time, active worker/paused 상태를 표시한다.
+- 건설 진행률은 Warsmash식으로 active worker 작업 시간 누적 기준이다.
+
 표시 대상:
 
 | 선택 대상 | 정보 패널 표시 |
 | --- | --- |
 | 농부/개 | 이름, HP, 현재 명령, 이동/공격 상태 |
 | planned build site | 건설 예정 건물 이름, 작업하러 가는 농부, 부지 상태 |
-| constructing building | 건물 이름, HP, 건설 진행률, 작업 중 농부, 남은 시간 |
+| constructing building | 건물 이름, HP, 건설 진행률, 작업 중 농부 또는 paused 상태, 남은 시간 |
 | complete building | 건물 이름, HP/armor, 기능 요약, upgrade/repair/sell 후보 |
 
 건설 중 건물 클릭 시 1차 표시:
@@ -193,7 +225,8 @@ export type FarmHud = {
 
 주의:
 
-- 건설 중 취소/환불은 아직 1차 PoC 범위 밖이다. 정보 패널은 먼저 읽기 전용으로 구현한다.
+- 건설 중 취소는 command card의 `X Cancel`로 구현한다. PoC 환불율은 Warcraft III 체감에 맞춰 비용의 75%로 둔다.
+- 건설 pause/resume은 active worker가 있는 동안만 진행 시간이 누적되는 방식으로 구현한다.
 - building selection hit area는 sprite alpha가 아니라 `footprint` rectangle을 우선 사용한다.
 - 이후 sprite가 들어오면 visual bounds와 footprint bounds가 다를 수 있으므로, 클릭 판정은 `selectionBounds` 필드를 별도로 둘 수 있게 열어둔다.
 - 워3식으로는 건물 선택 시 좌측 portrait 영역이 필요하지만, MVP에서는 중앙 정보 패널 텍스트/아이콘만으로 시작한다.
@@ -228,7 +261,7 @@ export type FarmHud = {
 1차 PoC에서 미루는 것:
 
 - builder range 검사
-- worker interrupt/repair/cancel refund
+- repair
 - 건물 회전
 - 다중 builder 건설 가속
 
@@ -256,7 +289,10 @@ type PlayerBuilding = {
     targetableByWolves: boolean;
     state: 'constructing' | 'complete';
     startedAtSec: number;
-    completesAtSec: number;
+    buildTimeSec: number;
+    constructionProgressSec: number;
+    constructionActiveSinceSec?: number;
+    activeWorkerUnitId?: string;
     workerUnitId?: string;
 };
 ```
@@ -265,7 +301,10 @@ type PlayerBuilding = {
 
 - build request를 받아 자원을 차감하고 constructing building을 생성한다.
 - scaffold view와 progress bar를 표시한다.
-- `elapsedSec >= completesAtSec`이면 complete 상태로 전환한다.
+- `constructionProgressSec + active elapsed >= buildTimeSec`이면 complete 상태로 전환한다.
+- active worker가 끊기면 현재 진행 시간을 누적하고 pause 상태로 둔다.
+- active worker가 다시 현장 접근점에 도착하면 resume한다.
+- 건설 중 취소 시 runtime building view를 제거하고 비용 일부를 환불한다.
 - complete building은 `getDynamicBlockedRects()`에 포함한다.
 - 이후 combat 재연결을 위해 `getWolfTargetableBuildings()` 형태의 API를 열 수 있게 둔다.
 
@@ -364,6 +403,7 @@ Warsmash/Warcraft III 기준에서 건물 점유 크기는 모델의 시각 scal
 | --- | --- | --- |
 | `planned` | 농부가 현장으로 이동 중인 pending build order | 노란 footprint outline |
 | `constructing` | 농부가 도착해 작업 중 | scaffold sprite + progress bar |
+| `paused construction` | 건설 건물은 있으나 active worker가 없음 | scaffold sprite + progress bar + paused stroke |
 | `complete` | 완성 | 완성 sprite + HP bar |
 | `damaged` | 완성 후 피해 | damage overlay 후보 |
 | `destroyed` | 파괴 | debris 후보 |
@@ -371,8 +411,11 @@ Warsmash/Warcraft III 기준에서 건물 점유 크기는 모델의 시각 scal
 현재 구현 결정:
 
 - `planned`은 blocker가 아니다.
-- `constructing`은 아직 blocker가 아니다.
+- `constructing`/paused construction은 아직 blocker가 아니다.
 - `complete`만 dynamic blocker에 포함한다.
+- 작업 중 농부가 이동/정지/공격 명령으로 build command를 벗어나면 건설 진행이 pause된다.
+- pause된 건설 건물은 선택된 농부로 우클릭하면 resume order를 발행한다.
+- 건설 중 건물 선택 시 command card에 `X Cancel`을 표시한다.
 
 후속 검토:
 
@@ -386,8 +429,11 @@ Construction PoC에는 최소 자원 상태만 둔다.
 
 초기값 후보:
 
-- `coins = 500`
-- `lumber = 300`
+- 건설 PoC 시작 자원은 반복 배치/예약 검증을 위해 넉넉하게 둔다.
+- `gold/coins = 10000`
+- `lumber = 10000`
+- `supply = 0 / 10000`
+- `eggs = 0`은 다음 닭/알 economy PoC 연결용으로 HUD에만 표시한다.
 
 규칙:
 
@@ -409,6 +455,9 @@ Construction PoC에는 최소 자원 상태만 둔다.
 - `build_placement_cancelled`
 - `build_placement_rejected`
 - `building_construction_started`
+- `building_construction_paused`
+- `building_construction_resumed`
+- `building_construction_cancelled`
 - `building_completed`
 
 `build_placement_rejected` payload에는 최소한 다음 값을 둔다.
@@ -439,6 +488,9 @@ Construction PoC에는 최소 자원 상태만 둔다.
 - `Esc`와 우클릭으로 배치 모드를 취소할 수 있다.
 - 빨간 ghost 위치에서 클릭해도 건물이 생성되지 않는다.
 - 초록 ghost 위치에서 클릭하면 자원이 차감되고 scaffold가 생긴다.
+- 건설 중 농부에게 이동/정지 명령을 내리면 progress가 멈춘다.
+- pause된 건물을 농부 선택 상태에서 우클릭하면 농부가 복귀 후 progress가 이어진다.
+- 건설 중 건물을 클릭하면 command card에 `X Cancel`이 나오고, 누르면 건물이 제거되고 자원이 일부 환불된다.
 - build time이 지나면 complete 상태가 된다.
 - 완성 건물 footprint는 유닛 이동 pathing의 dynamic blocker로 작동한다.
 - combat flag를 다시 켜도 기존 Combat PoC 생성/업데이트 경로가 깨지지 않는다.
@@ -447,7 +499,16 @@ Construction PoC에는 최소 자원 상태만 둔다.
 
 Construction Placement PoC 이후 우선순위:
 
-1. `coop_basic`의 30초 egg/income tick
-2. 시장/닭 구매 command card page
-3. player-built tower의 공격 기능
-4. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증
+1. 건설 PoC 가시성 보강: zoom 유지, 유닛/건물 render scale, 선택 링/HP bar/progress bar 최소 크기, ghost 대비, focus pulse.
+2. player-built tower의 공격 기능: 현재 visible target만 acquire/attack하는 Warsmash 기준 연결.
+3. 건물 시야 차등화: 일반 건물, 건설중 건물, 타워의 vision multiplier 분리.
+4. `coop_basic`의 30초 egg/income tick.
+5. 시장/닭 구매 command card page.
+6. 테크트리: 건물 complete 시 unlock/requires 조건을 command card disabled 상태와 배치 거절 사유에 연결.
+7. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증.
+
+PoC 유의:
+
+- 현재 목표는 건설 조작을 증명하는 것이므로 sprite 품질, production queue, rally, repair, upgrade는 다음 단계로 남긴다.
+- 다만 가시성은 조작 검증 자체에 영향을 주므로, zoom을 바꾸지 않는 범위에서 P0 품질 보강으로 취급한다.
+- 생산 queue는 `chicken_farm_command_queue_poc_plan.md`의 P1 범위다. unit command queue와 같은 UI 언어를 공유하되 runtime 책임은 분리한다.

@@ -5,6 +5,7 @@ import type { MvpBuildingId } from '../balanceTypes';
 import type {
     ControllableUnitState,
     ControllableUnitTemplateId,
+    CommandQueueMode,
 } from './playerCommandTypes';
 import type { TerrainBlocker } from './terrainBlocker';
 import {
@@ -23,6 +24,8 @@ type PlacementValidation =
           readonly valid: false;
       };
 
+type BuildStartValidation = PlacementValidation;
+
 type ConstructionPlacementSystemConfig = {
     readonly buildingSystem: BuildingSystem;
     readonly camera: Phaser.Cameras.Scene2D.Camera;
@@ -32,6 +35,7 @@ type ConstructionPlacementSystemConfig = {
     readonly issueBuilderMove: (
         unitId: string,
         targetPoint: { readonly x: number; readonly y: number },
+        queueMode?: CommandQueueMode,
     ) => boolean;
     readonly recordTelemetry?: (
         type: string,
@@ -57,7 +61,7 @@ type PendingBuildOrder = {
     readonly footprint: GridPathRect;
     readonly id: string;
     runtimeBuildingId?: string;
-    readonly targetPoint: { readonly x: number; readonly y: number };
+    targetPoint: { readonly x: number; readonly y: number };
     readonly templateId: MvpBuildingId;
 };
 
@@ -71,6 +75,7 @@ export class ConstructionPlacementSystem {
     private readonly issueBuilderMove: (
         unitId: string,
         targetPoint: { readonly x: number; readonly y: number },
+        queueMode?: CommandQueueMode,
     ) => boolean;
     private readonly pendingGraphics: Phaser.GameObjects.Graphics;
     private readonly pendingOrders: PendingBuildOrder[] = [];
@@ -112,6 +117,62 @@ export class ConstructionPlacementSystem {
         return this.activeBuildingId ?? null;
     }
 
+    cancelConstruction(buildingId: string, reason = 'cancelled') {
+        const orderIndex = this.pendingOrders.findIndex(
+            (order) => order.runtimeBuildingId === buildingId,
+        );
+        const order = orderIndex >= 0 ? this.pendingOrders[orderIndex] : null;
+        const result = this.buildingSystem.cancelConstruction(buildingId, reason);
+        if (!result) return false;
+
+        if (order) {
+            this.clearBuilderBuildCommand(order.builderUnitId, buildingId);
+            this.pendingOrders.splice(orderIndex, 1);
+        }
+        return true;
+    }
+
+    resumeConstructionWithBuilder(
+        buildingId: string,
+        builderUnitId: string,
+        queueMode: CommandQueueMode = 'replace',
+    ) {
+        const building = this.buildingSystem.getBuilding(buildingId);
+        const builder = this.getUnitById(builderUnitId);
+        if (!building || !builder || building.state !== 'constructing') return false;
+
+        let order = this.pendingOrders.find(
+            (candidate) => candidate.runtimeBuildingId === buildingId,
+        );
+        const targetPoint = this.getBuildTargetPoints(building.footprint, builder).find(
+            (candidate) => this.issueBuilderMove(builder.id, candidate, queueMode),
+        );
+        if (!targetPoint) return false;
+
+        if (!order) {
+            order = {
+                builderUnitId: builder.id,
+                footprint: building.footprint,
+                id: `pending-build-${this.nextPendingBuildOrderId}`,
+                runtimeBuildingId: building.id,
+                targetPoint,
+                templateId: building.templateId,
+            };
+            this.nextPendingBuildOrderId += 1;
+            this.pendingOrders.push(order);
+        } else {
+            order.targetPoint = targetPoint;
+        }
+
+        this.recordTelemetry?.('building_resume_order_issued', {
+            buildingId,
+            builderUnitId,
+            targetX: Number(targetPoint.x.toFixed(1)),
+            targetY: Number(targetPoint.y.toFixed(1)),
+        });
+        return true;
+    }
+
     isActive() {
         return Boolean(this.activeBuildingId);
     }
@@ -143,7 +204,11 @@ export class ConstructionPlacementSystem {
         if (this.activeBuildingId) this.updateGhost();
     }
 
-    handlePrimaryClick(worldX: number, worldY: number) {
+    handlePrimaryClick(
+        worldX: number,
+        worldY: number,
+        options: { readonly keepPlacementActive?: boolean } = {},
+    ) {
         if (!this.activeBuildingId) return false;
 
         this.updateGhost(worldX, worldY);
@@ -162,8 +227,12 @@ export class ConstructionPlacementSystem {
         const builder = this.getSelectedBuilder();
         if (!builder) return true;
 
+        const hasExistingBuilderOrder = this.pendingOrders.some(
+            (order) => order.builderUnitId === builder.id,
+        );
         const targetPoint = this.getBuildTargetPoints(this.currentFootprint, builder).find(
-            (candidate) => this.issueBuilderMove(builder.id, candidate),
+            (candidate) =>
+                hasExistingBuilderOrder || this.issueBuilderMove(builder.id, candidate),
         );
         if (!targetPoint) {
             this.recordTelemetry?.('build_placement_rejected', {
@@ -188,12 +257,22 @@ export class ConstructionPlacementSystem {
             buildingId: this.activeBuildingId,
             builderUnitId: builder.id,
             siteId: pendingOrder.id,
+            queued: hasExistingBuilderOrder,
             targetX: Number(targetPoint.x.toFixed(1)),
             targetY: Number(targetPoint.y.toFixed(1)),
             x: Number(this.currentFootprint.x.toFixed(1)),
             y: Number(this.currentFootprint.y.toFixed(1)),
         });
-        this.cancelPlacement('placed');
+        if (!options.keepPlacementActive) {
+            this.cancelPlacement('placed');
+        } else {
+            this.recordTelemetry?.('build_order_queued', {
+                buildingId: this.activeBuildingId,
+                builderUnitId: builder.id,
+                siteId: pendingOrder.id,
+            });
+            this.updateGhost();
+        }
         return true;
     }
 
@@ -271,19 +350,51 @@ export class ConstructionPlacementSystem {
     }
 
     private updatePendingOrders() {
-        for (let index = this.pendingOrders.length - 1; index >= 0; index -= 1) {
+        for (let index = 0; index < this.pendingOrders.length; index += 1) {
             const order = this.pendingOrders[index];
             const builder = this.getUnitById(order.builderUnitId);
             if (!builder || builder.hp <= 0) {
                 this.pendingOrders.splice(index, 1);
+                index -= 1;
                 continue;
             }
+            if (this.hasEarlierBuilderOrder(index, builder.id)) continue;
 
             if (order.runtimeBuildingId) {
                 if (this.buildingSystem.isBuildingComplete(order.runtimeBuildingId)) {
                     this.clearBuilderBuildCommand(builder.id, order.runtimeBuildingId);
                     this.pendingOrders.splice(index, 1);
+                    this.issueMoveToNextBuilderOrder(builder.id);
+                    index -= 1;
+                    continue;
                 }
+
+                const active = this.buildingSystem.isConstructionActive(
+                    order.runtimeBuildingId,
+                    builder.id,
+                );
+                if (active) continue;
+                if (builder.currentCommand && builder.currentCommand.type !== 'build') {
+                    continue;
+                }
+
+                const distance = Phaser.Math.Distance.Between(
+                    builder.position.x,
+                    builder.position.y,
+                    order.targetPoint.x,
+                    order.targetPoint.y,
+                );
+                if (distance > BUILDER_START_DISTANCE_PX) continue;
+
+                this.buildingSystem.resumeConstruction(
+                    order.runtimeBuildingId,
+                    builder.id,
+                );
+                this.setBuilderBuildCommand(
+                    builder.id,
+                    order.runtimeBuildingId,
+                    order.targetPoint,
+                );
                 continue;
             }
 
@@ -295,6 +406,13 @@ export class ConstructionPlacementSystem {
             );
             if (distance > BUILDER_START_DISTANCE_PX) continue;
 
+            const validation = this.validateBuildStart(order);
+            if (!validation.valid) {
+                this.rejectPendingOrderAtStart(index, order, validation.reason);
+                index -= 1;
+                continue;
+            }
+
             const building = this.buildingSystem.createBuilding({
                 ownerPlayerId: builder.ownerPlayerId,
                 templateId: order.templateId,
@@ -303,20 +421,86 @@ export class ConstructionPlacementSystem {
                 y: order.footprint.y,
             });
             if (!building) {
-                this.recordTelemetry?.('build_placement_rejected', {
-                    buildingId: order.templateId,
-                    reason: 'insufficient_resources_at_site',
-                    siteId: order.id,
-                    x: Number(order.footprint.x.toFixed(1)),
-                    y: Number(order.footprint.y.toFixed(1)),
-                });
-                this.pendingOrders.splice(index, 1);
+                this.rejectPendingOrderAtStart(
+                    index,
+                    order,
+                    'insufficient_resources_at_site',
+                );
+                index -= 1;
                 continue;
             }
 
             order.runtimeBuildingId = building.id;
             this.setBuilderBuildCommand(builder.id, building.id, order.targetPoint);
         }
+    }
+
+    private validateBuildStart(order: PendingBuildOrder): BuildStartValidation {
+        const template = CHICKEN_FARM_BALANCE.buildingTemplates[order.templateId];
+        if (!this.buildingSystem.canAfford(template)) {
+            return { reason: 'insufficient_resources_at_site', valid: false };
+        }
+        if (
+            order.footprint.x < 0 ||
+            order.footprint.y < 0 ||
+            order.footprint.x + order.footprint.width > this.worldSize.x ||
+            order.footprint.y + order.footprint.height > this.worldSize.y
+        ) {
+            return { reason: 'outside_world_bounds_at_site', valid: false };
+        }
+        if (
+            this.terrainBlocker &&
+            !this.terrainBlocker.canBuild(
+                order.footprint.x,
+                order.footprint.y,
+                order.footprint.width,
+                order.footprint.height,
+            )
+        ) {
+            return { reason: 'terrain_build_blocked_at_site', valid: false };
+        }
+        if (
+            this.buildingSystem
+                .getAllFootprints()
+                .some((existing) => rectsOverlap(existing, order.footprint))
+        ) {
+            return { reason: 'building_overlap_at_site', valid: false };
+        }
+
+        return { valid: true };
+    }
+
+    private rejectPendingOrderAtStart(
+        orderIndex: number,
+        order: PendingBuildOrder,
+        reason: string,
+    ) {
+        this.recordTelemetry?.('build_order_start_rejected', {
+            buildingId: order.templateId,
+            builderUnitId: order.builderUnitId,
+            reason,
+            siteId: order.id,
+            x: Number(order.footprint.x.toFixed(1)),
+            y: Number(order.footprint.y.toFixed(1)),
+        });
+        this.showBuildStartError(order, reason);
+        this.pendingOrders.splice(orderIndex, 1);
+        this.issueMoveToNextBuilderOrder(order.builderUnitId);
+    }
+
+    private hasEarlierBuilderOrder(orderIndex: number, builderUnitId: string) {
+        return this.pendingOrders
+            .slice(0, orderIndex)
+            .some((order) => order.builderUnitId === builderUnitId);
+    }
+
+    private issueMoveToNextBuilderOrder(builderUnitId: string) {
+        const nextOrder = this.pendingOrders.find(
+            (order) => order.builderUnitId === builderUnitId,
+        );
+        if (!nextOrder) return false;
+
+        return this.issueBuilderMove(builderUnitId, nextOrder.targetPoint);
     }
 
     private drawPendingOrders() {
@@ -346,6 +530,50 @@ export class ConstructionPlacementSystem {
                 order.footprint.y + order.footprint.height / 2,
             );
         });
+    }
+
+    private showBuildStartError(order: PendingBuildOrder, reason: string) {
+        const centerX = order.footprint.x + order.footprint.width / 2;
+        const centerY = order.footprint.y + order.footprint.height / 2;
+        const marker = this.scene.add
+            .rectangle(
+                centerX,
+                centerY,
+                order.footprint.width,
+                order.footprint.height,
+                0xd0473d,
+                0.18,
+            )
+            .setStrokeStyle(2, 0xffd1c7, 0.9)
+            .setDepth(49);
+        const label = this.scene.add
+            .text(centerX, centerY, this.getBuildStartErrorLabel(reason), {
+                align: 'center',
+                backgroundColor: 'rgba(33, 16, 13, 0.76)',
+                color: '#ffe0d6',
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '11px',
+                padding: { bottom: 2, left: 5, right: 5, top: 2 },
+            })
+            .setDepth(50)
+            .setOrigin(0.5);
+        this.scene.tweens.add({
+            alpha: 0,
+            duration: 900,
+            onComplete: () => {
+                marker.destroy();
+                label.destroy();
+            },
+            targets: [marker, label],
+        });
+    }
+
+    private getBuildStartErrorLabel(reason: string) {
+        if (reason.includes('resource')) return 'Not enough resources';
+        if (reason.includes('terrain')) return 'Cannot build there';
+        if (reason.includes('overlap')) return 'Site blocked';
+        if (reason.includes('bounds')) return 'Out of bounds';
+        return 'Build failed';
     }
 
     private getBuildTargetPoints(

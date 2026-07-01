@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import { CHICKEN_FARM_BALANCE } from './game/balance';
 import {
     CAMERA_ZOOM,
     CANVAS_HEIGHT,
@@ -35,7 +36,7 @@ import { PerformanceProfiler } from './game/systems/performanceProfiler';
 import { TerrainPathingPocSystem } from './game/systems/terrainPathingPocSystem';
 import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlocker';
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
-import { VisibilitySystem } from './game/systems/visibilitySystem';
+import { type VisionSource, VisibilitySystem } from './game/systems/visibilitySystem';
 import { CHICKEN_FARM_TILEMAP_POC_01 } from './game/tilemapAssets';
 import { createFarmHud } from './game/ui/farmHud';
 import './styles.css';
@@ -49,6 +50,7 @@ declare global {
                 readonly commandPage: string;
                 readonly elapsedSec: number;
                 readonly placingBuildingId: string | null;
+                readonly selectedBuildingId: string | null;
                 readonly primaryUnit:
                     | {
                           readonly id: string;
@@ -76,7 +78,10 @@ const MINIMAP_DIRTY_DISTANCE_PX = 32;
 
 class FarmScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private debugPanel!: Phaser.GameObjects.Rectangle;
     private debugText!: Phaser.GameObjects.Text;
+    private debugToggleText!: Phaser.GameObjects.Text;
+    private debugOverlayVisible = true;
     private keys!: FarmInputKeys;
     private buildGridGraphics?: Phaser.GameObjects.Graphics;
     private buildGridVisible = true;
@@ -96,6 +101,13 @@ class FarmScene extends Phaser.Scene {
     private nextTelemetrySampleSec = 0;
     private nextFogUpdateSec = 0;
     private nextMinimapUpdateSec = 0;
+    private resourceText!: Phaser.GameObjects.Text;
+    private selectedBuildingId?: string;
+    private selectionInfoBodyText!: Phaser.GameObjects.Text;
+    private selectionInfoNameText!: Phaser.GameObjects.Text;
+    private selectionInfoPortrait!: Phaser.GameObjects.Rectangle;
+    private selectionInfoStatsText!: Phaser.GameObjects.Text;
+    private selectionInfoStatusText!: Phaser.GameObjects.Text;
     private lastFogAnchor?: Phaser.Math.Vector2;
     private lastMinimapAnchor?: Phaser.Math.Vector2;
     private lastMinimapCamera?: Phaser.Math.Vector2;
@@ -187,6 +199,8 @@ class FarmScene extends Phaser.Scene {
                 this.combatPoc?.getAttackableEnemyTarget(targetId) ?? null,
             getDynamicBlockedRects: () => this.getDynamicBlockedRects(),
             getElapsedSec: () => this.elapsedSec,
+            onBuildCommandInterrupted: (unitId, siteId, reason) =>
+                this.buildingSystem?.pauseConstruction(siteId, unitId, reason),
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
             scene: this,
@@ -200,6 +214,7 @@ class FarmScene extends Phaser.Scene {
             onPlayerStartChanged: (start) => this.handlePlayerStartChanged(start),
             playerStarts: this.playerStarts,
             scene: this,
+            showDebugMarker: CHICKEN_FARM_POC_FLAGS.playerDebugMarker,
             worldObjects: this.worldObjects,
         });
         this.playerControl.createAtConfiguredStart();
@@ -211,8 +226,22 @@ class FarmScene extends Phaser.Scene {
             worldSize: this.worldSize,
         });
         const hud = createFarmHud({ scene: this, uiObjects: this.uiObjects });
+        this.debugPanel = hud.debugPanel;
         this.debugText = hud.debugText;
+        this.debugToggleText = hud.debugToggleText;
         this.minimapGraphics = hud.minimapGraphics;
+        this.resourceText = hud.resourceText;
+        this.selectionInfoBodyText = hud.selectionInfoBodyText;
+        this.selectionInfoNameText = hud.selectionInfoNameText;
+        this.selectionInfoPortrait = hud.selectionInfoPortrait;
+        this.selectionInfoStatsText = hud.selectionInfoStatsText;
+        this.selectionInfoStatusText = hud.selectionInfoStatusText;
+        hud.debugToggleButton.on(Phaser.Input.Events.POINTER_DOWN, () => {
+            this.debugOverlayVisible = !this.debugOverlayVisible;
+            this.debugPanel.setVisible(this.debugOverlayVisible);
+            this.debugText.setVisible(this.debugOverlayVisible);
+            this.debugToggleText.setText(this.debugOverlayVisible ? 'DBG' : 'DBG');
+        });
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
                 getElapsedSec: () => this.elapsedSec,
@@ -227,9 +256,12 @@ class FarmScene extends Phaser.Scene {
                     this.controllableUnits.clearBuildCommand(unitId, siteId),
                 getSelectedUnits: () => this.controllableUnits.getSelectedUnits(),
                 getUnits: () => this.controllableUnits.getUnits(),
-                issueBuilderMove: (unitId, targetPoint) =>
-                    this.controllableUnits.issueMoveCommandToUnits([unitId], targetPoint)
-                        .pathFoundCount > 0,
+                issueBuilderMove: (unitId, targetPoint, queueMode = 'replace') =>
+                    this.controllableUnits.issueMoveCommandToUnits(
+                        [unitId],
+                        targetPoint,
+                        queueMode,
+                    ).pathFoundCount > 0,
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
                 scene: this,
                 setBuilderBuildCommand: (unitId, siteId, targetPoint) =>
@@ -248,6 +280,14 @@ class FarmScene extends Phaser.Scene {
                     this.controllableUnits
                         .getSelectedUnits()
                         .some((unit) => unit.templateId === 'farmer' && unit.hp > 0),
+                hasConstructingBuildingSelection: () => {
+                    if (!this.selectedBuildingId) return false;
+
+                    return (
+                        this.buildingSystem?.getBuilding(this.selectedBuildingId)?.state ===
+                        'constructing'
+                    );
+                },
                 keys: this.keys,
                 onAction: (action) => this.handleCommandCardAction(action),
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
@@ -329,6 +369,12 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.debugText', () =>
             this.updateDebugText(),
         );
+        this.performanceProfiler.measure('update.resources', () =>
+            this.updateResourceText(),
+        );
+        this.performanceProfiler.measure('update.selectionInfo', () =>
+            this.updateSelectionInfo(),
+        );
         this.performanceProfiler.endFrame(this.elapsedSec);
     }
 
@@ -376,7 +422,7 @@ class FarmScene extends Phaser.Scene {
         if (start.id > 0) {
             this.controllableUnits?.createForStart(start);
         }
-        this.visibility.revealAroundPlayer(this.getVisionAnchor(), this.worldSize);
+        this.visibility.revealAroundSources(this.getVisionSources(), this.worldSize);
         this.updateFogOfWarIfNeeded(true);
         this.updateMinimapIfNeeded(true);
     }
@@ -417,6 +463,20 @@ class FarmScene extends Phaser.Scene {
 
         if (action.type === 'cancel') {
             this.constructionPlacement?.cancelPlacement('command_card');
+            return;
+        }
+
+        if (action.type === 'cancel_construction') {
+            if (!this.selectedBuildingId) return;
+
+            const cancelled = this.constructionPlacement?.cancelConstruction(
+                this.selectedBuildingId,
+                'command_card',
+            );
+            if (!cancelled) return;
+
+            this.selectedBuildingId = undefined;
+            this.commandCard?.refresh();
         }
     }
 
@@ -443,7 +503,7 @@ class FarmScene extends Phaser.Scene {
         const focus = this.terrainPathingPoc?.getFocusPoint();
         if (!focus) return;
 
-        this.playerControl.moveToDebugPoint('PATH', focus.x, focus.y);
+        this.worldCamera.centerOn(focus.x, focus.y);
         this.telemetry.record('micro_pathing_focus_selected', {
             x: Number(focus.x.toFixed(1)),
             y: Number(focus.y.toFixed(1)),
@@ -488,6 +548,7 @@ class FarmScene extends Phaser.Scene {
         const anchor = this.getVisionAnchor();
         if (!anchor) return;
 
+        const visionSources = this.getVisionSources();
         const moved = this.hasMovedBeyond(
             this.lastFogAnchor,
             anchor.x,
@@ -496,7 +557,7 @@ class FarmScene extends Phaser.Scene {
         );
         if (!force && !moved && this.elapsedSec < this.nextFogUpdateSec) return;
 
-        this.visibility.updateFogOfWar(anchor, this.worldSize);
+        this.visibility.updateFogOfWarForSources(visionSources, this.worldSize);
         this.lastFogAnchor = new Phaser.Math.Vector2(anchor.x, anchor.y);
         this.nextFogUpdateSec = this.elapsedSec + FOG_UPDATE_INTERVAL_SEC;
     }
@@ -595,6 +656,7 @@ class FarmScene extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D,
             s: Phaser.Input.Keyboard.KeyCodes.S,
             seven: Phaser.Input.Keyboard.KeyCodes.SEVEN,
+            shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
             six: Phaser.Input.Keyboard.KeyCodes.SIX,
             stop: Phaser.Input.Keyboard.KeyCodes.S,
             t: Phaser.Input.Keyboard.KeyCodes.T,
@@ -603,6 +665,7 @@ class FarmScene extends Phaser.Scene {
             three: Phaser.Input.Keyboard.KeyCodes.THREE,
             two: Phaser.Input.Keyboard.KeyCodes.TWO,
             up: Phaser.Input.Keyboard.KeyCodes.W,
+            x: Phaser.Input.Keyboard.KeyCodes.X,
         }) as FarmScene['keys'];
     }
 
@@ -623,6 +686,7 @@ class FarmScene extends Phaser.Scene {
                     this.constructionPlacement?.handlePrimaryClick(
                         worldPoint.x,
                         worldPoint.y,
+                        { keepPlacementActive: this.isQueueCommandMode() },
                     )
                 ) {
                     return;
@@ -632,6 +696,17 @@ class FarmScene extends Phaser.Scene {
                     worldPoint.x,
                     worldPoint.y,
                 );
+                if (selected) {
+                    this.selectedBuildingId = undefined;
+                } else {
+                    const selectedBuilding = this.buildingSystem?.hitTestBuilding(
+                        worldPoint.x,
+                        worldPoint.y,
+                    );
+                    this.selectedBuildingId = selectedBuilding?.id;
+                    if (selectedBuilding) this.controllableUnits.clearSelection();
+                }
+                this.commandCard?.refresh();
                 const nearestUnit = this.controllableUnits.getNearestUnitSummary(
                     worldPoint.x,
                     worldPoint.y,
@@ -643,6 +718,7 @@ class FarmScene extends Phaser.Scene {
                     nearestUnitType: nearestUnit?.templateId ?? null,
                     nearestUnitX: nearestUnit?.x ?? null,
                     nearestUnitY: nearestUnit?.y ?? null,
+                    selectedBuildingId: this.selectedBuildingId ?? null,
                     selectedUnitCount: selected ? 1 : 0,
                     selectedUnitId: selected?.id ?? null,
                     selectedUnitType: selected?.templateId ?? null,
@@ -654,6 +730,8 @@ class FarmScene extends Phaser.Scene {
                 if (this.constructionPlacement?.isActive()) return;
 
                 const selectedUnits = this.controllableUnits.selectInRect(rect);
+                this.selectedBuildingId = undefined;
+                this.commandCard?.refresh();
                 this.telemetry.record('unit_selection_changed', {
                     height: Number(rect.height.toFixed(1)),
                     mode: 'drag',
@@ -682,6 +760,29 @@ class FarmScene extends Phaser.Scene {
                 }
 
                 const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
+                const targetBuilding = this.buildingSystem?.hitTestBuilding(
+                    worldPoint.x,
+                    worldPoint.y,
+                );
+                const selectedBuilder = this.controllableUnits
+                    .getSelectedUnits()
+                    .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                if (
+                    targetBuilding?.state === 'constructing' &&
+                    selectedBuilder &&
+                    this.constructionPlacement?.resumeConstructionWithBuilder(
+                        targetBuilding.id,
+                        selectedBuilder.id,
+                        this.isQueueCommandMode() ? 'append' : 'replace',
+                    )
+                ) {
+                    this.telemetry.record('building_resume_command_issued', {
+                        buildingId: targetBuilding.id,
+                        builderUnitId: selectedBuilder.id,
+                    });
+                    return;
+                }
+
                 const enemyTarget = this.combatPoc?.hitTestEnemy(
                     worldPoint.x,
                     worldPoint.y,
@@ -695,6 +796,7 @@ class FarmScene extends Phaser.Scene {
                                 y: worldPoint.y,
                             },
                             enemyTarget?.id,
+                            this.isQueueCommandMode() ? 'append' : 'replace',
                         ),
                 );
 
@@ -730,6 +832,7 @@ class FarmScene extends Phaser.Scene {
                               y: primaryUnit.position.y,
                           }
                         : null,
+                    selectedBuildingId: this.selectedBuildingId ?? null,
                     selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
                     worldSize: {
                         x: this.worldSize.x,
@@ -763,6 +866,17 @@ class FarmScene extends Phaser.Scene {
         const primaryUnit = this.controllableUnits.getPrimaryUnit();
         const selectedUnits = this.controllableUnits.getSelectedUnits();
         const economy = this.buildingSystem?.economy;
+        const selectedBuilding = this.selectedBuildingId
+            ? this.buildingSystem?.getBuildingSelectionSummary(this.selectedBuildingId)
+            : null;
+        if (this.selectedBuildingId && !selectedBuilding) {
+            this.selectedBuildingId = undefined;
+        }
+        const buildingSelectionText = selectedBuilding
+            ? `building ${selectedBuilding.displayName} ${selectedBuilding.state} ${Math.round(
+                  selectedBuilding.progress * 100,
+              )}% worker ${selectedBuilding.activeWorkerUnitId ?? 'paused'}`
+            : 'building none';
         this.debugText.setText(
             `${this.playerControl.playerStartLabel} player ${Math.round(player?.x ?? 0)}, ${Math.round(
                 player?.y ?? 0,
@@ -780,18 +894,136 @@ class FarmScene extends Phaser.Scene {
                 selectedUnits.map((unit) => unit.templateId).join(',') || 'none'
             } | buildings ${this.buildingSystem?.getBuildingCount() ?? 0} | ${
                 economy
-                    ? `coins ${economy.coins} lumber ${economy.lumber}`
+                    ? `gold ${economy.gold} lumber ${economy.lumber} supply ${economy.supplyUsed}/${economy.supplyCap} eggs ${economy.eggs}`
                     : 'economy off'
             } | card ${this.commandCard?.getPage() ?? 'off'} | placing ${
                 this.constructionPlacement?.getActiveBuildingId() ?? 'none'
-            } | viewport ${this.worldCamera.width}x${
+            } | ${buildingSelectionText} | viewport ${this.worldCamera.width}x${
                 this.worldCamera.height
             }\n${this.performanceProfiler.getOverlayText()}`,
         );
     }
 
+    private updateResourceText() {
+        if (!this.resourceText) return;
+
+        const economy = this.buildingSystem?.economy;
+        if (!economy) {
+            this.resourceText.setText('Gold - | Lumber - | Supply - | Eggs -');
+            return;
+        }
+
+        this.resourceText.setText(
+            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}  Eggs ${economy.eggs}`,
+        );
+    }
+
+    private updateSelectionInfo() {
+        if (!this.selectionInfoNameText) return;
+
+        const selectedBuilding = this.selectedBuildingId
+            ? this.buildingSystem?.getBuildingSelectionSummary(this.selectedBuildingId)
+            : null;
+        if (this.selectedBuildingId && !selectedBuilding) {
+            this.selectedBuildingId = undefined;
+        }
+        if (selectedBuilding) {
+            const template = CHICKEN_FARM_BALANCE.buildingTemplates[selectedBuilding.templateId];
+            const buildPercent = Math.round(selectedBuilding.progress * 100);
+            const workerText =
+                selectedBuilding.state === 'complete'
+                    ? 'Complete'
+                    : selectedBuilding.activeWorkerUnitId
+                      ? `Building: ${selectedBuilding.activeWorkerUnitId}`
+                      : 'Construction paused';
+            const attackText = template.attack
+                ? ` | Attack ${template.attack.damage} / ${template.attack.cooldownSec}s / ${template.attack.rangePx}px`
+                : '';
+
+            this.selectionInfoPortrait.setFillStyle(
+                selectedBuilding.state === 'complete' ? 0x3b4b2f : 0x4b3f25,
+                1,
+            );
+            this.selectionInfoNameText.setText(
+                `${selectedBuilding.displayName} (${template.source.rawcode ?? '----'})`,
+            );
+            this.selectionInfoStatsText.setText(
+                `HP ${selectedBuilding.hp}/${selectedBuilding.maxHp} | Armor ${template.armor} | Footprint ${selectedBuilding.footprintCells.w}x${selectedBuilding.footprintCells.h}${attackText}`,
+            );
+            this.selectionInfoStatusText.setText(
+                `Status ${selectedBuilding.state} | Build ${buildPercent}% | Remaining ${selectedBuilding.remainingSec.toFixed(
+                    1,
+                )}s`,
+            );
+            this.selectionInfoBodyText.setText(
+                `${workerText} | Cost ${template.originalCost?.gold ?? template.costCoins}g${
+                    template.originalCost?.lumber ? ` ${template.originalCost.lumber}l` : ''
+                } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
+            );
+            return;
+        }
+
+        const selectedUnits = this.controllableUnits.getSelectedUnits();
+        const primaryUnit = selectedUnits[0];
+        if (primaryUnit) {
+            const stats = CHICKEN_FARM_BALANCE.defenders[primaryUnit.templateId];
+            const command = primaryUnit.currentCommand?.type ?? 'idle';
+
+            this.selectionInfoPortrait.setFillStyle(
+                primaryUnit.templateId === 'farmer' ? 0x4b3b24 : 0x31455c,
+                1,
+            );
+            this.selectionInfoNameText.setText(
+                `${primaryUnit.templateId === 'farmer' ? '농부' : '개'} (${stats.source.rawcode ?? primaryUnit.templateId})`,
+            );
+            this.selectionInfoStatsText.setText(
+                `HP ${Math.ceil(primaryUnit.hp)}/${primaryUnit.maxHp} | Armor ${
+                    primaryUnit.armor
+                } | Damage ${stats.damage} | Cooldown ${stats.attackCooldownSec}s`,
+            );
+            this.selectionInfoStatusText.setText(
+                `Command ${command} | Speed ${Math.round(
+                    primaryUnit.speedPxPerSec,
+                )}px/s | Range ${stats.attackRangePx ?? 0}px | Queued ${
+                    primaryUnit.commandQueue.length
+                }`,
+            );
+            this.selectionInfoBodyText.setText(
+                selectedUnits.length > 1
+                    ? `${selectedUnits.length} units selected`
+                    : 'Worker command card follows Warcraft III-style build/stop/resume flow.',
+            );
+            return;
+        }
+
+        this.selectionInfoPortrait.setFillStyle(0x25291f, 1);
+        this.selectionInfoNameText.setText('No Selection');
+        this.selectionInfoStatsText.setText('Select a farmer, dog, or building.');
+        this.selectionInfoStatusText.setText('');
+        this.selectionInfoBodyText.setText('');
+    }
+
+    private isQueueCommandMode() {
+        return Boolean(this.keys.shift?.isDown);
+    }
+
     private getVisionAnchor() {
         return this.controllableUnits?.getPrimaryUnitObject() ?? this.playerControl.player;
+    }
+
+    private getVisionSources(): readonly VisionSource[] {
+        const anchor = this.getVisionAnchor();
+        const unitSources: VisionSource[] = anchor
+            ? [
+                  {
+                      radiusPx: VISIBILITY_OVERLAY.revealRadiusPx,
+                      x: anchor.x,
+                      y: anchor.y,
+                  },
+              ]
+            : [];
+
+        return [...unitSources, ...(this.buildingSystem?.getVisionSources() ?? [])];
     }
 }
 

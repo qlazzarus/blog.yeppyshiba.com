@@ -6,7 +6,7 @@
 
 - 임시 checkout: `/tmp/WarsmashModEngine`
 - 원격 저장소: `https://github.com/Retera/WarsmashModEngine`
-- 조사 날짜: 2026-06-16
+- 조사 날짜: 2026-06-16, 건설 예약 재확인 2026-07-01
 - 저장소 반영 범위: Warsmash 소스 코드는 복사하지 않고 클래스/패키지 이름과 동작 관찰만 기록한다.
 
 ## 1. 확인한 핵심 패키지/클래스
@@ -36,6 +36,23 @@
 3. 실제 시작은 `beginOrder(...) -> order.begin(...) -> ability.begin(...)` 흐름이다.
 4. `CBehavior.update(...)`는 매 시뮬레이션 tick마다 다음 behavior를 반환할 수 있다.
 5. 현재 behavior가 끝나면 `pollNextOrderBehavior(...)`가 기본 behavior 또는 큐의 다음 order로 넘어간다.
+
+건설 예약 재확인:
+
+- Human/Orc/Naga/NightElf/Undead build 능력은 건물 rawcode order를 point-target order로 받는다.
+- 따라서 건설도 일반 unit order queue에 들어가는 Shift 예약 대상이다.
+- Human build 기준 `CAbilityHumanBuild.begin(point)`에서 비용을 차감하고 `CBehaviorHumanBuild`를 시작한다.
+- `CBehaviorHumanBuild.update(...)`는 실제 구조물 생성 직전 부지 obstructed 여부를 다시 확인하고, 실패 시 비용을 환불한 뒤 다음 order로 넘어간다.
+- 즉 P0 감각은 "배치 확정 시 즉시 planned building/resource reserve"보다 "queued build order가 차례가 왔을 때 착공/차감"에 가깝다.
+
+자동 공격/시야 재확인:
+
+- `CUnit.autoAcquireAttackTargets(...)`는 현재 유닛의 `acquisitionRange` 사각 영역 안에서 후보 유닛을 enum한다.
+- 후보는 `source.canReach(unit, acquisitionRange)`와 `unit.canBeTargetedBy(...)`를 통과해야 한다.
+- `canBeTargetedBy(...)`는 targeted order에서 `!isVisible(simulation, source.getPlayerIndex())`이면 실패한다.
+- `isVisible(...)`는 자기/공유시야 또는 해당 플레이어의 Fog of War visible/detecting 상태를 확인한다.
+- 따라서 Warsmash 기준 자동 공격은 "공격 탐지/사거리 안"만으로 충분하지 않고, source player에게 현재 보이는 대상이어야 한다.
+- Phaser Chicken Farm의 타워 자동 공격도 이 규칙을 따른다. `VisibilitySystem.isCurrentlyVisible(x, y)` 같은 현재 시야 API를 전투 target acquisition에 연결한다.
 
 Phaser 축약:
 

@@ -21,6 +21,7 @@ export const POC_FIXED_PLAYER_SLOT_ID: number | null = 3;
 export const CHICKEN_FARM_POC_FLAGS = {
     combat: false,
     construction: true,
+    playerDebugMarker: false,
     terrainPathingDebug: true,
 } as const;
 

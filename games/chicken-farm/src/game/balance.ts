@@ -123,7 +123,10 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         eggUnitValueCoins: 12,
         exchangeEnabled: false,
         reviveResourceLossPct: 25,
-        startingCoins: 120,
+        startingCoins: 10000,
+        startingGold: 10000,
+        startingLumber: 10000,
+        startingSupplyCap: 10000,
     },
     enemies: {
         archimonde: {
