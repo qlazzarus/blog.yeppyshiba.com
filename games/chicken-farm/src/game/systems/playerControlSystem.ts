@@ -21,13 +21,15 @@ export type FarmInputKeys = Record<
     | 'five'
     | 'six'
     | 'seven'
+    | 'shift'
     | 'eight'
     | 'grid'
     | 'microPathingFocus'
     | 'stop'
     | 'terrainOverlay'
     | 'telemetryExport'
-    | 'up',
+    | 'up'
+    | 'x',
     Phaser.Input.Keyboard.Key
 >;
 
@@ -37,6 +39,7 @@ type PlayerControlSystemConfig = {
     readonly onPlayerStartChanged: (start: PlayerStart) => void;
     readonly playerStarts: readonly PlayerStart[];
     readonly scene: Phaser.Scene;
+    readonly showDebugMarker?: boolean;
     readonly worldObjects: Phaser.GameObjects.GameObject[];
 };
 
@@ -46,6 +49,7 @@ export class PlayerControlSystem {
     private readonly onPlayerStartChanged: (start: PlayerStart) => void;
     private readonly playerStarts: readonly PlayerStart[];
     private readonly scene: Phaser.Scene;
+    private readonly showDebugMarker: boolean;
     private readonly worldObjects: Phaser.GameObjects.GameObject[];
     private playerSlotText?: Phaser.GameObjects.Text;
     private playerObject?: Phaser.GameObjects.Container;
@@ -57,6 +61,7 @@ export class PlayerControlSystem {
         this.onPlayerStartChanged = config.onPlayerStartChanged;
         this.playerStarts = config.playerStarts;
         this.scene = config.scene;
+        this.showDebugMarker = config.showDebugMarker ?? true;
         this.worldObjects = config.worldObjects;
     }
 
@@ -160,6 +165,7 @@ export class PlayerControlSystem {
             label,
         ]);
         this.playerObject.setDepth(20);
+        this.playerObject.setVisible(this.showDebugMarker);
         this.worldObjects.push(this.playerObject);
     }
 

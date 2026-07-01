@@ -10,6 +10,11 @@
 [`chicken_farm_construction_poc_plan.md`](./chicken_farm_construction_poc_plan.md)에
 별도로 고정한다.
 
+예약 명령 PoC는
+[`chicken_farm_command_queue_poc_plan.md`](./chicken_farm_command_queue_poc_plan.md)에
+별도로 고정한다. Warsmash 기준으로 이동/행동 예약과 건물 생산 큐는 같은 "예약" UX를
+공유하지만 런타임 책임이 다르므로, 구현도 분리한다.
+
 이번 단계에서는 `CombatPocSystem`을 삭제하지 않고 feature flag로 비활성화한다.
 초점은 전투 검증이 아니라 "농부 선택 -> 워3식 명령 타일 -> 건설 메뉴 -> footprint
 ghost -> 배치 -> 완성 -> dynamic blocker 반영" 흐름을 만드는 것이다. 경제 tick,
@@ -33,6 +38,39 @@ Construction Placement PoC 1차 완료 기준:
 - 완성된 건물은 player-built dynamic blocker로 등록되어 유닛 이동을 막는다.
 - combat flag를 다시 켰을 때 늑대 blocker/target 후보로 연결할 수 있는 API 경계를 남긴다.
 
+Construction Placement PoC 현 점수:
+
+| 기준 | 점수 | 근거 |
+| --- | ---: | --- |
+| Warsmash 감각 | 7.2 / 10 | 명령 타일, Shift 예약, 농부 이동 후 착공, pause/resume, 착공 시 비용 차감은 맞다. cancel UI, 생산 queue, rally, tech/supply 사용은 아직 부족하다. |
+| Chicken Farm 감각 | 7.8 / 10 | 건설 흐름과 닭농장 자원 HUD는 붙었다. 다만 닭장 수익, 알 루프, 건물 기능, 건물 시야 공유가 아직 부족하다. |
+
+건설 PoC 후속 보강 리스트:
+
+1. 빌딩 시야 공유: 완성 건물 중심으로 FoW/explored/minimap을 reveal한다.
+2. 건설중 시야 정책: 건설중 건물은 작은 반경 또는 active worker가 있을 때만 시야를 제공한다.
+3. 타워 공격 탐지와 현재 시야 연결: 사거리/acquire 안에 있어도 FoW current visible이 아니면 자동 공격 대상으로 잡지 않는다.
+4. 건설 cancel command tile: 건설중 건물 선택 시 cancel 버튼/단축키/환불 표시를 완성한다.
+5. 건물 sprite state: planned/constructing/complete/damaged state를 asset manifest와 연결한다.
+6. 건물 기능: `coop_basic` egg tick, `market` exchange, `lumber_mill`/research hook을 economy PoC로 넘긴다.
+7. supply 사용: dog/farmer/생산 queue가 붙는 시점에 `supplyUsed`를 실제로 증가시킨다.
+
+빌딩 시야 P0 정책:
+
+- 완성 건물은 기본 `VISIBILITY_OVERLAY.revealRadiusPx`의 0.75배 반경을 제공한다.
+- 건설중 건물은 active worker가 붙어 있을 때만 0.45배 반경을 제공한다.
+- 시야는 플레이어 유닛 시야와 합산한다. 어느 source라도 닿는 fog cell은 현재 시야로 비운다.
+- explored 상태와 미니맵 explored 영역도 같은 source 기준으로 갱신한다.
+- 적 시야/플레이어별 시야 분리는 P2P/player slot PoC 전까지 보류한다.
+
+타워 공격과 시야 정책:
+
+- Warsmash 기준 자동 공격은 `acquisitionRange` 안의 후보를 찾은 뒤 targetability를 검사한다.
+- targetability에는 `isVisible(sourcePlayer)` 조건이 포함되므로, 공격 탐지/사거리만 충분해도 현재 시야가 없으면 자동 공격 대상이 되지 않는다.
+- Chicken Farm도 이 규칙을 따른다: 타워 공격 후보는 `attack.rangePx` 안에 있고 `VisibilitySystem.isCurrentlyVisible(x, y)`를 통과해야 한다.
+- 타워는 일반 건물보다 넓은 시야를 제공해 자기 공격 범위를 자연스럽게 밝히는 역할을 가진다. 정확한 배율은 타워 라인 구현 때 `visionRadiusMultiplier`로 분리한다.
+- 공격 명령을 직접 찍는 수동 타겟팅과 자동 타겟팅은 모두 visible target 조건을 공유한다.
+
 ## 2. 진행 원칙
 
 - PoC는 구현 리스크를 쪼개기 위한 단계이며, MVP의 원본 경험 범위를 줄이는 기준이 아니다.
@@ -40,6 +78,7 @@ Construction Placement PoC 1차 완료 기준:
 - Phaser GameObject 직접 조작은 adapter에만 둔다.
 - 핵심 게임 진행은 command, component, pure system 형태로 유지해 ECS/P2P로 승격하기 쉽게 만든다.
 - 워3식 조작은 Warsmash 전체 복제가 아니라 Chicken Farm MVP에 필요한 최소 command model로 축약한다.
+- Shift 예약은 먼저 unit movement/action queue로 구현하고, 이후 construction queue와 building production queue로 확장한다.
 - 명령 타일 UI 클릭과 단축키 입력은 같은 command action dispatcher를 호출한다.
 - 전투 PoC 비활성화는 임시 focus 전환이며, 전투 로직을 제거하거나 과거 검증 결과를 폐기하지 않는다.
 

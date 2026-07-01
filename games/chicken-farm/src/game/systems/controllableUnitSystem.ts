@@ -10,10 +10,12 @@ import {
 } from './movementGuards';
 import type {
     AttackableEnemyTarget,
+    CommandQueueMode,
     ControllableUnitCombatTarget,
     ControllableUnitState,
     ControllableUnitTemplateId,
     Point,
+    UnitCommand,
 } from './playerCommandTypes';
 import type { TerrainBlocker } from './terrainBlocker';
 
@@ -22,6 +24,11 @@ type ControllableUnitSystemConfig = {
     readonly getAttackableEnemyTarget?: (targetId: string) => AttackableEnemyTarget | null;
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     readonly getElapsedSec: () => number;
+    readonly onBuildCommandInterrupted?: (
+        unitId: string,
+        siteId: string,
+        reason: string,
+    ) => void;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly scene: Phaser.Scene;
     readonly terrainBlocker?: TerrainBlocker;
@@ -54,11 +61,8 @@ const MAX_CONTROLLABLE_UNIT_MOVEMENT_DELTA_SEC = 1 / 60;
 const PLAYER_PATH_BOUNDS_PADDING_PX = 512;
 
 const UNIT_OFFSETS: Record<ControllableUnitTemplateId, Phaser.Math.Vector2> = {
-    // Original command-control PoC offsets, restore after wolf maze validation:
-    // dog: new Phaser.Math.Vector2(42, 18),
-    // farmer: new Phaser.Math.Vector2(0, 0),
-    dog: new Phaser.Math.Vector2(-640, -520),
-    farmer: new Phaser.Math.Vector2(-700, -560),
+    dog: new Phaser.Math.Vector2(42, 18),
+    farmer: new Phaser.Math.Vector2(0, 0),
 };
 
 export class ControllableUnitSystem {
@@ -68,6 +72,11 @@ export class ControllableUnitSystem {
     ) => AttackableEnemyTarget | null;
     private readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     private readonly getElapsedSec: () => number;
+    private readonly onBuildCommandInterrupted?: (
+        unitId: string,
+        siteId: string,
+        reason: string,
+    ) => void;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly scene: Phaser.Scene;
     private readonly terrainBlocker?: TerrainBlocker;
@@ -81,6 +90,7 @@ export class ControllableUnitSystem {
         this.getAttackableEnemyTarget = config.getAttackableEnemyTarget ?? (() => null);
         this.getDynamicBlockedRects = config.getDynamicBlockedRects;
         this.getElapsedSec = config.getElapsedSec;
+        this.onBuildCommandInterrupted = config.onBuildCommandInterrupted;
         this.recordPerformance = config.recordPerformance;
         this.scene = config.scene;
         this.terrainBlocker = config.terrainBlocker;
@@ -159,6 +169,13 @@ export class ControllableUnitSystem {
         return this.units.filter((unit) => unit.selected);
     }
 
+    getSelectedCommandQueueCount() {
+        return this.getSelectedUnits().reduce(
+            (count, unit) => count + unit.commandQueue.length,
+            0,
+        );
+    }
+
     getNearestUnitSummary(worldX: number, worldY: number) {
         const nearest = [...this.units]
             .map((unit) => ({
@@ -206,27 +223,32 @@ export class ControllableUnitSystem {
 
         unit.hp = Math.max(0, unit.hp - Math.max(1, damage - unit.armor));
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
+        unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
         unit.path = unit.hp > 0 ? unit.path : [];
         unit.pathIndex = unit.hp > 0 ? unit.pathIndex : 0;
         this.updateView(unit);
         return true;
     }
 
-    issueMoveCommandToSelected(targetPoint: Point) {
+    issueMoveCommandToSelected(
+        targetPoint: Point,
+        queueMode: CommandQueueMode = 'replace',
+    ) {
         const selectedUnits = this.getSelectedUnits();
         return this.issueMoveCommandToUnits(
             selectedUnits.map((unit) => unit.id),
             targetPoint,
+            queueMode,
         );
     }
 
-    issueMoveCommandToUnits(unitIds: readonly string[], targetPoint: Point) {
+    issueMoveCommandToUnits(
+        unitIds: readonly string[],
+        targetPoint: Point,
+        queueMode: CommandQueueMode = 'replace',
+    ) {
         const unitIdSet = new Set(unitIds);
-        const targetUnits = this.units.filter(
-            (unit) =>
-                unitIdSet.has(unit.id) &&
-                unit.currentCommand?.type !== 'build',
-        );
+        const targetUnits = this.units.filter((unit) => unitIdSet.has(unit.id));
         if (!targetUnits.length) return { movedUnitCount: 0, pathFoundCount: 0 };
 
         let pathFoundCount = 0;
@@ -236,16 +258,12 @@ export class ControllableUnitSystem {
                 index,
                 targetUnits.length,
             );
-            const path = this.findMovePath(unit.position, unitTargetPoint);
-            unit.currentCommand = {
+            const command: UnitCommand = {
                 targetPoint: unitTargetPoint,
                 type: 'move',
                 unitIds: [unit.id],
             };
-            unit.path = path ?? [];
-            unit.pathIndex = 0;
-            if (path?.length) pathFoundCount += 1;
-            this.updateView(unit);
+            if (this.issueUnitCommand(unit, command, queueMode)) pathFoundCount += 1;
         });
         this.drawMoveMarker(targetPoint, pathFoundCount > 0);
 
@@ -274,44 +292,46 @@ export class ControllableUnitSystem {
         if (unit.currentCommand.siteId !== siteId) return false;
 
         unit.currentCommand = undefined;
+        this.pollNextQueuedCommand(unit);
         this.updateView(unit);
         return true;
     }
 
-    issueSmartCommandToSelected(targetPoint: Point, targetEntityId?: string) {
+    issueSmartCommandToSelected(
+        targetPoint: Point,
+        targetEntityId?: string,
+        queueMode: CommandQueueMode = 'replace',
+    ) {
         const selectedUnits = this.getSelectedUnits();
         if (!selectedUnits.length) return { action: 'none', affectedUnitCount: 0 };
 
         if (!targetEntityId) {
-            const moveResult = this.issueMoveCommandToSelected(targetPoint);
+            const moveResult = this.issueMoveCommandToSelected(targetPoint, queueMode);
             return {
                 action: 'move',
                 affectedUnitCount: moveResult.movedUnitCount,
             };
         }
 
+        let affectedUnitCount = 0;
         selectedUnits.forEach((unit) => {
-            if (unit.currentCommand?.type === 'build') return;
-
-            unit.currentCommand = {
+            const command: UnitCommand = {
                 targetEntityId,
                 targetPoint,
                 type: 'attack',
                 unitIds: [unit.id],
             };
-            unit.path = [];
-            unit.pathIndex = 0;
-            this.updateView(unit);
+            if (this.issueUnitCommand(unit, command, queueMode)) affectedUnitCount += 1;
         });
 
-        return { action: 'attack_target', affectedUnitCount: selectedUnits.length };
+        return { action: 'attack_target', affectedUnitCount };
     }
 
     stopSelectedUnits() {
         const selectedUnits = this.getSelectedUnits();
         selectedUnits.forEach((unit) => {
-            if (unit.currentCommand?.type === 'build') return;
-
+            this.interruptBuildCommand(unit, 'stop');
+            unit.commandQueue = [];
             unit.currentCommand = {
                 type: 'stop',
                 unitIds: [unit.id],
@@ -322,6 +342,17 @@ export class ControllableUnitSystem {
         });
 
         return selectedUnits.length;
+    }
+
+    clearUnitCommand(unitId: string) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit) return false;
+
+        unit.currentCommand = undefined;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.updateView(unit);
+        return true;
     }
 
     update(deltaSec: number) {
@@ -360,6 +391,7 @@ export class ControllableUnitSystem {
             existing.position = position;
             existing.selected = false;
             existing.currentCommand = undefined;
+            existing.commandQueue = [];
             existing.hp = existing.maxHp;
             existing.path = [];
             existing.pathIndex = 0;
@@ -380,6 +412,7 @@ export class ControllableUnitSystem {
             selected: false,
             speedPxPerSec: CHICKEN_FARM_BALANCE.defenders[templateId].speedPxPerSec,
             templateId,
+            commandQueue: [],
         };
 
         this.units.push(state);
@@ -545,6 +578,7 @@ export class ControllableUnitSystem {
 
         if (!waypoint) {
             unit.currentCommand = undefined;
+            this.pollNextQueuedCommand(unit);
             return;
         }
 
@@ -563,6 +597,7 @@ export class ControllableUnitSystem {
                 unit.currentCommand = undefined;
                 unit.path = [];
                 unit.pathIndex = 0;
+                this.pollNextQueuedCommand(unit);
             }
             this.updateView(unit);
             return;
@@ -589,6 +624,7 @@ export class ControllableUnitSystem {
             unit.currentCommand = undefined;
             unit.path = [];
             unit.pathIndex = 0;
+            this.pollNextQueuedCommand(unit);
             this.updateView(unit);
             return;
         }
@@ -650,6 +686,107 @@ export class ControllableUnitSystem {
             unitIndex,
             worldSize: this.worldSize,
         });
+    }
+
+    private issueUnitCommand(
+        unit: ControllableUnitState,
+        command: UnitCommand,
+        queueMode: CommandQueueMode,
+    ) {
+        if (queueMode === 'append') {
+            unit.commandQueue.push(command);
+            this.recordQueuedCommand(unit, command);
+            if (!unit.currentCommand) return this.pollNextQueuedCommand(unit);
+
+            this.updateView(unit);
+            return true;
+        }
+
+        unit.commandQueue = [];
+        return this.startUnitCommand(unit, command, 'replace');
+    }
+
+    private pollNextQueuedCommand(unit: ControllableUnitState) {
+        const command = unit.commandQueue.shift();
+        if (!command) {
+            this.updateView(unit);
+            return false;
+        }
+
+        return this.startUnitCommand(unit, command, 'queued');
+    }
+
+    private startUnitCommand(
+        unit: ControllableUnitState,
+        command: UnitCommand,
+        source: 'queued' | 'replace',
+    ) {
+        if (command.type === 'move') {
+            const path = this.findMovePath(unit.position, command.targetPoint);
+            if (source === 'replace') this.interruptBuildCommand(unit, 'move');
+            unit.currentCommand = command;
+            unit.path = path ?? [];
+            unit.pathIndex = 0;
+            this.updateView(unit);
+            return Boolean(path?.length);
+        }
+
+        if (command.type === 'attack') {
+            if (source === 'replace') this.interruptBuildCommand(unit, 'attack');
+            unit.currentCommand = command;
+            unit.path = [];
+            unit.pathIndex = 0;
+            this.updateView(unit);
+            return true;
+        }
+
+        unit.currentCommand = command;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.updateView(unit);
+        return true;
+    }
+
+    private recordQueuedCommand(unit: ControllableUnitState, command: UnitCommand) {
+        if (command.type !== 'move' && command.type !== 'attack') return;
+
+        const targetPoint = command.targetPoint;
+        const marker = this.scene.add
+            .circle(targetPoint.x, targetPoint.y, 7, 0xf1c65c, 0.66)
+            .setStrokeStyle(1, 0xfff0aa, 0.92)
+            .setDepth(31);
+        const label = this.scene.add
+            .text(targetPoint.x, targetPoint.y - 17, String(unit.commandQueue.length), {
+                align: 'center',
+                color: '#fff0aa',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontSize: '11px',
+                fontStyle: '700',
+            })
+            .setDepth(32)
+            .setOrigin(0.5);
+        this.worldObjects.push(marker, label);
+        this.scene.tweens.add({
+            alpha: 0.18,
+            duration: 900,
+            onComplete: () => {
+                marker.destroy();
+                label.destroy();
+            },
+            yoyo: true,
+            repeat: 2,
+            targets: [marker, label],
+        });
+    }
+
+    private interruptBuildCommand(unit: ControllableUnitState, reason: string) {
+        if (unit.currentCommand?.type !== 'build') return;
+
+        this.onBuildCommandInterrupted?.(
+            unit.id,
+            unit.currentCommand.siteId,
+            reason,
+        );
     }
 
     private resolveUnitPush() {

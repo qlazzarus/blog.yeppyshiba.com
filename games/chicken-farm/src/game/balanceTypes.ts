@@ -201,6 +201,9 @@ export type EconomyBalance = {
     readonly exchangeEnabled: boolean;
     readonly reviveResourceLossPct: number;
     readonly startingCoins: number;
+    readonly startingGold?: number;
+    readonly startingLumber?: number;
+    readonly startingSupplyCap?: number;
 };
 
 export type WaveEvent = {

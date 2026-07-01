@@ -23,6 +23,12 @@ type MinimapConfig = {
     readonly worldSize: Phaser.Math.Vector2;
 };
 
+export type VisionSource = {
+    readonly radiusPx: number;
+    readonly x: number;
+    readonly y: number;
+};
+
 export class VisibilitySystem {
     private readonly scene: Phaser.Scene;
     private readonly worldObjects: Phaser.GameObjects.GameObject[];
@@ -61,48 +67,62 @@ export class VisibilitySystem {
     ) {
         if (!player) return;
 
-        const playerCellX = Math.floor(player.x / VISIBILITY_OVERLAY.cellSize);
-        const playerCellY = Math.floor(player.y / VISIBILITY_OVERLAY.cellSize);
-        const radiusCells = Math.ceil(
-            VISIBILITY_OVERLAY.revealRadiusPx / VISIBILITY_OVERLAY.cellSize,
+        this.revealAroundSources(
+            [{ radiusPx: VISIBILITY_OVERLAY.revealRadiusPx, x: player.x, y: player.y }],
+            worldSize,
         );
+    }
 
-        for (
-            let y = playerCellY - radiusCells;
-            y <= playerCellY + radiusCells;
-            y += 1
-        ) {
+    revealAroundSources(
+        sources: readonly VisionSource[],
+        worldSize: Phaser.Math.Vector2,
+    ) {
+        sources.forEach((source) => {
+            const sourceCellX = Math.floor(source.x / VISIBILITY_OVERLAY.cellSize);
+            const sourceCellY = Math.floor(source.y / VISIBILITY_OVERLAY.cellSize);
+            const radiusCells = Math.ceil(
+                source.radiusPx / VISIBILITY_OVERLAY.cellSize,
+            );
+
             for (
-                let x = playerCellX - radiusCells;
-                x <= playerCellX + radiusCells;
-                x += 1
+                let y = sourceCellY - radiusCells;
+                y <= sourceCellY + radiusCells;
+                y += 1
             ) {
-                const centerX =
-                    x * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
-                const centerY =
-                    y * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
-
-                if (
-                    centerX < 0 ||
-                    centerY < 0 ||
-                    centerX > worldSize.x ||
-                    centerY > worldSize.y
+                for (
+                    let x = sourceCellX - radiusCells;
+                    x <= sourceCellX + radiusCells;
+                    x += 1
                 ) {
-                    continue;
-                }
+                    const centerX =
+                        x * VISIBILITY_OVERLAY.cellSize +
+                        VISIBILITY_OVERLAY.cellSize / 2;
+                    const centerY =
+                        y * VISIBILITY_OVERLAY.cellSize +
+                        VISIBILITY_OVERLAY.cellSize / 2;
 
-                if (
-                    Phaser.Math.Distance.Between(
-                        player.x,
-                        player.y,
-                        centerX,
-                        centerY,
-                    ) <= VISIBILITY_OVERLAY.revealRadiusPx
-                ) {
-                    this.exploredFogCells.add(this.getFogCellKey(x, y));
+                    if (
+                        centerX < 0 ||
+                        centerY < 0 ||
+                        centerX > worldSize.x ||
+                        centerY > worldSize.y
+                    ) {
+                        continue;
+                    }
+
+                    if (
+                        Phaser.Math.Distance.Between(
+                            source.x,
+                            source.y,
+                            centerX,
+                            centerY,
+                        ) <= source.radiusPx
+                    ) {
+                        this.exploredFogCells.add(this.getFogCellKey(x, y));
+                    }
                 }
             }
-        }
+        });
     }
 
     updateFogOfWar(
@@ -111,7 +131,19 @@ export class VisibilitySystem {
     ) {
         if (!this.fogGraphics || !player || worldSize.x <= 0) return;
 
-        this.revealAroundPlayer(player, worldSize);
+        this.updateFogOfWarForSources(
+            [{ radiusPx: VISIBILITY_OVERLAY.revealRadiusPx, x: player.x, y: player.y }],
+            worldSize,
+        );
+    }
+
+    updateFogOfWarForSources(
+        sources: readonly VisionSource[],
+        worldSize: Phaser.Math.Vector2,
+    ) {
+        if (!this.fogGraphics || !sources.length || worldSize.x <= 0) return;
+
+        this.revealAroundSources(sources, worldSize);
         this.fogGraphics.clear();
 
         const cols = Math.ceil(worldSize.x / VISIBILITY_OVERLAY.cellSize);
@@ -123,14 +155,16 @@ export class VisibilitySystem {
                     x * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
                 const centerY =
                     y * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
-                const distance = Phaser.Math.Distance.Between(
-                    player.x,
-                    player.y,
-                    centerX,
-                    centerY,
-                );
-
-                if (distance <= VISIBILITY_OVERLAY.revealRadiusPx) continue;
+                if (sources.some((source) => {
+                    return (
+                        Phaser.Math.Distance.Between(
+                            source.x,
+                            source.y,
+                            centerX,
+                            centerY,
+                        ) <= source.radiusPx
+                    );
+                })) continue;
 
                 const explored = this.exploredFogCells.has(this.getFogCellKey(x, y));
                 this.fogGraphics.fillStyle(

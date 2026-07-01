@@ -19,6 +19,9 @@ export type CommandCardAction =
       }
     | {
           readonly type: 'cancel';
+      }
+    | {
+          readonly type: 'cancel_construction';
       };
 
 type CommandCardButton = {
@@ -32,6 +35,7 @@ type CommandCardButton = {
 type CommandCardSystemConfig = {
     readonly buttons: readonly CommandButtonView[];
     readonly hasBuilderSelection: () => boolean;
+    readonly hasConstructingBuildingSelection?: () => boolean;
     readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     readonly onAction: (action: CommandCardAction) => void;
     readonly recordTelemetry?: (
@@ -53,6 +57,15 @@ const ROOT_PAGE: readonly CommandCardButton[] = [
         hotkey: 'S',
         id: 'stop',
         label: 'Stop',
+    },
+];
+
+const CONSTRUCTING_BUILDING_PAGE: readonly CommandCardButton[] = [
+    {
+        action: { type: 'cancel_construction' },
+        hotkey: 'X',
+        id: 'cancel_construction',
+        label: 'Cancel',
     },
 ];
 
@@ -96,6 +109,7 @@ const BUILD_PAGE: readonly CommandCardButton[] = [
 export class CommandCardSystem {
     private readonly buttons: readonly CommandButtonView[];
     private readonly hasBuilderSelection: () => boolean;
+    private readonly hasConstructingBuildingSelection: () => boolean;
     private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     private readonly onAction: (action: CommandCardAction) => void;
     private readonly recordTelemetry?: (
@@ -107,6 +121,8 @@ export class CommandCardSystem {
     constructor(config: CommandCardSystemConfig) {
         this.buttons = config.buttons;
         this.hasBuilderSelection = config.hasBuilderSelection;
+        this.hasConstructingBuildingSelection =
+            config.hasConstructingBuildingSelection ?? (() => false);
         this.keys = config.keys;
         this.onAction = config.onAction;
         this.recordTelemetry = config.recordTelemetry;
@@ -182,7 +198,10 @@ export class CommandCardSystem {
     }
 
     private getCurrentButtons() {
-        return this.page === 'root' ? ROOT_PAGE : BUILD_PAGE;
+        if (this.page === 'build') return BUILD_PAGE;
+        if (this.hasConstructingBuildingSelection()) return CONSTRUCTING_BUILDING_PAGE;
+
+        return ROOT_PAGE;
     }
 
     private isButtonEnabled(button: CommandCardButton) {

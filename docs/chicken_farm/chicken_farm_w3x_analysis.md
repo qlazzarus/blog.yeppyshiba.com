@@ -1497,6 +1497,13 @@ Phaser 반영 방향:
 | 미니맵 | 탐색된 영역, 플레이어, 스폰/중립/특수 오브젝트를 축약 표시 |
 | 웨이브 연결 | 첫 MVP에서는 timer-driven wave 유지. 이후 밤 전환과 웨이브 경고를 시각적으로 맞춤 |
 
+공격 탐지와 시야:
+
+- W3X 추출표에서 커스텀 타워의 큰 값은 `sight/nsight`가 아니라 `acquire`와 `rangeN1` 쪽에서 확인된다.
+- Warsmash 소스 기준 자동 공격 후보는 `acquisitionRange` 안에 있어야 하며, `canBeTargetedBy(...)`에서 현재 source player에게 visible인지도 검사한다.
+- 따라서 Chicken Farm 타워는 공격 사거리만으로 어둠 속 적을 때리지 않는다. 타워/건물/유닛 시야가 먼저 FoW current visible을 만들어야 공격 후보가 된다.
+- 구현 시 `VisibilitySystem`은 explored와 current visible을 분리해 제공해야 하며, 타워 target acquisition은 current visible만 사용한다.
+
 추가 분석 후보:
 
 1. 완료: `TriggerRegisterGameStateEventTimeOfDay` 연결 액션과 스탯 변경 API 후보를 `jass_day_night_events.tsv`, `jass_night_wolf_stat_candidates.tsv`로 분리했다.

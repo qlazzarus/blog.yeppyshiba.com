@@ -4,6 +4,7 @@ export type Point = {
 };
 
 export type ControllableUnitTemplateId = 'dog' | 'farmer';
+export type CommandQueueMode = 'append' | 'replace';
 
 export type UnitCommand =
     | {
@@ -19,6 +20,7 @@ export type UnitCommand =
       }
     | {
           readonly targetEntityId: string;
+          readonly targetPoint?: Point;
           readonly type: 'attack';
           readonly unitIds: readonly string[];
       }
@@ -35,6 +37,7 @@ export type UnitCommand =
 
 export type ControllableUnitState = {
     armor: number;
+    commandQueue: UnitCommand[];
     currentCommand?: UnitCommand;
     hp: number;
     readonly id: string;
