@@ -12,6 +12,24 @@
 - 이번 PoC는 "농부 선택 -> 명령 타일 -> 건설 메뉴 -> 건물 선택 -> footprint ghost -> 배치 -> 완성 -> blocker 반영"까지를 완료 기준으로 둔다.
 - 완성된 player-built building은 이후 Combat PoC를 다시 켰을 때 늑대 path blocker와 targetable building으로 연결할 수 있어야 한다.
 
+### 1.1 현재 구현 스냅샷
+
+2026-07-01 기준 Construction Placement PoC는 1차 조작 루프가 동작한다.
+
+- `CombatPocSystem`은 `CHICKEN_FARM_POC_FLAGS.combat = false`로 비활성화한다.
+- `construction = true` 상태에서 command card, placement, building runtime, HUD selection info가 연결되어 있다.
+- 기본 시작은 P3 farm zone이며, 실제 조작 대상은 controllable `farmer`/`dog`다.
+- `P3 PLAYER` debug marker는 `playerDebugMarker = false`로 숨긴다. 슬롯/카메라 디버깅이 필요할 때만 켠다.
+- 건설 snap은 64px, footprint/blocker는 W3X `pathTex` 기반 32px cell count를 유지한다.
+- 농부가 현장 접근점으로 이동한 뒤 착공하고, active worker 작업 시간만 건설 progress에 누적한다.
+- 농부에게 move/stop/attack 명령을 내리면 현재 건설은 pause된다.
+- pause된 건설 건물은 농부 선택 후 우클릭으로 resume할 수 있다.
+- 건설 중 건물 선택 시 중앙 정보 패널에 HP, progress, remaining time, worker/paused 상태를 표시한다.
+- 건설 취소 command tile은 연결되어 있으며 PoC 환불은 75% 기준이다.
+- Shift 이동/스마트 명령/건설 예약은 P0 구현 상태다. 생산 queue는 아직 아니다.
+- 완성 건물은 dynamic blocker가 되고, 건물 시야 source도 FoW/minimap reveal에 합산된다.
+- zoom은 닭농장 맵 거리감 기준 때문에 유지한다. 가시성 보강은 render scale/overlay/pulse로 처리한다.
+
 ## 2. 1차 완료 기준
 
 - 농부 선택 후 `B` 키 또는 command card 버튼으로 Build page에 진입한다.
@@ -42,6 +60,7 @@
 export const CHICKEN_FARM_POC_FLAGS = {
     combat: false,
     construction: true,
+    playerDebugMarker: false,
     terrainPathingDebug: true,
 } as const;
 ```
@@ -51,6 +70,7 @@ export const CHICKEN_FARM_POC_FLAGS = {
 - `CombatPocSystem` 생성은 `combat` flag가 true일 때만 수행한다.
 - `createCombatPoc()` 호출도 `combat` flag가 true일 때만 수행한다.
 - `update.combat`은 optional call을 유지하되 combat flag 기준으로 명확히 비활성화한다.
+- `playerDebugMarker`는 슬롯 marker/dummy view만 제어한다. 실제 farmer/dog 생성, 시야 anchor, 카메라 center는 이 flag에 의존하지 않는다.
 - `getDynamicBlockedRects()`는 이후 `combatPoc` blockers와 `buildingSystem` blockers를 합쳐 반환할 수 있도록 구성한다.
 
 ## 4. Input Priority
@@ -479,7 +499,16 @@ Construction PoC에는 최소 자원 상태만 둔다.
 
 Construction Placement PoC 이후 우선순위:
 
-1. `coop_basic`의 30초 egg/income tick
-2. 시장/닭 구매 command card page
-3. player-built tower의 공격 기능
-4. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증
+1. 건설 PoC 가시성 보강: zoom 유지, 유닛/건물 render scale, 선택 링/HP bar/progress bar 최소 크기, ghost 대비, focus pulse.
+2. player-built tower의 공격 기능: 현재 visible target만 acquire/attack하는 Warsmash 기준 연결.
+3. 건물 시야 차등화: 일반 건물, 건설중 건물, 타워의 vision multiplier 분리.
+4. `coop_basic`의 30초 egg/income tick.
+5. 시장/닭 구매 command card page.
+6. 테크트리: 건물 complete 시 unlock/requires 조건을 command card disabled 상태와 배치 거절 사유에 연결.
+7. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증.
+
+PoC 유의:
+
+- 현재 목표는 건설 조작을 증명하는 것이므로 sprite 품질, production queue, rally, repair, upgrade는 다음 단계로 남긴다.
+- 다만 가시성은 조작 검증 자체에 영향을 주므로, zoom을 바꾸지 않는 범위에서 P0 품질 보강으로 취급한다.
+- 생산 queue는 `chicken_farm_command_queue_poc_plan.md`의 P1 범위다. unit command queue와 같은 UI 언어를 공유하되 runtime 책임은 분리한다.
