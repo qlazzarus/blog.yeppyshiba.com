@@ -1,0 +1,93 @@
+{
+  "atlas": "assets/vehicles/approved/atlases/kia-stinger-poc-128.json",
+  "decision": "pass",
+  "deductions": [],
+  "frameMetrics": {
+    "steer-right-2": {
+      "bbox": {
+        "height": 34,
+        "width": 90,
+        "x": 19,
+        "y": 54
+      },
+      "centroid": {
+        "x": 61.56331096196868,
+        "y": 70.65190156599553
+      },
+      "opaquePixels": 2235
+    },
+    "steer-right-1": {
+      "bbox": {
+        "height": 34,
+        "width": 69,
+        "x": 30,
+        "y": 54
+      },
+      "centroid": {
+        "x": 62.85170893054024,
+        "y": 70.80926130099228
+      },
+      "opaquePixels": 1814
+    },
+    "center": {
+      "bbox": {
+        "height": 34,
+        "width": 46,
+        "x": 41,
+        "y": 54
+      },
+      "centroid": {
+        "x": 63.499260355029584,
+        "y": 70.90902366863905
+      },
+      "opaquePixels": 1352
+    }
+  },
+  "minChangedPixelRatio": 0.08,
+  "minWidthDelta": 8,
+  "metrics": {
+    "minChangedPixelRatio": 0.6724587315377932,
+    "minWidthDelta": 21,
+    "pairMetrics": [
+      {
+        "changedPixelRatio": 0.7658227848101266,
+        "changedPixels": 1452,
+        "id": "center_to_steer_right_1",
+        "unionPixels": 1896
+      },
+      {
+        "changedPixelRatio": 0.6724587315377932,
+        "changedPixels": 1548,
+        "id": "steer_right_1_to_steer_right_2",
+        "unionPixels": 2302
+      }
+    ]
+  },
+  "missingStates": [],
+  "score": 100,
+  "sprite": "assets/vehicles/approved/sprites/kia-stinger-poc-128.png",
+  "steeringStates": {
+    "steer-left-2": {
+      "flipX": true,
+      "frame": "steer-right-2"
+    },
+    "steer-left-1": {
+      "flipX": true,
+      "frame": "steer-right-1"
+    },
+    "center": {
+      "flipX": false,
+      "frame": "center"
+    },
+    "steer-right-1": {
+      "flipX": false,
+      "frame": "steer-right-1"
+    },
+    "steer-right-2": {
+      "flipX": false,
+      "frame": "steer-right-2"
+    }
+  },
+  "vehicleId": "kia-stinger-poc",
+  "warnings": []
+}

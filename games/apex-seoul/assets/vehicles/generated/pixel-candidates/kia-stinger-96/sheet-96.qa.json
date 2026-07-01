@@ -1,0 +1,512 @@
+{
+  "alphaThreshold": 24,
+  "columns": 3,
+  "input": "assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.png",
+  "metadata": "assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.json",
+  "outline": true,
+  "output": "assets/vehicles/generated/pixel-candidates/kia-stinger-96/sheet-96.png",
+  "outputPreview": "assets/vehicles/generated/pixel-candidates/kia-stinger-96/sheet-96-magenta-preview.png",
+  "posePlanId": "outrun-inspired-driving-and-crash-poses",
+  "poses": [
+    {
+      "anchor": {
+        "x": 48,
+        "y": 65
+      },
+      "baselineY": 65,
+      "bbox": {
+        "height": 26,
+        "width": 36,
+        "x": 30,
+        "y": 40
+      },
+      "droppedPixels": 123,
+      "id": "center",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 677,
+      "outlinePixels": 128,
+      "paletteColorCount": 13,
+      "referenceRole": "straight rear driving frame",
+      "semiTransparentPixels": 211,
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 48.5,
+        "y": 66
+      },
+      "baselineY": 66,
+      "bbox": {
+        "height": 27,
+        "width": 53,
+        "x": 22,
+        "y": 40
+      },
+      "droppedPixels": 164,
+      "id": "steer-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 930,
+      "outlinePixels": 159,
+      "paletteColorCount": 13,
+      "referenceRole": "mild rear-quarter steer frame",
+      "semiTransparentPixels": 302,
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 65
+      },
+      "baselineY": 65,
+      "bbox": {
+        "height": 26,
+        "width": 68,
+        "x": 14,
+        "y": 40
+      },
+      "droppedPixels": 192,
+      "id": "steer-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1140,
+      "outlinePixels": 191,
+      "paletteColorCount": 11,
+      "referenceRole": "strong rear-quarter steer frame, still normal driving",
+      "semiTransparentPixels": 374,
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 65
+      },
+      "baselineY": 65,
+      "bbox": {
+        "height": 26,
+        "width": 70,
+        "x": 13,
+        "y": 40
+      },
+      "droppedPixels": 206,
+      "id": "spin-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 12,
+      "opaquePixels": 1163,
+      "outlinePixels": 196,
+      "paletteColorCount": 13,
+      "referenceRole": "near-side slip or recovery frame, not normal steering",
+      "semiTransparentPixels": 386,
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 47.5,
+        "y": 65
+      },
+      "baselineY": 65,
+      "bbox": {
+        "height": 26,
+        "width": 73,
+        "x": 11,
+        "y": 40
+      },
+      "droppedPixels": 192,
+      "id": "spin-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 24,
+      "opaquePixels": 1209,
+      "outlinePixels": 199,
+      "paletteColorCount": 12,
+      "referenceRole": "side-heavy spin frame",
+      "semiTransparentPixels": 391,
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 66
+      },
+      "baselineY": 66,
+      "bbox": {
+        "height": 28,
+        "width": 62,
+        "x": 17,
+        "y": 39
+      },
+      "droppedPixels": 174,
+      "id": "spin-front-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -12,
+      "opaquePixels": 1128,
+      "outlinePixels": 184,
+      "paletteColorCount": 13,
+      "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible",
+      "semiTransparentPixels": 331,
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 47.5,
+        "y": 66
+      },
+      "baselineY": 66,
+      "bbox": {
+        "height": 29,
+        "width": 39,
+        "x": 28,
+        "y": 38
+      },
+      "droppedPixels": 105,
+      "id": "spin-front-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -24,
+      "opaquePixels": 788,
+      "outlinePixels": 139,
+      "paletteColorCount": 10,
+      "referenceRole": "strong front-facing spin frame, near full front-quarter exposure",
+      "semiTransparentPixels": 243,
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 44.5,
+        "y": 77
+      },
+      "baselineY": 77,
+      "bbox": {
+        "height": 45,
+        "width": 49,
+        "x": 20,
+        "y": 33
+      },
+      "droppedPixels": 187,
+      "id": "rollover-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 70,
+      "modelYawDeg": 18,
+      "opaquePixels": 1346,
+      "outlinePixels": 186,
+      "paletteColorCount": 13,
+      "referenceRole": "crash rollover frame, car lifting onto its side",
+      "semiTransparentPixels": 296,
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 45.5,
+        "y": 81
+      },
+      "baselineY": 81,
+      "bbox": {
+        "height": 62,
+        "width": 39,
+        "x": 26,
+        "y": 20
+      },
+      "droppedPixels": 172,
+      "id": "rollover-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 138,
+      "modelYawDeg": 28,
+      "opaquePixels": 1428,
+      "outlinePixels": 202,
+      "paletteColorCount": 12,
+      "referenceRole": "crash rollover frame, underside becoming visible",
+      "semiTransparentPixels": 308,
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 47.5,
+        "y": 83
+      },
+      "baselineY": 83,
+      "bbox": {
+        "height": 70,
+        "width": 37,
+        "x": 29,
+        "y": 14
+      },
+      "droppedPixels": 210,
+      "id": "overturned",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 180,
+      "modelYawDeg": 20,
+      "opaquePixels": 1961,
+      "outlinePixels": 221,
+      "paletteColorCount": 11,
+      "referenceRole": "crash aftermath frame, car fully upside down",
+      "semiTransparentPixels": 355,
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 71
+      },
+      "baselineY": 71,
+      "bbox": {
+        "height": 31,
+        "width": 36,
+        "x": 30,
+        "y": 41
+      },
+      "droppedPixels": 126,
+      "id": "downhill-center",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 867,
+      "outlinePixels": 137,
+      "paletteColorCount": 13,
+      "referenceRole": "rear frame with nose-down pitch cue",
+      "semiTransparentPixels": 240,
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 48.5,
+        "y": 71
+      },
+      "baselineY": 71,
+      "bbox": {
+        "height": 30,
+        "width": 53,
+        "x": 22,
+        "y": 42
+      },
+      "droppedPixels": 141,
+      "id": "downhill-right-1",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1090,
+      "outlinePixels": 164,
+      "paletteColorCount": 13,
+      "referenceRole": "mild rear-quarter steer with nose-down pitch cue",
+      "semiTransparentPixels": 284,
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 48.5,
+        "y": 70
+      },
+      "baselineY": 70,
+      "bbox": {
+        "height": 29,
+        "width": 69,
+        "x": 14,
+        "y": 42
+      },
+      "droppedPixels": 186,
+      "id": "downhill-right-2",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1291,
+      "outlinePixels": 197,
+      "paletteColorCount": 11,
+      "referenceRole": "strong rear-quarter steer with nose-down pitch cue",
+      "semiTransparentPixels": 357,
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 65
+      },
+      "baselineY": 65,
+      "bbox": {
+        "height": 25,
+        "width": 36,
+        "x": 30,
+        "y": 41
+      },
+      "droppedPixels": 95,
+      "id": "uphill-center",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 623,
+      "outlinePixels": 126,
+      "paletteColorCount": 13,
+      "referenceRole": "rear frame with nose-up pitch cue",
+      "semiTransparentPixels": 215,
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 48,
+        "y": 66
+      },
+      "baselineY": 66,
+      "bbox": {
+        "height": 26,
+        "width": 52,
+        "x": 22,
+        "y": 41
+      },
+      "droppedPixels": 154,
+      "id": "uphill-right-1",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 913,
+      "outlinePixels": 159,
+      "paletteColorCount": 14,
+      "referenceRole": "mild rear-quarter steer with nose-up pitch cue",
+      "semiTransparentPixels": 317,
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 47.5,
+        "y": 67
+      },
+      "baselineY": 67,
+      "bbox": {
+        "height": 27,
+        "width": 67,
+        "x": 14,
+        "y": 41
+      },
+      "droppedPixels": 205,
+      "id": "uphill-right-2",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1097,
+      "outlinePixels": 201,
+      "paletteColorCount": 13,
+      "referenceRole": "strong rear-quarter steer with nose-up pitch cue",
+      "semiTransparentPixels": 389,
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 5
+      }
+    }
+  ],
+  "rows": 6,
+  "sourceCellSize": 256,
+  "targetCellSize": 96,
+  "vehicleId": "kia-stinger-poc"
+}

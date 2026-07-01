@@ -1,0 +1,226 @@
+{
+  "id": "outrun-inspired-driving-and-crash-poses",
+  "referencePolicy": "Reference only. Use the attached OutRun-style sheet to study rear-view pose spacing, front-facing spin poses, rollover/overturned crash poses, vehicle baseline, and direction readability; do not copy or extract original sprite pixels.",
+  "sourceReference": "OutRun-style Ferrari Testarossa sprite sheet: rear driving frames, rear-quarter steer frames, front/side spin frames, rollover frames, overturned frames, uphill/downhill-like pitch cues.",
+  "poseSelection": {
+    "primaryRuntimeGoal": "five-way steering",
+    "firstPassSourcePoses": [
+      "center",
+      "steer-right-1",
+      "steer-right-2"
+    ],
+    "firstPassRuntimeStates": [
+      "steer-left-2",
+      "steer-left-1",
+      "center",
+      "steer-right-1",
+      "steer-right-2"
+    ],
+    "laterSourcePoses": [
+      "downhill-center",
+      "downhill-right-1",
+      "downhill-right-2",
+      "uphill-center",
+      "uphill-right-1",
+      "uphill-right-2",
+      "spin-right-1",
+      "spin-right-2",
+      "spin-front-right-1",
+      "spin-front-right-2",
+      "rollover-right-1",
+      "rollover-right-2",
+      "overturned"
+    ]
+  },
+  "sourcePoses": [
+    {
+      "id": "center",
+      "referenceRole": "straight rear driving frame",
+      "camera": [0, 1.2, -5.2],
+      "rearAngleDeg": 0,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-1",
+      "referenceRole": "mild rear-quarter steer frame",
+      "camera": [-2.12, 1.14, -4.75],
+      "rearAngleDeg": 24,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-2",
+      "referenceRole": "strong rear-quarter steer frame, still normal driving",
+      "camera": [-3.61, 1.08, -3.74],
+      "rearAngleDeg": 44,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "spin-right-1",
+      "referenceRole": "near-side slip or recovery frame, not normal steering",
+      "camera": [-4.6, 1.02, -2.72],
+      "rearAngleDeg": 62,
+      "modelYawDeg": 12,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "spin-right-2",
+      "referenceRole": "side-heavy spin frame",
+      "camera": [-5.0, 0.98, -1.15],
+      "rearAngleDeg": 78,
+      "modelYawDeg": 24,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "spin-front-right-1",
+      "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible",
+      "camera": [-3.61, 1.08, 3.74],
+      "rearAngleDeg": 136,
+      "modelYawDeg": -12,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "spin-front-right-2",
+      "referenceRole": "strong front-facing spin frame, near full front-quarter exposure",
+      "camera": [-2.12, 1.12, 4.75],
+      "rearAngleDeg": 156,
+      "modelYawDeg": -24,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "rollover-right-1",
+      "referenceRole": "crash rollover frame, car lifting onto its side",
+      "camera": [-4.2, 2.05, -2.8],
+      "rearAngleDeg": 62,
+      "modelYawDeg": 18,
+      "modelRollDeg": 70,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "rollover-right-2",
+      "referenceRole": "crash rollover frame, underside becoming visible",
+      "camera": [-3.5, 2.55, -2.15],
+      "rearAngleDeg": 78,
+      "modelYawDeg": 28,
+      "modelRollDeg": 138,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "overturned",
+      "referenceRole": "crash aftermath frame, car fully upside down",
+      "camera": [-2.4, 2.8, -1.85],
+      "rearAngleDeg": 90,
+      "modelYawDeg": 20,
+      "modelRollDeg": 180,
+      "modelPitchDeg": 0,
+      "flipXSource": null
+    },
+    {
+      "id": "downhill-center",
+      "referenceRole": "rear frame with nose-down pitch cue",
+      "camera": [0, 1.2, -5.2],
+      "rearAngleDeg": 0,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": -8,
+      "flipXSource": null
+    },
+    {
+      "id": "downhill-right-1",
+      "referenceRole": "mild rear-quarter steer with nose-down pitch cue",
+      "camera": [-2.12, 1.14, -4.75],
+      "rearAngleDeg": 24,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": -8,
+      "flipXSource": null
+    },
+    {
+      "id": "downhill-right-2",
+      "referenceRole": "strong rear-quarter steer with nose-down pitch cue",
+      "camera": [-3.61, 1.08, -3.74],
+      "rearAngleDeg": 44,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": -8,
+      "flipXSource": null
+    },
+    {
+      "id": "uphill-center",
+      "referenceRole": "rear frame with nose-up pitch cue",
+      "camera": [0, 1.2, -5.2],
+      "rearAngleDeg": 0,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 8,
+      "flipXSource": null
+    },
+    {
+      "id": "uphill-right-1",
+      "referenceRole": "mild rear-quarter steer with nose-up pitch cue",
+      "camera": [-2.12, 1.14, -4.75],
+      "rearAngleDeg": 24,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 8,
+      "flipXSource": null
+    },
+    {
+      "id": "uphill-right-2",
+      "referenceRole": "strong rear-quarter steer with nose-up pitch cue",
+      "camera": [-3.61, 1.08, -3.74],
+      "rearAngleDeg": 44,
+      "modelYawDeg": 0,
+      "modelRollDeg": 0,
+      "modelPitchDeg": 8,
+      "flipXSource": null
+    }
+  ],
+  "runtimeStates": [
+    {
+      "id": "steer-left-2",
+      "flipXSource": "steer-right-2"
+    },
+    {
+      "id": "steer-left-1",
+      "flipXSource": "steer-right-1"
+    },
+    {
+      "id": "center",
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-1",
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-2",
+      "flipXSource": null
+    }
+  ],
+  "qaFocus": [
+    "center, steer-right-1, and steer-right-2 must share a stable road-contact baseline.",
+    "steer-right-1 and steer-right-2 must remain visually distinct after pixel pass.",
+    "spin-right-1, spin-right-2, spin-front-right-1, and spin-front-right-2 must not be selected by normal steering thresholds.",
+    "rollover and overturned poses are crash-only states and must not share normal driving anchors without a crash-specific offset pass.",
+    "downhill and uphill variants keep the same yaw order and only change pitch/contact feel."
+  ]
+}

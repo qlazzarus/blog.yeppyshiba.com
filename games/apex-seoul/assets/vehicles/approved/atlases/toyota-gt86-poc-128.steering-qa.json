@@ -1,0 +1,93 @@
+{
+  "atlas": "assets/vehicles/approved/atlases/toyota-gt86-poc-128.json",
+  "decision": "pass",
+  "deductions": [],
+  "frameMetrics": {
+    "steer-right-2": {
+      "bbox": {
+        "height": 33,
+        "width": 79,
+        "x": 24,
+        "y": 54
+      },
+      "centroid": {
+        "x": 61.06039551042223,
+        "y": 70.0951362907536
+      },
+      "opaquePixels": 1871
+    },
+    "steer-right-1": {
+      "bbox": {
+        "height": 32,
+        "width": 64,
+        "x": 32,
+        "y": 55
+      },
+      "centroid": {
+        "x": 62.432722678458624,
+        "y": 70.25142135186356
+      },
+      "opaquePixels": 1583
+    },
+    "center": {
+      "bbox": {
+        "height": 32,
+        "width": 44,
+        "x": 42,
+        "y": 55
+      },
+      "centroid": {
+        "x": 63.44097807757167,
+        "y": 70.14755480607083
+      },
+      "opaquePixels": 1186
+    }
+  },
+  "minChangedPixelRatio": 0.08,
+  "minWidthDelta": 8,
+  "metrics": {
+    "minChangedPixelRatio": 0.7343511450381679,
+    "minWidthDelta": 15,
+    "pairMetrics": [
+      {
+        "changedPixelRatio": 0.7923399162178336,
+        "changedPixels": 1324,
+        "id": "center_to_steer_right_1",
+        "unionPixels": 1671
+      },
+      {
+        "changedPixelRatio": 0.7343511450381679,
+        "changedPixels": 1443,
+        "id": "steer_right_1_to_steer_right_2",
+        "unionPixels": 1965
+      }
+    ]
+  },
+  "missingStates": [],
+  "score": 100,
+  "sprite": "assets/vehicles/approved/sprites/toyota-gt86-poc-128.png",
+  "steeringStates": {
+    "steer-left-2": {
+      "flipX": true,
+      "frame": "steer-right-2"
+    },
+    "steer-left-1": {
+      "flipX": true,
+      "frame": "steer-right-1"
+    },
+    "center": {
+      "flipX": false,
+      "frame": "center"
+    },
+    "steer-right-1": {
+      "flipX": false,
+      "frame": "steer-right-1"
+    },
+    "steer-right-2": {
+      "flipX": false,
+      "frame": "steer-right-2"
+    }
+  },
+  "vehicleId": "toyota-gt86-poc",
+  "warnings": []
+}

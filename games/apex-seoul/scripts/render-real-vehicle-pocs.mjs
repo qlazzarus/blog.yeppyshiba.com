@@ -40,6 +40,10 @@ for (const vehicle of manifest.vehicles) {
     appendOptionalNumber(args, '--model-scale-y', vehicle.modelScaleY);
     appendOptionalNumber(args, '--model-scale-z', vehicle.modelScaleZ);
 
+    if (vehicle.materialOverrides) {
+        args.push('--material-overrides', JSON.stringify(vehicle.materialOverrides));
+    }
+
     console.log(`Rendering ${vehicle.id}`);
     await runNode(args);
 }

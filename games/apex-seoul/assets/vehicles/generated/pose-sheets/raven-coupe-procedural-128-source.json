@@ -1,0 +1,342 @@
+{
+  "cellSize": 256,
+  "columns": 3,
+  "frameSizeUnits": 2.95,
+  "model": "raven-coupe-procedural",
+  "modelPitchOffsetDeg": 0,
+  "modelRollOffsetDeg": 0,
+  "modelScaleX": 1,
+  "modelScaleY": 1,
+  "modelScaleZ": 1,
+  "modelYawOffsetDeg": 0,
+  "debugMaterials": false,
+  "materialOverrides": {},
+  "output": "assets/vehicles/generated/pose-sheets/raven-coupe-procedural-128-source.png",
+  "poseManifest": "assets/vehicles/source/manifests/outrun-inspired-pose-plan.json",
+  "posePlanId": "outrun-inspired-driving-and-crash-poses",
+  "poseReferencePolicy": "Reference only. Use the attached OutRun-style sheet to study rear-view pose spacing, front-facing spin poses, rollover/overturned crash poses, vehicle baseline, and direction readability; do not copy or extract original sprite pixels.",
+  "proceduralVehicle": {
+    "id": "raven-coupe",
+    "manifest": "assets/vehicles/source/manifests/fictional-vehicle-procedural.json",
+    "referencePolicy": "Original fictional compact FR coupe. Uses GT86/Stinger/G70 POC only for pose, scale, and readability reference; do not copy trade dress."
+  },
+  "poses": [
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "center",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0,
+      "referenceRole": "straight rear driving frame"
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24,
+      "referenceRole": "mild rear-quarter steer frame"
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "flipXSource": null,
+      "id": "steer-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44,
+      "referenceRole": "strong rear-quarter steer frame, still normal driving"
+    },
+    {
+      "camera": [
+        -4.6,
+        1.02,
+        -2.72
+      ],
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "spin-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 12,
+      "rearAngleDeg": 62,
+      "referenceRole": "near-side slip or recovery frame, not normal steering"
+    },
+    {
+      "camera": [
+        -5,
+        0.98,
+        -1.15
+      ],
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "spin-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 24,
+      "rearAngleDeg": 78,
+      "referenceRole": "side-heavy spin frame"
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        3.74
+      ],
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "flipXSource": null,
+      "id": "spin-front-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -12,
+      "rearAngleDeg": 136,
+      "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible"
+    },
+    {
+      "camera": [
+        -2.12,
+        1.12,
+        4.75
+      ],
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "spin-front-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -24,
+      "rearAngleDeg": 156,
+      "referenceRole": "strong front-facing spin frame, near full front-quarter exposure"
+    },
+    {
+      "camera": [
+        -4.2,
+        2.05,
+        -2.8
+      ],
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "rollover-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 70,
+      "modelYawDeg": 18,
+      "rearAngleDeg": 62,
+      "referenceRole": "crash rollover frame, car lifting onto its side"
+    },
+    {
+      "camera": [
+        -3.5,
+        2.55,
+        -2.15
+      ],
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "flipXSource": null,
+      "id": "rollover-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 138,
+      "modelYawDeg": 28,
+      "rearAngleDeg": 78,
+      "referenceRole": "crash rollover frame, underside becoming visible"
+    },
+    {
+      "camera": [
+        -2.4,
+        2.8,
+        -1.85
+      ],
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "flipXSource": null,
+      "id": "overturned",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 180,
+      "modelYawDeg": 20,
+      "rearAngleDeg": 90,
+      "referenceRole": "crash aftermath frame, car fully upside down"
+    },
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "flipXSource": null,
+      "id": "downhill-center",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0,
+      "referenceRole": "rear frame with nose-down pitch cue"
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "flipXSource": null,
+      "id": "downhill-right-1",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24,
+      "referenceRole": "mild rear-quarter steer with nose-down pitch cue"
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "flipXSource": null,
+      "id": "downhill-right-2",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44,
+      "referenceRole": "strong rear-quarter steer with nose-down pitch cue"
+    },
+    {
+      "camera": [
+        0,
+        1.2,
+        -5.2
+      ],
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "flipXSource": null,
+      "id": "uphill-center",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 0,
+      "referenceRole": "rear frame with nose-up pitch cue"
+    },
+    {
+      "camera": [
+        -2.12,
+        1.14,
+        -4.75
+      ],
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "flipXSource": null,
+      "id": "uphill-right-1",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 24,
+      "referenceRole": "mild rear-quarter steer with nose-up pitch cue"
+    },
+    {
+      "camera": [
+        -3.61,
+        1.08,
+        -3.74
+      ],
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "flipXSource": null,
+      "id": "uphill-right-2",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "rearAngleDeg": 44,
+      "referenceRole": "strong rear-quarter steer with nose-up pitch cue"
+    }
+  ],
+  "runtimeStates": [
+    {
+      "id": "steer-left-2",
+      "flipXSource": "steer-right-2"
+    },
+    {
+      "id": "steer-left-1",
+      "flipXSource": "steer-right-1"
+    },
+    {
+      "id": "center",
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-1",
+      "flipXSource": null
+    },
+    {
+      "id": "steer-right-2",
+      "flipXSource": null
+    }
+  ],
+  "rows": 6,
+  "scaleMode": "max-dimension",
+  "sourceModel": "procedural:raven-coupe-procedural",
+  "vehicleId": "raven-coupe",
+  "referenceLengthM": 4.24,
+  "referenceLengthUnits": 2.2,
+  "vehicleLengthM": null
+}

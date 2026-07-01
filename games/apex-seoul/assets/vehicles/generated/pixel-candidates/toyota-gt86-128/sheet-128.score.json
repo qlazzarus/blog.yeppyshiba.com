@@ -1,0 +1,37 @@
+{
+  "anchorJitterThreshold": 1,
+  "baselineJitterThreshold": 1,
+  "decision": "pass",
+  "deductions": [],
+  "input": "assets/vehicles/generated/pixel-candidates/toyota-gt86-128/sheet-128.qa.json",
+  "maxPaletteColors": 16,
+  "minSteerWidthDelta": 8,
+  "metrics": {
+    "anchorXJitter": 0.5,
+    "baselineJitter": 0,
+    "maxPaletteColorCount": 14,
+    "maxSemiTransparentPixels": 474,
+    "minSteerWidthDelta": 15,
+    "poseCount": 16
+  },
+  "missingRequiredPoses": [],
+  "outputCandidate": "assets/vehicles/generated/pixel-candidates/toyota-gt86-128/sheet-128.png",
+  "passScore": 80,
+  "posePlanId": "outrun-inspired-driving-and-crash-poses",
+  "requiredPoses": [
+    "center",
+    "steer-right-1",
+    "steer-right-2"
+  ],
+  "reviewScore": 65,
+  "score": 100,
+  "semiTransparentThreshold": 512,
+  "targetCellSize": 128,
+  "vehicleId": "toyota-gt86-poc",
+  "warnings": [
+    {
+      "code": "semi_transparent_pixels_were_hardened",
+      "message": "Max pre-harden semi-transparent pixels is 474; pixel-pass hardens alpha in output."
+    }
+  ]
+}

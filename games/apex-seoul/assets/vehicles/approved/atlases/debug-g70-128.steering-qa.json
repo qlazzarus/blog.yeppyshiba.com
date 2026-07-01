@@ -1,0 +1,93 @@
+{
+  "atlas": "assets/vehicles/approved/atlases/debug-g70-128.json",
+  "decision": "pass",
+  "deductions": [],
+  "frameMetrics": {
+    "steer-right-2": {
+      "bbox": {
+        "height": 37,
+        "width": 98,
+        "x": 15,
+        "y": 51
+      },
+      "centroid": {
+        "x": 64.75021240441801,
+        "y": 70.1465590484282
+      },
+      "opaquePixels": 2354
+    },
+    "steer-right-1": {
+      "bbox": {
+        "height": 36,
+        "width": 84,
+        "x": 22,
+        "y": 52
+      },
+      "centroid": {
+        "x": 64.66271909047845,
+        "y": 70.0800568450971
+      },
+      "opaquePixels": 2111
+    },
+    "center": {
+      "bbox": {
+        "height": 36,
+        "width": 56,
+        "x": 36,
+        "y": 52
+      },
+      "centroid": {
+        "x": 63.5,
+        "y": 69.4051094890511
+      },
+      "opaquePixels": 1644
+    }
+  },
+  "minChangedPixelRatio": 0.08,
+  "minWidthDelta": 8,
+  "metrics": {
+    "minChangedPixelRatio": 0.5979633401221995,
+    "minWidthDelta": 14,
+    "pairMetrics": [
+      {
+        "changedPixelRatio": 0.7638888888888888,
+        "changedPixels": 1705,
+        "id": "center_to_steer_right_1",
+        "unionPixels": 2232
+      },
+      {
+        "changedPixelRatio": 0.5979633401221995,
+        "changedPixels": 1468,
+        "id": "steer_right_1_to_steer_right_2",
+        "unionPixels": 2455
+      }
+    ]
+  },
+  "missingStates": [],
+  "score": 100,
+  "sprite": "assets/vehicles/approved/sprites/debug-g70-128.png",
+  "steeringStates": {
+    "steer-left-2": {
+      "flipX": true,
+      "frame": "steer-right-2"
+    },
+    "steer-left-1": {
+      "flipX": true,
+      "frame": "steer-right-1"
+    },
+    "center": {
+      "flipX": false,
+      "frame": "center"
+    },
+    "steer-right-1": {
+      "flipX": false,
+      "frame": "steer-right-1"
+    },
+    "steer-right-2": {
+      "flipX": false,
+      "frame": "steer-right-2"
+    }
+  },
+  "vehicleId": "debug-g70",
+  "warnings": []
+}
