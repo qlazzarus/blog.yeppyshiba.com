@@ -15,6 +15,8 @@
         "finalize:vehicle-sprite-sheet": "node scripts/finalize-vehicle-sprite-sheet.mjs",
         "optimize:real-vehicle-models": "node scripts/optimize-real-vehicle-models.mjs",
         "qa:drive-telemetry": "node scripts/capture-drive-telemetry.mjs",
+        "qa:handling-matrix": "node scripts/run-handling-matrix.mjs",
+        "qa:handling-sim": "node scripts/simulate-handling-matrix.mjs",
         "pixel-pass:vehicle-sheet": "node scripts/pixel-pass-vehicle-sheet.mjs",
         "preview": "vite preview --host 0.0.0.0",
         "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",

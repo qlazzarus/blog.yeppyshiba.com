@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import type { PlayerVehicleState } from './vehicle';
 
 export type PlayerVehicleControllerConfig = {
@@ -10,12 +9,15 @@ export type PlayerVehicleControllerConfig = {
     cornerAccelSpeedDrop: number;
     cornerSpeedPull: number;
     curveDriftAcceleration: number;
+    curveSteeringHighSpeedDrop: number;
     curveSteeringCue: number;
     engineAcceleration: number;
     engineBrakeDeceleration: number;
     highSpeedSteerForceDrop: number;
     highSpeedSteerVisualDrop: number;
     inputResponse: number;
+    launchThrottleFullSpeedRatio: number;
+    launchThrottleMinRatio: number;
     maxRoadOffset: number;
     rollingResistance: number;
     rpmIdle: number;
@@ -59,7 +61,7 @@ export function updatePlayerVehicle(
 ) {
     updatePlayerSpeed(player, input, context, config, seconds);
 
-    const speedRatio = Phaser.Math.Clamp(player.speed / config.accelSpeed, 0, 1);
+    const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
     const steerForceRatio = getHighSpeedSteeringRatio(
         speedRatio,
         config.highSpeedSteerForceDrop,
@@ -68,6 +70,10 @@ export function updatePlayerVehicle(
         speedRatio,
         config.highSpeedSteerVisualDrop,
     );
+    const curveVisualRatio = getHighSpeedSteeringRatio(
+        speedRatio,
+        config.curveSteeringHighSpeedDrop,
+    );
     const centeringForce = -player.lateralOffset * config.centeringResponse;
     const steeringForce = input.steerAxis * config.steerAcceleration * steerForceRatio;
     const curveForce = -context.currentCurve * speedRatio * config.curveDriftAcceleration;
@@ -75,7 +81,7 @@ export function updatePlayerVehicle(
 
     player.steeringVelocity += (steeringForce + centeringForce + curveForce + dampingForce) * seconds;
     player.lateralOffset += player.steeringVelocity * seconds;
-    player.lateralOffset = Phaser.Math.Clamp(
+    player.lateralOffset = clamp(
         player.lateralOffset,
         -config.maxRoadOffset,
         config.maxRoadOffset,
@@ -88,26 +94,26 @@ export function updatePlayerVehicle(
         player.steeringVelocity = 0;
     }
 
-    const targetSteering = Phaser.Math.Clamp(
+    const targetSteering = clamp(
         input.steerAxis * steerVisualRatio +
             (player.steeringVelocity / config.steerAcceleration) * config.steeringVelocityCue -
-            context.currentCurve * speedRatio * config.curveSteeringCue,
+            context.currentCurve * speedRatio * curveVisualRatio * config.curveSteeringCue,
         -1,
         1,
     );
     const steeringBlend = 1 - Math.exp(-config.inputResponse * seconds);
 
-    player.steering = Phaser.Math.Linear(player.steering, targetSteering, steeringBlend);
+    player.steering = lerp(player.steering, targetSteering, steeringBlend);
 }
 
 export function getCornerIntensity(curve: number) {
-    return Phaser.Math.Clamp(Math.abs(curve) / 0.72, 0, 1);
+    return clamp(Math.abs(curve) / 0.72, 0, 1);
 }
 
 export function getHighSpeedSteeringRatio(speedRatio: number, maxDrop: number) {
     const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
 
-    return Phaser.Math.Clamp(1 - smoothSpeed * maxDrop, 1 - maxDrop, 1);
+    return clamp(1 - smoothSpeed * maxDrop, 1 - maxDrop, 1);
 }
 
 function updatePlayerSpeed(
@@ -119,10 +125,14 @@ function updatePlayerSpeed(
 ) {
     const cornerIntensity = getCornerIntensity(context.currentCurve);
     const cornerAccelSpeed = config.accelSpeed - cornerIntensity * config.cornerAccelSpeedDrop;
-    const speedRatio = Phaser.Math.Clamp(player.speed / config.accelSpeed, 0, 1);
+    const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
     const throttle = input.accelPressed ? 1 : 0;
     const brake = input.brakePressed ? 1 : 0;
-    const engineForce = throttle * config.engineAcceleration * (1 - speedRatio * 0.45);
+    const launchRatio = config.launchThrottleFullSpeedRatio <= 0
+        ? 1
+        : smoothstep(clamp(speedRatio / config.launchThrottleFullSpeedRatio, 0, 1));
+    const launchThrottleRatio = lerp(config.launchThrottleMinRatio, 1, launchRatio);
+    const engineForce = throttle * config.engineAcceleration * launchThrottleRatio * (1 - speedRatio * 0.45);
     const brakeForce = brake * config.braking;
     const engineBrakeForce = throttle > 0 || brake > 0 ? 0 : config.engineBrakeDeceleration;
     const rollingResistance = config.rollingResistance;
@@ -140,7 +150,7 @@ function updatePlayerSpeed(
         aeroDrag -
         cornerLimitForce;
 
-    player.speed = Phaser.Math.Clamp(
+    player.speed = clamp(
         player.speed + acceleration * seconds,
         config.brakeSpeed,
         config.accelSpeed,
@@ -153,7 +163,7 @@ function updatePlayerSpeed(
     const targetRpm = getEngineRpm(player.speed, throttle, brake, config);
     const rpmBlend = 1 - Math.exp(-config.rpmResponse * seconds);
 
-    player.rpm = Phaser.Math.Linear(player.rpm, targetRpm, rpmBlend);
+    player.rpm = lerp(player.rpm, targetRpm, rpmBlend);
 }
 
 function getEngineRpm(
@@ -163,20 +173,32 @@ function getEngineRpm(
     config: PlayerVehicleControllerConfig,
 ) {
     const gearRatios = [0.18, 0.32, 0.48, 0.66, 0.84, 1];
-    const speedRatio = Phaser.Math.Clamp(speed / config.accelSpeed, 0, 1);
+    const speedRatio = clamp(speed / config.accelSpeed, 0, 1);
     const gearIndex = Math.min(
         gearRatios.length - 1,
         Math.floor(speedRatio * gearRatios.length),
     );
     const gearStart = gearIndex === 0 ? 0 : gearRatios[gearIndex - 1];
     const gearEnd = gearRatios[gearIndex];
-    const gearProgress = Phaser.Math.Clamp((speedRatio - gearStart) / (gearEnd - gearStart), 0, 1);
+    const gearProgress = clamp((speedRatio - gearStart) / (gearEnd - gearStart), 0, 1);
     const throttleLift = throttle > 0 ? 850 : 0;
     const brakeDrop = brake > 0 ? 550 : 0;
 
-    return Phaser.Math.Clamp(
+    return clamp(
         config.rpmIdle + gearProgress * (config.rpmRedline - config.rpmIdle) + throttleLift - brakeDrop,
         config.rpmIdle,
         config.rpmRedline,
     );
+}
+
+function clamp(value: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function lerp(start: number, end: number, amount: number) {
+    return start + (end - start) * amount;
+}
+
+function smoothstep(value: number) {
+    return value * value * (3 - 2 * value);
 }

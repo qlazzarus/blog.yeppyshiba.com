@@ -13,6 +13,7 @@ export type ApexHudState = {
     qa: RuntimeQaOverrides;
     roadStats: RoadRenderStats | null;
     slopeAcceleration: number;
+    speedKmh: number;
     steeringRatio: number;
     telemetry: RuntimeTelemetryConfig;
     telemetryEventCount: number;
@@ -40,6 +41,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
         qa,
         roadStats,
         slopeAcceleration,
+        speedKmh,
         steeringRatio,
         telemetry,
         telemetryEventCount,
@@ -56,7 +58,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
             roadStats
                 ? `segment ${roadStats.baseSegmentIndex} | curve ${roadStats.currentCurve.toFixed(2)} | elevation ${roadStats.currentElevation.toFixed(0)} | gap ${formatNullableNumber(roadStats.horizonGapY)} | visible ${roadStats.visibleSegments}`
                 : 'segment -- | curve -- | visible --',
-            `speed ${player.speed.toFixed(0)} | rpm ${player.rpm.toFixed(0)} | slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
+            `speed ${speedKmh.toFixed(0)} km/h (${player.speed.toFixed(0)}u) | rpm ${player.rpm.toFixed(0)} | slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
             `sprite ${(tuning.vehicleViewportRatio * 100).toFixed(0)}vw | anchor ${tuning.playerRoadAnchorDistance.toFixed(0)}z | contact cue ${tuning.playerContactTerrainCueThreshold.toFixed(0)} | curve bias ${tuning.curveScreenBias.toFixed(0)}px`,
             `telemetry ${telemetry.enabled ? 'on' : 'off'} | log ${telemetryEventCount}`,
             qa.enabled

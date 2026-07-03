@@ -42,6 +42,7 @@ import {
 } from './game/roadObjectRenderer';
 import {
     createRuntimeQaOverrides,
+    createRuntimePlayerVehicleConfig,
     createRuntimeTelemetryConfig,
     createRuntimeTuning,
     type RuntimeQaOverrides,
@@ -49,6 +50,10 @@ import {
     type RuntimeTuning,
 } from './game/runtimeConfig';
 import { RuntimeTelemetryRecorder } from './game/runtimeTelemetry';
+import {
+    createSpeedEffectShader,
+    type SpeedEffectShaderUniforms,
+} from './game/speedEffectShader';
 import {
     drawShadowContactPatch,
     getContactTerrainCueIntensity,
@@ -77,17 +82,19 @@ const CAMERA_DOWNHILL_EXTRA_PITCH = 42;
 const CAMERA_FOV_RESPONSE = 1.25;
 const CAMERA_MAX_SLOPE_PITCH = 34;
 const CAMERA_SLOPE_PITCH_RESPONSE = 3.2;
-const CAMERA_SPEED_FOV_BONUS = 2.4;
+const CAMERA_SPEED_FOV_BONUS = 3.5;
 const DEBUG_PROJECTION_GUIDES = false;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
 const PLAYER_BRAKE_SPEED = 0;
 const PLAYER_BRAKING = 330;
-const PLAYER_CENTERING_RESPONSE = 1.9;
+const PLAYER_CENTERING_RESPONSE = 1.75;
 const PLAYER_CRUISE_SPEED = 440;
 const PLAYER_ACCEL_SPEED = 760;
-const PLAYER_CORNER_ACCEL_SPEED_DROP = 150;
-const PLAYER_CORNER_SPEED_PULL = 190;
-const PLAYER_INPUT_RESPONSE = 16;
+const PLAYER_CORNER_ACCEL_SPEED_DROP = 100;
+const PLAYER_CORNER_SPEED_PULL = 120;
+const PLAYER_INPUT_RESPONSE = 18;
+const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.38;
+const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.3;
 const PLAYER_MAX_ROAD_OFFSET = 700;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
 const PLAYER_ROAD_CONTACT_DISTANCE = 260;
@@ -96,7 +103,7 @@ const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;
 const PLAYER_SHADOW_MAX_ALPHA = 0.18;
 const PLAYER_SHADOW_SOFT_ALPHA = 0.24;
 const PLAYER_SILHOUETTE_SHADOW_ALPHA = 0.48;
-const PLAYER_STEER_ACCELERATION = 1750;
+const PLAYER_STEER_ACCELERATION = 1650;
 const PLAYER_STEER_DAMPING = 9.2;
 const PLAYER_VEHICLE_TEXTURE_KEY = 'player-vehicle-genesis-g70-poc';
 const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = 'player-vehicle-genesis-g70-poc-shadow';
@@ -104,18 +111,19 @@ const PLAYER_VEHICLE_VIEWPORT_RATIO = 0.34;
 const PLAYER_VEHICLE_MIN_SIZE = 220;
 const PLAYER_VEHICLE_MAX_SIZE = 360;
 const PLAYER_VEHICLE_ROTATION_DEG = 3.5;
-const PLAYER_STEER_WEAK_THRESHOLD = 0.18;
+const PLAYER_STEER_WEAK_THRESHOLD = 0.14;
 const PLAYER_TERRAIN_CUE_THRESHOLD = 24;
 const PLAYER_CONTACT_TERRAIN_CUE_THRESHOLD = 8;
 const PLAYER_MAX_TERRAIN_SCREEN_Y_SHIFT = 18;
 const PLAYER_TERRAIN_SCALE_INTENSITY = 0.045;
 const PLAYER_CURVE_SCREEN_BIAS = 8;
-const PLAYER_CURVE_DRIFT_ACCELERATION = 260;
-const PLAYER_CURVE_STEERING_CUE = 0.1;
+const PLAYER_CURVE_DRIFT_ACCELERATION = 160;
+const PLAYER_CURVE_STEERING_CUE = 0.06;
+const PLAYER_CURVE_STEERING_HIGH_SPEED_DROP = 0.38;
 const PLAYER_HIGH_SPEED_STEER_FORCE_DROP = 0.42;
-const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.34;
-const PLAYER_STEERING_VELOCITY_CUE = 0.38;
-const PLAYER_ENGINE_ACCELERATION = 128;
+const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.38;
+const PLAYER_STEERING_VELOCITY_CUE = 0.2;
+const PLAYER_ENGINE_ACCELERATION = 170;
 const PLAYER_ENGINE_BRAKE_DECELERATION = 26;
 const PLAYER_ROLLING_RESISTANCE = 14;
 const PLAYER_AERO_DRAG = 0.00012;
@@ -125,6 +133,10 @@ const PLAYER_SLOPE_SAMPLE_DISTANCE = 720;
 const PLAYER_RPM_IDLE = 1100;
 const PLAYER_RPM_REDLINE = 7200;
 const PLAYER_RPM_RESPONSE = 7;
+const PLAYER_SPEED_DISPLAY_MAX_KMH = 200;
+const SPEED_EFFECT_MAX_ALPHA = 0.88;
+const SPEED_EFFECT_MIN_RATIO = 0.42;
+const SPEED_EFFECT_TIME_SCALE = 1.7;
 const TELEMETRY_DEFAULT_DURATION_SEC = 60;
 const TELEMETRY_DEFAULT_SAMPLE_HZ = 10;
 const GAME_WIDTH = 1200;
@@ -157,7 +169,7 @@ const RUNTIME_TELEMETRY: RuntimeTelemetryConfig = createRuntimeTelemetryConfig(U
     durationSec: TELEMETRY_DEFAULT_DURATION_SEC,
     sampleHz: TELEMETRY_DEFAULT_SAMPLE_HZ,
 });
-const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = {
+const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePlayerVehicleConfig(URL_PARAMS, {
     accelSpeed: PLAYER_ACCEL_SPEED,
     aeroDrag: PLAYER_AERO_DRAG,
     brakeSpeed: PLAYER_BRAKE_SPEED,
@@ -166,12 +178,15 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = {
     cornerAccelSpeedDrop: PLAYER_CORNER_ACCEL_SPEED_DROP,
     cornerSpeedPull: PLAYER_CORNER_SPEED_PULL,
     curveDriftAcceleration: PLAYER_CURVE_DRIFT_ACCELERATION,
+    curveSteeringHighSpeedDrop: PLAYER_CURVE_STEERING_HIGH_SPEED_DROP,
     curveSteeringCue: PLAYER_CURVE_STEERING_CUE,
     engineAcceleration: PLAYER_ENGINE_ACCELERATION,
     engineBrakeDeceleration: PLAYER_ENGINE_BRAKE_DECELERATION,
     highSpeedSteerForceDrop: PLAYER_HIGH_SPEED_STEER_FORCE_DROP,
     highSpeedSteerVisualDrop: PLAYER_HIGH_SPEED_STEER_VISUAL_DROP,
     inputResponse: PLAYER_INPUT_RESPONSE,
+    launchThrottleFullSpeedRatio: PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO,
+    launchThrottleMinRatio: PLAYER_LAUNCH_THROTTLE_MIN_RATIO,
     maxRoadOffset: PLAYER_MAX_ROAD_OFFSET,
     rollingResistance: PLAYER_ROLLING_RESISTANCE,
     rpmIdle: PLAYER_RPM_IDLE,
@@ -180,7 +195,7 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = {
     steerAcceleration: PLAYER_STEER_ACCELERATION,
     steerDamping: PLAYER_STEER_DAMPING,
     steeringVelocityCue: PLAYER_STEERING_VELOCITY_CUE,
-};
+});
 
 const PLAYER_VEHICLE_ATLAS = genesisG70VehicleAtlas as VehicleAtlas;
 
@@ -211,6 +226,9 @@ class ApexSeoulScene extends Phaser.Scene {
     private roadObjectStats: RoadObjectRenderStats | null = null;
     private roadStats: RoadRenderStats | null = null;
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
+    private speedEffectIntensity = 0;
+    private speedEffectShader!: Phaser.GameObjects.Shader;
+    private speedEffectTime = 0;
     private telemetry: RuntimeTelemetryRecorder | null = null;
 
     constructor() {
@@ -260,6 +278,11 @@ class ApexSeoulScene extends Phaser.Scene {
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
             );
+        this.speedEffectShader = createSpeedEffectShader(
+            this,
+            this.getViewport(),
+            () => this.getSpeedEffectShaderUniforms(),
+        );
         this.hudText = createHudText(this);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -296,6 +319,7 @@ class ApexSeoulScene extends Phaser.Scene {
         if (RUNTIME_QA.freeze) {
             camera.pitch = this.updateCameraPitch(seconds);
             camera.fovDegrees = this.updateCameraFov(seconds);
+            this.updateSpeedEffect(seconds);
             this.render();
             this.telemetry?.update(this.elapsedSec);
             return;
@@ -339,6 +363,7 @@ class ApexSeoulScene extends Phaser.Scene {
         camera.z = wrapDistance(camera.z + this.playerVehicle.speed * seconds, this.roadTrack.length);
         camera.pitch = this.updateCameraPitch(seconds);
         camera.fovDegrees = this.updateCameraFov(seconds);
+        this.updateSpeedEffect(seconds);
         this.render();
         this.telemetry?.update(this.elapsedSec);
     }
@@ -412,6 +437,7 @@ class ApexSeoulScene extends Phaser.Scene {
             qa: RUNTIME_QA,
             roadStats: stats,
             slopeAcceleration: this.getSlopeAcceleration(),
+            speedKmh: this.getPlayerSpeedKmh(),
             steeringRatio: getHighSpeedSteeringRatio(
                 Phaser.Math.Clamp(player.speed / PLAYER_ACCEL_SPEED, 0, 1),
                 PLAYER_HIGH_SPEED_STEER_VISUAL_DROP,
@@ -606,17 +632,46 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private updateCameraFov(seconds: number) {
-        const speedRatio = Phaser.Math.Clamp(
-            (this.playerVehicle.speed - PLAYER_CRUISE_SPEED) / (PLAYER_ACCEL_SPEED - PLAYER_CRUISE_SPEED),
-            0,
-            1,
-        );
+        const rawSpeedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+        const speedRatio = rawSpeedRatio * rawSpeedRatio * (3 - 2 * rawSpeedRatio);
         const targetFov = RUNTIME_TUNING.cameraBaseFov + speedRatio * RUNTIME_TUNING.cameraSpeedFovBonus;
         const fovBlend = 1 - Math.exp(-CAMERA_FOV_RESPONSE * seconds);
 
         this.cameraFov = Phaser.Math.Linear(this.cameraFov, targetFov, fovBlend);
 
         return this.cameraFov;
+    }
+
+    private getPlayerSpeedKmh() {
+        return (this.playerVehicle.speed / PLAYER_ACCEL_SPEED) * PLAYER_SPEED_DISPLAY_MAX_KMH;
+    }
+
+    private updateSpeedEffect(seconds: number) {
+        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+        const targetIntensity = Phaser.Math.Clamp(
+            (speedRatio - SPEED_EFFECT_MIN_RATIO) / (1 - SPEED_EFFECT_MIN_RATIO),
+            0,
+            1,
+        );
+        const smoothIntensity = targetIntensity * targetIntensity * (3 - 2 * targetIntensity);
+
+        this.speedEffectIntensity = Phaser.Math.Linear(
+            this.speedEffectIntensity,
+            smoothIntensity * SPEED_EFFECT_MAX_ALPHA,
+            1 - Math.exp(-5.5 * seconds),
+        );
+        this.speedEffectTime += seconds * Phaser.Math.Linear(0.4, SPEED_EFFECT_TIME_SCALE, speedRatio);
+    }
+
+    private getSpeedEffectShaderUniforms(): SpeedEffectShaderUniforms {
+        const viewport = this.getViewport();
+
+        return {
+            horizonY: getHorizonY(this.cameraResource, viewport),
+            intensity: this.speedEffectIntensity,
+            time: this.speedEffectTime,
+            viewport,
+        };
     }
 
     private updateCameraPitch(seconds: number) {
@@ -742,6 +797,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 steering: this.playerVehicle.steering,
             },
             qa: RUNTIME_QA,
+            controller: PLAYER_CONTROLLER_CONFIG,
             road: this.roadStats,
             roadObjects: this.roadObjectStats,
             track: {
