@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { spawn, spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -6,12 +7,86 @@ import { chromium } from 'playwright';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 
+const scenarios = {
+    'brake-on-curve': {
+        durationSec: 18,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 4, key: 'ArrowLeft', type: 'down' },
+            { atSec: 6.2, key: 'ArrowDown', type: 'down' },
+            { atSec: 7.6, key: 'ArrowDown', type: 'up' },
+            { atSec: 8, key: 'ArrowLeft', type: 'up' },
+            { atSec: 18, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'curve-counter-steer': {
+        durationSec: 20,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 3, key: 'ArrowRight', type: 'down' },
+            { atSec: 6, key: 'ArrowRight', type: 'up' },
+            { atSec: 8, key: 'ArrowLeft', type: 'down' },
+            { atSec: 10, key: 'ArrowLeft', type: 'up' },
+            { atSec: 20, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'curve-no-input': {
+        durationSec: 24,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 24, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'left-hold-3s-release': {
+        durationSec: 12,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 2, key: 'ArrowLeft', type: 'down' },
+            { atSec: 5, key: 'ArrowLeft', type: 'up' },
+            { atSec: 12, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'right-hold-3s-release': {
+        durationSec: 12,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 2, key: 'ArrowRight', type: 'down' },
+            { atSec: 5, key: 'ArrowRight', type: 'up' },
+            { atSec: 12, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'slalom-40s': {
+        durationSec: 40,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 3, key: 'ArrowLeft', type: 'down' },
+            { atSec: 5, key: 'ArrowLeft', type: 'up' },
+            { atSec: 6, key: 'ArrowRight', type: 'down' },
+            { atSec: 8, key: 'ArrowRight', type: 'up' },
+            { atSec: 10, key: 'ArrowLeft', type: 'down' },
+            { atSec: 12, key: 'ArrowLeft', type: 'up' },
+            { atSec: 14, key: 'ArrowRight', type: 'down' },
+            { atSec: 16, key: 'ArrowRight', type: 'up' },
+            { atSec: 40, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'straight-accel-20s': {
+        durationSec: 20,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 20, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+};
+
 const config = {
-    baseUrl: 'http://localhost:5174/game-assets/apex-seoul/',
+    baseUrl: 'http://localhost:5173/game-assets/apex-seoul/',
     browser: null,
-    durationSec: 60,
+    durationSec: null,
     outputDir: 'assets/telemetry/generated/drive-logs',
+    query: null,
     sampleHz: 10,
+    scenario: 'straight-accel-20s',
     track: null,
     viewportHeight: 760,
     viewportWidth: 1200,
@@ -36,8 +111,14 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--output-dir' && next) {
         config.outputDir = next;
         index += 1;
+    } else if (arg === '--query' && next) {
+        config.query = next;
+        index += 1;
     } else if (arg === '--sample-hz' && next) {
         config.sampleHz = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--scenario' && next) {
+        config.scenario = next;
         index += 1;
     } else if (arg === '--track' && next) {
         config.track = next;
@@ -45,26 +126,36 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--width' && next) {
         config.viewportWidth = parsePositiveInteger(arg, next);
         index += 1;
+    } else if (arg === '--list-scenarios') {
+        console.log(Object.keys(scenarios).join('\n'));
+        process.exit(0);
     }
 }
 
+const scenario = scenarios[config.scenario];
+
+if (!scenario) {
+    throw new Error(`Unknown scenario "${config.scenario}". Use --list-scenarios to inspect options.`);
+}
+
+const durationSec = config.durationSec ?? scenario.durationSec;
 const outputDir = resolveProjectPath(config.outputDir, '--output-dir');
 await mkdir(outputDir, { recursive: true });
 
 const url = buildTelemetryUrl();
 const startedAt = new Date();
-const sessionId = startedAt.toISOString().replace(/[:.]/g, '-');
+const sessionId = [
+    startedAt.toISOString().replace(/[:.]/g, '-'),
+    config.scenario,
+].join('_');
 const jsonlPath = path.join(outputDir, `apex-seoul-drive-${sessionId}.jsonl`);
 const summaryPath = path.join(outputDir, `apex-seoul-drive-${sessionId}.summary.json`);
 const samples = [];
 
-let browser;
+let browserHandle;
 
 try {
-    browser = await chromium.launch({
-        ...(config.browser ? { executablePath: config.browser } : {}),
-        headless: true,
-    });
+    browserHandle = await launchBrowser();
 } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 
@@ -76,7 +167,7 @@ try {
     ].join('\n'));
 }
 
-const page = await browser.newPage({
+const page = await browserHandle.browser.newPage({
     viewport: {
         height: config.viewportHeight,
         width: config.viewportWidth,
@@ -90,32 +181,52 @@ try {
     await page.waitForFunction(() => Boolean(window.__apexSeoulQaReady), null, {
         timeout: 10000,
     });
+    await page.keyboard.press('Tab').catch(() => {});
 
     const sampleIntervalMs = 1000 / config.sampleHz;
-    const sampleCount = Math.max(1, Math.round(config.durationSec * config.sampleHz));
+    const sampleCount = Math.max(1, Math.round(durationSec * config.sampleHz));
+    const events = [...scenario.events].sort((left, right) => left.atSec - right.atSec);
+    let nextEventIndex = 0;
+    let currentTimeMs = 0;
 
     for (let index = 0; index < sampleCount; index += 1) {
-        await page.waitForTimeout(index === 0 ? 0 : sampleIntervalMs);
+        const targetTimeMs = Math.round(index * sampleIntervalMs);
+
+        await waitUntilTarget(page, currentTimeMs, targetTimeMs);
+        currentTimeMs = targetTimeMs;
+
+        while (
+            nextEventIndex < events.length &&
+            Math.round(events[nextEventIndex].atSec * 1000) <= currentTimeMs
+        ) {
+            await applyKeyboardEvent(page, events[nextEventIndex]);
+            nextEventIndex += 1;
+        }
+
         const state = await page.evaluate(() => window.__apexSeoulQaState ?? null);
 
         if (!state) continue;
 
         samples.push({
             index,
-            sampledAtMs: Math.round(index * sampleIntervalMs),
-            state,
+            payload: state,
+            sampledAtMs: currentTimeMs,
+            scenario: config.scenario,
             type: 'drive_sample',
         });
     }
 } finally {
-    await browser.close();
+    await releaseScenarioKeys(page, scenario).catch(() => {});
+    await browserHandle.close();
 }
 
 const summary = buildSummary({
     config,
+    durationSec,
     finishedAt: new Date(),
     jsonlPath,
     samples,
+    scenario,
     sessionId,
     startedAt,
     url,
@@ -124,6 +235,7 @@ const summary = buildSummary({
 await writeFile(jsonlPath, `${samples.map((sample) => JSON.stringify(sample)).join('\n')}\n`);
 await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
 
+console.log(`Drive telemetry scenario: ${config.scenario}`);
 console.log(`Drive telemetry samples: ${samples.length}`);
 console.log(`Drive telemetry wrote ${path.relative(projectRoot, jsonlPath)}`);
 console.log(`Drive telemetry summary wrote ${path.relative(projectRoot, summaryPath)}`);
@@ -135,25 +247,35 @@ function buildTelemetryUrl() {
         url.searchParams.set('track', config.track);
     }
 
+    if (config.query) {
+        const query = new URLSearchParams(config.query);
+
+        for (const [key, value] of query) {
+            url.searchParams.set(key, value);
+        }
+    }
+
     return url.toString();
 }
 
-function buildSummary({ config, finishedAt, jsonlPath, samples, sessionId, startedAt, url }) {
+function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, scenario, sessionId, startedAt, url }) {
     const terrainCounts = new Map();
     const frameCounts = new Map();
     const ranges = {
         cameraPitch: createRange(),
         horizonGapY: createRange(),
         horizonY: createRange(),
+        lateralOffset: createRange(),
         slopeAcceleration: createRange(),
         speed: createRange(),
+        steering: createRange(),
         vehicleY: createRange(),
     };
     let maxVehicleYDelta = 0;
     let previousVehicleY = null;
 
     for (const sample of samples) {
-        const state = sample.state;
+        const state = sample.payload;
         const terrainCue = state.vehicle?.anchor?.terrainCue ?? 'unknown';
         const frame = state.vehicle?.frame ?? 'unknown';
         const vehicleY = state.vehicle?.anchor?.y;
@@ -163,8 +285,10 @@ function buildSummary({ config, finishedAt, jsonlPath, samples, sessionId, start
         addRangeValue(ranges.cameraPitch, state.camera?.pitch);
         addRangeValue(ranges.horizonGapY, state.road?.horizonGapY);
         addRangeValue(ranges.horizonY, state.horizonY);
+        addRangeValue(ranges.lateralOffset, state.player?.lateralOffset);
         addRangeValue(ranges.slopeAcceleration, state.player?.slopeAcceleration);
         addRangeValue(ranges.speed, state.player?.speed);
+        addRangeValue(ranges.steering, state.player?.steering);
         addRangeValue(ranges.vehicleY, vehicleY);
 
         if (typeof vehicleY === 'number' && previousVehicleY !== null) {
@@ -178,8 +302,10 @@ function buildSummary({ config, finishedAt, jsonlPath, samples, sessionId, start
         config: {
             baseUrl: config.baseUrl,
             browser: config.browser ?? 'playwright-chromium',
-            durationSec: config.durationSec,
+            durationSec,
+            query: config.query,
             sampleHz: config.sampleHz,
+            scenario: config.scenario,
             track: config.track,
             viewport: {
                 height: config.viewportHeight,
@@ -190,6 +316,11 @@ function buildSummary({ config, finishedAt, jsonlPath, samples, sessionId, start
         jsonl: path.relative(projectRoot, jsonlPath),
         maxVehicleYDelta: Number(maxVehicleYDelta.toFixed(3)),
         sampleCount: samples.length,
+        scenario: {
+            durationSec,
+            events: scenario.events,
+            id: config.scenario,
+        },
         sessionId,
         startedAt: startedAt.toISOString(),
         terrainCounts: Object.fromEntries(terrainCounts),
@@ -205,6 +336,128 @@ function buildSummary({ config, finishedAt, jsonlPath, samples, sessionId, start
         ),
         url,
     };
+}
+
+async function waitUntilTarget(page, currentTimeMs, targetTimeMs) {
+    const delay = targetTimeMs - currentTimeMs;
+
+    if (delay > 0) {
+        await page.waitForTimeout(delay);
+    }
+}
+
+async function applyKeyboardEvent(page, event) {
+    if (event.type === 'down') {
+        await page.keyboard.down(event.key);
+        return;
+    }
+
+    await page.keyboard.up(event.key);
+}
+
+async function releaseScenarioKeys(page, scenario) {
+    const keys = new Set(scenario.events.map((event) => event.key));
+
+    for (const key of keys) {
+        await page.keyboard.up(key);
+    }
+}
+
+async function launchBrowser() {
+    if (config.browser?.startsWith('/mnt/')) {
+        return launchWindowsBrowserOverCdp(config.browser);
+    }
+
+    const browser = await chromium.launch({
+        ...(config.browser ? { executablePath: config.browser } : {}),
+        headless: true,
+    });
+
+    return {
+        browser,
+        close: () => browser.close(),
+    };
+}
+
+async function launchWindowsBrowserOverCdp(browserPath) {
+    const port = 9300 + Math.floor(Math.random() * 500);
+    const profileDir = path.join('/tmp', `apex-seoul-edge-cdp-${process.pid}-${Date.now()}`);
+    await mkdir(profileDir, { recursive: true });
+
+    const args = [
+        '--headless=new',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-default-browser-check',
+        `--remote-debugging-port=${port}`,
+        `--user-data-dir=${toWindowsPath(profileDir)}`,
+        'about:blank',
+    ];
+    const child = spawn(browserPath, args, {
+        stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stderr = '';
+
+    child.stderr.on('data', (chunk) => {
+        stderr += chunk.toString();
+    });
+
+    const cdpEndpoint = await waitForCdp(port, stderr);
+
+    const browser = await chromium.connectOverCDP(cdpEndpoint);
+
+    return {
+        browser,
+        close: async () => {
+            await browser.close().catch(() => {});
+            if (!child.killed) child.kill();
+        },
+    };
+}
+
+async function waitForCdp(port, getStderr) {
+    const startedAt = Date.now();
+    const endpoints = getCdpEndpoints(port);
+
+    while (Date.now() - startedAt < 10000) {
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(`${endpoint}/json/version`);
+
+                if (response.ok) return endpoint;
+            } catch {
+                // Edge is still starting, or this host alias does not bridge into Windows.
+            }
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+
+    throw new Error(`Timed out waiting for Edge CDP on ${endpoints.join(', ')}. ${getStderr.trim()}`);
+}
+
+function getCdpEndpoints(port) {
+    const endpoints = [`http://127.0.0.1:${port}`];
+    const result = spawnSync('sh', ['-c', "awk '/nameserver/ { print $2; exit }' /etc/resolv.conf"], {
+        encoding: 'utf8',
+    });
+    const windowsHost = result.status === 0 ? result.stdout.trim() : '';
+
+    if (windowsHost) {
+        endpoints.push(`http://${windowsHost}:${port}`);
+    }
+
+    return endpoints;
+}
+
+function toWindowsPath(filePath) {
+    const result = spawnSync('wslpath', ['-w', filePath], {
+        encoding: 'utf8',
+    });
+
+    if (result.status !== 0) return filePath;
+
+    return result.stdout.trim();
 }
 
 function createRange() {

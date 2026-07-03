@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { PlayerVehicleControllerConfig } from './playerVehicleController';
 
 export type RuntimeTuning = {
     cameraBaseFov: number;
@@ -45,6 +46,8 @@ export type RuntimeTelemetryDefaults = {
     durationSec: number;
     sampleHz: number;
 };
+
+export type RuntimePlayerVehicleConfigDefaults = PlayerVehicleControllerConfig;
 
 export function createRuntimeTuning(
     params: URLSearchParams,
@@ -188,6 +191,129 @@ export function createRuntimeTelemetryConfig(
             defaults.sampleHz,
             1,
             60,
+        ),
+    };
+}
+
+export function createRuntimePlayerVehicleConfig(
+    params: URLSearchParams,
+    defaults: RuntimePlayerVehicleConfigDefaults,
+): PlayerVehicleControllerConfig {
+    return {
+        accelSpeed: readTuningNumber(params, 'accelSpeed', defaults.accelSpeed, 360, 1100),
+        aeroDrag: readTuningNumber(params, 'aeroDrag', defaults.aeroDrag, 0, 0.001),
+        brakeSpeed: defaults.brakeSpeed,
+        braking: readTuningNumber(params, 'braking', defaults.braking, 80, 720),
+        centeringResponse: readTuningNumber(
+            params,
+            'centeringResponse',
+            defaults.centeringResponse,
+            0.2,
+            6,
+        ),
+        cornerAccelSpeedDrop: readTuningNumber(
+            params,
+            'cornerAccelDrop',
+            defaults.cornerAccelSpeedDrop,
+            0,
+            280,
+        ),
+        cornerSpeedPull: readTuningNumber(
+            params,
+            'cornerPull',
+            defaults.cornerSpeedPull,
+            0,
+            360,
+        ),
+        curveDriftAcceleration: readTuningNumber(
+            params,
+            'curveDrift',
+            defaults.curveDriftAcceleration,
+            0,
+            520,
+        ),
+        curveSteeringHighSpeedDrop: readTuningNumber(
+            params,
+            'curveCueDrop',
+            defaults.curveSteeringHighSpeedDrop,
+            0,
+            0.7,
+        ),
+        curveSteeringCue: readTuningNumber(
+            params,
+            'curveSteeringCue',
+            defaults.curveSteeringCue,
+            0,
+            0.3,
+        ),
+        engineAcceleration: readTuningNumber(
+            params,
+            'engineAccel',
+            defaults.engineAcceleration,
+            40,
+            360,
+        ),
+        engineBrakeDeceleration: readTuningNumber(
+            params,
+            'engineBrake',
+            defaults.engineBrakeDeceleration,
+            0,
+            120,
+        ),
+        highSpeedSteerForceDrop: readTuningNumber(
+            params,
+            'steerForceDrop',
+            defaults.highSpeedSteerForceDrop,
+            0,
+            0.7,
+        ),
+        highSpeedSteerVisualDrop: readTuningNumber(
+            params,
+            'steerVisualDrop',
+            defaults.highSpeedSteerVisualDrop,
+            0,
+            0.7,
+        ),
+        inputResponse: readTuningNumber(params, 'inputResponse', defaults.inputResponse, 3, 36),
+        launchThrottleFullSpeedRatio: readTuningNumber(
+            params,
+            'launchFullRatio',
+            defaults.launchThrottleFullSpeedRatio,
+            0.05,
+            0.45,
+        ),
+        launchThrottleMinRatio: readTuningNumber(
+            params,
+            'launchMinRatio',
+            defaults.launchThrottleMinRatio,
+            0.25,
+            1,
+        ),
+        maxRoadOffset: readTuningNumber(params, 'maxRoadOffset', defaults.maxRoadOffset, 260, 1100),
+        rollingResistance: readTuningNumber(
+            params,
+            'rollingResistance',
+            defaults.rollingResistance,
+            0,
+            80,
+        ),
+        rpmIdle: defaults.rpmIdle,
+        rpmRedline: defaults.rpmRedline,
+        rpmResponse: defaults.rpmResponse,
+        steerAcceleration: readTuningNumber(
+            params,
+            'steerAccel',
+            defaults.steerAcceleration,
+            400,
+            3600,
+        ),
+        steerDamping: readTuningNumber(params, 'steerDamping', defaults.steerDamping, 2, 24),
+        steeringVelocityCue: readTuningNumber(
+            params,
+            'steeringCue',
+            defaults.steeringVelocityCue,
+            0,
+            0.8,
         ),
     };
 }
