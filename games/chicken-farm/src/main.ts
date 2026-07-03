@@ -21,6 +21,7 @@ import {
 import { CameraControlSystem } from './game/systems/cameraControlSystem';
 import {
     type CommandCardAction,
+    type CommandCardSelectionKind,
     CommandCardSystem,
 } from './game/systems/commandCardSystem';
 import { CombatPocSystem } from './game/systems/combatPocSystem';
@@ -85,6 +86,7 @@ class FarmScene extends Phaser.Scene {
     private keys!: FarmInputKeys;
     private buildGridGraphics?: Phaser.GameObjects.Graphics;
     private buildGridVisible = true;
+    private attackTargetingActive = false;
     private cameraControl!: CameraControlSystem;
     private buildingSystem?: BuildingSystem;
     private commandCard?: CommandCardSystem;
@@ -197,12 +199,20 @@ class FarmScene extends Phaser.Scene {
                 this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
             getAttackableEnemyTarget: (targetId) =>
                 this.combatPoc?.getAttackableEnemyTarget(targetId) ?? null,
+            getAttackableEnemyTargets: () =>
+                this.combatPoc?.getAttackableEnemyTargets() ?? [],
             getDynamicBlockedRects: () => this.getDynamicBlockedRects(),
             getElapsedSec: () => this.elapsedSec,
             onBuildCommandInterrupted: (unitId, siteId, reason) =>
                 this.buildingSystem?.pauseConstruction(siteId, unitId, reason),
+            onPendingBuildOrdersInterrupted: (unitId, reason) =>
+                this.constructionPlacement?.cancelPendingBuildOrdersForBuilder(
+                    unitId,
+                    reason,
+                ),
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
+            recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
             scene: this,
             terrainBlocker: this.terrainBlocker,
             worldObjects: this.worldObjects,
@@ -221,7 +231,6 @@ class FarmScene extends Phaser.Scene {
         this.cameraControl = new CameraControlSystem({
             camera: this.worldCamera,
             cursors: this.cursors,
-            keys: this.keys,
             speedPxPerSec: CHICKEN_FARM_TILEMAP_POC_01.defaultCameraSpeedPxPerSec,
             worldSize: this.worldSize,
         });
@@ -244,7 +253,12 @@ class FarmScene extends Phaser.Scene {
         });
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
+                damageEnemyTarget: (targetId, damage) =>
+                    this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
                 getElapsedSec: () => this.elapsedSec,
+                getAttackableEnemyTargets: () =>
+                    this.combatPoc?.getAttackableEnemyTargets() ?? [],
+                isTargetVisible: (x, y) => this.visibility.isCurrentlyVisible(x, y),
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
                 scene: this,
                 worldObjects: this.worldObjects,
@@ -276,18 +290,7 @@ class FarmScene extends Phaser.Scene {
             });
             this.commandCard = new CommandCardSystem({
                 buttons: hud.commandButtons,
-                hasBuilderSelection: () =>
-                    this.controllableUnits
-                        .getSelectedUnits()
-                        .some((unit) => unit.templateId === 'farmer' && unit.hp > 0),
-                hasConstructingBuildingSelection: () => {
-                    if (!this.selectedBuildingId) return false;
-
-                    return (
-                        this.buildingSystem?.getBuilding(this.selectedBuildingId)?.state ===
-                        'constructing'
-                    );
-                },
+                getSelectionKind: () => this.getCommandCardSelectionKind(),
                 keys: this.keys,
                 onAction: (action) => this.handleCommandCardAction(action),
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
@@ -295,10 +298,16 @@ class FarmScene extends Phaser.Scene {
         }
         this.configureCameras(map);
         this.configurePointerSelection();
-        if (CHICKEN_FARM_POC_FLAGS.combat) {
+        if (CHICKEN_FARM_POC_FLAGS.combat || CHICKEN_FARM_POC_FLAGS.combatSmoke) {
             this.combatPoc = new CombatPocSystem({
-                damageControllableUnit: (unitId, damage) =>
-                    this.controllableUnits.damageUnit(unitId, damage),
+                damageControllableUnit: (unitId, damage, attackerTargetId) =>
+                    this.controllableUnits.damageUnit(
+                        unitId,
+                        damage,
+                        attackerTargetId,
+                    ),
+                getDynamicBlockedRects: () =>
+                    this.buildingSystem?.getDynamicBlockedRects() ?? [],
                 getElapsedSec: () => this.elapsedSec,
                 getWolfTargetableUnits: () =>
                     this.controllableUnits.getWolfTargetableUnits(),
@@ -310,7 +319,11 @@ class FarmScene extends Phaser.Scene {
                 worldObjects: this.worldObjects,
                 worldSize: this.worldSize,
             });
-            this.createCombatPoc();
+            if (CHICKEN_FARM_POC_FLAGS.combat) {
+                this.createCombatPoc();
+            } else {
+                this.createCombatSmokePoc();
+            }
         }
         if (CHICKEN_FARM_POC_FLAGS.terrainPathingDebug) {
             this.terrainPathingPoc = new TerrainPathingPocSystem({
@@ -409,6 +422,24 @@ class FarmScene extends Phaser.Scene {
         this.combatPoc.create(anchor);
     }
 
+    private createCombatSmokePoc() {
+        const player = this.playerControl.player;
+        if (!player || !this.combatPoc) return;
+
+        const anchor = {
+            id: CHICKEN_FARM_POC_FLAGS.combat ? COMBAT_POC_LAYOUT.anchorSlotId : 0,
+            label: this.playerControl.playerStartLabel,
+            x: player.x,
+            y: player.y,
+        };
+        this.telemetry.record('combat_smoke_poc_created', {
+            player: this.playerControl.playerStartLabel,
+            x: Number(player.x.toFixed(1)),
+            y: Number(player.y.toFixed(1)),
+        });
+        this.combatPoc.createSmokeTarget(anchor);
+    }
+
     private getPlayerStartById(id: number) {
         return this.playerStarts.find((start) => start.id === id) ?? null;
     }
@@ -438,6 +469,12 @@ class FarmScene extends Phaser.Scene {
     }
 
     private updateCommandHotkeys() {
+        if (this.attackTargetingActive && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
+            this.attackTargetingActive = false;
+            this.telemetry.record('attack_targeting_cancelled', { reason: 'escape' });
+            return true;
+        }
+
         if (this.constructionPlacement?.isActive()) {
             if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
                 this.constructionPlacement.cancelPlacement('escape');
@@ -452,7 +489,17 @@ class FarmScene extends Phaser.Scene {
 
     private handleCommandCardAction(action: CommandCardAction) {
         if (action.type === 'start_build_placement') {
+            this.attackTargetingActive = false;
             this.constructionPlacement?.startPlacement(action.buildingId);
+            return;
+        }
+
+        if (action.type === 'start_attack_targeting') {
+            this.constructionPlacement?.cancelPlacement('attack_targeting');
+            this.attackTargetingActive = true;
+            this.telemetry.record('attack_targeting_started', {
+                selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
+            });
             return;
         }
 
@@ -478,6 +525,25 @@ class FarmScene extends Phaser.Scene {
             this.selectedBuildingId = undefined;
             this.commandCard?.refresh();
         }
+    }
+
+    private getCommandCardSelectionKind(): CommandCardSelectionKind {
+        const selectedUnits = this.controllableUnits.getSelectedUnits();
+        if (selectedUnits.some((unit) => unit.templateId === 'farmer' && unit.hp > 0)) {
+            return 'builder_unit';
+        }
+        if (selectedUnits.some((unit) => unit.hp > 0)) {
+            return 'generic_unit';
+        }
+
+        if (!this.selectedBuildingId) return 'none';
+
+        const selectedBuilding = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+        if (!selectedBuilding) return 'none';
+
+        return selectedBuilding.state === 'constructing'
+            ? 'constructing_building'
+            : 'complete_building';
     }
 
     private getDynamicBlockedRects() {
@@ -640,6 +706,7 @@ class FarmScene extends Phaser.Scene {
     private configureControls() {
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = this.input.keyboard!.addKeys({
+            a: Phaser.Input.Keyboard.KeyCodes.A,
             b: Phaser.Input.Keyboard.KeyCodes.B,
             c: Phaser.Input.Keyboard.KeyCodes.C,
             down: Phaser.Input.Keyboard.KeyCodes.DOWN,
@@ -682,6 +749,11 @@ class FarmScene extends Phaser.Scene {
         this.dragSelectionInput = new DragSelectionInputSystem({
             camera: this.worldCamera,
             onClick: (worldPoint) => {
+                if (this.attackTargetingActive) {
+                    this.issueAttackTargetingCommand(worldPoint);
+                    return;
+                }
+
                 if (
                     this.constructionPlacement?.handlePrimaryClick(
                         worldPoint.x,
@@ -758,6 +830,13 @@ class FarmScene extends Phaser.Scene {
                 if (this.constructionPlacement?.cancelPlacement('right_click')) {
                     return;
                 }
+                if (this.attackTargetingActive) {
+                    this.attackTargetingActive = false;
+                    this.telemetry.record('attack_targeting_cancelled', {
+                        reason: 'right_click',
+                    });
+                    return;
+                }
 
                 const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
                 const targetBuilding = this.buildingSystem?.hitTestBuilding(
@@ -812,6 +891,33 @@ class FarmScene extends Phaser.Scene {
                 });
             },
         );
+    }
+
+    private issueAttackTargetingCommand(worldPoint: Phaser.Math.Vector2) {
+        const enemyTarget = this.combatPoc?.hitTestEnemy(worldPoint.x, worldPoint.y);
+        const result = this.performanceProfiler.measure('command.attack.total', () =>
+            this.controllableUnits.issueAttackCommandToSelected(
+                {
+                    x: worldPoint.x,
+                    y: worldPoint.y,
+                },
+                enemyTarget?.id,
+                this.isQueueCommandMode() ? 'append' : 'replace',
+            ),
+        );
+
+        this.attackTargetingActive = false;
+        this.telemetry.record('unit_attack_command_issued', {
+            action: result.action,
+            affectedUnitCount: result.affectedUnitCount,
+            queued: this.isQueueCommandMode(),
+            selectedUnitIds: this.controllableUnits
+                .getSelectedUnits()
+                .map((unit) => unit.id),
+            targetEntityId: enemyTarget?.id ?? null,
+            x: Number(worldPoint.x.toFixed(1)),
+            y: Number(worldPoint.y.toFixed(1)),
+        });
     }
 
     private exposeDebugAutomation() {

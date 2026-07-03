@@ -1,11 +1,8 @@
 import Phaser from 'phaser';
 
-import type { FarmInputKeys } from './playerControlSystem';
-
 type CameraControlSystemConfig = {
     readonly camera: Phaser.Cameras.Scene2D.Camera;
     readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-    readonly keys: FarmInputKeys;
     readonly speedPxPerSec: number;
     readonly worldSize: Phaser.Math.Vector2;
 };
@@ -13,14 +10,12 @@ type CameraControlSystemConfig = {
 export class CameraControlSystem {
     private readonly camera: Phaser.Cameras.Scene2D.Camera;
     private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-    private readonly keys: FarmInputKeys;
     private readonly speedPxPerSec: number;
     private readonly worldSize: Phaser.Math.Vector2;
 
     constructor(config: CameraControlSystemConfig) {
         this.camera = config.camera;
         this.cursors = config.cursors;
-        this.keys = config.keys;
         this.speedPxPerSec = config.speedPxPerSec;
         this.worldSize = config.worldSize;
     }
@@ -28,10 +23,10 @@ export class CameraControlSystem {
     update(deltaSec: number) {
         const pan = new Phaser.Math.Vector2(0, 0);
 
-        if (this.cursors.left.isDown || this.keys.left.isDown) pan.x -= 1;
-        if (this.cursors.right.isDown || this.keys.right.isDown) pan.x += 1;
-        if (this.cursors.up.isDown || this.keys.up.isDown) pan.y -= 1;
-        if (this.cursors.down.isDown || this.keys.down.isDown) pan.y += 1;
+        if (this.cursors.left.isDown) pan.x -= 1;
+        if (this.cursors.right.isDown) pan.x += 1;
+        if (this.cursors.up.isDown) pan.y -= 1;
+        if (this.cursors.down.isDown) pan.y += 1;
 
         if (pan.lengthSq() <= 0) return;
 

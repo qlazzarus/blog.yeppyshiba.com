@@ -25,6 +25,11 @@ export type UnitCommand =
           readonly unitIds: readonly string[];
       }
     | {
+          readonly targetPoint: Point;
+          readonly type: 'attack_move';
+          readonly unitIds: readonly string[];
+      }
+    | {
           readonly siteId: string;
           readonly targetPoint: Point;
           readonly type: 'build';

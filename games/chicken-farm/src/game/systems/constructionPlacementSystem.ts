@@ -55,6 +55,8 @@ type ConstructionPlacementSystemConfig = {
 const BUILDER_TEMPLATE_IDS: readonly ControllableUnitTemplateId[] = ['farmer'];
 const BUILDER_START_DISTANCE_PX = 40;
 const BUILD_TARGET_MARGIN_PX = 30;
+const GHOST_HATCH_SPACING_PX = 22;
+const GHOST_CORNER_TICK_PX = 22;
 
 type PendingBuildOrder = {
     readonly builderUnitId: string;
@@ -90,6 +92,7 @@ export class ConstructionPlacementSystem {
         targetPoint: { readonly x: number; readonly y: number },
     ) => boolean;
     private readonly terrainBlocker?: TerrainBlocker;
+    private readonly worldObjects: Phaser.GameObjects.GameObject[];
     private readonly worldSize: Phaser.Math.Vector2;
     private activeBuildingId?: MvpBuildingId;
     private currentFootprint?: GridPathRect;
@@ -107,6 +110,7 @@ export class ConstructionPlacementSystem {
         this.scene = config.scene;
         this.setBuilderBuildCommand = config.setBuilderBuildCommand;
         this.terrainBlocker = config.terrainBlocker;
+        this.worldObjects = config.worldObjects;
         this.worldSize = config.worldSize;
         this.ghost = config.scene.add.graphics().setDepth(48).setVisible(false);
         this.pendingGraphics = config.scene.add.graphics().setDepth(47);
@@ -130,6 +134,31 @@ export class ConstructionPlacementSystem {
             this.pendingOrders.splice(orderIndex, 1);
         }
         return true;
+    }
+
+    cancelPendingBuildOrdersForBuilder(builderUnitId: string, reason = 'interrupted') {
+        const cancelledSiteIds: string[] = [];
+        for (let index = this.pendingOrders.length - 1; index >= 0; index -= 1) {
+            const order = this.pendingOrders[index];
+            if (order.builderUnitId !== builderUnitId || order.runtimeBuildingId) {
+                continue;
+            }
+
+            cancelledSiteIds.push(order.id);
+            this.pendingOrders.splice(index, 1);
+        }
+
+        if (!cancelledSiteIds.length) return 0;
+
+        this.recordTelemetry?.('pending_build_orders_cancelled', {
+            builderUnitId,
+            count: cancelledSiteIds.length,
+            reason,
+            siteIds: cancelledSiteIds.reverse(),
+        });
+        this.drawPendingOrders();
+        this.issueMoveToNextBuilderOrder(builderUnitId);
+        return cancelledSiteIds.length;
     }
 
     resumeConstructionWithBuilder(
@@ -170,6 +199,7 @@ export class ConstructionPlacementSystem {
             targetX: Number(targetPoint.x.toFixed(1)),
             targetY: Number(targetPoint.y.toFixed(1)),
         });
+        this.showFootprintPulse(building.footprint, 0xffd45f);
         return true;
     }
 
@@ -263,6 +293,10 @@ export class ConstructionPlacementSystem {
             x: Number(this.currentFootprint.x.toFixed(1)),
             y: Number(this.currentFootprint.y.toFixed(1)),
         });
+        this.showFootprintPulse(
+            pendingOrder.footprint,
+            hasExistingBuilderOrder ? 0xffd45f : 0x63e083,
+        );
         if (!options.keepPlacementActive) {
             this.cancelPlacement('placed');
         } else {
@@ -505,7 +539,7 @@ export class ConstructionPlacementSystem {
 
     private drawPendingOrders() {
         this.pendingGraphics.clear();
-        this.pendingOrders.forEach((order) => {
+        this.pendingOrders.forEach((order, index) => {
             if (order.runtimeBuildingId) return;
 
             this.pendingGraphics.fillStyle(0xf1c65c, 0.12);
@@ -515,19 +549,38 @@ export class ConstructionPlacementSystem {
                 order.footprint.width,
                 order.footprint.height,
             );
-            this.pendingGraphics.lineStyle(2, 0xf1c65c, 0.72);
+            this.pendingGraphics.lineStyle(4, 0xffda72, 0.86);
             this.pendingGraphics.strokeRect(
                 order.footprint.x,
                 order.footprint.y,
                 order.footprint.width,
                 order.footprint.height,
             );
-            this.pendingGraphics.lineStyle(1, 0xf1c65c, 0.48);
+            this.drawCornerTicks(this.pendingGraphics, order.footprint, 0xffefaa);
+            this.pendingGraphics.fillStyle(0x231a0c, 0.86);
+            this.pendingGraphics.fillCircle(
+                order.footprint.x + 18,
+                order.footprint.y + 18,
+                13,
+            );
+            this.pendingGraphics.lineStyle(2, 0xffefaa, 0.95);
+            this.pendingGraphics.strokeCircle(
+                order.footprint.x + 18,
+                order.footprint.y + 18,
+                13,
+            );
+            this.pendingGraphics.lineStyle(2, 0xf1c65c, 0.66);
             this.pendingGraphics.lineBetween(
                 order.targetPoint.x,
                 order.targetPoint.y,
                 order.footprint.x + order.footprint.width / 2,
                 order.footprint.y + order.footprint.height / 2,
+            );
+            this.pendingGraphics.fillStyle(0xffefaa, 1);
+            this.pendingGraphics.fillCircle(
+                order.footprint.x + 18 + (index % 3) * 2,
+                order.footprint.y + 18,
+                3,
             );
         });
     }
@@ -565,6 +618,25 @@ export class ConstructionPlacementSystem {
                 label.destroy();
             },
             targets: [marker, label],
+        });
+    }
+
+    private showFootprintPulse(footprint: GridPathRect, color: number) {
+        const centerX = footprint.x + footprint.width / 2;
+        const centerY = footprint.y + footprint.height / 2;
+        const marker = this.scene.add
+            .rectangle(centerX, centerY, footprint.width, footprint.height, color, 0.07)
+            .setStrokeStyle(5, color, 0.96)
+            .setDepth(50);
+
+        this.worldObjects.push(marker);
+        this.scene.tweens.add({
+            alpha: 0,
+            duration: 720,
+            onComplete: () => marker.destroy(),
+            scaleX: 1.06,
+            scaleY: 1.1,
+            targets: marker,
         });
     }
 
@@ -615,11 +687,90 @@ export class ConstructionPlacementSystem {
 
     private drawGhost(footprint: GridPathRect, validation: PlacementValidation) {
         const color = validation.valid ? 0x56d47a : 0xe05c4f;
+        const outerColor = validation.valid ? 0xd8ffe1 : 0xffd1c7;
         this.ghost.clear();
-        this.ghost.fillStyle(color, 0.24);
+        this.ghost.fillStyle(color, validation.valid ? 0.18 : 0.22);
         this.ghost.fillRect(footprint.x, footprint.y, footprint.width, footprint.height);
-        this.ghost.lineStyle(2, color, 0.95);
+        this.ghost.lineStyle(6, outerColor, 0.96);
         this.ghost.strokeRect(footprint.x, footprint.y, footprint.width, footprint.height);
+        this.ghost.lineStyle(2, color, 1);
+        this.ghost.strokeRect(footprint.x, footprint.y, footprint.width, footprint.height);
+        if (!validation.valid) {
+            this.drawHatch(this.ghost, footprint, 0xffd1c7, 0.72);
+        }
+        this.drawCornerTicks(this.ghost, footprint, outerColor);
+    }
+
+    private drawCornerTicks(
+        graphics: Phaser.GameObjects.Graphics,
+        footprint: GridPathRect,
+        color: number,
+    ) {
+        const tick = Math.min(
+            GHOST_CORNER_TICK_PX,
+            Math.max(10, Math.min(footprint.width, footprint.height) * 0.22),
+        );
+        graphics.lineStyle(4, color, 0.98);
+        graphics.lineBetween(footprint.x, footprint.y, footprint.x + tick, footprint.y);
+        graphics.lineBetween(footprint.x, footprint.y, footprint.x, footprint.y + tick);
+        graphics.lineBetween(
+            footprint.x + footprint.width,
+            footprint.y,
+            footprint.x + footprint.width - tick,
+            footprint.y,
+        );
+        graphics.lineBetween(
+            footprint.x + footprint.width,
+            footprint.y,
+            footprint.x + footprint.width,
+            footprint.y + tick,
+        );
+        graphics.lineBetween(
+            footprint.x,
+            footprint.y + footprint.height,
+            footprint.x + tick,
+            footprint.y + footprint.height,
+        );
+        graphics.lineBetween(
+            footprint.x,
+            footprint.y + footprint.height,
+            footprint.x,
+            footprint.y + footprint.height - tick,
+        );
+        graphics.lineBetween(
+            footprint.x + footprint.width,
+            footprint.y + footprint.height,
+            footprint.x + footprint.width - tick,
+            footprint.y + footprint.height,
+        );
+        graphics.lineBetween(
+            footprint.x + footprint.width,
+            footprint.y + footprint.height,
+            footprint.x + footprint.width,
+            footprint.y + footprint.height - tick,
+        );
+    }
+
+    private drawHatch(
+        graphics: Phaser.GameObjects.Graphics,
+        footprint: GridPathRect,
+        color: number,
+        alpha: number,
+    ) {
+        graphics.lineStyle(2, color, alpha);
+        for (
+            let offset = -footprint.height;
+            offset < footprint.width;
+            offset += GHOST_HATCH_SPACING_PX
+        ) {
+            const startX = footprint.x + Math.max(0, offset);
+            const startY = footprint.y + Math.max(0, -offset);
+            const endX = footprint.x + Math.min(footprint.width, offset + footprint.height);
+            const endY =
+                footprint.y +
+                Math.min(footprint.height, footprint.height - Math.max(0, -offset));
+            graphics.lineBetween(startX, startY, endX, endY);
+        }
     }
 
     private getSelectedBuilder() {

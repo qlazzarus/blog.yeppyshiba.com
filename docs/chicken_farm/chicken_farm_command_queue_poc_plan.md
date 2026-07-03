@@ -71,6 +71,7 @@
 
 - `ControllableUnitState.commandQueue`를 추가했다.
 - 일반 우클릭/smart command는 `replace`, `Shift + 우클릭`은 `append`로 발행한다.
+- command card `A Attack`도 같은 규칙을 따른다. 적을 찍으면 target attack, 땅을 찍으면 attack-move로 발행하고 `Shift + A`는 queue 뒤에 append한다.
 - queued move/attack은 현재 command가 끝난 뒤 순서대로 시작한다.
 - `Stop`은 현재 command와 unit command queue를 모두 비운다.
 - 예약 명령은 임시 world marker와 선택 정보 패널의 `Queued N`으로 확인한다.
@@ -240,5 +241,5 @@ on command complete:
 - Warsmash/WC3의 정확한 생산 queue capacity는 구현 전 한 번 더 확인한다.
 - 실제 Warcraft III 클라이언트 체감과 다른 종족 build behavior 차이는 추가 확인한다. 현재 Chicken Farm P0는 Warsmash Human build 기준으로 맞춘다.
 - `Shift + Stop`, `Shift + command card cancel` 같은 조합은 MVP에서는 별도 의미를 두지 않는다.
-- attack-move 예약은 아직 Attack-move PoC가 보류 상태라 P1 이후로 둔다.
+- attack-move 예약은 최소 구현 상태다. 남은 검증은 combat flag smoke에서 실제 적 대상 acquire와 target 처치 후 원래 목적지 복귀를 확인하는 것이다.
 - 다중 선택에서 여러 유닛 queue를 같은 순서로 받을지, formation offset을 queue마다 계산할지는 P1 이후로 미룬다.

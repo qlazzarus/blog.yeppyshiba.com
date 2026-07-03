@@ -22,6 +22,7 @@ import type { TerrainBlocker } from './terrainBlocker';
 type ControllableUnitSystemConfig = {
     readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
     readonly getAttackableEnemyTarget?: (targetId: string) => AttackableEnemyTarget | null;
+    readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     readonly getElapsedSec: () => number;
     readonly onBuildCommandInterrupted?: (
@@ -29,7 +30,15 @@ type ControllableUnitSystemConfig = {
         siteId: string,
         reason: string,
     ) => void;
+    readonly onPendingBuildOrdersInterrupted?: (
+        unitId: string,
+        reason: string,
+    ) => void;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
+    readonly recordTelemetry?: (
+        type: string,
+        payload?: Record<string, unknown>,
+    ) => void;
     readonly scene: Phaser.Scene;
     readonly terrainBlocker?: TerrainBlocker;
     readonly worldObjects: Phaser.GameObjects.GameObject[];
@@ -64,12 +73,22 @@ const UNIT_OFFSETS: Record<ControllableUnitTemplateId, Phaser.Math.Vector2> = {
     dog: new Phaser.Math.Vector2(42, 18),
     farmer: new Phaser.Math.Vector2(0, 0),
 };
+const UNIT_HP_BAR_WIDTH_BY_TEMPLATE: Record<ControllableUnitTemplateId, number> = {
+    dog: 48,
+    farmer: 56,
+};
+const UNIT_HP_BAR_HEIGHT_PX = 9;
+const UNIT_HP_BAR_BORDER_PX = 2;
+const UNIT_HP_FILL_HEIGHT_PX = UNIT_HP_BAR_HEIGHT_PX - UNIT_HP_BAR_BORDER_PX * 2;
+const UNIT_SELECTION_STROKE_PX = 4;
+const UNIT_ATTACK_MOVE_ACQUIRE_RADIUS_PX = 190;
 
 export class ControllableUnitSystem {
     private readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
     private readonly getAttackableEnemyTarget: (
         targetId: string,
     ) => AttackableEnemyTarget | null;
+    private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
     private readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     private readonly getElapsedSec: () => number;
     private readonly onBuildCommandInterrupted?: (
@@ -77,7 +96,15 @@ export class ControllableUnitSystem {
         siteId: string,
         reason: string,
     ) => void;
+    private readonly onPendingBuildOrdersInterrupted?: (
+        unitId: string,
+        reason: string,
+    ) => void;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
+    private readonly recordTelemetry?: (
+        type: string,
+        payload?: Record<string, unknown>,
+    ) => void;
     private readonly scene: Phaser.Scene;
     private readonly terrainBlocker?: TerrainBlocker;
     private readonly units: ControllableUnitState[] = [];
@@ -88,10 +115,14 @@ export class ControllableUnitSystem {
     constructor(config: ControllableUnitSystemConfig) {
         this.damageEnemyTarget = config.damageEnemyTarget;
         this.getAttackableEnemyTarget = config.getAttackableEnemyTarget ?? (() => null);
+        this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
         this.getDynamicBlockedRects = config.getDynamicBlockedRects;
         this.getElapsedSec = config.getElapsedSec;
         this.onBuildCommandInterrupted = config.onBuildCommandInterrupted;
+        this.onPendingBuildOrdersInterrupted =
+            config.onPendingBuildOrdersInterrupted;
         this.recordPerformance = config.recordPerformance;
+        this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
         this.terrainBlocker = config.terrainBlocker;
         this.worldObjects = config.worldObjects;
@@ -217,7 +248,7 @@ export class ControllableUnitSystem {
             }));
     }
 
-    damageUnit(unitId: string, damage: number) {
+    damageUnit(unitId: string, damage: number, attackerTargetId?: string) {
         const unit = this.units.find((candidate) => candidate.id === unitId);
         if (!unit || unit.hp <= 0) return false;
 
@@ -226,6 +257,9 @@ export class ControllableUnitSystem {
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
         unit.path = unit.hp > 0 ? unit.path : [];
         unit.pathIndex = unit.hp > 0 ? unit.pathIndex : 0;
+        if (unit.hp > 0 && attackerTargetId) {
+            this.issueRetaliationCommand(unit, attackerTargetId);
+        }
         this.updateView(unit);
         return true;
     }
@@ -327,10 +361,43 @@ export class ControllableUnitSystem {
         return { action: 'attack_target', affectedUnitCount };
     }
 
+    issueAttackCommandToSelected(
+        targetPoint: Point,
+        targetEntityId?: string,
+        queueMode: CommandQueueMode = 'replace',
+    ) {
+        const selectedUnits = this.getSelectedUnits();
+        if (!selectedUnits.length) return { action: 'none', affectedUnitCount: 0 };
+
+        let affectedUnitCount = 0;
+        selectedUnits.forEach((unit) => {
+            const command: UnitCommand = targetEntityId
+                ? {
+                      targetEntityId,
+                      targetPoint,
+                      type: 'attack',
+                      unitIds: [unit.id],
+                  }
+                : {
+                      targetPoint,
+                      type: 'attack_move',
+                      unitIds: [unit.id],
+                  };
+            if (this.issueUnitCommand(unit, command, queueMode)) affectedUnitCount += 1;
+        });
+        this.drawAttackMarker(targetPoint, Boolean(targetEntityId));
+
+        return {
+            action: targetEntityId ? 'attack_target' : 'attack_move',
+            affectedUnitCount,
+        };
+    }
+
     stopSelectedUnits() {
         const selectedUnits = this.getSelectedUnits();
         selectedUnits.forEach((unit) => {
             this.interruptBuildCommand(unit, 'stop');
+            this.interruptPendingBuildOrders(unit, 'stop');
             unit.commandQueue = [];
             unit.currentCommand = {
                 type: 'stop',
@@ -368,6 +435,11 @@ export class ControllableUnitSystem {
 
             if (unit.currentCommand?.type === 'attack') {
                 this.updateAttackCommand(unit, movementDeltaSec);
+                return;
+            }
+
+            if (unit.currentCommand?.type === 'attack_move') {
+                this.updateAttackMoveCommand(unit, movementDeltaSec);
             }
         });
         this.resolveUnitPush();
@@ -425,10 +497,10 @@ export class ControllableUnitSystem {
             .ellipse(
                 0,
                 12,
-                isFarmer ? 48 : 42,
-                isFarmer ? 22 : 18,
+                isFarmer ? 56 : 48,
+                isFarmer ? 27 : 22,
             )
-            .setStrokeStyle(2, 0x36d95e, 0.94)
+            .setStrokeStyle(UNIT_SELECTION_STROKE_PX, 0x36d95e, 0.94)
             .setDepth(24)
             .setVisible(false);
         const shadow = this.scene.add
@@ -439,23 +511,31 @@ export class ControllableUnitSystem {
             : this.createDogBody();
         const label = this.scene.add
             .text(0, isFarmer ? 26 : 22, isFarmer ? 'FARMER' : 'DOG', {
-                backgroundColor: 'rgba(12, 13, 10, 0.7)',
+                backgroundColor: 'rgba(12, 13, 10, 0.82)',
                 color: isFarmer ? '#f7e89a' : '#cfe8ff',
                 fontFamily: 'system-ui, sans-serif',
-                fontSize: '10px',
+                fontSize: '11px',
                 padding: { bottom: 2, left: 4, right: 4, top: 2 },
             })
             .setDepth(28)
             .setOrigin(0.5);
         const hpBack = this.scene.add
-            .rectangle(0, isFarmer ? -26 : -22, isFarmer ? 38 : 34, 5, 0x101010, 0.9)
+            .rectangle(
+                0,
+                isFarmer ? -26 : -22,
+                UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId],
+                UNIT_HP_BAR_HEIGHT_PX,
+                0x030303,
+                0.98,
+            )
+            .setStrokeStyle(UNIT_HP_BAR_BORDER_PX, 0x030303, 1)
             .setDepth(28);
         const hpFill = this.scene.add
             .rectangle(
-                isFarmer ? -19 : -17,
+                -UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] / 2 + UNIT_HP_BAR_BORDER_PX,
                 isFarmer ? -26 : -22,
-                isFarmer ? 38 : 34,
-                3,
+                UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] - UNIT_HP_BAR_BORDER_PX * 2,
+                UNIT_HP_FILL_HEIGHT_PX,
                 0x44d35f,
                 1,
             )
@@ -499,14 +579,56 @@ export class ControllableUnitSystem {
         const view = this.views.get(unit.id);
         if (!view) return;
 
+        const ringVisible =
+            unit.selected ||
+            unit.currentCommand?.type === 'build' ||
+            unit.commandQueue.length > 0;
+        const ringColor = this.getUnitStateColor(unit);
         view.body.setPosition(unit.position.x, unit.position.y);
-        view.label.setText(unit.templateId === 'farmer' ? 'FARMER' : 'DOG');
-        view.selectionRing.setVisible(unit.selected);
+        view.label.setText(this.getUnitDisplayLabel(unit));
+        view.selectionRing
+            .setVisible(ringVisible)
+            .setStrokeStyle(
+                unit.currentCommand?.type === 'build' ? 5 : UNIT_SELECTION_STROKE_PX,
+                ringColor,
+                unit.selected ? 1 : 0.82,
+            );
         view.body.setAlpha(unit.hp > 0 ? 1 : 0.35);
         view.hpBack.setVisible(unit.hp > 0);
         view.hpFill.setVisible(unit.hp > 0);
+        const hpRatio = Phaser.Math.Clamp(unit.hp / unit.maxHp, 0, 1);
         view.hpFill.width =
-            (unit.templateId === 'farmer' ? 38 : 34) * (unit.hp / unit.maxHp);
+            (UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] -
+                UNIT_HP_BAR_BORDER_PX * 2) *
+            hpRatio;
+        view.hpFill.setFillStyle(this.getHpBarColor(hpRatio), 1);
+    }
+
+    private getUnitDisplayLabel(unit: ControllableUnitState) {
+        if (unit.currentCommand?.type === 'build') return 'BUILD';
+        if (unit.currentCommand?.type === 'attack') return 'ATTACK';
+        if (unit.currentCommand?.type === 'attack_move') return 'A-MOVE';
+        if (unit.commandQueue.length > 0) return `QUEUE ${unit.commandQueue.length}`;
+        if (unit.currentCommand?.type === 'move') return 'MOVE';
+        return unit.templateId === 'farmer' ? 'FARMER' : 'DOG';
+    }
+
+    private getUnitStateColor(unit: ControllableUnitState) {
+        if (unit.currentCommand?.type === 'build') return 0xf1c65c;
+        if (unit.commandQueue.length > 0) return 0xffefaa;
+        if (
+            unit.currentCommand?.type === 'attack' ||
+            unit.currentCommand?.type === 'attack_move'
+        ) {
+            return 0xff7a62;
+        }
+        return 0x36d95e;
+    }
+
+    private getHpBarColor(hpRatio: number) {
+        if (hpRatio > 0.55) return 0x55d76d;
+        if (hpRatio > 0.28) return 0xf2c94c;
+        return 0xe85d4f;
     }
 
     private findMovePath(from: Point, to: Point) {
@@ -649,6 +771,50 @@ export class ControllableUnitSystem {
         unit.nextAttackAtSec = this.getElapsedSec() + stats.attackCooldownSec;
     }
 
+    private updateAttackMoveCommand(unit: ControllableUnitState, deltaSec: number) {
+        if (unit.currentCommand?.type !== 'attack_move') return;
+
+        const target = this.findAttackMoveTarget(unit);
+        if (target) {
+            unit.currentCommand = {
+                targetEntityId: target.id,
+                targetPoint: { x: target.x, y: target.y },
+                type: 'attack',
+                unitIds: [unit.id],
+            };
+            unit.path = [];
+            unit.pathIndex = 0;
+            this.updateView(unit);
+            return;
+        }
+
+        this.updateMoveCommand(unit, deltaSec);
+    }
+
+    private findAttackMoveTarget(unit: ControllableUnitState) {
+        const stats = CHICKEN_FARM_BALANCE.defenders[unit.templateId];
+        const acquireRadius = Math.max(
+            UNIT_ATTACK_MOVE_ACQUIRE_RADIUS_PX,
+            (stats.attackRangePx ?? 85) * 2,
+        );
+
+        return (
+            this.getAttackableEnemyTargets()
+                .filter((target) => target.hp > 0)
+                .map((target) => ({
+                    distance: Phaser.Math.Distance.Between(
+                        unit.position.x,
+                        unit.position.y,
+                        target.x,
+                        target.y,
+                    ),
+                    target,
+                }))
+                .filter((candidate) => candidate.distance <= acquireRadius)
+                .sort((a, b) => a.distance - b.distance)[0]?.target ?? null
+        );
+    }
+
     private moveUnitToward(
         unit: ControllableUnitState,
         target: AttackableEnemyTarget,
@@ -721,9 +887,18 @@ export class ControllableUnitSystem {
         command: UnitCommand,
         source: 'queued' | 'replace',
     ) {
-        if (command.type === 'move') {
+        if (command.type === 'move' || command.type === 'attack_move') {
             const path = this.findMovePath(unit.position, command.targetPoint);
-            if (source === 'replace') this.interruptBuildCommand(unit, 'move');
+            if (source === 'replace') {
+                this.interruptBuildCommand(
+                    unit,
+                    command.type === 'attack_move' ? 'attack' : 'move',
+                );
+                this.interruptPendingBuildOrders(
+                    unit,
+                    command.type === 'attack_move' ? 'attack' : 'move',
+                );
+            }
             unit.currentCommand = command;
             unit.path = path ?? [];
             unit.pathIndex = 0;
@@ -732,7 +907,10 @@ export class ControllableUnitSystem {
         }
 
         if (command.type === 'attack') {
-            if (source === 'replace') this.interruptBuildCommand(unit, 'attack');
+            if (source === 'replace') {
+                this.interruptBuildCommand(unit, 'attack');
+                this.interruptPendingBuildOrders(unit, 'attack');
+            }
             unit.currentCommand = command;
             unit.path = [];
             unit.pathIndex = 0;
@@ -748,12 +926,18 @@ export class ControllableUnitSystem {
     }
 
     private recordQueuedCommand(unit: ControllableUnitState, command: UnitCommand) {
-        if (command.type !== 'move' && command.type !== 'attack') return;
+        if (
+            command.type !== 'move' &&
+            command.type !== 'attack' &&
+            command.type !== 'attack_move'
+        ) {
+            return;
+        }
 
         const targetPoint = command.targetPoint;
         const marker = this.scene.add
-            .circle(targetPoint.x, targetPoint.y, 7, 0xf1c65c, 0.66)
-            .setStrokeStyle(1, 0xfff0aa, 0.92)
+            .circle(targetPoint.x, targetPoint.y, 11, 0xf1c65c, 0.5)
+            .setStrokeStyle(3, 0xfff0aa, 0.98)
             .setDepth(31);
         const label = this.scene.add
             .text(targetPoint.x, targetPoint.y - 17, String(unit.commandQueue.length), {
@@ -768,7 +952,7 @@ export class ControllableUnitSystem {
         this.worldObjects.push(marker, label);
         this.scene.tweens.add({
             alpha: 0.18,
-            duration: 900,
+            duration: 1100,
             onComplete: () => {
                 marker.destroy();
                 label.destroy();
@@ -787,6 +971,44 @@ export class ControllableUnitSystem {
             unit.currentCommand.siteId,
             reason,
         );
+    }
+
+    private interruptPendingBuildOrders(
+        unit: ControllableUnitState,
+        reason: string,
+    ) {
+        if (unit.currentCommand?.type === 'build') return;
+
+        this.onPendingBuildOrdersInterrupted?.(unit.id, reason);
+    }
+
+    private issueRetaliationCommand(
+        unit: ControllableUnitState,
+        attackerTargetId: string,
+    ) {
+        if (
+            unit.currentCommand &&
+            unit.currentCommand.type !== 'stop'
+        ) {
+            return;
+        }
+
+        const attacker = this.getAttackableEnemyTarget(attackerTargetId);
+        if (!attacker || attacker.hp <= 0) return;
+
+        unit.currentCommand = {
+            targetEntityId: attacker.id,
+            targetPoint: { x: attacker.x, y: attacker.y },
+            type: 'attack',
+            unitIds: [unit.id],
+        };
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.recordTelemetry?.('unit_retaliation_order_issued', {
+            attackerId: attacker.id,
+            unitId: unit.id,
+            unitType: unit.templateId,
+        });
     }
 
     private resolveUnitPush() {
@@ -861,16 +1083,38 @@ export class ControllableUnitSystem {
 
     private drawMoveMarker(targetPoint: Point, valid: boolean) {
         const marker = this.scene.add
-            .circle(targetPoint.x, targetPoint.y, 10, valid ? 0x42f58d : 0xe45555, 0.7)
-            .setStrokeStyle(2, valid ? 0xe9ffe8 : 0xffd2d2, 0.95)
+            .circle(targetPoint.x, targetPoint.y, 14, valid ? 0x42f58d : 0xe45555, 0.62)
+            .setStrokeStyle(3, valid ? 0xe9ffe8 : 0xffd2d2, 0.95)
             .setDepth(32);
         this.worldObjects.push(marker);
         this.scene.tweens.add({
             alpha: 0,
-            duration: 520,
+            duration: 680,
             onComplete: () => marker.destroy(),
             scale: 1.8,
             targets: marker,
+        });
+    }
+
+    private drawAttackMarker(targetPoint: Point, explicitTarget: boolean) {
+        const marker = this.scene.add
+            .circle(targetPoint.x, targetPoint.y, explicitTarget ? 15 : 13, 0xff6f4d, 0.58)
+            .setStrokeStyle(3, 0xffddc9, 0.96)
+            .setDepth(32);
+        const cross = this.scene.add.graphics().setDepth(33);
+        cross.lineStyle(3, 0xffddc9, 0.9);
+        cross.lineBetween(targetPoint.x - 9, targetPoint.y, targetPoint.x + 9, targetPoint.y);
+        cross.lineBetween(targetPoint.x, targetPoint.y - 9, targetPoint.x, targetPoint.y + 9);
+        this.worldObjects.push(marker, cross);
+        this.scene.tweens.add({
+            alpha: 0,
+            duration: 720,
+            onComplete: () => {
+                marker.destroy();
+                cross.destroy();
+            },
+            scale: explicitTarget ? 1.7 : 1.45,
+            targets: [marker, cross],
         });
     }
 

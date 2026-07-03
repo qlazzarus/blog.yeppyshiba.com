@@ -204,7 +204,7 @@ export function refreshWolfPath(config: {
         const pathStartedAt = performance.now();
         const candidatePath = findGridPath({
             allowBlockedGoal: false,
-            allowBlockedStart: false,
+            allowBlockedStart: true,
             blockedRects,
             bounds,
             cellSize: pathing.cellSize,

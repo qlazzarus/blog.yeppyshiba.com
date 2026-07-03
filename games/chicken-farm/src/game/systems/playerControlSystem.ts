@@ -4,6 +4,7 @@ import { POC_FIXED_PLAYER_SLOT_ID } from '../config';
 import type { PlayerStart } from '../ecs/components';
 
 export type FarmInputKeys = Record<
+    | 'a'
     | 'b'
     | 'c'
     | 'down'
