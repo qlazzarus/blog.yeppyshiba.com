@@ -1,59 +1,61 @@
 {
-  "topPost": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
-  "topPostViews": 46,
+  "topPost": "/article/apptech-income-june-2026",
+  "topPostViews": 21,
   "relatedSuggestions": [
-    "/phaser4-apex-seoul-raven-coupe-sprite-pipeline/",
-    "/phaser4-apex-seoul-downhill-elevation-rendering/",
-    "/phaser4-apex-seoul-player-car-speed-control/",
-    "/phaser4-apex-seoul-pseudo-3d-camera/",
-    "/phaser4-apex-seoul-real-car-source-model-poc/",
-    "/phaser4-apex-seoul-roadsegment-curve-rendering/"
+    "/apptech-income-june-2026/",
+    "/apptech-income-may-2026/",
+    "/how-i-build-pocket-money-with-apptech/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/aviation-si-onboarding-01",
-      "views": 4,
-      "avgSec": 173.27
+      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
+      "views": 3,
+      "avgSec": 377.52
     },
     {
-      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
+      "path": "/article/20260510-morning-ride",
       "views": 1,
-      "avgSec": 1762.02
+      "avgSec": 96.84
     },
     {
-      "path": "/article/what-we-expect-from-software-developers-on-each-level",
+      "path": "/article/apptech-income-may-2026",
       "views": 1,
-      "avgSec": 478.13
+      "avgSec": 148.46
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/phaser4-apex-seoul-player-car-speed-control",
-      "views": 12,
-      "avgSec": 8.55
+      "path": "/article/phaser4-apex-seoul-real-car-source-model-poc",
+      "views": 5,
+      "avgSec": 9.46
     },
     {
-      "path": "/article/20260510-morning-ride",
+      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
       "views": 2,
       "avgSec": 0
     },
     {
-      "path": "/article/migration-to-gatsby",
+      "path": "/article/ganghwa-cafe-in-bunjae-review",
       "views": 1,
-      "avgSec": 2.81
+      "avgSec": 0
     },
     {
-      "path": "/article/my-browser-gone",
+      "path": "/article/how-becoming-a-father-changed-my-decisions",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/migration-to-astro",
       "views": 1,
       "avgSec": 0
     },
     {
       "path": "/article/phaser4-apex-seoul-downhill-elevation-rendering",
       "views": 1,
-      "avgSec": 0
+      "avgSec": 3.79
     },
     {
-      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
+      "path": "/article/phaser4-apex-seoul-handling-log-tuning",
       "views": 1,
       "avgSec": 0
     },
@@ -63,24 +65,34 @@
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-roadsegment-curve-rendering",
+      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-difficulty-timer-render-polish",
+      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
       "views": 1,
-      "avgSec": 2.26
+      "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-ecs-scaffold",
+      "path": "/article/thinking-math-negative-coordinates",
       "views": 1,
-      "avgSec": 7.83
+      "avgSec": 0
     },
     {
-      "path": "/article/why-swim",
+      "path": "/article/thinking-math-probability",
       "views": 1,
-      "avgSec": 2.52
+      "avgSec": 0
+    },
+    {
+      "path": "/article/thinking-math-quadrants",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/thinking-middle-school-math-division-by-zero",
+      "views": 1,
+      "avgSec": 0
     }
   ]
 }
