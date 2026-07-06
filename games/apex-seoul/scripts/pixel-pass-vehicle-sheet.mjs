@@ -419,12 +419,18 @@ function estimateWheelCenters(bbox, pose) {
 function isWheelRestoreEligiblePose(poseId) {
     return [
         'center',
+        'steer-left-1',
+        'steer-left-2',
         'steer-right-1',
         'steer-right-2',
         'downhill-center',
+        'downhill-left-1',
+        'downhill-left-2',
         'downhill-right-1',
         'downhill-right-2',
         'uphill-center',
+        'uphill-left-1',
+        'uphill-left-2',
         'uphill-right-1',
         'uphill-right-2',
     ].includes(poseId);

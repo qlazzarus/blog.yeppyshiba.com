@@ -1,0 +1,17 @@
+{
+  "name": "retro-asset-studio",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "ping": "node scripts/run-retro-filter.mjs --ping",
+    "dry-run": "node scripts/run-retro-filter.mjs --dry-run",
+    "run": "node scripts/run-retro-filter.mjs --run",
+    "run:all": "node scripts/run-retro-filter.mjs --run --vehicle all",
+    "run:ft86": "node scripts/run-retro-filter.mjs --run --vehicle ft86",
+    "run:g70": "node scripts/run-retro-filter.mjs --run --vehicle g70",
+    "run:stinger": "node scripts/run-retro-filter.mjs --run --vehicle stinger"
+  }
+}

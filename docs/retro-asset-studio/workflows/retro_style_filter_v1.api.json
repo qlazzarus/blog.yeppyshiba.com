@@ -1,0 +1,156 @@
+{
+  "10": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "dreamshaper_8.safetensors"
+    }
+  },
+  "11": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "model": [
+        "10",
+        0
+      ],
+      "clip": [
+        "10",
+        1
+      ],
+      "lora_name": "[Qwen.Image]PixelArt_Redmond.safetensors",
+      "strength_model": 0.45,
+      "strength_clip": 0.7
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "sheet-256-magenta-preview.png",
+      "upload": "image"
+    }
+  },
+  "13": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "11",
+        1
+      ],
+      "text": "pixel art,\nretro game sprite sheet,\nsame car as input image,\npreserve original silhouette,\npreserve original viewpoint,\npreserve input body color,\ndark rubber tires,\nclean outline,\nlimited color palette,\nsubtle pixel detail"
+    }
+  },
+  "14": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "11",
+        1
+      ],
+      "text": "different car,\nconvertible,\npickup truck,\nchanged viewpoint,\nchanged body color,\nwhite tires,\nchrome tires,\nextra wheels,\ndeformed car,\nphoto,\nrealistic,\nblur,\nwatermark,\ntext,\nlogo,\ngradient"
+    }
+  },
+  "15": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "11",
+        0
+      ],
+      "positive": [
+        "20",
+        0
+      ],
+      "negative": [
+        "20",
+        1
+      ],
+      "latent_image": [
+        "17",
+        0
+      ],
+      "seed": 1001440416051337,
+      "control_after_generate": "randomize",
+      "steps": 20,
+      "cfg": 4.5,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.1
+    }
+  },
+  "16": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "15",
+        0
+      ],
+      "vae": [
+        "10",
+        2
+      ]
+    }
+  },
+  "17": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "12",
+        0
+      ],
+      "vae": [
+        "10",
+        2
+      ]
+    }
+  },
+  "18": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "16",
+        0
+      ],
+      "filename_prefix": "apex-seoul-retro-v1"
+    }
+  },
+  "19": {
+    "class_type": "ControlNetLoader",
+    "inputs": {
+      "control_net_name": "control_v11p_sd15_canny.pth"
+    }
+  },
+  "20": {
+    "class_type": "ControlNetApplyAdvanced",
+    "inputs": {
+      "positive": [
+        "13",
+        0
+      ],
+      "negative": [
+        "14",
+        0
+      ],
+      "control_net": [
+        "19",
+        0
+      ],
+      "image": [
+        "21",
+        0
+      ],
+      "strength": 0.35,
+      "start_percent": 0,
+      "end_percent": 0.6
+    }
+  },
+  "21": {
+    "class_type": "Canny",
+    "inputs": {
+      "image": [
+        "12",
+        0
+      ],
+      "low_threshold": 0.35,
+      "high_threshold": 0.75
+    }
+  }
+}

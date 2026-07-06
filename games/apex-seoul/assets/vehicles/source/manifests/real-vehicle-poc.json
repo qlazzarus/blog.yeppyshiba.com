@@ -21,6 +21,13 @@
     {
       "id": "genesis-g70-poc",
       "lengthM": 4.69,
+      "materialOverrides": {
+        "#0": {
+          "color": "#1b232b",
+          "metalness": 0,
+          "roughness": 0.88
+        }
+      },
       "modelPath": "assets/vehicles/optimized/genesis_g70-optimized.glb",
       "modelPitchOffsetDeg": 90,
       "modelScaleX": -1,
