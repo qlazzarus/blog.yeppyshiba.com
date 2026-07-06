@@ -32,6 +32,7 @@ export type VisionSource = {
 export class VisibilitySystem {
     private readonly scene: Phaser.Scene;
     private readonly worldObjects: Phaser.GameObjects.GameObject[];
+    private readonly currentVisibleFogCells = new Set<string>();
     private readonly exploredFogCells = new Set<string>();
     private fogGraphics?: Phaser.GameObjects.Graphics;
     private lightingGraphics?: Phaser.GameObjects.Graphics;
@@ -141,6 +142,7 @@ export class VisibilitySystem {
         sources: readonly VisionSource[],
         worldSize: Phaser.Math.Vector2,
     ) {
+        this.currentVisibleFogCells.clear();
         if (!this.fogGraphics || !sources.length || worldSize.x <= 0) return;
 
         this.revealAroundSources(sources, worldSize);
@@ -155,7 +157,7 @@ export class VisibilitySystem {
                     x * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
                 const centerY =
                     y * VISIBILITY_OVERLAY.cellSize + VISIBILITY_OVERLAY.cellSize / 2;
-                if (sources.some((source) => {
+                const visible = sources.some((source) => {
                     return (
                         Phaser.Math.Distance.Between(
                             source.x,
@@ -164,7 +166,11 @@ export class VisibilitySystem {
                             centerY,
                         ) <= source.radiusPx
                     );
-                })) continue;
+                });
+                if (visible) {
+                    this.currentVisibleFogCells.add(this.getFogCellKey(x, y));
+                    continue;
+                }
 
                 const explored = this.exploredFogCells.has(this.getFogCellKey(x, y));
                 this.fogGraphics.fillStyle(
@@ -256,6 +262,15 @@ export class VisibilitySystem {
 
     private isExploredWorldPoint(x: number, y: number) {
         return this.exploredFogCells.has(
+            this.getFogCellKey(
+                Math.floor(x / VISIBILITY_OVERLAY.cellSize),
+                Math.floor(y / VISIBILITY_OVERLAY.cellSize),
+            ),
+        );
+    }
+
+    isCurrentlyVisible(x: number, y: number) {
+        return this.currentVisibleFogCells.has(
             this.getFogCellKey(
                 Math.floor(x / VISIBILITY_OVERLAY.cellSize),
                 Math.floor(y / VISIBILITY_OVERLAY.cellSize),

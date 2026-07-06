@@ -4,6 +4,7 @@ import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { BuildingTemplateConfig, MvpBuildingId } from '../balanceTypes';
 import { VISIBILITY_OVERLAY } from '../config';
 import type { GridPathRect } from './pathing';
+import type { AttackableEnemyTarget } from './playerCommandTypes';
 import type { VisionSource } from './visibilitySystem';
 
 export type PlayerEconomyState = {
@@ -27,6 +28,7 @@ export type PlayerBuilding = {
     hp: number;
     readonly id: string;
     readonly maxHp: number;
+    nextAttackAtSec: number;
     readonly ownerPlayerId: number;
     readonly startedAtSec: number;
     state: 'complete' | 'constructing';
@@ -40,6 +42,7 @@ type BuildingView = {
     readonly hpBack: Phaser.GameObjects.Rectangle;
     readonly hpFill: Phaser.GameObjects.Rectangle;
     readonly label: Phaser.GameObjects.Text;
+    readonly overlay: Phaser.GameObjects.Graphics;
     readonly progressBack: Phaser.GameObjects.Rectangle;
     readonly progressFill: Phaser.GameObjects.Rectangle;
 };
@@ -59,7 +62,10 @@ export type BuildingSelectionSummary = {
 };
 
 type BuildingSystemConfig = {
+    readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
     readonly getElapsedSec: () => number;
+    readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
+    readonly isTargetVisible?: (x: number, y: number) => boolean;
     readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -95,6 +101,14 @@ const CONSTRUCTION_CANCEL_REFUND_RATIO = 0.75;
 const COMPLETE_BUILDING_VISION_RADIUS_PX = VISIBILITY_OVERLAY.revealRadiusPx * 0.75;
 const ACTIVE_CONSTRUCTION_VISION_RADIUS_PX =
     VISIBILITY_OVERLAY.revealRadiusPx * 0.45;
+const BUILDING_HP_BAR_HEIGHT_PX = 12;
+const BUILDING_HP_BAR_BORDER_PX = 2;
+const BUILDING_HP_FILL_HEIGHT_PX = BUILDING_HP_BAR_HEIGHT_PX - BUILDING_HP_BAR_BORDER_PX * 2;
+const BUILDING_HP_BAR_PAD_PX = 4;
+const BUILDING_HP_BAR_Y_OFFSET_PX = 24;
+const BUILDING_PROGRESS_BAR_HEIGHT_PX = 7;
+const BUILDING_STATUS_STROKE_WIDTH_PX = 5;
+const BUILDING_HATCH_SPACING_PX = 24;
 
 export class BuildingSystem {
     readonly economy: PlayerEconomyState = {
@@ -110,7 +124,10 @@ export class BuildingSystem {
         supplyUsed: 0,
     };
     private readonly buildings: PlayerBuilding[] = [];
+    private readonly damageEnemyTarget: (targetId: string, damage: number) => boolean;
     private readonly getElapsedSec: () => number;
+    private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
+    private readonly isTargetVisible: (x: number, y: number) => boolean;
     private readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -121,7 +138,10 @@ export class BuildingSystem {
     private nextBuildingId = 1;
 
     constructor(config: BuildingSystemConfig) {
+        this.damageEnemyTarget = config.damageEnemyTarget ?? (() => false);
         this.getElapsedSec = config.getElapsedSec;
+        this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
+        this.isTargetVisible = config.isTargetVisible ?? (() => true);
         this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
         this.worldObjects = config.worldObjects;
@@ -224,6 +244,7 @@ export class BuildingSystem {
             hp: template.hp,
             id: `player-building-${this.nextBuildingId}`,
             maxHp: template.hp,
+            nextAttackAtSec: startedAtSec,
             ownerPlayerId: request.ownerPlayerId,
             startedAtSec,
             state: 'constructing',
@@ -261,6 +282,7 @@ export class BuildingSystem {
                     templateId: building.templateId,
                 });
             }
+            this.updateBuildingCombat(building);
             this.updateView(building);
         });
     }
@@ -353,31 +375,49 @@ export class BuildingSystem {
                 CATEGORY_COLORS[template.category],
                 0.52,
             )
-            .setStrokeStyle(2, 0x1b1711, 0.9)
+            .setStrokeStyle(BUILDING_STATUS_STROKE_WIDTH_PX, 0x1b1711, 0.9)
             .setDepth(23);
+        const overlay = this.scene.add.graphics().setDepth(24);
         const hpBack = this.scene.add
-            .rectangle(centerX, building.footprint.y - 12, building.footprint.width, 5, 0x111111, 0.88)
+            .rectangle(
+                centerX,
+                building.footprint.y - BUILDING_HP_BAR_Y_OFFSET_PX,
+                building.footprint.width + BUILDING_HP_BAR_PAD_PX * 2,
+                BUILDING_HP_BAR_HEIGHT_PX,
+                0x030303,
+                0.98,
+            )
+            .setStrokeStyle(BUILDING_HP_BAR_BORDER_PX, 0x030303, 1)
             .setDepth(25);
         const hpFill = this.scene.add
             .rectangle(
-                building.footprint.x,
-                building.footprint.y - 12,
-                building.footprint.width,
-                3,
+                building.footprint.x - BUILDING_HP_BAR_PAD_PX + BUILDING_HP_BAR_BORDER_PX,
+                building.footprint.y - BUILDING_HP_BAR_Y_OFFSET_PX,
+                building.footprint.width +
+                    BUILDING_HP_BAR_PAD_PX * 2 -
+                    BUILDING_HP_BAR_BORDER_PX * 2,
+                BUILDING_HP_FILL_HEIGHT_PX,
                 0x55d76d,
                 1,
             )
             .setOrigin(0, 0.5)
             .setDepth(26);
         const progressBack = this.scene.add
-            .rectangle(centerX, building.footprint.y - 5, building.footprint.width, 4, 0x111111, 0.82)
+            .rectangle(
+                centerX,
+                building.footprint.y - 7,
+                building.footprint.width,
+                BUILDING_PROGRESS_BAR_HEIGHT_PX,
+                0x111111,
+                0.84,
+            )
             .setDepth(25);
         const progressFill = this.scene.add
             .rectangle(
                 building.footprint.x,
-                building.footprint.y - 5,
+                building.footprint.y - 7,
                 building.footprint.width,
-                3,
+                BUILDING_PROGRESS_BAR_HEIGHT_PX - 2,
                 0xf1c65c,
                 1,
             )
@@ -401,10 +441,11 @@ export class BuildingSystem {
             hpBack,
             hpFill,
             label,
+            overlay,
             progressBack,
             progressFill,
         });
-        this.worldObjects.push(body, hpBack, hpFill, progressBack, progressFill, label);
+        this.worldObjects.push(body, overlay, hpBack, hpFill, progressBack, progressFill, label);
     }
 
     private updateView(building: PlayerBuilding) {
@@ -412,16 +453,64 @@ export class BuildingSystem {
         if (!view) return;
 
         const progress = this.getConstructionProgress(building);
-        view.body.setAlpha(building.state === 'complete' ? 0.88 : 0.5);
+        const isPaused = building.state === 'constructing' && !building.activeWorkerUnitId;
+        view.body.setAlpha(building.state === 'complete' ? 0.9 : 0.56);
         view.body.setStrokeStyle(
-            building.activeWorkerUnitId ? 2 : 3,
-            building.activeWorkerUnitId ? 0x1b1711 : 0xd8b24c,
-            building.activeWorkerUnitId ? 0.9 : 0.95,
+            isPaused ? 6 : BUILDING_STATUS_STROKE_WIDTH_PX,
+            building.state === 'complete'
+                ? 0x26351f
+                : isPaused
+                  ? 0xffd45f
+                  : 0xf1c65c,
+            isPaused ? 1 : 0.95,
         );
+        this.drawStateOverlay(view.overlay, building, isPaused);
         view.progressBack.setVisible(building.state === 'constructing');
         view.progressFill.setVisible(building.state === 'constructing');
         view.progressFill.width = building.footprint.width * progress;
-        view.hpFill.width = building.footprint.width * (building.hp / building.maxHp);
+        const hpRatio = Phaser.Math.Clamp(building.hp / building.maxHp, 0, 1);
+        view.hpFill.width =
+            (building.footprint.width +
+                BUILDING_HP_BAR_PAD_PX * 2 -
+                BUILDING_HP_BAR_BORDER_PX * 2) *
+            hpRatio;
+        view.hpFill.setFillStyle(this.getHpBarColor(hpRatio), 1);
+        view.label.setVisible(building.state === 'constructing');
+    }
+
+    private getHpBarColor(hpRatio: number) {
+        if (hpRatio > 0.55) return 0x55d76d;
+        if (hpRatio > 0.28) return 0xf2c94c;
+        return 0xe85d4f;
+    }
+
+    private drawStateOverlay(
+        overlay: Phaser.GameObjects.Graphics,
+        building: PlayerBuilding,
+        isPaused: boolean,
+    ) {
+        overlay.clear();
+        const rect = building.footprint;
+        if (building.state === 'complete') {
+            overlay.lineStyle(2, 0xe8d48a, 0.72);
+            overlay.strokeRect(rect.x + 4, rect.y + 4, rect.width - 8, rect.height - 8);
+            return;
+        }
+
+        overlay.lineStyle(2, isPaused ? 0xffe38a : 0xffd36a, isPaused ? 0.72 : 0.46);
+        for (
+            let offset = -rect.height;
+            offset < rect.width;
+            offset += BUILDING_HATCH_SPACING_PX
+        ) {
+            const startX = rect.x + Math.max(0, offset);
+            const startY = rect.y + Math.max(0, -offset);
+            const endX = rect.x + Math.min(rect.width, offset + rect.height);
+            const endY = rect.y + Math.min(rect.height, rect.height - Math.max(0, -offset));
+            overlay.lineBetween(startX, startY, endX, endY);
+        }
+        overlay.lineStyle(isPaused ? 4 : 3, isPaused ? 0xfff0b0 : 0xf1c65c, isPaused ? 0.92 : 0.72);
+        overlay.strokeRect(rect.x + 5, rect.y + 5, rect.width - 10, rect.height - 10);
     }
 
     private getConstructionProgress(building: PlayerBuilding) {
@@ -443,6 +532,62 @@ export class BuildingSystem {
         return Math.min(building.buildTimeSec, building.constructionProgressSec + activeSec);
     }
 
+    private updateBuildingCombat(building: PlayerBuilding) {
+        if (building.state !== 'complete') return;
+
+        const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
+        if (!template.attack) return;
+        if (this.getElapsedSec() < building.nextAttackAtSec) return;
+
+        const target = this.findBuildingCombatTarget(building, template.attack.rangePx);
+        if (!target) return;
+
+        const landed = this.damageEnemyTarget(target.id, template.attack.damage);
+        if (!landed) return;
+
+        const center = this.getBuildingCenter(building);
+        building.nextAttackAtSec = this.getElapsedSec() + template.attack.cooldownSec;
+        this.recordTelemetry?.('player_building_attack_landed', {
+            buildingId: building.id,
+            damage: template.attack.damage,
+            rangePx: template.attack.rangePx,
+            targetHpBefore: Math.ceil(target.hp),
+            targetId: target.id,
+            targetX: Number(target.x.toFixed(1)),
+            targetY: Number(target.y.toFixed(1)),
+            templateId: building.templateId,
+            x: Number(center.x.toFixed(1)),
+            y: Number(center.y.toFixed(1)),
+        });
+    }
+
+    private findBuildingCombatTarget(building: PlayerBuilding, rangePx: number) {
+        const center = this.getBuildingCenter(building);
+        return (
+            this.getAttackableEnemyTargets()
+                .filter((target) => target.hp > 0)
+                .filter((target) => this.isTargetVisible(target.x, target.y))
+                .map((target) => ({
+                    distance: Phaser.Math.Distance.Between(
+                        center.x,
+                        center.y,
+                        target.x,
+                        target.y,
+                    ),
+                    target,
+                }))
+                .filter((candidate) => candidate.distance <= rangePx + candidate.target.radius)
+                .sort((a, b) => a.distance - b.distance)[0]?.target ?? null
+        );
+    }
+
+    private getBuildingCenter(building: PlayerBuilding) {
+        return {
+            x: building.footprint.x + building.footprint.width / 2,
+            y: building.footprint.y + building.footprint.height / 2,
+        };
+    }
+
     private destroyView(buildingId: string) {
         const view = this.views.get(buildingId);
         if (!view) return;
@@ -452,6 +597,7 @@ export class BuildingSystem {
             view.hpBack,
             view.hpFill,
             view.label,
+            view.overlay,
             view.progressBack,
             view.progressFill,
         ].forEach((gameObject) => gameObject.destroy());
@@ -459,7 +605,12 @@ export class BuildingSystem {
     }
 
     private getBuildingVisionRadius(building: PlayerBuilding) {
-        if (building.state === 'complete') return COMPLETE_BUILDING_VISION_RADIUS_PX;
+        if (building.state === 'complete') {
+            const attackRange =
+                CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].attack
+                    ?.rangePx ?? 0;
+            return Math.max(COMPLETE_BUILDING_VISION_RADIUS_PX, attackRange);
+        }
         if (building.activeWorkerUnitId) return ACTIVE_CONSTRUCTION_VISION_RADIUS_PX;
         return 0;
     }

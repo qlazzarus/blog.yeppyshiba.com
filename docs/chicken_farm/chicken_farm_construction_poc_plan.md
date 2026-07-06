@@ -1,6 +1,6 @@
 # Chicken Farm Construction Placement PoC Plan
 
-이 문서는 Combat PoC를 잠시 비활성화하고, Warcraft III식 명령 타일과 건설 배치 루프를 Chicken Farm Phaser PoC에 붙이기 위한 구현 계획이다.
+이 문서는 Combat PoC를 잠시 비활성화하고, Warcraft III식 명령 타일과 건설 배치 루프를 Chicken Farm Phaser PoC에 붙이기 위한 구현 계획이다. 최종 목표는 건설 기능만 검증하는 것이 아니라, Warsmash/Warcraft III 감각의 선택/명령/예약/건설/공격 모델 위에서 닭농장을 구현하는 것이다.
 
 목표는 다음 구현 세션에서 컨텍스트를 잃지 않고 바로 작업을 이어갈 수 있도록 파일 위치, 시스템 책임, 완료 기준을 고정하는 것이다.
 
@@ -28,7 +28,7 @@
 - 건설 취소 command tile은 연결되어 있으며 PoC 환불은 75% 기준이다.
 - Shift 이동/스마트 명령/건설 예약은 P0 구현 상태다. 생산 queue는 아직 아니다.
 - 완성 건물은 dynamic blocker가 되고, 건물 시야 source도 FoW/minimap reveal에 합산된다.
-- zoom은 닭농장 맵 거리감 기준 때문에 유지한다. 가시성 보강은 render scale/overlay/pulse로 처리한다.
+- zoom은 닭농장 맵 거리감 기준 때문에 유지한다. 가시성 보강은 [`chicken_farm_construction_visibility_poc_plan.md`](./chicken_farm_construction_visibility_poc_plan.md)의 render scale/overlay/pulse 기준으로 처리한다.
 
 ## 2. 1차 완료 기준
 
@@ -87,14 +87,15 @@ export const CHICKEN_FARM_POC_FLAGS = {
 1차 권장:
 
 - `S`는 stop 전용으로 둔다.
-- 카메라 down 이동은 방향키 또는 다른 키로 분리한다.
+- 카메라 이동은 방향키 기준으로 둔다. `A`/`S`/`B`는 command card hotkey로 우선 사용한다.
 - placement mode에서는 `Esc`, 좌클릭, 우클릭을 먼저 소비한다.
 - command card의 키 입력과 UI 클릭은 같은 action dispatcher를 호출한다.
 
-현재 주의점:
+현재 구현:
 
-- `FarmInputKeys`에서 `down`과 `stop`이 모두 `S`로 묶여 있다.
-- 구현 전 입력 키 정의를 먼저 정리해야 명령 카드 테스트가 안정적이다.
+- `A`는 attack targeting, `S`는 stop, `B`는 build page로 사용한다.
+- 카메라 pan은 `CameraControlSystem`에서 방향키 입력만 사용한다.
+- `FarmInputKeys`에는 legacy WASD key 항목이 남아 있지만, camera pan에는 더 이상 쓰지 않는다. 추후 command/input 정리 때 이름을 실제 역할 기준으로 줄인다.
 
 ## 5. Command Card System
 
@@ -212,7 +213,21 @@ export type FarmHud = {
 - `main.ts`의 좌클릭 처리 우선순위는 `placement -> building hit test -> unit selection` 순서로 둔다.
 - 선택 상태는 `selectedUnitIds`와 `selectedBuildingId`를 분리해서 관리한다.
 - 건물을 선택하면 unit selection은 해제한다.
-- command card는 building selection에 따라 page를 바꿀 수 있게 확장한다.
+- command card는 현재 선택 대상의 command source를 기준으로 재구성한다.
+
+현재 PoC command card 정책:
+
+| 선택 대상 | Command card |
+| --- | --- |
+| 농부 | `B Build`, `A Attack`, `S Stop` |
+| 농부의 build page | `F Fence`, `T Tower`, `H House`, `C Coop`, `Esc Back` |
+| 개 | `A Attack`, `S Stop` |
+| 건설 중 건물 | `X Cancel` |
+| 완성 건물 | 빈 카드. 생산/업그레이드/판매 page는 후속 PoC에서 추가 |
+| 선택 없음 | 빈 카드 |
+
+Warsmash/WC3 감각 기준으로, 선택 대상이 바뀌면 이전 command page는 유지하지 않는다. 예를 들어 농부의 build page에서 개나 건물을 선택하면 root/해당 대상 카드로 돌아간다.
+`A Attack`은 다음 클릭을 공격 타겟팅으로 소비한다. 적을 클릭하면 target attack, 지면을 클릭하면 attack-move로 발행한다. `Shift + A` 후 클릭은 기존 unit command queue 뒤에 append한다.
 
 후속 command card 후보:
 
@@ -499,16 +514,15 @@ Construction PoC에는 최소 자원 상태만 둔다.
 
 Construction Placement PoC 이후 우선순위:
 
-1. 건설 PoC 가시성 보강: zoom 유지, 유닛/건물 render scale, 선택 링/HP bar/progress bar 최소 크기, ghost 대비, focus pulse.
-2. player-built tower의 공격 기능: 현재 visible target만 acquire/attack하는 Warsmash 기준 연결.
-3. 건물 시야 차등화: 일반 건물, 건설중 건물, 타워의 vision multiplier 분리.
-4. `coop_basic`의 30초 egg/income tick.
-5. 시장/닭 구매 command card page.
-6. 테크트리: 건물 complete 시 unlock/requires 조건을 command card disabled 상태와 배치 거절 사유에 연결.
-7. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증.
+1. War3 Command Combat Smoke: `A Attack`/attack-move/Shift attack queue를 combat flag smoke에서 검증하고, target 처치 후 원래 attack-move 목적지 복귀를 보강한다.
+2. player-built tower의 공격 기능: 현재 visible target만 acquire/attack하는 Warsmash 기준으로 actual built tower와 늑대를 연결한다.
+3. Economy / Build / Shop: `coop_basic`의 30초 field egg item tick, 농부 수집/판매/부화, 시장/닭 구매 command page를 붙인다.
+4. 건물 시야 차등화: 일반 건물, 건설중 건물, 타워의 vision multiplier를 분리한다.
+5. 테크트리/완성 건물 command card: 건물 complete 시 unlock/requires 조건을 command card disabled 상태와 배치 거절 사유에 연결한다.
+6. combat flag 재활성화 후 늑대가 player-built fence/tower/coop을 blocker 또는 target으로 인식하는지 검증한다.
 
 PoC 유의:
 
-- 현재 목표는 건설 조작을 증명하는 것이므로 sprite 품질, production queue, rally, repair, upgrade는 다음 단계로 남긴다.
-- 다만 가시성은 조작 검증 자체에 영향을 주므로, zoom을 바꾸지 않는 범위에서 P0 품질 보강으로 취급한다.
+- 현재 문서는 건설 조작의 기준을 보관한다. 이후 남은 PoC의 전체 우선순위는 [`chicken_farm_next_priority_plan.md`](./chicken_farm_next_priority_plan.md)를 따른다.
+- 가시성 P0는 1차 반영 상태다. 남은 screenshot 검증, selected building outline, 최종 sprite 품질은 polish로 남긴다.
 - 생산 queue는 `chicken_farm_command_queue_poc_plan.md`의 P1 범위다. unit command queue와 같은 UI 언어를 공유하되 runtime 책임은 분리한다.

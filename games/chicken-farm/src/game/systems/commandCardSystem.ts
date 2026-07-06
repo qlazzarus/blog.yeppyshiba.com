@@ -5,6 +5,13 @@ import type { CommandButtonView } from '../ui/farmHud';
 
 export type CommandCardPageId = 'build' | 'root';
 
+export type CommandCardSelectionKind =
+    | 'builder_unit'
+    | 'constructing_building'
+    | 'generic_unit'
+    | 'complete_building'
+    | 'none';
+
 export type CommandCardAction =
     | {
           readonly page: CommandCardPageId;
@@ -16,6 +23,9 @@ export type CommandCardAction =
       }
     | {
           readonly type: 'stop';
+      }
+    | {
+          readonly type: 'start_attack_targeting';
       }
     | {
           readonly type: 'cancel';
@@ -34,8 +44,7 @@ type CommandCardButton = {
 
 type CommandCardSystemConfig = {
     readonly buttons: readonly CommandButtonView[];
-    readonly hasBuilderSelection: () => boolean;
-    readonly hasConstructingBuildingSelection?: () => boolean;
+    readonly getSelectionKind: () => CommandCardSelectionKind;
     readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     readonly onAction: (action: CommandCardAction) => void;
     readonly recordTelemetry?: (
@@ -53,6 +62,12 @@ const ROOT_PAGE: readonly CommandCardButton[] = [
         label: 'Build',
     },
     {
+        action: { type: 'start_attack_targeting' },
+        hotkey: 'A',
+        id: 'attack',
+        label: 'Attack',
+    },
+    {
         action: { type: 'stop' },
         hotkey: 'S',
         id: 'stop',
@@ -66,6 +81,21 @@ const CONSTRUCTING_BUILDING_PAGE: readonly CommandCardButton[] = [
         hotkey: 'X',
         id: 'cancel_construction',
         label: 'Cancel',
+    },
+];
+
+const GENERIC_UNIT_PAGE: readonly CommandCardButton[] = [
+    {
+        action: { type: 'start_attack_targeting' },
+        hotkey: 'A',
+        id: 'attack',
+        label: 'Attack',
+    },
+    {
+        action: { type: 'stop' },
+        hotkey: 'S',
+        id: 'stop',
+        label: 'Stop',
     },
 ];
 
@@ -108,8 +138,7 @@ const BUILD_PAGE: readonly CommandCardButton[] = [
 
 export class CommandCardSystem {
     private readonly buttons: readonly CommandButtonView[];
-    private readonly hasBuilderSelection: () => boolean;
-    private readonly hasConstructingBuildingSelection: () => boolean;
+    private readonly getSelectionKind: () => CommandCardSelectionKind;
     private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     private readonly onAction: (action: CommandCardAction) => void;
     private readonly recordTelemetry?: (
@@ -120,9 +149,7 @@ export class CommandCardSystem {
 
     constructor(config: CommandCardSystemConfig) {
         this.buttons = config.buttons;
-        this.hasBuilderSelection = config.hasBuilderSelection;
-        this.hasConstructingBuildingSelection =
-            config.hasConstructingBuildingSelection ?? (() => false);
+        this.getSelectionKind = config.getSelectionKind;
         this.keys = config.keys;
         this.onAction = config.onAction;
         this.recordTelemetry = config.recordTelemetry;
@@ -165,6 +192,7 @@ export class CommandCardSystem {
     }
 
     refresh() {
+        this.normalizePageForSelection();
         const pageButtons = this.getCurrentButtons();
         this.buttons.forEach((view, index) => {
             const button = pageButtons[index];
@@ -198,14 +226,27 @@ export class CommandCardSystem {
     }
 
     private getCurrentButtons() {
-        if (this.page === 'build') return BUILD_PAGE;
-        if (this.hasConstructingBuildingSelection()) return CONSTRUCTING_BUILDING_PAGE;
+        const selectionKind = this.getSelectionKind();
+        if (this.page === 'build' && selectionKind === 'builder_unit') return BUILD_PAGE;
+        if (selectionKind === 'constructing_building') return CONSTRUCTING_BUILDING_PAGE;
+        if (selectionKind === 'builder_unit') return ROOT_PAGE;
+        if (selectionKind === 'generic_unit') return GENERIC_UNIT_PAGE;
 
-        return ROOT_PAGE;
+        return [];
     }
 
     private isButtonEnabled(button: CommandCardButton) {
-        return !button.enabledWhenBuilderSelected || this.hasBuilderSelection();
+        return (
+            !button.enabledWhenBuilderSelected ||
+            this.getSelectionKind() === 'builder_unit'
+        );
+    }
+
+    private normalizePageForSelection() {
+        if (this.page !== 'build') return;
+        if (this.getSelectionKind() === 'builder_unit') return;
+
+        this.page = 'root';
     }
 
     private renderButton(
