@@ -85,8 +85,7 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
             }
 
             const kakao = window.kakao;
-            const initialCenter =
-                center || markers[Math.floor(Math.random() * markers.length)];
+            const initialCenter = getInitialCenter();
             map = new kakao.maps.Map(el, {
                 center: new kakao.maps.LatLng(initialCenter.lat, initialCenter.lng),
                 level,
@@ -160,6 +159,19 @@ const id = `kakao-map-${Math.random().toString(36).slice(2)}`;
             if (fitToMarkers && markers.length > 1) {
                 map.setBounds(bounds);
             }
+        }
+
+        function getInitialCenter() {
+            const requestedPost = new URLSearchParams(window.location.search).get('post');
+            const requestedMarker = requestedPost
+                ? markers.find((marker) => marker.slug === requestedPost)
+                : null;
+
+            return (
+                requestedMarker ||
+                center ||
+                markers[Math.floor(Math.random() * markers.length)]
+            );
         }
 
         function loadKakaoMaps(callback) {

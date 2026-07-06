@@ -27,11 +27,13 @@ const {
     coverLicense,
     coverSource,
     roadviewUpdateIntervalMs,
+    currentPostSlug,
     prevPost,
     nextPost,
     nearbyReviewPosts,
     relatedPosts,
 } = Astro.props as ArticleProps & {
+    currentPostSlug?: string;
     prevPost?: { slug: string; title: string } | null;
     nextPost?: { slug: string; title: string } | null;
     nearbyReviewPosts?: {
@@ -42,11 +44,15 @@ const {
 };
 
 const hasLocation = typeof lat === 'number' && typeof lng === 'number';
+const fullMapHref = currentPostSlug
+    ? `/map/?post=${encodeURIComponent(currentPostSlug)}`
+    : '/map/';
 const articleMarkers = hasLocation
     ? [
           {
               lat,
               lng,
+              slug: currentPostSlug,
               image: image ?? null,
               title,
           },
@@ -62,6 +68,7 @@ const articleMarkers = hasLocation
 const nearbyReviewCount = nearbyReviewPosts?.length ?? 0;
 
 export interface Props extends ArticleProps {
+    currentPostSlug?: string;
     prevPost?: { slug: string; title: string } | null;
     nextPost?: { slug: string; title: string } | null;
     nearbyReviewPosts?: {
@@ -185,7 +192,7 @@ const breadcrumbs = [
                         )}
                     </div>
                     <a
-                        href='/map/'
+                        href={fullMapHref}
                         class='text-muted-foreground hover:text-foreground text-sm underline-offset-4 hover:underline'
                     >
                         전체 지도 보기

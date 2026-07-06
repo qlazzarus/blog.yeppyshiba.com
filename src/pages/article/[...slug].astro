@@ -85,6 +85,7 @@ const relatedPosts = sortedPosts
 
 <Layout
     {...post.data}
+    currentPostSlug={post.id}
     prevPost={prev ? { slug: prev.id, title: prev.data.title } : null}
     nextPost={next ? { slug: next.id, title: next.data.title } : null}
     nearbyReviewPosts={nearbyReviewPosts}
