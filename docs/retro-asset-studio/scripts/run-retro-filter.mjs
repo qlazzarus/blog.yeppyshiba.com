@@ -47,10 +47,12 @@ const config = {
     dryRun: false,
     filenamePrefix: 'apex-seoul-retro-v1',
     input: path.join(workspaceRoot, 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-magenta-preview.png'),
+    inputWasExplicit: false,
     lora: '[Qwen.Image]PixelArt_Redmond.safetensors',
     loraStrengthClip: 0.7,
     loraStrengthModel: 0.45,
     output: path.join(workspaceRoot, 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-ai-retro-v1.png'),
+    outputWasExplicit: false,
     paletteLock: true,
     ping: false,
     run: false,
@@ -108,6 +110,7 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--input' && next) {
         config.input = path.resolve(next);
+        config.inputWasExplicit = true;
         index += 1;
     } else if (arg === '--lora' && next) {
         config.lora = next;
@@ -120,6 +123,7 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--output' && next) {
         config.output = path.resolve(next);
+        config.outputWasExplicit = true;
         index += 1;
     } else if (arg === '--no-palette-lock') {
         config.paletteLock = false;
@@ -288,6 +292,10 @@ function buildJobs(currentConfig) {
     }
 
     if (currentConfig.vehicle === 'all') {
+        if (currentConfig.inputWasExplicit || currentConfig.outputWasExplicit) {
+            throw new Error('--input and --output overrides can only be used with a single --vehicle preset, not --vehicle all.');
+        }
+
         return Object.entries(vehiclePresets).map(([label, preset]) => buildPresetJob(currentConfig, label, preset));
     }
 
@@ -304,9 +312,9 @@ function buildPresetJob(currentConfig, label, preset) {
     return {
         ...currentConfig,
         filenamePrefix: `apex-seoul-retro-v1-${label}`,
-        input: path.join(workspaceRoot, preset.input),
+        input: currentConfig.inputWasExplicit ? currentConfig.input : path.join(workspaceRoot, preset.input),
         label,
-        output: path.join(workspaceRoot, preset.output),
+        output: currentConfig.outputWasExplicit ? currentConfig.output : path.join(workspaceRoot, preset.output),
         seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
     };
 }

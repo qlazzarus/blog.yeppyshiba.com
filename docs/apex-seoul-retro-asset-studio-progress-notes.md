@@ -534,6 +534,69 @@ checkpoint 7: runtime imports switched from genesis-g70-poc to raven-xg-coupe-po
 - Playwright Chromium system dependency(`libatk-1.0.so.0`)가 없어 Three.js 렌더 검증이 현재 Codex 셸에서는 막힌 상태다.
 - VDrift asset의 GPL-3.0 배포 영향은 게임 repo 공개/배포 방식과 함께 다시 확인해야 한다.
 
+## 다음 GPT handoff: FT86 ComfyUI 디자인 실험
+
+주간 한도 종료에 대비해 다음 GPT에게 바로 전달할 handoff 문서를 따로 만들었다.
+
+```text
+docs/retro-asset-studio/next-gpt-ft86-comfyui-handoff.md
+```
+
+현재 우선순위는 G70/VDrift 변환 구현이 아니다. G70 교체 계획은 문서화만 완료한 상태로 보류한다.
+
+이번 스텝의 실제 목표:
+
+- FT86 256px pixel candidate를 ComfyUI 후처리 디자인 실험 대상으로 사용한다.
+- source model, `real-vehicle-poc.json`, Phaser runtime import는 건드리지 않는다.
+- `npm run run:ft86` 기반으로 safe/balanced/stylized 결과를 비교한다.
+- QA 기반 wheel ellipse correction은 계속 비활성화한다.
+- palette lock이 FT86 디자인을 너무 회청색으로 고정하는지 검토한다.
+
+현재 FT86 입력:
+
+```text
+input:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png
+
+source/transparent:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.png
+
+qa:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.qa.json
+
+default output:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
+```
+
+주의할 구현 포인트:
+
+- `run-retro-filter.mjs`의 `buildPresetJob`은 단일 preset 실행 시 명시 `--input`/`--output` override를 preset 경로보다 우선하도록 수정했다.
+- `--vehicle all`에서는 여러 차량이 같은 파일에 쓰이는 사고를 막기 위해 `--input`/`--output` override를 금지한다.
+- `/tmp/ft86-handoff-test.api.json` 대상으로 `--dry-run --vehicle ft86 --output ...` 검증을 완료했다.
+
+### FT86 인터벌 실행 결과
+
+2026-07-07에 `npm run run:ft86` 기반 safe/balanced/stylized 세 결과를 생성했다.
+
+```text
+safe:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-ft86-safe.png
+
+balanced:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-ft86-balanced.png
+
+stylized:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-ft86-stylized.png
+```
+
+간단 검수:
+
+- 세 결과 모두 `768x1536`으로 정상 생성됐다.
+- palette lock 후 색상 수는 `15~16`개 수준이다.
+- 잘못된 원형 타이어 artifact는 보이지 않는다.
+- 1차 후보는 `balanced`가 가장 무난해 보인다.
+- 다만 세 결과 모두 차체가 회청색 palette로 강하게 묶이므로, 다음 조정은 FT86용 palette profile 또는 `--no-palette-lock` 비교가 좋다.
+
 ## 블로그에서 강조할 관찰
 
 이번 작업의 핵심은 AI 이미지 생성 자체가 아니다.
@@ -586,6 +649,7 @@ VDrift candidate comparison: done
 selected VDrift candidate: XG
 fictional coupe intake manifest: done
 G70 replacement plan: documented
+next GPT handoff for FT86 ComfyUI pass: documented
 JOE-to-glTF conversion: not yet implemented
 stinger / ft86 / all: not yet verified
 postprocessing: not yet started
