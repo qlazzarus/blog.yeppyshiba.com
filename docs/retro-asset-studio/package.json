@@ -11,6 +11,10 @@
     "run": "node scripts/run-retro-filter.mjs --run",
     "run:all": "node scripts/run-retro-filter.mjs --run --vehicle all",
     "run:ft86": "node scripts/run-retro-filter.mjs --run --vehicle ft86",
+    "run:ft86:safe": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant safe",
+    "run:ft86:balanced": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant balanced",
+    "run:ft86:stylized": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant stylized",
+    "run:ft86:variants": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant all",
     "run:g70": "node scripts/run-retro-filter.mjs --run --vehicle g70",
     "run:stinger": "node scripts/run-retro-filter.mjs --run --vehicle stinger"
   }

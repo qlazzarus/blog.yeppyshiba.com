@@ -551,3 +551,24 @@ QA freeze 촬영:
 - `G70`, `Stinger`, `GT86`은 reference/POC라는 표현을 유지한다.
 - 최종 문장에는 다음 단계인 WebGL shadow, drift/slip 5way, runtime QA 자동화를 열어둔다.
 
+### 후속 메모: AI retro filter와 runtime QA의 연결
+
+차량 sprite 제작 파이프라인은 ComfyUI 후처리 단계와 runtime QA 단계로 나뉜다.
+
+ComfyUI는 차량을 새로 그리는 generator가 아니라, Three.js 렌더 결과에 retro style을 얹는 filter로 제한한다.  
+현재 FT86 기준으로는 `balanced` output이 v1 후보이며, 이 결과를 바로 확정하지 않고 Phaser runtime에서 도로 위 시인성, 휠 형태, 후미등, 전복 프레임을 다시 확인해야 한다.
+
+다음 검증 대상:
+
+```text
+AI retro balanced sheet
+↓
+magenta-to-alpha
+↓
+body palette swap
+↓
+runtime road visibility QA
+````
+
+특히 차량 색상 변경은 `setTint()`가 아니라 body palette swap으로 접근한다.
+차체만 바꾸고 glass, tire, rim, light, outline은 유지해야 하기 때문이다.

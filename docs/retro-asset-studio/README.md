@@ -17,6 +17,8 @@ nvm install 22
 nvm use 22
 ```
 
+Note: `check-node-version.cjs` exists as a helper, but the current `package.json` scripts do not yet run it as a `pre*` hook. For now, check `node --version` manually before running the studio. If this becomes a recurring issue, wire the helper into `preping`, `predry-run`, and `prerun` scripts.
+
 ## Connection
 
 ComfyUI is expected at:
@@ -87,6 +89,48 @@ npm run run
 
 Run one Apex Seoul vehicle preset:
 
+## FT86 variant runs
+
+FT86는 현재 Retro Style Filter v1의 기준 실험 차량이다.  
+G70/VDrift 교체 작업은 보류하고, FT86 256px magenta preview sheet에서 `safe / balanced / stylized` 세 가지 후처리 결과를 비교한다.
+
+기본 판단:
+
+```text
+safe      = 실루엣 보존 최우선, fallback 후보
+balanced  = 현재 FT86 v1 기본 후보
+stylized  = 디자인 실험용, 전복/휠 artifact 발생 시 폐기
+```
+
+실행:
+
+```bash
+npm run run:ft86
+npm run run:ft86:safe
+npm run run:ft86:balanced
+npm run run:ft86:stylized
+npm run run:ft86:variants
+```
+
+예상 출력:
+
+```text
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-safe.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-stylized.png
+```
+
+현재 기본 `run:ft86`는 `balanced`와 같은 방향이다.
+`run:ft86:variants`는 세 결과를 모두 생성해 비교용으로 남긴다.
+
+주의:
+
+* `--vehicle all`에서는 `--input`/`--output` override를 사용하지 않는다.
+* `--variant all`과 명시 `--output`은 함께 쓰지 않는다.
+* wheel ellipse correction은 기본 비활성화 상태를 유지한다.
+* ComfyUI는 차량 generator가 아니라 style filter로만 사용한다.
+
 ```bash
 npm run run:g70
 npm run run:stinger
@@ -124,3 +168,48 @@ Vehicle presets:
 `retro_style_filter_v1.json` is a ComfyUI UI workflow export. The script converts the known v1 node graph into the API prompt shape used by `/prompt`.
 
 Generation is only queued when `--run` is passed. `--ping` and `--dry-run` are safe setup checks.
+
+## Current v1 filter defaults
+
+현재 Retro Style Filter v1은 하나의 ComfyUI workflow JSON을 공통 템플릿으로 사용하고, 실행 시점에 vehicle preset과 variant preset을 patch한다.
+
+```text
+retro_style_filter_v1.json
+  = ComfyUI UI workflow source
+
+workflows/retro_style_filter_v1.api.json
+  = dry-run 확인용 API prompt output
+
+scripts/run-retro-filter.mjs
+  = vehicle preset + variant preset patcher
+````
+
+현재 FT86 balanced 후보에서 유효했던 값:
+
+```text
+checkpoint: dreamshaper_8.safetensors
+lora: [Qwen.Image]PixelArt_Redmond.safetensors
+controlNet: control_v11p_sd15_canny.pth
+
+variant: balanced
+denoise: 0.12
+cfg: 4.5
+steps: 20
+sampler: euler
+scheduler: simple
+
+cannyLow: 0.35
+cannyHigh: 0.75
+controlNetStrength: 0.35
+controlNetStart: 0
+controlNetEnd: 0.6
+
+loraStrengthModel: 0.45
+loraStrengthClip: 0.7
+```
+
+현재 결론:
+
+* FT86는 `balanced`를 v1 기본 후보로 둔다.
+* `safe`는 fallback으로 보관한다.
+* `stylized`는 전복 프레임과 휠 하단부가 어두운 덩어리로 뭉칠 수 있으므로 기본 후보로 쓰지 않는다.

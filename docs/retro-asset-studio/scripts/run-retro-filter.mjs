@@ -32,6 +32,45 @@ const vehiclePresets = {
     },
 };
 
+const variantPresets = {
+    safe: {
+        cannyHigh: 0.75,
+        cannyLow: 0.35,
+        cfg: 4.0,
+        controlNetEnd: 0.7,
+        controlNetStart: 0,
+        controlNetStrength: 0.45,
+        denoise: 0.08,
+        loraStrengthClip: 0.6,
+        loraStrengthModel: 0.35,
+        steps: 16,
+    },
+    balanced: {
+        cannyHigh: 0.75,
+        cannyLow: 0.35,
+        cfg: 4.5,
+        controlNetEnd: 0.6,
+        controlNetStart: 0,
+        controlNetStrength: 0.35,
+        denoise: 0.12,
+        loraStrengthClip: 0.7,
+        loraStrengthModel: 0.45,
+        steps: 20,
+    },
+    stylized: {
+        cannyHigh: 0.75,
+        cannyLow: 0.3,
+        cfg: 4.8,
+        controlNetEnd: 0.5,
+        controlNetStart: 0,
+        controlNetStrength: 0.28,
+        denoise: 0.16,
+        loraStrengthClip: 0.75,
+        loraStrengthModel: 0.55,
+        steps: 22,
+    },
+};
+
 const config = {
     apiOutput: path.join(studioRoot, 'workflows', 'retro_style_filter_v1.api.json'),
     cannyHigh: 0.75,
@@ -40,17 +79,17 @@ const config = {
     checkpoint: 'dreamshaper_8.safetensors',
     comfyUrl: defaultComfyUrl,
     controlNet: 'control_v11p_sd15_canny.pth',
-    controlNetEnd: 0.6,
+    controlNetEnd: 0.7,
     controlNetStart: 0,
-    controlNetStrength: 0.35,
-    denoise: 0.1,
+    controlNetStrength: 0.45,
+    denoise: 0.08,
     dryRun: false,
     filenamePrefix: 'apex-seoul-retro-v1',
     input: path.join(workspaceRoot, 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-magenta-preview.png'),
     inputWasExplicit: false,
     lora: '[Qwen.Image]PixelArt_Redmond.safetensors',
-    loraStrengthClip: 0.7,
-    loraStrengthModel: 0.45,
+    loraStrengthClip: 0.6,
+    loraStrengthModel: 0.35,
     output: path.join(workspaceRoot, 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-ai-retro-v1.png'),
     outputWasExplicit: false,
     paletteLock: true,
@@ -59,7 +98,8 @@ const config = {
     sampler: 'euler',
     scheduler: 'simple',
     seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
-    steps: 20,
+    steps: 16,
+    variant: 'balanced',
     vehicle: null,
     workflow: path.join(studioRoot, 'retro_style_filter_v1.json'),
 };
@@ -146,6 +186,9 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--vehicle' && next) {
         config.vehicle = next;
         index += 1;
+    } else if (arg === '--variant' && next) {
+        config.variant = next;
+        index += 1;        
     } else if (arg === '--workflow' && next) {
         config.workflow = path.resolve(next);
         index += 1;
@@ -284,11 +327,16 @@ function formatError(error) {
 }
 
 function buildJobs(currentConfig) {
+    const variantLabels = resolveVariantLabels(currentConfig.variant);
+
+    if (variantLabels.length > 1 && currentConfig.outputWasExplicit) {
+        throw new Error('--output cannot be used with --variant all. Run a single variant or omit --output.');
+    }
+
     if (!currentConfig.vehicle) {
-        return [{
-            ...currentConfig,
-            label: 'custom',
-        }];
+        return variantLabels.map((variantLabel) => buildCustomJob(currentConfig, variantLabel, {
+            forceVariantSuffix: variantLabels.length > 1,
+        }));
     }
 
     if (currentConfig.vehicle === 'all') {
@@ -296,7 +344,11 @@ function buildJobs(currentConfig) {
             throw new Error('--input and --output overrides can only be used with a single --vehicle preset, not --vehicle all.');
         }
 
-        return Object.entries(vehiclePresets).map(([label, preset]) => buildPresetJob(currentConfig, label, preset));
+        return Object.entries(vehiclePresets).flatMap(([vehicleLabel, preset]) => (
+            variantLabels.map((variantLabel) => buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, {
+                forceVariantSuffix: variantLabels.length > 1,
+            }))
+        ));
     }
 
     const preset = vehiclePresets[currentConfig.vehicle];
@@ -305,18 +357,71 @@ function buildJobs(currentConfig) {
         throw new Error(`Unknown --vehicle value: ${currentConfig.vehicle}. Use one of: ${Object.keys(vehiclePresets).join(', ')}, all`);
     }
 
-    return [buildPresetJob(currentConfig, currentConfig.vehicle, preset)];
+    return variantLabels.map((variantLabel) => buildPresetJob(currentConfig, currentConfig.vehicle, preset, variantLabel, {
+        forceVariantSuffix: variantLabels.length > 1,
+    }));
 }
 
-function buildPresetJob(currentConfig, label, preset) {
+function resolveVariantLabels(rawVariant) {
+    if (rawVariant === 'all') {
+        return Object.keys(variantPresets);
+    }
+
+    if (!variantPresets[rawVariant]) {
+        throw new Error(`Unknown --variant value: ${rawVariant}. Use one of: ${Object.keys(variantPresets).join(', ')}, all`);
+    }
+
+    return [rawVariant];
+}
+
+function buildCustomJob(currentConfig, variantLabel, { forceVariantSuffix = false } = {}) {
+    const variant = variantPresets[variantLabel];
+    const shouldSuffix = forceVariantSuffix || variantLabel !== 'balanced';
+
     return {
         ...currentConfig,
-        filenamePrefix: `apex-seoul-retro-v1-${label}`,
-        input: currentConfig.inputWasExplicit ? currentConfig.input : path.join(workspaceRoot, preset.input),
-        label,
-        output: currentConfig.outputWasExplicit ? currentConfig.output : path.join(workspaceRoot, preset.output),
+        ...variant,
+        label: `custom-${variantLabel}`,
+        variant: variantLabel,
+        filenamePrefix: `${currentConfig.filenamePrefix}-custom-${variantLabel}`,
+        output: currentConfig.outputWasExplicit
+            ? currentConfig.output
+            : withVariantSuffix(currentConfig.output, variantLabel, shouldSuffix),
         seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
     };
+}
+
+function buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, { forceVariantSuffix = false } = {}) {
+    const variant = variantPresets[variantLabel];
+    const baseInput = currentConfig.inputWasExplicit ? currentConfig.input : path.join(workspaceRoot, preset.input);
+    const baseOutput = currentConfig.outputWasExplicit ? currentConfig.output : path.join(workspaceRoot, preset.output);
+
+    // 기본 run:ft86는 balanced를 최종 후보 파일명 sheet-256-ai-retro-v1.png로 저장한다.
+    // safe/stylized 또는 variant all에서는 suffix를 붙여 비교 산출물로 만든다.
+    const shouldSuffix = forceVariantSuffix || variantLabel !== 'balanced';
+
+    return {
+        ...currentConfig,
+        ...variant,
+        filenamePrefix: `apex-seoul-retro-v1-${vehicleLabel}-${variantLabel}`,
+        input: baseInput,
+        label: `${vehicleLabel}-${variantLabel}`,
+        output: currentConfig.outputWasExplicit
+            ? baseOutput
+            : withVariantSuffix(baseOutput, variantLabel, shouldSuffix),
+        seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+        variant: variantLabel,
+    };
+}
+
+function withVariantSuffix(outputPath, variantLabel, shouldSuffix) {
+    if (!shouldSuffix) {
+        return outputPath;
+    }
+
+    const parsed = path.parse(outputPath);
+
+    return path.join(parsed.dir, `${parsed.name}-${variantLabel}${parsed.ext}`);
 }
 
 function buildPrompt(apiPrompt, job) {

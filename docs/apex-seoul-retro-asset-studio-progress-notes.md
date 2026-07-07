@@ -312,7 +312,7 @@ games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/shee
 - 차체/유리 계열 palette를 한 단계 더 밝히고, 타이어는 `8,10,14`로 유지했다.
 - 이후 정후면 프레임의 차체 하단에 두 개의 동그라미가 생기는 문제가 발견됐다.
 - 원인은 `center`, `downhill-center`, `uphill-center` 같은 rear-facing pose에서 QA의 `wheelCenters`를 그대로 타이어 ellipse로 칠한 것이다.
-- rear-facing pose에서는 원형 wheel lock을 적용하지 않고, 해당 영역을 차체 하단 음영으로 되돌리도록 수정했다.
+- rear-facing pose에서는 원형 wheel lock을 적용하지 않고, 해당 영역을 차체 하단 음영으로 되돌리도록수정했다.
 - 추가 리뷰에서 다른 spritesheet pose에도 둥근 원이 남는 것이 확인됐다.
 - 결론: 현재 QA 기반 wheel ellipse 보정 자체가 spritesheet에 잘못된 타이어 마크를 찍을 위험이 크다.
 - 따라서 `palette-lock.mjs`의 wheel palette lock은 기본 비활성화하고, ComfyUI 결과에는 차체/유리/라이트 palette lock만 적용한다.
@@ -424,10 +424,10 @@ source manifest: games/apex-seoul/assets/vehicles/source/manifests/vdrift-coupe-
 
 주의할 점:
 
-- `XG`라는 원본 ID와 원본 차량명은 작업용 source reference로만 둔다.
-- 게임 안에서는 `Raven XG Coupe POC` 또는 이후 더 적절한 fictional 이름으로 사용한다.
-- VDrift asset은 GPL-3.0 프로젝트/data 계열로 취급해야 하므로, 실제 포함/배포 전에 라이선스 표기를 명확히 해야 한다.
-- 현재 Apex Seoul 렌더 파이프라인은 GLB/Three.js 중심이다. VDrift의 `.joe` 파일은 바로 렌더할 수 없으므로 JOE-to-glTF 변환 단계가 필요하다.
+* `XG`라는 원본 ID와 원본 차량명은 작업용 source reference로만 둔다.
+* 게임 안에서는 `Raven XG Coupe POC` 또는 이후 더 적절한 fictional 이름으로 사용한다.
+* VDrift asset은 GPL-3.0 프로젝트/data 계열로 취급해야 하므로, 실제 포함/배포 전에 라이선스 표기를 명확히 해야 한다.
+* 현재 Apex Seoul 렌더 파이프라인은 GLB/Three.js 중심이다. VDrift의 `.joe` 파일은 바로 렌더할 수 없으므로 JOE-to-glTF 변환 단계가 필요하다.
 
 다음 구현 순서:
 
@@ -503,7 +503,6 @@ source manifest: games/apex-seoul/assets/vehicles/source/manifests/vdrift-coupe-
    - 후보가 괜찮으면 `export-vehicle-atlas.mjs`로 `raven-xg-coupe-poc-128` 또는 필요한 target size를 export한다.
    - shadow sprite도 같은 이름으로 생성한다.
    - atlas metadata의 `vehicleId`가 `raven-xg-coupe-poc`인지 확인한다.
-
 8. Phaser runtime 교체
    - `games/apex-seoul/src/main.ts`의 import를 `genesis-g70-poc` approved asset에서 `raven-xg-coupe-poc` approved asset으로 바꾼다.
    - `PLAYER_VEHICLE_TEXTURE_KEY`, `PLAYER_VEHICLE_SHADOW_TEXTURE_KEY`도 새 ID로 바꾼다.
@@ -597,6 +596,407 @@ games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/shee
 - 1차 후보는 `balanced`가 가장 무난해 보인다.
 - 다만 세 결과 모두 차체가 회청색 palette로 강하게 묶이므로, 다음 조정은 FT86용 palette profile 또는 `--no-palette-lock` 비교가 좋다.
 
+### FT86 safe / balanced / stylized 최종 비교
+
+이후 `run-retro-filter.mjs`에 `--variant safe|balanced|stylized|all` 구조를 추가해 FT86만 대상으로 세 버전을 다시 비교했다.
+
+최신 출력 기준:
+
+```text
+balanced:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced.png
+
+safe:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-safe.png
+
+stylized:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-stylized.png
+
+input:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png
+```
+
+판단:
+
+| variant | 평가 | 용도 |
+| --- | --- | --- |
+| `balanced` | 실루엣, 휠, 배경, 차체 대비가 가장 무난하다. | FT86 v1 기본 후보 |
+| `safe` | 원본 보존은 가장 좋지만 AI 후처리 차이가 적다. | fallback 후보 |
+| `stylized` | 차체 정리는 강하지만 전복 프레임이 검게 뭉치고 휠/하단부가 먹힐 위험이 있다. | 디자인 실험용, 기본 후보 제외 |
+
+최종 결정:
+
+```text
+FT86 Retro Style Filter v1 default candidate:
+sheet-256-ai-retro-v1-balanced.png
+```
+
+런타임 적용용 alias가 필요하면 `balanced`를 보존한 뒤 다음 파일로 복사한다.
+
+```bash
+cp games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced.png \\
+   games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
+```
+
+이후 Phaser에 넣기 전에는 magenta background를 alpha로 복원하는 후처리가 필요하다.
+
+```text
+sheet-256-ai-retro-v1-balanced.png
+-> sheet-256-ai-retro-v1-balanced-alpha.png
+```
+
+기본 규칙:
+
+```text
+#ff00ff -> alpha 0
+나머지 픽셀 -> alpha 255
+```
+
+현재 balanced 결과는 마젠타 배경이 깨끗하게 유지되어 있어 alpha 복원이 안전하다.
+
+### FT86 차체 색상 변경 가능성 검토
+
+질문: `balanced` 결과물을 사용했을 때 Phaser에서 차량 색상을 바꿀 수 있는가?
+
+결론:
+
+```text
+가능하다.
+다만 Phaser의 setTint()가 아니라 body palette swap으로 구현해야 한다.
+```
+
+`setTint()`는 스프라이트 전체에 tint를 곱하는 방식이라 차체뿐 아니라 유리, 타이어, 후미등, 윤곽선까지 같이 물들 수 있다. Apex Seoul에서 필요한 것은 차체색만 바꾸고 나머지 부품은 유지하는 것이다.
+
+원하는 결과:
+
+```text
+차체 회청색 ramp -> 빨강 / 파랑 / 노랑 / 검정 등으로 교체
+유리 / 타이어 / 윤곽 / 후미등 / 마젠타 배경은 유지
+```
+
+현재 `balanced`는 palette lock 이후 색상이 제한되어 있어 이 방식에 적합하다. 대략 다음 계열로 분리할 수 있다.
+
+```text
+body ramp:
+- dark body shadow
+- body shadow
+- body mid
+- body light
+- body highlight
+
+keep:
+- magenta background
+- black/dark outline
+- tire dark
+- glass dark
+- red tail lights
+- rim gray
+```
+
+따라서 구현은 다음 파이프라인이 적절하다.
+
+```text
+AI Retro Filter
+-> palette-lock
+-> magenta-to-alpha
+-> body palette swap
+-> Phaser spritesheet 등록
+```
+
+#### 추천 구현: 로딩 시 색상별 texture 생성
+
+원본 텍스처는 하나만 유지한다.
+
+```text
+sheet-256-ai-retro-v1-balanced-alpha.png
+```
+
+게임 시작 시 색상별 texture를 생성한다.
+
+```text
+ft86-silver
+ft86-red
+ft86-blue
+ft86-yellow
+ft86-black
+```
+
+기본 아이디어:
+
+```ts
+type RGB = [number, number, number];
+
+const MAGENTA: RGB = [255, 0, 255];
+
+const BODY_RAMP: RGB[] = [
+  [40, 58, 70],
+  [72, 86, 96],
+  [100, 116, 126],
+  [102, 124, 134],
+  [118, 132, 140],
+  [140, 158, 166],
+  [154, 166, 172],
+];
+
+const RED_BODY_RAMP: RGB[] = [
+  [54, 18, 18],
+  [82, 28, 28],
+  [116, 38, 38],
+  [142, 48, 48],
+  [166, 64, 64],
+  [198, 92, 86],
+  [226, 132, 118],
+];
+
+function sameRgb(data: Uint8ClampedArray, i: number, rgb: RGB) {
+  return data[i] === rgb[0] && data[i + 1] === rgb[1] && data[i + 2] === rgb[2];
+}
+
+function setRgb(data: Uint8ClampedArray, i: number, rgb: RGB) {
+  data[i] = rgb[0];
+  data[i + 1] = rgb[1];
+  data[i + 2] = rgb[2];
+}
+
+function recolorBodyPixels(
+  imageData: ImageData,
+  fromRamp: RGB[],
+  toRamp: RGB[],
+) {
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] === 0) continue;
+    if (sameRgb(data, i, MAGENTA)) continue;
+
+    const rampIndex = fromRamp.findIndex((rgb) => sameRgb(data, i, rgb));
+
+    if (rampIndex >= 0) {
+      setRgb(data, i, toRamp\[rampIndex]);
+    }
+  }
+
+  return imageData;
+}
+```
+
+Phaser 쪽 texture 생성 흐름:
+
+```ts
+async function createVehicleColorTexture(
+  scene: Phaser.Scene,
+  sourceKey: string,
+  targetKey: string,
+  targetRamp: RGB\[],
+) {
+  const source = scene.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
+
+  const canvasTexture = scene.textures.createCanvas(
+    targetKey,
+    source.width,
+    source.height,
+  );
+
+  if (!canvasTexture) {
+    throw new Error(`Failed to create canvas texture: ${targetKey}`);
+  }
+
+  const ctx = canvasTexture.getContext();
+
+  ctx.clearRect(0, 0, source.width, source.height);
+  ctx.drawImage(source, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, source.width, source.height);
+
+  recolorBodyPixels(imageData, BODY_RAMP, targetRamp);
+
+  ctx.putImageData(imageData, 0, 0);
+  canvasTexture.refresh();
+
+  return targetKey;
+}
+```
+
+spritesheet grid frame을 다시 붙이는 helper:
+
+```ts
+function addGridFrames(
+  scene: Phaser.Scene,
+  textureKey: string,
+  frameWidth: number,
+  frameHeight: number,
+  columns: number,
+  rows: number,
+) {
+  const texture = scene.textures.get(textureKey);
+
+  let frameIndex = 0;
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < columns; col += 1) {
+      texture.add(
+        String(frameIndex),
+        0,
+        col * frameWidth,
+        row * frameHeight,
+        frameWidth,
+        frameHeight,
+      );
+
+      frameIndex += 1;
+    }
+  }
+}
+```
+
+FT86 256px sheet 기준:
+
+```ts
+addGridFrames(scene, 'ft86-red', 256, 256, 3, 6);
+```
+
+#### 후보 body color ramp
+
+Blue:
+
+```ts
+const BLUE_BODY_RAMP: RGB[] = [
+  [18, 28, 54],
+  [28, 42, 82],
+  [38, 64, 116],
+  [48, 84, 142],
+  [64, 108, 166],
+  [92, 142, 198],
+  [126, 174, 226],
+];
+```
+
+Yellow:
+
+```ts
+const YELLOW_BODY_RAMP: RGB[] = [
+  [62, 48, 16],
+  [92, 70, 22],
+  [126, 96, 28],
+  [156, 122, 36],
+  [186, 152, 48],
+  [218, 188, 78],
+  [242, 220, 124],
+];
+```
+
+Silver:
+
+```ts
+const SILVER_BODY_RAMP: RGB[] = [
+  [54, 66, 72],
+  [82, 98, 106],
+  [120, 140, 148],
+  [140, 158, 166],
+  [166, 182, 188],
+  [204, 214, 216],
+  [230, 236, 236],
+];
+```
+
+#### 구현 주의점
+
+- body ramp exact-color replacement를 우선 사용한다.
+- glass/tire/light/outline은 절대 바꾸지 않는다.
+- magenta preview를 직접 대상으로 테스트할 경우 `#ff00ff`는 유지한다.
+- alpha 버전을 대상으로 하면 alpha 0 픽셀은 건드리지 않는다.
+- `setTint()`는 빠른 테스트 외에는 사용하지 않는다.
+- shader palette swap은 나중에 커스터마이징 UI가 필요해질 때 검토한다.
+
+#### 다음 구현 작업
+
+1. `magenta-to-alpha` 후처리 스크립트 추가
+2. `body-palette-swap` 유틸 추가
+3. FT86 balanced-alpha를 기준으로 red/blue/yellow/black texture 생성 테스트
+4. Phaser scene에서 같은 위치 또는 나란히 표시해 도로 위 시인성 확인
+5. body ramp가 너무 어두우면 `palette-lock.mjs`의 body ramp만 한 단계 밝힌다
+
+### Retro Asset Studio variant 실행 구조
+
+현재 `retro_style_filter_v1.api.json`은 공통 ComfyUI workflow 템플릿으로 유지한다. `safe`, `balanced`, `stylized`를 위해 JSON을 3개로 복제하지 않는다.
+
+역할 분리:
+
+```text
+retro_style_filter_v1.api.json
+  = 공통 ComfyUI workflow 템플릿
+
+run-retro-filter.mjs
+  = vehicle preset + variant preset patcher
+
+package.json
+  = 실행 shortcut
+```
+
+`run-retro-filter.mjs`에 추가한 variant preset:
+
+```js
+const variantPresets = {
+    safe: {
+        cannyHigh: 0.75,
+        cannyLow: 0.35,
+        cfg: 4.0,
+        controlNetEnd: 0.7,
+        controlNetStart: 0,
+        controlNetStrength: 0.45,
+        denoise: 0.08,
+        loraStrengthClip: 0.6,
+        loraStrengthModel: 0.35,
+        steps: 16,
+    },
+    balanced: {
+        cannyHigh: 0.75,
+        cannyLow: 0.35,
+        cfg: 4.5,
+        controlNetEnd: 0.6,
+        controlNetStart: 0,
+        controlNetStrength: 0.35,
+        denoise: 0.12,
+        loraStrengthClip: 0.7,
+        loraStrengthModel: 0.45,
+        steps: 20,
+    },
+    stylized: {
+        cannyHigh: 0.75,
+        cannyLow: 0.3,
+        cfg: 4.8,
+        controlNetEnd: 0.5,
+        controlNetStart: 0,
+        controlNetStrength: 0.28,
+        denoise: 0.16,
+        loraStrengthClip: 0.75,
+        loraStrengthModel: 0.55,
+        steps: 22,
+    },
+};
+```
+
+실행 명령:
+
+```bash
+npm run run:ft86
+npm run run:ft86:safe
+npm run run:ft86:balanced
+npm run run:ft86:stylized
+npm run run:ft86:variants
+```
+
+생성 예상:
+
+```text
+sheet-256-ai-retro-v1.png
+sheet-256-ai-retro-v1-safe.png
+sheet-256-ai-retro-v1-balanced.png
+sheet-256-ai-retro-v1-stylized.png
+```
+
+`balanced`는 기본값이며, `safe/stylized` 또는 `variant all`에서는 suffix를 붙여 비교 산출물로 남긴다.
+
 ## 블로그에서 강조할 관찰
 
 이번 작업의 핵심은 AI 이미지 생성 자체가 아니다.
@@ -651,7 +1051,133 @@ fictional coupe intake manifest: done
 G70 replacement plan: documented
 next GPT handoff for FT86 ComfyUI pass: documented
 JOE-to-glTF conversion: not yet implemented
-stinger / ft86 / all: not yet verified
-postprocessing: not yet started
+stinger / all: not yet verified
+ft86 ComfyUI variants: verified
+ft86 balanced candidate: selected as v1 default candidate
+retro filter variants safe/balanced/stylized: implemented/planned in run-retro-filter
+postprocessing: magenta-to-alpha and body palette swap planned
 runtime integration: not yet started
+Phaser vehicle color swap: feasible via body palette swap, not setTint
 ```
+
+## 2026-07-07 추가 결론: FT86 balanced 후보와 색상 변경 방향
+
+FT86 256px spritesheet에 대해 `safe / balanced / stylized` 세 가지 ComfyUI 후처리 결과를 비교했다.
+
+결론:
+
+```text
+선택 후보:
+sheet-256-ai-retro-v1-balanced.png
+
+런타임 후보 alias:
+sheet-256-ai-retro-v1.png
+
+fallback:
+sheet-256-ai-retro-v1-safe.png
+
+보류:
+sheet-256-ai-retro-v1-stylized.png
+````
+
+판단 이유:
+
+* `balanced`는 실루엣 유지, 마젠타 배경 유지, 휠 artifact 억제, 도로 위 시인성의 균형이 가장 좋다.
+* `safe`는 안정적이지만 원본 대비 변화가 적다.
+* `stylized`는 디자인 변화가 크지만 전복 프레임과 하단부가 검게 뭉칠 위험이 있다.
+* 현재 단계에서 추가 ComfyUI 파라미터 튜닝보다 후처리와 runtime QA가 더 중요하다.
+
+다음 구현 방향:
+
+```text
+ComfyUI balanced output
+↓
+palette-lock
+↓
+magenta-to-alpha
+↓
+body palette swap
+↓
+Phaser runtime road visibility QA
+```
+
+### Phaser 차량 색상 변경 판단
+
+`balanced` 결과물은 Phaser에서 차량 색상 변경이 가능하다.
+단, `sprite.setTint()` 방식은 최종안으로 쓰지 않는다.
+
+`setTint()`는 차체뿐 아니라 유리, 타이어, 후미등, 윤곽선까지 같이 물들일 가능성이 크다.
+Apex Seoul에서는 body palette exact-color replacement를 우선 사용한다.
+
+목표:
+
+```text
+body ramp만 교체
+glass / tire / rim / lights / outline / alpha는 유지
+```
+
+추천 구조:
+
+```text
+sheet-256-ai-retro-v1-balanced-alpha.png
+↓
+ft86-red texture
+ft86-blue texture
+ft86-yellow texture
+ft86-silver texture
+```
+
+후보 body ramp:
+
+```ts
+type RGB = [number, number, number];
+
+const SOURCE_BODY_RAMP: RGB[] = [
+  [48, 60, 70],
+  [72, 86, 96],
+  [100, 116, 126],
+  [118, 132, 140],
+  [154, 166, 172],
+];
+
+const BLUE_BODY_RAMP: RGB[] = [
+  [18, 28, 54],
+  [28, 42, 82],
+  [38, 64, 116],
+  [64, 108, 166],
+  [126, 174, 226],
+];
+
+const RED_BODY_RAMP: RGB[] = [
+  [54, 18, 18],
+  [82, 28, 28],
+  [116, 38, 38],
+  [166, 64, 64],
+  [226, 132, 118],
+];
+
+const YELLOW_BODY_RAMP: RGB[] = [
+  [62, 48, 16],
+  [92, 70, 22],
+  [126, 96, 28],
+  [186, 152, 48],
+  [242, 220, 124],
+];
+```
+
+구현 주의:
+
+* alpha 0 픽셀은 건드리지 않는다.
+* preview sheet를 대상으로 할 경우 `#ff00ff`는 절대 바꾸지 않는다.
+* tire 계열 `8,10,14`는 body dark로 흡수하지 않는다.
+* glass 계열은 body ramp와 분리한다.
+* red tail light는 유지한다.
+* wheel ellipse correction은 계속 기본 OFF다.
+
+### 다음 세션의 우선순위
+
+1. `magenta-to-alpha` 스크립트 설계 또는 구현
+2. `body-palette-swap` 유틸 설계 또는 구현
+3. FT86 balanced 후보를 Phaser runtime에 임시 로드
+4. 도로 위 시인성 / 후미등 / 휠 / 전복 프레임 QA
+5. 필요 시 `palette-lock.mjs`의 body palette만 한 단계 밝힘

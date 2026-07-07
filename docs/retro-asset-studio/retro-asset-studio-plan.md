@@ -323,3 +323,90 @@ SpriteSheet Optimizer
 ```
 
 최종 목표는 Apex Seoul 전용 `AI Asset Compiler`다. 다만 당장은 `genesis-g70-256` 한 장을 안정적으로 변환하는 v1 파이프라인을 먼저 고정한다.
+
+## 현재 구현 상태와 다음 단계
+
+v1의 기본 자동화는 동작한다.
+
+완료된 것:
+
+```text
+ComfyUI Docker/local endpoint 연결
+WSL loopback fallback
+UI workflow JSON -> API prompt 변환
+CLIPTextEncode text mapping
+image upload -> /prompt -> history polling -> output download
+vehicle preset: ft86 / g70 / stinger
+variant preset: safe / balanced / stylized
+palette-lock 후처리
+````
+
+현재 기준 실험 차량은 FT86이다.
+G70/VDrift XG 교체는 문서화만 완료하고 구현은 보류한다.
+
+FT86 실행:
+
+```bash
+cd docs/retro-asset-studio
+npm run ping
+npm run dry-run
+npm run run:ft86
+npm run run:ft86:variants
+```
+
+현재 판단:
+
+```text
+safe:
+fallback 후보
+
+balanced:
+FT86 v1 기본 후보
+
+stylized:
+디자인 실험용, runtime 기본 후보 아님
+```
+
+다음 구현 단계는 ComfyUI 튜닝이 아니라 게임용 후처리다.
+
+1. `sheet-256-ai-retro-v1-balanced.png`를 기준 후보로 유지한다.
+2. `sheet-256-ai-retro-v1.png`는 runtime alias 후보로 둔다.
+3. magenta background를 alpha로 복원하는 후처리 스크립트를 만든다.
+4. body palette만 교체하는 utility를 만든다.
+5. Phaser runtime에서 red/blue/yellow/silver FT86 후보를 나란히 표시한다.
+6. 도로 위 시인성, 후미등, 휠, 전복 프레임을 QA한다.
+7. body가 너무 어두우면 `palette-lock.mjs`의 body ramp만 조정한다.
+
+### v1.5: runtime color swap
+
+Depth/Normal/Mask로 넘어가기 전에, 현재 balanced output이 Phaser에서 색상 교체 가능한지 먼저 확인한다.
+
+목표:
+
+```text
+AI retro output
+↓
+magenta-to-alpha
+↓
+body palette swap
+↓
+Phaser runtime QA
+````
+
+이 단계에서는 shader보다 exact-color palette replacement를 우선한다.
+`setTint()`는 빠른 테스트 외에는 사용하지 않는다. 차체뿐 아니라 유리, 타이어, 후미등까지 물들 가능성이 있기 때문이다.
+
+색상 교체 대상은 body ramp뿐이다.
+
+```text
+교체 대상:
+body base / body dark / body highlight
+
+유지 대상:
+glass
+tire
+rim
+tail light
+outline
+alpha
+```

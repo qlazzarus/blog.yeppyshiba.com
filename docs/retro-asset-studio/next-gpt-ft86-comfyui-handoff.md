@@ -5,63 +5,81 @@
 ## 다음 GPT에게 그대로 물어볼 프롬프트
 
 ```text
-너는 blog.yeppyshiba.com repo를 함께 보는 Codex/GPT다.
+너는 `blog.yeppyshiba.com` repo를 함께 보는 Codex/GPT다.
 
 현재 작업 위치:
-- repo: /home/monoless/blog.yeppyshiba.com
-- active package: docs/retro-asset-studio/package.json
-- ComfyUI bridge: docs/retro-asset-studio/scripts/run-retro-filter.mjs
-- progress note: docs/apex-seoul-retro-asset-studio-progress-notes.md
 
-이번 턴 목표:
-G70/VDrift 변환은 아직 하지 않는다. 지금은 FT86 256px 차량 spritesheet를 ComfyUI 후처리로 디자인 실험한다.
+repo: /home/monoless/blog.yeppyshiba.com
+active package: docs/retro-asset-studio/package.json
+ComfyUI bridge: docs/retro-asset-studio/scripts/run-retro-filter.mjs
+progress note: docs/apex-seoul-retro-asset-studio-progress-notes.md
+
+현재 목표:
+
+G70/VDrift XG 교체는 아직 구현하지 않는다.
+지금은 FT86 256px spritesheet의 ComfyUI 후처리 결과를 정리하고,
+다음 단계인 magenta-to-alpha / body palette swap / Phaser runtime QA를 준비한다.
 
 현재 FT86 입력:
-- input: games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png
-- transparent/source candidate: games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.png
-- QA: games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.qa.json
-- expected output: games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
 
-현재 명령:
-- cd docs/retro-asset-studio
-- npm run ping
-- npm run dry-run
-- npm run run:ft86
+input:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png
 
-현재 구현 요약:
-- run-retro-filter.mjs는 ft86/g70/stinger preset을 가진다.
-- ComfyUI URL은 COMFYUI_URL 또는 COMFY_URL로 override 가능하고 기본값은 http://127.0.0.1:8188이다.
-- WSL에서 loopback URL이면 host.docker.internal과 /etc/resolv.conf nameserver 후보도 시도한다.
-- workflow.mjs는 ComfyUI UI workflow JSON을 /prompt API용 prompt로 변환한다.
-- CLIPTextEncode widgets_values는 inputs.text로 매핑되어 있다.
-- patchRetroPrompt가 checkpoint, LoRA, LoadImage, Canny, ControlNet, KSampler, SaveImage 값을 patch한다.
-- 기본 모델/파라미터는 checkpoint dreamshaper_8.safetensors, LoRA [Qwen.Image]PixelArt_Redmond.safetensors, ControlNet Canny, denoise 0.1, cfg 4.5, steps 20, sampler euler, scheduler simple이다.
-- 다운로드 후 palette-lock.mjs가 기본 실행된다.
-- palette lock은 magenta background, body, glass, light, dark tire/rim 계열로 색을 제한한다.
-- QA 기반 wheel ellipse correction은 기본 비활성화 상태여야 한다. 이전 G70에서 원형 타이어 artifact를 만들었기 때문이다.
-- `--vehicle ft86 --output ...` 조합은 명시 output을 존중하도록 수정되어 있다.
+transparent/source candidate:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.png
 
-주의:
-- G70/VDrift XG 변환은 지금 단계가 아니다.
-- 지금은 FT86 디자인 후처리만 다룬다.
-- source model이나 runtime import를 바꾸지 않는다.
-- wheel ellipse 보정을 다시 켜지 않는다.
-- FT86의 원래 실루엣과 viewpoint를 유지한다.
-- ComfyUI는 generator가 아니라 style filter로 제한한다.
+QA:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.qa.json
 
-내가 원하는 도움:
-1. FT86용 ComfyUI prompt/negative prompt 개선안을 제안해줘.
-2. denoise/cfg/controlNetStrength/steps를 2-3개 실험 preset으로 나눠줘.
-3. palette-lock.mjs가 FT86 디자인을 너무 회청색으로 고정할 수 있는지 검토해줘.
-4. `run:ft86` 실험을 v1/v2/v3 output으로 비교할 수 있는 최소 변경안을 제안해줘.
-5. 가능하면 다음 Codex가 바로 구현할 수 있게 파일별 변경 계획을 제시해줘.
+default output:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
 
-중요한 판단 기준:
-- vehicle silhouette 유지
-- rear/side pose의 wheel artifact 방지
-- magenta background 유지 또는 후속 alpha 복원 가능성 유지
-- Phaser runtime에서 도로 위 시인성
-- body color가 나중에 palette replacement로 바뀔 수 있도록 body palette 분리
+현재 구현 상태:
+
+* `run-retro-filter.mjs`는 `ft86 / g70 / stinger` vehicle preset을 가진다.
+* `run-retro-filter.mjs`는 `safe / balanced / stylized` variant preset을 가진다.
+* `--variant all` 실행 시 세 결과를 suffix 파일로 생성한다.
+* `package.json`에는 `run:ft86:safe`, `run:ft86:balanced`, `run:ft86:stylized`, `run:ft86:variants`가 있다.
+* ComfyUI URL은 `COMFYUI_URL`, `COMFY_URL`, `--comfy-url`로 override 가능하고 기본값은 `http://127.0.0.1:8188`이다.
+* workflow 변환은 `workflow.mjs`가 담당한다.
+* `CLIPTextEncode`의 `widgets_values` → `inputs.text` 매핑은 해결되어 있다.
+* 다운로드 후 `palette-lock.mjs`가 기본 실행된다.
+* QA 기반 wheel ellipse correction은 기본 비활성화 상태를 유지해야 한다.
+
+현재 FT86 판단:
+
+safe:
+- 실루엣 보존은 가장 좋음
+- AI 후처리 변화는 약함
+- fallback 후보
+
+balanced:
+- 현재 v1 기본 후보
+- 실루엣, 휠, 배경, 차체 대비가 가장 균형 좋음
+- sheet-256-ai-retro-v1.png 후보
+
+stylized:
+- 디자인 변화는 크지만 전복 프레임과 휠 하단부가 어두운 덩어리로 뭉칠 위험 있음
+- 기본 후보로 사용하지 않음
+
+중요한 제약:
+
+* G70/VDrift XG 구현으로 넘어가지 않는다.
+* source model, `real-vehicle-poc.json`, Phaser runtime import는 건드리지 않는다.
+* wheel ellipse correction을 다시 켜지 않는다.
+* FT86의 원래 실루엣과 viewpoint를 유지한다.
+* ComfyUI는 generator가 아니라 style filter로 제한한다.
+* `setTint()` 기반 색상 변경은 최종안으로 쓰지 않는다.
+
+다음 작업 후보:
+
+1. `sheet-256-ai-retro-v1-balanced.png` 또는 `sheet-256-ai-retro-v1.png`를 기준으로 magenta-to-alpha 후처리 스크립트를 만든다.
+2. alpha sheet 기준 body palette swap 유틸을 만든다.
+3. red/blue/yellow/silver body ramp를 생성해 Phaser에서 나란히 표시한다.
+4. 어두운 도로 위에서 시인성을 검토한다.
+5. body ramp가 너무 어두우면 `palette-lock.mjs`의 body palette만 조정한다.
+6. 이 단계가 안정화된 뒤에야 G70/VDrift XG 교체 계획으로 돌아간다.
+
 ```
 
 ## 현재 실제 스크립트 구현 정리
