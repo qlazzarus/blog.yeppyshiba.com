@@ -18,7 +18,7 @@ progress note: docs/apex-seoul-retro-asset-studio-progress-notes.md
 
 G70/VDrift XG 교체는 아직 구현하지 않는다.
 지금은 FT86 256px spritesheet의 ComfyUI 후처리 결과를 정리하고,
-다음 단계인 magenta-to-alpha / body palette swap / Phaser runtime QA를 준비한다.
+이미 구현된 magenta-to-alpha / body palette swap / Phaser runtime QA 경로를 검증한다.
 
 현재 FT86 입력:
 
@@ -71,13 +71,21 @@ stylized:
 * ComfyUI는 generator가 아니라 style filter로 제한한다.
 * `setTint()` 기반 색상 변경은 최종안으로 쓰지 않는다.
 
+현재 후처리 구현:
+
+1. `games/apex-seoul/scripts/postprocess-ft86-retro-sheet.mjs`가 magenta-to-alpha, role audit, body palette swap, shadow, runtime atlas를 생성한다.
+2. body palette는 silver/red/blue/yellow flat 3-shade profile이다.
+3. hidden magenta RGB는 제거했고, edge bleed 완화를 위해 차량 주변 transparent pixel에는 nearest opaque RGB를 채운다.
+4. 차체 내부 디테일은 유지하고, 투명 배경/outline에 닿은 고립 edge body 픽셀만 outline으로 흡수한다.
+5. Phaser runtime은 `?vehicle=ft86-retro&vehicleColor=silver|red|blue|yellow` URL parameter로 선택한다.
+
 다음 작업 후보:
 
-1. `sheet-256-ai-retro-v1-balanced.png` 또는 `sheet-256-ai-retro-v1.png`를 기준으로 magenta-to-alpha 후처리 스크립트를 만든다.
-2. alpha sheet 기준 body palette swap 유틸을 만든다.
-3. red/blue/yellow/silver body ramp를 생성해 Phaser에서 나란히 표시한다.
-4. 어두운 도로 위에서 시인성을 검토한다.
-5. body ramp가 너무 어두우면 `palette-lock.mjs`의 body palette만 조정한다.
+1. dev server에서 FT86 색상 후보를 눈으로 확인한다.
+2. `sheet-256-ai-retro-v1-balanced-roles.png`로 body/glass/tire/light role 분류를 검토한다.
+3. 경계선이 계속 보이면 Phaser texture filtering/pixelArt 설정 또는 runtime display scale을 확인한다.
+4. Windows/WSL browser capture 문제가 해결되면 `qa:ft86-runtime-colors` contact sheet를 생성한다.
+5. edge cleanup이 너무 강하거나 약하면 ComfyUI가 아니라 `postprocess-ft86-retro-sheet.mjs`의 `cleanEdgeBodyNoise` 조건만 조정한다.
 6. 이 단계가 안정화된 뒤에야 G70/VDrift XG 교체 계획으로 돌아간다.
 
 ```
@@ -95,12 +103,16 @@ stylized:
   "run": "node scripts/run-retro-filter.mjs --run",
   "run:all": "node scripts/run-retro-filter.mjs --run --vehicle all",
   "run:ft86": "node scripts/run-retro-filter.mjs --run --vehicle ft86",
+  "run:ft86:safe": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant safe",
+  "run:ft86:balanced": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant balanced",
+  "run:ft86:stylized": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant stylized",
+  "run:ft86:variants": "node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant all",
   "run:g70": "node scripts/run-retro-filter.mjs --run --vehicle g70",
   "run:stinger": "node scripts/run-retro-filter.mjs --run --vehicle stinger"
 }
 ```
 
-주의: 진행 메모에는 Node version guard가 언급되어 있지만, 현재 `package.json`에는 `pre*` script가 없다. 다음 구현 시 실제 파일 기준으로 확인해야 한다.
+주의: `package.json`에는 `engines.node >=18`이 있지만 현재 `pre*` script는 없다. Node 18 미만에서는 먼저 `node --version`을 확인한다.
 
 ### `run-retro-filter.mjs`
 
@@ -152,7 +164,7 @@ controlNetStart: 0
 controlNetEnd: 0.6
 cannyLow: 0.35
 cannyHigh: 0.75
-denoise: 0.1
+denoise: 0.12
 cfg: 4.5
 steps: 20
 sampler: euler
@@ -297,13 +309,13 @@ stylized  768x1536 colors=15 opaque=1179648 magenta=1070596 size=69K
 - `stylized`는 변화량은 가장 크지만 차체가 여전히 palette lock 때문에 회청색으로 많이 고정된다.
 - 세 결과 모두 body palette가 다소 회청색으로 좁게 묶이는 느낌이 있어, 다음 조정은 prompt보다 `palette-lock.mjs`의 FT86/body palette profile 쪽일 가능성이 있다.
 
-## 다음 Codex 구현 후보
+## 다음 Codex 작업 후보
 
-1. `npm run ping`으로 ComfyUI 연결을 확인한다.
-2. FT86 safe/balanced/stylized 세 장을 생성한다.
-3. `package.json`에 `run:ft86:safe`, `run:ft86:balanced`, `run:ft86:stylized`를 추가할지 검토한다.
-4. FT86 전용 prompt override를 CLI로 넣을 수 있게 `--positive-prompt`, `--negative-prompt` 옵션을 추가할지 검토한다.
-5. palette lock이 FT86을 너무 단색 회청색으로 만들면 `--palette-profile ft86` 또는 `--no-palette-lock` 비교 실험을 한다.
+1. dev server에서 `?vehicle=ft86-retro&vehicleColor=silver|red|blue|yellow` 후보를 확인한다.
+2. `sheet-256-ai-retro-v1-balanced-roles.png`로 role 분류가 실제 차체/유리/타이어/후미등과 맞는지 확인한다.
+3. 경계선이 계속 보이면 Phaser texture filtering/pixelArt 설정 또는 runtime display scale을 확인한다.
+4. Windows/WSL browser capture 문제가 해결되면 `qa:ft86-runtime-colors` contact sheet를 생성한다.
+5. edge cleanup이 너무 강하거나 약하면 `postprocess-ft86-retro-sheet.mjs`의 `cleanEdgeBodyNoise` 조건만 조정한다.
 
 ## 지금은 하지 않는 것
 
@@ -316,7 +328,6 @@ stylized  768x1536 colors=15 opaque=1179648 magenta=1070596 size=69K
 ## 다음 세션 첫 액션
 
 1. 이 문서를 읽는다.
-2. `npm run ping`으로 ComfyUI 연결을 확인한다.
-3. FT86 safe/balanced/stylized 세 장을 생성한다.
-4. 결과를 눈으로 비교하고, 가장 좋은 prompt/parameter를 v1 기준으로 고정한다.
-5. 필요하면 prompt override CLI 또는 FT86 palette profile을 작게 구현한다.
+2. `docs/retro-asset-studio/README.md`와 `TODO.md`의 최신 next task를 확인한다.
+3. ComfyUI 재실행이 필요한 작업인지, postprocess만 필요한 작업인지 구분한다.
+4. 우선 runtime URL에서 FT86 edge-clean color 후보를 눈으로 확인한다.

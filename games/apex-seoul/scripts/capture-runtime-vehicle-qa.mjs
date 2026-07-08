@@ -13,6 +13,8 @@ const config = {
     capture: true,
     outputDir: 'assets/vehicles/generated/runtime-qa/genesis-g70-poc',
     track: null,
+    vehicle: null,
+    vehicleColors: [],
     virtualTimeBudget: 5000,
     viewportHeight: 760,
     viewportWidth: 1200,
@@ -33,6 +35,12 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--track' && next) {
         config.track = next;
+        index += 1;
+    } else if (arg === '--vehicle' && next) {
+        config.vehicle = next;
+        index += 1;
+    } else if (arg === '--vehicle-colors' && next) {
+        config.vehicleColors = next.split(',').map((value) => value.trim()).filter(Boolean);
         index += 1;
     } else if (arg === '--width' && next) {
         config.viewportWidth = parsePositiveInteger(arg, next);
@@ -62,6 +70,8 @@ const report = {
     ],
     outputDir: path.relative(projectRoot, outputDir),
     track: config.track,
+    vehicle: config.vehicle,
+    vehicleColors: config.vehicleColors,
     scenarios: [],
     viewport: {
         height: config.viewportHeight,
@@ -113,6 +123,7 @@ console.log(`Failed: ${failedCount}`);
 console.log(`Manifest wrote ${path.relative(projectRoot, path.join(outputDir, 'runtime-qa.manifest.json'))}`);
 
 function buildRuntimeQaScenarios() {
+    const vehicleSamples = buildVehicleSamples();
     const steeringSamples = [
         { id: 'left-strong', qaSteer: -1 },
         { id: 'center', qaSteer: 0 },
@@ -137,30 +148,55 @@ function buildRuntimeQaScenarios() {
     ];
     const scenarios = [];
 
-    for (const terrain of terrainSamples) {
-        for (const steering of steeringSamples) {
-            scenarios.push({
-                expected: {
-                    steering: steering.id,
-                    terrain: terrain.id,
-                },
-                id: `fov69-${terrain.id}-${steering.id}`,
-                params: {
-                    anchorResponse: 0.22,
-                    curveCarBias: 32,
-                    fov: 69,
-                    ...(config.track ? { track: config.track } : {}),
-                    qaFreeze: 1,
-                    qaSpeed: 440,
-                    qaSteer: steering.qaSteer,
-                    qaZ: terrain.qaZ,
-                    terrainThreshold: terrain.terrainThreshold,
-                },
-            });
+    for (const vehicle of vehicleSamples) {
+        for (const terrain of terrainSamples) {
+            for (const steering of steeringSamples) {
+                scenarios.push({
+                    expected: {
+                        steering: steering.id,
+                        terrain: terrain.id,
+                        vehicle: vehicle.id,
+                        vehicleColor: vehicle.color ?? null,
+                    },
+                    id: [
+                        vehicle.id,
+                        vehicle.color,
+                        'fov69',
+                        terrain.id,
+                        steering.id,
+                    ].filter(Boolean).join('-'),
+                    params: {
+                        anchorResponse: 0.22,
+                        curveCarBias: 32,
+                        fov: 69,
+                        ...(config.track ? { track: config.track } : {}),
+                        ...(vehicle.id ? { vehicle: vehicle.id } : {}),
+                        ...(vehicle.color ? { vehicleColor: vehicle.color } : {}),
+                        qaFreeze: 1,
+                        qaSpeed: 440,
+                        qaSteer: steering.qaSteer,
+                        qaZ: terrain.qaZ,
+                        terrainThreshold: terrain.terrainThreshold,
+                    },
+                });
+            }
         }
     }
 
     return scenarios;
+}
+
+function buildVehicleSamples() {
+    if (!config.vehicle) {
+        return [{ color: null, id: null }];
+    }
+
+    const colors = config.vehicleColors.length > 0 ? config.vehicleColors : [null];
+
+    return colors.map((color) => ({
+        color,
+        id: config.vehicle,
+    }));
 }
 
 function buildScenarioUrl(baseUrl, params) {

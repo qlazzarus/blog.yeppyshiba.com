@@ -95,9 +95,9 @@ SyntaxError: Unexpected identifier
 - `Blob`
 - `FormData`
 
-따라서 Node.js 18 이상이 필요하다. 이 문제를 빠르게 알아차릴 수 있도록 `package.json`에 `engines.node >=18`을 추가하고, npm script 앞에 `check-node-version.cjs`를 붙였다.
+따라서 Node.js 18 이상이 필요하다. 이 문제를 빠르게 알아차릴 수 있도록 `package.json`에 `engines.node >=18`을 추가했고, `check-node-version.cjs` helper도 남겨뒀다.
 
-이제 오래된 Node에서는 이상한 `.mjs` 파싱 오류 대신 다음 안내가 나온다.
+현재 `package.json` scripts에는 아직 `pre*` hook이 없으므로, 오래된 Node에서 다음 안내를 항상 보장하려면 helper를 `preping`, `predry-run`, `prerun` 등에 연결해야 한다.
 
 ```text
 retro-asset-studio requires Node.js 18 or newer.
@@ -1054,9 +1054,10 @@ JOE-to-glTF conversion: not yet implemented
 stinger / all: not yet verified
 ft86 ComfyUI variants: verified
 ft86 balanced candidate: selected as v1 default candidate
-retro filter variants safe/balanced/stylized: implemented/planned in run-retro-filter
+retro filter variants safe/balanced/stylized: implemented in run-retro-filter
 postprocessing: magenta-to-alpha and body palette swap planned
-runtime integration: not yet started
+postprocessing: magenta-to-alpha and body palette swap implemented
+runtime integration: FT86 retro color QA route implemented
 Phaser vehicle color swap: feasible via body palette swap, not setTint
 ```
 
@@ -1078,7 +1079,7 @@ sheet-256-ai-retro-v1-safe.png
 
 보류:
 sheet-256-ai-retro-v1-stylized.png
-````
+```
 
 판단 이유:
 
@@ -1174,10 +1175,415 @@ const YELLOW_BODY_RAMP: RGB[] = [
 * red tail light는 유지한다.
 * wheel ellipse correction은 계속 기본 OFF다.
 
+## 2026-07-08 추가 결론: 색상 교체는 tint가 아니라 palette compiler 문제였다
+
+FT86 `balanced` 후보를 실제 Phaser runtime에 넣기 위해 후처리 스크립트를 추가했다.
+
+```text
+ComfyUI balanced output
+↓
+magenta-to-alpha
+↓
+palette role audit
+↓
+body palette swap
+↓
+runtime atlas / shadow 생성
+↓
+Phaser runtime QA URL
+```
+
+구현 위치:
+
+```text
+games/apex-seoul/scripts/postprocess-ft86-retro-sheet.mjs
+```
+
+생성 산출물:
+
+```text
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-source-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-red-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-blue-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json
+```
+
+실행:
+
+```bash
+npm run postprocess:ft86-retro --workspace @games/apex-seoul
+```
+
+### 첫 번째 구현: exact-color body ramp swap
+
+처음에는 `SOURCE_BODY_RAMP` 5색만 다른 색 ramp로 치환했다.
+이 방식은 `setTint()`보다 낫다. 유리, 타이어, 후미등, 윤곽선까지 같이 물들이지 않기 때문이다.
+
+하지만 runtime에서 `vehicleColor=red`를 적용해 보니 차체 위에 red speckle처럼 보이는 점들이 생겼다.
+처음에는 ComfyUI 결과에 남은 red noise로 의심했지만, 실제 원인은 palette swap 쪽에 있었다.
+
+원인:
+
+```text
+원본 palette에서 body처럼 보이는 색:
+140,158,166
+102,124,134
+40,58,70
+
+기존 SOURCE_BODY_RAMP에 포함된 색:
+48,60,70
+72,86,96
+100,116,126
+118,132,140
+154,166,172
+```
+
+즉 차체 전체가 red ramp로 바뀐 것이 아니라, 일부 차체 픽셀만 red로 바뀌고 나머지 회청색 픽셀은 남았다.
+그 결과 "빨간 잡티"처럼 보였다.
+
+블로그 포인트:
+
+* AI가 이상한 speckle을 만든 것이 아니라, 사람이 만든 palette mapping이 차체 role을 충분히 설명하지 못했다.
+* 색상 교체는 단순한 RGB 치환이 아니라, 제한 palette의 각 색을 어떤 material role로 볼지 정하는 문제다.
+* `setTint()`를 피한 뒤에도 semantic palette mapping이 필요하다.
+
+### 두 번째 구현: palette role audit
+
+후처리 스크립트에 palette role audit을 추가했다.
+
+```text
+ft86-retro-palette-audit.json
+sheet-256-ai-retro-v1-balanced-roles.png
+```
+
+역할 분류:
+
+```text
+body
+tire
+outline
+shadow
+tail-light
+amber-light
+```
+
+현재 audit 기준:
+
+```text
+body: 53772
+tire: 30837
+outline: 22631
+tail-light: 1647
+shadow: 425
+amber-light: 7
+```
+
+`sheet-256-ai-retro-v1-balanced-roles.png`는 false-color preview다.
+body는 초록, tire/outline은 어두운 회색, light는 빨강/주황으로 표시한다.
+이 이미지는 블로그에서 "왜 palette role이 필요한가"를 보여주는 좋은 그림이 된다.
+
+### 세 번째 구현: soft ramp
+
+role 기반 swap 이후에는 색상은 안정적으로 바뀌었다.
+하지만 runtime 크기로 축소하면 body shade 간 gradient 차이가 작은 speckle처럼 보일 수 있었다.
+
+특히 기존 blue/yellow ramp는 상위 shade 간 점프가 컸다.
+
+```text
+blue old highlight:
+64,108,166 -> 126,174,226
+
+yellow old highlight:
+186,152,48 -> 242,220,124
+```
+
+그래서 runtime sprite용 body ramp를 더 낮은 대비의 soft ramp로 바꿨다.
+
+현재 방향:
+
+```text
+색을 예쁘게 크게 보여주는 ramp
+    보다
+도로 위 작은 sprite에서 덜 튀는 ramp
+```
+
+블로그 포인트:
+
+* pixel art asset에서는 "색상 후보가 예쁜가"보다 "게임 카메라 크기에서 읽히는가"가 중요하다.
+* 256px source에서는 좋아 보이는 하이라이트가 runtime scale에서는 speckle처럼 보일 수 있다.
+* palette compiler는 최종 표시 크기까지 고려해야 한다.
+
+### 네 번째 구현: alpha edge bleed 정리
+
+Git changes에서 생성된 PNG를 확인하니 차량 테두리 주변에 경계선이 생긴 것처럼 보였다.
+이 문제는 body ramp보다 alpha PNG의 hidden RGB 문제일 가능성이 컸다.
+
+확인 결과:
+
+```text
+alpha 0 픽셀 수: 1070329
+alpha 0인데 RGB가 magenta인 픽셀: 1070329
+opaque 차량 픽셀 중 투명 magenta와 인접한 픽셀: 5372
+```
+
+즉 `magenta-to-alpha`가 alpha만 0으로 바꾸고, RGB는 `255,0,255`로 남기고 있었다.
+PNG 자체를 확대해서 볼 때는 투명하므로 잘 안 보이지만, WebGL texture sampling이나 scaling에서는 이 hidden RGB가 경계 bleed로 보일 수 있다.
+
+수정:
+
+```text
+alpha 0 + magenta RGB
+↓
+alpha 0 + transparent RGB cleanup
+↓
+nearest opaque RGB를 2px radius 안에서 투명 영역으로 확장
+```
+
+수정 후 확인:
+
+```text
+transparentMagenta: 0
+adjacentMagenta: 0
+transparentNearOpaque: 5402
+transparentNearOpaqueNonZero: 5402
+```
+
+의미:
+
+* 더 이상 hidden magenta가 투명 픽셀에 남아 있지 않다.
+* 차량 가장자리 주변 투명 픽셀은 가까운 차량 색을 품고 있어서 linear filtering이 걸려도 magenta halo가 나오지 않는다.
+* 완전히 먼 투명 배경은 검정 RGB에 alpha 0으로 유지된다.
+
+블로그 포인트:
+
+* alpha 0이면 끝이 아니다. GPU sampling은 hidden RGB까지 끌고 들어올 수 있다.
+* magenta keying을 alpha로 바꾼 뒤에는 RGB cleanup 또는 edge padding이 필요하다.
+* sprite compiler는 "보이는 픽셀"뿐 아니라 "투명 픽셀의 색"도 관리해야 한다.
+
+### 다섯 번째 구현: flat body profile
+
+edge bleed를 정리한 뒤에도 runtime 크기에서는 silver/red/blue/yellow의 그라데이션 차이가 작은 speckle처럼 보일 수 있었다.
+이 단계에서는 ComfyUI를 다시 돌리는 것보다 최종 표시 크기에 맞게 body shade 수를 줄이는 편이 맞다.
+
+수정:
+
+```text
+기존:
+body shade 5단계에 가까운 soft ramp
+
+변경:
+body shade를 3단계 flat profile로 병합
+```
+
+현재 `postprocess-ft86-retro-sheet.mjs`의 색상별 body shade:
+
+```text
+silver:
+58,72,82 / 104,118,126 / 132,146,154
+
+red:
+62,28,28 / 108,52,48 / 142,86,74
+
+blue:
+30,42,66 / 58,82,116 / 96,126,158
+
+yellow:
+76,62,26 / 124,102,42 / 176,154,82
+```
+
+실제 생성 PNG의 opaque 색상 분포도 이 방향으로 정리됐다.
+
+```text
+silver body:
+132,146,154: 29545
+104,118,126: 19360
+58,72,82: 4867
+
+red body:
+142,86,74: 29545
+108,52,48: 19360
+62,28,28: 4867
+
+blue body:
+96,126,158: 29545
+58,82,116: 19360
+30,42,66: 4867
+
+yellow body:
+176,154,82: 29545
+124,102,42: 19360
+76,62,26: 4867
+```
+
+타이어, 윤곽선, 후미등, amber light는 기존 role 그대로 유지된다.
+
+블로그 포인트:
+
+* 좋은 palette는 source PNG에서만 판단하면 안 된다.
+* 작은 runtime sprite에서는 shade 수가 많을수록 디테일이 아니라 노이즈처럼 읽힐 수 있다.
+* 마지막 body color는 ComfyUI가 아니라 postprocess compiler가 책임지는 편이 안정적이다.
+
+### 여섯 번째 구현: 2톤 profile은 과했고 edge-only cleanup으로 되돌림
+
+3단계 flat profile 이후에도 테두리 근처에 남은 색 노이즈가 보여서, 한때 body-only despeckle과 2톤 profile을 시도했다.
+하지만 이 방향은 차체 중앙 디테일까지 뭉개서 사용자가 원한 결과보다 너무 단순해졌다.
+
+따라서 2톤 profile은 폐기하고, 현재 구현은 다음 원칙으로 되돌렸다.
+
+```text
+유지:
+3단계 flat body profile
+
+제거:
+차체 내부 전체 despeckle
+2톤 runtime-clean profile
+
+추가:
+투명 배경/outline에 닿은 고립 edge body 픽셀만 outline으로 흡수
+```
+
+현재 cleanup은 `cleanEdgeBodyNoise`에서 처리한다.
+조건은 보수적으로 잡았다.
+
+```text
+대상:
+body pixel
+
+조건:
+투명 픽셀과 인접
+주변 body 연결이 약함
+주변 outline/tire 계열 dark pixel이 충분함
+
+결과:
+outline color 16,20,25로 흡수
+```
+
+재생성 후 색상 분포는 다시 3톤 구조를 유지한다.
+
+```text
+silver body:
+132,146,154: 29492
+104,118,126: 18555
+58,72,82: 3914
+
+blue body:
+96,126,158: 29492
+58,82,116: 18555
+30,42,66: 3914
+```
+
+outline은 edge cleanup 영향으로 늘었다.
+
+```text
+outline:
+24442
+```
+
+블로그 포인트:
+
+* 후처리는 적게 고치는 쪽이 더 어렵다.
+* 차체 내부 디테일을 제거하면 노이즈는 사라지지만 sprite의 맛도 같이 사라진다.
+* 이번 문제의 중심은 body shade 전체가 아니라 edge에 남은 고립 픽셀이었다.
+
+### Phaser runtime QA
+
+Phaser runtime에서는 기본 G70 import를 그대로 두고, URL parameter로만 FT86 retro 후보를 선택하게 했다.
+
+```text
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=silver
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=red
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=blue
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=yellow
+```
+
+QA freeze와 함께 쓰면 같은 도로/카메라 상태에서 색상 후보를 비교할 수 있다.
+
+```text
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=red&qaFreeze=1&qaSteer=0&qaSpeed=440&qaZ=1200
+```
+
+`capture-runtime-vehicle-qa.mjs`에도 `--vehicle`과 `--vehicle-colors` 옵션을 추가했다.
+
+```bash
+npm run qa:ft86-runtime-colors --workspace @games/apex-seoul -- --manifest-only
+```
+
+현재 WSL 환경에서 Windows Edge headless capture는 `UtilBindVsockAnyPort` 오류로 실패했다.
+따라서 screenshot capture는 보류하고, manifest-only URL matrix를 먼저 남겨둔다.
+
+### 공개 글로 풀 때의 흐름
+
+이번 파트는 "AI가 만든 이미지를 색만 바꿨다"보다 다음 흐름으로 쓰는 편이 좋다.
+
+1. ComfyUI는 sprite generator가 아니라 style filter다.
+2. palette lock으로 색 수를 줄이면 색상 교체가 가능해진다.
+3. `setTint()`는 빠르지만 부품 전체를 물들이므로 최종안이 아니다.
+4. exact RGB replacement도 role 정의가 틀리면 speckle처럼 보인다.
+5. 그래서 palette role audit과 false-color preview가 필요했다.
+6. runtime scale에서는 soft ramp도 작은 얼룩처럼 보일 수 있어 3단계 flat profile로 줄였다.
+7. 2톤 profile은 차체를 너무 뭉개므로 폐기하고, edge-only cleanup만 남겼다.
+8. alpha edge bleed까지 정리해야 WebGL scaling에서 테두리 경계선이 줄어든다.
+
+### 다음 턴 블로그 초안 구조
+
+제목 후보:
+
+1. `ComfyUI 결과를 게임 스프라이트로 쓰기까지: FT86 palette compiler 만들기`
+2. `AI가 만든 픽셀카를 Phaser에 넣으려면 색부터 다시 컴파일해야 했다`
+3. `Apex Seoul Retro Asset Studio: style filter 이후의 후처리 이야기`
+
+추천 제목은 1번이다.
+이번 글의 핵심은 ComfyUI 자체보다 "이미 나온 AI 결과물을 게임에서 안정적으로 쓰기 위해 어떤 compiler 단계를 붙였는가"에 있다.
+
+글의 한 줄:
+
+```text
+ComfyUI는 FT86 spritesheet에 레트로 스타일을 얹어줬지만, Phaser runtime에 넣기 위해서는 alpha, palette role, body color swap, edge bleed까지 다시 asset compiler로 정리해야 했다.
+```
+
+본문 구조:
+
+1. 왜 ComfyUI를 generator가 아니라 style filter로 제한했는가
+2. `setTint()`가 빠른 답처럼 보였지만 최종 답이 아니었던 이유
+3. exact RGB replacement에서 red speckle처럼 보인 실패
+4. palette role audit과 false-color preview를 만든 이유
+5. magenta-to-alpha 이후 hidden RGB가 edge bleed를 만들 수 있다는 점
+6. runtime scale에서 soft/3-shade ramp를 조정한 과정
+7. 2톤 profile을 시도했다가 너무 뭉개져 폐기한 과정
+8. 최종적으로 edge-only cleanup만 남긴 이유
+9. 다음 작업: QA contact sheet, texture filtering/pixelArt 검토, VDrift XG는 아직 보류
+
+넣기 좋은 코드/파일:
+
+```text
+games/apex-seoul/scripts/postprocess-ft86-retro-sheet.mjs
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-palette-audit.json
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-roles.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png
+```
+
+넣기 좋은 URL:
+
+```text
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=silver
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=red
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=blue
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=yellow
+```
+
+글에서 조심할 표현:
+
+* "AI가 망쳤다"보다 "AI output을 game-ready asset으로 컴파일하는 단계가 필요했다"로 쓴다.
+* 2톤 profile은 최종안이 아니라 과보정 실패 사례로 설명한다.
+* 현재 최종 방향은 3단계 body profile 유지 + edge-only cleanup이다.
+* G70/VDrift XG는 다음 대작업 계획으로만 언급하고, 이 글에서는 구현으로 넘어가지 않는다.
+
 ### 다음 세션의 우선순위
 
-1. `magenta-to-alpha` 스크립트 설계 또는 구현
-2. `body-palette-swap` 유틸 설계 또는 구현
-3. FT86 balanced 후보를 Phaser runtime에 임시 로드
-4. 도로 위 시인성 / 후미등 / 휠 / 전복 프레임 QA
-5. 필요 시 `palette-lock.mjs`의 body palette만 한 단계 밝힘
+1. 위 구조를 바탕으로 블로그 초안을 작성한다.
+2. 필요하면 dev server에서 silver/red/blue/yellow 후보를 다시 확인한다.
+3. 스크린샷이 필요하면 `qa:ft86-runtime-colors` contact sheet 또는 수동 캡처를 사용한다.
+4. 기술 후속 작업은 texture filtering/pixelArt 설정 확인과 `cleanEdgeBodyNoise` 조건 조정으로 분리한다.

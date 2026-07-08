@@ -1,6 +1,41 @@
 # Retro Asset Studio
 
-Local ComfyUI bridge for Apex Seoul sprite experiments.
+Local ComfyUI bridge for Apex Seoul vehicle sprite experiments.
+
+현재 목표는 Stable Diffusion을 차량 generator로 쓰는 것이 아니라, Three.js/pixel-pass로 만든 차량 spritesheet에 retro style filter를 얹고 마지막 palette를 게임용으로 고정하는 것이다.
+
+```text
+Three.js vehicle render
+-> pixel candidate
+-> ComfyUI img2img + Canny ControlNet
+-> palette lock
+-> postprocess for Phaser spritesheet
+```
+
+## Current Focus
+
+FT86가 현재 기준 실험 차량이다.
+
+```text
+input:
+../../games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png
+
+default output / runtime alias:
+../../games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
+
+current baseline candidate:
+../../games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced.png
+```
+
+판단:
+
+| Variant | Use |
+| --- | --- |
+| `balanced` | FT86 v1 기본 후보 |
+| `safe` | 실루엣 보존 fallback |
+| `stylized` | 디자인 실험용, runtime 기본 후보 아님 |
+
+G70/VDrift XG 교체는 문서화만 완료된 보류 작업이다. 지금 단계에서 source model, `real-vehicle-poc.json`, Phaser runtime import는 건드리지 않는다.
 
 ## Requirements
 
@@ -17,7 +52,7 @@ nvm install 22
 nvm use 22
 ```
 
-Note: `check-node-version.cjs` exists as a helper, but the current `package.json` scripts do not yet run it as a `pre*` hook. For now, check `node --version` manually before running the studio. If this becomes a recurring issue, wire the helper into `preping`, `predry-run`, and `prerun` scripts.
+`package.json` declares `engines.node >=18`. `check-node-version.cjs` exists as a helper, but the current npm scripts do not run it as a `pre*` hook.
 
 ## Connection
 
@@ -34,77 +69,31 @@ ports:
   - "127.0.0.1:8188:8188"
 ```
 
-Codex and local scripts can connect through the ComfyUI HTTP API. The UI does not need browser automation.
+Codex and local scripts connect through the ComfyUI HTTP API. Browser automation for the ComfyUI UI is not needed.
 
-You can override the endpoint with either `COMFYUI_URL` or `--comfy-url`:
+Endpoint override:
 
 ```bash
 COMFYUI_URL=http://127.0.0.1:8188 npm run ping
 npm run ping -- --comfy-url http://127.0.0.1:8188
 ```
 
-### WSL and Windows-host ComfyUI
+If this repo runs in WSL but ComfyUI runs directly on Windows, WSL's `127.0.0.1` may not be the Windows loopback. When the URL was not explicitly overridden, `npm run ping` first tries `127.0.0.1`, then probes common WSL host candidates.
 
-If this repo runs in WSL but ComfyUI is running directly on Windows, WSL's `127.0.0.1` may not be the Windows loopback. `npm run ping` first tries `127.0.0.1`, then probes common WSL host candidates when the URL was not explicitly overridden.
-
-For the most predictable setup, set the endpoint yourself:
+For the most predictable Windows-host setup:
 
 ```bash
 COMFYUI_URL=http://<windows-host-ip>:8188 npm run ping
 ```
 
-Make sure the Windows ComfyUI process listens on an address reachable from WSL, not only Windows-only localhost.
-
 ## Commands
 
-Ping the local ComfyUI server:
+Run from this directory:
 
 ```bash
-node docs/retro-asset-studio/scripts/run-retro-filter.mjs --ping
-```
-
-Or from this directory:
-
-```bash
+cd docs/retro-asset-studio
 npm run ping
-```
-
-Convert the checked-in ComfyUI UI workflow JSON into API prompt JSON without running generation:
-
-```bash
-node docs/retro-asset-studio/scripts/run-retro-filter.mjs --dry-run
-```
-
-Run the full v1 filter:
-
-```bash
-node docs/retro-asset-studio/scripts/run-retro-filter.mjs --run
-```
-
-Or from this directory:
-
-```bash
-npm run run
-```
-
-Run one Apex Seoul vehicle preset:
-
-## FT86 variant runs
-
-FT86는 현재 Retro Style Filter v1의 기준 실험 차량이다.  
-G70/VDrift 교체 작업은 보류하고, FT86 256px magenta preview sheet에서 `safe / balanced / stylized` 세 가지 후처리 결과를 비교한다.
-
-기본 판단:
-
-```text
-safe      = 실루엣 보존 최우선, fallback 후보
-balanced  = 현재 FT86 v1 기본 후보
-stylized  = 디자인 실험용, 전복/휠 artifact 발생 시 폐기
-```
-
-실행:
-
-```bash
+npm run dry-run
 npm run run:ft86
 npm run run:ft86:safe
 npm run run:ft86:balanced
@@ -112,79 +101,75 @@ npm run run:ft86:stylized
 npm run run:ft86:variants
 ```
 
-예상 출력:
-
-```text
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-safe.png
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced.png
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-stylized.png
-```
-
-현재 기본 `run:ft86`는 `balanced`와 같은 방향이다.
-`run:ft86:variants`는 세 결과를 모두 생성해 비교용으로 남긴다.
-
-주의:
-
-* `--vehicle all`에서는 `--input`/`--output` override를 사용하지 않는다.
-* `--variant all`과 명시 `--output`은 함께 쓰지 않는다.
-* wheel ellipse correction은 기본 비활성화 상태를 유지한다.
-* ComfyUI는 차량 generator가 아니라 style filter로만 사용한다.
+Other vehicle presets still exist for comparison:
 
 ```bash
 npm run run:g70
 npm run run:stinger
-npm run run:ft86
-```
-
-Run all 256px magenta vehicle sheets:
-
-```bash
 npm run run:all
 ```
 
-Default input:
+Direct script form:
 
-```text
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-magenta-preview.png
+```bash
+node scripts/run-retro-filter.mjs --ping
+node scripts/run-retro-filter.mjs --dry-run
+node scripts/run-retro-filter.mjs --run --vehicle ft86 --variant balanced
 ```
 
-Default output:
+Useful options:
 
-```text
-games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-ai-retro-v1.png
-```
+| Option | Meaning |
+| --- | --- |
+| `--vehicle ft86|g70|stinger|all` | Vehicle preset |
+| `--variant safe|balanced|stylized|all` | Tuning preset |
+| `--input`, `--output` | Override paths for a single vehicle/custom run |
+| `--no-palette-lock` | Download ComfyUI output without palette lock |
+| `--denoise`, `--cfg`, `--steps`, `--controlnet-strength` | Parameter experiments |
+| `--comfy-url` | Endpoint override |
 
-Vehicle presets:
+Safety rules:
+
+- Do not combine `--vehicle all` with explicit `--input` or `--output`.
+- Do not combine `--variant all` with explicit `--output`.
+- Wheel ellipse correction remains disabled by default.
+- ComfyUI remains a style filter, not a source vehicle generator.
+
+## Vehicle Presets
 
 | Preset | Input | Output |
 | --- | --- | --- |
+| `ft86` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png` |
 | `g70` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-magenta-preview.png` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-ai-retro-v1.png` |
 | `stinger` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/kia-stinger-256/sheet-256-magenta-preview.png` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/kia-stinger-256/sheet-256-ai-retro-v1.png` |
-| `ft86` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png` | `games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png` |
 
-## Notes
-
-`retro_style_filter_v1.json` is a ComfyUI UI workflow export. The script converts the known v1 node graph into the API prompt shape used by `/prompt`.
-
-Generation is only queued when `--run` is passed. `--ping` and `--dry-run` are safe setup checks.
-
-## Current v1 filter defaults
-
-현재 Retro Style Filter v1은 하나의 ComfyUI workflow JSON을 공통 템플릿으로 사용하고, 실행 시점에 vehicle preset과 variant preset을 patch한다.
+## Workflow Files
 
 ```text
 retro_style_filter_v1.json
-  = ComfyUI UI workflow source
+  ComfyUI UI workflow source
 
 workflows/retro_style_filter_v1.api.json
-  = dry-run 확인용 API prompt output
+  dry-run API prompt output
+
+scripts/workflow.mjs
+  UI workflow -> /prompt API converter
+
+scripts/comfy-client.mjs
+  upload, prompt queue, history polling, download
 
 scripts/run-retro-filter.mjs
-  = vehicle preset + variant preset patcher
-````
+  CLI entrypoint, vehicle/variant patching
 
-현재 FT86 balanced 후보에서 유효했던 값:
+scripts/palette-lock.mjs
+  deterministic game palette cleanup
+```
+
+`retro_style_filter_v1.json` is a ComfyUI UI workflow export. `workflow.mjs` converts it into the API prompt shape used by `/prompt`, including `CLIPTextEncode` widget text mapping.
+
+## Current Filter Defaults
+
+The default `run:ft86` path uses the `balanced` variant.
 
 ```text
 checkpoint: dreamshaper_8.safetensors
@@ -208,8 +193,69 @@ loraStrengthModel: 0.45
 loraStrengthClip: 0.7
 ```
 
-현재 결론:
+`palette-lock.mjs` then forces the output back into a limited vehicle palette. It keeps magenta as `255,0,255`; alpha restoration is a later postprocess step.
 
-* FT86는 `balanced`를 v1 기본 후보로 둔다.
-* `safe`는 fallback으로 보관한다.
-* `stylized`는 전복 프레임과 휠 하단부가 어두운 덩어리로 뭉칠 수 있으므로 기본 후보로 쓰지 않는다.
+Important palette behavior:
+
+- body/glass/light/wheel colors are quantized after download
+- `wheelPaletteLock` defaults to `false`
+- QA-based wheel ellipse correction should stay disabled unless a semantic mask replaces the current heuristic
+
+## Next Work
+
+The first postprocess/runtime QA path is now implemented in the Apex Seoul package:
+
+```bash
+npm run postprocess:ft86-retro --workspace @games/apex-seoul
+npm run qa:ft86-runtime-colors --workspace @games/apex-seoul -- --manifest-only
+```
+
+Postprocess outputs:
+
+```text
+source alpha:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-source-alpha.png
+
+runtime variants:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-red-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-blue-alpha.png
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png
+
+debug:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-palette-audit.json
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-roles.png
+```
+
+The body color swap is role-based, not a global tint. `ft86-retro-palette-audit.json` assigns the limited palette to body, tire, outline, shadow, tail-light, and amber-light roles. `sheet-256-ai-retro-v1-balanced-roles.png` is a false-color preview for checking those roles before changing ramps.
+
+Current color ramps use a flat 3-shade body profile plus edge-only body cleanup. Brighter ramps looked fine as standalone PNGs, and even the lower-contrast soft ramps were acceptable at source size, but runtime scale still made some shade transitions read like speckle. A more aggressive 2-shade cleanup was rejected because it made the car body too flat.
+
+Current body colors after postprocess:
+
+| Variant | Body shades |
+| --- | --- |
+| `silver` | `58,72,82` / `104,118,126` / `132,146,154` |
+| `red` | `62,28,28` / `108,52,48` / `142,86,74` |
+| `blue` | `30,42,66` / `58,82,116` / `96,126,158` |
+| `yellow` | `76,62,26` / `124,102,42` / `176,154,82` |
+
+The postprocess also makes alpha output texture-filter safe. Magenta-keyed pixels become alpha 0, hidden magenta RGB is removed, and transparent pixels close to the car receive nearby opaque RGB to reduce edge bleed during WebGL scaling.
+
+Runtime preview URLs:
+
+```text
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=silver
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=red
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=blue
+/game-assets/apex-seoul/?vehicle=ft86-retro&vehicleColor=yellow
+```
+
+Next checks:
+
+1. Capture the FT86 runtime color QA contact sheet.
+2. Verify tail lights, glass, tires, outline, and rollover frames are not recolored by body palette swap.
+3. If edge lines remain visible, inspect Phaser texture filtering / pixelArt settings and runtime display scale.
+4. If edge cleanup is too strong or too weak, adjust only `cleanEdgeBodyNoise` in `postprocess-ft86-retro-sheet.mjs`.
+
+VDrift XG / `raven-xg-coupe-poc` work resumes only after the FT86 postprocess path is stable.
