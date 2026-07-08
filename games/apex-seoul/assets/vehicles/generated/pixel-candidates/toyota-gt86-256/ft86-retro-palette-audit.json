@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-07-08T02:10:44.906Z",
+  "image": "assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-source-alpha.png",
+  "notes": [
+    "Palette roles drive FT86 body color swaps.",
+    "Review sheet-256-ai-retro-v1-balanced-roles.png before changing role assignments."
+  ],
+  "size": {
+    "height": 1536,
+    "width": 768
+  },
+  "roles": {
+    "amber-light": 7,
+    "body": 53772,
+    "outline": 22631,
+    "shadow": 425,
+    "tail-light": 1647,
+    "tire": 30837
+  },
+  "colors": [
+    {
+      "count": 30837,
+      "rgb": [
+        8,
+        10,
+        14
+      ],
+      "role": "tire"
+    },
+    {
+      "count": 29152,
+      "rgb": [
+        140,
+        158,
+        166
+      ],
+      "role": "body"
+    },
+    {
+      "count": 22631,
+      "rgb": [
+        16,
+        20,
+        25
+      ],
+      "role": "outline"
+    },
+    {
+      "count": 8778,
+      "rgb": [
+        118,
+        132,
+        140
+      ],
+      "role": "body"
+    },
+    {
+      "count": 8108,
+      "rgb": [
+        102,
+        124,
+        134
+      ],
+      "role": "body"
+    },
+    {
+      "count": 4165,
+      "rgb": [
+        40,
+        58,
+        70
+      ],
+      "role": "body"
+    },
+    {
+      "count": 2474,
+      "rgb": [
+        100,
+        116,
+        126
+      ],
+      "role": "body"
+    },
+    {
+      "count": 1295,
+      "rgb": [
+        88,
+        18,
+        24
+      ],
+      "role": "tail-light"
+    },
+    {
+      "count": 702,
+      "rgb": [
+        72,
+        86,
+        96
+      ],
+      "role": "body"
+    },
+    {
+      "count": 425,
+      "rgb": [
+        18,
+        24,
+        30
+      ],
+      "role": "shadow"
+    },
+    {
+      "count": 393,
+      "rgb": [
+        154,
+        166,
+        172
+      ],
+      "role": "body"
+    },
+    {
+      "count": 307,
+      "rgb": [
+        164,
+        34,
+        38
+      ],
+      "role": "tail-light"
+    },
+    {
+      "count": 45,
+      "rgb": [
+        230,
+        57,
+        52
+      ],
+      "role": "tail-light"
+    },
+    {
+      "count": 6,
+      "rgb": [
+        174,
+        78,
+        30
+      ],
+      "role": "amber-light"
+    },
+    {
+      "count": 1,
+      "rgb": [
+        236,
+        136,
+        43
+      ],
+      "role": "amber-light"
+    }
+  ]
+}

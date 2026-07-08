@@ -1,0 +1,102 @@
+{
+  "source": {
+    "name": "VDrift data repository",
+    "projectUrl": "https://github.com/VDrift/vdrift",
+    "dataRepositoryUrl": "https://sourceforge.net/p/vdrift/code/HEAD/tree/vdrift-data/cars/",
+    "svnUrl": "https://svn.code.sf.net/p/vdrift/code/vdrift-data",
+    "license": "GPL-3.0",
+    "notes": [
+      "VDrift code repository documents the project as GPL-3.0.",
+      "The data repository is hosted separately on SourceForge SVN.",
+      "Cars are stored in VDrift JOE mesh format with PNG textures and .car config files."
+    ]
+  },
+  "selectionGoal": "Find a fictional coupe proxy with stable body/glass/interior/wheel/light separation for the Apex Seoul retro sprite pipeline.",
+  "selectedCandidateId": "XG",
+  "fictionalPreset": {
+    "id": "raven-xg-coupe-poc",
+    "displayName": "Raven XG Coupe POC",
+    "intendedUse": "fictional coupe proxy; do not ship with original brand/model naming",
+    "status": "intake-selected",
+    "blockedBy": "JOE-to-glTF conversion step is not implemented yet."
+  },
+  "candidates": [
+    {
+      "id": "350Z",
+      "referenceName": "Nissan 350Z",
+      "sourcePath": "vdrift-data/cars/350Z",
+      "fit": "good silhouette, good body/glass/interior separation, wheel mesh comes from shared carparts",
+      "parts": {
+        "body": "body.joe + body00.png + body-misc1.png",
+        "glass": "glass.joe + glass.png + glass-misc1.png",
+        "interior": "interior.joe + interior.png",
+        "wheel": "wheel/pentagonal_hub.joe + wheel/pentagonal_hub.png",
+        "tires": "generated from tire/touring.png and tire dimensions",
+        "lights": "reverse.png on body.joe"
+      }
+    },
+    {
+      "id": "M7",
+      "referenceName": "Mazda RX-7 FD",
+      "sourcePath": "vdrift-data/cars/M7",
+      "fit": "strong sports coupe silhouette, good lights, wheel mesh comes from shared carparts",
+      "parts": {
+        "body": "body.joe + body00.png + body-misc1.png",
+        "glass": "glass.joe + glass.png + glass-misc1.png",
+        "interior": "interior.joe + interior.png",
+        "wheel": "wheel/5_spoke_m.joe + wheel/5_spoke_m.png",
+        "tires": "generated from tire/touring.png and tire dimensions",
+        "lights": "brake.png and reverse.png on body.joe"
+      }
+    },
+    {
+      "id": "TC6",
+      "referenceName": "Toyota Celica 6th generation",
+      "sourcePath": "vdrift-data/cars/TC6",
+      "fit": "excellent local part coverage, but older rally/celica silhouette",
+      "parts": {
+        "body": "body.joe + body00.png + body-misc1.png",
+        "glass": "glass.joe + glass.png + glass-misc1.png",
+        "interior": "interior.joe + interior.png + interior-misc1.png",
+        "wheel": "oem_wheel.joe + oem_wheel.png + oem_wheel-misc1.png",
+        "tires": "generated from tire/touring.png and tire dimensions",
+        "lights": "brake.png and reverse.png on body.joe"
+      }
+    },
+    {
+      "id": "XG",
+      "referenceName": "BMW 330cxi",
+      "sourcePath": "vdrift-data/cars/XG",
+      "fit": "best first choice: modern coupe proportions with local body/glass/interior/wheel/light assets",
+      "parts": {
+        "body": "body.joe + body00.png + body-misc1.png",
+        "glass": "glass.joe + glass.png + glass-misc1.png",
+        "interior": "interior.joe + interior.png",
+        "wheel": "oem_wheel.joe + oem_wheel.png + oem_wheel-misc1.png",
+        "tires": "generated from tire/touring.png and tire dimensions",
+        "lights": "brake.png and reverse.png on body.joe"
+      }
+    },
+    {
+      "id": "Z06",
+      "referenceName": "Chevrolet C5 Corvette Z06",
+      "sourcePath": "vdrift-data/cars/Z06",
+      "fit": "strong sports silhouette and local wheel assets, but no separate interior.joe in the listed files",
+      "parts": {
+        "body": "body.joe + body.png + body00.png",
+        "glass": "glass.joe + glass.png",
+        "interior": null,
+        "wheel": "oem_wheel.joe + oem_wheel.png + oem_wheel-misc1.png",
+        "tires": "generated from tire/touring.png and tire dimensions",
+        "lights": "brake.png and reverse.png on body.joe"
+      }
+    }
+  ],
+  "nextSteps": [
+    "Download only XG car files and required shared carparts into a clearly licensed source/vendor area.",
+    "Implement or add a JOE-to-glTF conversion step before touching real-vehicle-poc.json.",
+    "Create a GLB with separate materials named body, glass, interior, wheel, tire, brake_light, reverse_light.",
+    "Add raven-xg-coupe-poc to real-vehicle-poc.json only after the converted GLB exists.",
+    "Render a 256px pose sheet, then run pixel-pass and ComfyUI retro filter."
+  ]
+}

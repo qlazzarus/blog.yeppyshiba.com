@@ -3,6 +3,12 @@ import './styles.css';
 import genesisG70VehicleAtlas from '../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
 import genesisG70VehicleShadowSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128-shadow.png';
 import genesisG70VehicleSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128.png';
+import ft86RetroVehicleAtlas from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json';
+import ft86RetroBlueVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-blue-alpha.png';
+import ft86RetroRedVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-red-alpha.png';
+import ft86RetroShadowSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png';
+import ft86RetroSilverVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png';
+import ft86RetroYellowVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png';
 import {
     createHudText,
     renderHudText,
@@ -105,8 +111,6 @@ const PLAYER_SHADOW_SOFT_ALPHA = 0.24;
 const PLAYER_SILHOUETTE_SHADOW_ALPHA = 0.48;
 const PLAYER_STEER_ACCELERATION = 1650;
 const PLAYER_STEER_DAMPING = 9.2;
-const PLAYER_VEHICLE_TEXTURE_KEY = 'player-vehicle-genesis-g70-poc';
-const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = 'player-vehicle-genesis-g70-poc-shadow';
 const PLAYER_VEHICLE_VIEWPORT_RATIO = 0.34;
 const PLAYER_VEHICLE_MIN_SIZE = 220;
 const PLAYER_VEHICLE_MAX_SIZE = 360;
@@ -141,8 +145,17 @@ const TELEMETRY_DEFAULT_DURATION_SEC = 60;
 const TELEMETRY_DEFAULT_SAMPLE_HZ = 10;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 760;
+const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
+    blue: ft86RetroBlueVehicleSpriteUrl,
+    red: ft86RetroRedVehicleSpriteUrl,
+    silver: ft86RetroSilverVehicleSpriteUrl,
+    yellow: ft86RetroYellowVehicleSpriteUrl,
+};
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
+const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS);
+const PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
+const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
 const ACTIVE_ROAD_TRACK_ID = parseRoadTrackId(URL_PARAMS.get('track'));
 const RUNTIME_TUNING: RuntimeTuning = createRuntimeTuning(URL_PARAMS, {
     cameraBaseFov: CAMERA_BASE_FOV,
@@ -197,7 +210,7 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     steeringVelocityCue: PLAYER_STEERING_VELOCITY_CUE,
 });
 
-const PLAYER_VEHICLE_ATLAS = genesisG70VehicleAtlas as VehicleAtlas;
+const PLAYER_VEHICLE_ATLAS = ACTIVE_RUNTIME_VEHICLE.atlas;
 
 class ApexSeoulScene extends Phaser.Scene {
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
@@ -236,11 +249,11 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.spritesheet(PLAYER_VEHICLE_TEXTURE_KEY, genesisG70VehicleSpriteUrl, {
+        this.load.spritesheet(PLAYER_VEHICLE_TEXTURE_KEY, ACTIVE_RUNTIME_VEHICLE.spriteUrl, {
             frameHeight: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
             frameWidth: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
         });
-        this.load.spritesheet(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, genesisG70VehicleShadowSpriteUrl, {
+        this.load.spritesheet(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, ACTIVE_RUNTIME_VEHICLE.shadowSpriteUrl, {
             frameHeight: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
             frameWidth: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
         });
@@ -807,7 +820,11 @@ class ApexSeoulScene extends Phaser.Scene {
                 segments: this.roadTrack.segments.length,
             },
             tuning: RUNTIME_TUNING,
-            vehicle: this.lastVehicleQaState,
+            vehicle: {
+                ...this.lastVehicleQaState,
+                asset: ACTIVE_RUNTIME_VEHICLE.id,
+                color: ACTIVE_RUNTIME_VEHICLE.color,
+            },
             viewport,
         };
     }
@@ -834,4 +851,43 @@ new Phaser.Game(config);
 
 function getAxis(positive: boolean, negative: boolean) {
     return Number(positive) - Number(negative);
+}
+
+type RuntimeVehicleAsset = {
+    atlas: VehicleAtlas;
+    color: string;
+    id: string;
+    shadowSpriteUrl: string;
+    shadowTextureKey: string;
+    spriteUrl: string;
+    textureKey: string;
+};
+
+function selectRuntimeVehicleAsset(params: URLSearchParams): RuntimeVehicleAsset {
+    const requestedVehicle = params.get('vehicle');
+
+    if (requestedVehicle === 'ft86-retro') {
+        const requestedColor = params.get('vehicleColor') ?? 'silver';
+        const color = FT86_RETRO_SPRITE_URLS[requestedColor] ? requestedColor : 'silver';
+
+        return {
+            atlas: ft86RetroVehicleAtlas as VehicleAtlas,
+            color,
+            id: 'ft86-retro',
+            shadowSpriteUrl: ft86RetroShadowSpriteUrl,
+            shadowTextureKey: 'player-vehicle-ft86-retro-shadow',
+            spriteUrl: FT86_RETRO_SPRITE_URLS[color],
+            textureKey: `player-vehicle-ft86-retro-${color}`,
+        };
+    }
+
+    return {
+        atlas: genesisG70VehicleAtlas as VehicleAtlas,
+        color: 'silver',
+        id: 'genesis-g70-poc',
+        shadowSpriteUrl: genesisG70VehicleShadowSpriteUrl,
+        shadowTextureKey: 'player-vehicle-genesis-g70-poc-shadow',
+        spriteUrl: genesisG70VehicleSpriteUrl,
+        textureKey: 'player-vehicle-genesis-g70-poc',
+    };
 }
