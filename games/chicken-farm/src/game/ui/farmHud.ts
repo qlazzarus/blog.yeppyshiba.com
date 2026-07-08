@@ -26,6 +26,7 @@ export type FarmHud = {
     readonly debugText: Phaser.GameObjects.Text;
     readonly debugToggleButton: Phaser.GameObjects.Rectangle;
     readonly debugToggleText: Phaser.GameObjects.Text;
+    readonly inventorySlots: readonly InventorySlotView[];
     readonly minimapGraphics: Phaser.GameObjects.Graphics;
     readonly resourceText: Phaser.GameObjects.Text;
     readonly selectionInfoBodyText: Phaser.GameObjects.Text;
@@ -33,6 +34,13 @@ export type FarmHud = {
     readonly selectionInfoPortrait: Phaser.GameObjects.Rectangle;
     readonly selectionInfoStatsText: Phaser.GameObjects.Text;
     readonly selectionInfoStatusText: Phaser.GameObjects.Text;
+};
+
+export type InventorySlotView = {
+    readonly background: Phaser.GameObjects.Rectangle;
+    readonly iconText: Phaser.GameObjects.Text;
+    readonly index: number;
+    readonly quantityText: Phaser.GameObjects.Text;
 };
 
 export function createFarmHud(config: FarmHudConfig): FarmHud {
@@ -106,6 +114,7 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
             wordWrap: { width: CANVAS_WIDTH - 468 },
         })
         .setDepth(103);
+    const inventorySlots = createInventorySlots(config.scene);
     const debugPanel = config.scene.add
         .rectangle(CANVAS_WIDTH - 382, 12, 370, 112, 0x10130e, 0.9)
         .setOrigin(0, 0)
@@ -149,6 +158,11 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         selectionInfoStatsText,
         selectionInfoStatusText,
         selectionInfoBodyText,
+        ...inventorySlots.flatMap((slot) => [
+            slot.background,
+            slot.iconText,
+            slot.quantityText,
+        ]),
         debugPanel,
         debugText,
         debugToggleButton,
@@ -166,6 +180,7 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         debugText,
         debugToggleButton,
         debugToggleText,
+        inventorySlots,
         minimapGraphics,
         resourceText,
         selectionInfoBodyText,
@@ -174,6 +189,53 @@ export function createFarmHud(config: FarmHudConfig): FarmHud {
         selectionInfoStatsText,
         selectionInfoStatusText,
     };
+}
+
+function createInventorySlots(scene: Phaser.Scene): readonly InventorySlotView[] {
+    const slots: InventorySlotView[] = [];
+    const slotSize = 34;
+    const gap = 5;
+    const startX = CANVAS_WIDTH - 316;
+    const startY = WORLD_VIEW_HEIGHT + 64;
+
+    for (let row = 0; row < 3; row += 1) {
+        for (let col = 0; col < 2; col += 1) {
+            const x = startX + col * (slotSize + gap);
+            const y = startY + row * (slotSize + gap);
+            const background = scene.add
+                .rectangle(x, y, slotSize, slotSize, 0x27291f, 1)
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, 0x756b4e, 0.92)
+                .setDepth(104)
+                .setInteractive({ useHandCursor: true });
+            const iconText = scene.add
+                .text(x + slotSize / 2, y + 15, '', {
+                    align: 'center',
+                    color: '#fff0bd',
+                    fontFamily: 'system-ui, sans-serif',
+                    fontSize: '16px',
+                    fontStyle: '700',
+                })
+                .setDepth(105)
+                .setOrigin(0.5);
+            const quantityText = scene.add
+                .text(x + slotSize - 4, y + slotSize - 3, '', {
+                    align: 'right',
+                    color: '#f6df8b',
+                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                    fontSize: '10px',
+                    fontStyle: '700',
+                    stroke: '#15130e',
+                    strokeThickness: 2,
+                })
+                .setDepth(106)
+                .setOrigin(1, 1);
+
+            slots.push({ background, iconText, index: slots.length, quantityText });
+        }
+    }
+
+    return slots;
 }
 
 function createCommandButtons(scene: Phaser.Scene): readonly CommandButtonView[] {

@@ -11,6 +11,7 @@
         "build:site": "astro build",
         "build:games": "node scripts/build-games.mjs",
         "chicken:browser-perf:measure": "tsx scripts/measure-chicken-farm-browser-perf.ts",
+        "chicken:economy:measure": "tsx scripts/measure-chicken-farm-economy.ts",
         "chicken:pathing:measure": "tsx scripts/measure-chicken-farm-terrain-pathing.ts",
         "chicken:perf:measure": "tsx scripts/measure-chicken-farm-runtime-perf.ts",
         "chicken:wolfai:measure": "tsx scripts/measure-chicken-farm-wolf-ai.ts",

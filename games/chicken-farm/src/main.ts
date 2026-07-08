@@ -6,6 +6,7 @@ import {
     CANVAS_HEIGHT,
     CANVAS_WIDTH,
     CHICKEN_FARM_POC_FLAGS,
+    MAJOR_TILE_PX,
     TILEMAP_KEY,
     TILESET_KEY,
     VISIBILITY_OVERLAY,
@@ -25,10 +26,37 @@ import {
     CommandCardSystem,
 } from './game/systems/commandCardSystem';
 import { CombatPocSystem } from './game/systems/combatPocSystem';
-import { BuildingSystem } from './game/systems/buildingSystem';
+import {
+    BuildingSystem,
+    getBuildingFootprint,
+    snapBuildingTopLeft,
+} from './game/systems/buildingSystem';
 import { ConstructionPlacementSystem } from './game/systems/constructionPlacementSystem';
 import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
 import { DragSelectionInputSystem } from './game/systems/dragSelectionInputSystem';
+import {
+    addEconomyChicken,
+    addEconomyCoop,
+    addEconomyWell,
+    countInventoryItem,
+    createChickenFarmEconomyState,
+    depositEggStackToCoop,
+    dropInventoryEggToField,
+    ensureEconomyInventory,
+    getEconomyInventory,
+    pickupFieldEgg,
+    updateChickenFarmEconomy,
+} from './game/systems/economySystem';
+import type {
+    ChickenFarmEconomyState,
+    EconomyChickenState,
+    EconomyCoopState,
+    EconomyEvent,
+    EconomyInventoryState,
+    EconomyPoint,
+    EconomyWellState,
+    FieldEggItemState,
+} from './game/systems/economyTypes';
 import {
     type FarmInputKeys,
     PlayerControlSystem,
@@ -39,7 +67,7 @@ import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlock
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
 import { type VisionSource, VisibilitySystem } from './game/systems/visibilitySystem';
 import { CHICKEN_FARM_TILEMAP_POC_01 } from './game/tilemapAssets';
-import { createFarmHud } from './game/ui/farmHud';
+import { createFarmHud, type InventorySlotView } from './game/ui/farmHud';
 import './styles.css';
 
 declare global {
@@ -49,6 +77,15 @@ declare global {
             getState: () => {
                 readonly buildingCount: number;
                 readonly commandPage: string;
+                readonly economyPoc:
+                    | {
+                          readonly chickens: number;
+                          readonly coops: number;
+                          readonly fieldEggs: number;
+                          readonly hatchJobs: number;
+                          readonly wells: number;
+                      }
+                    | null;
                 readonly elapsedSec: number;
                 readonly placingBuildingId: string | null;
                 readonly selectedBuildingId: string | null;
@@ -76,6 +113,42 @@ const FOG_UPDATE_INTERVAL_SEC = 0.15;
 const FOG_DIRTY_DISTANCE_PX = 24;
 const MINIMAP_UPDATE_INTERVAL_SEC = 0.25;
 const MINIMAP_DIRTY_DISTANCE_PX = 32;
+const ECONOMY_INTERACTION_RADIUS_PX = 54;
+const ECONOMY_POC_COOP_TEMPLATE_ID = 'coop_basic';
+const ECONOMY_POC_WELL_TEMPLATE_ID = 'well_basic';
+const ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX = 86;
+
+type EconomyWorkerTask =
+    | {
+          readonly sourceSlotIndex: number;
+          readonly targetPoint: EconomyPoint;
+          readonly type: 'drop_to_field';
+          readonly unitId: string;
+      }
+    | {
+          readonly eggId: string;
+          readonly type: 'pickup_egg';
+          readonly unitId: string;
+      }
+    | {
+          readonly coopId: string;
+          readonly sourceSlotIndex: number;
+          readonly type: 'deposit_to_coop';
+          readonly unitId: string;
+      };
+
+type EconomyHitTarget =
+    | { readonly id: string; readonly type: 'chicken' }
+    | { readonly id: string; readonly type: 'coop' }
+    | { readonly id: string; readonly type: 'egg' }
+    | { readonly id: string; readonly type: 'well' };
+
+type InventoryDragState = {
+    readonly ghost: Phaser.GameObjects.Text;
+    readonly inventoryId: string;
+    readonly itemRawcode: string;
+    readonly slotIndex: number;
+};
 
 class FarmScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -86,6 +159,9 @@ class FarmScene extends Phaser.Scene {
     private keys!: FarmInputKeys;
     private buildGridGraphics?: Phaser.GameObjects.Graphics;
     private buildGridVisible = true;
+    private inventoryDrag?: InventoryDragState;
+    private inventorySlots: readonly InventorySlotView[] = [];
+    private renderedInventoryId?: string;
     private attackTargetingActive = false;
     private cameraControl!: CameraControlSystem;
     private buildingSystem?: BuildingSystem;
@@ -95,6 +171,12 @@ class FarmScene extends Phaser.Scene {
     private controllableUnits!: ControllableUnitSystem;
     private dragSelectionInput?: DragSelectionInputSystem;
     private elapsedSec = 0;
+    private economyEventLog: string[] = [];
+    private economyLabels = new Map<string, Phaser.GameObjects.Text>();
+    private economyPocCoopId?: string;
+    private economyState?: ChickenFarmEconomyState;
+    private economyViewObjects = new Map<string, Phaser.GameObjects.GameObject[]>();
+    private economyWorkerTasks = new Map<string, EconomyWorkerTask>();
     private minimapGraphics?: Phaser.GameObjects.Graphics;
     private performanceProfiler = new PerformanceProfiler();
     private playerControl!: PlayerControlSystem;
@@ -105,6 +187,7 @@ class FarmScene extends Phaser.Scene {
     private nextMinimapUpdateSec = 0;
     private resourceText!: Phaser.GameObjects.Text;
     private selectedBuildingId?: string;
+    private selectedEconomyEntity?: EconomyHitTarget;
     private selectionInfoBodyText!: Phaser.GameObjects.Text;
     private selectionInfoNameText!: Phaser.GameObjects.Text;
     private selectionInfoPortrait!: Phaser.GameObjects.Rectangle;
@@ -240,6 +323,8 @@ class FarmScene extends Phaser.Scene {
         this.debugToggleText = hud.debugToggleText;
         this.minimapGraphics = hud.minimapGraphics;
         this.resourceText = hud.resourceText;
+        this.inventorySlots = hud.inventorySlots;
+        this.bindInventorySlotInput();
         this.selectionInfoBodyText = hud.selectionInfoBodyText;
         this.selectionInfoNameText = hud.selectionInfoNameText;
         this.selectionInfoPortrait = hud.selectionInfoPortrait;
@@ -296,6 +381,7 @@ class FarmScene extends Phaser.Scene {
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
             });
         }
+        this.createEconomyPoc();
         this.configureCameras(map);
         this.configurePointerSelection();
         if (CHICKEN_FARM_POC_FLAGS.combat || CHICKEN_FARM_POC_FLAGS.combatSmoke) {
@@ -363,6 +449,9 @@ class FarmScene extends Phaser.Scene {
         );
         this.performanceProfiler.measure('update.constructionPlacement', () =>
             this.constructionPlacement?.update(),
+        );
+        this.performanceProfiler.measure('update.economyPoc', () =>
+            this.updateEconomyPoc(),
         );
         this.performanceProfiler.measure('update.combat', () =>
             this.combatPoc?.update(delta / 1000),
@@ -440,8 +529,770 @@ class FarmScene extends Phaser.Scene {
         this.combatPoc.createSmokeTarget(anchor);
     }
 
+    private createEconomyPoc() {
+        const player = this.playerControl.player;
+        if (!player) return;
+
+        this.economyState = createChickenFarmEconomyState({
+            players: [{ carriedEggs: 0, coins: 120, id: 3 }],
+        });
+        this.ensureFarmerInventories();
+
+        const wellPosition = this.getEconomyBuildingCenter(
+            ECONOMY_POC_WELL_TEMPLATE_ID,
+            player.x + MAJOR_TILE_PX,
+            player.y - MAJOR_TILE_PX,
+        );
+        const coopPosition = this.getEconomyBuildingCenter(
+            ECONOMY_POC_COOP_TEMPLATE_ID,
+            wellPosition.x + MAJOR_TILE_PX,
+            wellPosition.y,
+        );
+        const chickenPosition = {
+            x: wellPosition.x + MAJOR_TILE_PX / 2,
+            y: wellPosition.y + MAJOR_TILE_PX,
+        };
+        const coop = addEconomyCoop(this.economyState, {
+            kind: 'basic',
+            ownerPlayerId: 3,
+            position: coopPosition,
+        });
+        const well = addEconomyWell(this.economyState, {
+            ownerPlayerId: 3,
+            position: wellPosition,
+        });
+        const chicken = addEconomyChicken(this.economyState, {
+            elapsedSec: this.elapsedSec,
+            kind: 'basic',
+            ownerPlayerId: 3,
+            position: chickenPosition,
+        });
+
+        this.economyPocCoopId = coop.id;
+        this.createWellView(well);
+        this.createCoopView(coop);
+        this.createChickenView(chicken);
+        this.refreshEconomyLabels();
+        this.recordEconomyEvent('economy_poc_created', {
+            chickenId: chicken.id,
+            coopId: coop.id,
+            firstEggAtSec: Number(chicken.nextEggAtSec.toFixed(2)),
+            footprintPx: MAJOR_TILE_PX,
+            wellId: well.id,
+        });
+    }
+
+    private getEconomyBuildingCenter(
+        templateId: typeof ECONOMY_POC_COOP_TEMPLATE_ID | typeof ECONOMY_POC_WELL_TEMPLATE_ID,
+        worldX: number,
+        worldY: number,
+    ): EconomyPoint {
+        const topLeft = snapBuildingTopLeft(templateId, worldX, worldY);
+        const footprint = getBuildingFootprint(templateId, topLeft.x, topLeft.y);
+
+        return {
+            x: footprint.x + footprint.width / 2,
+            y: footprint.y + footprint.height / 2,
+        };
+    }
+
+    private getEconomyBuildingFootprint(
+        templateId: typeof ECONOMY_POC_COOP_TEMPLATE_ID | typeof ECONOMY_POC_WELL_TEMPLATE_ID,
+        position: EconomyPoint,
+    ) {
+        const topLeft = snapBuildingTopLeft(templateId, position.x, position.y);
+        return getBuildingFootprint(templateId, topLeft.x, topLeft.y);
+    }
+
+    private isPointInsideEconomyBuildingFootprint(
+        templateId: typeof ECONOMY_POC_COOP_TEMPLATE_ID | typeof ECONOMY_POC_WELL_TEMPLATE_ID,
+        position: EconomyPoint,
+        worldX: number,
+        worldY: number,
+    ) {
+        const footprint = this.getEconomyBuildingFootprint(templateId, position);
+        return new Phaser.Geom.Rectangle(
+            footprint.x,
+            footprint.y,
+            footprint.width,
+            footprint.height,
+        ).contains(worldX, worldY);
+    }
+
+    private createEconomyFootprintPlate(
+        templateId: typeof ECONOMY_POC_COOP_TEMPLATE_ID | typeof ECONOMY_POC_WELL_TEMPLATE_ID,
+        position: EconomyPoint,
+        color: number,
+    ) {
+        const footprint = this.getEconomyBuildingFootprint(templateId, position);
+        const plate = this.add.graphics().setDepth(29);
+        plate.fillStyle(color, 0.12);
+        plate.fillRect(footprint.x, footprint.y, footprint.width, footprint.height);
+        plate.lineStyle(2, 0xfff1b8, 0.72);
+        plate.strokeRect(footprint.x, footprint.y, footprint.width, footprint.height);
+        plate.lineStyle(1, 0x1b160d, 0.72);
+        plate.strokeRect(
+            footprint.x + 3,
+            footprint.y + 3,
+            footprint.width - 6,
+            footprint.height - 6,
+        );
+        return plate;
+    }
+
+    private createEconomyNameplate(
+        x: number,
+        y: number,
+        palette: {
+            readonly backgroundColor: string;
+            readonly color: string;
+            readonly stroke: string;
+        },
+    ) {
+        return this.add
+            .text(x, y, '', {
+                align: 'center',
+                backgroundColor: palette.backgroundColor,
+                color: palette.color,
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '18px',
+                fontStyle: '800',
+                padding: { bottom: 5, left: 10, right: 10, top: 5 },
+                stroke: palette.stroke,
+                strokeThickness: 6,
+            })
+            .setDepth(60)
+            .setOrigin(0.5, 0.5)
+            .setShadow(0, 3, '#000000', 5, true, true);
+    }
+
+    private updateEconomyPoc() {
+        if (!this.economyState) return;
+
+        const events = updateChickenFarmEconomy(this.economyState, this.elapsedSec);
+        events.forEach((event) => this.handleEconomyEvent(event));
+
+        this.updateEconomyWorkerTasks();
+        this.refreshEconomyLabels();
+    }
+
+    private handleEconomyEvent(event: EconomyEvent) {
+        if (event.type === 'egg_dropped' || event.type === 'egg_dropped_from_inventory') {
+            const egg = this.economyState?.fieldEggs.find(
+                (candidate) => candidate.id === event.eggId,
+            );
+            if (egg) this.createEggView(egg);
+        }
+        if (event.type === 'hatch_completed') {
+            const chicken = this.economyState?.chickens.find(
+                (candidate) => candidate.id === event.chickenId,
+            );
+            if (chicken) this.createChickenView(chicken);
+        }
+
+        this.recordEconomyEvent(`economy_${event.type}`, event);
+    }
+
+    private createWellView(well: EconomyWellState) {
+        if (!this.economyState) return;
+
+        const plate = this.createEconomyFootprintPlate(
+            ECONOMY_POC_WELL_TEMPLATE_ID,
+            well.position,
+            0x3b95bd,
+        );
+        const aura = this.add
+            .circle(
+                well.position.x,
+                well.position.y,
+                this.economyState.config.wellBuff.radiusPx,
+                0x4aa3df,
+                0.08,
+            )
+            .setStrokeStyle(2, 0x78c7ff, 0.25)
+            .setDepth(18);
+        const stones = this.add
+            .circle(well.position.x, well.position.y + 6, 46, 0x52625f, 1)
+            .setStrokeStyle(5, 0x202b2d, 1)
+            .setDepth(30);
+        const basin = this.add
+            .circle(well.position.x, well.position.y + 6, 34, 0x3a6d87, 1)
+            .setStrokeStyle(4, 0x1d3746, 1)
+            .setDepth(31);
+        const water = this.add
+            .circle(well.position.x, well.position.y + 4, 22, 0x7fd4ff, 0.85)
+            .setDepth(32);
+        const label = this.createEconomyNameplate(
+            well.position.x,
+            well.position.y - ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX,
+            {
+                backgroundColor: 'rgba(3, 15, 22, 0.98)',
+                color: '#f1fbff',
+                stroke: '#02070a',
+            },
+        );
+
+        this.registerEconomyView(well.id, [plate, aura, stones, basin, water, label], label);
+    }
+
+    private createCoopView(coop: EconomyCoopState) {
+        const plate = this.createEconomyFootprintPlate(
+            ECONOMY_POC_COOP_TEMPLATE_ID,
+            coop.position,
+            0x9f6a31,
+        );
+        const base = this.add
+            .rectangle(coop.position.x, coop.position.y + 12, 112, 82, 0x8b6238, 1)
+            .setStrokeStyle(4, 0x3b2414, 1)
+            .setDepth(31);
+        const roof = this.add
+            .triangle(
+                coop.position.x,
+                coop.position.y - 40,
+                0,
+                46,
+                58,
+                0,
+                116,
+                46,
+                0xb4513d,
+                1,
+            )
+            .setStrokeStyle(3, 0x4f1f17, 1)
+            .setDepth(32);
+        const door = this.add
+            .rectangle(coop.position.x, coop.position.y + 28, 34, 50, 0x4b2d1b, 1)
+            .setDepth(33);
+        const label = this.createEconomyNameplate(
+            coop.position.x,
+            coop.position.y - ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX,
+            {
+                backgroundColor: 'rgba(24, 10, 3, 0.98)',
+                color: '#fff6db',
+                stroke: '#120601',
+            },
+        );
+
+        this.registerEconomyView(coop.id, [plate, base, roof, door, label], label);
+    }
+
+    private createChickenView(chicken: EconomyChickenState) {
+        const body = this.add
+            .ellipse(chicken.position.x, chicken.position.y, 44, 32, 0xf5f0d0, 1)
+            .setStrokeStyle(3, 0x665b38, 1)
+            .setDepth(34);
+        const head = this.add
+            .circle(chicken.position.x + 24, chicken.position.y - 12, 14, 0xf5f0d0, 1)
+            .setStrokeStyle(2, 0x665b38, 1)
+            .setDepth(35);
+        const beak = this.add
+            .triangle(
+                chicken.position.x + 42,
+                chicken.position.y - 10,
+                0,
+                0,
+                14,
+                6,
+                0,
+                12,
+                0xf2b13b,
+                1,
+            )
+            .setDepth(35);
+        const label = this.createEconomyNameplate(chicken.position.x, chicken.position.y - 52, {
+            backgroundColor: 'rgba(18, 17, 9, 0.98)',
+            color: '#fffbe6',
+            stroke: '#0a0803',
+        });
+
+        this.registerEconomyView(chicken.id, [body, head, beak, label], label);
+    }
+
+    private createEggView(egg: FieldEggItemState) {
+        const shell = this.add
+            .ellipse(egg.position.x, egg.position.y - 18, 18, 24, 0xfff2bd, 1)
+            .setStrokeStyle(2, 0x8f7842, 1)
+            .setDepth(36);
+        const shine = this.add
+            .ellipse(egg.position.x - 4, egg.position.y - 23, 5, 8, 0xffffff, 0.55)
+            .setDepth(37);
+        const label = this.add
+            .text(egg.position.x, egg.position.y - 48, '알', {
+                align: 'center',
+                backgroundColor: 'rgba(35, 28, 12, 0.92)',
+                color: '#fff3ba',
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '13px',
+                fontStyle: '700',
+                padding: { bottom: 3, left: 7, right: 7, top: 3 },
+                stroke: '#171104',
+                strokeThickness: 4,
+            })
+            .setDepth(38)
+            .setOrigin(0.5);
+
+        this.registerEconomyView(egg.id, [shell, shine, label]);
+    }
+
+    private updateEconomyWorkerTasks() {
+        const state = this.economyState;
+        if (!state) return;
+
+        this.economyWorkerTasks.forEach((task, unitId) => {
+            const unit = this.controllableUnits
+                .getUnits()
+                .find((candidate) => candidate.id === unitId);
+            if (!unit || unit.hp <= 0 || unit.templateId !== 'farmer') {
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+
+            if (task.type === 'pickup_egg') {
+                const egg = state.fieldEggs.find((candidate) => candidate.id === task.eggId);
+                if (!egg) {
+                    this.economyWorkerTasks.delete(unitId);
+                    return;
+                }
+                const distance = Phaser.Math.Distance.Between(
+                    unit.position.x,
+                    unit.position.y,
+                    egg.position.x,
+                    egg.position.y,
+                );
+                if (distance > ECONOMY_INTERACTION_RADIUS_PX) return;
+
+                const pickedUp = pickupFieldEgg(state, {
+                    eggId: egg.id,
+                    ownerPlayerId: unit.ownerPlayerId,
+                    targetInventoryId: unit.id,
+                });
+                if (pickedUp) {
+                    this.destroyEconomyView(egg.id);
+                    this.handleEconomyEvent(pickedUp);
+                    this.controllableUnits.clearUnitCommand(unit.id);
+                }
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+
+            if (task.type === 'drop_to_field') {
+                const distance = Phaser.Math.Distance.Between(
+                    unit.position.x,
+                    unit.position.y,
+                    task.targetPoint.x,
+                    task.targetPoint.y,
+                );
+                if (distance > ECONOMY_INTERACTION_RADIUS_PX) return;
+
+                const dropped = dropInventoryEggToField(state, {
+                    droppedAtSec: this.elapsedSec,
+                    ownerPlayerId: unit.ownerPlayerId,
+                    position: task.targetPoint,
+                    sourceInventoryId: unit.id,
+                    sourceSlotIndex: task.sourceSlotIndex,
+                });
+                if (dropped) {
+                    this.handleEconomyEvent(dropped);
+                    this.controllableUnits.clearUnitCommand(unit.id);
+                }
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+
+            const coop = state.coops.find((candidate) => candidate.id === task.coopId);
+            if (!coop) {
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+            const distance = Phaser.Math.Distance.Between(
+                unit.position.x,
+                unit.position.y,
+                coop.position.x,
+                coop.position.y,
+            );
+            if (distance > ECONOMY_INTERACTION_RADIUS_PX + 22) return;
+
+            const inventory = getEconomyInventory(state, unit.id);
+            const sourceSlot = inventory?.slots[task.sourceSlotIndex] ?? null;
+            if (!sourceSlot || sourceSlot.itemRawcode !== 'I006') {
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+
+            const deposited = depositEggStackToCoop(state, {
+                coopId: coop.id,
+                ownerPlayerId: unit.ownerPlayerId,
+                sourceInventoryId: unit.id,
+                sourceSlotIndex: task.sourceSlotIndex,
+            });
+            if (deposited) {
+                this.handleEconomyEvent(deposited);
+                this.controllableUnits.clearUnitCommand(unit.id);
+            }
+            this.economyWorkerTasks.delete(unitId);
+        });
+    }
+
+    private issueEconomySmartCommand(worldPoint: Phaser.Math.Vector2) {
+        const state = this.economyState;
+        if (!state) return false;
+
+        const selectedFarmer = this.controllableUnits
+            .getSelectedUnits()
+            .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+        if (!selectedFarmer) return false;
+
+        const target = this.hitTestEconomyEntity(worldPoint.x, worldPoint.y);
+        if (!target) return false;
+
+        if (target.type === 'egg') {
+            const egg = state.fieldEggs.find((candidate) => candidate.id === target.id);
+            if (!egg) return false;
+
+            this.controllableUnits.issueMoveCommandToUnits(
+                [selectedFarmer.id],
+                egg.position,
+                this.isQueueCommandMode() ? 'append' : 'replace',
+            );
+            this.economyWorkerTasks.set(selectedFarmer.id, {
+                eggId: egg.id,
+                type: 'pickup_egg',
+                unitId: selectedFarmer.id,
+            });
+            this.recordEconomyEvent('economy_farmer_pickup_ordered', {
+                eggId: egg.id,
+                farmerId: selectedFarmer.id,
+            });
+            return true;
+        }
+
+        return false;
+    }
+
+    private hitTestEconomyEntity(worldX: number, worldY: number): EconomyHitTarget | null {
+        const state = this.economyState;
+        if (!state) return null;
+
+        const egg = state.fieldEggs.find(
+            (candidate) =>
+                Phaser.Math.Distance.Between(
+                    worldX,
+                    worldY,
+                    candidate.position.x,
+                    candidate.position.y - 18,
+                ) <= 28,
+        );
+        if (egg) return { id: egg.id, type: 'egg' };
+
+        const coop = state.coops.find((candidate) =>
+            this.isPointInsideEconomyBuildingFootprint(
+                ECONOMY_POC_COOP_TEMPLATE_ID,
+                candidate.position,
+                worldX,
+                worldY,
+            ),
+        );
+        if (coop) return { id: coop.id, type: 'coop' };
+
+        const chicken = state.chickens.find(
+            (candidate) =>
+                Phaser.Math.Distance.Between(
+                    worldX,
+                    worldY,
+                    candidate.position.x,
+                    candidate.position.y,
+                ) <= 34,
+        );
+        if (chicken) return { id: chicken.id, type: 'chicken' };
+
+        const well = state.wells.find((candidate) =>
+            this.isPointInsideEconomyBuildingFootprint(
+                ECONOMY_POC_WELL_TEMPLATE_ID,
+                candidate.position,
+                worldX,
+                worldY,
+            ),
+        );
+        if (well) return { id: well.id, type: 'well' };
+
+        return null;
+    }
+
+    private getFarmerEggInventory(unitId: string) {
+        if (!this.economyState) return 0;
+        return countInventoryItem(this.economyState, unitId, 'I006');
+    }
+
+    private getTotalFarmerEggInventory() {
+        if (!this.economyState) return 0;
+        return this.controllableUnits
+            .getUnits()
+            .filter((unit) => unit.templateId === 'farmer')
+            .reduce(
+                (total, unit) =>
+                    total + countInventoryItem(this.economyState!, unit.id, 'I006'),
+                0,
+            );
+    }
+
+    private bindInventorySlotInput() {
+        this.inventorySlots.forEach((slotView) => {
+            slotView.background.on(
+                Phaser.Input.Events.POINTER_DOWN,
+                (
+                    pointer: Phaser.Input.Pointer,
+                    _localX: number,
+                    _localY: number,
+                    event: Phaser.Types.Input.EventData,
+                ) => {
+                    event.stopPropagation();
+                    this.beginInventoryDrag(slotView.index, pointer);
+                },
+            );
+        });
+        this.input.on(
+            Phaser.Input.Events.POINTER_MOVE,
+            (pointer: Phaser.Input.Pointer) => this.updateInventoryDrag(pointer),
+        );
+        this.input.on(
+            Phaser.Input.Events.POINTER_UP,
+            (pointer: Phaser.Input.Pointer) => this.completeInventoryDrag(pointer),
+        );
+    }
+
+    private beginInventoryDrag(slotIndex: number, pointer: Phaser.Input.Pointer) {
+        const state = this.economyState;
+        const inventoryId = this.renderedInventoryId;
+        const inventory = state && inventoryId ? getEconomyInventory(state, inventoryId) : null;
+        const slot = inventory?.slots[slotIndex];
+        if (!state || !inventory || !slot) return;
+
+        this.destroyInventoryDrag();
+        const ghost = this.add
+            .text(pointer.x + 10, pointer.y + 10, this.getInventoryIconText(slot.itemRawcode), {
+                align: 'center',
+                backgroundColor: 'rgba(24, 21, 14, 0.94)',
+                color: '#fff0bd',
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: '18px',
+                fontStyle: '700',
+                padding: { bottom: 5, left: 8, right: 8, top: 5 },
+                stroke: '#141009',
+                strokeThickness: 4,
+            })
+            .setDepth(220)
+            .setOrigin(0.5);
+        this.uiObjects.push(ghost);
+        this.worldCamera.ignore(ghost);
+        this.inventoryDrag = {
+            ghost,
+            inventoryId: inventory.id,
+            itemRawcode: slot.itemRawcode,
+            slotIndex,
+        };
+        this.recordEconomyEvent('economy_inventory_item_drag_started', {
+            inventoryId: inventory.id,
+            itemRawcode: slot.itemRawcode,
+            slotIndex,
+        });
+    }
+
+    private updateInventoryDrag(pointer: Phaser.Input.Pointer) {
+        if (!this.inventoryDrag) return;
+
+        this.inventoryDrag.ghost.setPosition(pointer.x + 10, pointer.y + 10);
+    }
+
+    private completeInventoryDrag(pointer: Phaser.Input.Pointer) {
+        const drag = this.inventoryDrag;
+        if (!drag) return;
+
+        if (
+            pointer.x <= CHICKEN_FARM_TILEMAP_POC_01.defaultViewportWidth &&
+            pointer.y <= CHICKEN_FARM_TILEMAP_POC_01.defaultViewportHeight
+        ) {
+            const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
+            const target = this.hitTestEconomyEntity(worldPoint.x, worldPoint.y);
+            if (target?.type === 'coop') {
+                this.depositDraggedInventoryItemToCoop(drag, target.id);
+            } else {
+                this.dropDraggedInventoryItemToField(drag, {
+                    x: worldPoint.x,
+                    y: worldPoint.y,
+                });
+            }
+        }
+
+        this.destroyInventoryDrag();
+    }
+
+    private dropDraggedInventoryItemToField(
+        drag: InventoryDragState,
+        targetPoint: EconomyPoint,
+    ) {
+        const state = this.economyState;
+        const sourceInventory = state
+            ? getEconomyInventory(state, drag.inventoryId)
+            : null;
+        if (!state || !sourceInventory || drag.itemRawcode !== 'I006') return;
+
+        const sourceUnit = this.controllableUnits
+            .getUnits()
+            .find((unit) => unit.id === drag.inventoryId && unit.hp > 0);
+        if (sourceUnit?.templateId === 'farmer') {
+            this.controllableUnits.issueMoveCommandToUnits(
+                [sourceUnit.id],
+                targetPoint,
+                this.isQueueCommandMode() ? 'append' : 'replace',
+            );
+            this.economyWorkerTasks.set(sourceUnit.id, {
+                sourceSlotIndex: drag.slotIndex,
+                targetPoint,
+                type: 'drop_to_field',
+                unitId: sourceUnit.id,
+            });
+            this.recordEconomyEvent('economy_inventory_item_drop_point_ordered', {
+                inventoryId: drag.inventoryId,
+                itemRawcode: drag.itemRawcode,
+                sourceSlotIndex: drag.slotIndex,
+                x: Number(targetPoint.x.toFixed(1)),
+                y: Number(targetPoint.y.toFixed(1)),
+            });
+            return;
+        }
+
+        const dropped = dropInventoryEggToField(state, {
+            droppedAtSec: this.elapsedSec,
+            ownerPlayerId: sourceInventory.ownerPlayerId,
+            position: targetPoint,
+            sourceInventoryId: drag.inventoryId,
+            sourceSlotIndex: drag.slotIndex,
+        });
+        if (!dropped) return;
+
+        this.handleEconomyEvent(dropped);
+        this.refreshEconomyLabels();
+        this.updateSelectionInfo();
+    }
+
+    private depositDraggedInventoryItemToCoop(drag: InventoryDragState, coopId: string) {
+        const state = this.economyState;
+        const sourceInventory = state
+            ? getEconomyInventory(state, drag.inventoryId)
+            : null;
+        if (!state || !sourceInventory || drag.itemRawcode !== 'I006') return;
+
+        const coop = state.coops.find((candidate) => candidate.id === coopId);
+        const sourceUnit = this.controllableUnits
+            .getUnits()
+            .find((unit) => unit.id === drag.inventoryId && unit.hp > 0);
+        if (coop && sourceUnit?.templateId === 'farmer') {
+            this.controllableUnits.issueMoveCommandToUnits(
+                [sourceUnit.id],
+                coop.position,
+                this.isQueueCommandMode() ? 'append' : 'replace',
+            );
+            this.economyWorkerTasks.set(sourceUnit.id, {
+                coopId,
+                sourceSlotIndex: drag.slotIndex,
+                type: 'deposit_to_coop',
+                unitId: sourceUnit.id,
+            });
+            this.recordEconomyEvent('economy_inventory_item_drop_ordered', {
+                coopId,
+                inventoryId: drag.inventoryId,
+                itemRawcode: drag.itemRawcode,
+                sourceSlotIndex: drag.slotIndex,
+            });
+            return;
+        }
+
+        const deposited = depositEggStackToCoop(state, {
+            coopId,
+            ownerPlayerId: sourceInventory.ownerPlayerId,
+            sourceInventoryId: drag.inventoryId,
+            sourceSlotIndex: drag.slotIndex,
+        });
+        if (deposited) {
+            this.handleEconomyEvent(deposited);
+            this.refreshEconomyLabels();
+            this.updateSelectionInfo();
+        }
+    }
+
+    private destroyInventoryDrag() {
+        this.inventoryDrag?.ghost.destroy();
+        this.inventoryDrag = undefined;
+    }
+
+    private registerEconomyView(
+        id: string,
+        objects: Phaser.GameObjects.GameObject[],
+        label?: Phaser.GameObjects.Text,
+    ) {
+        this.economyViewObjects.set(id, objects);
+        if (label) this.economyLabels.set(id, label);
+        this.worldObjects.push(...objects);
+        this.cameras.getCamera('ui')?.ignore(objects);
+    }
+
+    private destroyEconomyView(id: string) {
+        this.economyViewObjects.get(id)?.forEach((object) => object.destroy());
+        this.economyViewObjects.delete(id);
+        this.economyLabels.delete(id);
+    }
+
+    private refreshEconomyLabels() {
+        const state = this.economyState;
+        if (!state) return;
+
+        state.wells.forEach((well) => {
+            this.economyLabels.get(well.id)?.setText('우물');
+        });
+        state.coops.forEach((coop) => {
+            const hatchJobs = state.hatchJobs.filter((job) => job.coopId === coop.id);
+            const nextDone = hatchJobs[0]
+                ? Math.max(0, hatchJobs[0].completeAtSec - this.elapsedSec)
+                : null;
+            this.economyLabels
+                .get(coop.id)
+                ?.setText(
+                    nextDone === null
+                        ? `닭장\n알 ${coop.storedEggs}`
+                        : `닭장\n부화 ${nextDone.toFixed(0)}s`,
+                );
+        });
+        state.chickens.forEach((chicken) => {
+            const nextEggSec = Math.max(0, chicken.nextEggAtSec - this.elapsedSec);
+            this.economyLabels
+                .get(chicken.id)
+                ?.setText(`닭\n알 ${nextEggSec.toFixed(0)}s`);
+        });
+    }
+
+    private recordEconomyEvent(type: string, payload: object) {
+        this.telemetry.record(type, payload as Record<string, unknown>);
+        this.economyEventLog.unshift(type.replace('economy_', ''));
+        this.economyEventLog = this.economyEventLog.slice(0, 4);
+    }
+
     private getPlayerStartById(id: number) {
         return this.playerStarts.find((start) => start.id === id) ?? null;
+    }
+
+    private ensureFarmerInventories() {
+        if (!this.economyState) return;
+
+        this.controllableUnits
+            .getUnits()
+            .filter((unit) => unit.templateId === 'farmer')
+            .forEach((unit) => {
+                ensureEconomyInventory(this.economyState!, {
+                    capacity: this.economyState!.config.inventorySlotCount,
+                    id: unit.id,
+                    ownerPlayerId: unit.ownerPlayerId,
+                });
+            });
     }
 
     private handlePlayerStartChanged(start: PlayerStart) {
@@ -452,6 +1303,7 @@ class FarmScene extends Phaser.Scene {
         });
         if (start.id > 0) {
             this.controllableUnits?.createForStart(start);
+            this.ensureFarmerInventories();
         }
         this.visibility.revealAroundSources(this.getVisionSources(), this.worldSize);
         this.updateFogOfWarIfNeeded(true);
@@ -739,6 +1591,9 @@ class FarmScene extends Phaser.Scene {
     private updateStopHotkey(force = false) {
         if (!force && !Phaser.Input.Keyboard.JustDown(this.keys.stop)) return;
 
+        this.controllableUnits
+            .getSelectedUnits()
+            .forEach((unit) => this.economyWorkerTasks.delete(unit.id));
         const stoppedUnitCount = this.controllableUnits.stopSelectedUnits();
         this.telemetry.record('unit_stop_command_issued', {
             stoppedUnitCount,
@@ -770,13 +1625,23 @@ class FarmScene extends Phaser.Scene {
                 );
                 if (selected) {
                     this.selectedBuildingId = undefined;
+                    this.selectedEconomyEntity = undefined;
                 } else {
+                    const selectedEconomyEntity = this.hitTestEconomyEntity(
+                        worldPoint.x,
+                        worldPoint.y,
+                    );
                     const selectedBuilding = this.buildingSystem?.hitTestBuilding(
                         worldPoint.x,
                         worldPoint.y,
                     );
-                    this.selectedBuildingId = selectedBuilding?.id;
-                    if (selectedBuilding) this.controllableUnits.clearSelection();
+                    this.selectedEconomyEntity = selectedEconomyEntity ?? undefined;
+                    this.selectedBuildingId = selectedEconomyEntity
+                        ? undefined
+                        : selectedBuilding?.id;
+                    if (selectedEconomyEntity || selectedBuilding) {
+                        this.controllableUnits.clearSelection();
+                    }
                 }
                 this.commandCard?.refresh();
                 const nearestUnit = this.controllableUnits.getNearestUnitSummary(
@@ -791,6 +1656,8 @@ class FarmScene extends Phaser.Scene {
                     nearestUnitX: nearestUnit?.x ?? null,
                     nearestUnitY: nearestUnit?.y ?? null,
                     selectedBuildingId: this.selectedBuildingId ?? null,
+                    selectedEconomyEntityId: this.selectedEconomyEntity?.id ?? null,
+                    selectedEconomyEntityType: this.selectedEconomyEntity?.type ?? null,
                     selectedUnitCount: selected ? 1 : 0,
                     selectedUnitId: selected?.id ?? null,
                     selectedUnitType: selected?.templateId ?? null,
@@ -803,6 +1670,7 @@ class FarmScene extends Phaser.Scene {
 
                 const selectedUnits = this.controllableUnits.selectInRect(rect);
                 this.selectedBuildingId = undefined;
+                this.selectedEconomyEntity = undefined;
                 this.commandCard?.refresh();
                 this.telemetry.record('unit_selection_changed', {
                     height: Number(rect.height.toFixed(1)),
@@ -839,6 +1707,9 @@ class FarmScene extends Phaser.Scene {
                 }
 
                 const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
+                if (this.issueEconomySmartCommand(worldPoint)) {
+                    return;
+                }
                 const targetBuilding = this.buildingSystem?.hitTestBuilding(
                     worldPoint.x,
                     worldPoint.y,
@@ -868,15 +1739,19 @@ class FarmScene extends Phaser.Scene {
                 );
                 const result = this.performanceProfiler.measure(
                     'command.smart.total',
-                    () =>
-                        this.controllableUnits.issueSmartCommandToSelected(
+                    () => {
+                        this.controllableUnits
+                            .getSelectedUnits()
+                            .forEach((unit) => this.economyWorkerTasks.delete(unit.id));
+                        return this.controllableUnits.issueSmartCommandToSelected(
                             {
                                 x: worldPoint.x,
                                 y: worldPoint.y,
                             },
                             enemyTarget?.id,
                             this.isQueueCommandMode() ? 'append' : 'replace',
-                        ),
+                        );
+                    },
                 );
 
                 this.telemetry.record('unit_smart_command_issued', {
@@ -928,6 +1803,15 @@ class FarmScene extends Phaser.Scene {
                 return {
                     buildingCount: this.buildingSystem?.getBuildingCount() ?? 0,
                     commandPage: this.commandCard?.getPage() ?? 'off',
+                    economyPoc: this.economyState
+                        ? {
+                              chickens: this.economyState.chickens.length,
+                              coops: this.economyState.coops.length,
+                              fieldEggs: this.economyState.fieldEggs.length,
+                              hatchJobs: this.economyState.hatchJobs.length,
+                              wells: this.economyState.wells.length,
+                          }
+                        : null,
                     elapsedSec: this.elapsedSec,
                     placingBuildingId:
                         this.constructionPlacement?.getActiveBuildingId() ?? null,
@@ -972,6 +1856,9 @@ class FarmScene extends Phaser.Scene {
         const primaryUnit = this.controllableUnits.getPrimaryUnit();
         const selectedUnits = this.controllableUnits.getSelectedUnits();
         const economy = this.buildingSystem?.economy;
+        const economyPoc = this.economyState
+            ? `farm c:${this.economyState.chickens.length} egg:${this.economyState.fieldEggs.length} hatch:${this.economyState.hatchJobs.length} inv:${this.getTotalFarmerEggInventory()}`
+            : 'farm off';
         const selectedBuilding = this.selectedBuildingId
             ? this.buildingSystem?.getBuildingSelectionSummary(this.selectedBuildingId)
             : null;
@@ -984,7 +1871,7 @@ class FarmScene extends Phaser.Scene {
               )}% worker ${selectedBuilding.activeWorkerUnitId ?? 'paused'}`
             : 'building none';
         this.debugText.setText(
-            `${this.playerControl.playerStartLabel} player ${Math.round(player?.x ?? 0)}, ${Math.round(
+            `${this.playerControl.playerStartLabel} ${Math.round(player?.x ?? 0)}, ${Math.round(
                 player?.y ?? 0,
             )} | camera ${Math.round(this.worldCamera.scrollX)}, ${Math.round(
                 this.worldCamera.scrollY,
@@ -992,9 +1879,7 @@ class FarmScene extends Phaser.Scene {
                 this.buildGridVisible ? 'on' : 'off'
             } | terrain ${this.terrainOverlayVisible ? 'on' : 'off'} | log ${
                 this.telemetry?.getEventCount() ?? 0
-            } | vision ${
-                VISIBILITY_OVERLAY.revealRadiusPx
-            }px | ${this.controllableUnits.getUnitSummary()} | unit speed ${
+            }\n${economyPoc} | ${this.controllableUnits.getUnitSummary()} | speed ${
                 primaryUnit?.speedPxPerSec ?? 0
             } | selected ${
                 selectedUnits.map((unit) => unit.templateId).join(',') || 'none'
@@ -1004,9 +1889,9 @@ class FarmScene extends Phaser.Scene {
                     : 'economy off'
             } | card ${this.commandCard?.getPage() ?? 'off'} | placing ${
                 this.constructionPlacement?.getActiveBuildingId() ?? 'none'
-            } | ${buildingSelectionText} | viewport ${this.worldCamera.width}x${
+            }\n${buildingSelectionText} | viewport ${this.worldCamera.width}x${
                 this.worldCamera.height
-            }\n${this.performanceProfiler.getOverlayText()}`,
+            } | vision ${VISIBILITY_OVERLAY.revealRadiusPx}px\n${this.performanceProfiler.getOverlayText()}`,
         );
     }
 
@@ -1014,18 +1899,27 @@ class FarmScene extends Phaser.Scene {
         if (!this.resourceText) return;
 
         const economy = this.buildingSystem?.economy;
+        const economyPoc = this.economyState
+            ? `  Farm C:${this.economyState.chickens.length} Egg:${this.economyState.fieldEggs.length} Inv:${this.getTotalFarmerEggInventory()} Hatch:${this.economyState.hatchJobs.length}`
+            : '';
         if (!economy) {
-            this.resourceText.setText('Gold - | Lumber - | Supply - | Eggs -');
+            this.resourceText.setText(`Gold - | Lumber - | Supply - | Eggs -${economyPoc}`);
             return;
         }
 
         this.resourceText.setText(
-            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}  Eggs ${economy.eggs}`,
+            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}  Eggs ${economy.eggs}${economyPoc}`,
         );
     }
 
     private updateSelectionInfo() {
         if (!this.selectionInfoNameText) return;
+
+        if (this.selectedEconomyEntity) {
+            const handled = this.updateEconomySelectionInfo(this.selectedEconomyEntity);
+            if (handled) return;
+            this.selectedEconomyEntity = undefined;
+        }
 
         const selectedBuilding = this.selectedBuildingId
             ? this.buildingSystem?.getBuildingSelectionSummary(this.selectedBuildingId)
@@ -1066,6 +1960,7 @@ class FarmScene extends Phaser.Scene {
                     template.originalCost?.lumber ? ` ${template.originalCost.lumber}l` : ''
                 } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
             );
+            this.clearInventorySlots();
             return;
         }
 
@@ -1074,6 +1969,11 @@ class FarmScene extends Phaser.Scene {
         if (primaryUnit) {
             const stats = CHICKEN_FARM_BALANCE.defenders[primaryUnit.templateId];
             const command = primaryUnit.currentCommand?.type ?? 'idle';
+            const carriedEggs =
+                primaryUnit.templateId === 'farmer'
+                    ? this.getFarmerEggInventory(primaryUnit.id)
+                    : 0;
+            const task = this.economyWorkerTasks.get(primaryUnit.id);
 
             this.selectionInfoPortrait.setFillStyle(
                 primaryUnit.templateId === 'farmer' ? 0x4b3b24 : 0x31455c,
@@ -1090,14 +1990,19 @@ class FarmScene extends Phaser.Scene {
             this.selectionInfoStatusText.setText(
                 `Command ${command} | Speed ${Math.round(
                     primaryUnit.speedPxPerSec,
-                )}px/s | Range ${stats.attackRangePx ?? 0}px | Queued ${
-                    primaryUnit.commandQueue.length
-                }`,
+                )}px/s | Range ${stats.attackRangePx ?? 0}px | Queue ${primaryUnit.commandQueue.length}`,
             );
             this.selectionInfoBodyText.setText(
                 selectedUnits.length > 1
                     ? `${selectedUnits.length} units selected`
-                    : 'Worker command card follows Warcraft III-style build/stop/resume flow.',
+                    : primaryUnit.templateId === 'farmer'
+                      ? `Inventory: egg x${carriedEggs} | Task: ${task?.type ?? 'none'}`
+                      : 'Combat helper unit.',
+            );
+            this.renderInventorySlots(
+                primaryUnit.templateId === 'farmer' && this.economyState
+                    ? getEconomyInventory(this.economyState, primaryUnit.id)
+                    : null,
             );
             return;
         }
@@ -1107,6 +2012,105 @@ class FarmScene extends Phaser.Scene {
         this.selectionInfoStatsText.setText('Select a farmer, dog, or building.');
         this.selectionInfoStatusText.setText('');
         this.selectionInfoBodyText.setText('');
+        this.clearInventorySlots();
+    }
+
+    private updateEconomySelectionInfo(target: EconomyHitTarget) {
+        const state = this.economyState;
+        if (!state) return false;
+
+        if (target.type === 'coop') {
+            const coop = state.coops.find((candidate) => candidate.id === target.id);
+            if (!coop) return false;
+            const inventory = getEconomyInventory(state, coop.id);
+            const hatchJobs = state.hatchJobs.filter((job) => job.coopId === coop.id);
+            const hatchText = hatchJobs[0]
+                ? `${Math.max(0, hatchJobs[0].completeAtSec - this.elapsedSec).toFixed(1)}s`
+                : 'none';
+            this.selectionInfoPortrait.setFillStyle(0x6f4a28, 1);
+            this.selectionInfoNameText.setText('닭장');
+            this.selectionInfoStatsText.setText(
+                `Inventory egg x${coop.storedEggs} | Hatch slots ${hatchJobs.length}/${
+                    state.config.coopRules[coop.kind].hatchCapacity
+                }`,
+            );
+            this.selectionInfoStatusText.setText(`Hatch ${hatchText}`);
+            this.selectionInfoBodyText.setText(
+                '농부가 든 알을 닭장에 넣으면 닭장 인벤토리에 들어가고 부화가 시작됩니다.',
+            );
+            this.renderInventorySlots(inventory);
+            return true;
+        }
+
+        if (target.type === 'egg') {
+            const egg = state.fieldEggs.find((candidate) => candidate.id === target.id);
+            if (!egg) return false;
+            this.selectionInfoPortrait.setFillStyle(0x8f7842, 1);
+            this.selectionInfoNameText.setText('알');
+            this.selectionInfoStatsText.setText(
+                `Stack x${egg.stackCount} | Source ${egg.sourceChickenId}`,
+            );
+            this.selectionInfoStatusText.setText(
+                `Dropped ${Math.max(0, this.elapsedSec - egg.droppedAtSec).toFixed(1)}s ago`,
+            );
+            this.selectionInfoBodyText.setText('농부를 선택한 뒤 알을 우클릭하면 농부 인벤토리에 들어갑니다.');
+            this.clearInventorySlots();
+            return true;
+        }
+
+        if (target.type === 'chicken') {
+            const chicken = state.chickens.find((candidate) => candidate.id === target.id);
+            if (!chicken) return false;
+            this.selectionInfoPortrait.setFillStyle(0xded39b, 1);
+            this.selectionInfoNameText.setText('닭');
+            this.selectionInfoStatsText.setText(`Kind ${chicken.kind}`);
+            this.selectionInfoStatusText.setText(
+                `Next egg ${Math.max(0, chicken.nextEggAtSec - this.elapsedSec).toFixed(1)}s`,
+            );
+            this.selectionInfoBodyText.setText('우물 반경 안에서는 산란 시간이 짧아집니다.');
+            this.clearInventorySlots();
+            return true;
+        }
+
+        const well = state.wells.find((candidate) => candidate.id === target.id);
+        if (!well) return false;
+        this.selectionInfoPortrait.setFillStyle(0x3a6d87, 1);
+        this.selectionInfoNameText.setText('우물');
+        this.selectionInfoStatsText.setText(
+            `Buff radius ${state.config.wellBuff.radiusPx}px`,
+        );
+        this.selectionInfoStatusText.setText(
+            `Egg interval x${state.config.wellBuff.eggIntervalMultiplier}`,
+        );
+        this.selectionInfoBodyText.setText('반경 안 닭의 산란 주기를 줄입니다.');
+        this.clearInventorySlots();
+        return true;
+    }
+
+    private renderInventorySlots(inventory: EconomyInventoryState | null) {
+        this.renderedInventoryId = inventory?.id;
+        this.inventorySlots.forEach((slotView, index) => {
+            const slot = inventory?.slots[index] ?? null;
+            slotView.background.setFillStyle(slot ? 0x3d3320 : 0x27291f, 1);
+            slotView.background.setStrokeStyle(
+                slot ? 2 : 1,
+                slot ? 0xd4b263 : 0x756b4e,
+                0.95,
+            );
+            slotView.iconText.setText(slot ? this.getInventoryIconText(slot.itemRawcode) : '');
+            slotView.quantityText.setText(
+                slot && slot.quantity > 1 ? String(slot.quantity) : '',
+            );
+        });
+    }
+
+    private clearInventorySlots() {
+        this.renderInventorySlots(null);
+    }
+
+    private getInventoryIconText(itemRawcode: string) {
+        if (itemRawcode === 'I006') return '알';
+        return itemRawcode;
     }
 
     private isQueueCommandMode() {

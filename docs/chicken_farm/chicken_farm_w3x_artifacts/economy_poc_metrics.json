@@ -1,0 +1,173 @@
+{
+  "generatedAt": "2026-07-08T08:02:25.931Z",
+  "scenario": {
+    "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
+    "sourceReferences": [
+      "object_mod_key_strings.tsv: A000 알낳기",
+      "object_mod_key_strings.tsv: A02G 촉진제",
+      "unit_rawcode_crosscheck.tsv: H000 AInv",
+      "object_mod_key_strings.tsv: A00K/A00N/A03L 부화",
+      "item_catalog_reference.tsv: I006 알"
+    ]
+  },
+  "state": {
+    "chickenCount": 3,
+    "coopInventoryEggsAfterDeposit": 1,
+    "coopStoredEggs": 0,
+    "fieldEggCount": 2,
+    "fieldEggsAfterInventoryDrop": 2,
+    "hatchJobCount": 0,
+    "farmerInventoryEggs": 0,
+    "wellCount": 1
+  },
+  "checks": [
+    {
+      "actual": 0,
+      "expected": 0,
+      "id": "no_egg_before_buffed_interval",
+      "pass": true
+    },
+    {
+      "actual": {
+        "droppedAtSec": 22.5,
+        "wellBuffed": true
+      },
+      "expected": {
+        "droppedAtSec": 22.5,
+        "wellBuffed": true
+      },
+      "id": "well_buffed_chicken_drops_at_22_5s",
+      "pass": true
+    },
+    {
+      "actual": 1,
+      "expected": 1,
+      "id": "unbuffed_chicken_waits_until_30s",
+      "pass": true
+    },
+    {
+      "actual": {
+        "droppedAtSec": 30,
+        "wellBuffed": false
+      },
+      "expected": {
+        "droppedAtSec": 30,
+        "wellBuffed": false
+      },
+      "id": "unbuffed_chicken_drops_at_30s",
+      "pass": true
+    },
+    {
+      "actual": {
+        "coopInventoryEggsAfterDeposit": 1,
+        "farmerInventoryEggs": 0
+      },
+      "expected": {
+        "coopInventoryEggsAfterDeposit": 1,
+        "farmerInventoryEggs": 0
+      },
+      "id": "farmer_inventory_deposits_and_coop_keeps_egg",
+      "pass": true
+    },
+    {
+      "actual": 2,
+      "expected": 2,
+      "id": "inventory_egg_can_drop_back_to_field",
+      "pass": true
+    },
+    {
+      "actual": {
+        "coopSlots": 6,
+        "farmerSlots": 6
+      },
+      "expected": {
+        "coopSlots": 6,
+        "farmerSlots": 6
+      },
+      "id": "war3_inventory_has_six_slots",
+      "pass": true
+    },
+    {
+      "actual": 2,
+      "expected": 2,
+      "id": "hatch_waits_until_20s_duration",
+      "pass": true
+    },
+    {
+      "actual": 3,
+      "expected": 3,
+      "id": "coop_hatch_adds_chicken_at_50s",
+      "pass": true
+    }
+  ],
+  "events": [
+    {
+      "chickenId": "chicken-1",
+      "eggId": "egg-1",
+      "stackCount": 1,
+      "type": "egg_dropped",
+      "wellBuffed": true
+    },
+    {
+      "chickenId": "chicken-2",
+      "eggId": "egg-2",
+      "stackCount": 1,
+      "type": "egg_dropped",
+      "wellBuffed": false
+    },
+    {
+      "eggId": "egg-1",
+      "ownerPlayerId": 3,
+      "slotIndex": 0,
+      "stackCount": 1,
+      "type": "egg_picked_up"
+    },
+    {
+      "eggId": "egg-3",
+      "ownerPlayerId": 3,
+      "position": {
+        "x": 1120,
+        "y": 1040
+      },
+      "sourceInventoryId": "p3-farmer",
+      "sourceSlotIndex": 0,
+      "stackCount": 1,
+      "type": "egg_dropped_from_inventory"
+    },
+    {
+      "eggId": "egg-3",
+      "ownerPlayerId": 3,
+      "slotIndex": 0,
+      "stackCount": 1,
+      "type": "egg_picked_up"
+    },
+    {
+      "coopId": "coop-1",
+      "ownerPlayerId": 3,
+      "sourceInventoryId": "p3-farmer",
+      "sourceSlotIndex": 0,
+      "stackCount": 1,
+      "targetSlotIndex": 0,
+      "type": "egg_stack_deposited_to_coop"
+    },
+    {
+      "coopId": "coop-1",
+      "hatchJobId": "hatch-1",
+      "type": "hatch_started"
+    },
+    {
+      "chickenId": "chicken-1",
+      "eggId": "egg-4",
+      "stackCount": 1,
+      "type": "egg_dropped",
+      "wellBuffed": true
+    },
+    {
+      "chickenId": "chicken-3",
+      "coopId": "coop-1",
+      "hatchJobId": "hatch-1",
+      "type": "hatch_completed"
+    }
+  ],
+  "pass": true
+}

@@ -359,18 +359,68 @@ No props, no units, no buildings, no text, no logos.
 
 ## 7. 현재 추천 생성 순서
 
-1. `unit_farmer`, `unit_dog_basic`
-2. `icon_build`, `icon_stop`, `marker_move_command`, `marker_target_command`
-3. `building_scaffold_4x4`, `building_scaffold_8x8`
-4. `building_fence_wood`, `building_tower_scout`, `building_farm_house`, `building_coop_basic`
-5. `unit_wolf_basic`, `unit_spider_basic`
-6. `unit_chicken_basic`, `icon_egg`, `icon_coin`
+2026-07-08 기준으로는 새 생성 전에 오픈소스/무료 후보를 먼저 선별한다. 닭농장 MVP가 공개 배포될 수 있으므로, 1차 선택은 CC0 또는 명확한 attribution 라이선스를 우선한다.
+
+1. 오픈소스 후보 중 `unit_chicken_basic`, `unit_dog_basic`, `unit_wolf_basic`, farm tiles/props를 먼저 고른다.
+2. `unit_farmer`는 LPC generator 조합 또는 신규 생성 중 하나를 선택한다.
+3. `icon_build`, `icon_stop`, `marker_move_command`, `marker_target_command`
+4. `building_scaffold_4x4`, `building_scaffold_8x8`
+5. `building_fence_wood`, `building_tower_scout`, `building_farm_house`, `building_coop_basic`
+6. `unit_spider_basic`, `icon_egg`, `icon_coin`
 7. `building_market`, `building_well_basic`
 8. 방어/경제 upgrade line
 9. 가족/보스/이벤트 NPC
 10. map tile/doodad polish
 
 이 순서는 현재 Construction Placement PoC 우선순위와 맞춘다. 먼저 농부/명령 UI/건설 중 상태/4개 배치 건물을 만들고, 그 다음 combat/economy asset으로 넘어간다.
+
+## 7.1 오픈소스/무료 에셋 후보
+
+조사일: 2026-07-08. 라이선스는 각 배포 페이지 표기를 기준으로 기록한다. 실제 repo import 전에는 다운로드 archive 안의 `LICENSE`, `CREDITS`, `README`를 다시 확인한다.
+
+선택 기준:
+
+- `CC0`는 repo에 포함하기 가장 쉽다.
+- `CC-BY`, `OGA-BY`는 가능하지만 credits 파일과 asset manifest에 출처를 남긴다.
+- `CC-BY-SA`, `GPL` 계열은 파생/결합물 배포 정책이 프로젝트 전체 배포 방식에 영향을 줄 수 있어 prototype/reference로 먼저 둔다.
+- itch 무료판 중 `non-commercial only`, `no redistribution` 조건이 있는 것은 공개 repo에 직접 포함하지 않는다.
+
+### 추천 후보
+
+| 후보 | URL | 라이선스/조건 | 맞는 Asset ID | 장점 | 리스크/처리 |
+| --- | --- | --- | --- | --- | --- |
+| Kenney Tiny Farm | https://kenney.nl/assets/tiny-farm | CC0 | `tile_grass_base`, `tile_dirt_path`, farm props, placeholder buildings | farm/rpg/map 태그, 16x16 tile, repo 배포 부담이 낮다. | 현재 맵의 Kenney Tiny Town과 섞기 쉽지만 P0 유닛/건물 실루엣은 부족할 수 있다. |
+| Kenney Tiny Town | https://kenney.nl/assets/tiny-town | CC0 | 현재 tileset 유지, village/overworld props | 이미 `games/chicken-farm/assets/tilesets/kenney-tiny-town/`에 들어간 계열이라 일관성 확보가 쉽다. | 닭농장 전용 닭/닭장/늑대 감성은 별도 보강 필요. |
+| Kenney Animal Pack Redux | https://kenney.nl/assets/animal-pack-redux | CC0 | animal placeholder, `unit_dog_basic` 후보 | 2D animal/pet pack이고 CC0라 prototype import가 쉽다. | 실제 chicken/wolf 포함 여부와 방향 animation은 archive 확인 후 매핑한다. |
+| OpenGameArt Chicken Sprites | https://opengameart.org/content/chicken-sprites | CC0 | `unit_chicken_basic`, chick/peck animation 후보 | 닭 전용 sprite sheet, walk/peck animation이 있어 PoC 7 경제 루프에 바로 맞다. | 기존 pixel scale과 palette가 Kenney Tiny 계열과 다르므로 palette/outline 정규화 필요. |
+| OpenGameArt LPC style farm animals | https://opengameart.org/content/lpc-style-farm-animals | CC-BY 3.0 / GPL 2.0 | `unit_chicken_basic`, cow/pig/sheep future variants | walking/eating animation과 shadow가 있고 farm animal 구성이 풍부하다. | attribution 필수. GPL 대신 CC-BY 경로를 선택하고 credits 관리 필요. |
+| OpenGameArt LPC Wolf Animation | https://opengameart.org/content/lpc-wolf-animation | CC-BY 4.0 / CC-BY 3.0 / OGA-BY 3.0 / GPL | `unit_wolf_basic`, wolf tier recolor 후보 | walk/run/bite/howl/die, 6 color sheet로 늑대 웨이브에 매우 잘 맞다. | attribution 필수. sheet frame mapping 작업 필요. |
+| OpenGameArt LPC Cats and Dogs | https://opengameart.org/content/lpc-cats-and-dogs | CC-BY 3.0 / OGA-BY 3.0 / GPL / CC-BY-SA | `unit_dog_basic`, pet variants | 4방향 walk, 색상 variation, 닭농장 시작 개에 맞다. | attribution 필수. CC-BY 경로로 쓰고 credits를 남긴다. |
+| OpenGameArt LPC Character Bases + Universal LPC Spritesheet Generator | https://opengameart.org/content/lpc-character-bases | CC-BY-SA 3.0 / GPL 3.0 | `unit_farmer`, `unit_spouse`, children 후보 | 농부/가족/상인형 humanoid를 generator로 빠르게 만들 수 있다. | share-alike/GPL 부담이 커서 MVP repo 포함 전 라이선스 정책 결정 필요. |
+| OpenGameArt LPC Farming tilesets, magic animations and UI elements | https://opengameart.org/content/lpc-farming-tilesets-magic-animations-and-ui-elements | CC-BY-SA 3.0 / GPL 3.0 | fences, crops, market props, UI scroll blocks | 농장/시장/작물/울타리 reference가 풍부하다. | share-alike/GPL 부담. reference 또는 internal prototype 후보로 둔다. |
+
+### 보류 후보
+
+| 후보 | URL | 조건 | 판단 |
+| --- | --- | --- | --- |
+| Sprout Lands - Asset Pack | https://cupnooble.itch.io/sprout-lands-asset-pack | 무료판은 non-commercial only, premium은 상업 사용 가능하지만 resell/redistribution 금지 | 스타일은 좋고 chicken update가 있지만, 공개 repo에 직접 포함하기 어렵다. 유료 prototype 또는 스타일 reference 후보. |
+| Cozy Farm Asset Pack | https://shubibubi.itch.io/cozy-farm | 무료판은 non-commercial only, full version은 결제형 | cute top-down farm 감성은 맞지만 오픈소스 배포용 직접 import 후보는 아니다. 스타일 reference 후보. |
+
+### 선택지
+
+| 선택지 | 구성 | 장점 | 단점 | 추천도 |
+| --- | --- | --- | --- | --- |
+| A. CC0 우선 | Kenney Tiny Farm/Tiny Town + OGA Chicken Sprites | 라이선스 부담이 가장 작고 바로 repo에 넣기 쉽다. | dog/wolf/farmer는 별도 제작 또는 attribution 후보가 필요하다. | 1차 추천 |
+| B. LPC 전투/동물 세트 | OGA LPC chicken/dog/wolf/farmer 계열 | 유닛 animation이 풍부하고 4방향 이동/공격이 준비되어 있다. | credits와 라이선스 관리가 필수이고 일부 share-alike/GPL 후보는 조심해야 한다. | 전투 PoC용 추천 |
+| C. Kenney tile + LPC unit 혼합 | Kenney 맵/props + OGA LPC animal/enemy | 현재 타일맵을 유지하면서 닭/개/늑대만 빠르게 실체화할 수 있다. | pixel density와 palette 보정이 필요하다. | 현실적 추천 |
+| D. itch cozy pack | Sprout Lands/Cozy Farm paid/free | 화면 분위기는 가장 농장답다. | 공개 repo 직접 포함과 재배포가 까다롭다. | 보류 |
+
+### 현재 권장 결정
+
+1. P0 import는 `Kenney Tiny Farm`과 `OpenGameArt Chicken Sprites`를 먼저 검증한다.
+2. 늑대와 개는 `OpenGameArt LPC Wolf Animation`, `OpenGameArt LPC Cats and Dogs`를 attribution 포함 후보로 둔다.
+3. 농부는 당장 LPC Character Bases를 넣기보다, `unit_farmer`만 신규 생성/수작업 보정하거나 generator 결과를 internal prototype으로 비교한다.
+4. 최종 repo import 전에 `games/chicken-farm/assets/THIRD_PARTY_ASSETS.md`를 만들고 asset id, source URL, author, license, local file path를 기록한다.
 
 ## 8. 품질 체크리스트
 
