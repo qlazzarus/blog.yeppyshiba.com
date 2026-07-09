@@ -4,7 +4,8 @@ import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { BuildingTemplateConfig, MvpBuildingId } from '../balanceTypes';
 import { VISIBILITY_OVERLAY } from '../config';
 import type { GridPathRect } from './pathing';
-import type { AttackableEnemyTarget } from './playerCommandTypes';
+import type { AttackableEnemyTarget, Point } from './playerCommandTypes';
+import { resolveBuildingProductionExit } from './buildingProductionExit';
 import type { VisionSource } from './visibilitySystem';
 
 export type PlayerEconomyState = {
@@ -30,6 +31,7 @@ export type PlayerBuilding = {
     readonly maxHp: number;
     nextAttackAtSec: number;
     readonly ownerPlayerId: number;
+    rallyPoint?: Point;
     readonly startedAtSec: number;
     state: 'complete' | 'constructing';
     readonly targetableByWolves: boolean;
@@ -178,6 +180,39 @@ export class BuildingSystem {
 
     getBuilding(buildingId: string) {
         return this.buildings.find((building) => building.id === buildingId) ?? null;
+    }
+
+    getProductionExit(
+        buildingId: string,
+        unitRadiusPx: number,
+        isPositionAvailable?: (point: Point) => boolean,
+    ) {
+        const building = this.getBuilding(buildingId);
+        if (!building) return null;
+
+        return resolveBuildingProductionExit({
+            buildingCenter: this.getBuildingCenter(building),
+            isPositionAvailable,
+            templateId: building.templateId,
+            unitRadiusPx,
+        });
+    }
+
+    getRallyPoint(buildingId: string) {
+        const building = this.getBuilding(buildingId);
+        return building?.rallyPoint ? { ...building.rallyPoint } : null;
+    }
+
+    setRallyPoint(buildingId: string, rallyPoint: Point) {
+        const building = this.getBuilding(buildingId);
+        if (!building) return false;
+        building.rallyPoint = { ...rallyPoint };
+        this.recordTelemetry?.('building_rally_point_changed', {
+            buildingId,
+            x: Number(rallyPoint.x.toFixed(1)),
+            y: Number(rallyPoint.y.toFixed(1)),
+        });
+        return true;
     }
 
     hitTestBuilding(worldX: number, worldY: number) {
