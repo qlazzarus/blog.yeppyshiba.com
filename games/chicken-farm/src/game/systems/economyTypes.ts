@@ -1,11 +1,12 @@
 import type { MvpBuildingId } from '../balanceTypes';
 
 export type EconomyPoint = {
-    readonly x: number;
-    readonly y: number;
+    x: number;
+    y: number;
 };
 
 export type ChickenKind = 'basic' | 'giant' | 'mid';
+export type ChickenAiState = 'dead' | 'recover' | 'seek_well' | 'stranded' | 'wander';
 
 export type CoopKind = 'basic' | 'high' | 'mid';
 
@@ -44,6 +45,16 @@ export type ChickenFarmEconomyConfig = {
     >;
     readonly eggSellValueCoins: number;
     readonly inventorySlotCount: number;
+    readonly chickenVitality: {
+        readonly hpByKind: Record<ChickenKind, number>;
+        readonly hpDrainPerSec: number;
+        readonly recoverExitRatio: number;
+        readonly recoverPerSec: number;
+        readonly seekRatio: number;
+        readonly speedPxPerSec: number;
+        readonly wanderRadiusPx: number;
+        readonly wellRecoveryRadiusPx: number;
+    };
     readonly wellBuff: {
         readonly eggIntervalMultiplier: number;
         readonly radiusPx: number;
@@ -57,11 +68,19 @@ export type EconomyPlayerState = {
 };
 
 export type EconomyChickenState = {
+    readonly anchor: EconomyPoint;
+    aiState: ChickenAiState;
+    hp: number;
     readonly id: string;
     readonly kind: ChickenKind;
+    readonly maxHp: number;
+    nextAiDecisionAtSec: number;
     nextEggAtSec: number;
     readonly ownerPlayerId: number;
-    readonly position: EconomyPoint;
+    position: EconomyPoint;
+    targetPosition: EconomyPoint | null;
+    targetWellId: string | null;
+    vitalityUpdatedAtSec: number;
 };
 
 export type EconomyCoopState = {
@@ -146,6 +165,16 @@ export type EconomyEvent =
           readonly coopId: string;
           readonly hatchJobId: string;
           readonly type: 'hatch_completed';
+      }
+    | {
+          readonly chickenId: string;
+          readonly from: ChickenAiState;
+          readonly to: ChickenAiState;
+          readonly type: 'chicken_ai_state_changed';
+      }
+    | {
+          readonly chickenId: string;
+          readonly type: 'chicken_died';
       }
     | {
           readonly playerId: number;

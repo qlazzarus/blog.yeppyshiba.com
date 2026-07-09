@@ -221,10 +221,77 @@ P0 구현 상세:
 | C3 | 완료 | 워3식 inventory 경유 deposit/drop: field egg를 농부 2x3 inventory로 pickup하고, 농부 inventory slot의 `I006`을 드래그해 coop 2x3 inventory에 deposit하거나 지면에 다시 drop | `ensureEconomyInventory()`, `pickupFieldEgg()`, `depositEggStackToCoop()`, `dropInventoryEggToField()` |
 | C4 | 완료 | coop hatch job: coop inventory의 `I006` 1개를 명시적으로 소비, 20초 뒤 기본 닭 생성 | `startCoopHatch()`, `updateChickenFarmEconomy()` |
 | C5 | 완료 | Node 측정: 22.49초 전 알 없음, 22.5초 우물 버프 알 생성, 농부 inventory -> field drop -> pickup -> coop inventory deposit 후 알 보관 확인, 50초 부화 완료 | `npm run chicken:economy:measure` |
-| C6 | 완료(임시 presenter) | Phaser runtime 연결: 플레이어 시작점 근처 우물/닭장/닭 1마리 배치, field egg marker 생성, 농부 선택 후 알 우클릭 pickup, 농부 inventory의 알 슬롯을 지도 위 닭장에 드래그해 deposit하거나 빈 지면에 드래그해 field drop. deposit은 보관만 하고 자동 부화하지 않는다. 우물/닭장은 `footprintCells 4x4 = 128x128px` 기준으로 건설 시스템과 같은 top-left snap을 사용한다. | `main.ts` economy presenter |
+| C6 | 완료(임시 presenter) | Phaser runtime 연결: 플레이어 시작점 근처 우물/닭장/닭 1마리와 stack 검증용 알 4개 배치, field egg marker 생성, 농부 선택 후 알 우클릭 pickup, 농부 inventory의 알 슬롯을 지도 위 닭장에 드래그해 deposit하거나 빈 지면에 드래그해 field drop. 같은 `I006`은 한 슬롯에 stack되고 닭장 입고 시 stack 전체가 이동하며, 입고 직후 가용 부화 슬롯이 자동 시작된다. 우물/닭장은 `footprintCells 4x4 = 128x128px` 기준으로 건설 시스템과 같은 top-left snap을 사용한다. | `main.ts` economy presenter |
 | C6b | 완료 | 경제 오브젝트 선택/selection panel 반영: 닭장/우물/닭/알 클릭 hit-test와 워3식 가로 2 / 세로 3 inventory slot/hatch 세부 상태 패널, 지도 위 고대비 nameplate. 우물/닭장 hit-test는 보이는 128x128 footprint와 같은 판정을 사용한다. | `main.ts`, `farmHud.ts` selection adapter |
 | C7 | 다음 | Command card 연결: 완성 닭장 선택 시 `Deposit`, `Hatch`, `Sell/Collect` 후보 표시 | `CommandCardSystem` |
 | C8 | 대기 | Chicken sprite 적용: `OpenGameArt Chicken Sprites`를 `unit_chicken_basic`에 연결 | asset manifest + sprite adapter |
+
+### 5.2.1 Chicken Vitality / Well AI 계획
+
+원본/Warsmash 근거:
+
+| 근거 | 관찰 | 구현 해석 |
+| --- | --- | --- |
+| 닭 rawcode | `n000/n011/n01A` 기본/중년/자이언트 닭 HP `40/55/65` | 닭 등급별 `maxHp`를 분리한다. |
+| 공통 능력 | 세 닭 모두 `Awan` 보유 | 명시 명령이 없을 때 짧은 반경을 배회하는 autonomous order를 둔다. |
+| 모이주기 | `A001/A00Y`, Heal 기반, "배고픈 동물에게 모이를 줍니다." | 닭의 감소 체력을 허기/관리 압박으로 해석하고 모이/우물이 회복시킨다. |
+| 우물 | `h00M`, `A01L 먹이 유혹` + `A003 모이 뿌리기` | 저체력 닭을 우물로 유인하고 범위 안에서 회복시키는 AI 목적지로 번역한다. |
+| Warsmash order 감각 | active behavior/order가 이동을 소유하고 종료 뒤 다음 order로 전환 | 매 frame 좌표를 직접 보정하지 않고 `seek_well`, `recover`, `wander` 상태가 path/order를 소유한다. |
+
+주의:
+
+- 정적 W3X 산출물로 닭 HP 감소 주기와 우물 회복량의 정확한 숫자는 아직 확정하지 못했다.
+- 따라서 아래 값은 PoC 체감 검증용 provisional 값이며, 실제 플레이 관찰 또는 추가 object field 추출 후 교체한다.
+- 전투 피해와 자연 감소는 같은 `hp`에 반영하되 telemetry에는 `starvation`과 `combat` 원인을 분리한다.
+
+상태 머신:
+
+| 상태 | 진입 조건 | 행동 | 종료 조건 |
+| --- | --- | --- | --- |
+| `wander` | 기본 상태, HP 충분 | `Awan`처럼 anchor 주변의 도달 가능한 점을 골라 느리게 이동/대기 | HP가 seek threshold 이하 |
+| `seek_well` | HP `<= 40%` | 같은 소유자의 가장 가까운 도달 가능한 우물로 path order 발행 | 회복 반경 진입 또는 경로 실패 |
+| `recover` | 우물 회복 반경 안 | 이동 정지, HP 회복, 산란 tick은 유지 | HP `>= 90%` 또는 우물 제거 |
+| `wander_cooldown` | 회복 완료 | 우물 바로 재진입하지 않도록 짧게 외곽으로 이동 | 목적지 도착 후 `wander` |
+| `stranded` | 도달 가능한 우물 없음 | 낮은 빈도로 우물 재탐색, 현재 위치 근처 배회 | 우물 경로 발견 |
+| `dead` | HP `<= 0` | 산란/AI/pathing 중지, view 제거 또는 사망 상태 표시 | 종료 상태 |
+
+PoC provisional 밸런스:
+
+| 항목 | 값 | 메모 |
+| --- | ---: | --- |
+| 기본/중년/자이언트 HP | `40 / 55 / 65` | W3X unit crosscheck 값 |
+| 자연 감소 | `1 HP / 5 sec` | 기본 닭이 약 200초 방치 시 소진되는 1차 체감값 |
+| 우물 탐색 임계치 | `40%` | 너무 늦게 출발하지 않도록 설정 |
+| 우물 회복 종료 | `90%` | 40% 경계 왕복을 막는 hysteresis |
+| 우물 회복 | `4 HP / sec` | 기본 닭 기준 약 5초 내외 체류 |
+| 회복 반경 | `96 px` | 보이는 우물 footprint보다 조금 넓은 상호작용 범위 |
+| 배회 반경 | `128 px` | 1 major tile, 농장 내부에 머무는 P0 |
+| AI 재탐색 | `0.5 sec` | path 요청 폭증 방지 |
+| 경로 실패 재시도 | `2 sec` | blocker 변경을 기다린 뒤 재탐색 |
+
+구현 단계:
+
+| 단계 | 상태 | 내용 | 산출물 |
+| --- | --- | --- | --- |
+| CA1 | 완료 | `EconomyChickenState`에 `hp/maxHp`, AI state, anchor, target well, next decision time 추가 | `economyTypes.ts` |
+| CA2 | 완료 | 순수 vitality tick: 자연 감소, 우물 범위 회복, 사망 event | `economySystem.ts` |
+| CA3 | 완료 | 순수 AI transition: wander/seek/recover/stranded와 hysteresis | `economySystem.ts` |
+| CA4 | 부분 완료 | WPM/dynamic blocker occupancy와 닭 이동 연결. 복잡한 장애물을 우회하는 A* path adapter는 후속 | `main.ts` presenter + occupancy callback |
+| CA5 | 완료 | 닭 HP bar와 `배회/우물 이동/회복` 상태 가시화, 농부/개/닭 soft collision | economy view adapter + `ControllableUnitSystem` |
+| CA6 | 부분 완료 | deterministic 측정: 임계치 이동, 회복, 우물 없음 검증. 경로 실패/사망 장기 측정은 후속 | `chicken:economy:measure` |
+| CA7 | 대기 | 산란 연계 정책 검증: 저체력 산란 중지 여부와 우물 회복 중 산란 처리 | economy integration metric |
+| CA8 | 완료 | 부화 닭을 닭장 4x4 footprint 내부가 아닌 아래쪽 선호 출입구 바깥 `88px` 위치에 생성하고 즉시 AI 이동 가능 여부 측정 | `completeHatches()`, `chicken:economy:measure` |
+| CA9 | 완료 | Warsmash `create at center -> nudgeAround -> rally smart order`를 축약한 범용 생산 출구 resolver. 템플릿별 선호 방향과 막힘 fallback, 건물별 rally point 상태 API 분리 | `buildingProductionExit.ts`, `BuildingTemplateConfig.productionExit`, `BuildingSystem.setRallyPoint()` |
+
+완료 기준:
+
+- 우물 밖 닭의 HP가 deterministic tick으로 감소한다.
+- HP 40% 이하 닭이 가장 가까운 소유 우물로 이동한다.
+- 우물 범위에서 HP가 회복되고 90% 이상이면 다시 배회한다.
+- 우물이 없거나 막혀 있어도 매 frame path를 재요청하지 않고 `stranded`로 안정적으로 대기한다.
+- 닭이 0 HP가 되면 더 이상 알을 낳지 않는다.
+- 다수 닭이 같은 우물에 접근해도 완전히 겹치지 않고 기존 unit push/pathing 규칙을 따른다.
+- Node 측정 artifact와 browser smoke 양쪽에서 상태 전이가 확인된다.
 
 P0 밸런스 변환값:
 

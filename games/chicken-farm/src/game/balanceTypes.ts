@@ -171,6 +171,11 @@ export type BuildingTemplateConfig = {
     };
     readonly originalRequires?: readonly string[];
     readonly produces?: readonly (DefenderId | string)[];
+    readonly productionExit?: {
+        readonly clearancePx?: number;
+        readonly offsetPx?: number;
+        readonly side: 'east' | 'north' | 'south' | 'west';
+    };
     readonly providesResearch?: readonly string[];
     readonly requires?: readonly MvpBuildingId[];
     readonly source: SourceTrace;

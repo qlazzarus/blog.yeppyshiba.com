@@ -15,8 +15,29 @@ import type {
     FieldEggItemState,
     HatchJobState,
 } from './economyTypes';
+import { resolveBuildingProductionExit } from './buildingProductionExit';
+
+const CHICKEN_COLLISION_RADIUS_PX = 20;
+
+type EconomyUpdateOptions = {
+    readonly canChickenOccupyPoint?: (point: EconomyPoint) => boolean;
+};
 
 export const DEFAULT_CHICKEN_FARM_ECONOMY_CONFIG: ChickenFarmEconomyConfig = {
+    chickenVitality: {
+        hpByKind: {
+            basic: 40,
+            giant: 65,
+            mid: 55,
+        },
+        hpDrainPerSec: 0.2,
+        recoverExitRatio: 0.9,
+        recoverPerSec: 4,
+        seekRatio: 0.4,
+        speedPxPerSec: 45,
+        wanderRadiusPx: 128,
+        wellRecoveryRadiusPx: 96,
+    },
     chickenEggRules: {
         basic: {
             eggUnitsPerDrop: 1,
@@ -85,12 +106,21 @@ export function addEconomyChicken(
     },
 ) {
     const kind = config.kind ?? 'basic';
+    const maxHp = state.config.chickenVitality.hpByKind[kind];
     const chicken: EconomyChickenState = {
+        anchor: { ...config.position },
+        aiState: 'wander',
+        hp: maxHp,
         id: `chicken-${state.nextChickenId}`,
         kind,
+        maxHp,
+        nextAiDecisionAtSec: config.elapsedSec,
         nextEggAtSec: config.elapsedSec,
         ownerPlayerId: config.ownerPlayerId,
-        position: config.position,
+        position: { ...config.position },
+        targetPosition: null,
+        targetWellId: null,
+        vitalityUpdatedAtSec: config.elapsedSec,
     };
     chicken.nextEggAtSec = config.elapsedSec + getCurrentEggIntervalSec(state, chicken);
     state.nextChickenId += 1;
@@ -138,13 +168,24 @@ export function addEconomyWell(
     return well;
 }
 
+export function addEconomyFieldEgg(
+    state: ChickenFarmEconomyState,
+    config: Omit<FieldEggItemState, 'id'>,
+) {
+    const egg = createFieldEgg(state, config);
+    state.fieldEggs.push(egg);
+    return egg;
+}
+
 export function updateChickenFarmEconomy(
     state: ChickenFarmEconomyState,
     elapsedSec: number,
+    options?: EconomyUpdateOptions,
 ) {
     const events: EconomyEvent[] = [];
+    updateChickenVitalityAndAi(state, elapsedSec, events, options);
     updateEggDrops(state, elapsedSec, events);
-    completeHatches(state, elapsedSec, events);
+    completeHatches(state, elapsedSec, events, options);
     return events;
 }
 
@@ -222,9 +263,10 @@ export function depositEggStackToCoop(
         -1;
     if (!sourceInventory || sourceSlotIndex < 0) return null;
 
+    const sourceQuantity = sourceInventory.slots[sourceSlotIndex]?.quantity ?? 0;
     const removed = removeInventoryItemAtSlot(state, config.sourceInventoryId, {
         itemRawcode: 'I006',
-        quantity: 1,
+        quantity: sourceQuantity,
         slotIndex: sourceSlotIndex,
     });
     if (removed <= 0) return null;
@@ -408,6 +450,7 @@ function updateEggDrops(
     events: EconomyEvent[],
 ) {
     state.chickens.forEach((chicken) => {
+        if (chicken.aiState === 'dead') return;
         while (elapsedSec >= chicken.nextEggAtSec) {
             const well = findBuffingWell(state, chicken);
             const egg = createFieldEgg(state, {
@@ -431,10 +474,155 @@ function updateEggDrops(
     });
 }
 
+function updateChickenVitalityAndAi(
+    state: ChickenFarmEconomyState,
+    elapsedSec: number,
+    events: EconomyEvent[],
+    options?: EconomyUpdateOptions,
+) {
+    const rules = state.config.chickenVitality;
+    const canOccupy = options?.canChickenOccupyPoint ?? (() => true);
+
+    state.chickens.forEach((chicken) => {
+        if (chicken.aiState === 'dead') return;
+        const deltaSec = Math.max(
+            0,
+            Math.min(0.25, elapsedSec - chicken.vitalityUpdatedAtSec),
+        );
+        chicken.vitalityUpdatedAtSec = elapsedSec;
+
+        const recoveryWell = state.wells.find(
+            (well) =>
+                well.ownerPlayerId === chicken.ownerPlayerId &&
+                distanceBetween(well.position, chicken.position) <=
+                    rules.wellRecoveryRadiusPx,
+        );
+        chicken.hp = recoveryWell
+            ? Math.min(chicken.maxHp, chicken.hp + rules.recoverPerSec * deltaSec)
+            : Math.max(0, chicken.hp - rules.hpDrainPerSec * deltaSec);
+
+        if (chicken.hp <= 0) {
+            changeChickenAiState(chicken, 'dead', events);
+            chicken.targetPosition = null;
+            chicken.targetWellId = null;
+            events.push({ chickenId: chicken.id, type: 'chicken_died' });
+            return;
+        }
+
+        if (recoveryWell) {
+            chicken.targetWellId = recoveryWell.id;
+            chicken.targetPosition = null;
+            if (chicken.hp < chicken.maxHp * rules.recoverExitRatio) {
+                changeChickenAiState(chicken, 'recover', events);
+                return;
+            }
+            chicken.targetWellId = null;
+            changeChickenAiState(chicken, 'wander', events);
+            chicken.nextAiDecisionAtSec = elapsedSec;
+        } else if (chicken.hp <= chicken.maxHp * rules.seekRatio) {
+            const targetWell = findNearestOwnedWell(state, chicken);
+            if (!targetWell) {
+                chicken.targetWellId = null;
+                chicken.targetPosition = null;
+                changeChickenAiState(chicken, 'stranded', events);
+                return;
+            }
+            chicken.targetWellId = targetWell.id;
+            chicken.targetPosition = { ...targetWell.position };
+            changeChickenAiState(chicken, 'seek_well', events);
+        }
+
+        if (chicken.aiState === 'recover' || chicken.aiState === 'stranded') return;
+        if (
+            chicken.aiState === 'wander' &&
+            (elapsedSec >= chicken.nextAiDecisionAtSec ||
+                !chicken.targetPosition ||
+                distanceBetween(chicken.position, chicken.targetPosition) < 4)
+        ) {
+            chicken.targetPosition = getChickenWanderTarget(chicken, elapsedSec);
+            chicken.nextAiDecisionAtSec = elapsedSec + 2.5;
+        }
+        if (chicken.targetPosition) {
+            moveChickenToward(
+                chicken,
+                chicken.targetPosition,
+                rules.speedPxPerSec * deltaSec,
+                canOccupy,
+            );
+        }
+    });
+}
+
+function changeChickenAiState(
+    chicken: EconomyChickenState,
+    nextState: EconomyChickenState['aiState'],
+    events: EconomyEvent[],
+) {
+    if (chicken.aiState === nextState) return;
+    const previousState = chicken.aiState;
+    chicken.aiState = nextState;
+    events.push({
+        chickenId: chicken.id,
+        from: previousState,
+        to: nextState,
+        type: 'chicken_ai_state_changed',
+    });
+}
+
+function findNearestOwnedWell(
+    state: ChickenFarmEconomyState,
+    chicken: EconomyChickenState,
+) {
+    return state.wells
+        .filter((well) => well.ownerPlayerId === chicken.ownerPlayerId)
+        .sort(
+            (a, b) =>
+                distanceBetween(chicken.position, a.position) -
+                distanceBetween(chicken.position, b.position),
+        )[0];
+}
+
+function getChickenWanderTarget(
+    chicken: EconomyChickenState,
+    elapsedSec: number,
+): EconomyPoint {
+    const seed = Number(chicken.id.replace(/\D/g, '')) || 1;
+    const step = Math.floor(elapsedSec / 2.5);
+    const angle = ((seed * 137 + step * 83) * Math.PI) / 180;
+    const radius = 40 + ((seed * 31 + step * 17) % 89);
+    return {
+        x: chicken.anchor.x + Math.cos(angle) * radius,
+        y: chicken.anchor.y + Math.sin(angle) * radius,
+    };
+}
+
+function moveChickenToward(
+    chicken: EconomyChickenState,
+    target: EconomyPoint,
+    maxDistance: number,
+    canOccupy: (point: EconomyPoint) => boolean,
+) {
+    const dx = target.x - chicken.position.x;
+    const dy = target.y - chicken.position.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance <= 0.001 || maxDistance <= 0) return;
+    const scale = Math.min(1, maxDistance / distance);
+    const nextPosition = {
+        x: chicken.position.x + dx * scale,
+        y: chicken.position.y + dy * scale,
+    };
+    if (canOccupy(nextPosition)) chicken.position = nextPosition;
+}
+
+function distanceBetween(a: EconomyPoint, b: EconomyPoint) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
 function completeHatches(
     state: ChickenFarmEconomyState,
     elapsedSec: number,
     events: EconomyEvent[],
+    options?: EconomyUpdateOptions,
 ) {
     for (let index = state.hatchJobs.length - 1; index >= 0; index -= 1) {
         const job = state.hatchJobs[index];
@@ -442,11 +630,20 @@ function completeHatches(
 
         const coop = state.coops.find((candidate) => candidate.id === job.coopId);
         const position = coop?.position ?? { x: 0, y: 0 };
+        const templateId = coop
+            ? state.config.coopRules[coop.kind].templateId
+            : 'coop_basic';
+        const productionExit = resolveBuildingProductionExit({
+            buildingCenter: position,
+            isPositionAvailable: options?.canChickenOccupyPoint,
+            templateId,
+            unitRadiusPx: CHICKEN_COLLISION_RADIUS_PX,
+        });
         const chicken = addEconomyChicken(state, {
             elapsedSec,
             kind: job.resultChickenKind,
             ownerPlayerId: job.ownerPlayerId,
-            position: { x: position.x + 24, y: position.y + 24 },
+            position: productionExit.point,
         });
         state.hatchJobs.splice(index, 1);
         events.push({

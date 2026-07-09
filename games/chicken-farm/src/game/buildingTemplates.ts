@@ -84,6 +84,10 @@ export const BUILDING_TEMPLATES = {
         id: 'coop_basic',
         originalCost: { gold: 700, lumber: 300 },
         originalRequires: ['h00H'],
+        productionExit: {
+            clearancePx: 4,
+            side: 'south',
+        },
         requires: ['town_hall'],
         source: {
             rawcode: 'h00N',
@@ -105,6 +109,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 1200, lumber: 800 },
         originalRequires: ['h015'],
         providesResearch: ['coopProtection'],
+        productionExit: {
+            clearancePx: 4,
+            side: 'south',
+        },
         requires: ['family_temple'],
         source: {
             rawcode: 'h01Z',
@@ -125,6 +133,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 800, lumber: 500 },
         originalRequires: ['h00C'],
         providesResearch: ['coopProtection'],
+        productionExit: {
+            clearancePx: 4,
+            side: 'south',
+        },
         requires: ['workshop_lab'],
         source: {
             rawcode: 'h00O',
@@ -165,6 +177,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 1200, lumber: 1200 },
         originalRequires: ['h01X', 'h00C'],
         produces: ['big_dog', 'H002', 'h01W', 'n003', 'n004'],
+        productionExit: {
+            clearancePx: 8,
+            side: 'south',
+        },
         requires: ['grand_market', 'workshop_lab'],
         source: {
             rawcode: 'h015',
@@ -184,6 +200,10 @@ export const BUILDING_TEMPLATES = {
         id: 'farm_house',
         originalCost: { gold: 250 },
         produces: ['dog', 'H002', 'h01W', 'n003', 'n004'],
+        productionExit: {
+            clearancePx: 8,
+            side: 'south',
+        },
         source: {
             rawcode: 'h001',
         },
@@ -354,6 +374,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 350, lumber: 100 },
         originalRequires: ['h001'],
         produces: ['h009', 'h00V', 'hrtt'],
+        productionExit: {
+            clearancePx: 8,
+            side: 'south',
+        },
         requires: ['farm_house'],
         source: {
             rawcode: 'h026',
@@ -671,6 +695,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 400, lumber: 200 },
         originalRequires: ['H002'],
         produces: ['dog', 'H002', 'h01W', 'n003', 'n004'],
+        productionExit: {
+            clearancePx: 8,
+            side: 'south',
+        },
         requires: ['farm_house'],
         source: {
             rawcode: 'h00H',
@@ -735,6 +763,10 @@ export const BUILDING_TEMPLATES = {
         originalCost: { gold: 800, lumber: 500 },
         originalRequires: ['h00H'],
         produces: ['n005', 'h00U', 'h00P', 'n00Y'],
+        productionExit: {
+            clearancePx: 8,
+            side: 'south',
+        },
         providesResearch: ['workshopSpecial'],
         requires: ['town_hall'],
         source: {

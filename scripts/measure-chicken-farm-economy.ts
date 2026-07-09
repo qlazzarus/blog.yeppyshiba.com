@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
     addEconomyChicken,
     addEconomyCoop,
+    addEconomyFieldEgg,
     addEconomyWell,
     countInventoryItem,
     createChickenFarmEconomyState,
@@ -15,6 +16,7 @@ import {
     startCoopHatch,
     updateChickenFarmEconomy,
 } from '../games/chicken-farm/src/game/systems/economySystem';
+import { resolveBuildingProductionExit } from '../games/chicken-farm/src/game/systems/buildingProductionExit';
 import type { EconomyEvent } from '../games/chicken-farm/src/game/systems/economyTypes';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -123,6 +125,98 @@ async function main() {
     events.push(...updateChickenFarmEconomy(state, 49.99));
     const beforeHatchChickenCount = state.chickens.length;
     events.push(...updateChickenFarmEconomy(state, 50));
+    const hatchedChicken = state.chickens.at(-1);
+    const hatchSpawnPosition = hatchedChicken
+        ? { ...hatchedChicken.position }
+        : null;
+    updateChickenFarmEconomy(state, 50.25);
+    const hatchSpawnMoved =
+        Boolean(hatchedChicken && hatchSpawnPosition) &&
+        (hatchedChicken!.position.x !== hatchSpawnPosition!.x ||
+            hatchedChicken!.position.y !== hatchSpawnPosition!.y);
+    const expectedHatchExit = resolveBuildingProductionExit({
+        buildingCenter: coop.position,
+        templateId: 'coop_basic',
+        unitRadiusPx: 20,
+    }).point;
+    const fallbackProductionExit = resolveBuildingProductionExit({
+        buildingCenter: coop.position,
+        isPositionAvailable: (point) => point.x < coop.position.x,
+        templateId: 'coop_basic',
+        unitRadiusPx: 20,
+    });
+
+    const stackState = createChickenFarmEconomyState({
+        players: [{ carriedEggs: 0, coins: 120, id: 3 }],
+    });
+    const stackCoop = addEconomyCoop(stackState, {
+        kind: 'basic',
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const stackFarmerInventory = ensureEconomyInventory(stackState, {
+        id: 'stack-test-farmer',
+        ownerPlayerId: 3,
+    });
+    for (let index = 0; index < 4; index += 1) {
+        const egg = addEconomyFieldEgg(stackState, {
+            droppedAtSec: 0,
+            ownerPlayerId: 3,
+            position: { x: 900 + index * 16, y: 1000 },
+            sourceChickenId: 'stack-test',
+            stackCount: 1,
+            wellBuffed: false,
+        });
+        pickupFieldEgg(stackState, {
+            eggId: egg.id,
+            ownerPlayerId: 3,
+            targetInventoryId: stackFarmerInventory.id,
+        });
+    }
+    const stackedFarmerEggs = countInventoryItem(
+        stackState,
+        stackFarmerInventory.id,
+        'I006',
+    );
+    const stackedFarmerSlots = stackFarmerInventory.slots.filter(Boolean).length;
+    depositEggStackToCoop(stackState, {
+        coopId: stackCoop.id,
+        ownerPlayerId: 3,
+        sourceInventoryId: stackFarmerInventory.id,
+        sourceSlotIndex: 0,
+    });
+    const stackedCoopEggs = countInventoryItem(stackState, stackCoop.id, 'I006');
+    const stackedCoopSlots =
+        stackState.inventories
+            .find((inventory) => inventory.id === stackCoop.id)
+            ?.slots.filter(Boolean).length ?? 0;
+
+    const vitalityState = createChickenFarmEconomyState();
+    addEconomyWell(vitalityState, {
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const vitalityChicken = addEconomyChicken(vitalityState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1300, y: 1000 },
+    });
+    let seekObserved = false;
+    let recoverObserved = false;
+    for (let elapsedSec = 0.25; elapsedSec <= 180; elapsedSec += 0.25) {
+        updateChickenFarmEconomy(vitalityState, elapsedSec);
+        seekObserved ||= vitalityChicken.aiState === 'seek_well';
+        recoverObserved ||= vitalityChicken.aiState === 'recover';
+    }
+    const strandedState = createChickenFarmEconomyState();
+    const strandedChicken = addEconomyChicken(strandedState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1300, y: 1000 },
+    });
+    for (let elapsedSec = 0.25; elapsedSec <= 125; elapsedSec += 0.25) {
+        updateChickenFarmEconomy(strandedState, elapsedSec);
+    }
 
     const metrics = {
         generatedAt: new Date().toISOString(),
@@ -145,6 +239,29 @@ async function main() {
             fieldEggsAfterInventoryDrop,
             hatchJobCount: state.hatchJobs.length,
             farmerInventoryEggs,
+            stackValidation: {
+                coopEggs: stackedCoopEggs,
+                coopOccupiedSlots: stackedCoopSlots,
+                farmerEggsBeforeDeposit: stackedFarmerEggs,
+                farmerOccupiedSlotsBeforeDeposit: stackedFarmerSlots,
+            },
+            vitalityValidation: {
+                finalAiState: vitalityChicken.aiState,
+                finalHp: Number(vitalityChicken.hp.toFixed(2)),
+                recoverObserved,
+                seekObserved,
+                strandedAiState: strandedChicken.aiState,
+            },
+            hatchSpawnValidation: {
+                fallbackExit: fallbackProductionExit,
+                movedAfterSpawn: hatchSpawnMoved,
+                offsetFromCoop: hatchSpawnPosition
+                    ? {
+                          x: hatchSpawnPosition.x - coop.position.x,
+                          y: hatchSpawnPosition.y - coop.position.y,
+                      }
+                    : null,
+            },
             wellCount: state.wells.length,
         },
         checks: [
@@ -231,6 +348,84 @@ async function main() {
                 expected: 3,
                 id: 'coop_hatch_adds_chicken_at_50s',
                 pass: state.chickens.length === 3,
+            },
+            {
+                actual: hatchSpawnPosition
+                    ? {
+                          x: hatchSpawnPosition.x - coop.position.x,
+                          y: hatchSpawnPosition.y - coop.position.y,
+                      }
+                    : null,
+                expected: {
+                    x: expectedHatchExit.x - coop.position.x,
+                    y: expectedHatchExit.y - coop.position.y,
+                },
+                id: 'hatched_chicken_spawns_outside_coop_footprint',
+                pass:
+                    hatchSpawnPosition?.x === expectedHatchExit.x &&
+                    hatchSpawnPosition.y === expectedHatchExit.y,
+            },
+            {
+                actual: hatchSpawnMoved,
+                expected: true,
+                id: 'hatched_chicken_ai_moves_after_spawn',
+                pass: hatchSpawnMoved,
+            },
+            {
+                actual: {
+                    resolved: fallbackProductionExit.resolved,
+                    side: fallbackProductionExit.side,
+                },
+                expected: {
+                    resolved: true,
+                    side: 'west',
+                },
+                id: 'blocked_production_exit_falls_back_to_open_side',
+                pass:
+                    fallbackProductionExit.resolved &&
+                    fallbackProductionExit.side === 'west',
+            },
+            {
+                actual: {
+                    eggs: stackedFarmerEggs,
+                    occupiedSlots: stackedFarmerSlots,
+                },
+                expected: {
+                    eggs: 4,
+                    occupiedSlots: 1,
+                },
+                id: 'picked_up_eggs_stack_in_one_farmer_slot',
+                pass: stackedFarmerEggs === 4 && stackedFarmerSlots === 1,
+            },
+            {
+                actual: {
+                    eggs: stackedCoopEggs,
+                    occupiedSlots: stackedCoopSlots,
+                },
+                expected: {
+                    eggs: 4,
+                    occupiedSlots: 1,
+                },
+                id: 'egg_stack_moves_to_one_coop_slot',
+                pass: stackedCoopEggs === 4 && stackedCoopSlots === 1,
+            },
+            {
+                actual: {
+                    recoverObserved,
+                    seekObserved,
+                },
+                expected: {
+                    recoverObserved: true,
+                    seekObserved: true,
+                },
+                id: 'low_hp_chicken_seeks_well_and_recovers',
+                pass: seekObserved && recoverObserved,
+            },
+            {
+                actual: strandedChicken.aiState,
+                expected: 'stranded',
+                id: 'low_hp_chicken_without_well_becomes_stranded',
+                pass: strandedChicken.aiState === 'stranded',
             },
         ],
         events,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-08T08:02:25.931Z",
+  "generatedAt": "2026-07-09T00:50:47.132Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -18,6 +18,36 @@
     "fieldEggsAfterInventoryDrop": 2,
     "hatchJobCount": 0,
     "farmerInventoryEggs": 0,
+    "stackValidation": {
+      "coopEggs": 4,
+      "coopOccupiedSlots": 1,
+      "farmerEggsBeforeDeposit": 4,
+      "farmerOccupiedSlotsBeforeDeposit": 1
+    },
+    "vitalityValidation": {
+      "finalAiState": "wander",
+      "finalHp": 26.05,
+      "recoverObserved": true,
+      "seekObserved": true,
+      "strandedAiState": "stranded"
+    },
+    "hatchSpawnValidation": {
+      "fallbackExit": {
+        "fallbackIndex": 3,
+        "point": {
+          "x": 912,
+          "y": 1000
+        },
+        "preferredSide": "south",
+        "resolved": true,
+        "side": "west"
+      },
+      "movedAfterSpawn": true,
+      "offsetFromCoop": {
+        "x": 0,
+        "y": 88
+      }
+    },
     "wellCount": 1
   },
   "checks": [
@@ -97,6 +127,78 @@
       "actual": 3,
       "expected": 3,
       "id": "coop_hatch_adds_chicken_at_50s",
+      "pass": true
+    },
+    {
+      "actual": {
+        "x": 0,
+        "y": 88
+      },
+      "expected": {
+        "x": 0,
+        "y": 88
+      },
+      "id": "hatched_chicken_spawns_outside_coop_footprint",
+      "pass": true
+    },
+    {
+      "actual": true,
+      "expected": true,
+      "id": "hatched_chicken_ai_moves_after_spawn",
+      "pass": true
+    },
+    {
+      "actual": {
+        "resolved": true,
+        "side": "west"
+      },
+      "expected": {
+        "resolved": true,
+        "side": "west"
+      },
+      "id": "blocked_production_exit_falls_back_to_open_side",
+      "pass": true
+    },
+    {
+      "actual": {
+        "eggs": 4,
+        "occupiedSlots": 1
+      },
+      "expected": {
+        "eggs": 4,
+        "occupiedSlots": 1
+      },
+      "id": "picked_up_eggs_stack_in_one_farmer_slot",
+      "pass": true
+    },
+    {
+      "actual": {
+        "eggs": 4,
+        "occupiedSlots": 1
+      },
+      "expected": {
+        "eggs": 4,
+        "occupiedSlots": 1
+      },
+      "id": "egg_stack_moves_to_one_coop_slot",
+      "pass": true
+    },
+    {
+      "actual": {
+        "recoverObserved": true,
+        "seekObserved": true
+      },
+      "expected": {
+        "recoverObserved": true,
+        "seekObserved": true
+      },
+      "id": "low_hp_chicken_seeks_well_and_recovers",
+      "pass": true
+    },
+    {
+      "actual": "stranded",
+      "expected": "stranded",
+      "id": "low_hp_chicken_without_well_becomes_stranded",
       "pass": true
     }
   ],

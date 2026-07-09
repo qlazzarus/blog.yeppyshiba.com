@@ -34,9 +34,11 @@ import {
 import { ConstructionPlacementSystem } from './game/systems/constructionPlacementSystem';
 import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
 import { DragSelectionInputSystem } from './game/systems/dragSelectionInputSystem';
+import { canOccupyPoint } from './game/systems/movementGuards';
 import {
     addEconomyChicken,
     addEconomyCoop,
+    addEconomyFieldEgg,
     addEconomyWell,
     countInventoryItem,
     createChickenFarmEconomyState,
@@ -45,6 +47,7 @@ import {
     ensureEconomyInventory,
     getEconomyInventory,
     pickupFieldEgg,
+    startCoopHatch,
     updateChickenFarmEconomy,
 } from './game/systems/economySystem';
 import type {
@@ -117,6 +120,13 @@ const ECONOMY_INTERACTION_RADIUS_PX = 54;
 const ECONOMY_POC_COOP_TEMPLATE_ID = 'coop_basic';
 const ECONOMY_POC_WELL_TEMPLATE_ID = 'well_basic';
 const ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX = 86;
+const ECONOMY_CHICKEN_COLLISION_RADIUS_PX = 20;
+const ECONOMY_POC_STARTING_EGG_OFFSETS: readonly EconomyPoint[] = [
+    { x: -52, y: -26 },
+    { x: -18, y: 46 },
+    { x: 28, y: -48 },
+    { x: 58, y: 30 },
+];
 
 type EconomyWorkerTask =
     | {
@@ -173,6 +183,8 @@ class FarmScene extends Phaser.Scene {
     private elapsedSec = 0;
     private economyEventLog: string[] = [];
     private economyLabels = new Map<string, Phaser.GameObjects.Text>();
+    private economyChickenHpFills = new Map<string, Phaser.GameObjects.Rectangle>();
+    private economyViewPositions = new Map<string, EconomyPoint>();
     private economyPocCoopId?: string;
     private economyState?: ChickenFarmEconomyState;
     private economyViewObjects = new Map<string, Phaser.GameObjects.GameObject[]>();
@@ -567,17 +579,37 @@ class FarmScene extends Phaser.Scene {
             ownerPlayerId: 3,
             position: chickenPosition,
         });
+        const farmer =
+            this.controllableUnits
+                .getUnits()
+                .find((unit) => unit.templateId === 'farmer' && unit.hp > 0) ?? null;
+        const startingEggOrigin = farmer?.position ?? { x: player.x, y: player.y };
+        const startingEggs = ECONOMY_POC_STARTING_EGG_OFFSETS.map((offset) =>
+            addEconomyFieldEgg(this.economyState!, {
+                droppedAtSec: this.elapsedSec,
+                ownerPlayerId: 3,
+                position: {
+                    x: startingEggOrigin.x + offset.x,
+                    y: startingEggOrigin.y + offset.y,
+                },
+                sourceChickenId: 'poc-starting-eggs',
+                stackCount: 1,
+                wellBuffed: false,
+            }),
+        );
 
         this.economyPocCoopId = coop.id;
         this.createWellView(well);
         this.createCoopView(coop);
         this.createChickenView(chicken);
+        startingEggs.forEach((egg) => this.createEggView(egg));
         this.refreshEconomyLabels();
         this.recordEconomyEvent('economy_poc_created', {
             chickenId: chicken.id,
             coopId: coop.id,
             firstEggAtSec: Number(chicken.nextEggAtSec.toFixed(2)),
             footprintPx: MAJOR_TILE_PX,
+            startingEggCount: startingEggs.length,
             wellId: well.id,
         });
     }
@@ -669,11 +701,88 @@ class FarmScene extends Phaser.Scene {
     private updateEconomyPoc() {
         if (!this.economyState) return;
 
-        const events = updateChickenFarmEconomy(this.economyState, this.elapsedSec);
+        const events = updateChickenFarmEconomy(this.economyState, this.elapsedSec, {
+            canChickenOccupyPoint: (point) => this.canChickenOccupyPoint(point),
+        });
         events.forEach((event) => this.handleEconomyEvent(event));
 
+        this.resolveChickenPush();
+        this.controllableUnits.resolveExternalUnitPush(
+            this.economyState.chickens
+                .filter((chicken) => chicken.aiState !== 'dead')
+                .map((chicken) => ({
+                    id: chicken.id,
+                    position: chicken.position,
+                    radius: ECONOMY_CHICKEN_COLLISION_RADIUS_PX,
+                })),
+        );
+        this.syncChickenViews();
         this.updateEconomyWorkerTasks();
         this.refreshEconomyLabels();
+    }
+
+    private resolveChickenPush() {
+        const chickens =
+            this.economyState?.chickens.filter(
+                (chicken) => chicken.aiState !== 'dead',
+            ) ?? [];
+        const minDistance = ECONOMY_CHICKEN_COLLISION_RADIUS_PX * 1.56;
+
+        for (let i = 0; i < chickens.length; i += 1) {
+            for (let j = i + 1; j < chickens.length; j += 1) {
+                const chickenA = chickens[i];
+                const chickenB = chickens[j];
+                let dx = chickenB.position.x - chickenA.position.x;
+                let dy = chickenB.position.y - chickenA.position.y;
+                let distance = Math.hypot(dx, dy);
+                if (distance >= minDistance) continue;
+                if (distance <= 0.001) {
+                    const angle = ((i + j + 1) * Math.PI) / 3;
+                    dx = Math.cos(angle);
+                    dy = Math.sin(angle);
+                    distance = 1;
+                }
+
+                const pushDistance = Math.min((minDistance - distance) / 2, 8);
+                const unitX = dx / distance;
+                const unitY = dy / distance;
+                const nextA = {
+                    x: chickenA.position.x - unitX * pushDistance,
+                    y: chickenA.position.y - unitY * pushDistance,
+                };
+                const nextB = {
+                    x: chickenB.position.x + unitX * pushDistance,
+                    y: chickenB.position.y + unitY * pushDistance,
+                };
+                if (this.canChickenOccupyPoint(nextA)) chickenA.position = nextA;
+                if (this.canChickenOccupyPoint(nextB)) chickenB.position = nextB;
+            }
+        }
+    }
+
+    private canChickenOccupyPoint(point: EconomyPoint) {
+        const economyBuildingRects = [
+            ...(this.economyState?.wells.map((well) =>
+                this.getEconomyBuildingFootprint(
+                    ECONOMY_POC_WELL_TEMPLATE_ID,
+                    well.position,
+                ),
+            ) ?? []),
+            ...(this.economyState?.coops.map((coop) =>
+                this.getEconomyBuildingFootprint(
+                    ECONOMY_POC_COOP_TEMPLATE_ID,
+                    coop.position,
+                ),
+            ) ?? []),
+        ];
+        return canOccupyPoint(point, {
+            dynamicBlockedRects: [
+                ...(this.buildingSystem?.getDynamicBlockedRects() ?? []),
+                ...economyBuildingRects,
+            ],
+            terrainBlocker: this.terrainBlocker,
+            worldSize: this.worldSize,
+        });
     }
 
     private handleEconomyEvent(event: EconomyEvent) {
@@ -688,9 +797,27 @@ class FarmScene extends Phaser.Scene {
                 (candidate) => candidate.id === event.chickenId,
             );
             if (chicken) this.createChickenView(chicken);
+            this.startAvailableCoopHatches(event.coopId);
+        }
+        if (event.type === 'chicken_died') {
+            this.destroyEconomyView(event.chickenId);
         }
 
         this.recordEconomyEvent(`economy_${event.type}`, event);
+    }
+
+    private startAvailableCoopHatches(coopId: string) {
+        const state = this.economyState;
+        if (!state) return;
+
+        while (true) {
+            const hatchStarted = startCoopHatch(state, {
+                coopId,
+                elapsedSec: this.elapsedSec,
+            });
+            if (!hatchStarted) return;
+            this.handleEconomyEvent(hatchStarted);
+        }
     }
 
     private createWellView(well: EconomyWellState) {
@@ -777,6 +904,14 @@ class FarmScene extends Phaser.Scene {
     }
 
     private createChickenView(chicken: EconomyChickenState) {
+        const hpBack = this.add
+            .rectangle(chicken.position.x, chicken.position.y - 34, 44, 7, 0x080808, 1)
+            .setStrokeStyle(1, 0x080808, 1)
+            .setDepth(38);
+        const hpFill = this.add
+            .rectangle(chicken.position.x - 21, chicken.position.y - 34, 42, 5, 0x49d45d, 1)
+            .setDepth(39)
+            .setOrigin(0, 0.5);
         const body = this.add
             .ellipse(chicken.position.x, chicken.position.y, 44, 32, 0xf5f0d0, 1)
             .setStrokeStyle(3, 0x665b38, 1)
@@ -805,7 +940,13 @@ class FarmScene extends Phaser.Scene {
             stroke: '#0a0803',
         });
 
-        this.registerEconomyView(chicken.id, [body, head, beak, label], label);
+        this.registerEconomyView(
+            chicken.id,
+            [body, head, beak, hpBack, hpFill, label],
+            label,
+        );
+        this.economyChickenHpFills.set(chicken.id, hpFill);
+        this.economyViewPositions.set(chicken.id, { ...chicken.position });
     }
 
     private createEggView(egg: FieldEggItemState) {
@@ -927,6 +1068,7 @@ class FarmScene extends Phaser.Scene {
             });
             if (deposited) {
                 this.handleEconomyEvent(deposited);
+                this.startAvailableCoopHatches(coop.id);
                 this.controllableUnits.clearUnitCommand(unit.id);
             }
             this.economyWorkerTasks.delete(unitId);
@@ -1215,6 +1357,7 @@ class FarmScene extends Phaser.Scene {
         });
         if (deposited) {
             this.handleEconomyEvent(deposited);
+            this.startAvailableCoopHatches(coopId);
             this.refreshEconomyLabels();
             this.updateSelectionInfo();
         }
@@ -1240,6 +1383,45 @@ class FarmScene extends Phaser.Scene {
         this.economyViewObjects.get(id)?.forEach((object) => object.destroy());
         this.economyViewObjects.delete(id);
         this.economyLabels.delete(id);
+        this.economyChickenHpFills.delete(id);
+        this.economyViewPositions.delete(id);
+    }
+
+    private syncChickenViews() {
+        const state = this.economyState;
+        if (!state) return;
+
+        state.chickens.forEach((chicken) => {
+            if (chicken.aiState === 'dead') return;
+            const previous = this.economyViewPositions.get(chicken.id);
+            if (!previous) return;
+            const deltaX = chicken.position.x - previous.x;
+            const deltaY = chicken.position.y - previous.y;
+            if (deltaX !== 0 || deltaY !== 0) {
+                this.economyViewObjects.get(chicken.id)?.forEach((object) => {
+                    const movable = object as Phaser.GameObjects.GameObject & {
+                        x: number;
+                        y: number;
+                        setPosition: (x: number, y: number) => unknown;
+                    };
+                    if (typeof movable.setPosition === 'function') {
+                        movable.setPosition(movable.x + deltaX, movable.y + deltaY);
+                    }
+                });
+                previous.x = chicken.position.x;
+                previous.y = chicken.position.y;
+            }
+
+            const hpRatio = Phaser.Math.Clamp(chicken.hp / chicken.maxHp, 0, 1);
+            const hpFill = this.economyChickenHpFills.get(chicken.id);
+            if (hpFill) {
+                hpFill.displayWidth = 42 * hpRatio;
+                hpFill.setFillStyle(
+                    hpRatio > 0.5 ? 0x49d45d : hpRatio > 0.25 ? 0xe5b844 : 0xdd4b43,
+                    1,
+                );
+            }
+        });
     }
 
     private refreshEconomyLabels() {
@@ -1266,7 +1448,15 @@ class FarmScene extends Phaser.Scene {
             const nextEggSec = Math.max(0, chicken.nextEggAtSec - this.elapsedSec);
             this.economyLabels
                 .get(chicken.id)
-                ?.setText(`닭\n알 ${nextEggSec.toFixed(0)}s`);
+                ?.setText(
+                    `닭 ${Math.ceil(chicken.hp)}/${chicken.maxHp}\n${
+                        chicken.aiState === 'recover'
+                            ? '회복'
+                            : chicken.aiState === 'seek_well'
+                              ? '우물 이동'
+                              : `알 ${nextEggSec.toFixed(0)}s`
+                    }`,
+                );
         });
     }
 

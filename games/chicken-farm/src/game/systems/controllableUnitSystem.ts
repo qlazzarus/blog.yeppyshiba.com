@@ -53,6 +53,12 @@ type UnitView = {
     readonly selectionRing: Phaser.GameObjects.Ellipse;
 };
 
+export type ExternalUnitCollisionBody = {
+    readonly id: string;
+    position: Point;
+    readonly radius: number;
+};
+
 const SELECTION_RADIUS_BY_TEMPLATE: Record<ControllableUnitTemplateId, number> = {
     dog: 24,
     farmer: 28,
@@ -157,6 +163,70 @@ export class ControllableUnitSystem {
 
     getUnits() {
         return this.units;
+    }
+
+    resolveExternalUnitPush(externalBodies: readonly ExternalUnitCollisionBody[]) {
+        this.units
+            .filter((unit) => unit.hp > 0)
+            .forEach((unit, unitIndex) => {
+                externalBodies.forEach((body, bodyIndex) => {
+                    const unitRadius = COLLISION_RADIUS_BY_TEMPLATE[unit.templateId];
+                    const minDistance =
+                        (unitRadius + body.radius) * UNIT_PUSH_DISTANCE_SCALE;
+                    const delta = new Phaser.Math.Vector2(
+                        body.position.x - unit.position.x,
+                        body.position.y - unit.position.y,
+                    );
+                    const distance = delta.length();
+                    if (distance >= minDistance) return;
+
+                    if (distance <= 0.001) {
+                        const angle = ((unitIndex + bodyIndex + 1) * Math.PI) / 3;
+                        delta.set(Math.cos(angle), Math.sin(angle));
+                    } else {
+                        delta.scale(1 / distance);
+                    }
+
+                    const overlap = minDistance - Math.max(0, distance);
+                    const pushDistance = Math.min(
+                        overlap / 2,
+                        UNIT_PUSH_MAX_STEP_PX,
+                    );
+                    const unitNext = {
+                        x: Phaser.Math.Clamp(
+                            unit.position.x - delta.x * pushDistance,
+                            0,
+                            this.worldSize.x,
+                        ),
+                        y: Phaser.Math.Clamp(
+                            unit.position.y - delta.y * pushDistance,
+                            0,
+                            this.worldSize.y,
+                        ),
+                    };
+                    const bodyNext = {
+                        x: Phaser.Math.Clamp(
+                            body.position.x + delta.x * pushDistance,
+                            0,
+                            this.worldSize.x,
+                        ),
+                        y: Phaser.Math.Clamp(
+                            body.position.y + delta.y * pushDistance,
+                            0,
+                            this.worldSize.y,
+                        ),
+                    };
+
+                    if (this.canUnitOccupyPoint(unitNext)) {
+                        unit.position = unitNext;
+                        this.updateView(unit);
+                    }
+                    if (this.canUnitOccupyPoint(bodyNext)) {
+                        body.position.x = bodyNext.x;
+                        body.position.y = bodyNext.y;
+                    }
+                });
+            });
     }
 
     selectAt(worldX: number, worldY: number) {
