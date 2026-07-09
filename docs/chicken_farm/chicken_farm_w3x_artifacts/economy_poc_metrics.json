@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-09T00:50:47.132Z",
+  "generatedAt": "2026-07-09T10:42:05.449Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -20,16 +20,20 @@
     "farmerInventoryEggs": 0,
     "stackValidation": {
       "coopEggs": 4,
+      "coopEggsAfterExplicitHatch": 3,
       "coopOccupiedSlots": 1,
       "farmerEggsBeforeDeposit": 4,
       "farmerOccupiedSlotsBeforeDeposit": 1
     },
     "vitalityValidation": {
-      "finalAiState": "wander",
-      "finalHp": 26.05,
+      "basicWellAttractedCount": 8,
+      "finalAiState": "recover",
+      "finalHp": 40,
       "recoverObserved": true,
       "seekObserved": true,
-      "strandedAiState": "stranded"
+      "strandedAiState": "wander",
+      "windmillAttractedCount": 16,
+      "upgradedToWindmill": true
     },
     "hatchSpawnValidation": {
       "fallbackExit": {
@@ -42,11 +46,19 @@
         "resolved": true,
         "side": "west"
       },
-      "movedAfterSpawn": true,
+      "aiActiveAfterSpawn": true,
       "offsetFromCoop": {
         "x": 0,
         "y": 88
       }
+    },
+    "herdValidation": {
+      "affectedCount": 8,
+      "movedCount": 8
+    },
+    "feedValidation": {
+      "healedChickenId": "chicken-1",
+      "healedAmount": 10
     },
     "wellCount": 1
   },
@@ -66,7 +78,7 @@
         "droppedAtSec": 22.5,
         "wellBuffed": true
       },
-      "id": "well_buffed_chicken_drops_at_22_5s",
+      "id": "windmill_accelerated_chicken_drops_at_22_5s",
       "pass": true
     },
     {
@@ -144,7 +156,7 @@
     {
       "actual": true,
       "expected": true,
-      "id": "hatched_chicken_ai_moves_after_spawn",
+      "id": "hatched_chicken_ai_activates_after_spawn",
       "pass": true
     },
     {
@@ -185,6 +197,20 @@
     },
     {
       "actual": {
+        "eggsAfterDeposit": 4,
+        "eggsAfterHatchCommand": 3,
+        "hatchStarted": true
+      },
+      "expected": {
+        "eggsAfterDeposit": 4,
+        "eggsAfterHatchCommand": 3,
+        "hatchStarted": true
+      },
+      "id": "coop_keeps_full_stack_until_explicit_hatch_command",
+      "pass": true
+    },
+    {
+      "actual": {
         "recoverObserved": true,
         "seekObserved": true
       },
@@ -192,17 +218,81 @@
         "recoverObserved": true,
         "seekObserved": true
       },
-      "id": "low_hp_chicken_seeks_well_and_recovers",
+      "id": "lured_chicken_seeks_well_and_recovers",
       "pass": true
     },
     {
-      "actual": "stranded",
-      "expected": "stranded",
-      "id": "low_hp_chicken_without_well_becomes_stranded",
+      "actual": {
+        "aiState": "wander",
+        "hp": 15
+      },
+      "expected": {
+        "aiState": "wander",
+        "hpBelowMax": true
+      },
+      "id": "chicken_outside_lure_keeps_wandering_and_loses_hp",
+      "pass": true
+    },
+    {
+      "actual": 8,
+      "expected": 8,
+      "id": "basic_well_feeds_up_to_eight_chickens",
+      "pass": true
+    },
+    {
+      "actual": 16,
+      "expected": 16,
+      "id": "windmill_feeds_up_to_sixteen_chickens",
+      "pass": true
+    },
+    {
+      "actual": {
+        "kind": "windmill",
+        "upgraded": true
+      },
+      "expected": {
+        "kind": "windmill",
+        "upgraded": true
+      },
+      "id": "basic_well_upgrades_to_windmill",
+      "pass": true
+    },
+    {
+      "actual": {
+        "affectedCount": 8,
+        "movedCount": 8
+      },
+      "expected": {
+        "affectedCount": 8,
+        "movedCount": 8
+      },
+      "id": "farmer_a002_herds_up_to_eight_nearby_chickens",
+      "pass": true
+    },
+    {
+      "actual": {
+        "healed": 10,
+        "healedChickenId": "chicken-1",
+        "hp": 20,
+        "otherHp": 20
+      },
+      "expected": {
+        "healed": 10,
+        "healedChickenId": "chicken-1",
+        "hp": 20,
+        "otherHp": 20
+      },
+      "id": "farmer_a001_feeds_most_hungry_nearby_chicken",
       "pass": true
     }
   ],
   "events": [
+    {
+      "chickenId": "chicken-1",
+      "from": "wander",
+      "to": "recover",
+      "type": "chicken_ai_state_changed"
+    },
     {
       "chickenId": "chicken-1",
       "eggId": "egg-1",

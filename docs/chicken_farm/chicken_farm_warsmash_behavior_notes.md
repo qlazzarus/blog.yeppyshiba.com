@@ -296,6 +296,28 @@ Chicken Farm은 이를 다음 경계로 축약한다.
 - `PlayerBuilding.rallyPoint`: 출구와 별개인 후속 이동 목적지이며 `BuildingSystem.setRallyPoint()`로 보관한다.
 - 닭장과 차후 농가/마을회관/신전/용병소/워크샵 생산은 같은 resolver를 사용한다.
 
+### 우클릭 자동시전
+
+Warsmash command card의 `CommandCardIcon`은 우클릭 시 능력의
+`autoCastOrderId`가 0이 아닐 때만 자동시전 order를 발행한다. 커맨드 카드
+구성 시에는 능력의 autocast on/off order와 현재 활성 상태를 함께 읽고,
+활성 아이콘에는 별도 시각 상태를 표시한다. `CUnit`의 idle 갱신은 활성화된
+자동시전 능력에서 유효한 대상을 찾아 order를 시작한다.
+
+Chicken Farm 적용 규칙:
+
+- 좌클릭은 기존과 동일한 수동 시전이다.
+- 자동시전 가능한 아이콘만 우클릭 토글을 받는다.
+- 활성 상태는 밝은 테두리로 표시한다.
+- 농부 `A001 모이주기`는 0.75초마다 반경 안의 부상한 아군 닭을 검색하며,
+  유효 대상이 없으면 자원이나 cooldown을 소비하지 않는다. 원본 `amcs=3`을
+  따라 성공한 시전마다 3 MP를 소비하며, MP가 부족하면 자동시전 상태를
+  유지한 채 대기한다.
+- 개 `A002 몰이`는 원본에 autocast order가 확인되지 않아 우클릭 토글을
+  제공하지 않는다.
+- 닭장 부화는 원본 문자열상 자동시전 후보지만, 현재 PoC에서는 인벤토리의
+  알이 즉시 줄어드는 혼동을 막기 위해 수동 시전으로 유지한다.
+
 1. `games/chicken-farm/src/game/pathing.ts`에 정적/동적 blocker grid와 A\* helper를 만든다.
 2. `games/chicken-farm/src/game/ai.ts`에 위 상태 머신을 독립 모듈로 구현한다.
 3. `balance.ts`의 enemy/fence 값에 `attackRangePx`, `attackCooldownSec`, `acquireRangePx`, `rangeLeashPx`를 명시한다.

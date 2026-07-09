@@ -83,6 +83,8 @@ export type CombatStats = {
     readonly acquireRangePx?: number;
     readonly damage: number;
     readonly hp: number;
+    readonly mana?: number;
+    readonly manaRegenPerSec?: number;
     readonly rangeLeashPx?: number;
     readonly windupSec?: number;
     readonly speedPxPerSec: number;

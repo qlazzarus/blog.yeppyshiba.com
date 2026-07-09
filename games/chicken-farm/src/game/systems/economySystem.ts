@@ -12,6 +12,7 @@ import type {
     EconomyPlayerState,
     EconomyPoint,
     EconomyWellState,
+    EconomyWellKind,
     FieldEggItemState,
     HatchJobState,
 } from './economyTypes';
@@ -31,12 +32,9 @@ export const DEFAULT_CHICKEN_FARM_ECONOMY_CONFIG: ChickenFarmEconomyConfig = {
             mid: 55,
         },
         hpDrainPerSec: 0.2,
-        recoverExitRatio: 0.9,
         recoverPerSec: 4,
-        seekRatio: 0.4,
         speedPxPerSec: 45,
         wanderRadiusPx: 128,
-        wellRecoveryRadiusPx: 96,
     },
     chickenEggRules: {
         basic: {
@@ -71,9 +69,19 @@ export const DEFAULT_CHICKEN_FARM_ECONOMY_CONFIG: ChickenFarmEconomyConfig = {
     },
     eggSellValueCoins: 12,
     inventorySlotCount: 6,
-    wellBuff: {
-        eggIntervalMultiplier: 0.75,
-        radiusPx: 384,
+    wellRules: {
+        basic: {
+            attractRadiusPx: 384,
+            eggIntervalMultiplier: 1,
+            feedCapacity: 8,
+            feedingRadiusPx: 96,
+        },
+        windmill: {
+            attractRadiusPx: 512,
+            eggIntervalMultiplier: 0.75,
+            feedCapacity: 16,
+            feedingRadiusPx: 112,
+        },
     },
 };
 
@@ -110,6 +118,7 @@ export function addEconomyChicken(
     const chicken: EconomyChickenState = {
         anchor: { ...config.position },
         aiState: 'wander',
+        herdedUntilSec: 0,
         hp: maxHp,
         id: `chicken-${state.nextChickenId}`,
         kind,
@@ -155,17 +164,94 @@ export function addEconomyCoop(
 export function addEconomyWell(
     state: ChickenFarmEconomyState,
     config: {
+        readonly kind?: EconomyWellKind;
         readonly ownerPlayerId: number;
         readonly position: EconomyPoint;
     },
 ) {
     const well: EconomyWellState = {
         id: `well-${state.wells.length + 1}`,
+        kind: config.kind ?? 'basic',
         ownerPlayerId: config.ownerPlayerId,
         position: config.position,
     };
     state.wells.push(well);
     return well;
+}
+
+export function upgradeEconomyWellToWindmill(
+    state: ChickenFarmEconomyState,
+    wellId: string,
+) {
+    const well = state.wells.find((candidate) => candidate.id === wellId);
+    if (!well || well.kind === 'windmill') return false;
+    well.kind = 'windmill';
+    return true;
+}
+
+export function herdEconomyChickens(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly casterPosition: EconomyPoint;
+        readonly elapsedSec: number;
+        readonly maxTargets?: number;
+        readonly ownerPlayerId: number;
+        readonly radiusPx?: number;
+        readonly targetPosition: EconomyPoint;
+    },
+) {
+    const radiusPx = config.radiusPx ?? 320;
+    const maxTargets = config.maxTargets ?? 8;
+    const chickens = state.chickens
+        .filter(
+            (chicken) =>
+                chicken.aiState !== 'dead' &&
+                chicken.ownerPlayerId === config.ownerPlayerId &&
+                distanceBetween(chicken.position, config.casterPosition) <= radiusPx,
+        )
+        .sort(
+            (a, b) =>
+                distanceBetween(a.position, config.casterPosition) -
+                distanceBetween(b.position, config.casterPosition),
+        )
+        .slice(0, maxTargets);
+
+    chickens.forEach((chicken) => {
+        chicken.aiState = 'herded';
+        chicken.herdedUntilSec = config.elapsedSec + 8;
+        chicken.targetPosition = { ...config.targetPosition };
+        chicken.targetWellId = null;
+    });
+    return chickens.map((chicken) => chicken.id);
+}
+
+export function feedNearestEconomyChicken(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly amount?: number;
+        readonly casterPosition: EconomyPoint;
+        readonly ownerPlayerId: number;
+        readonly radiusPx?: number;
+    },
+) {
+    const radiusPx = config.radiusPx ?? 320;
+    const chicken = state.chickens
+        .filter(
+            (candidate) =>
+                candidate.aiState !== 'dead' &&
+                candidate.ownerPlayerId === config.ownerPlayerId &&
+                candidate.hp < candidate.maxHp &&
+                distanceBetween(candidate.position, config.casterPosition) <= radiusPx,
+        )
+        .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+    if (!chicken) return null;
+
+    const hpBefore = chicken.hp;
+    chicken.hp = Math.min(chicken.maxHp, chicken.hp + (config.amount ?? 10));
+    return {
+        chickenId: chicken.id,
+        healed: chicken.hp - hpBefore,
+    };
 }
 
 export function addEconomyFieldEgg(
@@ -482,6 +568,7 @@ function updateChickenVitalityAndAi(
 ) {
     const rules = state.config.chickenVitality;
     const canOccupy = options?.canChickenOccupyPoint ?? (() => true);
+    const assignedWellByChickenId = assignChickensToFeedingWells(state);
 
     state.chickens.forEach((chicken) => {
         if (chicken.aiState === 'dead') return;
@@ -491,12 +578,13 @@ function updateChickenVitalityAndAi(
         );
         chicken.vitalityUpdatedAtSec = elapsedSec;
 
-        const recoveryWell = state.wells.find(
-            (well) =>
-                well.ownerPlayerId === chicken.ownerPlayerId &&
-                distanceBetween(well.position, chicken.position) <=
-                    rules.wellRecoveryRadiusPx,
-        );
+        const assignedWell = assignedWellByChickenId.get(chicken.id);
+        const recoveryWell =
+            assignedWell &&
+            distanceBetween(assignedWell.position, chicken.position) <=
+                state.config.wellRules[assignedWell.kind].feedingRadiusPx
+                ? assignedWell
+                : null;
         chicken.hp = recoveryWell
             ? Math.min(chicken.maxHp, chicken.hp + rules.recoverPerSec * deltaSec)
             : Math.max(0, chicken.hp - rules.hpDrainPerSec * deltaSec);
@@ -509,30 +597,52 @@ function updateChickenVitalityAndAi(
             return;
         }
 
+        if (chicken.aiState === 'herded') {
+            const reachedTarget =
+                Boolean(chicken.targetPosition) &&
+                distanceBetween(chicken.position, chicken.targetPosition!) < 6;
+            if (
+                chicken.targetPosition &&
+                elapsedSec < chicken.herdedUntilSec &&
+                !reachedTarget
+            ) {
+                moveChickenToward(
+                    chicken,
+                    chicken.targetPosition,
+                    rules.speedPxPerSec * deltaSec,
+                    canOccupy,
+                );
+                return;
+            }
+            if (chicken.targetPosition && reachedTarget) {
+                chicken.anchor = { ...chicken.targetPosition };
+            } else {
+                chicken.anchor = { ...chicken.position };
+            }
+            chicken.targetPosition = null;
+            chicken.herdedUntilSec = 0;
+            changeChickenAiState(chicken, 'wander', events);
+            chicken.nextAiDecisionAtSec = elapsedSec + 1;
+            return;
+        }
+
         if (recoveryWell) {
             chicken.targetWellId = recoveryWell.id;
             chicken.targetPosition = null;
-            if (chicken.hp < chicken.maxHp * rules.recoverExitRatio) {
-                changeChickenAiState(chicken, 'recover', events);
-                return;
-            }
+            changeChickenAiState(chicken, 'recover', events);
+            return;
+        } else if (assignedWell) {
+            chicken.targetWellId = assignedWell.id;
+            chicken.targetPosition = { ...assignedWell.position };
+            changeChickenAiState(chicken, 'seek_well', events);
+        } else if (chicken.aiState === 'seek_well' || chicken.aiState === 'recover') {
             chicken.targetWellId = null;
+            chicken.targetPosition = null;
             changeChickenAiState(chicken, 'wander', events);
             chicken.nextAiDecisionAtSec = elapsedSec;
-        } else if (chicken.hp <= chicken.maxHp * rules.seekRatio) {
-            const targetWell = findNearestOwnedWell(state, chicken);
-            if (!targetWell) {
-                chicken.targetWellId = null;
-                chicken.targetPosition = null;
-                changeChickenAiState(chicken, 'stranded', events);
-                return;
-            }
-            chicken.targetWellId = targetWell.id;
-            chicken.targetPosition = { ...targetWell.position };
-            changeChickenAiState(chicken, 'seek_well', events);
         }
 
-        if (chicken.aiState === 'recover' || chicken.aiState === 'stranded') return;
+        if (chicken.aiState === 'recover') return;
         if (
             chicken.aiState === 'wander' &&
             (elapsedSec >= chicken.nextAiDecisionAtSec ||
@@ -553,6 +663,31 @@ function updateChickenVitalityAndAi(
     });
 }
 
+function assignChickensToFeedingWells(state: ChickenFarmEconomyState) {
+    const assignments = new Map<string, EconomyWellState>();
+    state.wells.forEach((well) => {
+        const rule = state.config.wellRules[well.kind];
+        state.chickens
+            .filter(
+                (chicken) =>
+                    chicken.aiState !== 'dead' &&
+                    chicken.aiState !== 'herded' &&
+                    chicken.ownerPlayerId === well.ownerPlayerId &&
+                    !assignments.has(chicken.id) &&
+                    distanceBetween(chicken.position, well.position) <=
+                        rule.attractRadiusPx,
+            )
+            .sort(
+                (a, b) =>
+                    distanceBetween(a.position, well.position) -
+                    distanceBetween(b.position, well.position),
+            )
+            .slice(0, rule.feedCapacity)
+            .forEach((chicken) => assignments.set(chicken.id, well));
+    });
+    return assignments;
+}
+
 function changeChickenAiState(
     chicken: EconomyChickenState,
     nextState: EconomyChickenState['aiState'],
@@ -567,19 +702,6 @@ function changeChickenAiState(
         to: nextState,
         type: 'chicken_ai_state_changed',
     });
-}
-
-function findNearestOwnedWell(
-    state: ChickenFarmEconomyState,
-    chicken: EconomyChickenState,
-) {
-    return state.wells
-        .filter((well) => well.ownerPlayerId === chicken.ownerPlayerId)
-        .sort(
-            (a, b) =>
-                distanceBetween(chicken.position, a.position) -
-                distanceBetween(chicken.position, b.position),
-        )[0];
 }
 
 function getChickenWanderTarget(
@@ -780,8 +902,10 @@ function findBuffingWell(
     return (
         state.wells.find(
             (well) =>
+                well.kind === 'windmill' &&
                 well.ownerPlayerId === chicken.ownerPlayerId &&
-                distance(well.position, chicken.position) <= state.config.wellBuff.radiusPx,
+                distance(well.position, chicken.position) <=
+                    state.config.wellRules.windmill.attractRadiusPx,
         ) ?? null
     );
 }
@@ -793,7 +917,7 @@ function getCurrentEggIntervalSec(
     const baseInterval = state.config.chickenEggRules[chicken.kind].intervalSec;
     if (!findBuffingWell(state, chicken)) return baseInterval;
 
-    return baseInterval * state.config.wellBuff.eggIntervalMultiplier;
+    return baseInterval * state.config.wellRules.windmill.eggIntervalMultiplier;
 }
 
 function chickenKindForCoop(coopKind: CoopKind): ChickenKind {

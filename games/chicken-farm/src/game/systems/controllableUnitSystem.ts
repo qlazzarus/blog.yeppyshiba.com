@@ -50,6 +50,8 @@ type UnitView = {
     readonly hpBack: Phaser.GameObjects.Rectangle;
     readonly hpFill: Phaser.GameObjects.Rectangle;
     readonly label: Phaser.GameObjects.Text;
+    readonly manaBack: Phaser.GameObjects.Rectangle;
+    readonly manaFill: Phaser.GameObjects.Rectangle;
     readonly selectionRing: Phaser.GameObjects.Ellipse;
 };
 
@@ -163,6 +165,20 @@ export class ControllableUnitSystem {
 
     getUnits() {
         return this.units;
+    }
+
+    hasMana(unitId: string, amount: number) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        return Boolean(unit && unit.hp > 0 && unit.mana >= amount);
+    }
+
+    spendMana(unitId: string, amount: number) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit || unit.hp <= 0 || unit.mana < amount) return false;
+
+        unit.mana = Math.max(0, unit.mana - amount);
+        this.updateView(unit);
+        return true;
     }
 
     resolveExternalUnitPush(externalBodies: readonly ExternalUnitCollisionBody[]) {
@@ -498,6 +514,13 @@ export class ControllableUnitSystem {
             MAX_CONTROLLABLE_UNIT_MOVEMENT_DELTA_SEC,
         );
         this.units.forEach((unit) => {
+            if (unit.hp > 0 && unit.mana < unit.maxMana) {
+                unit.mana = Math.min(
+                    unit.maxMana,
+                    unit.mana + unit.manaRegenPerSec * deltaSec,
+                );
+                this.updateView(unit);
+            }
             if (unit.currentCommand?.type === 'move') {
                 this.updateMoveCommand(unit, movementDeltaSec);
                 return;
@@ -535,24 +558,29 @@ export class ControllableUnitSystem {
             existing.currentCommand = undefined;
             existing.commandQueue = [];
             existing.hp = existing.maxHp;
+            existing.mana = existing.maxMana;
             existing.path = [];
             existing.pathIndex = 0;
             this.updateView(existing);
             return;
         }
 
+        const stats = CHICKEN_FARM_BALANCE.defenders[templateId];
         const state: ControllableUnitState = {
-            armor: CHICKEN_FARM_BALANCE.defenders[templateId].armor,
-            hp: CHICKEN_FARM_BALANCE.defenders[templateId].hp,
+            armor: stats.armor,
+            hp: stats.hp,
             id,
-            maxHp: CHICKEN_FARM_BALANCE.defenders[templateId].hp,
+            mana: stats.mana ?? 0,
+            manaRegenPerSec: stats.manaRegenPerSec ?? 0,
+            maxHp: stats.hp,
+            maxMana: stats.mana ?? 0,
             nextAttackAtSec: 0,
             ownerPlayerId,
             path: [],
             pathIndex: 0,
             position,
             selected: false,
-            speedPxPerSec: CHICKEN_FARM_BALANCE.defenders[templateId].speedPxPerSec,
+            speedPxPerSec: stats.speedPxPerSec,
             templateId,
             commandQueue: [],
         };
@@ -611,17 +639,52 @@ export class ControllableUnitSystem {
             )
             .setDepth(29)
             .setOrigin(0, 0.5);
+        const manaY = isFarmer ? -35 : -31;
+        const manaBack = this.scene.add
+            .rectangle(
+                0,
+                manaY,
+                UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId],
+                UNIT_HP_BAR_HEIGHT_PX,
+                0x061020,
+                0.98,
+            )
+            .setStrokeStyle(UNIT_HP_BAR_BORDER_PX, 0x030303, 1)
+            .setDepth(28);
+        const manaFill = this.scene.add
+            .rectangle(
+                -UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] / 2 +
+                    UNIT_HP_BAR_BORDER_PX,
+                manaY,
+                UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] -
+                    UNIT_HP_BAR_BORDER_PX * 2,
+                UNIT_HP_FILL_HEIGHT_PX,
+                0x3185e8,
+                1,
+            )
+            .setDepth(29)
+            .setOrigin(0, 0.5);
         const container = this.scene.add.container(unit.position.x, unit.position.y, [
             selectionRing,
             shadow,
             ...body,
             hpBack,
             hpFill,
+            manaBack,
+            manaFill,
             label,
         ]);
 
         container.setDepth(25);
-        this.views.set(unit.id, { body: container, hpBack, hpFill, label, selectionRing });
+        this.views.set(unit.id, {
+            body: container,
+            hpBack,
+            hpFill,
+            label,
+            manaBack,
+            manaFill,
+            selectionRing,
+        });
         this.worldObjects.push(container);
     }
 
@@ -672,6 +735,14 @@ export class ControllableUnitSystem {
                 UNIT_HP_BAR_BORDER_PX * 2) *
             hpRatio;
         view.hpFill.setFillStyle(this.getHpBarColor(hpRatio), 1);
+        const manaRatio =
+            unit.maxMana > 0 ? Phaser.Math.Clamp(unit.mana / unit.maxMana, 0, 1) : 0;
+        view.manaBack.setVisible(unit.hp > 0 && unit.maxMana > 0);
+        view.manaFill.setVisible(unit.hp > 0 && unit.maxMana > 0);
+        view.manaFill.width =
+            (UNIT_HP_BAR_WIDTH_BY_TEMPLATE[unit.templateId] -
+                UNIT_HP_BAR_BORDER_PX * 2) *
+            manaRatio;
     }
 
     private getUnitDisplayLabel(unit: ControllableUnitState) {

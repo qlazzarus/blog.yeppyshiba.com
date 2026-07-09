@@ -68,6 +68,8 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             attackCooldownSec: 0.8,
             damage: 18,
             hp: 220,
+            mana: 30,
+            manaRegenPerSec: 0.25,
             id: 'dog',
             role: 'fast_defender',
             source: {
@@ -80,6 +82,8 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             attackCooldownSec: 0.9,
             damage: 10,
             hp: 100,
+            mana: 60,
+            manaRegenPerSec: 0.5,
             id: 'farmer',
             role: 'builder_hero',
             source: {
