@@ -6,6 +6,8 @@ export type RuntimeTuning = {
     cameraSpeedFovBonus: number;
     curveScreenBias: number;
     debugProjectionGuides: boolean;
+    highSpeedSteerWeakThreshold: number;
+    highSpeedVisualSteeringScale: number;
     playerRoadAnchorDistance: number;
     playerRoadContactDistance: number;
     playerScreenAnchorRatio: number;
@@ -81,6 +83,20 @@ export function createRuntimeTuning(
             params,
             'debugGuides',
             defaults.debugProjectionGuides,
+        ),
+        highSpeedSteerWeakThreshold: readTuningNumber(
+            params,
+            'highSteerWeak',
+            defaults.highSpeedSteerWeakThreshold,
+            defaults.steerWeakThreshold,
+            0.65,
+        ),
+        highSpeedVisualSteeringScale: readTuningNumber(
+            params,
+            'visualSteerScale',
+            defaults.highSpeedVisualSteeringScale,
+            0.25,
+            1,
         ),
         playerRoadAnchorDistance: readTuningNumber(
             params,
@@ -260,12 +276,34 @@ export function createRuntimePlayerVehicleConfig(
             0,
             120,
         ),
+        engineProfile: defaults.engineProfile,
         highSpeedSteerForceDrop: readTuningNumber(
             params,
             'steerForceDrop',
             defaults.highSpeedSteerForceDrop,
             0,
             0.7,
+        ),
+        highSpeedInputResponseDrop: readTuningNumber(
+            params,
+            'inputDrop',
+            defaults.highSpeedInputResponseDrop,
+            0,
+            0.75,
+        ),
+        highSpeedLateralVelocityCap: readTuningNumber(
+            params,
+            'lateralCap',
+            defaults.highSpeedLateralVelocityCap,
+            24,
+            defaults.steerAcceleration,
+        ),
+        highSpeedSteeringSlewRate: readTuningNumber(
+            params,
+            'steeringSlew',
+            defaults.highSpeedSteeringSlewRate,
+            1,
+            24,
         ),
         highSpeedSteerVisualDrop: readTuningNumber(
             params,
@@ -308,6 +346,20 @@ export function createRuntimePlayerVehicleConfig(
             3600,
         ),
         steerDamping: readTuningNumber(params, 'steerDamping', defaults.steerDamping, 2, 24),
+        steeringSpeedScrub: readTuningNumber(
+            params,
+            'steeringScrub',
+            defaults.steeringSpeedScrub,
+            0,
+            220,
+        ),
+        steeringSpeedScrubThreshold: readTuningNumber(
+            params,
+            'steeringScrubThreshold',
+            defaults.steeringSpeedScrubThreshold,
+            0,
+            0.85,
+        ),
         steeringVelocityCue: readTuningNumber(
             params,
             'steeringCue',

@@ -5,26 +5,31 @@ import {
     createDefaultPlayerVehicleState,
     updatePlayerVehicle,
 } from '../src/game/playerVehicleController.ts';
+import {
+    RAVEN_COUPE_ENGINE_PROFILE,
+} from '../src/game/engineProfile.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
-const speedDisplayMaxKmh = 200;
-
 const baseConfig = {
     accelSpeed: 760,
     aeroDrag: 0.00012,
     brakeSpeed: 0,
     braking: 330,
     centeringResponse: 1.75,
-    cornerAccelSpeedDrop: 100,
-    cornerSpeedPull: 120,
+    cornerAccelSpeedDrop: 190,
+    cornerSpeedPull: 210,
     curveDriftAcceleration: 160,
-    curveSteeringHighSpeedDrop: 0.38,
+    curveSteeringHighSpeedDrop: 0.48,
     curveSteeringCue: 0.06,
     engineAcceleration: 170,
     engineBrakeDeceleration: 26,
-    highSpeedSteerForceDrop: 0.42,
-    highSpeedSteerVisualDrop: 0.38,
+    engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+    highSpeedInputResponseDrop: 0.35,
+    highSpeedLateralVelocityCap: 56,
+    highSpeedSteeringSlewRate: 4.2,
+    highSpeedSteerForceDrop: 0.62,
+    highSpeedSteerVisualDrop: 0.48,
     inputResponse: 18,
     launchThrottleFullSpeedRatio: 0.38,
     launchThrottleMinRatio: 0.3,
@@ -35,6 +40,8 @@ const baseConfig = {
     rpmResponse: 7,
     steerAcceleration: 1650,
     steerDamping: 9.2,
+    steeringSpeedScrub: 64,
+    steeringSpeedScrubThreshold: 0.22,
     steeringVelocityCue: 0.2,
 };
 const candidates = [
@@ -47,9 +54,15 @@ const candidates = [
             curveSteeringHighSpeedDrop: 0,
             curveSteeringCue: 0.1,
             engineAcceleration: 128,
+            highSpeedInputResponseDrop: 0,
+            highSpeedLateralVelocityCap: 1650,
+            highSpeedSteeringSlewRate: 24,
+            highSpeedSteerForceDrop: 0.42,
             highSpeedSteerVisualDrop: 0.34,
             launchThrottleFullSpeedRatio: 0.05,
             launchThrottleMinRatio: 1,
+            steeringSpeedScrub: 0,
+            steeringSpeedScrubThreshold: 0.22,
             steeringVelocityCue: 0.38,
         },
     },
@@ -58,11 +71,32 @@ const candidates = [
         patch: {},
     },
     {
+        id: 'previous-2026-07-10-baseline',
+        patch: {
+            cornerAccelSpeedDrop: 100,
+            cornerSpeedPull: 120,
+            curveSteeringHighSpeedDrop: 0.38,
+            highSpeedInputResponseDrop: 0,
+            highSpeedLateralVelocityCap: 1650,
+            highSpeedSteeringSlewRate: 24,
+            highSpeedSteerForceDrop: 0.42,
+            highSpeedSteerVisualDrop: 0.38,
+            steeringSpeedScrub: 0,
+            steeringSpeedScrubThreshold: 0.22,
+        },
+    },
+    {
         id: 'previous-visual-cue',
         patch: {
             curveSteeringHighSpeedDrop: 0,
+            highSpeedInputResponseDrop: 0,
+            highSpeedLateralVelocityCap: 1650,
+            highSpeedSteeringSlewRate: 24,
+            highSpeedSteerForceDrop: 0.42,
             highSpeedSteerVisualDrop: 0.25,
             inputResponse: 16,
+            steeringSpeedScrub: 0,
+            steeringSpeedScrubThreshold: 0.22,
             steeringVelocityCue: 0.25,
         },
     },
@@ -70,7 +104,13 @@ const candidates = [
         id: 'previous-grip-angle',
         patch: {
             curveSteeringHighSpeedDrop: 0,
+            highSpeedInputResponseDrop: 0,
+            highSpeedLateralVelocityCap: 1650,
+            highSpeedSteeringSlewRate: 24,
+            highSpeedSteerForceDrop: 0.42,
             highSpeedSteerVisualDrop: 0.25,
+            steeringSpeedScrub: 0,
+            steeringSpeedScrubThreshold: 0.22,
         },
     },
     {
@@ -111,8 +151,24 @@ const candidates = [
         id: 'extra-grip-angle-damping',
         patch: {
             curveSteeringHighSpeedDrop: 0.45,
+            highSpeedInputResponseDrop: 0,
+            highSpeedLateralVelocityCap: 1650,
+            highSpeedSteeringSlewRate: 24,
             highSpeedSteerVisualDrop: 0.45,
+            steeringSpeedScrub: 0,
+            steeringSpeedScrubThreshold: 0.22,
             steeringVelocityCue: 0.2,
+        },
+    },
+    {
+        id: 'stronger-high-speed-weight',
+        patch: {
+            curveSteeringHighSpeedDrop: 0.52,
+            highSpeedInputResponseDrop: 0.42,
+            highSpeedLateralVelocityCap: 48,
+            highSpeedSteeringSlewRate: 3.6,
+            highSpeedSteerForceDrop: 0.65,
+            highSpeedSteerVisualDrop: 0.52,
         },
     },
     {
@@ -344,7 +400,8 @@ function simulateScenario(scenario, controllerConfig) {
     const samples = [];
     const player = createDefaultPlayerVehicleState(
         scenario.initialSpeed ?? 440,
-        controllerConfig.rpmIdle,
+        controllerConfig.engineProfile,
+        controllerConfig.accelSpeed,
     );
     const dt = 1 / config.sampleHz;
     const steps = Math.round(scenario.durationSec * config.sampleHz);
@@ -496,7 +553,13 @@ function measureSteeringRecoveryMs(samples) {
 }
 
 function measureTimeToKmh(samples, controllerConfig, targetKmh) {
-    const targetSpeed = (targetKmh / speedDisplayMaxKmh) * controllerConfig.accelSpeed;
+    const targetRatio = targetKmh / controllerConfig.engineProfile.displayTopSpeedKmh;
+    const smoothTargetRatio = targetRatio <= 0
+        ? 0
+        : targetRatio >= 1
+            ? 1
+            : 0.5 - Math.sin(Math.asin(1 - 2 * targetRatio) / 3);
+    const targetSpeed = smoothTargetRatio * controllerConfig.accelSpeed;
     const sample = samples.find((entry) => entry.speed >= targetSpeed);
 
     return sample ? round(sample.t) : null;

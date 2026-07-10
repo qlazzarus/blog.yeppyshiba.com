@@ -4,6 +4,7 @@ import genesisG70VehicleAtlas from '../assets/vehicles/approved/atlases/genesis-
 import genesisG70VehicleShadowSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128-shadow.png';
 import genesisG70VehicleSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128.png';
 import ft86RetroVehicleAtlas from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json';
+import ft86RetroBlackVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-black-alpha.png';
 import ft86RetroBlueVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-blue-alpha.png';
 import ft86RetroRedVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-red-alpha.png';
 import ft86RetroShadowSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png';
@@ -13,6 +14,12 @@ import {
     createHudText,
     renderHudText,
 } from './game/hud';
+import {
+    APEX_S_ENGINE_PROFILE,
+    getDisplaySpeedKmh,
+    RAVEN_COUPE_ENGINE_PROFILE,
+    type VehicleEngineProfile,
+} from './game/engineProfile';
 import {
     createDefaultPlayerVehicleState,
     getCornerIntensity,
@@ -88,16 +95,18 @@ const CAMERA_DOWNHILL_EXTRA_PITCH = 42;
 const CAMERA_FOV_RESPONSE = 1.25;
 const CAMERA_MAX_SLOPE_PITCH = 34;
 const CAMERA_SLOPE_PITCH_RESPONSE = 3.2;
-const CAMERA_SPEED_FOV_BONUS = 3.5;
+const CAMERA_SPEED_FOV_BONUS = 5.2;
 const DEBUG_PROJECTION_GUIDES = false;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
+const COURSE_CHECKPOINT_RATIOS = [0.25, 0.5, 0.75];
+const COURSE_FINISH_RATIO = 1;
 const PLAYER_BRAKE_SPEED = 0;
 const PLAYER_BRAKING = 330;
 const PLAYER_CENTERING_RESPONSE = 1.75;
 const PLAYER_CRUISE_SPEED = 440;
 const PLAYER_ACCEL_SPEED = 760;
-const PLAYER_CORNER_ACCEL_SPEED_DROP = 100;
-const PLAYER_CORNER_SPEED_PULL = 120;
+const PLAYER_CORNER_ACCEL_SPEED_DROP = 190;
+const PLAYER_CORNER_SPEED_PULL = 210;
 const PLAYER_INPUT_RESPONSE = 18;
 const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.38;
 const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.3;
@@ -123,10 +132,17 @@ const PLAYER_TERRAIN_SCALE_INTENSITY = 0.045;
 const PLAYER_CURVE_SCREEN_BIAS = 8;
 const PLAYER_CURVE_DRIFT_ACCELERATION = 160;
 const PLAYER_CURVE_STEERING_CUE = 0.06;
-const PLAYER_CURVE_STEERING_HIGH_SPEED_DROP = 0.38;
-const PLAYER_HIGH_SPEED_STEER_FORCE_DROP = 0.42;
-const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.38;
+const PLAYER_CURVE_STEERING_HIGH_SPEED_DROP = 0.48;
+const PLAYER_HIGH_SPEED_INPUT_RESPONSE_DROP = 0.35;
+const PLAYER_HIGH_SPEED_LATERAL_VELOCITY_CAP = 56;
+const PLAYER_HIGH_SPEED_STEERING_SLEW_RATE = 4.2;
+const PLAYER_HIGH_SPEED_STEER_FORCE_DROP = 0.62;
+const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.48;
+const PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.34;
+const PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE = 0.62;
 const PLAYER_STEERING_VELOCITY_CUE = 0.2;
+const PLAYER_STEERING_SPEED_SCRUB = 64;
+const PLAYER_STEERING_SPEED_SCRUB_THRESHOLD = 0.22;
 const PLAYER_ENGINE_ACCELERATION = 170;
 const PLAYER_ENGINE_BRAKE_DECELERATION = 26;
 const PLAYER_ROLLING_RESISTANCE = 14;
@@ -137,15 +153,16 @@ const PLAYER_SLOPE_SAMPLE_DISTANCE = 720;
 const PLAYER_RPM_IDLE = 1100;
 const PLAYER_RPM_REDLINE = 7200;
 const PLAYER_RPM_RESPONSE = 7;
-const PLAYER_SPEED_DISPLAY_MAX_KMH = 200;
+const RUN_FINISH_COAST_SPEED = 0;
 const SPEED_EFFECT_MAX_ALPHA = 0.88;
-const SPEED_EFFECT_MIN_RATIO = 0.42;
-const SPEED_EFFECT_TIME_SCALE = 1.7;
+const SPEED_EFFECT_MIN_RATIO = 0.36;
+const SPEED_EFFECT_TIME_SCALE = 2.2;
 const TELEMETRY_DEFAULT_DURATION_SEC = 60;
 const TELEMETRY_DEFAULT_SAMPLE_HZ = 10;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 760;
 const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
+    black: ft86RetroBlackVehicleSpriteUrl,
     blue: ft86RetroBlueVehicleSpriteUrl,
     red: ft86RetroRedVehicleSpriteUrl,
     silver: ft86RetroSilverVehicleSpriteUrl,
@@ -162,6 +179,8 @@ const RUNTIME_TUNING: RuntimeTuning = createRuntimeTuning(URL_PARAMS, {
     cameraSpeedFovBonus: CAMERA_SPEED_FOV_BONUS,
     curveScreenBias: PLAYER_CURVE_SCREEN_BIAS,
     debugProjectionGuides: DEBUG_PROJECTION_GUIDES,
+    highSpeedSteerWeakThreshold: PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD,
+    highSpeedVisualSteeringScale: PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE,
     playerContactTerrainCueThreshold: PLAYER_CONTACT_TERRAIN_CUE_THRESHOLD,
     playerRoadAnchorDistance: PLAYER_ROAD_ANCHOR_DISTANCE,
     playerRoadContactDistance: PLAYER_ROAD_CONTACT_DISTANCE,
@@ -195,6 +214,10 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     curveSteeringCue: PLAYER_CURVE_STEERING_CUE,
     engineAcceleration: PLAYER_ENGINE_ACCELERATION,
     engineBrakeDeceleration: PLAYER_ENGINE_BRAKE_DECELERATION,
+    engineProfile: ACTIVE_RUNTIME_VEHICLE.engineProfile,
+    highSpeedInputResponseDrop: PLAYER_HIGH_SPEED_INPUT_RESPONSE_DROP,
+    highSpeedLateralVelocityCap: PLAYER_HIGH_SPEED_LATERAL_VELOCITY_CAP,
+    highSpeedSteeringSlewRate: PLAYER_HIGH_SPEED_STEERING_SLEW_RATE,
     highSpeedSteerForceDrop: PLAYER_HIGH_SPEED_STEER_FORCE_DROP,
     highSpeedSteerVisualDrop: PLAYER_HIGH_SPEED_STEER_VISUAL_DROP,
     inputResponse: PLAYER_INPUT_RESPONSE,
@@ -207,10 +230,20 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     rpmResponse: PLAYER_RPM_RESPONSE,
     steerAcceleration: PLAYER_STEER_ACCELERATION,
     steerDamping: PLAYER_STEER_DAMPING,
+    steeringSpeedScrub: PLAYER_STEERING_SPEED_SCRUB,
+    steeringSpeedScrubThreshold: PLAYER_STEERING_SPEED_SCRUB_THRESHOLD,
     steeringVelocityCue: PLAYER_STEERING_VELOCITY_CUE,
 });
 
 const PLAYER_VEHICLE_ATLAS = ACTIVE_RUNTIME_VEHICLE.atlas;
+
+type CourseRunState = {
+    elapsedSec: number;
+    finishTimeSec: number | null;
+    finished: boolean;
+    passedCheckpoints: number;
+    progressRatio: number;
+};
 
 class ApexSeoulScene extends Phaser.Scene {
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
@@ -225,7 +258,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
-    private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 's' | 'w', Phaser.Input.Keyboard.Key>;
+    private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
     private lastVehicleQaState: RuntimeVehicleQaState | null = null;
     private playerCar!: Phaser.GameObjects.Image;
@@ -233,7 +266,8 @@ class ApexSeoulScene extends Phaser.Scene {
     private playerShadowCar!: Phaser.GameObjects.Image;
     private playerVehicle: PlayerVehicleState = createDefaultPlayerVehicleState(
         PLAYER_CRUISE_SPEED,
-        PLAYER_RPM_IDLE,
+        ACTIVE_RUNTIME_VEHICLE.engineProfile,
+        PLAYER_ACCEL_SPEED,
     );
     private roadObjects: RoadObject[] = [];
     private roadObjectStats: RoadObjectRenderStats | null = null;
@@ -243,6 +277,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private speedEffectShader!: Phaser.GameObjects.Shader;
     private speedEffectTime = 0;
     private telemetry: RuntimeTelemetryRecorder | null = null;
+    private runState: CourseRunState = createInitialRunState();
 
     constructor() {
         super('apex-seoul');
@@ -263,7 +298,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.cameraResource.fovDegrees = RUNTIME_TUNING.cameraBaseFov;
         this.roadObjects = createRoadObjects(this.roadTrack);
         this.applyRuntimeQaOverrides();
-        this.cameras.main.setBackgroundColor('#11161b');
+        this.cameras.main.setBackgroundColor('#050812');
         this.graphics = this.add.graphics();
         this.playerSoftShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
@@ -305,6 +340,7 @@ class ApexSeoulScene extends Phaser.Scene {
             e: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E),
             l: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.L),
             q: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+            r: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.R),
             s: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             w: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
         };
@@ -328,8 +364,19 @@ class ApexSeoulScene extends Phaser.Scene {
         this.elapsedSec += seconds;
         this.applyRuntimeQaOverrides();
         this.updateTelemetryHotkey();
+        this.updateRestartHotkey();
 
         if (RUNTIME_QA.freeze) {
+            camera.pitch = this.updateCameraPitch(seconds);
+            camera.fovDegrees = this.updateCameraFov(seconds);
+            this.updateSpeedEffect(seconds);
+            this.render();
+            this.telemetry?.update(this.elapsedSec);
+            return;
+        }
+
+        if (this.runState.finished) {
+            this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
             camera.pitch = this.updateCameraPitch(seconds);
             camera.fovDegrees = this.updateCameraFov(seconds);
             this.updateSpeedEffect(seconds);
@@ -373,7 +420,11 @@ class ApexSeoulScene extends Phaser.Scene {
         camera.lateralOffset = Phaser.Math.Clamp(camera.lateralOffset, -1400, 1400);
 
         this.updatePlayerVehicle(seconds);
-        camera.z = wrapDistance(camera.z + this.playerVehicle.speed * seconds, this.roadTrack.length);
+        camera.z = Math.min(
+            camera.z + this.playerVehicle.speed * seconds,
+            this.roadTrack.length,
+        );
+        this.updateRunState(seconds);
         camera.pitch = this.updateCameraPitch(seconds);
         camera.fovDegrees = this.updateCameraFov(seconds);
         this.updateSpeedEffect(seconds);
@@ -406,6 +457,7 @@ class ApexSeoulScene extends Phaser.Scene {
         }
         this.renderPlayerShadow(viewport);
         this.renderPlayerVehicle(viewport);
+        this.renderCourseProgress(viewport);
         this.renderHud();
         this.publishRuntimeQaState(viewport, horizonY);
     }
@@ -418,11 +470,13 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private drawBackground(viewport: Viewport, horizonY: number) {
-        this.graphics.fillStyle(0x8eb7ca, 1);
+        this.graphics.fillStyle(0x07101f, 1);
         this.graphics.fillRect(0, 0, viewport.width, Math.max(0, horizonY));
-        this.graphics.fillStyle(0xd7c9a3, 1);
-        this.graphics.fillRect(0, horizonY - 18, viewport.width, 18);
-        this.graphics.fillStyle(0x263c35, 1);
+        this.graphics.fillStyle(0x14395f, 0.78);
+        this.graphics.fillRect(0, Math.max(0, horizonY - 42), viewport.width, 18);
+        this.graphics.fillStyle(0x3f7dd7, 0.32);
+        this.graphics.fillRect(0, horizonY - 16, viewport.width, 2);
+        this.graphics.fillStyle(0x081520, 1);
         this.graphics.fillRect(0, horizonY, viewport.width, viewport.height - horizonY);
     }
 
@@ -443,8 +497,8 @@ class ApexSeoulScene extends Phaser.Scene {
         renderHudText(this.hudText, {
             camera: this.cameraResource,
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
-                ? 'Up: accel | Down: brake | Left/Right: steer | WASD: camera | Q/E: pitch'
-                : 'Up: accel | Down: brake | Left/Right: steer | debug camera locked',
+                ? 'Up: accel | Down: brake | Left/Right: steer | R: restart | WASD: camera | Q/E: pitch'
+                : 'Up: accel | Down: brake | Left/Right: steer | R: restart | debug camera locked',
             cornerIntensity: getCornerIntensity(stats?.currentCurve ?? 0),
             player,
             qa: RUNTIME_QA,
@@ -453,13 +507,14 @@ class ApexSeoulScene extends Phaser.Scene {
             speedKmh: this.getPlayerSpeedKmh(),
             steeringRatio: getHighSpeedSteeringRatio(
                 Phaser.Math.Clamp(player.speed / PLAYER_ACCEL_SPEED, 0, 1),
-                PLAYER_HIGH_SPEED_STEER_VISUAL_DROP,
+                PLAYER_CONTROLLER_CONFIG.highSpeedSteerVisualDrop,
             ),
             telemetry: RUNTIME_TELEMETRY,
             telemetryEventCount: this.telemetry?.getEventCount() ?? 0,
             track: this.roadTrack,
             tuning: RUNTIME_TUNING,
             vehicleTerrainCue: this.getVehicleTerrainCue(),
+            run: this.runState,
         });
     }
 
@@ -485,11 +540,13 @@ class ApexSeoulScene extends Phaser.Scene {
         const spriteSize = getPlayerVehicleSpriteSize(viewport, RUNTIME_TUNING);
         const anchor = this.getVehicleAnchor(viewport, spriteSize);
         const displaySize = getTerrainScaledSpriteSize(spriteSize, anchor, RUNTIME_TUNING);
+        const visualSteering = this.getVehicleVisualSteeringState();
         const vehicleFrame = selectPlayerVehicleFrame(
             PLAYER_VEHICLE_ATLAS,
             RUNTIME_TUNING,
-            player.steering,
+            visualSteering.value,
             anchor.terrainCue,
+            visualSteering.threshold,
         );
         const frame = PLAYER_VEHICLE_ATLAS.frames[vehicleFrame.frame];
 
@@ -499,15 +556,17 @@ class ApexSeoulScene extends Phaser.Scene {
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x, anchor.y)
             .setDisplaySize(displaySize, displaySize)
-            .setRotation(Phaser.Math.DegToRad(player.steering * RUNTIME_TUNING.vehicleRotationDeg));
+            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg));
 
         this.lastVehicleQaState = {
             anchor,
             displaySize,
             flipX: vehicleFrame.flipX,
             frame: vehicleFrame.frame,
-            rotationDeg: player.steering * RUNTIME_TUNING.vehicleRotationDeg,
+            rotationDeg: visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg,
             terrainScale: getTerrainScaleMultiplier(anchor, RUNTIME_TUNING),
+            visualSteering: visualSteering.value,
+            visualSteeringThreshold: visualSteering.threshold,
         };
     }
 
@@ -517,11 +576,13 @@ class ApexSeoulScene extends Phaser.Scene {
         const displaySize = getTerrainScaledSpriteSize(spriteSize, anchor, RUNTIME_TUNING);
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
         const terrainIntensity = getContactTerrainCueIntensity(anchor.contactTerrainRatio);
+        const visualSteering = this.getVehicleVisualSteeringState();
         const vehicleFrame = selectPlayerVehicleFrame(
             PLAYER_VEHICLE_ATLAS,
             RUNTIME_TUNING,
-            this.playerVehicle.steering,
+            visualSteering.value,
             anchor.terrainCue,
+            visualSteering.threshold,
         );
         const frame = PLAYER_VEHICLE_ATLAS.frames[vehicleFrame.frame];
         const shadowProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame);
@@ -538,7 +599,7 @@ class ApexSeoulScene extends Phaser.Scene {
             vehicleFrame.flipX,
             terrainIntensity,
         );
-        const steeringOffset = this.playerVehicle.steering * displaySize * 0.018;
+        const steeringOffset = visualSteering.value * displaySize * 0.018;
         const alpha = PLAYER_SHADOW_MAX_ALPHA * Phaser.Math.Clamp(anchor.scale * 13, 0.7, 1);
 
         this.playerSoftShadowCar
@@ -554,7 +615,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 displaySize * silhouetteScale.x * 1.16,
                 displaySize * silhouetteScale.y * 1.26,
             )
-            .setRotation(Phaser.Math.DegToRad(this.playerVehicle.steering * RUNTIME_TUNING.vehicleRotationDeg * 0.22));
+            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.22));
 
         this.playerShadowCar
             .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
@@ -569,7 +630,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 displaySize * silhouetteScale.x,
                 displaySize * silhouetteScale.y,
             )
-            .setRotation(Phaser.Math.DegToRad(this.playerVehicle.steering * RUNTIME_TUNING.vehicleRotationDeg * 0.35));
+            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.35));
 
         this.graphics.fillStyle(0x010303, alpha * 0.16);
         drawShadowContactPatch(
@@ -656,7 +717,31 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private getPlayerSpeedKmh() {
-        return (this.playerVehicle.speed / PLAYER_ACCEL_SPEED) * PLAYER_SPEED_DISPLAY_MAX_KMH;
+        return getDisplaySpeedKmh(
+            this.playerVehicle.speed,
+            PLAYER_ACCEL_SPEED,
+            ACTIVE_RUNTIME_VEHICLE.engineProfile,
+        );
+    }
+
+    private getVehicleVisualSteeringState() {
+        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+        const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
+        const visualScale = Phaser.Math.Linear(
+            1,
+            RUNTIME_TUNING.highSpeedVisualSteeringScale,
+            smoothSpeed,
+        );
+        const threshold = Phaser.Math.Linear(
+            RUNTIME_TUNING.steerWeakThreshold,
+            RUNTIME_TUNING.highSpeedSteerWeakThreshold,
+            smoothSpeed,
+        );
+
+        return {
+            threshold,
+            value: this.playerVehicle.steering * visualScale,
+        };
     }
 
     private updateSpeedEffect(seconds: number) {
@@ -778,6 +863,83 @@ class ApexSeoulScene extends Phaser.Scene {
         this.telemetry?.downloadJsonl('hotkey');
     }
 
+    private updateRestartHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.r)) return;
+
+        this.restartRun();
+    }
+
+    private updateRunState(seconds: number) {
+        this.runState.elapsedSec += seconds;
+        this.runState.progressRatio = Phaser.Math.Clamp(
+            this.cameraResource.z / this.roadTrack.length,
+            0,
+            COURSE_FINISH_RATIO,
+        );
+        this.runState.passedCheckpoints = COURSE_CHECKPOINT_RATIOS.filter(
+            (checkpointRatio) => this.runState.progressRatio >= checkpointRatio,
+        ).length;
+
+        if (this.runState.progressRatio >= COURSE_FINISH_RATIO) {
+            this.runState.finished = true;
+            this.runState.finishTimeSec = this.runState.elapsedSec;
+            this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
+        }
+    }
+
+    private restartRun() {
+        this.cameraResource.z = 0;
+        this.cameraFov = RUNTIME_TUNING.cameraBaseFov;
+        this.cameraTerrainPitch = 0;
+        this.cameraManualPitch = 0;
+        this.playerVehicle = createDefaultPlayerVehicleState(
+            PLAYER_CRUISE_SPEED,
+            ACTIVE_RUNTIME_VEHICLE.engineProfile,
+            PLAYER_ACCEL_SPEED,
+        );
+        this.runState = createInitialRunState();
+        this.render();
+    }
+
+    private renderCourseProgress(viewport: Viewport) {
+        const marginX = 150;
+        const lineY = viewport.height - 30;
+        const lineWidth = viewport.width - marginX * 2;
+        const lineHeight = 4;
+        const progress = Phaser.Math.Clamp(this.runState.progressRatio, 0, 1);
+        const progressX = marginX + lineWidth * progress;
+
+        this.graphics.fillStyle(0x050812, 0.74);
+        this.graphics.fillRect(marginX - 12, lineY - 12, lineWidth + 24, 24);
+        this.graphics.fillStyle(0x14395f, 0.9);
+        this.graphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth, lineHeight);
+        this.graphics.fillStyle(0x67b7ff, 0.95);
+        this.graphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth * progress, lineHeight);
+
+        this.drawProgressTick(marginX, lineY, 0x9fcfff, 0.8);
+
+        for (const checkpointRatio of COURSE_CHECKPOINT_RATIOS) {
+            this.drawProgressTick(
+                marginX + lineWidth * checkpointRatio,
+                lineY,
+                checkpointRatio <= progress ? 0x67b7ff : 0x245f9d,
+                checkpointRatio <= progress ? 0.95 : 0.7,
+            );
+        }
+
+        this.drawProgressTick(marginX + lineWidth, lineY, 0xb8dcff, 0.95);
+
+        this.graphics.fillStyle(0xe8f6ff, 1);
+        this.graphics.fillCircle(progressX, lineY, 6);
+        this.graphics.lineStyle(2, 0x050812, 0.9);
+        this.graphics.strokeCircle(progressX, lineY, 7);
+    }
+
+    private drawProgressTick(x: number, y: number, color: number, alpha: number) {
+        this.graphics.fillStyle(color, alpha);
+        this.graphics.fillRect(x - 2, y - 10, 4, 20);
+    }
+
     private publishRuntimeQaState(viewport: Viewport, horizonY: number) {
         const qaWindow = window as Window & {
             __apexSeoulQaReady?: boolean;
@@ -803,16 +965,34 @@ class ApexSeoulScene extends Phaser.Scene {
             elapsedSec: Number(this.elapsedSec.toFixed(3)),
             horizonY,
             player: {
+                boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
+                engineTorqueScale: Number(this.playerVehicle.engineTorqueScale.toFixed(4)),
+                fuelCutActive: this.playerVehicle.fuelCutActive,
+                gear: this.playerVehicle.gearIndex + 1,
                 lateralOffset: this.playerVehicle.lateralOffset,
                 rpm: this.playerVehicle.rpm,
                 slopeAcceleration: this.getSlopeAcceleration(),
                 speed: this.playerVehicle.speed,
                 steering: this.playerVehicle.steering,
+                steeringVelocity: this.playerVehicle.steeringVelocity,
+                torqueScale: Number(this.playerVehicle.torqueScale.toFixed(4)),
             },
             qa: RUNTIME_QA,
             controller: PLAYER_CONTROLLER_CONFIG,
             road: this.roadStats,
             roadObjects: this.roadObjectStats,
+            run: {
+                ...this.runState,
+                finishTimeSec: this.runState.finishTimeSec === null
+                    ? null
+                    : Number(this.runState.finishTimeSec.toFixed(3)),
+                elapsedSec: Number(this.runState.elapsedSec.toFixed(3)),
+                progressRatio: Number(this.runState.progressRatio.toFixed(4)),
+            },
+            speedEffect: {
+                intensity: Number(this.speedEffectIntensity.toFixed(4)),
+                time: Number(this.speedEffectTime.toFixed(3)),
+            },
             track: {
                 id: this.roadTrack.id,
                 length: this.roadTrack.length,
@@ -824,10 +1004,29 @@ class ApexSeoulScene extends Phaser.Scene {
                 ...this.lastVehicleQaState,
                 asset: ACTIVE_RUNTIME_VEHICLE.id,
                 color: ACTIVE_RUNTIME_VEHICLE.color,
+                engine: {
+                    displayName: ACTIVE_RUNTIME_VEHICLE.engineProfile.displayName,
+                    displayTopSpeedKmh: ACTIVE_RUNTIME_VEHICLE.engineProfile.displayTopSpeedKmh,
+                    fuelCutStartRpm: ACTIVE_RUNTIME_VEHICLE.engineProfile.fuelCutStartRpm,
+                    id: ACTIVE_RUNTIME_VEHICLE.engineProfile.id,
+                    induction: ACTIVE_RUNTIME_VEHICLE.engineProfile.induction,
+                    maxRpm: ACTIVE_RUNTIME_VEHICLE.engineProfile.maxRpm,
+                    redlineStartRpm: ACTIVE_RUNTIME_VEHICLE.engineProfile.redlineStartRpm,
+                },
             },
             viewport,
         };
     }
+}
+
+function createInitialRunState(): CourseRunState {
+    return {
+        elapsedSec: 0,
+        finishTimeSec: null,
+        finished: false,
+        passedCheckpoints: 0,
+        progressRatio: 0,
+    };
 }
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -856,6 +1055,7 @@ function getAxis(positive: boolean, negative: boolean) {
 type RuntimeVehicleAsset = {
     atlas: VehicleAtlas;
     color: string;
+    engineProfile: VehicleEngineProfile;
     id: string;
     shadowSpriteUrl: string;
     shadowTextureKey: string;
@@ -864,15 +1064,16 @@ type RuntimeVehicleAsset = {
 };
 
 function selectRuntimeVehicleAsset(params: URLSearchParams): RuntimeVehicleAsset {
-    const requestedVehicle = params.get('vehicle');
+    const requestedVehicle = params.get('vehicle') ?? 'ft86-retro';
 
     if (requestedVehicle === 'ft86-retro') {
-        const requestedColor = params.get('vehicleColor') ?? 'silver';
-        const color = FT86_RETRO_SPRITE_URLS[requestedColor] ? requestedColor : 'silver';
+        const requestedColor = params.get('vehicleColor') ?? 'blue';
+        const color = FT86_RETRO_SPRITE_URLS[requestedColor] ? requestedColor : 'blue';
 
         return {
             atlas: ft86RetroVehicleAtlas as VehicleAtlas,
             color,
+            engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
             id: 'ft86-retro',
             shadowSpriteUrl: ft86RetroShadowSpriteUrl,
             shadowTextureKey: 'player-vehicle-ft86-retro-shadow',
@@ -884,6 +1085,7 @@ function selectRuntimeVehicleAsset(params: URLSearchParams): RuntimeVehicleAsset
     return {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
         color: 'silver',
+        engineProfile: APEX_S_ENGINE_PROFILE,
         id: 'genesis-g70-poc',
         shadowSpriteUrl: genesisG70VehicleShadowSpriteUrl,
         shadowTextureKey: 'player-vehicle-genesis-g70-poc-shadow',

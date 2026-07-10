@@ -818,3 +818,299 @@ extra-grip-angle-damping 0.020
 - 도로와 horizon, side object, shadow가 주행 감각을 나눠 맡는다.
 
 하지만 현재 수치에서는 조향/커브/속도 감각이 서로 조금씩 간섭할 가능성이 있다. 다음 튜닝은 `curve force` 미세 감량과 실제 브라우저 화면에서의 grip pose 가독성을 분리 비교하는 쪽이 좋다.
+
+## 2026-07-10 실제 주행 로그 이후 판단
+
+코스 진행 구조가 단방향 다운힐 런으로 바뀐 뒤, 브라우저에서 60초 runtime telemetry를 수집했다.
+
+대상 로그:
+
+```text
+apex-seoul-drive-2026-07-10T01-54-23-065Z_gw0va8.jsonl
+```
+
+분석 요약:
+
+```text
+duration: 59.961s
+sample count: 541
+run progress last: 62.69%
+speed min/max/avg: 384.57 / 760.00 / 712.77u
+FOV min/max/avg: 69.04 / 72.50 / 72.36
+steering min/max: -0.724 / 0.620
+high-speed steering min/max: -0.660 / 0.620
+high-speed |steering| >= 0.5 ratio: 10.6%
+lateral offset min/max: -86.68 / 68.87
+telemetry score: PASS 100/100
+```
+
+해석:
+
+- 내부 speed는 충분히 높다. 60초에 코스 62% 이상을 진행했고 평균 speed도 `712.77u`다.
+- 따라서 "느리다"는 문제는 최고속 부족보다 화면 speed cue 부족으로 보는 편이 맞다.
+- FOV는 `69 -> 72.5` 정도까지만 움직인다. 고속감 cue로는 아직 얌전하다.
+- 고속에서 steering 값이 여전히 크다. 최고속 근처에서도 `-0.66 ~ +0.62`까지 흔들리므로, 플레이어에게는 "고속인데 너무 잘 꺾인다"로 읽힐 수 있다.
+- lateral offset은 `+-90` 안쪽이라 차가 도로 밖으로 크게 날아가지는 않는다. 문제는 물리 이동량보다 visual steering과 입력 반응의 체감이다.
+
+### 다음 구현 방향
+
+이전 결론에서는 `curveDriftAcceleration: 160 -> 130` 후보를 우선 검토하려고 했다. 하지만 2026-07-10 실제 주행 피드백 기준으로는 우선순위를 조금 바꾼다.
+
+먼저 손볼 것:
+
+```text
+1. high-speed steering force 감소
+2. high-speed visual steering 감소
+3. speedRatio 기반 input response 감소
+4. steering slew limit 추가
+5. FOV/speed shader cue 강화
+```
+
+권장 후보:
+
+```text
+highSpeedSteerForceDrop: 0.42 -> 0.58 / 0.62 / 0.65
+highSpeedSteerVisualDrop: 0.38 -> 0.45 / 0.50 / 0.52
+curveSteeringHighSpeedDrop: 0.38 -> 0.45 / 0.50
+cameraSpeedFovBonus: 3.5 -> 4.8 / 5.2
+speedEffectMinRatio: 0.42 -> 0.35 / 0.38
+speedEffectTimeScale: 1.7 -> 2.1 / 2.4
+```
+
+주의:
+
+- 최고속 `accelSpeed`를 먼저 올리면 조향 과민 문제가 더 커질 수 있다.
+- speed cue를 먼저 강하게 올리면 현재 steering 흔들림이 더 눈에 띌 수 있다.
+- 따라서 다음 구현은 조향 둔화 -> speed cue 강화 -> curve force 재검토 순서가 좋다.
+
+### 블로그용 핵심 문장
+
+```text
+로그상 Apex Seoul은 이미 충분히 빠르게 이동하고 있었다. 문제는 차가 느린 것이 아니라, 화면이 아직 빠르다고 충분히 말하지 못한다는 점이었다. 동시에 고속에서는 steering이 너무 크게 살아 있어서, 빠른데도 차가 가볍게 꺾이는 느낌이 났다. 다음 튜닝은 최고속을 올리는 것이 아니라, 고속 조향을 둔하게 만들고 속도감 cue를 더 설득력 있게 만드는 쪽으로 잡았다.
+```
+
+## 2026-07-10 고속감/조향 1차 적용
+
+위 판단을 바탕으로 첫 번째 적용은 최고속을 올리지 않고, 고속 steering과 speed cue만 조정했다.
+
+적용값:
+
+```text
+highSpeedSteerForceDrop: 0.42 -> 0.62
+highSpeedSteerVisualDrop: 0.38 -> 0.48
+curveSteeringHighSpeedDrop: 0.38 -> 0.48
+highSpeedInputResponseDrop: 0.35 추가
+highSpeedSteeringSlewRate: 4.2 추가
+cameraSpeedFovBonus: 3.5 -> 5.2
+speedEffectMinRatio: 0.42 -> 0.36
+speedEffectTimeScale: 1.7 -> 2.2
+```
+
+새 runtime query:
+
+```text
+inputDrop
+steeringSlew
+```
+
+의도:
+
+- 고속에서도 조향 입력이 즉시 큰 visual steering으로 튀지 않게 한다.
+- 고속에서 좌우 전환이 `-0.6 -> +0.6`처럼 급격하게 보이는 것을 줄인다.
+- 물리 최고속은 유지하고, FOV와 speed shader 쪽으로 속도감을 보강한다.
+
+`qa:handling-sim` 결과:
+
+```text
+report: assets/telemetry/generated/handling-sim/handling-sim-2026-07-10T02-02-53-539Z.json
+previous-2026-07-10-baseline score: 96.9
+new baseline score: 94.9
+stronger-high-speed-weight score: 94.8
+```
+
+주요 비교:
+
+```text
+left-hold-3s-release highSpeedSteeringMaxAbs
+previous: 0.674
+new:      0.579
+
+slalom-20s lateralOffsetMaxAbs
+previous: 132.854
+new:       93.683
+
+curve-counter-steer highSpeedSteeringMaxAbs
+previous: 0.660
+new:      0.555
+
+curve-counter-steer lateralOffsetMaxAbs
+previous: 248.835
+new:      178.864
+```
+
+해석:
+
+- 새 baseline은 기존 자동 점수 기준으로는 낮아졌다. 특히 `steeringPeakHoldRatio`처럼 "입력 pose를 얼마나 빨리/오래 유지하는가"를 보는 지표에서 손해를 본다.
+- 하지만 이번 목표는 더 민첩한 조향이 아니라, 고속에서 너무 쉽게 꺾이는 느낌을 줄이는 것이다.
+- lateral offset과 high-speed steering max는 의도대로 줄었다.
+- 다음 확인은 실제 브라우저 플레이에서 "고속 묵직함"이 좋아졌는지, 반대로 저속/중속 조작감까지 너무 죽었는지 보는 것이다.
+
+## 2026-07-10 체감 부족 이후 2차 적용
+
+1차 적용 뒤 실제 플레이에서는 체감 변화가 약했다. 새 로그에서는 값이 적용된 것이 확인됐지만, 차량 pose가 사실상 `center / steer-right-1` 3way라 `steering 0.65 -> 0.55` 정도의 변화는 같은 조향 프레임으로 읽혔다.
+
+따라서 2차 적용은 물리 steering보다 화면 표현을 직접 바꾸는 쪽으로 잡았다.
+
+적용:
+
+```text
+highSpeedLateralVelocityCap: 56 추가
+highSpeedSteerWeakThreshold: 0.30 추가
+highSpeedVisualSteeringScale: 0.62 추가
+```
+
+새 runtime query:
+
+```text
+lateralCap
+highSteerWeak
+visualSteerScale
+```
+
+구현 방향:
+
+- `player.steering`은 계속 물리/입력 상태로 유지한다.
+- 차량 sprite frame, rotation, shadow offset은 별도 `visualSteering`으로 그린다.
+- 고속일수록 `visualSteering`을 압축하고, pose 전환 threshold를 높인다.
+- 고속 lateral velocity를 cap해서 차가 실제로도 덜 좌우로 흐르게 한다.
+- telemetry에는 `steeringVelocity`, `vehicle.visualSteering`, `vehicle.visualSteeringThreshold`, `speedEffect`를 남겨 다음 플레이 로그에서 보이는 조향과 실제 조향을 분리해서 본다.
+
+확인 포인트:
+
+```text
+고속 샘플에서 steer-right-1 frame 비율이 줄어드는가
+vehicle.rotationDeg 평균/최대가 눈에 띄게 줄어드는가
+lateralOffset max/RMS가 추가로 줄어드는가
+조향이 너무 죽어서 코너 진입이 답답해지지는 않는가
+```
+
+## 2026-07-10 코너 속도 손실 1차 적용
+
+2차 적용 후 실제 로그에서는 lateral 안정성은 좋아졌지만, hard corner에서도 평균 속도가 약 `710u`로 높게 유지됐다. 다운힐 게임 감각에서는 코너 진입과 조향량에 따른 속도 손실이 있어야 한다. 특히 Initial D 계열 감각에서는 직선은 빠르게, 코너는 진입 속도와 라인 선택으로 손해가 갈리는 쪽이 자연스럽다.
+
+적용:
+
+```text
+highSpeedSteerWeakThreshold: 0.30 -> 0.34
+cornerAccelSpeedDrop: 100 -> 190
+cornerSpeedPull: 120 -> 210
+steeringSpeedScrub: 64 추가
+steeringSpeedScrubThreshold: 0.22 추가
+```
+
+새 runtime query:
+
+```text
+steeringScrub
+steeringScrubThreshold
+```
+
+의도:
+
+- 고속 포즈 전환을 더 줄여서 center 유지 구간을 늘린다.
+- 강한 코너에서는 최고 속도 상한을 더 낮춘다.
+- 고속에서 조향을 많이 넣으면 steering scrub으로 추가 속도 손실을 준다.
+- 코너를 "밟고 꺾는 구간"이 아니라 "진입 속도와 라인을 관리하는 구간"으로 만든다.
+
+`qa:handling-sim` 결과:
+
+```text
+report: assets/telemetry/generated/handling-sim/handling-sim-2026-07-10T04-39-31-045Z.json
+previous-2026-07-10-baseline score: 96.9
+new baseline score: 94.0
+```
+
+주요 비교:
+
+```text
+curve-no-input speedMax
+previous: 700.495
+new:      673.139
+
+curve-counter-steer speedMax
+previous: 700.495
+new:      639.049
+
+curve-counter-steer lateralOffsetMaxAbs
+previous: 248.835
+new:      189.125
+
+slalom-20s lateralOffsetMaxAbs
+previous: 132.854
+new:       93.992
+```
+
+해석:
+
+- 자동 점수는 낮아졌지만, 코너 속도 손실이라는 목표는 달성됐다.
+- `curve-counter-steer`에서 속도와 lateral offset이 같이 줄어, 고속 코너가 더 무겁게 읽힐 가능성이 높다.
+- 다음 실제 로그에서는 hard corner 평균 속도가 `660~690u` 근처로 내려오는지 확인한다.
+- 너무 답답하면 `cornerSpeedPull`보다 `steeringSpeedScrub`을 먼저 낮춘다. 코너 자체 감속은 유지하되, 조향 손실만 완화하는 편이 감각 분리가 쉽다.
+
+## 2026-07-10 코너 속도 손실 적용 후 실제 로그
+
+대상 로그:
+
+```text
+apex-seoul-drive-2026-07-10T04-40-45-020Z_oj88qh.jsonl
+```
+
+요약:
+
+```text
+progress: 59.41%
+speed avg: 675.868u
+speed min/max: 387.883 / 760u
+speedDropFromPeak: 121.184u
+lateralOffsetMaxAbs: 89.516
+lateralOffsetRms: 30.710
+steeringMaxAbs: 0.687
+visualSteering avg/max: 0.272 / 0.513
+high visual threshold avg: 0.336
+high visual over threshold ratio: 19.9%
+frameCounts: center 355 / steer-right-1 153 / downhill-center 31 / downhill-right-1 3
+```
+
+커브별 속도:
+
+```text
+straight avg speed: 605.055u
+mild curve avg speed: 736.157u
+corner avg speed: 698.192u
+hard corner avg speed: 644.663u
+```
+
+해석:
+
+- 사용자의 "코너링 감각 80점" 평가는 로그와 잘 맞는다. hard corner 평균 속도가 목표였던 `660~690u`보다 더 낮은 `644.663u`까지 내려갔고, 코너에서 속도를 관리해야 하는 느낌이 생겼다.
+- 고속 포즈 전환도 크게 줄었다. 이전에는 고속 샘플 절반 정도가 threshold를 넘었지만, 이번에는 `19.9%`만 조향 프레임으로 넘어간다.
+- 다만 hard corner에서 `steer-right-1` 비율은 여전히 높다. 강한 코너에서 플레이어가 실제로 조향을 많이 넣고 있기 때문이다. 이건 나쁜 신호라기보다 "코너를 적극적으로 돌고 있다"는 표시로 볼 수 있다.
+- 속도 손실은 충분히 강해졌다. 다음에는 코너 감속을 더 키우기보다, HUD가 이 상태를 설득력 있게 보여주는 쪽이 중요하다.
+
+다음 우선순위:
+
+```text
+1. HUD speedometer / tachometer / boost UI 설계
+2. RPM과 speed의 관계를 플레이어가 납득하도록 보정
+3. turbo boost 상태를 speedEffect, tail glow, tach color와 연결
+4. 코너링은 당분간 현재 값을 기준으로 실제 플레이 피드백을 더 모은다
+```
+
+추가 설계 결정:
+
+- RPM/boost는 차량별 엔진 성격에 따라 분기한다.
+- 현재 기본 차량인 FT86 inspired `Raven Coupe`는 `NA` 고회전 차량으로 둔다. boost UI 없이 빠른 RPM 상승, redline cue, 짧은 fuel cut bounce를 강조한다.
+- 이후 `Stinger inspired` 차량은 `Twin Turbo`로 둔다. low/mid rpm에서 서서히 boost가 차고, 고속 main boost zone에서 speedEffect와 계기판 pulse가 크게 살아나야 한다.
+- 이후 `Genesis Coupe inspired` 차량은 `Single Turbo`로 둔다. turbo lag 이후 중속 토크가 두껍게 붙고, fuel cut이나 코너 감속 뒤 boost 회복 시간이 체감되어야 한다.
+- 차량별 `rpmLimit`을 넘으면 `fuelCutActive` 상태를 만든다. 1차 구현에서는 실제 수동 변속 실패보다 HUD/사운드/토크 보정용 상태로 시작하고, 자동 변속 직전의 redline 리듬을 만드는 데 사용한다.
+- 구체적인 `maxRpm`, 기어 단수, normalized torque curve는 `docs/pseudo-3d-apex-seoul-roadmap.md`의 차량별 drivetrain profile을 기준으로 구현한다. 초기값은 Raven Coupe `6-speed / 7800rpm`, Vortex GT `8-speed / 7000rpm`, Apex S `6-speed / 7200rpm`이다.
