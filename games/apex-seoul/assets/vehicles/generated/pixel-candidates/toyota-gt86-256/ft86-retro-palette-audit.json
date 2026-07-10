@@ -1,8 +1,9 @@
 {
-  "generatedAt": "2026-07-08T02:10:44.906Z",
+  "generatedAt": "2026-07-10T01:01:00.612Z",
   "image": "assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-source-alpha.png",
   "notes": [
     "Palette roles drive FT86 body color swaps.",
+    "Apex Seoul final art direction targets a black/blue dreamlike Seoul downhill, so black and blue variants are art-direction baselines.",
     "Review sheet-256-ai-retro-v1-balanced-roles.png before changing role assignments."
   ],
   "size": {

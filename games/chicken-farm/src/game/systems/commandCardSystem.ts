@@ -8,6 +8,7 @@ export type CommandCardPageId = 'build' | 'root';
 export type CommandCardSelectionKind =
     | 'builder_unit'
     | 'constructing_building'
+    | 'economy_coop'
     | 'generic_unit'
     | 'complete_building'
     | 'none';
@@ -28,14 +29,24 @@ export type CommandCardAction =
           readonly type: 'start_attack_targeting';
       }
     | {
+          readonly type: 'start_herd_targeting';
+      }
+    | {
+          readonly type: 'feed_nearby_chicken';
+      }
+    | {
           readonly type: 'cancel';
       }
     | {
           readonly type: 'cancel_construction';
+      }
+    | {
+          readonly type: 'start_coop_hatch';
       };
 
 type CommandCardButton = {
     readonly action: CommandCardAction;
+    readonly autocastId?: 'farmer_feed';
     readonly enabledWhenBuilderSelected?: boolean;
     readonly hotkey: string;
     readonly id: string;
@@ -44,9 +55,12 @@ type CommandCardButton = {
 
 type CommandCardSystemConfig = {
     readonly buttons: readonly CommandButtonView[];
+    readonly isActionEnabled?: (action: CommandCardAction) => boolean;
     readonly getSelectionKind: () => CommandCardSelectionKind;
+    readonly isAutocastActive?: (autocastId: 'farmer_feed') => boolean;
     readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     readonly onAction: (action: CommandCardAction) => void;
+    readonly onToggleAutocast?: (autocastId: 'farmer_feed') => void;
     readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -73,6 +87,19 @@ const ROOT_PAGE: readonly CommandCardButton[] = [
         id: 'stop',
         label: 'Stop',
     },
+    {
+        action: { type: 'start_herd_targeting' },
+        hotkey: 'X',
+        id: 'herd',
+        label: 'Herd 4MP',
+    },
+    {
+        action: { type: 'feed_nearby_chicken' },
+        autocastId: 'farmer_feed',
+        hotkey: 'D',
+        id: 'feed',
+        label: 'Feed 3MP',
+    },
 ];
 
 const CONSTRUCTING_BUILDING_PAGE: readonly CommandCardButton[] = [
@@ -96,6 +123,15 @@ const GENERIC_UNIT_PAGE: readonly CommandCardButton[] = [
         hotkey: 'S',
         id: 'stop',
         label: 'Stop',
+    },
+];
+
+const ECONOMY_COOP_PAGE: readonly CommandCardButton[] = [
+    {
+        action: { type: 'start_coop_hatch' },
+        hotkey: 'H',
+        id: 'hatch',
+        label: 'Hatch',
     },
 ];
 
@@ -139,8 +175,11 @@ const BUILD_PAGE: readonly CommandCardButton[] = [
 export class CommandCardSystem {
     private readonly buttons: readonly CommandButtonView[];
     private readonly getSelectionKind: () => CommandCardSelectionKind;
+    private readonly isActionEnabled: (action: CommandCardAction) => boolean;
+    private readonly isAutocastActive: (autocastId: 'farmer_feed') => boolean;
     private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
     private readonly onAction: (action: CommandCardAction) => void;
+    private readonly onToggleAutocast?: (autocastId: 'farmer_feed') => void;
     private readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -150,8 +189,11 @@ export class CommandCardSystem {
     constructor(config: CommandCardSystemConfig) {
         this.buttons = config.buttons;
         this.getSelectionKind = config.getSelectionKind;
+        this.isActionEnabled = config.isActionEnabled ?? (() => true);
+        this.isAutocastActive = config.isAutocastActive ?? (() => false);
         this.keys = config.keys;
         this.onAction = config.onAction;
+        this.onToggleAutocast = config.onToggleAutocast;
         this.recordTelemetry = config.recordTelemetry;
         this.bindButtonClicks();
         this.refresh();
@@ -201,17 +243,31 @@ export class CommandCardSystem {
                 return;
             }
 
-            this.renderButton(view, button, this.isButtonEnabled(button));
+            this.renderButton(
+                view,
+                button,
+                this.isButtonEnabled(button),
+                Boolean(button.autocastId && this.isAutocastActive(button.autocastId)),
+            );
         });
     }
 
     private bindButtonClicks() {
         this.buttons.forEach((view, index) => {
-            view.background.on(Phaser.Input.Events.POINTER_DOWN, () => {
-                const button = this.getCurrentButtons()[index];
-                if (!button || !this.isButtonEnabled(button)) return;
-                this.dispatch(button.action);
-            });
+            view.background.on(
+                Phaser.Input.Events.POINTER_DOWN,
+                (pointer: Phaser.Input.Pointer) => {
+                    const button = this.getCurrentButtons()[index];
+                    if (!button) return;
+                    if (pointer.rightButtonDown() && button.autocastId) {
+                        this.onToggleAutocast?.(button.autocastId);
+                        this.refresh();
+                        return;
+                    }
+                    if (!this.isButtonEnabled(button)) return;
+                    this.dispatch(button.action);
+                },
+            );
         });
     }
 
@@ -229,6 +285,7 @@ export class CommandCardSystem {
         const selectionKind = this.getSelectionKind();
         if (this.page === 'build' && selectionKind === 'builder_unit') return BUILD_PAGE;
         if (selectionKind === 'constructing_building') return CONSTRUCTING_BUILDING_PAGE;
+        if (selectionKind === 'economy_coop') return ECONOMY_COOP_PAGE;
         if (selectionKind === 'builder_unit') return ROOT_PAGE;
         if (selectionKind === 'generic_unit') return GENERIC_UNIT_PAGE;
 
@@ -237,8 +294,9 @@ export class CommandCardSystem {
 
     private isButtonEnabled(button: CommandCardButton) {
         return (
-            !button.enabledWhenBuilderSelected ||
-            this.getSelectionKind() === 'builder_unit'
+            this.isActionEnabled(button.action) &&
+            (!button.enabledWhenBuilderSelected ||
+                this.getSelectionKind() === 'builder_unit')
         );
     }
 
@@ -253,10 +311,15 @@ export class CommandCardSystem {
         view: CommandButtonView,
         button: CommandCardButton,
         enabled: boolean,
+        autocastActive: boolean,
     ) {
         view.background
             .setFillStyle(enabled ? 0x303329 : 0x20221d, 1)
-            .setStrokeStyle(1, enabled ? 0x9a8e62 : 0x4c4a3d, 0.92);
+            .setStrokeStyle(
+                autocastActive ? 3 : 1,
+                autocastActive ? 0x63d6e8 : enabled ? 0x9a8e62 : 0x4c4a3d,
+                0.92,
+            );
         view.hotkeyText.setText(button.hotkey);
         view.hotkeyText.setColor(enabled ? '#f6df8b' : '#77705f');
         view.labelText.setText(button.label);

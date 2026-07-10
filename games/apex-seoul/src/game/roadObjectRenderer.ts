@@ -7,7 +7,6 @@ import {
 } from './pseudo3dCamera';
 import {
     getRoadElevationAt,
-    wrapDistance,
     type RoadTrack,
 } from './road';
 import {
@@ -16,7 +15,6 @@ import {
 } from './roadRenderer';
 
 export type RoadObjectKind =
-    | 'checkpoint'
     | 'chevron-left'
     | 'chevron-right'
     | 'guard-post'
@@ -71,18 +69,6 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
                 z: z + track.segmentLength * 1.4,
             });
         }
-    }
-
-    const checkpointInterval = Math.max(track.segmentLength * 22, track.length / 4);
-
-    for (let z = checkpointInterval; z < track.length; z += checkpointInterval) {
-        objects.push({
-            collisionRadius: 0,
-            id: `checkpoint-${Math.round(z)}`,
-            kind: 'checkpoint',
-            lateralOffset: 0,
-            z,
-        });
     }
 
     objects.push(
@@ -148,7 +134,7 @@ function projectRoadObject(
     viewport: Viewport,
     currentElevation: number,
 ): ProjectedRoadObject | null {
-    const distanceAhead = wrapDistance(object.z - camera.z, track.length);
+    const distanceAhead = object.z - camera.z;
 
     if (distanceAhead < OBJECT_NEAR_CLIP_DISTANCE || distanceAhead > OBJECT_DRAW_DISTANCE) {
         return null;
@@ -182,9 +168,6 @@ function drawRoadObject(
     projected: ProjectedRoadObject,
 ) {
     switch (projected.object.kind) {
-        case 'checkpoint':
-            drawCheckpoint(graphics, projected.screen);
-            return;
         case 'chevron-left':
             drawChevron(graphics, projected.screen, -1);
             return;
@@ -203,33 +186,15 @@ function drawRoadObject(
     }
 }
 
-function drawCheckpoint(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint) {
-    const width = scaleValue(screen, 1900, 18, 900);
-    const height = scaleValue(screen, 520, 24, 240);
-    const postWidth = Math.max(3, width * 0.045);
-    const y = screen.y - height;
-    const leftX = screen.x - width / 2;
-    const rightX = screen.x + width / 2;
-
-    graphics.fillStyle(0x101316, 0.78);
-    graphics.fillRect(leftX, y, postWidth, height);
-    graphics.fillRect(rightX - postWidth, y, postWidth, height);
-    graphics.fillStyle(0xf2d266, 0.92);
-    graphics.fillRect(leftX, y, width, Math.max(4, height * 0.12));
-    graphics.fillStyle(0xeef2f3, 0.86);
-    graphics.fillRect(leftX + width * 0.12, y + height * 0.025, width * 0.16, Math.max(2, height * 0.06));
-    graphics.fillRect(leftX + width * 0.48, y + height * 0.025, width * 0.16, Math.max(2, height * 0.06));
-}
-
 function drawChevron(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint, direction: -1 | 1) {
     const width = scaleValue(screen, 260, 10, 96);
     const height = scaleValue(screen, 190, 8, 72);
     const x = screen.x;
     const y = screen.y - height * 0.6;
 
-    graphics.fillStyle(0x101316, 0.72);
+    graphics.fillStyle(0x050812, 0.76);
     graphics.fillRoundedRect(x - width * 0.6, y - height * 0.55, width * 1.2, height * 1.1, Math.max(2, width * 0.08));
-    graphics.lineStyle(Math.max(2, width * 0.14), 0xf2d266, 1);
+    graphics.lineStyle(Math.max(2, width * 0.14), 0x67b7ff, 0.95);
     graphics.beginPath();
     graphics.moveTo(x - direction * width * 0.28, y - height * 0.32);
     graphics.lineTo(x + direction * width * 0.22, y);
@@ -243,9 +208,9 @@ function drawGuardPost(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoin
     const x = screen.x - width / 2;
     const y = screen.y - height;
 
-    graphics.fillStyle(0xeef2f3, 0.92);
+    graphics.fillStyle(0x9fcfff, 0.78);
     graphics.fillRect(x, y, width, height);
-    graphics.fillStyle(0xc73938, 0.9);
+    graphics.fillStyle(0x153b67, 0.95);
     graphics.fillRect(x, y + height * 0.18, width, Math.max(2, height * 0.18));
     graphics.fillRect(x, y + height * 0.58, width, Math.max(2, height * 0.18));
 }
@@ -258,9 +223,9 @@ function drawPine(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint) {
     const trunkX = screen.x - trunkWidth / 2;
     const trunkY = screen.y - trunkHeight;
 
-    graphics.fillStyle(0x4b342b, 0.95);
+    graphics.fillStyle(0x07101f, 0.95);
     graphics.fillRect(trunkX, trunkY, trunkWidth, trunkHeight);
-    graphics.fillStyle(0x1f4f3d, 0.98);
+    graphics.fillStyle(0x09243b, 0.98);
     fillTriangle(
         graphics,
         screen.x,
@@ -270,7 +235,7 @@ function drawPine(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint) {
         screen.x + width * 0.55,
         screen.y - trunkHeight * 0.4,
     );
-    graphics.fillStyle(0x2d6849, 0.96);
+    graphics.fillStyle(0x0d3454, 0.96);
     fillTriangle(
         graphics,
         screen.x,
@@ -288,13 +253,13 @@ function drawSpeedSign(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoin
     const poleHeight = radius * 2.4;
     const y = screen.y - poleHeight - radius * 1.1;
 
-    graphics.fillStyle(0x101316, 0.78);
+    graphics.fillStyle(0x050812, 0.8);
     graphics.fillRect(screen.x - poleWidth / 2, y + radius * 0.75, poleWidth, poleHeight);
-    graphics.fillStyle(0xeef2f3, 0.95);
+    graphics.fillStyle(0xc6e5ff, 0.86);
     graphics.fillCircle(screen.x, y, radius);
-    graphics.lineStyle(Math.max(2, radius * 0.18), 0xc73938, 1);
+    graphics.lineStyle(Math.max(2, radius * 0.18), 0x245f9d, 1);
     graphics.strokeCircle(screen.x, y, radius * 0.86);
-    graphics.fillStyle(0x101316, 0.9);
+    graphics.fillStyle(0x050812, 0.9);
     graphics.fillRect(screen.x - radius * 0.38, y - radius * 0.08, radius * 0.76, Math.max(2, radius * 0.14));
 }
 

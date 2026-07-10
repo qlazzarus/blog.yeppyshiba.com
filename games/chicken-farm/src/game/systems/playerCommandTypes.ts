@@ -46,7 +46,10 @@ export type ControllableUnitState = {
     currentCommand?: UnitCommand;
     hp: number;
     readonly id: string;
+    mana: number;
+    manaRegenPerSec: number;
     maxHp: number;
+    maxMana: number;
     nextAttackAtSec: number;
     ownerPlayerId: number;
     path: readonly Point[];

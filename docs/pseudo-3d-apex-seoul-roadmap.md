@@ -90,13 +90,15 @@ games/apex-seoul/
 
 장기 코스 방향은 북악 스카이웨이를 참고한 fictional downhill 맵으로 둔다. 코스명은 `Bugak Ridge Downhill`로 명명한다. 실제 도로를 1:1로 재현하기보다, 서울 산길 다운힐의 특징인 긴 내리막, 연속 코너, 짧은 직선, 도시 전망 구간을 게임용 segment로 재구성한다.
 
+현재 최종 그래픽 방향은 `docs/apex-seoul-visual-direction.md`의 **black/blue dreamlike Seoul downhill**을 기준으로 한다. 따라서 차량 asset은 밝은 실버가 아니라 black/blue 차체와 푸른 하이라이트를 기본 후보로 만들고, 도로/표지/배경도 낮 하늘/녹지/노랑 표지판보다 야간 남색, 블루 반사광, 먼 도시 불빛을 우선한다.
+
 권장 구현 순서
 
 1. GT86, Stinger, G70 POC 기준으로 차량 렌더 포즈와 카메라 각도 확정
 2. OutRun식 자동차 위치/방향 설계를 참조해 `center`, `steer-right-1`, `steer-right-2`의 간격과 앵커를 픽스하고, 이벤트용 `spin-front-*`, `rollover-*`, `overturned` 포즈를 별도 crash state로 분리
-3. GT86 기준 pixel pass, outline, palette, baseline QA를 먼저 적용
+3. GT86 기준 pixel pass, outline, black/blue palette, baseline QA를 먼저 적용
 4. Phaser 런타임에서 grip steering 값을 `left / center / right` 3분기 포즈 선택으로 연결
-5. `Bugak Ridge Downhill` 코스 섹션 설계와 차량 pose 전환을 함께 검증
+5. `Bugak Ridge Downhill` 코스 섹션 설계와 차량 pose 전환을 black/blue runtime screenshot으로 함께 검증
 6. 코너 원심력, 바깥쪽 밀림, 도로 이탈 감속 구현
 7. 드리프트 판정과 점수 시스템 구현
 
@@ -396,6 +398,8 @@ finish curve
 
 `Bugak Ridge Downhill`은 순환 트랙보다 단방향 다운힐 런에 가깝게 설계한다. 따라서 코스 시작과 종료를 명확하게 보이는 표식으로 두고, 플레이어가 현재 어디쯤 내려왔는지 바로 읽을 수 있어야 한다.
 
+현재 1차 구현은 **타임어택 MVP**다. `camera.z`는 트랙 길이까지 단방향으로 증가하고, finish에 도달하면 run을 종료한다. `R` 입력으로 같은 코스를 처음부터 다시 시작한다. 이 단계에서는 랩 반복, 보너스 시간, 충돌 리스폰, 드리프트 점수는 넣지 않는다.
+
 구성 원칙
 
 - 코스 시작부에 `start line`을 둔다.
@@ -403,13 +407,14 @@ finish curve
 - 중간에는 2~4개의 `check line`을 둬서 구간 진행감을 만든다.
 - 현재 단계의 체크라인은 `time check` 용도가 아니라, 단순 통과 기준점과 코스 리듬 표식으로만 사용한다.
 - 한 런의 목표는 랩 반복이 아니라 정상에서 시작해 피니쉬까지 내려오는 완결된 주행이다.
+- 체크포인트는 도로 위 게이트나 overhead 표식으로 그리지 않고, 화면 하단 진행 라인의 tick으로만 표시한다.
 
 라인 배치 방향
 
 - `start line`은 출발 직후 짧은 직선에 둬서 첫 입력과 동시에 라인을 넘는 감각을 만든다.
 - `check line`은 헤어핀 전후, 전망 구간 진입부, 긴 내리막 시작점처럼 섹션 전환이 분명한 위치에 둔다.
 - `finish line`은 마지막 코너를 빠져나온 뒤 짧은 안정 구간에서 통과하게 둔다. 코너 안쪽에서 바로 종료되지 않게 한다.
-- 각 라인은 도로 위 체커 밴드, overhead 간판, 작은 roadside marker 가운데 현재 렌더 구조에 맞는 가장 단순한 방식부터 적용한다.
+- 각 라인은 현재 화면 하단 progress line에서만 표시한다. 도로 위 체커 밴드, overhead 간판, roadside marker는 나중에 필요할 때 별도 환경 연출로 다시 검토한다.
 
 체크라인 역할
 
@@ -417,14 +422,14 @@ finish curve
 - 미니맵과 함께 다음 섹션 기대감을 만든다.
 - 나중에 타임어택, 섹터 기록, 리스타트 포인트를 붙일 수 있는 확장 지점으로 남긴다.
 - 현재 단계에서는 시간 측정, 보너스 시간, 카운트다운 연장은 넣지 않는다.
+- 현재 구현에서는 섹터 시간 대신 `passedCheckpoints`와 `progressRatio`만 관리한다.
 
 HUD / 미니맵 방향
 
-- 우측 상단에 작은 고정형 `mini map`을 둔다.
-- 미니맵은 실제 지도처럼 자세히 그리기보다 코스 중심선의 축약 라인만 보여준다.
-- `start`, `finish`, `check line` 위치를 미니맵 위에 작게 표시한다.
-- 플레이어 위치는 점 또는 짧은 마커 하나로 표시한다.
-- 첫 버전에서는 회전 미니맵보다 고정형 프로파일이 낫다. 본 화면 horizon과 도로 판독성을 해치지 않도록 크기를 작게 유지한다.
+- 1차 구현은 우측 상단 미니맵 대신 화면 하단 고정형 progress line을 사용한다.
+- progress line은 start, check line, finish tick과 현재 플레이어 위치 점만 표시한다.
+- 첫 버전에서는 회전 미니맵보다 고정형 하단 라인이 낫다. 본 화면 horizon과 도로 판독성을 해치지 않고, checkpoint가 월드 오브젝트처럼 떠 보이는 문제를 피할 수 있다.
+- 나중에 코스 중심선 형태가 중요해지면 우측 상단 미니맵을 별도 UI로 추가한다.
 
 ## OSM/DEM 참고 데이터 추출
 
@@ -492,8 +497,8 @@ games/apex-seoul/assets/tracks/reference/bugak-ridge-downhill-reference.json
 - 차량 아래 Phaser Graphics 기반 레트로 스트라이프 그림자 추가
 - HUD에 current elevation 또는 grade 표시
 - `start line`, `finish line`, 중간 `check line` 배치
-- 우측 상단 고정형 `mini map` 추가
-- 미니맵에 플레이어 위치와 `check line` 마커 표시
+- 화면 하단 progress line에 start, finish, check line tick 표시
+- finish 도달 시 run 종료 및 `R` restart 지원
 - 체크라인은 현재 단계에서 시간 측정 없이 통과 상태만 관리
 - 테스트 트랙을 hill/downhill 중심으로 교체
 - 데스크톱/모바일 캡처로 도로 polygon 겹침 확인
@@ -693,15 +698,15 @@ tags:
 
 ## Apex S
 
-밸런스형 스포츠 세단
+밸런스형 싱글터보 스포츠 쿠페
 
 - 엔진 성격: `Single Turbo`
-- 컨셉 기준: `G70 inspired`
+- 컨셉 기준: `Genesis Coupe inspired`
 - 출력 ★★★★
 - 그립 ★★★★
 - 드리프트 ★★★★
 - 안정감 ★★★★
-- 메모: 짧은 스포츠 세단 비율과 싱글터보 중속 토크를 살린, 단단하고 정제된 응답.
+- 메모: FR 스포츠 쿠페 비율과 싱글터보 중속 토크를 살린, 단단하고 정제된 응답.
 
 ---
 
@@ -720,7 +725,158 @@ tags:
 
 - `Raven Coupe`: `FT86 inspired` 경량 `NA` 입문차. 변속 실패 페널티가 약하고, 리듬 게임처럼 다루기 쉽다.
 - `Vortex GT`: `Stinger inspired` `Twin Turbo` GT. boost zone에 들어가면 속도감 연출과 함께 차가 크게 살아난다.
-- `Apex S`: `G70 inspired` `Single Turbo` 스포츠 세단. 저회전부터 두터운 토크가 붙고, 안정적인 라인 유지가 장점이다.
+- `Apex S`: `Genesis Coupe inspired` `Single Turbo` 스포츠 쿠페. 저회전부터 두터운 토크가 붙고, 안정적인 라인 유지가 장점이다.
+
+차량별 엔진 프로필 초안:
+
+```text
+Raven Coupe / FT86 inspired
+- induction: NA
+- character: 고회전, 즉답성, 리듬감
+- rpm limit: 7600~7800
+- redline cue: 7200+
+- fuel cut: limit 초과 시 짧은 점화 컷과 RPM bounce
+- boost UI: 없음
+
+Vortex GT / Stinger inspired
+- induction: Twin Turbo
+- character: 중후한 차체 + 고속에서 크게 살아나는 부스트
+- rpm limit: 6800~7000
+- redline cue: 6500+
+- fuel cut: limit 초과 시 boost 압력도 순간적으로 꺼짐
+- boost UI: dual-stage boost bar
+
+Apex S / Genesis Coupe inspired
+- induction: Single Turbo
+- character: 중속 토크, 터보랙 이후 두껍게 미는 가속
+- rpm limit: 7000~7200
+- redline cue: 6700+
+- fuel cut: limit 초과 시 큰 RPM dip과 boost release
+- boost UI: single boost pressure bar
+```
+
+초기 구현에서는 `VehicleEngineProfile`을 차량 manifest 또는 runtime config에 둔다. 실제 물리값을 정교하게 재현하기보다, `induction`, `rpmLimit`, `redlineStart`, `boostStart`, `boostPeak`, `fuelCutBand`를 HUD/사운드/속도 연출이 함께 읽는 공통 데이터로 쓰는 것이 좋다.
+
+차량별 drivetrain profile 초안:
+
+```text
+Raven Coupe / NA high-rev
+- gears: 6
+- idleRpm: 1100
+- maxRpm: 7800
+- redlineStart: 7200
+- fuelCutStart: 7750
+- fuelCutReturn: 7350
+- shiftUpRpm: 7450
+- shiftDropRpm: 5200
+- final display top speed: 205 km/h
+- torque shape: 선형 상승 후 고회전 유지, redline 직전 살짝 하락
+
+Vortex GT / Twin Turbo
+- gears: 8
+- idleRpm: 950
+- maxRpm: 7000
+- redlineStart: 6500
+- fuelCutStart: 7000
+- fuelCutReturn: 6500
+- shiftUpRpm: 6650
+- shiftDropRpm: 4400
+- final display top speed: 230 km/h
+- torque shape: 저회전은 무겁고, small boost 이후 상승, main boost에서 고속 토크가 큼
+
+Apex S / Single Turbo
+- gears: 6
+- idleRpm: 1000
+- maxRpm: 7200
+- redlineStart: 6700
+- fuelCutStart: 7200
+- fuelCutReturn: 6650
+- shiftUpRpm: 6850
+- shiftDropRpm: 4600
+- final display top speed: 215 km/h
+- torque shape: turbo lag 이후 중속에서 크게 솟고, redline 근처에서 완만히 감소
+```
+
+`maxRpm`은 HUD 바늘의 끝이자 fuel cut 진입 기준이다. `shiftUpRpm`은 자동 변속 목표 지점이고, `fuelCutStart`는 플레이어가 redline을 넘겼다는 시각/사운드 신호다. 자동 변속만 있는 1차 구현에서는 `shiftUpRpm`에 먼저 도달하므로 fuel cut은 짧은 과회전 연출 또는 boost/fuel cut 테스트용 상태로 쓰인다.
+
+토크 그래프는 절대 토크 대신 normalized curve로 시작한다. 구현에서는 `rpm / maxRpm` 또는 실제 RPM breakpoint를 받아 `torqueScale`을 보간한다.
+
+```text
+Raven Coupe / NA torqueScale
+1000 rpm -> 0.28
+2500 rpm -> 0.42
+4000 rpm -> 0.62
+5500 rpm -> 0.82
+6800 rpm -> 1.00
+7400 rpm -> 0.95
+7800 rpm -> 0.78
+
+Vortex GT / Twin Turbo torqueScale
+1000 rpm -> 0.32
+2200 rpm -> 0.44
+2800 rpm -> 0.58  // small boost starts
+3800 rpm -> 0.78
+5200 rpm -> 1.00  // main boost starts
+6200 rpm -> 0.98
+7000 rpm -> 0.76
+
+Apex S / Single Turbo torqueScale
+1000 rpm -> 0.30
+2400 rpm -> 0.40
+3600 rpm -> 0.66  // boost starts
+4600 rpm -> 0.95
+5600 rpm -> 1.00
+6500 rpm -> 0.88
+7200 rpm -> 0.70
+```
+
+기어 구성은 실제 기어비를 그대로 넣기보다, 내부 speed ratio 구간을 나누는 방식으로 시작한다. 각 gear는 `speedRatioMin`, `speedRatioMax`, `rpmMin`, `rpmMax`를 갖고, 자동 변속 시 `shiftDropRpm` 근처로 떨어뜨린다.
+
+```text
+Raven Coupe / 6-speed
+1st: 0.00~0.18 speedRatio / 1100~7450 rpm
+2nd: 0.14~0.34 speedRatio / 5200~7450 rpm
+3rd: 0.28~0.52 speedRatio / 5200~7450 rpm
+4th: 0.45~0.72 speedRatio / 5200~7450 rpm
+5th: 0.64~0.90 speedRatio / 5200~7450 rpm
+6th: 0.82~1.00 speedRatio / 5200~7800 rpm
+
+Vortex GT / 8-speed
+1st: 0.00~0.14 speedRatio / 950~6650 rpm
+2nd: 0.10~0.26 speedRatio / 4400~6650 rpm
+3rd: 0.22~0.40 speedRatio / 4400~6650 rpm
+4th: 0.35~0.55 speedRatio / 4400~6650 rpm
+5th: 0.50~0.70 speedRatio / 4400~6650 rpm
+6th: 0.64~0.84 speedRatio / 4400~6650 rpm
+7th: 0.78~0.95 speedRatio / 4400~6500 rpm
+8th: 0.90~1.00 speedRatio / 4200~6200 rpm
+
+Apex S / 6-speed
+1st: 0.00~0.17 speedRatio / 1000~6850 rpm
+2nd: 0.13~0.32 speedRatio / 4600~6850 rpm
+3rd: 0.27~0.50 speedRatio / 4600~6850 rpm
+4th: 0.43~0.70 speedRatio / 4600~6850 rpm
+5th: 0.62~0.88 speedRatio / 4600~6700 rpm
+6th: 0.80~1.00 speedRatio / 4400~6500 rpm
+```
+
+아케이드 보정 원칙:
+
+- `Raven Coupe`는 6단이지만 각 단의 RPM 상승이 빠르고, 변속 후에도 고회전 zone에 바로 남아야 한다.
+- `Vortex GT`는 8단으로 촘촘하게 가져가서 차체는 무거운데 boost가 계속 유지되는 느낌을 준다.
+- `Apex S`는 6단으로 유지하되, 3~5단 중속 구간에서 가장 강하게 민다.
+- fuel cut은 모든 차량에 있지만, 터보 차량은 fuel cut 때 boost가 같이 빠져 체감 손실이 더 커야 한다.
+
+2026-07-10 구현 메모:
+
+- `games/apex-seoul/src/game/engineProfile.ts`에 차량별 `VehicleEngineProfile`을 추가했다.
+- 현재 기본 FT86 런타임 차량은 `Raven Coupe / NA high-rev` 프로필을 사용한다.
+- Raven Coupe는 최고속 부근에서도 고회전 NA 감각이 나도록 6단 `rpmMax`를 `7800`, `fuelCutStart`를 `7750`으로 둔다.
+- `fuelCutActive` 중에는 목표 RPM을 `fuelCutReturn` 쪽으로 당겨, 리미터에 닿은 뒤 바늘이 짧게 내려왔다가 다시 붙는 bounce를 만든다.
+- fallback Genesis 계열 POC 차량은 임시로 `Apex S / Single Turbo` 프로필을 사용한다.
+- `PlayerVehicleState`는 `gearIndex`, `torqueScale`, `engineTorqueScale`, `boostRatio`, `fuelCutActive`, `fuelCutTimer`를 가진다.
+- 현재 구현은 원형 타코미터 그래픽 전 단계다. 텍스트 HUD와 QA telemetry에 drivetrain 상태를 먼저 노출해, 다음 실제 플레이 로그에서 RPM/gear/torque/fuel cut을 검증한다.
+- 표시 속도는 차량별 `displayTopSpeedKmh`와 smoothstep 기반 비선형 변환을 사용한다.
 
 ## RPM / Shift / Boost UI 방향
 
@@ -738,7 +894,7 @@ UI 감성 방향
 
 - `Raven Coupe`: 단순한 아날로그 계기 느낌. 바늘이 빠르게 튀어 오르는 감각.
 - `Vortex GT`: 트윈터보 압력이 차오르는 디지털/혼합형 계기. boost 진입 시 계기 색과 주변 속도 연출이 함께 반응.
-- `Apex S`: 단정한 스포츠 세단 계기 위에 싱글터보 boost 정보가 얹히는 균형형 UI.
+- `Apex S`: 단정한 스포츠 쿠페 계기 위에 싱글터보 boost 정보가 얹히는 균형형 UI.
 
 구현 원칙
 
@@ -752,6 +908,326 @@ UI 감성 방향
 - drivetrain 시스템이 도로, 체크라인, 미니맵보다 먼저 무거워지면 구현축이 분산된다.
 - 따라서 실제 구현은 `코스 구조와 HUD 뼈대`가 잡힌 뒤 시작하는 편이 안전하다.
 - UI가 늘어나더라도 horizon과 road readability를 해치지 않도록 HUD 면적을 제한한다.
+
+### 2026-07-10 로그 이후 계기판 재설계 방향
+
+최근 코너링 튜닝 이후 주행 감각은 좋아졌지만, 현재 속도계와 RPM 표시는 아직 디버그 값에 가깝다. 특히 `speed 640~760u`, `rpm 2000~7200`이 숫자로만 보이면 플레이어는 "차가 왜 이 RPM인지", "코너에서 왜 느려졌는지", "터보가 언제 살아나는지"를 직관적으로 읽기 어렵다.
+
+목표는 **아케이드 감각이지만 현실감 있는 계기판**이다. 정밀 시뮬레이터처럼 엔진/기어비를 모두 재현하지는 않지만, RPM, 속도, boost가 서로 말이 되도록 보이게 한다.
+
+참조 감각:
+
+```text
+Initial D Arcade
+- 코너 진입 전 속도가 죽고, 코너 탈출에서 RPM/가속이 다시 살아나는 감각.
+- 플레이어는 절대 속도보다 코너 진입 리듬과 엔진음/RPM 변화를 더 크게 느낀다.
+
+OutRun / Sega 계열 pseudo-3D
+- 속도계는 실제 물리 설명보다 "빠르게 달리고 있다"는 아케이드 피드백이다.
+- 숫자보다 바늘, 색, road flow가 함께 속도를 말한다.
+
+Ridge Racer
+- 그립/드리프트 상태에 따라 속도 손실과 회복이 극적으로 읽힌다.
+- boost나 nitro가 없더라도 HUD가 고속 상태를 과장해 준다.
+
+Wangan / 고속도로 계열 아케이드
+- 터보 차량은 boost pressure가 차오르는 UI가 속도감의 핵심이다.
+- RPM, speed, boost가 동시에 상승할 때 "차가 살아난다"는 감각이 생긴다.
+```
+
+#### HUD 레이아웃 제안
+
+1차 주행 HUD는 하단 우측에 묶는다.
+
+```text
+오른쪽 하단: 아날로그 tachometer 원형/반원형
+tach 중앙: gear 큰 숫자
+tach 아래: digital speed km/h
+tach 외곽 또는 오른쪽: turbo boost bar
+하단 중앙: course progress line 유지
+상단/좌측: debug HUD는 개발 모드에서만 표시
+```
+
+가독성 원칙:
+
+- speed 숫자는 크게, 내부 unit은 일반 HUD에서 숨긴다.
+- RPM 바늘/arc는 speed 숫자보다 더 동적으로 움직여야 한다.
+- boost는 항상 보이기보다 turbo 차량에서만 강조한다.
+- 코너 중 감속이 생기면 speed 숫자만 내려가는 것이 아니라 RPM, boost, speedEffect도 같이 반응해야 한다.
+
+#### 표시 속도 보정
+
+현재 내부 speed는 road z 진행량이다. 그대로 `km/h`로 단순 환산하면 디버그에는 좋지만 계기판 감각은 약하다.
+
+권장 표시:
+
+```text
+displaySpeedKmh = speedRatio 기반 비선형 표시값
+0u     -> 0 km/h
+440u   -> 약 105~120 km/h
+640u   -> 약 165~180 km/h
+760u   -> 약 205~215 km/h
+```
+
+아케이드 보정:
+
+- 저속 구간은 조금 빠르게 올라가게 한다.
+- 180km/h 이후는 숫자 상승을 둔하게 해서 200km/h대가 과장되지 않게 한다.
+- 내리막 hard corner에서 `640u` 근처로 떨어지면 표시 속도도 `170km/h` 전후로 보여, 플레이어가 감속을 느끼게 한다.
+
+예시:
+
+```text
+speedRatio = speed / accelSpeed
+displayRatio = smoothstep(speedRatio)
+displayKmh = lerp(0, 212, displayRatio)
+```
+
+추후 차량별 최고 표시 속도:
+
+```text
+NA Raven Coupe: 205 km/h
+Single Turbo Apex S: 215 km/h
+Twin Turbo Vortex GT: 230 km/h
+```
+
+#### RPM 모델 보정
+
+현재 RPM은 감각용 feedback state지만, 코너 감속 이후에는 RPM이 너무 낮게 떨어지는 구간이 보인다. 예를 들어 hard corner 말미에 speed는 `640u` 근처인데 RPM이 `2000`대까지 내려가면, 플레이어는 "속도는 높은데 엔진이 죽었다"로 읽을 수 있다.
+
+권장 방향:
+
+```text
+gearIndex는 speedRatio로 자동 결정
+gear 안에서 RPM은 gearProgress로 계산
+throttle 중이면 RPM lift
+brake/강한 corner scrub 중이면 짧은 RPM dip
+corner exit에서 throttle 유지 시 RPM 회복을 빠르게
+```
+
+표시용 RPM은 물리 RPM과 분리해도 된다.
+
+```text
+physicsSpeed: 실제 road z 진행
+engineRpm: HUD/사운드/boost용 상태
+displayRpm: 계기판 보정값
+```
+
+권장 RPM 범위:
+
+```text
+idle: 1100
+cruise low: 3200~4500
+attack zone: 5200~6800
+redline: 7200
+shift flash: 6900+
+```
+
+코너링 중에는 속도 손실이 생기더라도 RPM이 즉시 바닥으로 떨어지지 않게 한다. Initial D식 감각에서는 코너 중 엔진음을 유지하고, 탈출에서 다시 살아나는 느낌이 더 중요하다.
+
+#### Turbo Boost 모델
+
+boost는 실제 터보 압력 재현이 아니라, **스로틀 유지 + RPM band + 속도 상태**를 묶은 아케이드 상태값으로 시작한다.
+
+권장 boost 입력:
+
+```text
+throttleHeld
+rpmRatio
+speedRatio
+gearIndex
+notBraking
+cornerIntensity
+```
+
+Single Turbo:
+
+```text
+boost starts: rpm 3600+
+boost peak: rpm 5000~6500
+boost decay: redline 근처에서 약간 감소
+corner penalty: 강한 코너/큰 조향에서는 boost 유지가 어려움
+```
+
+Twin Turbo:
+
+```text
+small boost: rpm 2800+
+main boost: rpm 5200+
+boost peak: 고속 구간에서 더 강함
+corner penalty: Single Turbo보다 약하지만, 차체가 무거운 감각과 함께 표현
+```
+
+NA:
+
+```text
+boost UI 없음
+대신 throttle response와 RPM needle 상승이 빠름
+redline 근처 색/shift flash 강조
+```
+
+#### 차량별 RPM / Turbo 구현 규칙
+
+RPM과 boost는 차량의 엔진 성격에 따라 분기한다. 같은 속도라도 `NA`, `Single Turbo`, `Twin Turbo`가 서로 다른 RPM 움직임과 계기판 반응을 보여야 한다.
+
+Raven Coupe / FT86 inspired / NA:
+
+```text
+목표 감각: 가볍고 즉각적인 고회전 NA
+idle: 1100
+usable band: 4200~7200
+attack zone: 5800~7400
+redline cue: 7200+
+rpm limit: 7600~7800
+boostRatio: 항상 0
+throttle response: 가장 빠름
+corner exit: RPM 회복 빠름
+```
+
+FT86 계열 차량은 최고 출력이 터보차보다 크지 않아도, RPM 바늘이 빠르게 치고 올라가야 한다. 플레이어가 느끼는 재미는 boost 압력보다 `고회전 유지`, `짧은 변속 리듬`, `redline 근처에서 버티는 긴장감`이다.
+
+Vortex GT / Stinger inspired / Twin Turbo:
+
+```text
+목표 감각: 무겁지만 고속에서 크게 살아나는 트윈터보 GT
+idle: 900~1000
+usable band: 3000~6500
+small boost: 2800+
+main boost: 5200+
+boost peak: 5400~6500
+redline cue: 6500+
+rpm limit: 6800~7000
+throttle response: 저속에서는 둔하고, boost zone에서 강함
+corner exit: boost가 살아나면 speedEffect를 크게 밀어줌
+```
+
+Stinger 계열 차량은 초반 응답보다 고속 부스트가 핵심이다. 계기판에서는 boost bar가 서서히 차오르다가 main boost 구간에서 cyan pulse와 speedEffect가 함께 붙어야 한다.
+
+Apex S / Genesis Coupe inspired / Single Turbo:
+
+```text
+목표 감각: 중속 토크가 두껍게 붙는 싱글터보 스포츠 쿠페/세단
+idle: 950~1050
+usable band: 3200~6800
+boost starts: 3600+
+boost peak: 5000~6500
+redline cue: 6700+
+rpm limit: 7000~7200
+throttle response: 터보랙 이후 강한 중속 토크
+corner exit: boost 회복은 Twin Turbo보다 늦지만 한 번 붙으면 강함
+```
+
+Genesis Coupe 계열은 트윈터보처럼 고속에서 두 단계로 살아나는 느낌보다, 싱글터보 특유의 `살짝 늦게 붙고 두껍게 미는` 감각을 준다. 따라서 boost UI도 dual-stage보다 single pressure bar가 어울린다.
+
+#### Fuel Cut 규칙
+
+RPM이 차량별 `rpmLimit`을 넘으면 fuel cut을 넣는다. 이것은 벌점보다 리듬 장치에 가깝다. 플레이어가 redline을 넘기면 잠깐 출력이 끊기고 RPM 바늘이 튕기면서, 자동 변속 또는 throttle release가 필요하다는 신호를 준다.
+
+권장 동작:
+
+```text
+if engineRpm > rpmLimit:
+  fuelCutActive = true
+  engineTorqueScale = 0.35~0.55
+  rpmTarget = rpmLimit - fuelCutBand
+  shiftCue = strong
+  speedEffectPulse = small negative/neutral
+```
+
+차량별 fuel cut 감각:
+
+```text
+NA Raven Coupe:
+- fuel cut bounce가 짧고 날카로움
+- RPM이 limit 근처에서 빠르게 튕김
+- 속도 손실은 작지만 shiftCue가 강함
+
+Single Turbo Apex S:
+- fuel cut 시 boostRatio가 순간적으로 빠짐
+- RPM dip이 NA보다 큼
+- corner exit에서 다시 boost를 채우는 시간이 필요
+
+Twin Turbo Vortex GT:
+- fuel cut 시 boost pressure가 더 크게 끊김
+- 고속 boost zone에서 fuel cut을 맞으면 체감 손실이 가장 큼
+- 대신 정상 boost zone 복귀 시 speedEffect 회복이 가장 큼
+```
+
+Fuel cut은 1차 구현에서 실제 변속 실패 시스템까지 만들 필요는 없다. 먼저 HUD/사운드/속도 보정용 상태값으로 `fuelCutActive`, `fuelCutTimer`, `torqueScale`, `shiftCue`만 두고, 자동 변속과 함께 짧게 꺼졌다 살아나는 연출을 만든다.
+
+#### Boost UI 연출
+
+터보 HUD는 숫자보다 bar/색 변화가 먼저다.
+
+```text
+0.0~0.3: 어두운 blue
+0.3~0.7: cyan/blue fill
+0.7~1.0: bright cyan + 짧은 pulse
+overboost moment: edge speed line, tail glow, speedEffect가 함께 반응
+```
+
+계기판과 런타임 효과 연결:
+
+```text
+boostGauge -> HUD bar
+boostActive -> tail light / exhaust glow 후보
+boostPulse -> speedEffect intensity 짧은 가산
+boostRelease -> RPM drop + 작은 blow-off cue 후보
+```
+
+#### 구현 순서
+
+1. `HudDriveState`를 만든다.
+
+```text
+displaySpeedKmh
+gear
+rpmRatio
+boostRatio
+boostActive
+shiftCue
+```
+
+2. debug HUD와 주행 HUD를 분리한다.
+
+```text
+debug text: 개발용 수치
+drive HUD: 플레이어용 계기판
+```
+
+3. speedometer/tachometer를 Phaser Graphics로 먼저 그린다.
+
+```text
+arc tach
+needle or filled rpm arc
+large gear number
+digital speed
+small boost bar
+```
+
+4. turbo 차량이 아니어도 HUD 구조는 유지하되, boost bar는 비활성/숨김 처리한다.
+
+5. 이후 사운드/배기광/tail glow와 연결한다.
+
+#### 다음 구현 후보
+
+가장 먼저 할 일:
+
+```text
+1. speed 표시를 debug 환산에서 drive HUD 표시값으로 분리
+2. RPM arc + gear number + digital speed를 하단 우측에 추가
+3. 기존 debug HUD는 작게 유지하거나 query로 숨김
+4. boostRatio는 아직 0으로 두고 UI 자리만 만든다
+```
+
+그 다음:
+
+```text
+1. Single Turbo boostRatio 계산
+2. boost bar 색/펄스 적용
+3. speedEffect와 boostPulse 연결
+4. 코너 scrub 중 boost 유지/감소 규칙 추가
+```
 
 ---
 
@@ -816,9 +1292,9 @@ No real brand marks, readable text, numbers, or badges.
 Apex S
 
 ```text
-Vehicle identity: Apex S, an original fictional single-turbo balanced sport sedan.
-It is inspired by the character of a G70-style compact sport sedan, but must remain clearly original and not a copy.
-Keep it precise, stable, modern, with short-deck sedan proportions, pearl white body, black roof, clean rear lights, and restrained red/cyan accents.
+Vehicle identity: Apex S, an original fictional single-turbo balanced FR sport coupe.
+It is inspired by the character of a Genesis Coupe-style single-turbo driver car, but must remain clearly original and not a copy.
+Keep it precise, stable, modern, with compact coupe proportions, pearl white body, black roof, clean rear lights, and restrained red/cyan accents.
 No real brand marks, readable text, numbers, or badges.
 ```
 

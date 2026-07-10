@@ -273,7 +273,7 @@ function drawRoadBody(
         road.roadFarRight,
         road.roadNearRight,
         road.roadNearLeft,
-        absoluteIndex % 2 === 0 ? 0x34383b : 0x303437,
+        absoluteIndex % 2 === 0 ? 0x101722 : 0x0c121b,
     );
 }
 
@@ -314,9 +314,9 @@ function drawDownhillTerrainFill(
 
     if (gapBottomY <= gapTopY) return;
 
-    graphics.fillStyle(0x2f4a3d, 0.95);
+    graphics.fillStyle(0x071a2a, 0.95);
     graphics.fillRect(0, gapTopY, viewport.width, gapBottomY - gapTopY);
-    graphics.fillStyle(0x49624b, 0.45);
+    graphics.fillStyle(0x245f9d, 0.42);
     graphics.fillRect(0, gapBottomY - 3, viewport.width, 3);
 }
 
@@ -342,7 +342,7 @@ function drawShoulder(
         outerFarX,
         camera,
         viewport,
-        absoluteIndex % 2 === 0 ? 0xe7ecef : 0xc73938,
+        absoluteIndex % 2 === 0 ? 0x245f9d : 0x0a0f18,
     );
 }
 
@@ -378,7 +378,7 @@ function drawLaneMarks(
             farLaneCenterX + LANE_MARK_WIDTH,
             camera,
             viewport,
-            0xf2d266,
+            0x67b7ff,
         );
     }
 }

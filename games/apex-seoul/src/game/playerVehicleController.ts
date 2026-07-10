@@ -1,3 +1,10 @@
+import {
+    getBoostRatio,
+    getGearRpm,
+    getInitialGearIndex,
+    getTorqueScale,
+    type VehicleEngineProfile,
+} from './engineProfile.ts';
 import type { PlayerVehicleState } from './vehicle';
 
 export type PlayerVehicleControllerConfig = {
@@ -13,6 +20,10 @@ export type PlayerVehicleControllerConfig = {
     curveSteeringCue: number;
     engineAcceleration: number;
     engineBrakeDeceleration: number;
+    engineProfile: VehicleEngineProfile;
+    highSpeedInputResponseDrop: number;
+    highSpeedLateralVelocityCap: number;
+    highSpeedSteeringSlewRate: number;
     highSpeedSteerForceDrop: number;
     highSpeedSteerVisualDrop: number;
     inputResponse: number;
@@ -25,6 +36,8 @@ export type PlayerVehicleControllerConfig = {
     rpmResponse: number;
     steerAcceleration: number;
     steerDamping: number;
+    steeringSpeedScrub: number;
+    steeringSpeedScrubThreshold: number;
     steeringVelocityCue: number;
 };
 
@@ -41,14 +54,26 @@ export type PlayerVehicleUpdateContext = {
 
 export function createDefaultPlayerVehicleState(
     cruiseSpeed: number,
-    rpmIdle: number,
+    engineProfile: VehicleEngineProfile,
+    accelSpeed: number,
 ): PlayerVehicleState {
+    const speedRatio = clamp(cruiseSpeed / accelSpeed, 0, 1);
+    const gearIndex = getInitialGearIndex(engineProfile, speedRatio);
+    const rpm = getGearRpm(engineProfile, gearIndex, speedRatio);
+    const torqueScale = getTorqueScale(engineProfile, rpm);
+
     return {
+        boostRatio: 0,
+        engineTorqueScale: getEngineTorqueScale(torqueScale, false),
+        fuelCutActive: false,
+        fuelCutTimer: 0,
+        gearIndex,
         lateralOffset: 0,
-        rpm: rpmIdle,
+        rpm,
         speed: cruiseSpeed,
         steering: 0,
         steeringVelocity: 0,
+        torqueScale,
     };
 }
 
@@ -80,6 +105,17 @@ export function updatePlayerVehicle(
     const dampingForce = -player.steeringVelocity * config.steerDamping;
 
     player.steeringVelocity += (steeringForce + centeringForce + curveForce + dampingForce) * seconds;
+    const smoothSpeed = getSmoothSpeedRatio(speedRatio);
+    const lateralVelocityLimit = lerp(
+        config.steerAcceleration,
+        config.highSpeedLateralVelocityCap,
+        smoothSpeed,
+    );
+    player.steeringVelocity = clamp(
+        player.steeringVelocity,
+        -lateralVelocityLimit,
+        lateralVelocityLimit,
+    );
     player.lateralOffset += player.steeringVelocity * seconds;
     player.lateralOffset = clamp(
         player.lateralOffset,
@@ -101,9 +137,24 @@ export function updatePlayerVehicle(
         -1,
         1,
     );
-    const steeringBlend = 1 - Math.exp(-config.inputResponse * seconds);
+    const inputResponseRatio = getHighSpeedSteeringRatio(
+        speedRatio,
+        config.highSpeedInputResponseDrop,
+    );
+    const steeringBlend = 1 - Math.exp(-config.inputResponse * inputResponseRatio * seconds);
+    const nextSteering = lerp(player.steering, targetSteering, steeringBlend);
+    const steeringSlewRate = lerp(
+        24,
+        config.highSpeedSteeringSlewRate,
+        smoothSpeed,
+    );
+    const maxSteeringDelta = steeringSlewRate * seconds;
 
-    player.steering = lerp(player.steering, targetSteering, steeringBlend);
+    player.steering = clamp(
+        nextSteering,
+        player.steering - maxSteeringDelta,
+        player.steering + maxSteeringDelta,
+    );
 }
 
 export function getCornerIntensity(curve: number) {
@@ -111,9 +162,13 @@ export function getCornerIntensity(curve: number) {
 }
 
 export function getHighSpeedSteeringRatio(speedRatio: number, maxDrop: number) {
-    const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
+    const smoothSpeed = getSmoothSpeedRatio(speedRatio);
 
     return clamp(1 - smoothSpeed * maxDrop, 1 - maxDrop, 1);
+}
+
+function getSmoothSpeedRatio(speedRatio: number) {
+    return speedRatio * speedRatio * (3 - 2 * speedRatio);
 }
 
 function updatePlayerSpeed(
@@ -128,11 +183,16 @@ function updatePlayerSpeed(
     const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
     const throttle = input.accelPressed ? 1 : 0;
     const brake = input.brakePressed ? 1 : 0;
+    updateEngineState(player, throttle, brake, cornerIntensity, speedRatio, config, seconds);
     const launchRatio = config.launchThrottleFullSpeedRatio <= 0
         ? 1
         : smoothstep(clamp(speedRatio / config.launchThrottleFullSpeedRatio, 0, 1));
     const launchThrottleRatio = lerp(config.launchThrottleMinRatio, 1, launchRatio);
-    const engineForce = throttle * config.engineAcceleration * launchThrottleRatio * (1 - speedRatio * 0.45);
+    const engineForce = throttle *
+        config.engineAcceleration *
+        launchThrottleRatio *
+        player.engineTorqueScale *
+        (1 - speedRatio * 0.45);
     const brakeForce = brake * config.braking;
     const engineBrakeForce = throttle > 0 || brake > 0 ? 0 : config.engineBrakeDeceleration;
     const rollingResistance = config.rollingResistance;
@@ -141,6 +201,18 @@ function updatePlayerSpeed(
     const cornerLimitForce = player.speed > cornerSpeedLimit
         ? Math.min(config.cornerSpeedPull * cornerIntensity, player.speed - cornerSpeedLimit)
         : 0;
+    const steeringScrubRatio = smoothstep(
+        clamp(
+            (Math.abs(player.steering) - config.steeringSpeedScrubThreshold) /
+                (1 - config.steeringSpeedScrubThreshold),
+            0,
+            1,
+        ),
+    );
+    const steeringSpeedScrubForce = config.steeringSpeedScrub *
+        speedRatio *
+        Math.max(cornerIntensity, 0.18) *
+        steeringScrubRatio;
     const acceleration =
         engineForce +
         context.slopeAcceleration -
@@ -148,7 +220,8 @@ function updatePlayerSpeed(
         engineBrakeForce -
         rollingResistance -
         aeroDrag -
-        cornerLimitForce;
+        cornerLimitForce -
+        steeringSpeedScrubForce;
 
     player.speed = clamp(
         player.speed + acceleration * seconds,
@@ -160,35 +233,90 @@ function updatePlayerSpeed(
         player.speed = 0;
     }
 
-    const targetRpm = getEngineRpm(player.speed, throttle, brake, config);
-    const rpmBlend = 1 - Math.exp(-config.rpmResponse * seconds);
-
-    player.rpm = lerp(player.rpm, targetRpm, rpmBlend);
+    updateEngineState(
+        player,
+        throttle,
+        brake,
+        cornerIntensity,
+        clamp(player.speed / config.accelSpeed, 0, 1),
+        config,
+        seconds,
+    );
 }
 
-function getEngineRpm(
-    speed: number,
+function updateEngineState(
+    player: PlayerVehicleState,
     throttle: number,
     brake: number,
+    cornerIntensity: number,
+    speedRatio: number,
     config: PlayerVehicleControllerConfig,
+    seconds: number,
 ) {
-    const gearRatios = [0.18, 0.32, 0.48, 0.66, 0.84, 1];
-    const speedRatio = clamp(speed / config.accelSpeed, 0, 1);
-    const gearIndex = Math.min(
-        gearRatios.length - 1,
-        Math.floor(speedRatio * gearRatios.length),
-    );
-    const gearStart = gearIndex === 0 ? 0 : gearRatios[gearIndex - 1];
-    const gearEnd = gearRatios[gearIndex];
-    const gearProgress = clamp((speedRatio - gearStart) / (gearEnd - gearStart), 0, 1);
-    const throttleLift = throttle > 0 ? 850 : 0;
-    const brakeDrop = brake > 0 ? 550 : 0;
+    const profile = config.engineProfile;
+    let gearIndex = clamp(Math.round(player.gearIndex), 0, profile.gears.length - 1);
+    let gear = profile.gears[gearIndex];
+    const downshiftMargin = 0.025;
+    const upshiftMargin = 0.005;
 
-    return clamp(
-        config.rpmIdle + gearProgress * (config.rpmRedline - config.rpmIdle) + throttleLift - brakeDrop,
-        config.rpmIdle,
-        config.rpmRedline,
+    while (gearIndex < profile.gears.length - 1 && speedRatio > gear.speedRatioMax - upshiftMargin) {
+        gearIndex += 1;
+        gear = profile.gears[gearIndex];
+    }
+
+    while (gearIndex > 0 && speedRatio < gear.speedRatioMin - downshiftMargin) {
+        gearIndex -= 1;
+        gear = profile.gears[gearIndex];
+    }
+
+    const baseRpm = getGearRpm(profile, gearIndex, speedRatio);
+    const throttleLift = throttle > 0 ? getThrottleRpmLift(profile.induction) : 0;
+    const brakeDrop = brake > 0 ? 360 : 0;
+    const baseTargetRpm = baseRpm + throttleLift - brakeDrop;
+    const shouldEnterFuelCut = player.rpm >= profile.fuelCutStartRpm && throttle > 0;
+
+    if (shouldEnterFuelCut) {
+        player.fuelCutActive = true;
+        player.fuelCutTimer = 0.12;
+    }
+
+    const targetRpm = clamp(
+        player.fuelCutActive ? Math.min(baseTargetRpm, profile.fuelCutReturnRpm) : baseTargetRpm,
+        profile.idleRpm,
+        profile.maxRpm,
     );
+    const rpmBlend = 1 - Math.exp(-config.rpmResponse * seconds);
+
+    player.gearIndex = gearIndex;
+    player.rpm = lerp(player.rpm, targetRpm, rpmBlend);
+
+    if (player.fuelCutTimer > 0) {
+        player.fuelCutTimer = Math.max(0, player.fuelCutTimer - seconds);
+    }
+
+    if (player.rpm <= profile.fuelCutReturnRpm || player.fuelCutTimer <= 0) {
+        player.fuelCutActive = false;
+    }
+
+    player.torqueScale = getTorqueScale(profile, player.rpm);
+    player.boostRatio = player.fuelCutActive
+        ? 0
+        : getBoostRatio(profile, player.rpm, throttle, brake, cornerIntensity, speedRatio);
+    player.engineTorqueScale = getEngineTorqueScale(player.torqueScale, player.fuelCutActive) +
+        player.boostRatio * 0.12;
+}
+
+function getThrottleRpmLift(induction: VehicleEngineProfile['induction']) {
+    if (induction === 'na') return 240;
+    if (induction === 'single-turbo') return 150;
+
+    return 110;
+}
+
+function getEngineTorqueScale(torqueScale: number, fuelCutActive: boolean) {
+    const torqueMultiplier = lerp(0.78, 1.08, clamp(torqueScale, 0, 1));
+
+    return fuelCutActive ? torqueMultiplier * 0.45 : torqueMultiplier;
 }
 
 function clamp(value: number, min: number, max: number) {

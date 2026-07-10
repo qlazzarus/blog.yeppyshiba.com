@@ -7,6 +7,7 @@ export type FarmInputKeys = Record<
     | 'a'
     | 'b'
     | 'c'
+    | 'd'
     | 'down'
     | 'escape'
     | 'f'

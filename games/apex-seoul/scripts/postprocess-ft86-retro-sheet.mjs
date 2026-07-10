@@ -33,6 +33,13 @@ const PALETTE_ROLES = [
     { role: 'amber-light', rgb: [236, 136, 43], debug: [255, 190, 45] },
 ];
 const BODY_RAMPS = {
+    black: [
+        [8, 12, 20],
+        [8, 12, 20],
+        [16, 28, 48],
+        [16, 28, 48],
+        [44, 78, 118],
+    ],
     silver: [
         [58, 72, 82],
         [58, 72, 82],
@@ -48,11 +55,11 @@ const BODY_RAMPS = {
         [142, 86, 74],
     ],
     blue: [
-        [30, 42, 66],
-        [30, 42, 66],
-        [58, 82, 116],
-        [58, 82, 116],
-        [96, 126, 158],
+        [10, 18, 34],
+        [10, 18, 34],
+        [24, 52, 92],
+        [24, 52, 92],
+        [70, 118, 180],
     ],
     yellow: [
         [76, 62, 26],
@@ -229,6 +236,7 @@ async function writePaletteAudit(sourcePath, outputPath) {
         image: path.relative(projectRoot, sourcePath),
         notes: [
             'Palette roles drive FT86 body color swaps.',
+            'Apex Seoul final art direction targets a black/blue dreamlike Seoul downhill, so black and blue variants are art-direction baselines.',
             'Review sheet-256-ai-retro-v1-balanced-roles.png before changing role assignments.',
         ],
         size: {
