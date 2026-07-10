@@ -80,6 +80,8 @@ export function workflowToApiPrompt(workflow) {
 export function patchRetroPrompt(prompt, config) {
     const patched = structuredClone(prompt);
 
+    patchTextEncodePrompts(patched, config.positivePrompt, config.negativePrompt);
+
     patchFirstNode(patched, 'CheckpointLoaderSimple', {
         ckpt_name: config.checkpoint,
     });
@@ -119,6 +121,19 @@ export function patchRetroPrompt(prompt, config) {
     }
 
     return patched;
+}
+
+function patchTextEncodePrompts(prompt, positivePrompt, negativePrompt) {
+    if (positivePrompt == null && negativePrompt == null) return;
+
+    const textNodes = Object.values(prompt).filter((node) => node.class_type === 'CLIPTextEncode');
+
+    if (textNodes.length < 2) {
+        throw new Error('Workflow must include positive and negative CLIPTextEncode nodes.');
+    }
+
+    if (positivePrompt != null) textNodes[0].inputs.text = positivePrompt;
+    if (negativePrompt != null) textNodes[1].inputs.text = negativePrompt;
 }
 
 function patchFirstNode(prompt, classType, values) {

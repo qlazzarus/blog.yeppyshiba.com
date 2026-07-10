@@ -7,10 +7,11 @@
 현재 승인 대상은 이 경로다.
 
 ```text
-Three.js pose sheet / pixel candidate
--> ComfyUI img2img + Canny ControlNet style filter
+Three.js pose sheet
+-> deterministic pixel candidate / source alpha
+-> ComfyUI img2img + Canny ControlNet + vehicle-specific prompt
 -> palette-lock
--> postprocess-ft86-retro-sheet
+-> source-alpha restoration + postprocess-ft86-retro-sheet
 -> runtime screenshot QA
 ```
 
@@ -42,8 +43,40 @@ npm run qa:ft86-runtime-colors --workspace @games/apex-seoul -- --manifest-only
 
 - ComfyUI는 style filter 역할만 한다.
 - 차량 형태와 포즈는 입력 spritesheet가 책임진다.
-- 최종 색상과 alpha는 deterministic postprocess가 책임진다.
+- 차량별 prompt는 차체의 성격과 표면 어조만 바꾸며, viewpoint/pose/contact baseline은 바꾸지 않는다.
+- 최종 색상, alpha, outline cleanup은 deterministic postprocess가 책임진다.
 - 승인 판단은 runtime screenshot QA에서 한다.
+
+각 ComfyUI 실행은 `<output>.pipeline.json` sidecar를 남긴다. 이 파일은 input/workflow hash, seed, checkpoint, LoRA, ControlNet, sampler, prompt를 보관하며 승인 asset의 재현 기준이다.
+
+## Planned Control Reinforcement
+
+현재 workflow에는 Canny ControlNet이 이미 들어 있다. 다음 개선은 Canny를 새로 덧붙이는 것이 아니라, Three.js 원본에서 나온 silhouette/contact 정보를 함께 보존하는 것이다.
+
+```text
+Three.js pose sheet
+-> source alpha silhouette mask + Canny edge map
+-> ComfyUI style filter
+-> restore source alpha
+-> palette/role postprocess
+-> pose-set QA + runtime QA
+```
+
+초기 비교 대상은 다음 세 가지다.
+
+- `balanced-v1`: 현재 Canny baseline.
+- `drift-safe-canny`: Canny strength/end percent를 올려 strong steer와 future drift pose의 형태 보존을 확인하는 후보.
+- `drift-safe-mask`: 현재 Canny baseline에 source alpha silhouette mask를 추가해 형태 보존과 스타일 변형의 균형을 확인하는 후보.
+
+강한 pose는 `center`, `steer-right-1`, `steer-right-2`를 하나의 승인 단위로 본다. full sheet의 색감만 통과해도, strong steer의 폭/접지선/후미등 위치가 무너지면 후보를 승인하지 않는다.
+
+추가 산출물:
+
+```text
+reproducibility sidecar: seed, workflow/input hash, checkpoint, LoRA, ControlNet params
+semantic masks: body, tail-light, tire, glass
+pose QA: baseline jitter, pose delta, tire contact, alpha edge
+```
 
 ## Legacy GPT Image Path
 
