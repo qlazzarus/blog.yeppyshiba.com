@@ -33,6 +33,13 @@ const PALETTE_ROLES = [
     { role: 'amber-light', rgb: [236, 136, 43], debug: [255, 190, 45] },
 ];
 const BODY_RAMPS = {
+    black: [
+        [8, 12, 20],
+        [8, 12, 20],
+        [16, 28, 48],
+        [16, 28, 48],
+        [44, 78, 118],
+    ],
     silver: [
         [58, 72, 82],
         [58, 72, 82],
@@ -48,11 +55,11 @@ const BODY_RAMPS = {
         [142, 86, 74],
     ],
     blue: [
-        [30, 42, 66],
-        [30, 42, 66],
-        [58, 82, 116],
-        [58, 82, 116],
-        [96, 126, 158],
+        [10, 18, 34],
+        [10, 18, 34],
+        [24, 52, 92],
+        [24, 52, 92],
+        [70, 118, 180],
     ],
     yellow: [
         [76, 62, 26],
@@ -74,6 +81,7 @@ const config = {
     outputDir: 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256',
     outputPrefix: 'sheet-256-ai-retro-v1-balanced',
     shadow: 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png',
+    silhouetteSource: 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.png',
 };
 
 for (let index = 2; index < process.argv.length; index += 1) {
@@ -104,6 +112,9 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--shadow' && next) {
         config.shadow = next;
         index += 1;
+    } else if (arg === '--silhouette-source' && next) {
+        config.silhouetteSource = next;
+        index += 1;
     } else {
         throw new Error(`Unknown or incomplete option: ${arg}`);
     }
@@ -115,6 +126,7 @@ const atlasPath = resolveProjectPath(config.atlas, '--atlas');
 const auditPath = resolveProjectPath(config.audit, '--audit');
 const debugRolesPath = resolveProjectPath(config.debugRoles, '--debug-roles');
 const shadowPath = resolveProjectPath(config.shadow, '--shadow');
+const silhouetteSourcePath = resolveProjectPath(config.silhouetteSource, '--silhouette-source');
 
 await mkdir(outputDir, { recursive: true });
 await mkdir(path.dirname(atlasPath), { recursive: true });
@@ -125,6 +137,7 @@ await mkdir(path.dirname(shadowPath), { recursive: true });
 const rawAlphaPath = path.join(outputDir, `${config.outputPrefix}-source-alpha.png`);
 const alphaPath = path.join(outputDir, `${config.outputPrefix}-alpha.png`);
 await magentaToAlpha(inputPath, rawAlphaPath);
+await restoreSourceAlpha(rawAlphaPath, silhouetteSourcePath);
 await writePaletteAudit(rawAlphaPath, auditPath);
 await writeRoleDebugSheet(rawAlphaPath, debugRolesPath);
 
@@ -150,6 +163,7 @@ await writeRuntimeAtlas({
 });
 
 console.log(`FT86 source alpha wrote ${path.relative(projectRoot, rawAlphaPath)}`);
+console.log(`FT86 silhouette source used ${path.relative(projectRoot, silhouetteSourcePath)}`);
 console.log(`FT86 alpha wrote ${path.relative(projectRoot, alphaPath)}`);
 console.log(`FT86 palette audit wrote ${path.relative(projectRoot, auditPath)}`);
 console.log(`FT86 role preview wrote ${path.relative(projectRoot, debugRolesPath)}`);
@@ -181,6 +195,42 @@ async function magentaToAlpha(sourcePath, outputPath) {
     fillTransparentRgbFromNearestOpaque(data, info, TRANSPARENT_BLEED_RADIUS);
 
     await writeRawPng(data, metadata, info, outputPath);
+}
+
+async function restoreSourceAlpha(targetPath, silhouettePath) {
+    const target = sharp(targetPath).ensureAlpha();
+    const silhouette = sharp(silhouettePath).ensureAlpha();
+    const [targetBuffer, silhouetteBuffer] = await Promise.all([
+        target.raw().toBuffer({ resolveWithObject: true }),
+        silhouette.raw().toBuffer({ resolveWithObject: true }),
+    ]);
+    const { data, info } = targetBuffer;
+    const source = silhouetteBuffer.data;
+    const sourceInfo = silhouetteBuffer.info;
+
+    if (info.width !== sourceInfo.width || info.height !== sourceInfo.height) {
+        throw new Error(
+            `--silhouette-source dimensions ${sourceInfo.width}x${sourceInfo.height} must match input ${info.width}x${info.height}`,
+        );
+    }
+
+    for (let index = 0; index < data.length; index += info.channels) {
+        data[index + 3] = source[index + 3] > 0 ? 255 : 0;
+
+        if (data[index + 3] === 0) {
+            data[index] = 0;
+            data[index + 1] = 0;
+            data[index + 2] = 0;
+        }
+    }
+
+    await sharp(data, {
+        raw: {
+            channels: info.channels,
+            height: info.height,
+            width: info.width,
+        },
+    }).png().toFile(targetPath);
 }
 
 async function swapBodyPalette(sourcePath, outputPath, targetRamp) {
@@ -229,6 +279,7 @@ async function writePaletteAudit(sourcePath, outputPath) {
         image: path.relative(projectRoot, sourcePath),
         notes: [
             'Palette roles drive FT86 body color swaps.',
+            'Apex Seoul final art direction targets a black/blue dreamlike Seoul downhill, so black and blue variants are art-direction baselines.',
             'Review sheet-256-ai-retro-v1-balanced-roles.png before changing role assignments.',
         ],
         size: {

@@ -1,0 +1,4552 @@
+{
+  "candidates": [
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 100,
+        "cornerSpeedPull": 120,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.38,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.38,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "previous-2026-07-10-baseline",
+      "patch": {
+        "cornerAccelSpeedDrop": 100,
+        "cornerSpeedPull": 120,
+        "curveSteeringHighSpeedDrop": 0.38,
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.38,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 22.693,
+            "lateralOffsetRms": 15.755,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 246.205,
+            "speedMax": 691.007,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.69,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 17.115,
+            "steeringPeakHoldRatio": 0.75,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 99.141,
+            "lateralOffsetRms": 57.488,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.668,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.668,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 66.313,
+            "steeringPeakHoldRatio": 0.95,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 244.723,
+            "lateralOffsetRms": 135.158,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.668,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.668,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 147.996,
+            "steeringPeakHoldRatio": 0.983,
+            "steeringRecoveryMs": 50,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1000,
+            "timeToLateralOffset200": 2300,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 97
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 131.395,
+            "lateralOffsetRms": 48.748,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.668,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.668,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 51.378,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 1200,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 3000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 51.593,
+            "lateralOffsetRms": 37.919,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 261.808,
+            "speedMax": 706.609,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.023,
+            "highSpeedCurveSteeringMaxAbs": 0.023,
+            "steeringMaxAbs": 0.023,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 39.602,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 248.743,
+            "lateralOffsetRms": 123.777,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 261.808,
+            "speedMax": 706.609,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.659,
+            "highSpeedCurveSteeringMaxAbs": 0.659,
+            "steeringMaxAbs": 0.659,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 132.294,
+            "steeringPeakHoldRatio": 0.98,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 8700,
+            "timeToLateralOffset200": 9850,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 97
+        }
+      ],
+      "totalScore": 96.8
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 80,
+        "cornerSpeedPull": 100,
+        "curveDriftAcceleration": 130,
+        "curveSteeringHighSpeedDrop": 0.38,
+        "curveSteeringCue": 0.05,
+        "engineAcceleration": 190,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.38,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "combined-second-pass",
+      "patch": {
+        "cornerAccelSpeedDrop": 80,
+        "cornerSpeedPull": 100,
+        "curveDriftAcceleration": 130,
+        "curveSteeringHighSpeedDrop": 0.38,
+        "curveSteeringCue": 0.05,
+        "engineAcceleration": 190,
+        "highSpeedSteerVisualDrop": 0.38,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "steeringVelocityCue": 0.2
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 758.224,
+            "speedMax": 760,
+            "speedMin": 1.776,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 4.35
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 99
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 16.821,
+            "lateralOffsetRms": 11.679,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 279.878,
+            "speedMax": 725.464,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.001,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.644,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 12.686,
+            "steeringPeakHoldRatio": 0.5,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 66.989,
+            "lateralOffsetRms": 38.859,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.65,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.65,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 44.825,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 161.834,
+            "lateralOffsetRms": 89.578,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.65,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.65,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 98.087,
+            "steeringPeakHoldRatio": 0.967,
+            "steeringRecoveryMs": 150,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1600,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 88.307,
+            "lateralOffsetRms": 38.747,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.65,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.65,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 40.837,
+            "steeringPeakHoldRatio": 0.795,
+            "steeringRecoveryMs": 1300,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 43.249,
+            "lateralOffsetRms": 31.804,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 283.372,
+            "speedMax": 728.957,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 33.215,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 170.648,
+            "lateralOffsetRms": 86.637,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 283.361,
+            "speedMax": 728.947,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.65,
+            "highSpeedCurveSteeringMaxAbs": 0.65,
+            "steeringMaxAbs": 0.65,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 92.598,
+            "steeringPeakHoldRatio": 0.94,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6050,
+            "timeToLateralOffset100": 9150,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 96.1
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.25,
+        "inputResponse": 16,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.25
+      },
+      "id": "previous-visual-cue",
+      "patch": {
+        "curveSteeringHighSpeedDrop": 0,
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.25,
+        "inputResponse": 16,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.25
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 22.693,
+            "lateralOffsetRms": 15.755,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 246.205,
+            "speedMax": 691.007,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.001,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.783,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 17.115,
+            "steeringPeakHoldRatio": 0.75,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 99.141,
+            "lateralOffsetRms": 57.488,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.788,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.788,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 66.313,
+            "steeringPeakHoldRatio": 0.95,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 244.723,
+            "lateralOffsetRms": 135.158,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.788,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.788,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 147.996,
+            "steeringPeakHoldRatio": 0.983,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1000,
+            "timeToLateralOffset200": 2300,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 99
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 131.395,
+            "lateralOffsetRms": 48.748,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.788,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.788,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 51.378,
+            "steeringPeakHoldRatio": 0.931,
+            "steeringRecoveryMs": 1200,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 3000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.034,
+            "highSpeedCurveSteeringMaxAbs": 0.034,
+            "steeringMaxAbs": 0.034,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 252.672,
+            "lateralOffsetRms": 124.551,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.801,
+            "speedGain": 199.165,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.813,
+            "highSpeedCurveSteeringMaxAbs": 0.813,
+            "steeringMaxAbs": 0.813,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 133.121,
+            "steeringPeakHoldRatio": 0.98,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 8700,
+            "timeToLateralOffset200": 9800,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 96
+        }
+      ],
+      "totalScore": 96
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.25,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "previous-grip-angle",
+      "patch": {
+        "curveSteeringHighSpeedDrop": 0,
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.25,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 22.693,
+            "lateralOffsetRms": 15.755,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 246.205,
+            "speedMax": 691.007,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.791,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 17.115,
+            "steeringPeakHoldRatio": 0.75,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 99.141,
+            "lateralOffsetRms": 57.488,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.785,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.785,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 66.313,
+            "steeringPeakHoldRatio": 0.95,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 244.723,
+            "lateralOffsetRms": 135.158,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.785,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.785,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 147.996,
+            "steeringPeakHoldRatio": 0.983,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1000,
+            "timeToLateralOffset200": 2300,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 99
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 131.395,
+            "lateralOffsetRms": 48.748,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.785,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.785,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 51.378,
+            "steeringPeakHoldRatio": 0.931,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 3000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.034,
+            "highSpeedCurveSteeringMaxAbs": 0.034,
+            "steeringMaxAbs": 0.034,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 252.672,
+            "lateralOffsetRms": 124.551,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.801,
+            "speedGain": 199.165,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.81,
+            "highSpeedCurveSteeringMaxAbs": 0.81,
+            "steeringMaxAbs": 0.81,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 133.121,
+            "steeringPeakHoldRatio": 0.98,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 8700,
+            "timeToLateralOffset200": 9800,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 96
+        }
+      ],
+      "totalScore": 96
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.45,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.45,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "extra-grip-angle-damping",
+      "patch": {
+        "curveSteeringHighSpeedDrop": 0.45,
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerVisualDrop": 0.45,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 17.315,
+            "lateralOffsetRms": 12.021,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 246.205,
+            "speedMax": 691.007,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.633,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.058,
+            "steeringPeakHoldRatio": 0.5,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 69.592,
+            "lateralOffsetRms": 40.374,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.601,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.601,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 46.572,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 166.134,
+            "lateralOffsetRms": 92.096,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.601,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.601,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 100.844,
+            "steeringPeakHoldRatio": 0.967,
+            "steeringRecoveryMs": 50,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1550,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 88
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 91.529,
+            "lateralOffsetRms": 33.083,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.601,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.601,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 34.868,
+            "steeringPeakHoldRatio": 0.831,
+            "steeringRecoveryMs": 1200,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.02,
+            "highSpeedCurveSteeringMaxAbs": 0.02,
+            "steeringMaxAbs": 0.02,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 185.931,
+            "lateralOffsetRms": 94.523,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.801,
+            "speedGain": 199.165,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.605,
+            "highSpeedCurveSteeringMaxAbs": 0.605,
+            "steeringMaxAbs": 0.605,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 101.027,
+            "steeringPeakHoldRatio": 0.96,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 9000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 95.1
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 80,
+        "cornerSpeedPull": 100,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "even-less-corner-pull",
+      "patch": {
+        "cornerAccelSpeedDrop": 80,
+        "cornerSpeedPull": 100
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 17.318,
+            "lateralOffsetRms": 12.023,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 245.998,
+            "speedMax": 690.8,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.06,
+            "steeringPeakHoldRatio": 0.25,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 69.743,
+            "lateralOffsetRms": 40.459,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 46.67,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 166.925,
+            "lateralOffsetRms": 92.511,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 101.299,
+            "steeringPeakHoldRatio": 0.383,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1500,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 87
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 91.796,
+            "lateralOffsetRms": 37.848,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 39.89,
+            "steeringPeakHoldRatio": 0.064,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 52.551,
+            "lateralOffsetRms": 38.606,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 274.956,
+            "speedMax": 719.757,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 40.319,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 178.625,
+            "lateralOffsetRms": 92.447,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 274.948,
+            "speedMax": 719.749,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.552,
+            "highSpeedCurveSteeringMaxAbs": 0.552,
+            "steeringMaxAbs": 0.552,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 98.808,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6050,
+            "timeToLateralOffset100": 9050,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94.9
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "baseline",
+      "patch": {},
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 17.318,
+            "lateralOffsetRms": 12.023,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 245.998,
+            "speedMax": 690.8,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.06,
+            "steeringPeakHoldRatio": 0.25,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 69.743,
+            "lateralOffsetRms": 40.459,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 46.67,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 166.925,
+            "lateralOffsetRms": 92.511,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 101.299,
+            "steeringPeakHoldRatio": 0.383,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1500,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 87
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 91.796,
+            "lateralOffsetRms": 37.848,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 39.89,
+            "steeringPeakHoldRatio": 0.064,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 188.112,
+            "lateralOffsetRms": 95.41,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.806,
+            "speedGain": 199.161,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.581,
+            "highSpeedCurveSteeringMaxAbs": 0.581,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 101.975,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 9000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 20,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.18
+      },
+      "id": "visual-cue-snappier",
+      "patch": {
+        "inputResponse": 20,
+        "steeringVelocityCue": 0.18
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 17.318,
+            "lateralOffsetRms": 12.024,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 245.98,
+            "speedMax": 690.782,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.592,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.061,
+            "steeringPeakHoldRatio": 0.5,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 69.747,
+            "lateralOffsetRms": 40.462,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 46.673,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 166.93,
+            "lateralOffsetRms": 92.514,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 101.302,
+            "steeringPeakHoldRatio": 0.367,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1500,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 87
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 91.801,
+            "lateralOffsetRms": 37.852,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 39.894,
+            "steeringPeakHoldRatio": 0.061,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 188.121,
+            "lateralOffsetRms": 95.416,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.806,
+            "speedGain": 199.161,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.581,
+            "highSpeedCurveSteeringMaxAbs": 0.581,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 101.981,
+            "steeringPeakHoldRatio": 0.92,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 9000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.9,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1750,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "previous-lateral-weight",
+      "patch": {
+        "centeringResponse": 1.9,
+        "steerAcceleration": 1750
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 18.302,
+            "lateralOffsetRms": 12.511,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 245.998,
+            "speedMax": 690.8,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.469,
+            "steeringPeakHoldRatio": 0.25,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 73.399,
+            "lateralOffsetRms": 41.584,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3500,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 47.968,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 173.166,
+            "lateralOffsetRms": 94.033,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3400,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 102.965,
+            "steeringPeakHoldRatio": 0.383,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1450,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 87
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 96.424,
+            "lateralOffsetRms": 38.38,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 40.45,
+            "steeringPeakHoldRatio": 0.064,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 43.411,
+            "lateralOffsetRms": 32.5,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 33.942,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 192.768,
+            "lateralOffsetRms": 95.349,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.806,
+            "speedGain": 199.161,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.581,
+            "highSpeedCurveSteeringMaxAbs": 0.581,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 101.91,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 8950,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 130,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.05,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "even-less-curve-force",
+      "patch": {
+        "curveDriftAcceleration": 130,
+        "curveSteeringCue": 0.05
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 17.318,
+            "lateralOffsetRms": 12.023,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 245.998,
+            "speedMax": 690.8,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.581,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 13.06,
+            "steeringPeakHoldRatio": 0.25,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 69.743,
+            "lateralOffsetRms": 40.459,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 46.67,
+            "steeringPeakHoldRatio": 0.8,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 166.925,
+            "lateralOffsetRms": 92.511,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 101.299,
+            "steeringPeakHoldRatio": 0.383,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1500,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 87
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 91.796,
+            "lateralOffsetRms": 37.848,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.571,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.571,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 39.89,
+            "steeringPeakHoldRatio": 0.064,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 38.064,
+            "lateralOffsetRms": 28.061,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.016,
+            "highSpeedCurveSteeringMaxAbs": 0.016,
+            "steeringMaxAbs": 0.016,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 29.306,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 181.245,
+            "lateralOffsetRms": 90.278,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.806,
+            "speedGain": 199.161,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.578,
+            "highSpeedCurveSteeringMaxAbs": 0.578,
+            "steeringMaxAbs": 0.578,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 96.49,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 9100,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.48,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 190,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.35,
+        "highSpeedLateralVelocityCap": 56,
+        "highSpeedSteeringSlewRate": 4.2,
+        "highSpeedSteerForceDrop": 0.62,
+        "highSpeedSteerVisualDrop": 0.48,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "stronger-engine",
+      "patch": {
+        "engineAcceleration": 190
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 758.224,
+            "speedMax": 760,
+            "speedMin": 1.776,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 4.35
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 99
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 16.82,
+            "lateralOffsetRms": 11.678,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 279.961,
+            "speedMax": 725.546,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.002,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.569,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 12.685,
+            "steeringPeakHoldRatio": 0.25,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 66.932,
+            "lateralOffsetRms": 38.827,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.556,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.556,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 44.788,
+            "steeringPeakHoldRatio": 0.45,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 161.598,
+            "lateralOffsetRms": 89.45,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.556,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.556,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 97.947,
+            "steeringPeakHoldRatio": 0.15,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 1600,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 86
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 88.206,
+            "lateralOffsetRms": 39.551,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 314.415,
+            "speedMax": 760,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.556,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.556,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 41.684,
+            "steeringPeakHoldRatio": 0.025,
+            "steeringRecoveryMs": 1250,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 47.624,
+            "lateralOffsetRms": 35.147,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 71.979,
+            "speedGain": 206.312,
+            "speedMax": 723.876,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.019,
+            "highSpeedCurveSteeringMaxAbs": 0.019,
+            "steeringMaxAbs": 0.019,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.706,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 95
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 186.434,
+            "lateralOffsetRms": 94.839,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 24.65,
+            "speedGain": 207.576,
+            "speedMax": 677.812,
+            "speedMin": 445.585,
+            "highSpeedSteeringMaxAbs": 0.576,
+            "highSpeedCurveSteeringMaxAbs": 0.576,
+            "steeringMaxAbs": 0.576,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 101.365,
+            "steeringPeakHoldRatio": 0.9,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 9000,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 94
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 190,
+        "cornerSpeedPull": 210,
+        "curveDriftAcceleration": 160,
+        "curveSteeringHighSpeedDrop": 0.52,
+        "curveSteeringCue": 0.06,
+        "engineAcceleration": 170,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0.42,
+        "highSpeedLateralVelocityCap": 48,
+        "highSpeedSteeringSlewRate": 3.6,
+        "highSpeedSteerForceDrop": 0.65,
+        "highSpeedSteerVisualDrop": 0.52,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.38,
+        "launchThrottleMinRatio": 0.3,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 64,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.2
+      },
+      "id": "stronger-high-speed-weight",
+      "patch": {
+        "curveSteeringHighSpeedDrop": 0.52,
+        "highSpeedInputResponseDrop": 0.42,
+        "highSpeedLateralVelocityCap": 48,
+        "highSpeedSteeringSlewRate": 3.6,
+        "highSpeedSteerForceDrop": 0.65,
+        "highSpeedSteerVisualDrop": 0.52
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 751.778,
+            "speedMax": 753.294,
+            "speedMin": 1.515,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 5
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 16.51,
+            "lateralOffsetRms": 11.463,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 246.042,
+            "speedMax": 690.844,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.541,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 12.451,
+            "steeringPeakHoldRatio": 0,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 65.286,
+            "lateralOffsetRms": 37.878,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.533,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.533,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 43.693,
+            "steeringPeakHoldRatio": 0,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 50,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 155.011,
+            "lateralOffsetRms": 85.987,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.533,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.533,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 94.155,
+            "steeringPeakHoldRatio": 0,
+            "steeringRecoveryMs": 100,
+            "steeringResponseMs": 50,
+            "timeToLateralOffset100": 1650,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 85
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 85.775,
+            "lateralOffsetRms": 34.498,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 315.198,
+            "speedMax": 760,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.533,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.533,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.359,
+            "steeringPeakHoldRatio": 0,
+            "steeringRecoveryMs": 1300,
+            "steeringResponseMs": 50,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "slalom-20s",
+          "totalScore": 92
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 46.848,
+            "lateralOffsetRms": 34.536,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 47.839,
+            "speedGain": 196.567,
+            "speedMax": 689.208,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.017,
+            "highSpeedCurveSteeringMaxAbs": 0.017,
+            "steeringMaxAbs": 0.017,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 36.068,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 93
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 177.791,
+            "lateralOffsetRms": 90.795,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 5.805,
+            "speedGain": 199.161,
+            "speedMax": 649.768,
+            "speedMin": 444.802,
+            "highSpeedSteeringMaxAbs": 0.542,
+            "highSpeedCurveSteeringMaxAbs": 0.542,
+            "steeringMaxAbs": 0.542,
+            "curveCounterSteerRecoveryMs": 0,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 97.043,
+            "steeringPeakHoldRatio": 0,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6050,
+            "timeToLateralOffset100": 9050,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 100
+        }
+      ],
+      "totalScore": 93.8
+    },
+    {
+      "config": {
+        "accelSpeed": 760,
+        "aeroDrag": 0.00012,
+        "brakeSpeed": 0,
+        "braking": 330,
+        "centeringResponse": 1.75,
+        "cornerAccelSpeedDrop": 150,
+        "cornerSpeedPull": 190,
+        "curveDriftAcceleration": 260,
+        "curveSteeringHighSpeedDrop": 0,
+        "curveSteeringCue": 0.1,
+        "engineAcceleration": 128,
+        "engineBrakeDeceleration": 26,
+        "engineProfile": {
+          "displayName": "Raven Coupe",
+          "displayTopSpeedKmh": 205,
+          "fuelCutReturnRpm": 7350,
+          "fuelCutStartRpm": 7800,
+          "gears": [
+            {
+              "label": "1",
+              "rpmMax": 7450,
+              "rpmMin": 1100,
+              "speedRatioMax": 0.18,
+              "speedRatioMin": 0
+            },
+            {
+              "label": "2",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.34,
+              "speedRatioMin": 0.14
+            },
+            {
+              "label": "3",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.52,
+              "speedRatioMin": 0.28
+            },
+            {
+              "label": "4",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.72,
+              "speedRatioMin": 0.45
+            },
+            {
+              "label": "5",
+              "rpmMax": 7450,
+              "rpmMin": 5200,
+              "speedRatioMax": 0.9,
+              "speedRatioMin": 0.64
+            },
+            {
+              "label": "6",
+              "rpmMax": 7200,
+              "rpmMin": 5200,
+              "speedRatioMax": 1,
+              "speedRatioMin": 0.82
+            }
+          ],
+          "id": "raven-coupe-na",
+          "idleRpm": 1100,
+          "induction": "na",
+          "maxRpm": 7800,
+          "redlineStartRpm": 7200,
+          "shiftDropRpm": 5200,
+          "shiftUpRpm": 7450,
+          "torqueCurve": [
+            {
+              "rpm": 1000,
+              "torqueScale": 0.28
+            },
+            {
+              "rpm": 2500,
+              "torqueScale": 0.42
+            },
+            {
+              "rpm": 4000,
+              "torqueScale": 0.62
+            },
+            {
+              "rpm": 5500,
+              "torqueScale": 0.82
+            },
+            {
+              "rpm": 6800,
+              "torqueScale": 1
+            },
+            {
+              "rpm": 7400,
+              "torqueScale": 0.95
+            },
+            {
+              "rpm": 7800,
+              "torqueScale": 0.78
+            }
+          ]
+        },
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.34,
+        "inputResponse": 18,
+        "launchThrottleFullSpeedRatio": 0.05,
+        "launchThrottleMinRatio": 1,
+        "maxRoadOffset": 700,
+        "rollingResistance": 14,
+        "rpmIdle": 1100,
+        "rpmRedline": 7200,
+        "rpmResponse": 7,
+        "steerAcceleration": 1650,
+        "steerDamping": 9.2,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.38
+      },
+      "id": "previous-baseline",
+      "patch": {
+        "cornerAccelSpeedDrop": 150,
+        "cornerSpeedPull": 190,
+        "curveDriftAcceleration": 260,
+        "curveSteeringHighSpeedDrop": 0,
+        "curveSteeringCue": 0.1,
+        "engineAcceleration": 128,
+        "highSpeedInputResponseDrop": 0,
+        "highSpeedLateralVelocityCap": 1650,
+        "highSpeedSteeringSlewRate": 24,
+        "highSpeedSteerForceDrop": 0.42,
+        "highSpeedSteerVisualDrop": 0.34,
+        "launchThrottleFullSpeedRatio": 0.05,
+        "launchThrottleMinRatio": 1,
+        "steeringSpeedScrub": 0,
+        "steeringSpeedScrubThreshold": 0.22,
+        "steeringVelocityCue": 0.38
+      },
+      "results": [
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 668.801,
+            "speedMax": 673.661,
+            "speedMin": 4.86,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 3.85
+          },
+          "pass": true,
+          "scenario": "standing-start-12s",
+          "totalScore": 94
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 0,
+            "lateralOffsetRms": 0,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 284.578,
+            "speedMax": 727.733,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 0,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "straight-accel-20s",
+          "totalScore": 97
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 23.452,
+            "lateralOffsetRms": 16.281,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 172.792,
+            "speedMax": 615.947,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.001,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.751,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 17.687,
+            "steeringPeakHoldRatio": 0.75,
+            "steeringRecoveryMs": null,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "micro-tap-left",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 104.547,
+            "lateralOffsetRms": 60.619,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 239.287,
+            "speedMax": 682.442,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.004,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.744,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3800,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 69.924,
+            "steeringPeakHoldRatio": 0.95,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 950,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": false,
+          "scenario": "hold-left-1s-release",
+          "totalScore": 90
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 257.305,
+            "lateralOffsetRms": 142.181,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 269.755,
+            "speedMax": 712.91,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.724,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.744,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": 3700,
+            "postReleaseOffsetOvershoot": 0,
+            "slalomOffsetRms": 155.687,
+            "steeringPeakHoldRatio": 0.983,
+            "steeringRecoveryMs": 50,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 950,
+            "timeToLateralOffset200": 2150,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "left-hold-3s-release",
+          "totalScore": 98
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 138.605,
+            "lateralOffsetRms": 50.302,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 284.578,
+            "speedMax": 727.733,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.725,
+            "highSpeedCurveSteeringMaxAbs": null,
+            "steeringMaxAbs": 0.744,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 53.016,
+            "steeringPeakHoldRatio": 0.931,
+            "steeringRecoveryMs": 1200,
+            "steeringResponseMs": 0,
+            "timeToLateralOffset100": 2950,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "slalom-20s",
+          "totalScore": 100
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 77.012,
+            "lateralOffsetRms": 56.547,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 205.985,
+            "speedMax": 649.14,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.055,
+            "highSpeedCurveSteeringMaxAbs": 0.055,
+            "steeringMaxAbs": 0.055,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 59.056,
+            "steeringPeakHoldRatio": null,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": null,
+            "timeToLateralOffset100": null,
+            "timeToLateralOffset200": null,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-no-input",
+          "totalScore": 84
+        },
+        {
+          "metrics": {
+            "lateralOffsetMaxAbs": 274.811,
+            "lateralOffsetRms": 141.38,
+            "offsetClampHitCount": 0,
+            "speedDropFromPeak": 0,
+            "speedGain": 205.985,
+            "speedMax": 649.14,
+            "speedMin": 443.155,
+            "highSpeedSteeringMaxAbs": 0.757,
+            "highSpeedCurveSteeringMaxAbs": 0.757,
+            "steeringMaxAbs": 0.757,
+            "curveCounterSteerRecoveryMs": null,
+            "postReleaseOffsetHalfLifeMs": null,
+            "postReleaseOffsetOvershoot": null,
+            "slalomOffsetRms": 151.108,
+            "steeringPeakHoldRatio": 0.98,
+            "steeringRecoveryMs": 0,
+            "steeringResponseMs": 6000,
+            "timeToLateralOffset100": 8500,
+            "timeToLateralOffset200": 9550,
+            "timeTo100Kmh": 0
+          },
+          "pass": true,
+          "scenario": "curve-counter-steer",
+          "totalScore": 74
+        }
+      ],
+      "totalScore": 90.9
+    }
+  ],
+  "generatedAt": "2026-07-10T05:02:53.758Z",
+  "outputDir": "assets/telemetry/generated/handling-sim",
+  "sampleHz": 20,
+  "scenarios": [
+    "standing-start-12s",
+    "straight-accel-20s",
+    "micro-tap-left",
+    "hold-left-1s-release",
+    "left-hold-3s-release",
+    "slalom-20s",
+    "curve-no-input",
+    "curve-counter-steer"
+  ]
+}

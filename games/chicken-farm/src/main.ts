@@ -45,7 +45,9 @@ import {
     depositEggStackToCoop,
     dropInventoryEggToField,
     ensureEconomyInventory,
+    feedNearestEconomyChicken,
     getEconomyInventory,
+    herdEconomyChickens,
     pickupFieldEgg,
     startCoopHatch,
     updateChickenFarmEconomy,
@@ -119,6 +121,8 @@ const MINIMAP_DIRTY_DISTANCE_PX = 32;
 const ECONOMY_INTERACTION_RADIUS_PX = 54;
 const ECONOMY_POC_COOP_TEMPLATE_ID = 'coop_basic';
 const ECONOMY_POC_WELL_TEMPLATE_ID = 'well_basic';
+const FARMER_FEED_MANA_COST = 3;
+const FARMER_HERD_MANA_COST = 4;
 const ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX = 86;
 const ECONOMY_CHICKEN_COLLISION_RADIUS_PX = 20;
 const ECONOMY_POC_STARTING_EGG_OFFSETS: readonly EconomyPoint[] = [
@@ -173,6 +177,8 @@ class FarmScene extends Phaser.Scene {
     private inventorySlots: readonly InventorySlotView[] = [];
     private renderedInventoryId?: string;
     private attackTargetingActive = false;
+    private farmerFeedAutocast = false;
+    private herdTargetingActive = false;
     private cameraControl!: CameraControlSystem;
     private buildingSystem?: BuildingSystem;
     private commandCard?: CommandCardSystem;
@@ -194,6 +200,7 @@ class FarmScene extends Phaser.Scene {
     private playerControl!: PlayerControlSystem;
     private playerStarts: PlayerStart[] = [];
     private telemetry!: TelemetryRecorder;
+    private nextFarmerFeedAtSec = 0;
     private nextTelemetrySampleSec = 0;
     private nextFogUpdateSec = 0;
     private nextMinimapUpdateSec = 0;
@@ -388,8 +395,38 @@ class FarmScene extends Phaser.Scene {
             this.commandCard = new CommandCardSystem({
                 buttons: hud.commandButtons,
                 getSelectionKind: () => this.getCommandCardSelectionKind(),
+                isActionEnabled: (action) => {
+                    const farmer = this.controllableUnits
+                        .getSelectedUnits()
+                        .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                    if (!farmer) return true;
+                    if (action.type === 'feed_nearby_chicken') {
+                        return this.controllableUnits.hasMana(
+                            farmer.id,
+                            FARMER_FEED_MANA_COST,
+                        );
+                    }
+                    if (action.type === 'start_herd_targeting') {
+                        return this.controllableUnits.hasMana(
+                            farmer.id,
+                            FARMER_HERD_MANA_COST,
+                        );
+                    }
+                    return true;
+                },
+                isAutocastActive: (autocastId) =>
+                    autocastId === 'farmer_feed' && this.farmerFeedAutocast,
                 keys: this.keys,
                 onAction: (action) => this.handleCommandCardAction(action),
+                onToggleAutocast: (autocastId) => {
+                    if (autocastId !== 'farmer_feed') return;
+                    this.farmerFeedAutocast = !this.farmerFeedAutocast;
+                    this.nextFarmerFeedAtSec = this.elapsedSec;
+                    this.telemetry.record('ability_autocast_toggled', {
+                        abilityRawcode: 'A001',
+                        active: this.farmerFeedAutocast,
+                    });
+                },
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
             });
         }
@@ -465,6 +502,7 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.economyPoc', () =>
             this.updateEconomyPoc(),
         );
+        this.updateFarmerFeedAutocast();
         this.performanceProfiler.measure('update.combat', () =>
             this.combatPoc?.update(delta / 1000),
         );
@@ -797,7 +835,6 @@ class FarmScene extends Phaser.Scene {
                 (candidate) => candidate.id === event.chickenId,
             );
             if (chicken) this.createChickenView(chicken);
-            this.startAvailableCoopHatches(event.coopId);
         }
         if (event.type === 'chicken_died') {
             this.destroyEconomyView(event.chickenId);
@@ -806,18 +843,18 @@ class FarmScene extends Phaser.Scene {
         this.recordEconomyEvent(`economy_${event.type}`, event);
     }
 
-    private startAvailableCoopHatches(coopId: string) {
+    private startCoopHatchById(coopId: string) {
         const state = this.economyState;
         if (!state) return;
 
-        while (true) {
-            const hatchStarted = startCoopHatch(state, {
-                coopId,
-                elapsedSec: this.elapsedSec,
-            });
-            if (!hatchStarted) return;
-            this.handleEconomyEvent(hatchStarted);
-        }
+        const hatchStarted = startCoopHatch(state, {
+            coopId,
+            elapsedSec: this.elapsedSec,
+        });
+        if (!hatchStarted) return;
+        this.handleEconomyEvent(hatchStarted);
+        this.refreshEconomyLabels();
+        this.updateSelectionInfo();
     }
 
     private createWellView(well: EconomyWellState) {
@@ -832,7 +869,7 @@ class FarmScene extends Phaser.Scene {
             .circle(
                 well.position.x,
                 well.position.y,
-                this.economyState.config.wellBuff.radiusPx,
+                this.economyState.config.wellRules[well.kind].attractRadiusPx,
                 0x4aa3df,
                 0.08,
             )
@@ -1068,7 +1105,6 @@ class FarmScene extends Phaser.Scene {
             });
             if (deposited) {
                 this.handleEconomyEvent(deposited);
-                this.startAvailableCoopHatches(coop.id);
                 this.controllableUnits.clearUnitCommand(unit.id);
             }
             this.economyWorkerTasks.delete(unitId);
@@ -1357,7 +1393,6 @@ class FarmScene extends Phaser.Scene {
         });
         if (deposited) {
             this.handleEconomyEvent(deposited);
-            this.startAvailableCoopHatches(coopId);
             this.refreshEconomyLabels();
             this.updateSelectionInfo();
         }
@@ -1429,7 +1464,18 @@ class FarmScene extends Phaser.Scene {
         if (!state) return;
 
         state.wells.forEach((well) => {
-            this.economyLabels.get(well.id)?.setText('우물');
+            const feedingCount = state.chickens.filter(
+                (chicken) =>
+                    chicken.targetWellId === well.id &&
+                    chicken.aiState !== 'dead',
+            ).length;
+            this.economyLabels
+                .get(well.id)
+                ?.setText(
+                    `${well.kind === 'windmill' ? '풍차' : '우물'}\n급식 ${feedingCount}/${
+                        state.config.wellRules[well.kind].feedCapacity
+                    }`,
+                );
         });
         state.coops.forEach((coop) => {
             const hatchJobs = state.hatchJobs.filter((job) => job.coopId === coop.id);
@@ -1451,7 +1497,9 @@ class FarmScene extends Phaser.Scene {
                 ?.setText(
                     `닭 ${Math.ceil(chicken.hp)}/${chicken.maxHp}\n${
                         chicken.aiState === 'recover'
-                            ? '회복'
+                            ? '급식'
+                            : chicken.aiState === 'herded'
+                              ? '몰이 이동'
                             : chicken.aiState === 'seek_well'
                               ? '우물 이동'
                               : `알 ${nextEggSec.toFixed(0)}s`
@@ -1516,6 +1564,11 @@ class FarmScene extends Phaser.Scene {
             this.telemetry.record('attack_targeting_cancelled', { reason: 'escape' });
             return true;
         }
+        if (this.herdTargetingActive && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
+            this.herdTargetingActive = false;
+            this.telemetry.record('herd_targeting_cancelled', { reason: 'escape' });
+            return true;
+        }
 
         if (this.constructionPlacement?.isActive()) {
             if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
@@ -1538,6 +1591,7 @@ class FarmScene extends Phaser.Scene {
 
         if (action.type === 'start_attack_targeting') {
             this.constructionPlacement?.cancelPlacement('attack_targeting');
+            this.herdTargetingActive = false;
             this.attackTargetingActive = true;
             this.telemetry.record('attack_targeting_started', {
                 selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
@@ -1545,8 +1599,27 @@ class FarmScene extends Phaser.Scene {
             return;
         }
 
+        if (action.type === 'start_herd_targeting') {
+            this.constructionPlacement?.cancelPlacement('herd_targeting');
+            this.attackTargetingActive = false;
+            this.herdTargetingActive = true;
+            this.telemetry.record('herd_targeting_started');
+            return;
+        }
+
+        if (action.type === 'feed_nearby_chicken') {
+            this.feedChickenFromFarmer('manual');
+            return;
+        }
+
         if (action.type === 'stop') {
             this.updateStopHotkey(true);
+            return;
+        }
+
+        if (action.type === 'start_coop_hatch') {
+            if (this.selectedEconomyEntity?.type !== 'coop') return;
+            this.startCoopHatchById(this.selectedEconomyEntity.id);
             return;
         }
 
@@ -1570,6 +1643,8 @@ class FarmScene extends Phaser.Scene {
     }
 
     private getCommandCardSelectionKind(): CommandCardSelectionKind {
+        if (this.selectedEconomyEntity?.type === 'coop') return 'economy_coop';
+
         const selectedUnits = this.controllableUnits.getSelectedUnits();
         if (selectedUnits.some((unit) => unit.templateId === 'farmer' && unit.hp > 0)) {
             return 'builder_unit';
@@ -1751,6 +1826,7 @@ class FarmScene extends Phaser.Scene {
             a: Phaser.Input.Keyboard.KeyCodes.A,
             b: Phaser.Input.Keyboard.KeyCodes.B,
             c: Phaser.Input.Keyboard.KeyCodes.C,
+            d: Phaser.Input.Keyboard.KeyCodes.D,
             down: Phaser.Input.Keyboard.KeyCodes.DOWN,
             eight: Phaser.Input.Keyboard.KeyCodes.EIGHT,
             escape: Phaser.Input.Keyboard.KeyCodes.ESC,
@@ -1794,6 +1870,10 @@ class FarmScene extends Phaser.Scene {
         this.dragSelectionInput = new DragSelectionInputSystem({
             camera: this.worldCamera,
             onClick: (worldPoint) => {
+                if (this.herdTargetingActive) {
+                    this.issueHerdTargetingCommand(worldPoint);
+                    return;
+                }
                 if (this.attackTargetingActive) {
                     this.issueAttackTargetingCommand(worldPoint);
                     return;
@@ -1895,6 +1975,13 @@ class FarmScene extends Phaser.Scene {
                     });
                     return;
                 }
+                if (this.herdTargetingActive) {
+                    this.herdTargetingActive = false;
+                    this.telemetry.record('herd_targeting_cancelled', {
+                        reason: 'right_click',
+                    });
+                    return;
+                }
 
                 const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
                 if (this.issueEconomySmartCommand(worldPoint)) {
@@ -1983,6 +2070,98 @@ class FarmScene extends Phaser.Scene {
             x: Number(worldPoint.x.toFixed(1)),
             y: Number(worldPoint.y.toFixed(1)),
         });
+    }
+
+    private issueHerdTargetingCommand(worldPoint: Phaser.Math.Vector2) {
+        const state = this.economyState;
+        const farmer = this.controllableUnits
+            .getSelectedUnits()
+            .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+        this.herdTargetingActive = false;
+        if (!state || !farmer) return;
+        if (
+            !this.controllableUnits.spendMana(
+                farmer.id,
+                FARMER_HERD_MANA_COST,
+            )
+        ) {
+            return;
+        }
+
+        const chickenIds = herdEconomyChickens(state, {
+            casterPosition: farmer.position,
+            elapsedSec: this.elapsedSec,
+            ownerPlayerId: farmer.ownerPlayerId,
+            targetPosition: { x: worldPoint.x, y: worldPoint.y },
+        });
+        this.telemetry.record('farmer_herd_command_issued', {
+            abilityRawcode: 'A002',
+            affectedChickenCount: chickenIds.length,
+            affectedChickenIds: chickenIds,
+            farmerId: farmer.id,
+            manaCost: FARMER_HERD_MANA_COST,
+            x: Number(worldPoint.x.toFixed(1)),
+            y: Number(worldPoint.y.toFixed(1)),
+        });
+        this.refreshEconomyLabels();
+    }
+
+    private updateFarmerFeedAutocast() {
+        if (
+            !this.farmerFeedAutocast ||
+            this.elapsedSec < this.nextFarmerFeedAtSec
+        ) {
+            return;
+        }
+
+        this.nextFarmerFeedAtSec = this.elapsedSec + 0.75;
+        this.feedChickenFromFarmer('autocast', true);
+    }
+
+    private feedChickenFromFarmer(
+        mode: 'autocast' | 'manual',
+        allowUnselectedFarmer = false,
+    ) {
+        const state = this.economyState;
+        const units = allowUnselectedFarmer
+            ? this.controllableUnits.getUnits()
+            : this.controllableUnits.getSelectedUnits();
+        const farmer = units.find(
+            (unit) => unit.templateId === 'farmer' && unit.hp > 0,
+        );
+        if (!state || !farmer) return false;
+        if (
+            !this.controllableUnits.hasMana(
+                farmer.id,
+                FARMER_FEED_MANA_COST,
+            )
+        ) {
+            return false;
+        }
+
+        const result = feedNearestEconomyChicken(state, {
+            casterPosition: farmer.position,
+            ownerPlayerId: farmer.ownerPlayerId,
+        });
+        if (!result) return false;
+        if (
+            !this.controllableUnits.spendMana(
+                farmer.id,
+                FARMER_FEED_MANA_COST,
+            )
+        ) {
+            return false;
+        }
+
+        this.telemetry.record('farmer_feed_cast', {
+            abilityRawcode: 'A001',
+            farmerId: farmer.id,
+            manaCost: FARMER_FEED_MANA_COST,
+            mode,
+            ...result,
+        });
+        this.refreshEconomyLabels();
+        return true;
     }
 
     private exposeDebugAutomation() {
@@ -2173,7 +2352,9 @@ class FarmScene extends Phaser.Scene {
                 `${primaryUnit.templateId === 'farmer' ? '농부' : '개'} (${stats.source.rawcode ?? primaryUnit.templateId})`,
             );
             this.selectionInfoStatsText.setText(
-                `HP ${Math.ceil(primaryUnit.hp)}/${primaryUnit.maxHp} | Armor ${
+                `HP ${Math.ceil(primaryUnit.hp)}/${primaryUnit.maxHp} | MP ${Math.floor(
+                    primaryUnit.mana,
+                )}/${primaryUnit.maxMana} | Armor ${
                     primaryUnit.armor
                 } | Damage ${stats.damage} | Cooldown ${stats.attackCooldownSec}s`,
             );
@@ -2265,14 +2446,22 @@ class FarmScene extends Phaser.Scene {
         const well = state.wells.find((candidate) => candidate.id === target.id);
         if (!well) return false;
         this.selectionInfoPortrait.setFillStyle(0x3a6d87, 1);
-        this.selectionInfoNameText.setText('우물');
+        this.selectionInfoNameText.setText(well.kind === 'windmill' ? '풍차' : '우물');
         this.selectionInfoStatsText.setText(
-            `Buff radius ${state.config.wellBuff.radiusPx}px`,
+            `Feed ${state.config.wellRules[well.kind].feedCapacity} | Attract ${
+                state.config.wellRules[well.kind].attractRadiusPx
+            }px`,
         );
         this.selectionInfoStatusText.setText(
-            `Egg interval x${state.config.wellBuff.eggIntervalMultiplier}`,
+            well.kind === 'windmill'
+                ? `촉진제 x${state.config.wellRules.windmill.eggIntervalMultiplier}`
+                : '먹이 유혹 / 모이 뿌리기',
         );
-        this.selectionInfoBodyText.setText('반경 안 닭의 산란 주기를 줄입니다.');
+        this.selectionInfoBodyText.setText(
+            well.kind === 'windmill'
+                ? '최대 16마리를 급식하며 주변 닭의 산란 주기를 줄입니다.'
+                : '최대 8마리를 지속적으로 유인해 급식합니다.',
+        );
         this.clearInventorySlots();
         return true;
     }

@@ -12,8 +12,11 @@ import {
     depositEggStackToCoop,
     dropInventoryEggToField,
     ensureEconomyInventory,
+    feedNearestEconomyChicken,
+    herdEconomyChickens,
     pickupFieldEgg,
     startCoopHatch,
+    upgradeEconomyWellToWindmill,
     updateChickenFarmEconomy,
 } from '../games/chicken-farm/src/game/systems/economySystem';
 import { resolveBuildingProductionExit } from '../games/chicken-farm/src/game/systems/buildingProductionExit';
@@ -37,6 +40,7 @@ async function main() {
         position: { x: 1000, y: 1000 },
     });
     const well = addEconomyWell(state, {
+        kind: 'windmill',
         ownerPlayerId: 3,
         position: { x: 1040, y: 1000 },
     });
@@ -130,10 +134,11 @@ async function main() {
         ? { ...hatchedChicken.position }
         : null;
     updateChickenFarmEconomy(state, 50.25);
-    const hatchSpawnMoved =
-        Boolean(hatchedChicken && hatchSpawnPosition) &&
-        (hatchedChicken!.position.x !== hatchSpawnPosition!.x ||
-            hatchedChicken!.position.y !== hatchSpawnPosition!.y);
+    const hatchSpawnAiActive =
+        Boolean(hatchedChicken) &&
+        (hatchedChicken!.aiState === 'recover' ||
+            hatchedChicken!.aiState === 'seek_well' ||
+            hatchedChicken!.aiState === 'wander');
     const expectedHatchExit = resolveBuildingProductionExit({
         buildingCenter: coop.position,
         templateId: 'coop_basic',
@@ -190,6 +195,15 @@ async function main() {
         stackState.inventories
             .find((inventory) => inventory.id === stackCoop.id)
             ?.slots.filter(Boolean).length ?? 0;
+    const explicitStackHatch = startCoopHatch(stackState, {
+        coopId: stackCoop.id,
+        elapsedSec: 10,
+    });
+    const stackedCoopEggsAfterExplicitHatch = countInventoryItem(
+        stackState,
+        stackCoop.id,
+        'I006',
+    );
 
     const vitalityState = createChickenFarmEconomyState();
     addEconomyWell(vitalityState, {
@@ -217,6 +231,81 @@ async function main() {
     for (let elapsedSec = 0.25; elapsedSec <= 125; elapsedSec += 0.25) {
         updateChickenFarmEconomy(strandedState, elapsedSec);
     }
+    const capacityState = createChickenFarmEconomyState();
+    addEconomyWell(capacityState, {
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    for (let index = 0; index < 9; index += 1) {
+        addEconomyChicken(capacityState, {
+            elapsedSec: 0,
+            ownerPlayerId: 3,
+            position: { x: 1120 + index * 4, y: 1000 },
+        });
+    }
+    updateChickenFarmEconomy(capacityState, 0.25);
+    const basicWellAttractedCount = capacityState.chickens.filter(
+        (chicken) => chicken.targetWellId !== null,
+    ).length;
+    const upgradedToWindmill = upgradeEconomyWellToWindmill(
+        capacityState,
+        capacityState.wells[0].id,
+    );
+    const windmillCapacityState = createChickenFarmEconomyState();
+    addEconomyWell(windmillCapacityState, {
+        kind: 'windmill',
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    for (let index = 0; index < 17; index += 1) {
+        addEconomyChicken(windmillCapacityState, {
+            elapsedSec: 0,
+            ownerPlayerId: 3,
+            position: { x: 1120 + index * 4, y: 1000 },
+        });
+    }
+    updateChickenFarmEconomy(windmillCapacityState, 0.25);
+    const windmillAttractedCount = windmillCapacityState.chickens.filter(
+        (chicken) => chicken.targetWellId !== null,
+    ).length;
+    const herdState = createChickenFarmEconomyState();
+    for (let index = 0; index < 9; index += 1) {
+        addEconomyChicken(herdState, {
+            elapsedSec: 0,
+            ownerPlayerId: 3,
+            position: { x: 1000 + index * 12, y: 1000 },
+        });
+    }
+    const herdStartX = herdState.chickens.map((chicken) => chicken.position.x);
+    const herdedChickenIds = herdEconomyChickens(herdState, {
+        casterPosition: { x: 1000, y: 1000 },
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        targetPosition: { x: 1300, y: 1000 },
+    });
+    updateChickenFarmEconomy(herdState, 0.25);
+    const herdedIdSet = new Set(herdedChickenIds);
+    const movedHerdChickenCount = herdState.chickens.filter(
+        (chicken, index) =>
+            herdedIdSet.has(chicken.id) && chicken.position.x > herdStartX[index],
+    ).length;
+    const feedState = createChickenFarmEconomyState();
+    const hungriestChicken = addEconomyChicken(feedState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1040, y: 1000 },
+    });
+    const otherHungryChicken = addEconomyChicken(feedState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1080, y: 1000 },
+    });
+    hungriestChicken.hp = 10;
+    otherHungryChicken.hp = 20;
+    const feedResult = feedNearestEconomyChicken(feedState, {
+        casterPosition: { x: 1000, y: 1000 },
+        ownerPlayerId: 3,
+    });
 
     const metrics = {
         generatedAt: new Date().toISOString(),
@@ -241,26 +330,38 @@ async function main() {
             farmerInventoryEggs,
             stackValidation: {
                 coopEggs: stackedCoopEggs,
+                coopEggsAfterExplicitHatch: stackedCoopEggsAfterExplicitHatch,
                 coopOccupiedSlots: stackedCoopSlots,
                 farmerEggsBeforeDeposit: stackedFarmerEggs,
                 farmerOccupiedSlotsBeforeDeposit: stackedFarmerSlots,
             },
             vitalityValidation: {
+                basicWellAttractedCount,
                 finalAiState: vitalityChicken.aiState,
                 finalHp: Number(vitalityChicken.hp.toFixed(2)),
                 recoverObserved,
                 seekObserved,
                 strandedAiState: strandedChicken.aiState,
+                windmillAttractedCount,
+                upgradedToWindmill,
             },
             hatchSpawnValidation: {
                 fallbackExit: fallbackProductionExit,
-                movedAfterSpawn: hatchSpawnMoved,
+                aiActiveAfterSpawn: hatchSpawnAiActive,
                 offsetFromCoop: hatchSpawnPosition
                     ? {
                           x: hatchSpawnPosition.x - coop.position.x,
                           y: hatchSpawnPosition.y - coop.position.y,
                       }
                     : null,
+            },
+            herdValidation: {
+                affectedCount: herdedChickenIds.length,
+                movedCount: movedHerdChickenCount,
+            },
+            feedValidation: {
+                healedChickenId: feedResult?.chickenId ?? null,
+                healedAmount: feedResult?.healed ?? 0,
             },
             wellCount: state.wells.length,
         },
@@ -280,7 +381,7 @@ async function main() {
                     droppedAtSec: 22.5,
                     wellBuffed: true,
                 },
-                id: 'well_buffed_chicken_drops_at_22_5s',
+                id: 'windmill_accelerated_chicken_drops_at_22_5s',
                 pass: buffedDrop?.wellBuffed === true && buffedDrop.droppedAtSec === 22.5,
             },
             {
@@ -366,10 +467,10 @@ async function main() {
                     hatchSpawnPosition.y === expectedHatchExit.y,
             },
             {
-                actual: hatchSpawnMoved,
+                actual: hatchSpawnAiActive,
                 expected: true,
-                id: 'hatched_chicken_ai_moves_after_spawn',
-                pass: hatchSpawnMoved,
+                id: 'hatched_chicken_ai_activates_after_spawn',
+                pass: hatchSpawnAiActive,
             },
             {
                 actual: {
@@ -411,6 +512,23 @@ async function main() {
             },
             {
                 actual: {
+                    eggsAfterDeposit: stackedCoopEggs,
+                    eggsAfterHatchCommand: stackedCoopEggsAfterExplicitHatch,
+                    hatchStarted: Boolean(explicitStackHatch),
+                },
+                expected: {
+                    eggsAfterDeposit: 4,
+                    eggsAfterHatchCommand: 3,
+                    hatchStarted: true,
+                },
+                id: 'coop_keeps_full_stack_until_explicit_hatch_command',
+                pass:
+                    stackedCoopEggs === 4 &&
+                    stackedCoopEggsAfterExplicitHatch === 3 &&
+                    Boolean(explicitStackHatch),
+            },
+            {
+                actual: {
                     recoverObserved,
                     seekObserved,
                 },
@@ -418,14 +536,82 @@ async function main() {
                     recoverObserved: true,
                     seekObserved: true,
                 },
-                id: 'low_hp_chicken_seeks_well_and_recovers',
+                id: 'lured_chicken_seeks_well_and_recovers',
                 pass: seekObserved && recoverObserved,
             },
             {
-                actual: strandedChicken.aiState,
-                expected: 'stranded',
-                id: 'low_hp_chicken_without_well_becomes_stranded',
-                pass: strandedChicken.aiState === 'stranded',
+                actual: {
+                    aiState: strandedChicken.aiState,
+                    hp: Number(strandedChicken.hp.toFixed(2)),
+                },
+                expected: {
+                    aiState: 'wander',
+                    hpBelowMax: true,
+                },
+                id: 'chicken_outside_lure_keeps_wandering_and_loses_hp',
+                pass:
+                    strandedChicken.aiState === 'wander' &&
+                    strandedChicken.hp < strandedChicken.maxHp,
+            },
+            {
+                actual: basicWellAttractedCount,
+                expected: 8,
+                id: 'basic_well_feeds_up_to_eight_chickens',
+                pass: basicWellAttractedCount === 8,
+            },
+            {
+                actual: windmillAttractedCount,
+                expected: 16,
+                id: 'windmill_feeds_up_to_sixteen_chickens',
+                pass: windmillAttractedCount === 16,
+            },
+            {
+                actual: {
+                    kind: capacityState.wells[0].kind,
+                    upgraded: upgradedToWindmill,
+                },
+                expected: {
+                    kind: 'windmill',
+                    upgraded: true,
+                },
+                id: 'basic_well_upgrades_to_windmill',
+                pass:
+                    upgradedToWindmill &&
+                    capacityState.wells[0].kind === 'windmill',
+            },
+            {
+                actual: {
+                    affectedCount: herdedChickenIds.length,
+                    movedCount: movedHerdChickenCount,
+                },
+                expected: {
+                    affectedCount: 8,
+                    movedCount: 8,
+                },
+                id: 'farmer_a002_herds_up_to_eight_nearby_chickens',
+                pass:
+                    herdedChickenIds.length === 8 &&
+                    movedHerdChickenCount === 8,
+            },
+            {
+                actual: {
+                    healed: feedResult?.healed ?? 0,
+                    healedChickenId: feedResult?.chickenId ?? null,
+                    hp: hungriestChicken.hp,
+                    otherHp: otherHungryChicken.hp,
+                },
+                expected: {
+                    healed: 10,
+                    healedChickenId: hungriestChicken.id,
+                    hp: 20,
+                    otherHp: 20,
+                },
+                id: 'farmer_a001_feeds_most_hungry_nearby_chicken',
+                pass:
+                    feedResult?.chickenId === hungriestChicken.id &&
+                    feedResult.healed === 10 &&
+                    hungriestChicken.hp === 20 &&
+                    otherHungryChicken.hp === 20,
             },
         ],
         events,

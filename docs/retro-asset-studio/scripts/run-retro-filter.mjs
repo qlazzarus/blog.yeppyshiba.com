@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -20,17 +21,26 @@ const workspaceRoot = path.resolve(studioRoot, '..', '..');
 const vehiclePresets = {
     ft86: {
         input: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-magenta-preview.png',
+        negativePrompt: 'large luxury sedan, heavy grand tourer, muscle car, SUV, changed rear silhouette, changed viewpoint, extra wheels, white tires, chrome tires',
         output: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1.png',
+        positivePrompt: 'nimble compact rear-wheel-drive street coupe, short rear deck, lightweight downhill drift character, compact taillights, balanced rear three-quarter silhouette',
     },
     g70: {
         input: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-magenta-preview.png',
+        negativePrompt: 'two-door coupe, hatchback, SUV, pickup, changed rear silhouette, changed viewpoint, extra wheels, white tires, chrome tires',
         output: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/genesis-g70-256/sheet-256-ai-retro-v1.png',
+        positivePrompt: 'compact sport sedan, planted rear stance, restrained premium body lines, stable downhill grip character, crisp horizontal taillights',
     },
     stinger: {
         input: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/kia-stinger-256/sheet-256-magenta-preview.png',
+        negativePrompt: 'small coupe, SUV, pickup, changed rear silhouette, changed viewpoint, extra wheels, white tires, chrome tires',
         output: 'games/apex-seoul/assets/vehicles/generated/pixel-candidates/kia-stinger-256/sheet-256-ai-retro-v1.png',
+        positivePrompt: 'wide fastback grand tourer, long wheelbase, muscular rear haunches, twin-turbo downhill express character, wide horizontal taillight signature',
     },
 };
+
+const BASE_NEGATIVE_PROMPT = 'different car, convertible, pickup truck, changed viewpoint, changed body color, white tires, chrome tires, extra wheels, deformed car, photo, realistic, blur, watermark, text, logo, gradient';
+const BASE_POSITIVE_PROMPT = 'pixel art, retro game sprite sheet, same car as input image, preserve original silhouette, preserve original viewpoint, preserve input body color, dark rubber tires, clean outline, limited color palette, subtle pixel detail';
 
 const variantPresets = {
     safe: {
@@ -94,10 +104,13 @@ const config = {
     outputWasExplicit: false,
     paletteLock: true,
     ping: false,
+    negativePrompt: null,
+    positivePrompt: null,
     run: false,
     sampler: 'euler',
     scheduler: 'simple',
     seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+    seedWasExplicit: false,
     steps: 16,
     variant: 'balanced',
     vehicle: null,
@@ -167,8 +180,14 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--no-palette-lock') {
         config.paletteLock = false;
+    } else if (arg === '--negative-prompt' && next) {
+        config.negativePrompt = next;
+        index += 1;
     } else if (arg === '--ping') {
         config.ping = true;
+    } else if (arg === '--positive-prompt' && next) {
+        config.positivePrompt = next;
+        index += 1;
     } else if (arg === '--run') {
         config.run = true;
     } else if (arg === '--sampler' && next) {
@@ -179,6 +198,7 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--seed' && next) {
         config.seed = parseInteger(arg, next);
+        config.seedWasExplicit = true;
         index += 1;
     } else if (arg === '--steps' && next) {
         config.steps = parseInteger(arg, next);
@@ -387,7 +407,7 @@ function buildCustomJob(currentConfig, variantLabel, { forceVariantSuffix = fals
         output: currentConfig.outputWasExplicit
             ? currentConfig.output
             : withVariantSuffix(currentConfig.output, variantLabel, shouldSuffix),
-        seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+        seed: resolveJobSeed(currentConfig),
     };
 }
 
@@ -406,12 +426,24 @@ function buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, { for
         filenamePrefix: `apex-seoul-retro-v1-${vehicleLabel}-${variantLabel}`,
         input: baseInput,
         label: `${vehicleLabel}-${variantLabel}`,
+        negativePrompt: buildPromptText(BASE_NEGATIVE_PROMPT, preset.negativePrompt, currentConfig.negativePrompt),
         output: currentConfig.outputWasExplicit
             ? baseOutput
             : withVariantSuffix(baseOutput, variantLabel, shouldSuffix),
-        seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+        positivePrompt: buildPromptText(BASE_POSITIVE_PROMPT, preset.positivePrompt, currentConfig.positivePrompt),
+        seed: resolveJobSeed(currentConfig),
         variant: variantLabel,
     };
+}
+
+function buildPromptText(...parts) {
+    return parts.filter(Boolean).join(', ');
+}
+
+function resolveJobSeed(currentConfig) {
+    return currentConfig.seedWasExplicit
+        ? currentConfig.seed
+        : Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 }
 
 function withVariantSuffix(outputPath, variantLabel, shouldSuffix) {
@@ -472,7 +504,54 @@ async function runJob(apiPrompt, job) {
         console.log(`[${job.label}] Applied retro vehicle palette lock`);
     }
 
+    await writeRunMetadata(job, prompt);
+
     console.log(`[${job.label}] Saved ${path.relative(workspaceRoot, job.output)}`);
+}
+
+async function writeRunMetadata(job, prompt) {
+    const input = await readFile(job.input);
+    const metadataPath = `${job.output}.pipeline.json`;
+    const metadata = {
+        checkpoint: job.checkpoint,
+        controlNet: {
+            endPercent: job.controlNetEnd,
+            model: job.controlNet,
+            startPercent: job.controlNetStart,
+            strength: job.controlNetStrength,
+        },
+        generatedAt: new Date().toISOString(),
+        input: path.relative(workspaceRoot, job.input),
+        inputSha256: sha256(input),
+        lora: {
+            clipStrength: job.loraStrengthClip,
+            model: job.lora,
+            modelStrength: job.loraStrengthModel,
+        },
+        output: path.relative(workspaceRoot, job.output),
+        prompt: {
+            negative: job.negativePrompt ?? null,
+            positive: job.positivePrompt ?? null,
+        },
+        sampler: {
+            cfg: job.cfg,
+            denoise: job.denoise,
+            name: job.sampler,
+            scheduler: job.scheduler,
+            steps: job.steps,
+        },
+        seed: job.seed,
+        variant: job.variant,
+        vehicle: job.vehicle ?? null,
+        workflowSha256: sha256(Buffer.from(JSON.stringify(prompt))),
+    };
+
+    await writeJson(metadataPath, metadata);
+    console.log(`[${job.label}] Wrote ${path.relative(workspaceRoot, metadataPath)}`);
+}
+
+function sha256(value) {
+    return createHash('sha256').update(value).digest('hex');
 }
 
 function parseNumber(option, rawValue) {

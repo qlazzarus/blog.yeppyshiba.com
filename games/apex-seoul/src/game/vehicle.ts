@@ -50,11 +50,17 @@ export type VehicleAtlas = {
 export type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 
 export type PlayerVehicleState = {
+    boostRatio: number;
+    engineTorqueScale: number;
+    fuelCutActive: boolean;
+    fuelCutTimer: number;
+    gearIndex: number;
     lateralOffset: number;
     rpm: number;
     speed: number;
     steering: number;
     steeringVelocity: number;
+    torqueScale: number;
 };
 
 export type VehicleAnchor = {
@@ -76,6 +82,8 @@ export type RuntimeVehicleQaState = {
     frame: string;
     rotationDeg: number;
     terrainScale: number;
+    visualSteering: number;
+    visualSteeringThreshold: number;
 };
 
 export function selectPlayerVehicleFrame(
@@ -83,8 +91,9 @@ export function selectPlayerVehicleFrame(
     tuning: RuntimeTuning,
     steering: number,
     terrainCue: VehicleTerrainCue,
+    steeringThreshold = tuning.steerWeakThreshold,
 ) {
-    const steeringState = selectPlayerSteeringState(tuning, steering);
+    const steeringState = selectPlayerSteeringState(steering, steeringThreshold);
     const fallback = atlas.apex.steeringStates[steeringState];
 
     if (terrainCue === 'level') return fallback;
@@ -247,9 +256,9 @@ export function getVehicleFrameIndex(atlas: VehicleAtlas, frameId: string) {
     return (frame.y / cellSize) * 3 + frame.x / cellSize;
 }
 
-function selectPlayerSteeringState(tuning: RuntimeTuning, steering: number): PlayerSteeringStateId {
-    if (steering <= -tuning.steerWeakThreshold) return 'steer-left-1';
-    if (steering >= tuning.steerWeakThreshold) return 'steer-right-1';
+function selectPlayerSteeringState(steering: number, threshold: number): PlayerSteeringStateId {
+    if (steering <= -threshold) return 'steer-left-1';
+    if (steering >= threshold) return 'steer-right-1';
 
     return 'center';
 }

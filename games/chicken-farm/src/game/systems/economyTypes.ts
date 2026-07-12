@@ -6,7 +6,8 @@ export type EconomyPoint = {
 };
 
 export type ChickenKind = 'basic' | 'giant' | 'mid';
-export type ChickenAiState = 'dead' | 'recover' | 'seek_well' | 'stranded' | 'wander';
+export type ChickenAiState = 'dead' | 'herded' | 'recover' | 'seek_well' | 'wander';
+export type EconomyWellKind = 'basic' | 'windmill';
 
 export type CoopKind = 'basic' | 'high' | 'mid';
 
@@ -48,17 +49,19 @@ export type ChickenFarmEconomyConfig = {
     readonly chickenVitality: {
         readonly hpByKind: Record<ChickenKind, number>;
         readonly hpDrainPerSec: number;
-        readonly recoverExitRatio: number;
         readonly recoverPerSec: number;
-        readonly seekRatio: number;
         readonly speedPxPerSec: number;
         readonly wanderRadiusPx: number;
-        readonly wellRecoveryRadiusPx: number;
     };
-    readonly wellBuff: {
-        readonly eggIntervalMultiplier: number;
-        readonly radiusPx: number;
-    };
+    readonly wellRules: Record<
+        EconomyWellKind,
+        {
+            readonly attractRadiusPx: number;
+            readonly eggIntervalMultiplier: number;
+            readonly feedCapacity: number;
+            readonly feedingRadiusPx: number;
+        }
+    >;
 };
 
 export type EconomyPlayerState = {
@@ -68,9 +71,10 @@ export type EconomyPlayerState = {
 };
 
 export type EconomyChickenState = {
-    readonly anchor: EconomyPoint;
+    anchor: EconomyPoint;
     aiState: ChickenAiState;
     hp: number;
+    herdedUntilSec: number;
     readonly id: string;
     readonly kind: ChickenKind;
     readonly maxHp: number;
@@ -93,6 +97,7 @@ export type EconomyCoopState = {
 
 export type EconomyWellState = {
     readonly id: string;
+    kind: EconomyWellKind;
     readonly ownerPlayerId: number;
     readonly position: EconomyPoint;
 };
