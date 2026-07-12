@@ -137,6 +137,15 @@ scripts/palette-lock.mjs
   runtime screenshot QA manifest/contact sheet
 ```
 
+## Model Compatibility And Candidate Plan
+
+The current server has a DreamShaper SD 1.5 checkpoint but its installed
+`[Qwen.Image]PixelArt_Redmond` LoRA targets Qwen Image, not SD 1.5. Do not use
+that LoRA in the canonical DreamShaper workflow. The recommended first
+replacement is the SD 1.5-compatible `PixelArtRedmond15V` LoRA; installation
+and validation order are documented in
+[`model-candidate-evaluation.md`](model-candidate-evaluation.md).
+
 ## Filter Defaults
 
 The default `run:ft86:balanced` path uses:

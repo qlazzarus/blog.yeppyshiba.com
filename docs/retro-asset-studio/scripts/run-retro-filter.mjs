@@ -81,6 +81,27 @@ const variantPresets = {
     },
 };
 
+// Variant presets establish defaults, while explicit CLI values must remain
+// authoritative so an experiment can change one parameter without creating a
+// separate preset first.
+const variantOptionByCliOption = {
+    '--canny-high': 'cannyHigh',
+    '--canny-low': 'cannyLow',
+    '--cfg': 'cfg',
+    '--controlnet-end': 'controlNetEnd',
+    '--controlnet-start': 'controlNetStart',
+    '--controlnet-strength': 'controlNetStrength',
+    '--denoise': 'denoise',
+    '--lora-strength-clip': 'loraStrengthClip',
+    '--lora-strength-model': 'loraStrengthModel',
+    '--steps': 'steps',
+};
+const explicitVariantOptionKeys = new Set(
+    process.argv.slice(2)
+        .map((argument) => variantOptionByCliOption[argument])
+        .filter(Boolean),
+);
+
 const config = {
     apiOutput: path.join(studioRoot, 'workflows', 'retro_style_filter_v1.api.json'),
     cannyHigh: 0.75,
@@ -396,11 +417,11 @@ function resolveVariantLabels(rawVariant) {
 
 function buildCustomJob(currentConfig, variantLabel, { forceVariantSuffix = false } = {}) {
     const variant = variantPresets[variantLabel];
+    const variantConfig = withExplicitVariantOverrides(currentConfig, variant);
     const shouldSuffix = forceVariantSuffix || variantLabel !== 'balanced';
 
     return {
-        ...currentConfig,
-        ...variant,
+        ...variantConfig,
         label: `custom-${variantLabel}`,
         variant: variantLabel,
         filenamePrefix: `${currentConfig.filenamePrefix}-custom-${variantLabel}`,
@@ -413,6 +434,7 @@ function buildCustomJob(currentConfig, variantLabel, { forceVariantSuffix = fals
 
 function buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, { forceVariantSuffix = false } = {}) {
     const variant = variantPresets[variantLabel];
+    const variantConfig = withExplicitVariantOverrides(currentConfig, variant);
     const baseInput = currentConfig.inputWasExplicit ? currentConfig.input : path.join(workspaceRoot, preset.input);
     const baseOutput = currentConfig.outputWasExplicit ? currentConfig.output : path.join(workspaceRoot, preset.output);
 
@@ -421,8 +443,7 @@ function buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, { for
     const shouldSuffix = forceVariantSuffix || variantLabel !== 'balanced';
 
     return {
-        ...currentConfig,
-        ...variant,
+        ...variantConfig,
         filenamePrefix: `apex-seoul-retro-v1-${vehicleLabel}-${variantLabel}`,
         input: baseInput,
         label: `${vehicleLabel}-${variantLabel}`,
@@ -433,6 +454,20 @@ function buildPresetJob(currentConfig, vehicleLabel, preset, variantLabel, { for
         positivePrompt: buildPromptText(BASE_POSITIVE_PROMPT, preset.positivePrompt, currentConfig.positivePrompt),
         seed: resolveJobSeed(currentConfig),
         variant: variantLabel,
+    };
+}
+
+function withExplicitVariantOverrides(currentConfig, variant) {
+    const explicitOverrides = {};
+
+    for (const key of explicitVariantOptionKeys) {
+        explicitOverrides[key] = currentConfig[key];
+    }
+
+    return {
+        ...currentConfig,
+        ...variant,
+        ...explicitOverrides,
     };
 }
 

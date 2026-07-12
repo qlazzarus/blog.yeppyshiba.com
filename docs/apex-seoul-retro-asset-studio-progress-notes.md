@@ -4,6 +4,34 @@
 
 현재 주제는 "실제 차량 3D 모델을 직접 게임 asset으로 쓰는 것"이 아니라, Three.js로 만든 차량 스프라이트시트를 ComfyUI 기반 Retro Style Filter에 통과시켜 Phaser에서 쓸 수 있는 레트로 스프라이트 후보를 만드는 것이다.
 
+## 2026-07-12: Windows ComfyUI 재검증과 FT86 control 실험
+
+ComfyUI를 Windows PC의 `http://192.168.0.17:8188`에서 다시 연결했다. API ping, FT86 업로드, prompt queue, history polling, output download, palette lock까지 실제로 통과했다.
+
+```text
+ComfyUI 0.26.2
+GPU: NVIDIA GeForce RTX 3080
+FT86 balanced fixed seed: 464901062956189
+prompt: d329d201-a6ed-4066-8035-094e0b02d9f0
+execution: success, 약 78초
+```
+
+기술적 연결은 승인할 수 있지만, 결과물은 아직 art-direction 승인이 아니다. source pose grid는 유지됐으나 은색의 현실적 표면 질감이 남고 일부 pose의 viewpoint가 너무 강하게 변했다.
+
+`safe`와 Canny 강화(`strength 0.55`, `end 0.75`) 비교도 실행했다. 이 과정에서 variant preset이 CLI 옵션을 다시 덮어쓰는 결함을 발견해 수정했다. 이제 명시한 `--controlnet-strength`, `--controlnet-end`, denoise, CFG, LoRA 강도, step 계열 옵션은 선택한 preset보다 우선한다.
+
+수정 후 Canny 강화 값이 ComfyUI API prompt와 `.pipeline.json`에 기록된 것까지 확인했다. 그러나 고정 seed + 현재 저 denoise 조건에서는 강화안의 palette-locked PNG가 balanced baseline과 byte-identical이었다. 다음 비교는 Canny 수치만 올리는 것이 아니라, 원본 alpha silhouette/contact mask를 ComfyUI의 native mask 또는 추가 control로 연결하는 `drift-safe-mask`여야 한다.
+
+Windows ComfyUI의 native mask nodes도 확인했다. `LoadImageMask`, `InvertMask`, `VAEEncodeForInpaint`, `SetLatentNoiseMask`를 이용해 source alpha 실험을 세 번 실행했다. alpha 방향을 그대로 쓴 inpaint는 배경을 변환했고, 반전한 inpaint는 일반 DreamShaper checkpoint와 맞지 않아 차량 내부가 회색 실루엣으로 붕괴했다. 반면 일반 `VAEEncode` 뒤에 `SetLatentNoiseMask`를 연결한 결과는 배경과 차량 외곽을 유지하면서 차량 영역만 샘플링했다.
+
+이 latent-mask 결과는 technical feasibility를 통과했지만 승인 후보는 아니다. 현재 low denoise와 고정 seed에서는 balanced보다 art style이 충분히 개선되지 않는다. 따라서 mask path를 canonical workflow에 넣기 전에 seed 또는 denoise만 좁게 바꾼 추가 비교가 필요하다. 모든 실험 출력은 `/tmp`와 ComfyUI output에만 두었고, runtime asset은 바꾸지 않았다.
+
+후속 sweep도 완료했다. latent-mask 상태에서 denoise `0.16`, `0.20`, `0.24`를 같은 seed로 비교했고, 가장 안정적인 `0.16`에서 3개 seed도 비교했다. 이어 PixelArt LoRA model/CLIP 강도를 `0.75/0.9`, `0.9/1.0`으로 올리고 flat 16-bit, chunky cluster, hard ramp, no photorealism prompt를 추가한 후보도 만들었다. 모든 후보가 외곽과 pose grid는 유지했지만 현실적인 회색 차량 재질을 유의미하게 벗어나지 못했다.
+
+따라서 이번 모델 조합(DreamShaper 8 + `[Qwen.Image]PixelArt_Redmond`)에서는 parameter sweep을 더 넓히지 않는다. 이 모델은 현재 pipeline에서 silhouette-safe style reference일 뿐, final pixel-art generator가 아니다. 다음 개선은 compatible pixel-art checkpoint/LoRA를 확보해 같은 latent-mask safety path에서 재검증하거나, 새 모델 없이 deterministic pixel/postprocess를 우선하는 것이다.
+
+후속 조사에서 원인 후보를 확인했다. 현재 LoRA는 Qwen Image 2512용이며 DreamShaper SD 1.5와 같은 architecture family가 아니다. 이 때문에 강도와 prompt를 바꿔도 의도한 pixel-art style이 거의 나타나지 않았을 가능성이 크다. 다음 설치 제안과 라이선스/검증 순서는 `docs/retro-asset-studio/model-candidate-evaluation.md`에 별도 기록했다. 가장 낮은 위험의 첫 후보는 DreamShaper를 그대로 쓰는 SD 1.5용 `PixelArtRedmond15V-PixelArt-PIXARFK.safetensors`다.
+
 ## 이번 글의 한 줄
 
 Windows에서 굴리던 ComfyUI 실험을 WSL 아래 프로젝트로 옮기면서, localhost 연결 문제보다 먼저 Node 런타임과 ComfyUI workflow JSON 변환 문제가 파이프라인을 막고 있다는 것을 확인했다.
