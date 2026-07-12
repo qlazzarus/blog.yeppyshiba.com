@@ -62,6 +62,7 @@ games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/shee
 * Windows ComfyUI native mask node(`LoadImageMask`, `InvertMask`, `VAEEncodeForInpaint`, `SetLatentNoiseMask`) 지원을 확인했다. `VAEEncodeForInpaint`는 일반 DreamShaper checkpoint에서 차량 내부를 회색으로 붕괴시켜 사용하지 않는다. `SetLatentNoiseMask` + source alpha는 배경/외곽을 유지하고 차량 영역만 샘플링하는 데 성공했지만, 현재 fixed seed/low denoise에서는 art style 개선 폭이 작다. 이 mask path도 아직 승인 후보가 아니다.
 * latent-mask denoise sweep(`0.16`, `0.20`, `0.24`), seed sweep(3 seeds), 그리고 강화 PixelArt LoRA/prompt 후보(`0.75/0.9 @ denoise 0.22`, `0.9/1.0 @ denoise 0.28`)를 실행했다. 포즈와 외곽은 안정적이지만 모든 결과가 현실적인 회색 차량 재질에 머물렀다. 현재 DreamShaper + `[Qwen.Image]PixelArt_Redmond` 조합은 parameter tuning만으로 목표 스타일을 낼 수 없다는 결론이다.
 * root cause candidate: `[Qwen.Image]PixelArt_Redmond`는 Qwen Image 2512 전용 LoRA이고 `dreamshaper_8`은 SD 1.5 계열이다. Windows ComfyUI에는 현재 이 두 파일만 설치돼 있다. 호환 후보와 설치 전 검증 계획은 `docs/retro-asset-studio/model-candidate-evaluation.md`에 정리했다.
+* Windows에 `PixelArtRedmond15V-PixelArt-PIXARFK.safetensors`를 추가한 뒤 FT86 balanced 1회 실행이 성공했다. LoRA `0.9/0.9`, `PixArFK` trigger에서도 style 변화 폭은 작지만, 호환성·생성·palette lock·sidecar path는 확인됐다. 다음 후보는 latent-mask를 연결한 좁은 denoise 또는 LoRA strength 비교다.
 
 중요한 제약:
 

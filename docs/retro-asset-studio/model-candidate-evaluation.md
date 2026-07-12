@@ -33,6 +33,19 @@ LoRA:       [Qwen.Image]PixelArt_Redmond.safetensors
 4. 통과하지 못하면 `Varo_pixel_Art`를 두 번째 SD 1.5 후보로만 비교한다. 둘을 동시에 섞지 않는다.
 5. 두 SD 1.5 LoRA가 모두 실패할 때만 SDXL branch의 비용(새 base/ControlNet/VRAM)을 승인받아 검토한다.
 
+## 2026-07-12 첫 호환성 검증
+
+`PixelArtRedmond15V-PixelArt-PIXARFK.safetensors`가 Windows ComfyUI의 LoRA 목록에 정상 인식된 것을 확인했다. 다음 조건으로 FT86 balanced 1회 실행도 성공했다.
+
+```text
+seed: 464901062956189
+LoRA model / CLIP strength: 0.9 / 0.9
+positive addition: PixArFK, flat 16-bit pixel art, chunky pixel clusters, hard color ramps
+negative addition: photorealistic, smooth shading, anti-aliased render
+```
+
+생성, download, palette lock, metadata sidecar는 정상 통과했다. 첫 결과는 silhouette과 pose grid를 유지했지만 pixel-art 변환 폭은 아직 작다. 따라서 이 LoRA는 architecture-compatible 후보임이 확인됐으나 승인 후보는 아니다. 다음 비교에서는 source alpha latent-mask를 다시 연결하고 denoise 또는 LoRA strength를 한 축만 조정한다.
+
 ## 설치 전 확인 항목
 
 - 모델 파일은 Windows ComfyUI의 `models/loras`에만 추가한다. 현재 repo나 runtime import는 바꾸지 않는다.
