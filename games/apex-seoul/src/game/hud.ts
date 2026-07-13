@@ -70,7 +70,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
                 ? `run FINISH ${formatRunTime(run.finishTimeSec ?? run.elapsedSec)} | progress 100% | checkpoints ${run.passedCheckpoints}/3 | R restart`
                 : `run ${formatRunTime(run.elapsedSec)} | progress ${(run.progressRatio * 100).toFixed(1)}% | checkpoints ${run.passedCheckpoints}/3`,
             `speed ${speedKmh.toFixed(0)} km/h (${player.speed.toFixed(0)}u) | gear ${player.gearIndex + 1} | rpm ${player.rpm.toFixed(0)} | torque ${player.torqueScale.toFixed(2)} | boost ${player.boostRatio.toFixed(2)} | fuel cut ${player.fuelCutActive ? 'on' : 'off'}`,
-            `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
+            `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | line ${player.cornerLineQuality.toFixed(2)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
             `sprite ${(tuning.vehicleViewportRatio * 100).toFixed(0)}vw | anchor ${tuning.playerRoadAnchorDistance.toFixed(0)}z | contact cue ${tuning.playerContactTerrainCueThreshold.toFixed(0)} | curve bias ${tuning.curveScreenBias.toFixed(0)}px`,
             `telemetry ${telemetry.enabled ? 'on' : 'off'} | log ${telemetryEventCount}`,
             qa.enabled

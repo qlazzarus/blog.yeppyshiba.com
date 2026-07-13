@@ -16,20 +16,52 @@ const baseConfig = {
     aeroDrag: 0.00012,
     brakeSpeed: 0,
     braking: 330,
-    centeringResponse: 1.75,
-    cornerAccelSpeedDrop: 190,
-    cornerSpeedPull: 210,
+    brakeReleaseResponse: 13,
+    brakeResponse: 8,
+    centeringResponse: 6,
+    cornerAccelSpeedDrop: 140,
+    cornerLineSpeedBonus: 70,
+    cornerLineTargetOffset: 260,
+    cornerSpeedPull: 160,
     curveDriftAcceleration: 160,
-    curveSteeringHighSpeedDrop: 0.48,
+    curveSteeringHighSpeedDrop: 0.42,
     curveSteeringCue: 0.06,
+    driftBuildRate: 2.8,
+    driftDecayRate: 2.6,
+    driftEntrySpeedLoss: 16,
+    driftEntryLateralKick: 190,
+    driftBreakawayDuration: 0.22,
+    driftBrakeEntryPressure: 0.64,
+    driftLiftEntrySpeedLoss: 22,
+    driftCounterNeutralDuration: 0.08,
+    driftLateralDamping: 1.9,
+    driftLateralMaxSpeed: 230,
+    driftCounterSteerLateralScale: 0.42,
+    driftCounterSteerLateralSustainScale: 0.58,
+    driftCounterSteerLateralVelocityCap: 52,
+    driftCounterTrimDuration: 0.65,
+    driftCounterTrimMaxRatio: 0.62,
+    driftCounterTrimResponse: 7,
+    driftCounterTrimReleaseResponse: 4,
+    driftSustainAcceleration: 70,
+    driftTransitionArmDuration: 0.12,
+    driftTransitionInputWindow: 0.42,
+    driftTransitionKick: 120,
+    driftMaxSlipAngle: 10,
+    driftMinCornerIntensity: 0.38,
+    driftMinSpeedRatio: 0.55,
+    driftMinSteerInput: 0.6,
+    driftRecoveryRate: 2.3,
     engineAcceleration: 170,
     engineBrakeDeceleration: 26,
     engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
-    highSpeedInputResponseDrop: 0.35,
-    highSpeedLateralVelocityCap: 56,
-    highSpeedSteeringSlewRate: 4.2,
-    highSpeedSteerForceDrop: 0.62,
-    highSpeedSteerVisualDrop: 0.48,
+    highSpeedInputResponseDrop: 0.28,
+    highSpeedLateralVelocityCap: 70,
+    highSpeedSteeringSlewRate: 5.6,
+    highSpeedSteerForceDrop: 0.54,
+    highSpeedSteerVisualDrop: 0.43,
+    gripSteerAngleHighSpeedCap: 0.72,
+    gripSteerAngleHighSpeedStartRatio: 0.55,
     inputResponse: 18,
     launchThrottleFullSpeedRatio: 0.38,
     launchThrottleMinRatio: 0.3,
@@ -213,6 +245,166 @@ const scenarios = {
             slopeAcceleration: 0,
         }),
     },
+    'counter-tap-release': {
+        counterReleaseSec: 4.05,
+        counterStartSec: 3.6,
+        driftEntrySec: 2.5,
+        durationSec: 7,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || t >= 2.82,
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.6 ? 1 : (t < 4.05 && t >= 3.6 ? -1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'counter-hold': {
+        counterReleaseSec: 5.4,
+        counterStartSec: 3.6,
+        driftEntrySec: 2.5,
+        durationSec: 7,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || t >= 2.82,
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.6 ? 1 : (t < 5.4 ? -1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'counter-long-hold': {
+        counterReleaseSec: 6.6,
+        counterStartSec: 3.6,
+        // Measure only after the counter trim has had time to fully engage.
+        counterSustainStartSec: 4.35,
+        driftEntrySec: 2.5,
+        durationSec: 8.2,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || t >= 2.82,
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.6 ? 1 : (t < 6.6 ? -1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'explicit-recovery': {
+        driftEntrySec: 2.5,
+        recoveryStartSec: 3.7,
+        durationSec: 7,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || (t >= 2.82 && t < 3.7),
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.7 ? 1 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'counter-transition': {
+        counterStartSec: 3.6,
+        driftEntrySec: 2.5,
+        transitionCommitSec: 4.2,
+        durationSec: 7,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || (t >= 2.82 && t < 3.6) || t >= 4.2,
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.6 ? 1 : (t >= 3.72 ? -1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'counter-lift-exit': {
+        counterStartSec: 3.6,
+        counterReleaseSec: 4.8,
+        driftEntrySec: 2.5,
+        recoveryStartSec: 4,
+        durationSec: 7,
+        getInput: (t) => ({
+            accelPressed: t < 2.5 || (t >= 2.82 && t < 4),
+            brakePressed: false,
+            steerAxis: t >= 2.3 && t < 3.6 ? 1 : (t < 4.8 ? -1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'lift-drift-entry': {
+        driftEntrySec: 3,
+        durationSec: 8,
+        getInput: (t) => ({
+            accelPressed: t < 3 || t >= 5,
+            brakePressed: false,
+            steerAxis: t >= 2.5 && t < 5.6 ? -1 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.5 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'brake-drift-entry-left': {
+        driftEntrySec: 2.5,
+        durationSec: 6,
+        getInput: (t) => ({
+            accelPressed: true,
+            brakePressed: t >= 2.42 && t < 2.75,
+            steerAxis: t >= 2.3 && t < 4.4 ? -1 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : 0.285,
+            slopeAcceleration: 0,
+        }),
+    },
+    'brake-drift-entry-right': {
+        driftEntrySec: 2.5,
+        durationSec: 6,
+        getInput: (t) => ({
+            accelPressed: true,
+            brakePressed: t >= 2.42 && t < 2.75,
+            steerAxis: t >= 2.3 && t < 4.4 ? 1 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.3 ? 0 : -0.285,
+            slopeAcceleration: 0,
+        }),
+    },
+    'drift-counter-steer-recovery': {
+        counterSteerStartSec: 4.5,
+        driftEntrySec: 3,
+        durationSec: 9,
+        getInput: (t) => ({
+            accelPressed: t < 3 || t >= 5.5,
+            brakePressed: false,
+            steerAxis: t < 4.5 ? (t >= 2.5 ? -1 : 0) : (t < 5.5 ? 1 : 0),
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2.5 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'high-speed-grip-angle-cap': {
+        durationSec: 8,
+        initialSpeed: 720,
+        steerEndSec: 5,
+        steerStartSec: 2,
+        getInput: (t) => ({
+            accelPressed: true,
+            brakePressed: false,
+            steerAxis: t >= 2 && t < 5 ? -1 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
     'hold-left-1s-release': {
         durationSec: 8,
         releaseSec: 3,
@@ -321,6 +513,17 @@ const config = {
         'slalom-20s',
         'curve-no-input',
         'curve-counter-steer',
+        'lift-drift-entry',
+        'brake-drift-entry-left',
+        'brake-drift-entry-right',
+        'drift-counter-steer-recovery',
+        'high-speed-grip-angle-cap',
+        'counter-tap-release',
+        'counter-hold',
+        'counter-long-hold',
+        'counter-lift-exit',
+        'explicit-recovery',
+        'counter-transition',
     ],
 };
 
@@ -421,10 +624,23 @@ function simulateScenario(scenario, controllerConfig) {
 
         samples.push({
             currentCurve: road.currentCurve,
+            cornerLineQuality: player.cornerLineQuality,
+            driftRatio: player.driftRatio,
+            driftState: player.driftState,
+            driftDirection: player.driftDirection,
+            driftLateralVelocity: player.driftLateralVelocity,
+            driftBaseLateralVelocity: player.driftBaseLateralVelocity,
+            counterSteerTimer: player.counterSteerTimer,
+            counterSteerLateralVelocity: player.counterSteerLateralVelocity,
+            counterSteerEntryDriftVelocity: player.counterSteerEntryDriftVelocity,
+            counterTrimRatio: player.counterTrimRatio,
+            driftTransitionArmed: player.driftTransitionArmed,
+            driftTransitionDirection: player.driftTransitionDirection,
             inputSteerAxis: input.steerAxis,
             lateralOffset: player.lateralOffset,
             rpm: player.rpm,
             speed: player.speed,
+            slipAngle: player.slipAngle,
             steering: player.steering,
             steeringVelocity: player.steeringVelocity,
             t,
@@ -439,8 +655,14 @@ function scoreScenario(scenarioId, scenario, samples, controllerConfig) {
     const checks = [
         checkAtMost('offsetClampHitCount', metrics.offsetClampHitCount, 0, 2, 16),
         checkAtMost('lateralOffset.maxAbs', metrics.lateralOffsetMaxAbs, 620, 700, 14),
-        checkAtMost('speedDropFromPeak', metrics.speedDropFromPeak, 140, 230, 12),
     ];
+
+    // These scenarios deliberately use a lift to request recovery or a drift
+    // transition; evaluate their state response rather than penalizing the
+    // intended speed shed.
+    if (!['explicit-recovery', 'counter-lift-exit', 'counter-transition'].includes(scenarioId)) {
+        checks.push(checkAtMost('speedDropFromPeak', metrics.speedDropFromPeak, 140, 230, 12));
+    }
 
     if (scenarioId === 'straight-accel-20s') {
         checks.push(checkAtLeast('speedGain', metrics.speedGain, 300, 180, 24));
@@ -490,6 +712,67 @@ function scoreScenario(scenarioId, scenario, samples, controllerConfig) {
         checks.push(checkAtMost('lateralOffset.maxAbs', metrics.lateralOffsetMaxAbs, 220, 360, 16));
     }
 
+    if (['lift-drift-entry', 'brake-drift-entry-left', 'brake-drift-entry-right'].includes(scenarioId)) {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 24));
+        checks.push(checkAtMost('driftEntryMs', metrics.driftEntryMs, 450, 900, 16));
+    }
+
+    if (scenarioId === 'lift-drift-entry') {
+        checks.push(checkAtLeast('driftEntrySpeedDrop', metrics.driftEntrySpeedDrop, 30, 12, 16));
+    }
+
+    if (['brake-drift-entry-left', 'brake-drift-entry-right'].includes(scenarioId)) {
+        checks.push(checkAtLeast('driftEntrySpeedDrop', metrics.driftEntrySpeedDrop, 25, 10, 14));
+    }
+
+    if (scenarioId === 'drift-counter-steer-recovery') {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 20));
+        checks.push(checkAtMost('driftRecoveryMs', metrics.driftRecoveryMs, 700, 1300, 22));
+    }
+
+    if (scenarioId === 'high-speed-grip-angle-cap') {
+        checks.push(checkAtLeast('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 0.45, 0.35, 12));
+        checks.push(checkAtMost('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 0.62, 0.74, 18));
+        checks.push(checkAtLeast('gripCornerSpeedDrop', metrics.gripCornerSpeedDrop, 20, 8, 14));
+        checks.push(checkAtMost('gripCornerSpeedDrop', metrics.gripCornerSpeedDrop, 110, 180, 10));
+    }
+
+    if (scenarioId === 'counter-tap-release') {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 16));
+        checks.push(checkAtLeast('counterReleaseResumeRatio', metrics.counterReleaseResumeRatio, 0.65, 0.35, 24));
+        checks.push(checkAtMost('counterDirectionChangeCount', metrics.counterDirectionChangeCount, 0, 1, 20));
+        checks.push(checkAtLeast('counterReleaseDriftHold', metrics.counterReleaseDriftHold, 1, 0, 16));
+    }
+
+    if (scenarioId === 'counter-hold') {
+        checks.push(checkAtLeast('counterMomentumMinAbs', metrics.counterMomentumMinAbs, 35, 15, 18));
+        checks.push(checkAtMost('counterDirectionChangeCount', metrics.counterDirectionChangeCount, 0, 1, 22));
+        checks.push(checkAtMost('counterHoldOffsetDelta.abs', Math.abs(metrics.counterHoldOffsetDelta), 120, 220, 14));
+    }
+
+    if (scenarioId === 'counter-long-hold') {
+        checks.push(checkAtLeast('counterSustainedMomentumMinAbs', metrics.counterSustainedMomentumMinAbs, 25, 12, 22));
+        checks.push(checkAtLeast('counterSustainedMomentumRatio', metrics.counterSustainedMomentumRatio, 0.2, 0.1, 16));
+        checks.push(checkAtMost('counterDirectionChangeCount', metrics.counterDirectionChangeCount, 0, 1, 18));
+    }
+
+    if (scenarioId === 'counter-lift-exit') {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 14));
+        checks.push(checkAtMost('explicitRecoveryMs', metrics.explicitRecoveryMs, 800, 1400, 22));
+        checks.push(checkAtMost('counterDirectionChangeCount', metrics.counterDirectionChangeCount, 0, 1, 22));
+    }
+
+    if (scenarioId === 'explicit-recovery') {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 14));
+        checks.push(checkAtMost('explicitRecoveryMs', metrics.explicitRecoveryMs, 800, 1500, 22));
+    }
+
+    if (scenarioId === 'counter-transition') {
+        checks.push(checkAtLeast('driftRatio.max', metrics.driftRatioMax, 0.45, 0.2, 14));
+        checks.push(checkAtLeast('transitionCommitted', metrics.transitionCommitted, 1, 0, 24));
+        checks.push(checkAtMost('transitionCommitMs', metrics.transitionCommitMs, 700, 1300, 18));
+    }
+
     const penalty = checks.reduce((total, check) => total + check.penalty, 0);
 
     return {
@@ -504,6 +787,7 @@ function collectMetrics(samples, controllerConfig, scenario) {
     const speeds = samples.map((sample) => sample.speed);
     const offsets = samples.map((sample) => sample.lateralOffset);
     const steering = samples.map((sample) => sample.steering);
+    const driftRatios = samples.map((sample) => sample.driftRatio);
     const speedMax = Math.max(...speeds);
     const speedFirst = speeds[0];
     const speedLast = speeds[speeds.length - 1];
@@ -524,8 +808,22 @@ function collectMetrics(samples, controllerConfig, scenario) {
             controllerConfig,
             (sample) => Math.abs(sample.currentCurve) > 0.1,
         ),
+        gripCornerSpeedDrop: measureGripCornerSpeedDrop(samples, scenario),
+        gripSteeringMaxAbs: measureGripSteeringMaxAbs(samples, scenario),
         steeringMaxAbs: round(Math.max(...steering.map((value) => Math.abs(value)))),
         curveCounterSteerRecoveryMs: measureCurveCounterSteerRecoveryMs(samples, scenario),
+        counterDirectionChangeCount: measureCounterDirectionChangeCount(samples, scenario),
+        counterHoldOffsetDelta: measureCounterHoldOffsetDelta(samples, scenario),
+        counterMomentumMinAbs: measureCounterMomentumMinAbs(samples, scenario),
+        counterSustainedMomentumMinAbs: measureCounterSustainedMomentumMinAbs(samples, scenario),
+        counterSustainedMomentumRatio: measureCounterSustainedMomentumRatio(samples, scenario),
+        counterReleaseDriftHold: measureCounterReleaseDriftHold(samples, scenario),
+        counterReleaseResumeRatio: measureCounterReleaseResumeRatio(samples, scenario),
+        driftEntryMs: measureDriftEntryMs(samples, scenario),
+        driftEntrySpeedDrop: measureDriftEntrySpeedDrop(samples, scenario),
+        driftRatioMax: round(Math.max(...driftRatios)),
+        driftRecoveryMs: measureDriftRecoveryMs(samples, scenario),
+        explicitRecoveryMs: measureExplicitRecoveryMs(samples, scenario),
         postReleaseOffsetHalfLifeMs: measurePostReleaseOffsetHalfLifeMs(samples, scenario),
         postReleaseOffsetOvershoot: measurePostReleaseOffsetOvershoot(samples, scenario),
         slalomOffsetRms: measureSlalomOffsetRms(samples),
@@ -535,7 +833,199 @@ function collectMetrics(samples, controllerConfig, scenario) {
         timeToLateralOffset100: measureTimeToLateralOffset(samples, scenario, 100),
         timeToLateralOffset200: measureTimeToLateralOffset(samples, scenario, 200),
         timeTo100Kmh: measureTimeToKmh(samples, controllerConfig, 100),
+        transitionCommitMs: measureTransitionCommitMs(samples, scenario),
+        transitionCommitted: measureTransitionCommitted(samples, scenario),
+        transitionArmedMs: measureTransitionArmedMs(samples, scenario),
     };
+}
+
+function measureDriftEntryMs(samples, scenario) {
+    if (typeof scenario.driftEntrySec !== 'number') return null;
+
+    const sample = samples.find((entry) => entry.t >= scenario.driftEntrySec && entry.driftState === 'drift');
+
+    return sample ? Math.round((sample.t - scenario.driftEntrySec) * 1000) : null;
+}
+
+function measureDriftEntrySpeedDrop(samples, scenario) {
+    if (typeof scenario.driftEntrySec !== 'number') return null;
+
+    const before = [...samples].reverse().find((entry) => entry.t < scenario.driftEntrySec);
+    const entered = samples.find((entry) => (
+        entry.t >= scenario.driftEntrySec && entry.driftState === 'drift'
+    ));
+
+    return before && entered ? round(before.speed - entered.speed) : null;
+}
+
+function measureGripSteeringMaxAbs(samples, scenario) {
+    if (typeof scenario.steerStartSec !== 'number' || typeof scenario.steerEndSec !== 'number') return null;
+
+    const active = samples.filter((entry) => (
+        entry.t >= scenario.steerStartSec && entry.t <= scenario.steerEndSec && entry.driftState === 'grip'
+    ));
+
+    return active.length > 0 ? round(Math.max(...active.map((entry) => Math.abs(entry.steering)))) : null;
+}
+
+function measureGripCornerSpeedDrop(samples, scenario) {
+    if (typeof scenario.steerStartSec !== 'number' || typeof scenario.steerEndSec !== 'number') return null;
+
+    const start = findSampleAtOrAfter(samples, scenario.steerStartSec);
+    const active = samples.filter((entry) => (
+        entry.t >= scenario.steerStartSec && entry.t <= scenario.steerEndSec
+    ));
+
+    return start && active.length > 0 ? round(start.speed - Math.min(...active.map((entry) => entry.speed))) : null;
+}
+
+function measureDriftRecoveryMs(samples, scenario) {
+    if (typeof scenario.counterSteerStartSec !== 'number') return null;
+
+    const sample = samples.find((entry) => (
+        entry.t >= scenario.counterSteerStartSec && entry.driftState === 'grip'
+    ));
+
+    return sample ? Math.round((sample.t - scenario.counterSteerStartSec) * 1000) : null;
+}
+
+function measureCounterDirectionChangeCount(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number') return null;
+
+    const endSec = scenario.counterReleaseSec ?? scenario.transitionCommitSec ?? scenario.durationSec;
+    const active = samples.filter((entry) => (
+        entry.t >= scenario.counterStartSec && entry.t <= endSec
+    ));
+    if (active.length === 0) return null;
+
+    let changes = 0;
+    let previous = active[0].driftDirection;
+
+    for (const entry of active.slice(1)) {
+        if (entry.driftDirection !== 0 && previous !== 0 && entry.driftDirection !== previous) {
+            changes += 1;
+        }
+        previous = entry.driftDirection;
+    }
+
+    return changes;
+}
+
+function measureCounterHoldOffsetDelta(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number') return null;
+
+    const start = findSampleAtOrAfter(samples, scenario.counterStartSec);
+    const end = findSampleAtOrAfter(samples, scenario.counterReleaseSec ?? scenario.durationSec);
+
+    return start && end ? round(end.lateralOffset - start.lateralOffset) : null;
+}
+
+function measureCounterMomentumMinAbs(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number') return null;
+
+    const endSec = scenario.counterReleaseSec ?? scenario.durationSec;
+    const active = samples.filter((entry) => (
+        entry.t >= scenario.counterStartSec && entry.t <= endSec
+    ));
+    if (active.length === 0) return null;
+
+    return round(Math.min(...active.map((entry) => Math.abs(entry.driftLateralVelocity))));
+}
+
+function getCounterSustainSamples(samples, scenario) {
+    if (typeof scenario.counterSustainStartSec !== 'number') return [];
+
+    const endSec = scenario.counterReleaseSec ?? scenario.durationSec;
+
+    return samples.filter((entry) => (
+        entry.t >= scenario.counterSustainStartSec && entry.t <= endSec
+    ));
+}
+
+function measureCounterSustainedMomentumMinAbs(samples, scenario) {
+    const active = getCounterSustainSamples(samples, scenario);
+
+    return active.length > 0
+        ? round(Math.min(...active.map((entry) => Math.abs(entry.driftLateralVelocity))))
+        : null;
+}
+
+function measureCounterSustainedMomentumRatio(samples, scenario) {
+    const active = getCounterSustainSamples(samples, scenario);
+    if (active.length === 0) return null;
+
+    const baseVelocity = Math.max(1, Math.abs(active[0].driftBaseLateralVelocity));
+    const minVelocity = Math.min(...active.map((entry) => Math.abs(entry.driftLateralVelocity)));
+
+    return round(minVelocity / baseVelocity);
+}
+
+function measureCounterReleaseDriftHold(samples, scenario) {
+    if (typeof scenario.counterReleaseSec !== 'number') return null;
+
+    const sample = findSampleAtOrAfter(samples, scenario.counterReleaseSec + 0.3);
+
+    return sample?.driftState === 'drift' ? 1 : 0;
+}
+
+function measureCounterReleaseResumeRatio(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number' || typeof scenario.counterReleaseSec !== 'number') {
+        return null;
+    }
+
+    const start = findSampleAtOrAfter(samples, scenario.counterStartSec);
+    const resumed = findSampleAtOrAfter(samples, scenario.counterReleaseSec + 0.4);
+    if (!start || !resumed) return null;
+
+    const denominator = Math.max(1, Math.abs(start.driftBaseLateralVelocity));
+
+    return round(Math.abs(resumed.driftLateralVelocity) / denominator);
+}
+
+function measureExplicitRecoveryMs(samples, scenario) {
+    if (typeof scenario.recoveryStartSec !== 'number') return null;
+
+    const sample = samples.find((entry) => (
+        entry.t >= scenario.recoveryStartSec && entry.driftState === 'grip'
+    ));
+
+    return sample ? Math.round((sample.t - scenario.recoveryStartSec) * 1000) : null;
+}
+
+function measureTransitionCommitted(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number' || typeof scenario.transitionCommitSec !== 'number') {
+        return null;
+    }
+
+    const initial = findSampleAtOrAfter(samples, scenario.counterStartSec);
+    const committed = samples.find((entry) => (
+        entry.t >= scenario.transitionCommitSec &&
+        entry.driftDirection !== 0 &&
+        entry.driftDirection !== initial?.driftDirection
+    ));
+
+    return committed ? 1 : 0;
+}
+
+function measureTransitionCommitMs(samples, scenario) {
+    if (typeof scenario.transitionCommitSec !== 'number') return null;
+
+    const initial = findSampleAtOrAfter(samples, scenario.counterStartSec ?? 0);
+    const committed = samples.find((entry) => (
+        entry.t >= scenario.transitionCommitSec &&
+        entry.driftDirection !== 0 &&
+        entry.driftDirection !== initial?.driftDirection
+    ));
+
+    return committed ? Math.round((committed.t - scenario.transitionCommitSec) * 1000) : null;
+}
+
+function measureTransitionArmedMs(samples, scenario) {
+    if (typeof scenario.counterStartSec !== 'number') return null;
+
+    const armed = samples.find((entry) => entry.driftTransitionArmed);
+
+    return armed ? Math.round((armed.t - scenario.counterStartSec) * 1000) : null;
 }
 
 function measureSteeringResponseMs(samples) {

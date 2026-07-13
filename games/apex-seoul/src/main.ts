@@ -102,11 +102,15 @@ const COURSE_CHECKPOINT_RATIOS = [0.25, 0.5, 0.75];
 const COURSE_FINISH_RATIO = 1;
 const PLAYER_BRAKE_SPEED = 0;
 const PLAYER_BRAKING = 330;
-const PLAYER_CENTERING_RESPONSE = 1.75;
+const PLAYER_BRAKE_RELEASE_RESPONSE = 13;
+const PLAYER_BRAKE_RESPONSE = 8;
+const PLAYER_CENTERING_RESPONSE = 6;
 const PLAYER_CRUISE_SPEED = 440;
 const PLAYER_ACCEL_SPEED = 760;
-const PLAYER_CORNER_ACCEL_SPEED_DROP = 190;
-const PLAYER_CORNER_SPEED_PULL = 210;
+const PLAYER_CORNER_ACCEL_SPEED_DROP = 140;
+const PLAYER_CORNER_LINE_SPEED_BONUS = 70;
+const PLAYER_CORNER_LINE_TARGET_OFFSET = 260;
+const PLAYER_CORNER_SPEED_PULL = 160;
 const PLAYER_INPUT_RESPONSE = 18;
 const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.38;
 const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.3;
@@ -132,12 +136,41 @@ const PLAYER_TERRAIN_SCALE_INTENSITY = 0.045;
 const PLAYER_CURVE_SCREEN_BIAS = 8;
 const PLAYER_CURVE_DRIFT_ACCELERATION = 160;
 const PLAYER_CURVE_STEERING_CUE = 0.06;
-const PLAYER_CURVE_STEERING_HIGH_SPEED_DROP = 0.48;
-const PLAYER_HIGH_SPEED_INPUT_RESPONSE_DROP = 0.35;
-const PLAYER_HIGH_SPEED_LATERAL_VELOCITY_CAP = 56;
-const PLAYER_HIGH_SPEED_STEERING_SLEW_RATE = 4.2;
-const PLAYER_HIGH_SPEED_STEER_FORCE_DROP = 0.62;
-const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.48;
+const PLAYER_DRIFT_BUILD_RATE = 2.8;
+const PLAYER_DRIFT_DECAY_RATE = 2.6;
+const PLAYER_DRIFT_ENTRY_SPEED_LOSS = 16;
+const PLAYER_DRIFT_ENTRY_LATERAL_KICK = 190;
+const PLAYER_DRIFT_BREAKAWAY_DURATION = 0.22;
+const PLAYER_DRIFT_BRAKE_ENTRY_PRESSURE = 0.64;
+const PLAYER_DRIFT_LIFT_ENTRY_SPEED_LOSS = 22;
+const PLAYER_DRIFT_COUNTER_NEUTRAL_DURATION = 0.08;
+const PLAYER_DRIFT_LATERAL_DAMPING = 1.9;
+const PLAYER_DRIFT_LATERAL_MAX_SPEED = 230;
+const PLAYER_DRIFT_COUNTER_STEER_LATERAL_SCALE = 0.42;
+const PLAYER_DRIFT_COUNTER_STEER_LATERAL_SUSTAIN_SCALE = 0.58;
+const PLAYER_DRIFT_COUNTER_STEER_LATERAL_VELOCITY_CAP = 52;
+// Counter steer should trim the existing slide, not pull the car back to grip.
+const PLAYER_DRIFT_COUNTER_TRIM_DURATION = 0.65;
+const PLAYER_DRIFT_COUNTER_TRIM_MAX_RATIO = 0.62;
+const PLAYER_DRIFT_COUNTER_TRIM_RESPONSE = 7;
+const PLAYER_DRIFT_COUNTER_TRIM_RELEASE_RESPONSE = 4;
+const PLAYER_DRIFT_SUSTAIN_ACCELERATION = 70;
+const PLAYER_DRIFT_TRANSITION_ARM_DURATION = 0.12;
+const PLAYER_DRIFT_TRANSITION_INPUT_WINDOW = 0.42;
+const PLAYER_DRIFT_TRANSITION_KICK = 120;
+const PLAYER_DRIFT_MAX_SLIP_ANGLE = 10;
+const PLAYER_DRIFT_MIN_CORNER_INTENSITY = 0.38;
+const PLAYER_DRIFT_MIN_SPEED_RATIO = 0.55;
+const PLAYER_DRIFT_MIN_STEER_INPUT = 0.6;
+const PLAYER_DRIFT_RECOVERY_RATE = 2.3;
+const PLAYER_CURVE_STEERING_HIGH_SPEED_DROP = 0.42;
+const PLAYER_HIGH_SPEED_INPUT_RESPONSE_DROP = 0.28;
+const PLAYER_HIGH_SPEED_LATERAL_VELOCITY_CAP = 70;
+const PLAYER_HIGH_SPEED_STEERING_SLEW_RATE = 5.6;
+const PLAYER_HIGH_SPEED_STEER_FORCE_DROP = 0.54;
+const PLAYER_HIGH_SPEED_STEER_VISUAL_DROP = 0.43;
+const PLAYER_GRIP_STEER_ANGLE_HIGH_SPEED_CAP = 0.72;
+const PLAYER_GRIP_STEER_ANGLE_HIGH_SPEED_START_RATIO = 0.55;
 const PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.34;
 const PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE = 0.62;
 const PLAYER_STEERING_VELOCITY_CUE = 0.2;
@@ -206,12 +239,42 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     aeroDrag: PLAYER_AERO_DRAG,
     brakeSpeed: PLAYER_BRAKE_SPEED,
     braking: PLAYER_BRAKING,
+    brakeReleaseResponse: PLAYER_BRAKE_RELEASE_RESPONSE,
+    brakeResponse: PLAYER_BRAKE_RESPONSE,
     centeringResponse: PLAYER_CENTERING_RESPONSE,
     cornerAccelSpeedDrop: PLAYER_CORNER_ACCEL_SPEED_DROP,
+    cornerLineSpeedBonus: PLAYER_CORNER_LINE_SPEED_BONUS,
+    cornerLineTargetOffset: PLAYER_CORNER_LINE_TARGET_OFFSET,
     cornerSpeedPull: PLAYER_CORNER_SPEED_PULL,
     curveDriftAcceleration: PLAYER_CURVE_DRIFT_ACCELERATION,
     curveSteeringHighSpeedDrop: PLAYER_CURVE_STEERING_HIGH_SPEED_DROP,
     curveSteeringCue: PLAYER_CURVE_STEERING_CUE,
+    driftBuildRate: PLAYER_DRIFT_BUILD_RATE,
+    driftDecayRate: PLAYER_DRIFT_DECAY_RATE,
+    driftEntrySpeedLoss: PLAYER_DRIFT_ENTRY_SPEED_LOSS,
+    driftEntryLateralKick: PLAYER_DRIFT_ENTRY_LATERAL_KICK,
+    driftBreakawayDuration: PLAYER_DRIFT_BREAKAWAY_DURATION,
+    driftBrakeEntryPressure: PLAYER_DRIFT_BRAKE_ENTRY_PRESSURE,
+    driftLiftEntrySpeedLoss: PLAYER_DRIFT_LIFT_ENTRY_SPEED_LOSS,
+    driftCounterNeutralDuration: PLAYER_DRIFT_COUNTER_NEUTRAL_DURATION,
+    driftLateralDamping: PLAYER_DRIFT_LATERAL_DAMPING,
+    driftLateralMaxSpeed: PLAYER_DRIFT_LATERAL_MAX_SPEED,
+    driftCounterSteerLateralScale: PLAYER_DRIFT_COUNTER_STEER_LATERAL_SCALE,
+    driftCounterSteerLateralSustainScale: PLAYER_DRIFT_COUNTER_STEER_LATERAL_SUSTAIN_SCALE,
+    driftCounterSteerLateralVelocityCap: PLAYER_DRIFT_COUNTER_STEER_LATERAL_VELOCITY_CAP,
+    driftCounterTrimDuration: PLAYER_DRIFT_COUNTER_TRIM_DURATION,
+    driftCounterTrimMaxRatio: PLAYER_DRIFT_COUNTER_TRIM_MAX_RATIO,
+    driftCounterTrimResponse: PLAYER_DRIFT_COUNTER_TRIM_RESPONSE,
+    driftCounterTrimReleaseResponse: PLAYER_DRIFT_COUNTER_TRIM_RELEASE_RESPONSE,
+    driftSustainAcceleration: PLAYER_DRIFT_SUSTAIN_ACCELERATION,
+    driftTransitionArmDuration: PLAYER_DRIFT_TRANSITION_ARM_DURATION,
+    driftTransitionInputWindow: PLAYER_DRIFT_TRANSITION_INPUT_WINDOW,
+    driftTransitionKick: PLAYER_DRIFT_TRANSITION_KICK,
+    driftMaxSlipAngle: PLAYER_DRIFT_MAX_SLIP_ANGLE,
+    driftMinCornerIntensity: PLAYER_DRIFT_MIN_CORNER_INTENSITY,
+    driftMinSpeedRatio: PLAYER_DRIFT_MIN_SPEED_RATIO,
+    driftMinSteerInput: PLAYER_DRIFT_MIN_STEER_INPUT,
+    driftRecoveryRate: PLAYER_DRIFT_RECOVERY_RATE,
     engineAcceleration: PLAYER_ENGINE_ACCELERATION,
     engineBrakeDeceleration: PLAYER_ENGINE_BRAKE_DECELERATION,
     engineProfile: ACTIVE_RUNTIME_VEHICLE.engineProfile,
@@ -220,6 +283,8 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     highSpeedSteeringSlewRate: PLAYER_HIGH_SPEED_STEERING_SLEW_RATE,
     highSpeedSteerForceDrop: PLAYER_HIGH_SPEED_STEER_FORCE_DROP,
     highSpeedSteerVisualDrop: PLAYER_HIGH_SPEED_STEER_VISUAL_DROP,
+    gripSteerAngleHighSpeedCap: PLAYER_GRIP_STEER_ANGLE_HIGH_SPEED_CAP,
+    gripSteerAngleHighSpeedStartRatio: PLAYER_GRIP_STEER_ANGLE_HIGH_SPEED_START_RATIO,
     inputResponse: PLAYER_INPUT_RESPONSE,
     launchThrottleFullSpeedRatio: PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO,
     launchThrottleMinRatio: PLAYER_LAUNCH_THROTTLE_MIN_RATIO,
@@ -258,7 +323,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
-    private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'w', Phaser.Input.Keyboard.Key>;
+    private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
     private lastVehicleQaState: RuntimeVehicleQaState | null = null;
     private playerCar!: Phaser.GameObjects.Image;
@@ -342,6 +407,7 @@ class ApexSeoulScene extends Phaser.Scene {
             q: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             r: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.R),
             s: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            space: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
             w: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
         };
         this.telemetry = new RuntimeTelemetryRecorder(
@@ -497,8 +563,8 @@ class ApexSeoulScene extends Phaser.Scene {
         renderHudText(this.hudText, {
             camera: this.cameraResource,
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
-                ? 'Up: accel | Down: brake | Left/Right: steer | R: restart | WASD: camera | Q/E: pitch'
-                : 'Up: accel | Down: brake | Left/Right: steer | R: restart | debug camera locked',
+                ? 'Up: accel | Space: brake | Left/Right: steer | R: restart | WASD: camera | Q/E: pitch'
+                : 'Up: accel | Space: brake | Left/Right: steer | R: restart | debug camera locked',
             cornerIntensity: getCornerIntensity(stats?.currentCurve ?? 0),
             player,
             qa: RUNTIME_QA,
@@ -523,7 +589,7 @@ class ApexSeoulScene extends Phaser.Scene {
             this.playerVehicle,
             {
                 accelPressed: this.cursors.up.isDown,
-                brakePressed: this.cursors.down.isDown,
+                brakePressed: this.keys.space.isDown,
                 steerAxis: getAxis(this.cursors.right.isDown, this.cursors.left.isDown),
             },
             {
@@ -556,14 +622,17 @@ class ApexSeoulScene extends Phaser.Scene {
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x, anchor.y)
             .setDisplaySize(displaySize, displaySize)
-            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg));
+            .setRotation(Phaser.Math.DegToRad(
+                visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
+            ));
 
         this.lastVehicleQaState = {
             anchor,
             displaySize,
             flipX: vehicleFrame.flipX,
             frame: vehicleFrame.frame,
-            rotationDeg: visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg,
+            physicalSteering: visualSteering.physicalValue,
+            rotationDeg: visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
             terrainScale: getTerrainScaleMultiplier(anchor, RUNTIME_TUNING),
             visualSteering: visualSteering.value,
             visualSteeringThreshold: visualSteering.threshold,
@@ -600,6 +669,7 @@ class ApexSeoulScene extends Phaser.Scene {
             terrainIntensity,
         );
         const steeringOffset = visualSteering.value * displaySize * 0.018;
+        const driftShadowScale = 1 + this.playerVehicle.driftRatio * 0.18;
         const alpha = PLAYER_SHADOW_MAX_ALPHA * Phaser.Math.Clamp(anchor.scale * 13, 0.7, 1);
 
         this.playerSoftShadowCar
@@ -612,10 +682,12 @@ class ApexSeoulScene extends Phaser.Scene {
                 chassisCenter.y - displaySize * 0.022,
             )
             .setDisplaySize(
-                displaySize * silhouetteScale.x * 1.16,
+                displaySize * silhouetteScale.x * 1.16 * driftShadowScale,
                 displaySize * silhouetteScale.y * 1.26,
             )
-            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.22));
+            .setRotation(Phaser.Math.DegToRad(
+                visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.22 + this.playerVehicle.slipAngle * 0.32,
+            ));
 
         this.playerShadowCar
             .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
@@ -627,10 +699,12 @@ class ApexSeoulScene extends Phaser.Scene {
                 chassisCenter.y - displaySize * 0.032,
             )
             .setDisplaySize(
-                displaySize * silhouetteScale.x,
+                displaySize * silhouetteScale.x * driftShadowScale,
                 displaySize * silhouetteScale.y,
             )
-            .setRotation(Phaser.Math.DegToRad(visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.35));
+            .setRotation(Phaser.Math.DegToRad(
+                visualSteering.value * RUNTIME_TUNING.vehicleRotationDeg * 0.35 + this.playerVehicle.slipAngle * 0.45,
+            ));
 
         this.graphics.fillStyle(0x010303, alpha * 0.16);
         drawShadowContactPatch(
@@ -738,9 +812,34 @@ class ApexSeoulScene extends Phaser.Scene {
             smoothSpeed,
         );
 
+        const physicalValue = this.playerVehicle.steering * visualScale;
+        const player = this.playerVehicle;
+        const isSliding = player.driftState !== 'grip' && player.driftDirection !== 0;
+
+        if (!isSliding) {
+            return {
+                physicalValue,
+                rotationValue: physicalValue,
+                threshold,
+                value: physicalValue,
+            };
+        }
+
+        // Drift 방향은 차체가 향하는 방향이고, steering은 실제 lateral 이동/카운터 조향이다.
+        // 따라서 recovery가 끝날 때까지 sprite pose를 진입 방향에 고정한다.
+        const yawStrength = player.driftState === 'setup'
+            ? 0.58
+            : player.driftState === 'drift'
+                ? Phaser.Math.Linear(0.8, 1, player.driftRatio)
+                : Phaser.Math.Linear(0.72, 0.9, player.driftRatio);
+        const counterTrim = Phaser.Math.Clamp(player.counterSteerTimer / 0.16, 0, 1);
+        const trimmedYawStrength = Phaser.Math.Linear(yawStrength, 0.58, counterTrim);
+
         return {
+            physicalValue,
+            rotationValue: 0,
             threshold,
-            value: this.playerVehicle.steering * visualScale,
+            value: player.driftDirection * trimmedYawStrength,
         };
     }
 
@@ -964,18 +1063,44 @@ class ApexSeoulScene extends Phaser.Scene {
             },
             elapsedSec: Number(this.elapsedSec.toFixed(3)),
             horizonY,
+            input: {
+                accelPressed: this.cursors.up.isDown,
+                brakePressed: this.keys.space.isDown,
+                steerAxis: getAxis(this.cursors.right.isDown, this.cursors.left.isDown),
+            },
             player: {
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
+                brakePressure: Number(this.playerVehicle.brakePressure.toFixed(4)),
+                cornerLineQuality: Number(this.playerVehicle.cornerLineQuality.toFixed(4)),
+                counterSteerTimer: Number(this.playerVehicle.counterSteerTimer.toFixed(3)),
+                counterSteerLateralVelocity: Number(this.playerVehicle.counterSteerLateralVelocity.toFixed(3)),
+                counterSteerEntryDriftVelocity: Number(this.playerVehicle.counterSteerEntryDriftVelocity.toFixed(3)),
+                counterTrimRatio: Number(this.playerVehicle.counterTrimRatio.toFixed(4)),
                 engineTorqueScale: Number(this.playerVehicle.engineTorqueScale.toFixed(4)),
+                driftDirection: this.playerVehicle.driftDirection,
+                driftBaseLateralVelocity: Number(this.playerVehicle.driftBaseLateralVelocity.toFixed(3)),
+                driftEntryLateralTarget: Number(this.playerVehicle.driftEntryLateralTarget.toFixed(3)),
+                driftEntryMode: this.playerVehicle.driftEntryMode,
+                driftLateralVelocity: Number(this.playerVehicle.driftLateralVelocity.toFixed(3)),
+                driftRatio: Number(this.playerVehicle.driftRatio.toFixed(4)),
+                driftState: this.playerVehicle.driftState,
+                driftStateTimer: Number(this.playerVehicle.driftStateTimer.toFixed(3)),
+                driftTransitionArmed: this.playerVehicle.driftTransitionArmed,
+                driftTransitionDirection: this.playerVehicle.driftTransitionDirection,
+                driftTransitionAwaitingCounter: this.playerVehicle.driftTransitionAwaitingCounter,
+                driftTransitionLiftTimer: Number(this.playerVehicle.driftTransitionLiftTimer.toFixed(3)),
                 fuelCutActive: this.playerVehicle.fuelCutActive,
                 gear: this.playerVehicle.gearIndex + 1,
+                gripSteerAngleLimit: Number(this.playerVehicle.gripSteerAngleLimit.toFixed(4)),
                 lateralOffset: this.playerVehicle.lateralOffset,
                 rpm: this.playerVehicle.rpm,
                 slopeAcceleration: this.getSlopeAcceleration(),
                 speed: this.playerVehicle.speed,
+                slipAngle: Number(this.playerVehicle.slipAngle.toFixed(3)),
                 steering: this.playerVehicle.steering,
                 steeringVelocity: this.playerVehicle.steeringVelocity,
                 torqueScale: Number(this.playerVehicle.torqueScale.toFixed(4)),
+                traction: Number(this.playerVehicle.traction.toFixed(4)),
             },
             qa: RUNTIME_QA,
             controller: PLAYER_CONTROLLER_CONFIG,

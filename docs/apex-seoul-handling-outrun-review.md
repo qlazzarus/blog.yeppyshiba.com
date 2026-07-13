@@ -1,1116 +1,212 @@
-# Apex Seoul Handling OutRun Review
+# Apex Seoul Handling Review
 
-이 문서는 Apex Seoul의 현재 주행/핸들링 감각을 바로 수정하기 전에, 현재 코드가 어떤 모델인지 정리하고 OutRun 계열 pseudo-3D 아케이드 레이싱 감각 기준으로 비교하기 위한 작업 노트다.
+갱신일: 2026-07-13
 
-목표는 OutRun을 복제하는 것이 아니다. 문서와 코드에서 이미 정리한 것처럼 직접 참고하는 것은 원본 sprite나 물리값이 아니라, 화면 하단 차량의 안정성, 도로 원근으로 커브를 전달하는 방식, 약한 grip 조향과 강한 drift/slip pose의 역할 분리다.
+## 목적
 
-## 현재 코드 기준
+이 문서는 Apex Seoul의 주행 감각을 판단하는 현재 기준과 QA 방법을 기록한다. OutRun 계열을 복제하지 않는다. 참조하는 것은 화면 하단 차량의 안정성, 도로 원근으로 커브를 읽는 방식, 그리고 grip/drift/counter의 역할 분리다.
 
-### 렌더링 / 화면
+## 현재 모델
 
-- 논리 화면은 `1200 x 760` 고정이다.
-- Phaser scale mode는 `FIT`이다.
-- renderer는 `Phaser.WEBGL`이다.
-- 차량은 화면 하단 fixed contact plane 근처에 있고, 실제 `projectGroundPoint(contactZ)`의 y를 직접 따라가지 않는다.
-- 차량 크기는 `vehicleViewportRatio = 0.34`, `vehicleMinSize = 220`, `vehicleMaxSize = 360` 기준이다.
-- 기본 FOV는 `69`, 속도에 따라 `+3.5`까지 보정된다.
-
-### 속도 모델
-
-현재 속도는 다음 힘을 합산해 갱신한다.
+### 속도
 
 ```text
-engine force
-+ slope acceleration
-- brake
-- engine brake
-- rolling resistance
-- aero drag
-- corner limit force
+engine force + slope acceleration
+- brake - engine brake - rolling resistance - aero drag
+- corner limit - steering scrub
 ```
 
-주요 값:
+- 내부 속도 `760u`는 표시 약 `200 km/h`에 대응한다.
+- brake는 Space이며 `brakePressure`로 부드럽게 상승/해제한다.
+- RPM, gear, torque, boost, fuel cut은 vehicle profile에서 계산한다.
 
-```text
-cruise speed: 440
-max accel speed: 760
-engine acceleration: 170
-braking: 330
-engine brake: 26
-rolling resistance: 14
-aero drag: 0.00012
-gravity acceleration: 360
-max slope acceleration: 115
-slope sample distance: 720
+### Grip
+
+- `steeringVelocity`와 `lateralOffset` 기반의 2차 반응 모델이다.
+- 고속에서는 steering force, input response, visual yaw, lateral velocity cap을 줄인다.
+- curve force는 원심감 cue이며, 플레이어 조작권을 빼앗으면 안 된다.
+
+### Drift
+
+- 상태: `grip → setup → drift → recovery`.
+- entry: 고속·충분한 코너·강한 turn-in·brake 또는 throttle lift.
+- `driftLateralVelocity`는 일반 steering velocity와 분리된 momentum이다.
+- setup 동안 breakaway momentum을 축적해 옆으로 튀는 느낌을 막는다.
+- counter trim은 drift 방향을 유지한 채 slip/momentum을 줄인다.
+- 방향 전환은 counter만으로 일어나지 않는다. neutral lift 뒤에 새 counter 입력을 넣고 재가속할 때만 commit한다.
+
+## 2026-07-13 telemetry 판단
+
+60초 실제 주행 로그 기준:
+
+- drift는 의도적으로 진입/유지/회복 가능한 상태가 됐다.
+- 전체 속도 평균은 약 `662u`, 최고 `760u`다.
+- 542개 sample 중 519개가 최고속의 75% 이상이었다.
+- speed effect 평균은 약 `0.77`, FOV 평균은 약 `73.8°`로 고속 연출의 대비가 부족하다.
+- straight 평균 속도 약 `653u`, 강한 corner 평균 약 `642u`로 차이가 작다.
+- 최대 lateral offset은 약 `105u`로 허용 road offset `700u`에 비해 작다.
+
+해석: 차량이 느린 것이 아니라, 최고속 상태가 너무 오래 이어지고 corner가 라인 선택을 충분히 요구하지 않는다.
+
+## 다음 핸들링 작업
+
+1. speed cue를 속도 비율뿐 아니라 throttle acceleration, downhill, drift exit에 연결한다.
+2. corner speed loss를 curve 수치 하나가 아니라 entry line, steering scrub, exit alignment와 연결한다.
+3. easy bend / sharp bend / S transition별로 목표 속도와 drift 필요도를 다르게 둔다.
+4. roadside object pass rate와 corner entry cue를 QA에 추가한다.
+
+## QA
+
+### 빠른 controller simulation
+
+```bash
+npm run qa:handling-sim --workspace @games/apex-seoul
 ```
 
-`speed`는 실제 km/h가 아니라 road z를 진행시키는 내부 world unit/sec다. 디버그 HUD에서는 내부 단위와 표시용 km/h를 분리해서 본다.
-
-현재 표시 기준:
-
-```text
-760u = 200 km/h
-700u = 184 km/h
-440u = 116 km/h
-```
-
-따라서 화면에서 보이는 `speed 700`대는 실제 km/h가 아니라 최고속 근처의 내부 진행량이다. 플레이어에게 보여줄 속도감은 약 `180 km/h`대로 보는 편이 맞다. 다운힐 공도 감각을 위해 표시 속도는 과장하지 않고, 실제 속도감은 도로/오브젝트/FOV cue로 만든다.
-
-현재 모델은 시뮬레이션보다는 감각용 아케이드 모델이다. 다만 엔진 가속이 낮고 저항/경사/코너 감속이 함께 들어가기 때문에, 입력 대비 속도 반응이 둔하거나 "밀고 나간다"보다 "서서히 깎인다" 쪽으로 느껴질 수 있다.
-
-### 조향 모델
-
-조향은 `steeringVelocity`와 `lateralOffset`을 가진 2차 반응 모델이다.
-
-```text
-steering force
-+ centering force
-+ curve force
-+ damping force
-```
-
-주요 값:
-
-```text
-steer acceleration: 1650
-steer damping: 9.2
-centering response: 1.75
-max road offset: 700
-input response: 18
-curve drift acceleration: 160
-curve steering cue: 0.06
-curve steering high speed drop: 0.38
-steering velocity cue: 0.20
-high speed steer force drop: 0.42
-high speed visual steer drop: 0.38
-```
-
-현재 조향은 입력을 누르면 즉시 `visual steering`이 바뀌는 단순 모델이 아니라, lateral velocity와 커브 cue를 섞는다. 이 때문에 sprite는 움직이는데 차의 위치 이동이 늦거나, 반대로 도로 커브가 차를 미는 것처럼 느껴질 수 있다.
-
-### 커브 감속
-
-커브 강도는 `abs(curve) / 0.72`로 계산한다.
-
-```text
-corner accel speed drop: 100
-corner speed pull: 120
-```
-
-강한 커브에서는 최고 가속 속도 상한이 낮아지고, 현재 속도가 그 상한보다 높으면 추가 감속 force가 들어간다. 이 감속은 drift 판정이 아니라 pseudo-3D 도로 움직임과 차량 anchor가 분리되어 보이지 않게 하는 가독성 보정이다.
-
-### 차량 pose
-
-기본 grip 주행은 3way다.
-
-```text
-steer-left-1
-center
-steer-right-1
-```
-
-`steer-left-2`, `steer-right-2`는 아직 drift/slip 후보로 남겨둔다. 현재 grip 상태에서 강한 yaw pose를 열면 차량이 코너를 도는 것이 아니라 이미 미끄러지는 것처럼 보일 가능성이 크다.
-
-## OutRun식 비교 기준
-
-### 1. 화면 하단 차량은 안정적인 기준점이어야 한다
-
-OutRun 계열 pseudo-3D 감각에서는 플레이어 차량이 화면 하단 기준을 잃지 않는 것이 중요하다. 도로가 휘고 고저차가 변해도, 차량이 카메라/도로에 끌려다니는 물체처럼 보이면 조작 기준점이 흔들린다.
-
-현재 Apex Seoul은 이 기준을 대체로 따른다.
-
-- 차량 y는 fixed contact plane 기준이다.
-- 고저차는 큰 y 이동보다 pose, shadow, camera pitch, terrain scale로 읽힌다.
-- `contactZ`는 x/curve/lateral sampling에 쓰고, y projection에는 직접 묶지 않는다.
-
-검토할 점:
-
-- `PLAYER_MAX_TERRAIN_SCREEN_Y_SHIFT = 18`이 실제 주행 중에도 충분히 작게 느껴지는가.
-- 내리막에서 차량은 고정되어 있는데 도로만 빠지는 느낌이 남는가.
-- shadow가 차량 기준선보다 늦거나 앞서 보이는가.
-
-### 2. Grip 조향은 빠르지만 과장되지 않아야 한다
-
-OutRun식 기본 주행에서는 차량이 좌우로 즉각 반응하되, 기본 grip 상태에서 강한 drift pose처럼 보이면 안 된다.
-
-현재 Apex Seoul은 3way pose를 쓰는 점은 방향이 맞다.
-
-검토할 점:
-
-- `steerWeak = 0.14` 때문에 좌우 pose 전환이 너무 늦거나 빠르지 않은가.
-- `visual steering`에 lateral velocity cue가 섞이면서, 입력을 놓은 뒤에도 차가 불필요하게 기울어 보이지 않는가.
-- 고속 조향 감소가 너무 강해져 최고속에서 차가 둔하게 느껴지지 않는가.
-
-비교 후보:
-
-```text
-steerWeak: 0.12 / 0.16 / 0.18 / 0.22
-highSpeedSteerForceDrop: 0.25 / 0.34 / 0.42
-highSpeedSteerVisualDrop: 0.25 / 0.38 / 0.45
-steeringVelocityCue: 0.20 / 0.30 / 0.38
-```
-
-### 3. 도로 커브가 차를 밀어야 하지만 차를 빼앗으면 안 된다
-
-현재 `curveForce = -curve * speedRatio * 260`이 lateral physics에 들어가고, `curveCarBias = 8`이 screen x에도 들어간다. 이 둘은 모두 OutRun식 원심감 cue로 볼 수 있다.
-
-검토할 점:
-
-- 커브에서 차가 운전자 입력보다 도로에 끌려가는 느낌이 드는가.
-- `curveForce`와 `curveCarBias`가 같은 방향으로 과하게 누적되는가.
-- 코너에서 중앙선을 기준으로 차가 안정적으로 읽히는가.
-
-비교 후보:
-
-```text
-curveDriftAcceleration: 120 / 180 / 260
-curveSteeringCue: 0.04 / 0.07 / 0.10
-curveCarBias: 0 / 8 / 16 / 24
-```
-
-첫 검토는 `curveForce`를 낮추고 `curveCarBias`는 약하게 남기는 쪽이 좋다. 물리 lateral offset을 크게 밀기보다, 화면상 도로가 휘는 동안 작은 시각 cue만 주는 편이 OutRun식 grip 감각에 가깝다.
-
-### 4. 코너 감속은 조작 보정이지 벌점처럼 느껴지면 안 된다
-
-현재 강한 커브에서는 최고속 상한을 최대 150 낮추고, 초과분에 대해 pull force를 준다. 이 값이 크면 코너에서 차가 갑자기 죽는 느낌이 날 수 있다.
-
-검토할 점:
-
-- 커브 진입 때 속도 감소가 "라인을 잡는다"로 느껴지는가, "엔진이 꺼진다"로 느껴지는가.
-- throttle을 누르고 있는데도 차가 너무 쉽게 눌리는가.
-- 내리막 slope acceleration과 corner limit force가 서로 싸우는 구간이 있는가.
-
-비교 후보:
-
-```text
-cornerAccelSpeedDrop: 80 / 120 / 150
-cornerSpeedPull: 90 / 140 / 190
-```
-
-### 5. 속도감은 수치보다 도로 흐름과 FOV가 먼저다
-
-현재 최고속은 760이고 기본 cruise는 440이다. 하지만 체감 속도는 road segment flow, FOV, horizon, side object, 차량 shadow가 함께 만든다.
-
-검토할 점:
-
-- acceleration이 너무 느려 최고속까지 가는 과정이 지루한가.
-- max speed가 충분해도 도로 흐름이 덜 빠르게 보이는가.
-- roadside object가 들어온 뒤 속도감이 개선됐는가.
-- FOV bonus가 너무 작아 고속감이 약한가.
-
-비교 후보:
-
-```text
-engineAcceleration: 128 / 170 / 220
-cruiseSpeed: 420 / 440 / 480
-accelSpeed: 760 / 820 / 880
-fovBonus: 2.4 / 3.5 / 5.0
-```
-
-단, FOV로만 속도감을 올리면 도로가 늘어지고 차량 anchor가 불안정해질 수 있다. 먼저 roadside object flow와 road strip 속도가 읽히는지 봐야 한다.
-
-## 현재 이상하게 느껴질 수 있는 원인 후보
-
-1. `curveForce`가 물리 lateral offset을 너무 적극적으로 건드린다.
-2. `cornerSpeedPull`이 커브에서 속도를 벌점처럼 깎는다.
-3. `engineAcceleration = 170`과 launch throttle 보정의 조합이 정지 출발에서 아직 덜 자연스러울 수 있다.
-4. `steeringVelocityCue = 0.20`이 낮아지면서 입력 해제 후 pose는 안정됐지만, 반대로 차체 관성감이 너무 적을 수 있다.
-5. `highSpeedSteerForceDrop = 0.42`가 고속에서 조향을 둔하게 만든다.
-6. 차량은 안정적으로 두었지만, 도로/horizon/background 쪽 speed cue가 아직 부족하다.
-
-## 먼저 볼 QA 시나리오
-
-기준 viewport는 `1200 x 760`으로 고정한다.
-
-### 직선 주행 입력 반응
-
-```text
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=1200&qaSpeed=440&qaSteer=0
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=1200&qaSpeed=440&qaSteer=-1
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=1200&qaSpeed=440&qaSteer=1
-```
-
-확인:
-
-- center, left, right 3way가 충분히 읽히는가.
-- 같은 anchor/baseline 위에 있는가.
-- shadow가 조향 frame과 같이 움직이는가.
-
-### 커브 고정 비교
-
-```text
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=6500&qaSpeed=520&qaSteer=0&curveCarBias=0
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=6500&qaSpeed=520&qaSteer=0&curveCarBias=8
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=6500&qaSpeed=520&qaSteer=0&curveCarBias=24
-```
-
-확인:
-
-- curve bias가 없는 화면이 너무 죽어 보이는가.
-- curve bias가 큰 화면에서 차가 도로에서 밀려난 것처럼 보이는가.
-
-### 실제 주행 telemetry
+확인 시나리오:
+
+- standing start / straight accel
+- micro tap / hold-release / slalom
+- curve no-input / curve counter-steer
+- lift drift entry / drift counter-steer recovery
+- 좌/우 brake drift entry / high-speed grip angle cap
+- counter lift exit / explicit counter transition
+
+### 브라우저 telemetry
 
 ```text
 /game-assets/apex-seoul/?telemetry=1&telemetryDuration=60&telemetryHz=10
 ```
 
-분석:
-
-```bash
-npm run analyze:drive-telemetry --workspace @games/apex-seoul -- --input <apex-seoul-drive.jsonl>
-```
-
-확인할 값:
-
-- `speed`
-- `rpm`
-- `slopeAcceleration`
-- `road.currentCurve`
-- `player.lateralOffset`
-- `player.steering`
-- `vehicle.anchor.x`
-- `vehicle.anchor.y`
-- `vehicle.frame`
-
-## 튜닝 실험 순서
-
-### 1단계: 커브가 차를 빼앗는지 확인
-
-먼저 `curveDriftAcceleration`과 `curveCarBias`를 분리해서 본다.
-
-권장 방향:
+다음 값으로 실제 플레이와 시뮬레이션을 함께 판단한다.
 
 ```text
-curveDriftAcceleration: 260 -> 160 근처
-curveCarBias: 8 유지 또는 16까지 비교
-curveSteeringCue: 0.10 -> 0.06 근처
+speed, brakePressure, road.currentCurve, lateralOffset,
+steering, steeringVelocity, driftState, driftDirection,
+driftLateralVelocity, counterSteerTimer, driftRatio, driftEntryMode,
+gripSteerAngleLimit,
+vehicle.frame, vehicle.visualSteering
 ```
 
-판정:
+## 통과 기준
 
-- 조향 입력 없이 커브에 들어갈 때 차가 바깥으로 아주 약하게 밀리는 정도는 허용한다.
-- 사용자가 반대로 조향할 때 차가 말을 듣지 않는 느낌이면 실패다.
+- 직선과 easy bend에서는 drift가 오발하지 않는다.
+- brake/lift entry는 재현 가능하지만, 차량이 한 프레임에 옆으로 튀지 않는다.
+- counter trim은 angle과 라인만 조절한다.
+- counter lift exit은 recovery로 끝나며, neutral lift 뒤 새 counter/re-accel만 반대 drift를 한 번 만든다.
+- sharp bend의 속도/라인 손실이 telemetry와 화면에서 함께 읽힌다.
 
-### 2단계: 코너 감속이 벌점처럼 느껴지는지 확인
+## 2026-07-13 Grip/Entry Speed Budget 기록
 
-권장 방향:
+### 문제
+
+counter와 drift의 역할을 정리한 뒤에도, 일반 고속 코너와 lift entry의 속도 대가가 충분히 분리되어 있지 않았다. lift entry는 공통 진입 손실 `16u`만 갖고 있어, 브레이크 없이도 drift가 너무 가볍게 시작될 여지가 있었다. 반대로 grip은 force, response, visual cue의 고속 감쇠가 겹쳐 실제 차량이 낼 수 있는 조향각과 화면의 조향각을 판단하기 어려웠다.
+
+### 결정
+
+- brake entry는 brake pressure가 만드는 실제 감속을 주 대가로 유지한다.
+- lift entry에는 공통 진입 손실에 `22u`를 추가한다. 짧은 리프트에도 drift가 공짜가 되지 않게 하되, 별도 재가속 지연은 아직 넣지 않는다.
+- `driftEntryMode = brake | lift`와 `gripSteerAngleLimit`을 telemetry에 남긴다.
+- grip 상태에서만 속도 비례 최대 조향각을 적용한다. 속도비 `0.55`부터 시작해 최고속에서 입력 상한 `0.72`까지 부드럽게 줄인다. setup/drift는 이 상한을 우회하므로 drift entry와 counter의 조작권은 보존된다.
+- grip 속도 손실은 corner speed limit과 steering scrub으로만 만든다. 고속 풀 조향에는 감속이 생기지만, drift 유지에 프레임별 벌점을 추가하지 않는다.
+
+### 자동 기준
 
 ```text
-cornerAccelSpeedDrop: 150 -> 100 근처
-cornerSpeedPull: 190 -> 120 근처
+lift drift entry:          entry speed drop >= 30u
+brake drift entry left/right: entry speed drop >= 25u, same entry response
+high-speed grip angle cap: visual steering 0.45~0.62, corner speed drop 20~110u
 ```
 
-판정:
+현재 기준 측정값은 lift `64.6u`, brake left/right 각각 `70.6u`, high-speed grip angle `0.486`, grip corner speed drop `85.3u`다.
 
-- 코너에서 도로 흐름이 읽히되, throttle 입력을 무시하고 속도가 죽으면 실패다.
+### 블로그 글감
 
-### 3단계: 입력 추진감 보정
+**속도를 깎는다는 것은 모든 코너에 같은 감속을 거는 일이 아니었다.** brake drift는 브레이크를 쓴 대가를 읽히게 하고, lift drift는 작은 추가 손실로 의도를 분명히 하며, grip은 고속에서 가능한 핸들각 자체를 줄여 속도와 라인이 함께 정리되게 했다. 이 세 가지를 분리하자 속도계 숫자보다 먼저 입력의 무게가 달라졌다.
 
-권장 방향:
+## 2026-07-13 Drift Exit/Transition 분리 기록
+
+### 문제
+
+실주행 telemetry에서 counter를 유지한 채 액셀을 놓았을 때 `driftTransitionArmed`가 즉시 켜지고, 재가속 프레임에 반대 방향 drift가 commit됐다. 플레이어가 기대한 것은 drift exit인데, 상태기는 이를 S자 전환으로 해석했다.
+
+### 결정
+
+- `counter + lift`는 반대 drift 예약이 아니라 즉시 recovery다.
+- 전환은 `neutral lift → 0.42초 창 안의 fresh counter → re-accel` 순서에서만 arm/commit한다.
+- 따라서 counter는 exit 중에도 차를 바로잡는 입력으로 남고, direction change는 의도적인 별도 제스처가 된다.
+- telemetry에는 `driftTransitionAwaitingCounter`, `driftTransitionLiftTimer`, arm/commit 시간을 남긴다.
+
+### 자동 기준
 
 ```text
-engineAcceleration: 128 -> 170 또는 200
-aeroDrag: 유지
-rollingResistance: 유지
+counter-lift-exit:        recovery <= 800ms, direction change = 0
+counter-transition:       neutral lift 이후 arm, re-accel commit <= 700ms
 ```
 
-판정:
+현재 시뮬레이션은 exit recovery `200ms`, explicit transition arm `250ms`, commit `0ms`를 기록한다.
 
-- 초반 가속이 "차가 깨어난다"처럼 느껴져야 한다.
-- 최고속이 너무 빨리 붙으면 road object/curve read가 깨질 수 있으므로 max speed는 나중에 본다.
+### 블로그 글감
 
-### 4단계: visual steering cue 정리
+**액셀 오프는 전환 버튼이 아니라 신뢰할 수 있는 탈출구여야 했다.** counter를 누른 채 throttle을 놓는 흔한 정리 동작과, 다음 코너로 차체를 넘기는 S자 전환을 같은 규칙으로 묶으면 드리프트는 화려해지지만 믿을 수 없어진다. neutral lift 뒤의 fresh counter라는 작은 입력 문법을 만들자, 종료와 전환 모두 플레이어가 의도한 순간에만 일어났다.
 
-권장 방향:
+## 2026-07-13 Counter Trim 보정 기록
+
+### 관찰
+
+drift 방향을 잠근 뒤에도 counter가 지나치게 잘 먹혔다. 원인은 `driftLateralVelocity`가 아니라 일반 `steeringVelocity`였다. 실제 telemetry에서 오른쪽 drift 중 왼쪽 counter를 넣자 drift momentum은 양수로 남았지만, steering velocity가 약 `-108u/s`까지 커져 lateral offset이 반대 라인으로 크게 이동했다.
 
 ```text
-steeringVelocityCue: 0.38 -> 0.25 근처
-highSpeedSteerVisualDrop: 0.34 -> 0.25 근처
-steerWeak: 0.18 -> 0.14 또는 0.16 비교
+counter 시작: drift velocity +42.8u/s, steering velocity -47.8u/s
+0.22초 뒤:  drift velocity +4.0u/s,  steering velocity -108u/s
+약 2초 뒤:   lateral offset +68.8 -> -81.9
 ```
 
-판정:
+이는 counter가 “drift angle 조절”이 아니라 “즉시 반대 차선 이동”으로 읽히게 만든다.
 
-- 입력 직후 차체 pose가 바로 읽혀야 한다.
-- 입력을 놓은 뒤 차체가 필요 이상으로 오래 비틀려 있으면 실패다.
-- 고속 grip 상태에서는 차체 yaw가 얕아져야 한다. 큰 yaw는 drift/slip 상태의 보상 연출로 남긴다.
+### 결정
 
-## 지금 바로 코드 변경하지 않는 이유
+- drift 중 반대 조향의 steering force를 최대 약 35%까지 줄인다.
+- counter steering velocity는 `42u/s`로 별도 cap을 둔다.
+- damping 뒤에도 drift 방향 momentum을 최소 `28u/s` 유지한다.
+- 따라서 counter는 sprite/angle을 `steer-2 → steer-1`로 완화하고 라인을 천천히 조절한다.
+- 반대 drift는 기존처럼 `counter + throttle lift + 재가속`에서만 commit한다.
 
-현재 이상함이 한 가지 원인에서 오는지 확실하지 않다.
+### 블로그 글감
 
-- 물리 lateral force가 과한 문제일 수 있다.
-- visual steering cue가 과한 문제일 수 있다.
-- 코너 감속이 벌점처럼 느껴지는 문제일 수 있다.
-- 속도감 cue가 부족해서 조향이 상대적으로 어색하게 보이는 문제일 수 있다.
+**드리프트의 방향과 실제 조향을 분리한 뒤에도, counter가 너무 강하면 차는 반대 방향으로 미끄러진다.** 해결은 drift momentum만 유지하는 데 있지 않았다. 일반 steering force도 drift 상태에서는 별도의 authority와 velocity cap을 가져야 했다. 이 분리로 counter는 슬라이드를 끝내는 버튼이 아니라, 같은 방향 drift의 각도와 라인을 다듬는 입력이 된다.
 
-따라서 먼저 frozen screenshot과 60초 telemetry로 분리해서 봐야 한다. OutRun식 비교 기준은 "정확한 물리"가 아니라 "화면 하단 차량 기준이 안정적인가, 도로가 커브를 전달하는가, grip과 drift의 시각 역할이 분리되는가"다.
+## 2026-07-13 Counter Pull 제거 기록
 
-## 자동 반복 테스트 방향
+### 재검토
 
-실제 플레이 감각은 최종적으로 사람이 봐야 하지만, 매번 직접 운전하지 않고도 후보값을 많이 걸러낼 수 있다. 현재 코드에는 이미 `qaFreeze`, `telemetry`, `__apexSeoulQaState`, `capture-drive-telemetry.mjs`, `analyze-drive-telemetry.mjs`가 있으므로 이를 기반으로 자동 주행 평가 루프를 만든다.
+counter authority를 줄인 뒤에는 반대 차선으로 튀는 문제는 줄었지만, counter 중 drift momentum을 최소값으로 강제 복구하는 로직이 남았다. telemetry에서는 drift momentum과 steering velocity가 서로 반대 방향으로 계속 유지되어 차량이 고무줄처럼 끌리는 감각이 생겼다.
 
-목표는 "좋은 핸들링을 자동으로 증명"하는 것이 아니라, 이상한 후보를 자동으로 탈락시키고 사람이 확인할 후보를 2~3개로 줄이는 것이다.
+### 결정
 
-### 자동화 레이어
+- `driftCounterHoldSpeed`의 hard floor를 제거한다.
+- counter 시작 시의 drift momentum을 기록하고, `0.45초` 동안 0을 향해 부드럽게 target을 이동한다.
+- counter authority는 짧은 입력에서 낮고, 유지 시간에 따라 높아지는 곡선으로 둔다.
+- counter만으로 momentum 부호를 반전하지 않는다. 반대 drift는 lift/re-accel 전환만 쓴다.
 
-#### 1. Frozen visual snapshot
+### 블로그 글감
 
-정지된 장면을 같은 조건으로 캡처한다.
+**아케이드 드리프트에서 counter는 힘을 반대로 더하는 입력이 아니라, 남은 슬라이드의 목표값을 바꾸는 입력에 가깝다.** 최소 momentum을 계속 강제하면 차량은 관성을 가진 것처럼 보이지만, 실제로는 플레이어와 반대 힘이 싸우며 “끌리는” 감각을 만든다. entry momentum을 기준으로 0까지 수렴시키면 drift의 방향은 남기면서도 counter의 해제감과 라인 조절을 함께 만들 수 있다.
 
-사용 예:
+## 2026-07-13 Counter Release Drift Resume 기록
 
-```text
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=1200&qaSpeed=440&qaSteer=0
-/game-assets/apex-seoul/?qaFreeze=1&qaZ=6500&qaSpeed=520&qaSteer=0&curveCarBias=8
-```
+### 관찰
 
-자동 확인:
+counter를 개선한 뒤에도 조향을 놓는 순간 `DRIFT → RECOVERY`로 들어가고, `driftLateralVelocity`가 0에 남았다. 따라서 오른쪽 steer로 시작한 drift에서 왼쪽 counter를 잠깐 넣었다가 놓아도, 원래의 오른쪽 슬라이드가 이어지지 않았다.
 
-- canvas가 비어 있지 않은가.
-- viewport가 항상 `1200 x 760` 논리 비율로 잡히는가.
-- 차량 anchor y가 기준 범위 안에 있는가.
-- curve bias 변경 시 차량 x가 과하게 밀리지 않는가.
-- road object가 특정 z에서 보이는가.
+### 결정
 
-이 레이어는 렌더링 regression과 비율 문제를 잡는다. 핸들링 자체를 평가하지는 않는다.
+- drift entry가 만든 `driftBaseLateralVelocity`를 별도로 보존한다.
+- counter는 `counterTrimRatio`를 올려 base momentum을 임시로 낮춘다.
+- counter 해제 뒤에는 trim ratio가 약 `0.25초`에 걸쳐 감소하며, 같은 방향 drift target이 복원된다.
+- throttle을 유지하는 neutral steering은 drift hold다. throttle lift와 neutral, 저속, 커브 종료가 recovery를 만든다.
+- 반대 drift는 여전히 counter + lift + 재가속에서만 commit한다.
 
-#### 2. Scripted input drive
+### 블로그 글감
 
-Playwright로 브라우저를 열고 키 입력을 자동으로 넣는다.
-
-필요한 시나리오:
-
-```text
-straight-accel-20s
-left-hold-3s-release
-right-hold-3s-release
-slalom-40s
-curve-no-input
-curve-counter-steer
-brake-on-curve
-```
-
-각 시나리오는 다음처럼 고정된 입력 타임라인을 가진다.
-
-```text
-0.0s  ArrowUp down
-3.0s  ArrowLeft down
-6.0s  ArrowLeft up
-12.0s ArrowRight down
-15.0s ArrowRight up
-20.0s ArrowUp up
-```
-
-자동 확인:
-
-- 입력 후 `player.steering` 반응 시간이 너무 늦지 않은가.
-- 입력을 놓은 뒤 steering이 너무 오래 남지 않는가.
-- `player.lateralOffset`이 maxRoadOffset에 자주 붙지 않는가.
-- 커브에서 무입력 상태로 차량이 과하게 밀리지 않는가.
-- 반대 조향 시 lateralOffset 회복이 가능한가.
-- 속도가 커브에서 벌점처럼 급락하지 않는가.
-
-이 레이어가 현재 가장 필요하다. 지금 있는 `capture-drive-telemetry.mjs`는 샘플링은 가능하지만, 아직 입력 타임라인을 주입하는 runner로 확장되어 있지는 않다.
-
-#### 3. Telemetry scoring
-
-`__apexSeoulQaState`를 sampleHz 10~20으로 수집하고 요약 점수를 만든다.
-
-핵심 지표:
-
-```text
-speed.min / speed.max / speed.avg
-speedDropOnCurve
-steeringResponseMs
-steeringRecoveryMs
-lateralOffset.maxAbs
-lateralOffsetRms
-offsetClampHitCount
-curveNoInputDriftMax
-counterSteerRecoveryMs
-vehicleY.maxDeltaSameViewport
-frameSwitchCount
-```
-
-초기 threshold 후보:
-
-```text
-vehicleY.maxDeltaSameViewport <= 8
-offsetClampHitCount == 0
-steeringResponseMs <= 250
-steeringRecoveryMs <= 500
-curveNoInputDriftMax <= 260
-counterSteerRecoveryMs <= 1200
-speedDropOnCurve <= 110
-```
-
-이 값은 확정 기준이 아니라 첫 알람 기준이다. 실패한 후보는 자동 탈락시키고, 통과한 후보만 screenshot/video로 사람이 본다.
-
-#### 4. Tuning matrix runner
-
-문서의 비교 후보를 URL query로 넘겨 자동 반복한다.
-
-첫 matrix:
-
-```text
-curveCarBias: 8 / 16
-steerWeak: 0.14 / 0.16 / 0.18
-fovBonus: 2.4 / 3.5
-```
-
-아직 query로 열리지 않는 값:
-
-```text
-curveDriftAcceleration
-curveSteeringCue
-cornerAccelSpeedDrop
-cornerSpeedPull
-engineAcceleration
-steeringVelocityCue
-highSpeedSteerForceDrop
-highSpeedSteerVisualDrop
-```
-
-자동 튜닝을 제대로 하려면 위 값들도 `runtimeConfig.ts`에서 query override로 열어야 한다. 그러면 코드 상수를 매번 수정하지 않고 다음처럼 비교할 수 있다.
-
-```text
-/game-assets/apex-seoul/?curveDrift=160&cornerPull=120&engineAccel=170&steeringCue=0.25
-```
-
-#### 5. Report artifact
-
-자동 주행 1회는 다음 산출물을 만든다.
-
-```text
-assets/telemetry/generated/drive-logs/<session>.jsonl
-assets/telemetry/generated/drive-logs/<session>.summary.json
-assets/telemetry/generated/drive-logs/<session>.score.json
-assets/telemetry/generated/drive-logs/<session>.png
-```
-
-matrix 실행은 마지막에 랭킹을 만든다.
-
-```text
-assets/telemetry/generated/drive-logs/apex-seoul-handling-matrix-<date>.json
-```
-
-랭킹은 절대 점수가 아니라 비교용이다.
-
-```text
-pass/fail
-totalScore
-handlingScore
-speedScore
-stabilityScore
-notes
-query
-scenario
-```
-
-### 구현 순서
-
-1. `capture-drive-telemetry.mjs`에 scripted input timeline 옵션을 추가한다.
-2. `analyze-drive-telemetry.mjs`에 handling score 계산을 추가한다.
-3. `runtimeConfig.ts`에 핸들링 주요 상수 query override를 추가한다.
-4. `scripts/run-handling-matrix.mjs`를 추가해 후보값 조합을 반복 실행한다.
-5. 통과 후보만 screenshot/video를 남기도록 한다.
-
-### 첫 자동화 목표
-
-처음부터 완전한 AI 플레이어를 만들 필요는 없다. 첫 목표는 다음 3개만 자동으로 반복하는 것이다.
-
-```text
-straight-accel-20s
-left-hold-3s-release
-curve-no-input
-```
-
-이 3개가 있으면 현재 의심 지점인 추진감, 조향 응답, 커브가 차를 빼앗는 문제를 먼저 분리할 수 있다.
-
-### 2026-07-03 구현 상태
-
-자동 반복 테스트는 두 갈래로 둔다.
-
-```bash
-npm run qa:handling-sim --workspace @games/apex-seoul
-npm run qa:handling-matrix --workspace @games/apex-seoul -- --browser "/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
-```
-
-`qa:handling-sim`은 브라우저 없이 `playerVehicleController`만 직접 돌리는 빠른 1차 필터다. 렌더링, road object, frame pose까지 보지는 못하지만, 속도/조향/커브 force 후보를 반복 비교하기 좋다.
-
-`qa:handling-matrix`는 Playwright 기반 브라우저 runner다. 현재 WSL 환경에서는 기본 Playwright Chromium이 `libnspr4` 누락으로 뜨지 않았고, Windows Edge CDP 연결도 환경에 따라 막힐 수 있다. 따라서 지금은 `qa:handling-sim`을 신뢰 가능한 1차 루프로 쓰고, 브라우저 matrix는 환경 정리 후 visual regression용으로 사용한다.
-
-첫 시뮬레이션 결과:
-
-```text
-previous baseline: 93.0
-new baseline: 99.5
-```
-
-적용한 1차 개선값:
-
-```text
-curveDriftAcceleration: 260 -> 160
-curveSteeringCue: 0.10 -> 0.06
-cornerAccelSpeedDrop: 150 -> 100
-cornerSpeedPull: 190 -> 120
-engineAcceleration: 128 -> 170
-steeringVelocityCue: 0.38 -> 0.25
-highSpeedSteerVisualDrop: 0.34 -> 0.25
-steerWeak: 0.18 -> 0.16
-```
-
-정지 출발 보정:
-
-```text
-speed display: 760u = 200 km/h
-fovBonus: 2.4 -> 3.5
-launchThrottleMinRatio: 1.00 -> 0.30
-launchThrottleFullSpeedRatio: 0.05 -> 0.38
-0-100 km/h display simulation: about 5.0s
-12s standing-start display speed: about 193 km/h
-```
-
-정지 출발에서 기존 `engineAcceleration`을 그대로 주면 표시 속도 기준 가속이 너무 급하게 느껴졌다. 저속 구간에서는 throttle force를 낮게 시작하고, 약 `0.38 * accelSpeed`까지 부드럽게 full throttle로 올라가게 했다. 고속 가속력은 유지하고, 출발 순간의 튀는 감각만 줄이는 의도다.
-
-카메라 연출은 지속적인 zoom-in이 아니라 고속에서 FOV가 조금 넓어지는 방향으로 둔다. 차량을 크게 확대하면 도로 읽기가 답답해지고 조작 기준점이 무거워질 수 있으므로, 속도감은 표시 최고속을 낮춘 대신 road flow와 FOV bonus로 보강한다.
-
-Shader speed cue:
-
-```text
-Phaser.GameObjects.Shader overlay
-speedEffectMinRatio: 0.42
-speedEffectMaxAlpha: 0.88
-speedEffectTimeScale: 1.7
-depth: below car shadow / above road graphics
-```
-
-고속에서만 도로 하단과 shoulder 쪽에 얇은 radial streak를 더한다. 전체 화면 blur나 지속 zoom-in은 쓰지 않는다. 차량과 HUD를 덮지 않게 player shadow보다 낮은 depth에 두고, 실제 road/world speed는 그대로 유지한다.
-
-2차 후보인 `even-less-curve-force`, `even-less-corner-pull`, `stronger-engine`, `cleaner-visual-steer-plus`, `combined-second-pass`는 기존 점수식에서 모두 `99.5` 근처로 동률이었다. expanded 지표 추가 후에는 `even-less-curve-force`가 아주 근소하게 앞서지만, 커브 원심감이 약해질 수 있어 다음 반복 후보로 남긴다.
-
-## 다음 핸들링 개선안
-
-속도감은 후속 작업으로 미루고, 다음 반복은 핸들링 감각을 세분화해서 본다. 현재 expanded `qa:handling-sim` 결과는 baseline이 `97.0`이고, 이전 lateral weight 후보는 `96.8`이다. 즉, 단순 수치상으로는 큰 결함이 없으며, 다음 개선은 자동 점수보다 사람이 느끼는 조작 질감을 더 잘 잡는 방향이어야 한다.
-
-현재 기준 metric:
-
-```text
-expanded baseline total score: 97.0
-micro-tap-left lateralOffsetMaxAbs: 22.871
-hold-left-1s-release lateralOffsetMaxAbs: 100.256
-left-hold-3s-release lateralOffsetMaxAbs: 246.975
-left-hold-3s-release steeringMaxAbs: 0.790
-slalom-20s lateralOffsetMaxAbs: 132.854
-curve-no-input lateralOffsetMaxAbs: 51.145
-curve-counter-steer lateralOffsetMaxAbs: 248.835
-```
-
-해석:
-
-- `curve-no-input`은 이미 크게 안정적이다. 커브가 차를 과하게 빼앗는 문제는 1차 개선으로 많이 줄었다.
-- `left-hold-3s-release`에서 lateral offset은 이전 baseline보다 줄었다. 실제 플레이에서 lane 기준을 잃는 느낌이 줄어드는지 확인한다.
-- `micro-tap-left`는 약 `23u`로 작게 반응한다. 짧은 탭이 무시되지 않으면서도 과하게 차선을 먹지 않는지 확인한다.
-- `curve-counter-steer`는 expanded 기준에서 실패하지 않는다. 다만 지표가 아직 섬세하지 않으므로 브라우저 telemetry 또는 영상 확인이 필요하다.
-
-### 개선 목표
-
-다음 목표는 더 빠른 차가 아니라, 더 믿을 수 있는 차다.
-
-```text
-1. 입력 시작: 즉각 읽히되 튀지 않게
-2. 입력 유지: lane 이동량이 예측 가능하게
-3. 입력 해제: 급히 스냅백하지 않고 자연스럽게 중앙 복귀
-4. 커브 진입: 도로가 미는 느낌은 남기되 조작권은 빼앗지 않게
-5. pose: grip pose와 drift/slip 후보 pose를 명확히 분리
-```
-
-### 다음 실험 후보
-
-#### A. 조향 force를 줄이고 centering을 살짝 늦추는 후보
-
-목적은 좌우 hold 시 lateral offset이 너무 쉽게 커지는지 확인하는 것이다.
-
-```text
-steerAcceleration: 1750 -> 1550 / 1650
-centeringResponse: 1.9 -> 1.65 / 1.75
-steerDamping: 9.2 유지 또는 8.6
-```
-
-기대:
-
-- lane 이동이 조금 더 묵직해진다.
-- 입력을 누른 순간 sprite pose는 읽히되, 실제 lateralOffset은 더 예측 가능해진다.
-
-위험:
-
-- 너무 줄이면 고속에서 차가 말을 안 듣는 느낌이 난다.
-- 현재 `highSpeedSteerForceDrop = 0.42`와 겹치면 최고속 조향이 둔해질 수 있다.
-
-#### B. 시각 pose 반응과 물리 이동을 분리하는 후보
-
-목적은 조향 입력은 즉시 읽히되 실제 차 위치 이동은 조금 더 무게감 있게 만드는 것이다.
-
-```text
-inputResponse: 16 -> 18 / 20
-steeringVelocityCue: 0.25 -> 0.18 / 0.22
-highSpeedSteerVisualDrop: 0.25 유지
-steerWeak: 0.16 유지 또는 0.14
-```
-
-기대:
-
-- 입력 직후 pose는 더 선명하다.
-- lateral velocity cue가 줄어들어 입력 해제 후 차체가 불필요하게 비틀려 보이는 문제를 줄인다.
-
-위험:
-
-- pose만 빠르고 차량 위치가 늦으면 조작과 화면이 분리된 느낌이 날 수 있다.
-
-#### C. 고속 조향 감소를 완화하는 후보
-
-목적은 표시 속도는 낮췄지만 내부 고속에서는 조향 감소가 아직 강하게 느껴지는지 확인하는 것이다.
-
-```text
-highSpeedSteerForceDrop: 0.42 -> 0.34 / 0.38
-highSpeedSteerVisualDrop: 0.25 유지
-```
-
-기대:
-
-- 최고속에서도 반응성이 조금 살아난다.
-- 다운힐 고속 구간에서 "차가 무겁다"보다 "잡고 간다"에 가까워질 수 있다.
-
-위험:
-
-- lateralOffset이 다시 커질 수 있다.
-- curveForce와 합쳐져 코너에서 차가 가볍게 날리는 느낌이 생길 수 있다.
-
-#### D. 커브 자동 밀림을 더 줄이는 후보
-
-현재 metric상 커브 자동 밀림은 안정적이지만, 실제 플레이에서 도로가 차를 민다고 느껴지면 마지막으로 더 줄인다.
-
-```text
-curveDriftAcceleration: 160 -> 130
-curveSteeringCue: 0.06 -> 0.05
-curveCarBias: 8 유지
-```
-
-기대:
-
-- 커브에서 조작권이 더 선명해진다.
-- 도로는 화면으로 휘고, 차량 물리는 덜 밀린다.
-
-위험:
-
-- 커브 원심감이 약해져 도로가 휘어도 차가 너무 편하게 붙어 있는 느낌이 날 수 있다.
-
-### 우선순위
-
-다음 구현은 B -> A -> C -> D 순서가 좋다.
-
-```text
-1. B: visual steering cue 정리
-2. A: lateral movement 무게감 조정
-3. C: 고속 조향 감소 완화
-4. D: 커브 자동 밀림 추가 감량
-```
-
-이 순서를 추천하는 이유는, 지금 가장 애매한 부분이 "실제 물리값"보다 "보이는 pose와 lateral movement의 관계"일 가능성이 크기 때문이다. 먼저 시각 cue를 정리하고, 그 다음 lateral force를 만지는 편이 원인 분리가 쉽다.
-
-### 자동 테스트 추가 상태
-
-`qa:handling-sim`에 아래 metric을 추가했다.
-
-```text
-timeToLateralOffset100
-timeToLateralOffset200
-postReleaseOffsetOvershoot
-postReleaseOffsetHalfLife
-steeringPeakHoldRatio
-curveCounterSteerRecoveryMs
-slalomOffsetRms
-```
-
-추가 시나리오:
-
-```text
-micro-tap-left
-hold-left-1s-release
-left-hold-3s-release
-slalom-20s
-curve-counter-steer
-```
-
-특히 `micro-tap-left`는 아웃런식 조작감에 중요하다. 짧게 톡 눌렀을 때 차가 너무 많이 움직이면 불안하고, 전혀 반응하지 않으면 무겁다.
-
-### 2026-07-03 핸들링 2차 적용
-
-계측 후 다음 세트를 적용했다.
-
-```text
-inputResponse: 16 -> 18
-steeringVelocityCue: 0.25 -> 0.20
-steerWeak: 0.16 -> 0.14
-steerAcceleration: 1750 -> 1650
-centeringResponse: 1.9 -> 1.75
-```
-
-적용 이유:
-
-- visual cue 후보는 물리 지표를 나쁘게 만들지 않고 입력 pose를 조금 더 선명하게 만든다.
-- lateral weight 후보는 `micro-tap`, `hold`, `slalom`, `curve-counter-steer`에서 lateralOffset을 작게 유지했다.
-- 적용 후 expanded simulation 기준 baseline은 `97.0`, 이전 lateral weight 후보는 `96.8`이다.
-
-후속 후보:
-
-```text
-curveDriftAcceleration: 160 -> 130
-curveSteeringCue: 0.06 -> 0.05
-```
-
-`even-less-curve-force`는 expanded score `97.1`로 baseline보다 아주 근소하게 높다. 다만 커브 원심감이 약해질 위험이 있어 바로 적용하지 않고, 다음 visual/browser 확인 또는 실제 플레이 감각 확인 뒤 결정한다.
-
-### 2026-07-03 고속 grip 각도 억제 적용
-
-OutRun식 grip 주행에서는 속도가 높을수록 차체 yaw가 과하게 커지면 drift처럼 읽힌다. 따라서 고속 기본 조향에서는 보이는 각도를 줄이고, 큰 yaw pose는 drift/slip 상태가 생겼을 때 쓰는 방향으로 분리한다.
-
-적용값:
-
-```text
-highSpeedSteerVisualDrop: 0.25 -> 0.38
-curveSteeringHighSpeedDrop: 0.00 -> 0.38
-curveSteeringCue: 0.06 유지
-```
-
-시뮬레이션 로그:
-
-```text
-previous-grip-angle score: 97.0
-baseline score: 96.9
-extra-grip-angle-damping score: 96.5
-
-left-hold-3s-release highSpeedSteeringMaxAbs:
-previous-grip-angle 0.790
-baseline 0.674
-extra-grip-angle-damping 0.612
-
-curve-no-input highSpeedCurveSteeringMaxAbs:
-previous-grip-angle 0.035
-baseline 0.022
-extra-grip-angle-damping 0.020
-```
-
-해석:
-
-- baseline은 이전 grip 각도보다 고속 차체 각도를 줄였고, lateralOffset 물리값은 유지했다.
-- `extra-grip-angle-damping`은 더 얌전하지만 조향 pose가 너무 죽을 위험이 있어 보류한다.
-- 다음 개선은 실제 화면에서 grip pose가 충분히 읽히는지 확인한 뒤, `curveDriftAcceleration: 160 -> 130` 후보와 비교한다.
-
-## 결론
-
-현재 Apex Seoul은 구조적으로 OutRun식 방향에 가까워졌다.
-
-- 차량은 화면 하단 기준점에 고정되어 있다.
-- 기본 grip pose는 3way다.
-- 강한 yaw pose는 drift/slip 후보로 남겨두고 있으며, 고속 grip에서는 차체 각도를 얕게 누른다.
-- 도로와 horizon, side object, shadow가 주행 감각을 나눠 맡는다.
-
-하지만 현재 수치에서는 조향/커브/속도 감각이 서로 조금씩 간섭할 가능성이 있다. 다음 튜닝은 `curve force` 미세 감량과 실제 브라우저 화면에서의 grip pose 가독성을 분리 비교하는 쪽이 좋다.
-
-## 2026-07-10 실제 주행 로그 이후 판단
-
-코스 진행 구조가 단방향 다운힐 런으로 바뀐 뒤, 브라우저에서 60초 runtime telemetry를 수집했다.
-
-대상 로그:
-
-```text
-apex-seoul-drive-2026-07-10T01-54-23-065Z_gw0va8.jsonl
-```
-
-분석 요약:
-
-```text
-duration: 59.961s
-sample count: 541
-run progress last: 62.69%
-speed min/max/avg: 384.57 / 760.00 / 712.77u
-FOV min/max/avg: 69.04 / 72.50 / 72.36
-steering min/max: -0.724 / 0.620
-high-speed steering min/max: -0.660 / 0.620
-high-speed |steering| >= 0.5 ratio: 10.6%
-lateral offset min/max: -86.68 / 68.87
-telemetry score: PASS 100/100
-```
-
-해석:
-
-- 내부 speed는 충분히 높다. 60초에 코스 62% 이상을 진행했고 평균 speed도 `712.77u`다.
-- 따라서 "느리다"는 문제는 최고속 부족보다 화면 speed cue 부족으로 보는 편이 맞다.
-- FOV는 `69 -> 72.5` 정도까지만 움직인다. 고속감 cue로는 아직 얌전하다.
-- 고속에서 steering 값이 여전히 크다. 최고속 근처에서도 `-0.66 ~ +0.62`까지 흔들리므로, 플레이어에게는 "고속인데 너무 잘 꺾인다"로 읽힐 수 있다.
-- lateral offset은 `+-90` 안쪽이라 차가 도로 밖으로 크게 날아가지는 않는다. 문제는 물리 이동량보다 visual steering과 입력 반응의 체감이다.
-
-### 다음 구현 방향
-
-이전 결론에서는 `curveDriftAcceleration: 160 -> 130` 후보를 우선 검토하려고 했다. 하지만 2026-07-10 실제 주행 피드백 기준으로는 우선순위를 조금 바꾼다.
-
-먼저 손볼 것:
-
-```text
-1. high-speed steering force 감소
-2. high-speed visual steering 감소
-3. speedRatio 기반 input response 감소
-4. steering slew limit 추가
-5. FOV/speed shader cue 강화
-```
-
-권장 후보:
-
-```text
-highSpeedSteerForceDrop: 0.42 -> 0.58 / 0.62 / 0.65
-highSpeedSteerVisualDrop: 0.38 -> 0.45 / 0.50 / 0.52
-curveSteeringHighSpeedDrop: 0.38 -> 0.45 / 0.50
-cameraSpeedFovBonus: 3.5 -> 4.8 / 5.2
-speedEffectMinRatio: 0.42 -> 0.35 / 0.38
-speedEffectTimeScale: 1.7 -> 2.1 / 2.4
-```
-
-주의:
-
-- 최고속 `accelSpeed`를 먼저 올리면 조향 과민 문제가 더 커질 수 있다.
-- speed cue를 먼저 강하게 올리면 현재 steering 흔들림이 더 눈에 띌 수 있다.
-- 따라서 다음 구현은 조향 둔화 -> speed cue 강화 -> curve force 재검토 순서가 좋다.
-
-### 블로그용 핵심 문장
-
-```text
-로그상 Apex Seoul은 이미 충분히 빠르게 이동하고 있었다. 문제는 차가 느린 것이 아니라, 화면이 아직 빠르다고 충분히 말하지 못한다는 점이었다. 동시에 고속에서는 steering이 너무 크게 살아 있어서, 빠른데도 차가 가볍게 꺾이는 느낌이 났다. 다음 튜닝은 최고속을 올리는 것이 아니라, 고속 조향을 둔하게 만들고 속도감 cue를 더 설득력 있게 만드는 쪽으로 잡았다.
-```
-
-## 2026-07-10 고속감/조향 1차 적용
-
-위 판단을 바탕으로 첫 번째 적용은 최고속을 올리지 않고, 고속 steering과 speed cue만 조정했다.
-
-적용값:
-
-```text
-highSpeedSteerForceDrop: 0.42 -> 0.62
-highSpeedSteerVisualDrop: 0.38 -> 0.48
-curveSteeringHighSpeedDrop: 0.38 -> 0.48
-highSpeedInputResponseDrop: 0.35 추가
-highSpeedSteeringSlewRate: 4.2 추가
-cameraSpeedFovBonus: 3.5 -> 5.2
-speedEffectMinRatio: 0.42 -> 0.36
-speedEffectTimeScale: 1.7 -> 2.2
-```
-
-새 runtime query:
-
-```text
-inputDrop
-steeringSlew
-```
-
-의도:
-
-- 고속에서도 조향 입력이 즉시 큰 visual steering으로 튀지 않게 한다.
-- 고속에서 좌우 전환이 `-0.6 -> +0.6`처럼 급격하게 보이는 것을 줄인다.
-- 물리 최고속은 유지하고, FOV와 speed shader 쪽으로 속도감을 보강한다.
-
-`qa:handling-sim` 결과:
-
-```text
-report: assets/telemetry/generated/handling-sim/handling-sim-2026-07-10T02-02-53-539Z.json
-previous-2026-07-10-baseline score: 96.9
-new baseline score: 94.9
-stronger-high-speed-weight score: 94.8
-```
-
-주요 비교:
-
-```text
-left-hold-3s-release highSpeedSteeringMaxAbs
-previous: 0.674
-new:      0.579
-
-slalom-20s lateralOffsetMaxAbs
-previous: 132.854
-new:       93.683
-
-curve-counter-steer highSpeedSteeringMaxAbs
-previous: 0.660
-new:      0.555
-
-curve-counter-steer lateralOffsetMaxAbs
-previous: 248.835
-new:      178.864
-```
-
-해석:
-
-- 새 baseline은 기존 자동 점수 기준으로는 낮아졌다. 특히 `steeringPeakHoldRatio`처럼 "입력 pose를 얼마나 빨리/오래 유지하는가"를 보는 지표에서 손해를 본다.
-- 하지만 이번 목표는 더 민첩한 조향이 아니라, 고속에서 너무 쉽게 꺾이는 느낌을 줄이는 것이다.
-- lateral offset과 high-speed steering max는 의도대로 줄었다.
-- 다음 확인은 실제 브라우저 플레이에서 "고속 묵직함"이 좋아졌는지, 반대로 저속/중속 조작감까지 너무 죽었는지 보는 것이다.
-
-## 2026-07-10 체감 부족 이후 2차 적용
-
-1차 적용 뒤 실제 플레이에서는 체감 변화가 약했다. 새 로그에서는 값이 적용된 것이 확인됐지만, 차량 pose가 사실상 `center / steer-right-1` 3way라 `steering 0.65 -> 0.55` 정도의 변화는 같은 조향 프레임으로 읽혔다.
-
-따라서 2차 적용은 물리 steering보다 화면 표현을 직접 바꾸는 쪽으로 잡았다.
-
-적용:
-
-```text
-highSpeedLateralVelocityCap: 56 추가
-highSpeedSteerWeakThreshold: 0.30 추가
-highSpeedVisualSteeringScale: 0.62 추가
-```
-
-새 runtime query:
-
-```text
-lateralCap
-highSteerWeak
-visualSteerScale
-```
-
-구현 방향:
-
-- `player.steering`은 계속 물리/입력 상태로 유지한다.
-- 차량 sprite frame, rotation, shadow offset은 별도 `visualSteering`으로 그린다.
-- 고속일수록 `visualSteering`을 압축하고, pose 전환 threshold를 높인다.
-- 고속 lateral velocity를 cap해서 차가 실제로도 덜 좌우로 흐르게 한다.
-- telemetry에는 `steeringVelocity`, `vehicle.visualSteering`, `vehicle.visualSteeringThreshold`, `speedEffect`를 남겨 다음 플레이 로그에서 보이는 조향과 실제 조향을 분리해서 본다.
-
-확인 포인트:
-
-```text
-고속 샘플에서 steer-right-1 frame 비율이 줄어드는가
-vehicle.rotationDeg 평균/최대가 눈에 띄게 줄어드는가
-lateralOffset max/RMS가 추가로 줄어드는가
-조향이 너무 죽어서 코너 진입이 답답해지지는 않는가
-```
-
-## 2026-07-10 코너 속도 손실 1차 적용
-
-2차 적용 후 실제 로그에서는 lateral 안정성은 좋아졌지만, hard corner에서도 평균 속도가 약 `710u`로 높게 유지됐다. 다운힐 게임 감각에서는 코너 진입과 조향량에 따른 속도 손실이 있어야 한다. 특히 Initial D 계열 감각에서는 직선은 빠르게, 코너는 진입 속도와 라인 선택으로 손해가 갈리는 쪽이 자연스럽다.
-
-적용:
-
-```text
-highSpeedSteerWeakThreshold: 0.30 -> 0.34
-cornerAccelSpeedDrop: 100 -> 190
-cornerSpeedPull: 120 -> 210
-steeringSpeedScrub: 64 추가
-steeringSpeedScrubThreshold: 0.22 추가
-```
-
-새 runtime query:
-
-```text
-steeringScrub
-steeringScrubThreshold
-```
-
-의도:
-
-- 고속 포즈 전환을 더 줄여서 center 유지 구간을 늘린다.
-- 강한 코너에서는 최고 속도 상한을 더 낮춘다.
-- 고속에서 조향을 많이 넣으면 steering scrub으로 추가 속도 손실을 준다.
-- 코너를 "밟고 꺾는 구간"이 아니라 "진입 속도와 라인을 관리하는 구간"으로 만든다.
-
-`qa:handling-sim` 결과:
-
-```text
-report: assets/telemetry/generated/handling-sim/handling-sim-2026-07-10T04-39-31-045Z.json
-previous-2026-07-10-baseline score: 96.9
-new baseline score: 94.0
-```
-
-주요 비교:
-
-```text
-curve-no-input speedMax
-previous: 700.495
-new:      673.139
-
-curve-counter-steer speedMax
-previous: 700.495
-new:      639.049
-
-curve-counter-steer lateralOffsetMaxAbs
-previous: 248.835
-new:      189.125
-
-slalom-20s lateralOffsetMaxAbs
-previous: 132.854
-new:       93.992
-```
-
-해석:
-
-- 자동 점수는 낮아졌지만, 코너 속도 손실이라는 목표는 달성됐다.
-- `curve-counter-steer`에서 속도와 lateral offset이 같이 줄어, 고속 코너가 더 무겁게 읽힐 가능성이 높다.
-- 다음 실제 로그에서는 hard corner 평균 속도가 `660~690u` 근처로 내려오는지 확인한다.
-- 너무 답답하면 `cornerSpeedPull`보다 `steeringSpeedScrub`을 먼저 낮춘다. 코너 자체 감속은 유지하되, 조향 손실만 완화하는 편이 감각 분리가 쉽다.
-
-## 2026-07-10 코너 속도 손실 적용 후 실제 로그
-
-대상 로그:
-
-```text
-apex-seoul-drive-2026-07-10T04-40-45-020Z_oj88qh.jsonl
-```
-
-요약:
-
-```text
-progress: 59.41%
-speed avg: 675.868u
-speed min/max: 387.883 / 760u
-speedDropFromPeak: 121.184u
-lateralOffsetMaxAbs: 89.516
-lateralOffsetRms: 30.710
-steeringMaxAbs: 0.687
-visualSteering avg/max: 0.272 / 0.513
-high visual threshold avg: 0.336
-high visual over threshold ratio: 19.9%
-frameCounts: center 355 / steer-right-1 153 / downhill-center 31 / downhill-right-1 3
-```
-
-커브별 속도:
-
-```text
-straight avg speed: 605.055u
-mild curve avg speed: 736.157u
-corner avg speed: 698.192u
-hard corner avg speed: 644.663u
-```
-
-해석:
-
-- 사용자의 "코너링 감각 80점" 평가는 로그와 잘 맞는다. hard corner 평균 속도가 목표였던 `660~690u`보다 더 낮은 `644.663u`까지 내려갔고, 코너에서 속도를 관리해야 하는 느낌이 생겼다.
-- 고속 포즈 전환도 크게 줄었다. 이전에는 고속 샘플 절반 정도가 threshold를 넘었지만, 이번에는 `19.9%`만 조향 프레임으로 넘어간다.
-- 다만 hard corner에서 `steer-right-1` 비율은 여전히 높다. 강한 코너에서 플레이어가 실제로 조향을 많이 넣고 있기 때문이다. 이건 나쁜 신호라기보다 "코너를 적극적으로 돌고 있다"는 표시로 볼 수 있다.
-- 속도 손실은 충분히 강해졌다. 다음에는 코너 감속을 더 키우기보다, HUD가 이 상태를 설득력 있게 보여주는 쪽이 중요하다.
-
-다음 우선순위:
-
-```text
-1. HUD speedometer / tachometer / boost UI 설계
-2. RPM과 speed의 관계를 플레이어가 납득하도록 보정
-3. turbo boost 상태를 speedEffect, tail glow, tach color와 연결
-4. 코너링은 당분간 현재 값을 기준으로 실제 플레이 피드백을 더 모은다
-```
-
-추가 설계 결정:
-
-- RPM/boost는 차량별 엔진 성격에 따라 분기한다.
-- 현재 기본 차량인 FT86 inspired `Raven Coupe`는 `NA` 고회전 차량으로 둔다. boost UI 없이 빠른 RPM 상승, redline cue, 짧은 fuel cut bounce를 강조한다.
-- 이후 `Stinger inspired` 차량은 `Twin Turbo`로 둔다. low/mid rpm에서 서서히 boost가 차고, 고속 main boost zone에서 speedEffect와 계기판 pulse가 크게 살아나야 한다.
-- 이후 `Genesis Coupe inspired` 차량은 `Single Turbo`로 둔다. turbo lag 이후 중속 토크가 두껍게 붙고, fuel cut이나 코너 감속 뒤 boost 회복 시간이 체감되어야 한다.
-- 차량별 `rpmLimit`을 넘으면 `fuelCutActive` 상태를 만든다. 1차 구현에서는 실제 수동 변속 실패보다 HUD/사운드/토크 보정용 상태로 시작하고, 자동 변속 직전의 redline 리듬을 만드는 데 사용한다.
-- 구체적인 `maxRpm`, 기어 단수, normalized torque curve는 `docs/pseudo-3d-apex-seoul-roadmap.md`의 차량별 drivetrain profile을 기준으로 구현한다. 초기값은 Raven Coupe `6-speed / 7800rpm`, Vortex GT `8-speed / 7000rpm`, Apex S `6-speed / 7200rpm`이다.
+**counter를 놓는 순간 drift가 끝나면, counter는 제어가 아니라 취소 버튼이 된다.** 아케이드 다운힐에서는 진입 조향이 만든 base momentum을 보존하고, counter는 그 위에 잠시 걸리는 trim으로 다루는 편이 자연스럽다. 이 구조는 “오른쪽으로 흘리며 왼쪽으로 각도를 잡고, 손을 놓으면 다시 오른쪽으로 흐르는” 리듬을 만든다.

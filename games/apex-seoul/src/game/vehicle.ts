@@ -49,18 +49,43 @@ export type VehicleAtlas = {
 
 export type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 
+export type PlayerDriftState = 'grip' | 'setup' | 'drift' | 'recovery';
+export type PlayerDriftEntryMode = 'none' | 'brake' | 'lift';
+
 export type PlayerVehicleState = {
+    brakePressure: number;
     boostRatio: number;
+    cornerLineQuality: number;
+    counterSteerTimer: number;
+    counterSteerLateralVelocity: number;
+    counterSteerEntryDriftVelocity: number;
+    counterTrimRatio: number;
     engineTorqueScale: number;
+    driftDirection: -1 | 0 | 1;
+    driftBaseLateralVelocity: number;
+    driftEntryLateralTarget: number;
+    driftEntryMode: PlayerDriftEntryMode;
+    driftLateralVelocity: number;
+    driftRatio: number;
+    driftState: PlayerDriftState;
+    driftStateTimer: number;
+    driftTransitionArmed: boolean;
+    driftTransitionDirection: -1 | 0 | 1;
+    driftTransitionAwaitingCounter: boolean;
+    driftTransitionLiftTimer: number;
     fuelCutActive: boolean;
     fuelCutTimer: number;
     gearIndex: number;
+    gripSteerAngleLimit: number;
     lateralOffset: number;
     rpm: number;
     speed: number;
+    slipAngle: number;
     steering: number;
     steeringVelocity: number;
     torqueScale: number;
+    traction: number;
+    throttleWasPressed: boolean;
 };
 
 export type VehicleAnchor = {
@@ -82,6 +107,7 @@ export type RuntimeVehicleQaState = {
     frame: string;
     rotationDeg: number;
     terrainScale: number;
+    physicalSteering: number;
     visualSteering: number;
     visualSteeringThreshold: number;
 };
@@ -257,6 +283,10 @@ export function getVehicleFrameIndex(atlas: VehicleAtlas, frameId: string) {
 }
 
 function selectPlayerSteeringState(steering: number, threshold: number): PlayerSteeringStateId {
+    const strongThreshold = threshold + (1 - threshold) * 0.62;
+
+    if (steering <= -strongThreshold) return 'steer-left-2';
+    if (steering >= strongThreshold) return 'steer-right-2';
     if (steering <= -threshold) return 'steer-left-1';
     if (steering >= threshold) return 'steer-right-1';
 
