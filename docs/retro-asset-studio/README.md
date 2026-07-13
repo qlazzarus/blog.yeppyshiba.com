@@ -9,14 +9,15 @@ This README is the current operational guide. Historical experiments and blog no
 Apex Seoul's active vehicle sprite path is:
 
 ```text
-Three.js pose sheet / pixel candidate
--> ComfyUI img2img + Canny ControlNet style filter
+Three.js pose sheet
+-> deterministic pixel candidate / silhouette source
+-> ComfyUI img2img + Canny ControlNet + vehicle-specific prompt
 -> palette lock
--> Phaser postprocess variants
+-> restore source alpha + deterministic pixel/outline postprocess variants
 -> runtime screenshot QA
 ```
 
-ComfyUI is a style filter, not a vehicle generator. Vehicle identity, pose order, silhouette, and cell alignment must come from the input spritesheet.
+ComfyUI is a style filter, not a vehicle generator. Vehicle identity, pose order, silhouette, and cell alignment must come from the input spritesheet. The postprocess restores the original pixel candidate alpha, so ComfyUI cannot become the authority for the vehicle footprint or road-contact baseline.
 
 The visual target is defined in `../apex-seoul-visual-direction.md`: **black/blue dreamlike Seoul downhill**.
 
@@ -74,6 +75,8 @@ Useful ComfyUI options:
 | `--input`, `--output` | Override paths for a single run |
 | `--no-palette-lock` | Download raw ComfyUI output without palette lock |
 | `--denoise`, `--cfg`, `--steps`, `--controlnet-strength` | Parameter experiments |
+| `--positive-prompt`, `--negative-prompt` | Append an experiment-specific vehicle direction to the preset prompt |
+| `--seed` | Use one reproducible seed instead of a generated seed |
 | `--comfy-url` | Endpoint override |
 
 Safety rules:
@@ -122,17 +125,26 @@ scripts/comfy-client.mjs
   upload, prompt queue, history polling, download
 
 scripts/run-retro-filter.mjs
-  CLI entrypoint, vehicle/variant patching
+  CLI entrypoint, vehicle/variant prompt patching, reproducibility sidecar
 
 scripts/palette-lock.mjs
   deterministic limited-palette cleanup after ComfyUI
 
 ../../games/apex-seoul/scripts/postprocess-ft86-retro-sheet.mjs
-  magenta-to-alpha, role audit, body variants, shadow sheet, runtime atlas
+  magenta compatibility cleanup, source-alpha restoration, role audit, body variants, shadow sheet, runtime atlas
 
 ../../games/apex-seoul/scripts/capture-runtime-vehicle-qa.mjs
   runtime screenshot QA manifest/contact sheet
 ```
+
+## Model Compatibility And Candidate Plan
+
+The current server has a DreamShaper SD 1.5 checkpoint but its installed
+`[Qwen.Image]PixelArt_Redmond` LoRA targets Qwen Image, not SD 1.5. Do not use
+that LoRA in the canonical DreamShaper workflow. The recommended first
+replacement is the SD 1.5-compatible `PixelArtRedmond15V` LoRA; installation
+and validation order are documented in
+[`model-candidate-evaluation.md`](model-candidate-evaluation.md).
 
 ## Filter Defaults
 
@@ -162,11 +174,58 @@ loraStrengthClip: 0.7
 
 `palette-lock.mjs` keeps the ComfyUI result in a limited vehicle palette. Alpha restoration happens later in the Phaser postprocess step.
 
+Vehicle presets supply a narrow art-direction clause after the shared preservation prompt. For example, FT86 emphasizes a nimble compact rear-wheel-drive downhill coupe, while Stinger emphasizes a wide fastback twin-turbo GT. The prompt may change surface character and proportion cues, but Canny plus restored source alpha still owns viewpoint, pose order, and contact baseline.
+
+## ControlNet Reinforcement Plan
+
+The current workflow already uses one Canny ControlNet. The next improvement is not simply raising its strength. Canny preserves visible edges, but it does not explicitly preserve the vehicle silhouette, road-contact baseline, or the semantic difference between a mild steer and a drift pose.
+
+For the downhill drift direction, reinforce the source constraints in this order:
+
+```text
+Three.js pose render
+-> source alpha / silhouette mask
+-> Canny edge map from the same source
+-> ComfyUI img2img style pass
+-> restore original alpha deterministically
+-> palette lock and role postprocess
+```
+
+Rules:
+
+- Keep Canny as the primary shape guide. It is the lowest-risk control for preserving the rear-view pixel composition.
+- Generate a source-derived silhouette mask and use it as an additional control or mask input when the ComfyUI installation supports it. The mask must preserve each cell's vehicle footprint and contact baseline, not create a new background.
+- Do not raise `controlNetStrength` globally first. Compare a drift-safe candidate around `0.50-0.60` strength and `0.70-0.80` end percent against the current balanced baseline (`0.35 / 0.60`). Strong control can preserve the pose but can also flatten the pixel styling.
+- Treat `center`, `steer-right-1`, and `steer-right-2` as a linked pose set. Approve or reject the set together; do not approve a strong drift pose only because the center frame looks good.
+- Preserve the original Three.js alpha after ComfyUI. Magenta removal remains a compatibility path, not the ideal long-term silhouette source.
+
+Recommended experiments:
+
+| Candidate | Canny | Mask/silhouette control | Purpose |
+| --- | --- | --- | --- |
+| `balanced-v1` | `0.35`, end `0.60` | none | Current approved comparison baseline. |
+| `drift-safe-canny` | `0.50-0.60`, end `0.70-0.80` | none | Check whether strong steering and future drift poses retain their width and tire contact. |
+| `drift-safe-mask` | current balanced Canny | source alpha silhouette mask | Check whether pose identity improves without losing pixel-art variation. |
+
+The goal is not a photorealistic depth or normal ControlNet pass. For this pseudo-3D rear-view sprite pipeline, alpha silhouette and Canny are more useful than depth because they protect the readable 2D outline and road-contact line that the runtime depends on.
+
+## Reproducibility And Drift QA
+
+Before expanding to another vehicle, add these pipeline checks:
+
+1. Persist the actual ComfyUI seed, workflow hash, input hash, checkpoint, LoRA, and control parameters beside every approved output. The bridge now writes `<output>.pipeline.json`; approval should require that sidecar.
+2. Run sprite QA per cell, not only for the full sheet: baseline jitter, center-to-steer-1 difference, steer-1-to-steer-2 difference, tire contact position, tail-light position, and alpha edge quality.
+3. Export semantic role masks for `body`, `tail-light`, `tire`, and `glass` from deterministic postprocess. Runtime drift smoke, brake glow, and tail-light pulse must use these masks rather than modifying the base sprite.
+4. Add runtime QA samples for the future drift pose separately from ordinary left/center/right grip steering.
+
 ## Postprocess Outputs
 
 ```text
 source alpha:
 games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-source-alpha.png
+
+silhouette source:
+games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256.png
 
 runtime variants:
 games/apex-seoul/assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png
@@ -216,8 +275,9 @@ Approval checklist:
 
 ## Next Checks
 
-1. Capture the FT86 runtime color QA contact sheet.
-2. Compare blue and black as the actual art-direction baseline.
-3. Verify tail lights, glass, tires, outline, and rollover frames are not recolored by body palette swap.
-4. If edge lines remain visible, inspect Phaser texture filtering / pixelArt settings and runtime display scale.
-5. If edge cleanup is too strong or too weak, adjust only `cleanEdgeBodyNoise` in `postprocess-ft86-retro-sheet.mjs`.
+1. Capture the FT86 runtime color QA contact sheet and compare blue/black on the same pose set.
+2. Add reproducible ComfyUI output metadata before producing new candidates.
+3. Run `balanced-v1`, `drift-safe-canny`, and `drift-safe-mask` on the same fixed seed; compare the three linked driving poses together. Use each output's `.pipeline.json` sidecar for the review record.
+4. Verify tail lights, glass, tires, outline, and future strong drift frames are not recolored by body palette swap.
+5. Export and review semantic role masks before adding runtime drift glow or smoke.
+6. If edge lines remain visible, inspect Phaser texture filtering / pixelArt settings and runtime display scale before changing the ComfyUI prompt.

@@ -6,53 +6,34 @@
 
 현재 구현의 장기 목표는 개별 PoC를 나열하는 것이 아니라, Warsmash/Warcraft III식 선택, 명령 타일, Shift 예약, 건설, 공격/attack-move 감각을 Chicken Farm MVP의 공통 command model로 수렴시키는 것이다.
 
-## 읽는 순서
+## 읽는 순서와 컨텍스트 예산
 
-현재 구현 컨텍스트는 active 문서를 먼저 읽고, 완료된 PoC 세부 이력은 archive에서 필요할 때만 역추적한다.
+새 작업은 아래 순서로 시작한다. 큰 분석·P2P 문서는 필요한 질문이 생겼을 때만 연다.
 
-Active:
+1. [Current Context](./chicken_farm_current_context.md) — 현재 구현 경계와 바로 다음 작업을 3분 안에 파악하는 시작점.
+2. [W3X·Warsmash·현재 구현 차이](./chicken_farm_gap_analysis.md) — 원본 사실, 엔진 감각, 의도적 MVP 변환, 미통합 항목을 구분한 기준 문서.
+3. 작업 범위에 맞는 PoC 문서 하나 — 건설, command queue, telemetry, asset 등.
+4. 수치/원본 근거가 필요할 때만 [W3X 추출 분석 노트](./chicken_farm_w3x_analysis.md)와 artifact를 연다.
+5. behavior/pathing 감각이 필요할 때만 [Warsmash 동작 관찰 노트](./chicken_farm_warsmash_behavior_notes.md)를 연다.
 
-1. [W3X 추출 분석 노트](./chicken_farm_w3x_analysis.md)  
-   원본 맵에서 추출 가능한 JASS, 오브젝트, 지형, pathing, doodad, rawcode, 웨이브/경제/점수 분석의 중심 문서.
+### 문서 역할
 
-2. [Warsmash 참조 계획](./chicken_farm_warsmash_reference_plan.md)  
-   Warcraft III 엔진 감각을 Phaser에서 재현하기 위해 Warsmash를 어떤 방식으로 참고할지 정리한 계획.
+| 층 | 문서 | 역할 |
+| --- | --- | --- |
+| 현재 판단 | [Current Context](./chicken_farm_current_context.md), [Gap Analysis](./chicken_farm_gap_analysis.md), [Runtime Audit](./chicken_farm_runtime_audit_2026-07-13.md) | 다음 구현의 출발점, 차이·실제 코드 감사·우선순위 |
+| 원본 근거 | [W3X 추출 분석](./chicken_farm_w3x_analysis.md), `chicken_farm_w3x_artifacts/` | 정적 추출값·JASS·오브젝트·지형 관찰 |
+| 엔진 참고 | [Warsmash 동작 노트](./chicken_farm_warsmash_behavior_notes.md), [참조 계획](./chicken_farm_warsmash_reference_plan.md) | Warcraft III식 order/pathing/attack 감각 |
+| 구현별 계획 | [Next Priority](./chicken_farm_next_priority_plan.md), 건설/명령/telemetry/sprite 계획 | 세부 완료 기준과 이력. 현재 판단은 위 두 압축 문서가 우선 |
+| 장기 설계 | [P2P Game Plan](./chicken_farm_phaser_p2p_game_plan.md), network/worker 계획 | 통합 MVP 이후의 네트워크·simulation 경계 |
 
-3. [Warsmash 동작 관찰 노트](./chicken_farm_warsmash_behavior_notes.md)  
-   Warsmash 임시 checkout에서 확인한 명령, 이동, attack-move, pathing, blocker 전환 동작 요약.
+### 범위별 PoC 문서
 
-4. [Wave/Shop MVP Spec](./chicken_farm_wave_shop_disease_mvp_spec.md)  
-   웨이브, 상점 흐름을 Phaser MVP 구현 단위로 좁힌 스펙. 질병은 원본 참조용 보관 섹션으로만 유지한다.
-
-5. [Phaser P2P Game Plan](./chicken_farm_phaser_p2p_game_plan.md)  
-   전체 웹 게임 방향, P2P 방식, 플레이 루프, PoC 로드맵, 구현 목표를 다루는 상위 기획서.
-
-6. [Network Sync and Browser Suspend Plan](./chicken_farm_network_and_suspend_plan.md)  
-   네트워크 플레이의 몬스터 동기화, host authoritative tick, 브라우저 hidden/suspend 대응 정책.
-
-7. [Worker Simulation Boundary Plan](./chicken_farm_worker_simulation_boundary_plan.md)  
-   현재 Phaser PoC 코드에서 어떤 책임을 pure simulation, presenter, bridge로 나눌지 정리한 구조 문서.
-
-8. [Next Priority Plan](./chicken_farm_next_priority_plan.md)  
-   구현 전환 직전의 우선순위, 추가 분석 항목, PoC 진행 기준.
-
-9. [Construction Placement PoC Plan](./chicken_farm_construction_poc_plan.md)  
-   Combat PoC를 feature flag로 잠시 끄고, 워3식 명령 타일과 건설 배치 루프를 구현하기 위한 현재 작업 계획.
-
-10. [Command Queue PoC Plan](./chicken_farm_command_queue_poc_plan.md)  
-    Warsmash/Warcraft III식 Shift 예약을 이동/건설 예약과 생산 큐로 나눠 구현하기 위한 작업 계획.
-
-11. [Construction Visibility PoC Plan](./chicken_farm_construction_visibility_poc_plan.md)  
-    현재 zoom과 닭농장 맵 거리감은 유지하면서 유닛, 건물, 건설 ghost, progress, command marker의 시인성을 높이기 위한 계획.
-
-12. [Playtest Telemetry Plan](./chicken_farm_playtest_telemetry_plan.md)  
-    Phaser PoC/MVP에서 실제 테스트 로그를 JSONL로 기록하고 압축 export해 분석하는 방식.
-
-13. [Actual Play Observation Protocol](./chicken_farm_actual_play_observation_protocol.md)  
-    실제 플레이 관찰이 가능해졌을 때 보스 순서, 체감 스탯, 웨이브 압박을 검증하기 위한 절차. 현재는 Warsmash behavior 관찰로 일부 대체한다.
-
-14. [Sprite Asset Generation Plan](./chicken_farm_sprite_asset_generation_plan.md)  
-    Phaser MVP에 필요한 신규 스프라이트/아이콘 목록, GPT 이미지 생성 프롬프트, 후처리 기준, 생성 우선순위.
+- [Construction Placement](./chicken_farm_construction_poc_plan.md), [Construction Visibility](./chicken_farm_construction_visibility_poc_plan.md)
+- [Command Queue](./chicken_farm_command_queue_poc_plan.md)
+- [Playtest Telemetry](./chicken_farm_playtest_telemetry_plan.md)
+- [Wave/Shop MVP](./chicken_farm_wave_shop_disease_mvp_spec.md)
+- [Actual Play Observation](./chicken_farm_actual_play_observation_protocol.md)
+- [Sprite Asset Generation](./chicken_farm_sprite_asset_generation_plan.md)
 
 Archive:
 

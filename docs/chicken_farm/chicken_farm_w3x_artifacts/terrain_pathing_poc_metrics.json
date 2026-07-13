@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-20T22:36:18.900Z",
+  "generatedAt": "2026-07-13T00:49:07.278Z",
   "parameters": {
     "cellSize": 32,
     "clearancePx": 16,
@@ -19,35 +19,35 @@
       "probeId": "micro_a",
       "raw": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 9.09,
+        "expectedTravelSec": 9.2,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 64.59,
-        "pathDistance": 2999.14,
+        "pathComputeMs": 75.27,
+        "pathDistance": 3036.64,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
-        "detourRatio": 1.17,
-        "turnCount": 9,
-        "waypointCount": 89
+        "detourRatio": 1.19,
+        "turnCount": 8,
+        "waypointCount": 91
       },
       "smoothed": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 8.8,
+        "expectedTravelSec": 8.88,
         "minClearanceCells": 1.58,
-        "pathComputeMs": 65.21,
-        "pathDistance": 2903,
+        "pathComputeMs": 90.78,
+        "pathDistance": 2931.64,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
-        "detourRatio": 1.13,
-        "turnCount": 1,
+        "detourRatio": 1.15,
+        "turnCount": 2,
         "waypointCount": 4
       },
       "smoothingDelta": {
         "detourRatioDelta": -0.04,
-        "distanceDelta": -96.14,
-        "expectedTravelSecDelta": -0.29,
-        "turnReduction": 8,
-        "waypointReduction": 85,
-        "waypointReductionPct": 95.51
+        "distanceDelta": -105,
+        "expectedTravelSecDelta": -0.32,
+        "turnReduction": 6,
+        "waypointReduction": 87,
+        "waypointReductionPct": 95.6
       },
       "start": {
         "x": 3776,
@@ -71,7 +71,7 @@
         "blockedWaypointCount": 0,
         "expectedTravelSec": 8.14,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 3.97,
+        "pathComputeMs": 9.22,
         "pathDistance": 2684.64,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
@@ -81,10 +81,10 @@
       },
       "smoothed": {
         "blockedWaypointCount": 0,
-        "expectedTravelSec": 7.93,
+        "expectedTravelSec": 7.95,
         "minClearanceCells": 1.5,
-        "pathComputeMs": 7.72,
-        "pathDistance": 2618.23,
+        "pathComputeMs": 18.66,
+        "pathDistance": 2623.63,
         "pathSegmentBlockedHits": 0,
         "pathFound": true,
         "detourRatio": 1.02,
@@ -93,8 +93,8 @@
       },
       "smoothingDelta": {
         "detourRatioDelta": -0.03,
-        "distanceDelta": -66.41,
-        "expectedTravelSecDelta": -0.21,
+        "distanceDelta": -61.01,
+        "expectedTravelSecDelta": -0.19,
         "turnReduction": 6,
         "waypointReduction": 77,
         "waypointReductionPct": 96.25
