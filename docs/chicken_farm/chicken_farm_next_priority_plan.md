@@ -1,12 +1,12 @@
 # Chicken Farm Next Priority Plan
 
-이 문서는 Chicken Farm Phaser MVP의 다음 PoC 우선순위와 구현 기준을 정리한다.
+이 문서는 Chicken Farm Phaser MVP의 PoC별 완료 기준과 설계 이력을 정리한다. **현재 구현 경계와 즉시 우선순위는 먼저 [`chicken_farm_current_context.md`](./chicken_farm_current_context.md), W3X/Warsmash 대비 차이는 [`chicken_farm_gap_analysis.md`](./chicken_farm_gap_analysis.md)를 따른다.** 아래에는 완료된 체크리스트와 이전 순서의 계획도 남아 있으므로, 표의 상태만으로 현재 런타임 상태를 판단하지 않는다.
 
 ## 1. 현재 결정
 
 장기 목표는 개별 PoC를 쌓는 것이 아니라, **Warsmash/Warcraft III식 선택, 명령 타일, 예약, 건설, 공격 감각으로 닭농장 MVP를 재구성하는 것**이다. 건설 PoC는 이 목표를 검증하기 위한 한 단계이며, 이후 경제/상점/전투도 같은 command model 위에 붙인다.
 
-다음 우선 구현 PoC는 **War3 Command Combat Smoke PoC**를 짧게 통과한 뒤 **Economy / Build / Shop PoC**로 들어간다.
+이 절의 초기 순서는 2026-07-08 계획 스냅샷이다. Coop/Well/Egg/Hatch P0의 순수 economy와 임시 presenter는 이후 구현됐으며, 현재 우선순위는 **경제 지갑 통합 → 실제 맵 늑대 웨이브 → command 완결성**이다.
 
 2026-07-08 재점검 결론:
 
@@ -341,7 +341,9 @@ P0 밸런스 변환값:
 - 닭장에 알을 넣은 뒤 부화 job이 생성되고, 완료 시 닭 수가 증가한다.
 - 이 상태 로직은 Phaser GameObject를 직접 참조하지 않는다.
 
-### 5.3 Economy / Build / Shop PoC
+### 5.3 Economy / Build / Shop PoC (이전 설계 스냅샷)
+
+> 아래 E1~E8은 Coop/Well/Egg/Hatch P0를 시작하기 전의 분해 계획이다. C1~C6/CA1~CA12의 완료 기록과 충돌하는 상태 표기는 현재 작업 상태가 아니다. 남은 범위는 `chicken_farm_current_context.md`의 경제 상태 통합과 `chicken_farm_gap_analysis.md`의 P0 항목으로 재정의한다.
 
 기존 **PoC 7. 닭/알/수익**을 시작하되, 실제 플레이 루프상 건설/상점과 분리하기 어렵기 때문에 다음 턴의 작업 단위는 **Economy / Build / Shop PoC**로 묶는다.
 
@@ -412,7 +414,9 @@ PoC 7 완료 기준:
 - 최소 하나의 runtime interaction으로 농부가 경제 액션을 실행할 수 있다.
 - Node 측정 artifact가 통과하고, browser smoke에서 HUD 값이 갱신된다.
 
-## 6. 전체 PoC 로드맵
+## 6. 전체 PoC 로드맵 (장기 순서 참고)
+
+> 이 표는 기능 의존성과 과거 계획 순서를 보존한다. 이미 완료된 economy PoC 및 현재 우선순위는 상단의 Current Context를 우선한다.
 
 | 우선순위 | PoC                              | 상태             | 선행 조건                            | 다음 액션                                                                      |
 | -------: | -------------------------------- | ---------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
