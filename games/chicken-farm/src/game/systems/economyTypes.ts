@@ -11,7 +11,8 @@ export type EconomyWellKind = 'basic' | 'windmill';
 
 export type CoopKind = 'basic' | 'high' | 'mid';
 
-export type EconomyItemRawcode = 'I006';
+/** Economy items currently represented in the MVP inventory. */
+export type EconomyItemRawcode = 'I003' | 'I006' | 'I009' | 'I00F';
 
 export type EconomyInventorySlot = {
     readonly itemRawcode: EconomyItemRawcode;
