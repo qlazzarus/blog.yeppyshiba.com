@@ -1,68 +1,51 @@
 {
-  "topPost": "/article/apptech-income-june-2026",
-  "topPostViews": 21,
+  "topPost": "/article/phaser4-apex-seoul-comfyui-retro-palette-compiler",
+  "topPostViews": 16,
   "relatedSuggestions": [
-    "/apptech-income-june-2026/",
-    "/apptech-income-may-2026/",
-    "/how-i-build-pocket-money-with-apptech/"
+    "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
+    "/phaser4-apex-seoul-downhill-elevation-rendering/",
+    "/phaser4-apex-seoul-downhill-rpm-fuelcut/",
+    "/phaser4-apex-seoul-drift-state-telemetry/",
+    "/phaser4-apex-seoul-handling-log-tuning/",
+    "/phaser4-apex-seoul-player-car-speed-control/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
-      "views": 3,
-      "avgSec": 377.52
-    },
-    {
-      "path": "/article/20260510-morning-ride",
-      "views": 1,
-      "avgSec": 96.84
-    },
-    {
-      "path": "/article/apptech-income-may-2026",
-      "views": 1,
-      "avgSec": 148.46
+      "path": "/article/phaser4-apex-seoul-pseudo-3d-camera",
+      "views": 2,
+      "avgSec": 108.39
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/phaser4-apex-seoul-real-car-source-model-poc",
-      "views": 5,
-      "avgSec": 9.46
-    },
-    {
-      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
-      "views": 2,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/ganghwa-cafe-in-bunjae-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/how-becoming-a-father-changed-my-decisions",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/migration-to-astro",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-downhill-elevation-rendering",
-      "views": 1,
-      "avgSec": 3.79
-    },
-    {
       "path": "/article/phaser4-apex-seoul-handling-log-tuning",
+      "views": 2,
+      "avgSec": 3.54
+    },
+    {
+      "path": "/article/20260525-dahon-dash-d16-evening-ride",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-roadsegment-curve-rendering",
+      "path": "/article/flutter-with-mobx",
       "views": 1,
       "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-downhill-rpm-fuelcut",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-downhill-rpm-fuelcut",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
+      "views": 1,
+      "avgSec": 0.13
     },
     {
       "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
@@ -70,27 +53,12 @@
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "path": "/article/phaser4-isometric-minesweeper-mobile-landscape-responsive",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-negative-coordinates",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-math-probability",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-math-quadrants",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-middle-school-math-division-by-zero",
+      "path": "/article/suwon-chungung-lake-hodunamu-cafe",
       "views": 1,
       "avgSec": 0
     }

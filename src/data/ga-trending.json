@@ -1,28 +1,16 @@
 {
-  "generatedAt": "2026-06-29T07:28:03.406Z",
+  "generatedAt": "2026-07-13T06:12:45.131Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
-      "views": 46,
+      "path": "/article/phaser4-apex-seoul-comfyui-retro-palette-compiler",
+      "views": 16,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/aviation-si-onboarding-01",
-      "views": 4,
-      "avgSec": 173.27,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
-      "views": 1,
-      "avgSec": 1762.02,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/what-we-expect-from-software-developers-on-each-level",
-      "views": 1,
-      "avgSec": 478.13,
+      "path": "/article/phaser4-apex-seoul-pseudo-3d-camera",
+      "views": 2,
+      "avgSec": 108.39,
       "reason": "amplify"
     }
   ]
