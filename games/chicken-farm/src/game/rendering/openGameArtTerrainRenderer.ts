@@ -22,7 +22,7 @@ type OpenGameArtTerrainConfig = {
  * to this small dedicated atlas instead of replacing the Kenney PNG in-place.
  */
 export function createOpenGameArtTerrainLayer(config: OpenGameArtTerrainConfig) {
-    const sourceGroundLayer = config.map.getLayer('ground')?.tilemapLayer;
+    const sourceGroundLayer = config.map.getLayer('ground');
     if (!sourceGroundLayer) {
         throw new Error('Missing ground tile layer');
     }
