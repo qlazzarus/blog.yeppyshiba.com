@@ -15,6 +15,7 @@ const {
     dateModified,
     tags,
     category,
+    noindex,
 } = Astro.props;
 ---
 
@@ -30,6 +31,7 @@ const {
             dateModified={dateModified}
             tags={tags}
             category={category}
+            noindex={noindex}
         />
         <script is:inline>
             // Early theme init to prevent flash (FOUC)

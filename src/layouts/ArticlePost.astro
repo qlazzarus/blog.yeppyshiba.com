@@ -15,6 +15,7 @@ const {
     title,
     summary,
     date,
+    updated,
     image,
     tags,
     category,
@@ -101,7 +102,7 @@ const breadcrumbs = [
     schemaType='article'
     breadcrumbs={breadcrumbs}
     datePublished={date}
-    dateModified={date}
+    dateModified={updated ?? date}
     tags={tags}
     category={category}
 >
