@@ -3,7 +3,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 import { legacyTagRedirects } from './src/config/legacyTagRedirects.ts';
@@ -12,6 +12,7 @@ const site = 'https://blog.yeppyshiba.com';
 const legacyTagRedirectUrls = new Set(
     legacyTagRedirects.map((redirect) => new URL(redirect.from, site).toString()),
 );
+const articleLastmodByPath = await getArticleLastmodByPath();
 
 const gameAssetContentTypes = {
     '.css': 'text/css; charset=utf-8',
@@ -91,6 +92,37 @@ function isSafeGameAssetPath(value) {
     return /^[a-zA-Z0-9._\-/]+$/u.test(value);
 }
 
+async function getArticleLastmodByPath() {
+    const contentsDir = path.join(process.cwd(), 'contents');
+    const files = await readdir(contentsDir, { recursive: true }).catch(() => []);
+    const entries = await Promise.all(
+        files
+            .filter((file) => /\.mdx?$/u.test(file))
+            .map(async (file) => {
+                const content = await readFile(path.join(contentsDir, file), 'utf8');
+                const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/u.exec(content)?.[1] ?? '';
+                const updated = readFrontmatterDate(frontmatter, 'updated');
+                const published = readFrontmatterDate(frontmatter, 'date');
+                const lastmod = updated ?? published;
+
+                if (!lastmod || Number.isNaN(lastmod.getTime())) return null;
+
+                const slug = file.replace(/\.mdx?$/u, '').split(path.sep).join('/');
+                return [`/article/${slug}/`, lastmod];
+            }),
+    );
+
+    return new Map(entries.filter(Boolean));
+}
+
+function readFrontmatterDate(frontmatter, field) {
+    const match = new RegExp(`^${field}:\\s*[\"']?([^\"'\\r\\n]+)`, 'mu').exec(
+        frontmatter,
+    );
+
+    return match ? new Date(match[1].trim()) : undefined;
+}
+
 // https://astro.build/config
 export default defineConfig({
     site,
@@ -98,7 +130,32 @@ export default defineConfig({
     integrations: [
         mdx(),
         sitemap({
-            filter: (page) => !legacyTagRedirectUrls.has(page),
+            // Submit canonical content and durable hubs only. Pagination, tag archives,
+            // redirects, and game runtime shells are crawlable through internal links but
+            // should not consume sitemap coverage in Search Console.
+            filter: (page) => {
+                const pathname = new URL(page).pathname;
+
+                return (
+                    !legacyTagRedirectUrls.has(page) &&
+                    !pathname.startsWith('/tag/') &&
+                    !pathname.startsWith('/page/') &&
+                    !/^\/category\/[^/]+\/\d+\/$/u.test(pathname) &&
+                    !pathname.startsWith('/rides/page/') &&
+                    !/^\/rides\/[^/]+\/$/u.test(pathname) &&
+                    !pathname.startsWith('/play/') &&
+                    pathname !== '/trending/'
+                );
+            },
+            // Only claim a change date when it comes from the content itself. Google
+            // advises against fabricated freshness signals, so hub pages intentionally
+            // omit lastmod and changefreq/priority are left unset.
+            serialize: (item) => {
+                const pathname = decodeURIComponent(new URL(item.url).pathname);
+                const lastmod = articleLastmodByPath.get(pathname);
+
+                return lastmod ? { ...item, lastmod } : item;
+            },
         }),
     ],
     vite: {

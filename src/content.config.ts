@@ -8,6 +8,9 @@ const blog = defineCollection({
         z.object({
             title: z.string(),
             date: z.coerce.date(),
+            // Set when an existing post receives a meaningful update. It powers the
+            // article's modified metadata and its sitemap <lastmod> value.
+            updated: z.coerce.date().optional(),
             category: z.enum([
                 'review',
                 'coding',

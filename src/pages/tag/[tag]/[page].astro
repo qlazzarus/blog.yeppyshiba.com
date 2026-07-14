@@ -37,7 +37,7 @@ const title = `${label} 글 모음 — Page ${page}`;
 const description = `${meta?.description ?? `${label} 관련 글 모음`}, page ${page}`;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} noindex>
     <section>
         <h1 class='mb-4 text-center text-3xl font-bold'>
             Tag: {label}
