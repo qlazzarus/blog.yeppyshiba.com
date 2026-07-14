@@ -69,7 +69,7 @@ async function main() {
     const month = monthFromTimestamp(viewerStartMs);
     const trimmedGpxPublicPath = `/gpx/${month}/${options.slug}.trimmed.gpx`;
     const manifestPublicPath = `/rides/${month}/${options.slug}/media.json`;
-    const framePublicDir = `/images/rides/${month}/${options.slug}/frames`;
+    const framePublicDir = `/images/posts/${month}/${options.slug}/frames`;
 
     const trimmedGpxOut = path.join(
         options.outRoot,

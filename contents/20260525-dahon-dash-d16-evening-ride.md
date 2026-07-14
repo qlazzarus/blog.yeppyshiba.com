@@ -8,7 +8,7 @@ tags:
     - 스프린트
     - Dahon Dash D16
     - 저녁 라이딩
-image: /images/rides/202605/anyangcheon_hakuicheon_20090418.jpg
+image: /images/posts/202605/anyangcheon_hakuicheon_20090418.jpg
 gpxUrl: /gpx/202605/20260525_evening_ride_trim.gpx
 coverCredit: Jpbarrass
 coverLicense: Public domain
@@ -26,4 +26,4 @@ roadviewUpdateIntervalMs: 10000
 - 집에 빨리 가야 한다는 아내·아기 콜이 큰 모티베이션
 - D16의 기어비와 반응성 덕에 순간 가속이 수월했음
 
-![내가 찍은 다혼 대쉬 D16 사진](/images/rides/202605/dahon_dash_d16.png)
+![내가 찍은 다혼 대쉬 D16 사진](/images/posts/202605/dahon_dash_d16.png)

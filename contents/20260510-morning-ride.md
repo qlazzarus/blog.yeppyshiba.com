@@ -9,7 +9,7 @@ tags:
     - 한강 자전거길
     - 라이딩 기록
     - 자전거 코스
-image: /images/rides/202605/han-river-bike-path.jpg
+image: /images/posts/202605/han-river-bike-path.jpg
 gpxUrl: /gpx/202605/20260510_morning_ride.gpx
 coverCredit: Han river bike path - gary4now
 coverLicense: CC BY 3.0

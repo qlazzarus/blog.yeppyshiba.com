@@ -3,7 +3,7 @@ title: GPX 파일로 라이딩 코스 난이도와 지도 경로를 확인하는
 date: 2026-06-01T09:10:00+09:00
 summary: 로컬 GPX 파일을 브라우저에서만 읽어 거리, 획득고도, 예상 소요시간, 난이도 점수와 카카오 지도 경로를 확인하는 GPX 난이도 계산기를 만든 과정을 정리합니다.
 category: coding
-image: /images/rides/202605/dahon_dash_d16.png
+image: /images/posts/202605/dahon_dash_d16.png
 tags:
     - gpx
     - 자전거
@@ -33,7 +33,7 @@ Strava, Garmin, Komoot 같은 서비스에 올리면
 
 [GPX 난이도 계산기](/tools/gpx-analyzer/)다.
 
-![한강 자전거길](/images/rides/202605/han-river-bike-path.jpg)
+![한강 자전거길](/images/posts/202605/han-river-bike-path.jpg)
 
 ## 이 도구가 하는 일
 
@@ -92,7 +92,7 @@ GPX 파일을 선택하면 브라우저에서 파일 내용을 읽고,
 이 값도 절대적인 정답이라기보다는  
 “이 코스가 오늘 타기에 가벼운가, 무거운가”를 보는 기준에 가깝다.
 
-![안양천과 학의천이 만나는 자전거길](/images/rides/202605/anyangcheon_hakuicheon_20090418.jpg)
+![안양천과 학의천이 만나는 자전거길](/images/posts/202605/anyangcheon_hakuicheon_20090418.jpg)
 
 ## 지도는 보여주고, 로드뷰는 숨겼다
 
@@ -159,7 +159,7 @@ window.GpxRouteViewer.loadGpxFromText('gpx-analyzer-viewer', gpxText, {
 하나의 컴포넌트를 유지하면서  
 공개 라이딩 기록과 로컬 분석 도구를 함께 지원하게 된 셈이다.
 
-![다혼 대쉬 D16 라이딩 사진](/images/rides/202605/dahon_dash_d16.png)
+![다혼 대쉬 D16 라이딩 사진](/images/posts/202605/dahon_dash_d16.png)
 
 ## 로컬 GPX 분석은 생각보다 유용하다
 
