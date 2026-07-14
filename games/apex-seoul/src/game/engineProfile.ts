@@ -39,7 +39,10 @@ export type VehicleEngineProfile = {
 
 export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     displayName: 'Raven Coupe',
-    displayTopSpeedKmh: 205,
+    // Display calibration only. accelSpeed, gearing and torque remain the
+    // handling model's units, while the Bugak downhill reads less like a
+    // supercar speedometer.
+    displayTopSpeedKmh: 185,
     fuelCutReturnRpm: 7350,
     fuelCutStartRpm: 7750,
     gears: [

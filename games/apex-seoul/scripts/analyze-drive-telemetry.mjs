@@ -79,6 +79,7 @@ function buildSummary(events, samples, inputPath) {
         rpm: createRange(),
         slopeAcceleration: createRange(),
         speed: createRange(),
+        speedKmh: createRange(),
         steering: createRange(),
         vehicleY: createRange(),
     };
@@ -115,6 +116,7 @@ function buildSummary(events, samples, inputPath) {
         addRangeValue(ranges.rpm, state.player?.rpm);
         addRangeValue(ranges.slopeAcceleration, state.player?.slopeAcceleration);
         addRangeValue(ranges.speed, state.player?.speed);
+        addRangeValue(ranges.speedKmh, state.player?.speedKmh);
         addRangeValue(ranges.steering, state.player?.steering);
         addRangeValue(ranges.vehicleY, vehicleY);
 

@@ -154,6 +154,49 @@ export function getRoadCenterOffsetAhead(
     return boundaryCenters.at(-1) ?? 0;
 }
 
+/**
+ * Returns the paved road span at a screen-space Y coordinate. This is the
+ * useful comparison point for the player car, whose sprite is composited at a
+ * fixed-ish screen anchor rather than at its literal ground-contact depth.
+ */
+export function getRoadWidthAtScreenY(
+    track: RoadTrack,
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+    screenY: number,
+) {
+    const baseSegment = Math.floor(camera.z / track.segmentLength);
+    const progress = getCameraSegmentProgress(track, camera.z);
+    const currentElevation = getRoadElevationAt(track, camera.z);
+    const boundaryCenters = getVisibleBoundaryCenters(track, baseSegment, progress);
+    const boundaryElevations = getVisibleBoundaryElevations(track, baseSegment, progress);
+
+    for (let i = 0; i <= DRAW_SEGMENTS; i += 1) {
+        const absoluteIndex = baseSegment + i;
+        const nearWorldZ = i === 0
+            ? camera.z + NEAR_CLIP_DISTANCE
+            : absoluteIndex * track.segmentLength;
+        const farWorldZ = i === 0
+            ? (baseSegment + 1) * track.segmentLength
+            : nearWorldZ + track.segmentLength;
+        const road = projectRoadSlice(
+            boundaryCenters[i],
+            boundaryCenters[i + 1],
+            (boundaryElevations[i] - currentElevation) * ELEVATION_VISUAL_SCALE,
+            (boundaryElevations[i + 1] - currentElevation) * ELEVATION_VISUAL_SCALE,
+            nearWorldZ,
+            farWorldZ,
+            camera,
+            viewport,
+        );
+        const width = road ? getRoadWidthAtY(road, screenY) : null;
+
+        if (width !== null) return width;
+    }
+
+    return null;
+}
+
 function getVisibleBoundaryCenters(
     track: RoadTrack,
     baseSegment: number,
@@ -260,6 +303,23 @@ function projectRoadSlice(
         roadNearLeft,
         roadNearRight,
     };
+}
+
+function getRoadWidthAtY(road: ProjectedRoadSlice, screenY: number) {
+    const nearY = road.roadNearLeft.y;
+    const farY = road.roadFarLeft.y;
+    const minimumY = Math.min(nearY, farY);
+    const maximumY = Math.max(nearY, farY);
+
+    if (screenY < minimumY || screenY > maximumY || Math.abs(nearY - farY) < 0.001) {
+        return null;
+    }
+
+    const ratio = Phaser.Math.Clamp((screenY - farY) / (nearY - farY), 0, 1);
+    const leftX = Phaser.Math.Linear(road.roadFarLeft.x, road.roadNearLeft.x, ratio);
+    const rightX = Phaser.Math.Linear(road.roadFarRight.x, road.roadNearRight.x, ratio);
+
+    return Math.abs(rightX - leftX);
 }
 
 function drawRoadBody(
