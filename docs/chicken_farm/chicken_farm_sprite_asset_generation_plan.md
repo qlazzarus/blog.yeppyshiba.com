@@ -1,10 +1,10 @@
 # Chicken Farm Sprite Asset Generation Plan
 
-이 문서는 Chicken Farm Phaser MVP에서 필요한 스프라이트/아이콘 에셋을 정리하고, 차후 GPT 이미지 생성을 통해 일관된 원본 후보를 만들기 위한 프롬프트 기준을 정의한다.
+이 문서는 Chicken Farm Phaser MVP에서 필요한 스프라이트/아이콘 에셋을 정리하고, 오픈소스 에셋 우선 도입 및 필요할 때의 생성·후처리 기준을 정의한다.
 
 ## 1. 방향
 
-GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 아니라, **원본 후보 생성 + 후처리 + sprite sheet 정규화** 파이프라인의 앞단으로 사용한다.
+현재 기본 방침은 **오픈소스 에셋 우선**이다. GPT 이미지 생성은 적합한 오픈소스 후보가 없을 때만, **원본 후보 생성 + 후처리 + sprite sheet 정규화** 파이프라인의 앞단으로 사용한다.
 
 효율적인 사용처:
 
@@ -21,6 +21,30 @@ GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 
 - 정확한 collision footprint가 필요한 건물 sprite
 - 선택 ring, HP bar, team color 같은 runtime UI 요소를 이미지에 포함하는 것
 
+### 1.1 라이선스·소싱 정책
+
+- 우선순위는 `CC0`이다. 배포 표기 부담 없이 프로젝트 에셋으로 정규화할 수 있다.
+- `CC-BY`는 원본 URL·저자·라이선스를 `docs/chicken_farm/`의 에셋 출처 목록에 기록할 수 있을 때만 사용한다.
+- `CC-BY-SA`와 `GPL` 에셋은 프로젝트 전체 배포 라이선스에 영향을 줄 수 있으므로, 현재 MVP에는 도입하지 않는다.
+- 다운로드한 외부 파일은 미리보기와 별개로 실제 압축 파일의 내용·라이선스 파일을 확인한 뒤 allowlist에 넣는다.
+- 하나의 지면 레이어에는 같은 타일 규격·팔레트의 타일군만 사용한다. 서로 다른 타일셋을 한 장의 지면처럼 섞지 않는다.
+
+### 1.2 현재 시각 에셋 스프린트 범위
+
+이번 패스는 **타일셋 교체만** 수행한다.
+
+- 기존 Kenney 지면 레이어를 CC0 잔디·흙 타일로 대체한다.
+- 유닛, 건물, 아이콘, 이펙트, 게임 규칙과 충돌/pathing 데이터는 바꾸지 않는다.
+- 건물 오픈소스 에셋의 다운로드·실제 sprite 교체는 다음 패스로 미룬다.
+- 기존 맵은 Kenney의 tile ID를 참조하므로 이미지 파일만 바꾸지 않는다. 새 지면 레이어를 별도로 구성해 기존 object/collision 레이어와 분리한다.
+
+### 1.3 현재 도입 에셋 출처
+
+| 용도 | 파일 | 원본 | 라이선스 | 적용 방식 |
+| --- | --- | --- | --- | --- |
+| 잔디 지면 | `tilesets/opengameart-theness/forest.png` | TheNess, [Grass and dirt tileset (Warcraft II style)](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | 8×8 중심 타일을 nearest-neighbor로 16×16 논리 타일에 맞춰 렌더링 |
+| 흙길 지면 | `tilesets/opengameart-theness/dirt.png` | TheNess, [Grass and dirt tileset (Warcraft II style)](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | 기존 ground 레이어의 흙길 위치만 매핑 |
+
 ## 2. 공통 스타일 가이드
 
 프로젝트는 원본 Warcraft III 유즈맵의 룰 감각을 참고하지만, 원본 에셋/아이콘/모델/명칭을 복제하지 않는다.
@@ -30,7 +54,7 @@ GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 
 - 오리지널 stylized top-down fantasy farm defense
 - 작은 화면에서도 읽히는 큼직한 실루엣
 - 따뜻한 농장 색감과 어두운 밤 방어 분위기가 공존
-- 건물은 footprint가 읽히도록 위에서 약간 내려다본 3/4 top-down view
+- 건물은 이소메트릭(2.5D) 원본을 우선 허용하며, 런타임에서는 **하나의 2D 평면 sprite**로 배치한다. 3D 카메라나 메시 렌더링은 사용하지 않는다.
 - 유닛은 mobile/web 화면에서도 식별되도록 머리/몸/무기/역할이 명확해야 함
 - 선택 ring, HP bar, range indicator, shadow는 가능하면 runtime에서 별도 처리
 
@@ -43,7 +67,7 @@ original stylized top-down fantasy farm defense game sprite, chunky readable sil
 공통 negative prompt:
 
 ```text
-no text, no logo, no watermark, no UI frame, no health bar, no selection circle, no existing game character, no Warcraft asset, no photorealism, no isometric city builder scale, no background scene, no cropped object
+no text, no logo, no watermark, no UI frame, no health bar, no selection circle, no existing game character, no Warcraft asset, no photorealism, no background scene, no cropped object
 ```
 
 ## 3. 생성/후처리 파이프라인
@@ -77,7 +101,8 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 - 현재 runtime footprint cell은 32px이고, placement snap은 minor tile 2개 단위인 64px이다.
 - sprite source 크기는 시각 품질 기준이다. 예를 들어 3x3 건물은 collision footprint가 `96x96`이어도 source sprite는 `192x192`로 둔다.
 - W3X/Warsmash 근접 footprint는 `pathTex`를 우선한다. `4x4SimpleSolid`는 `4x4`, `8x8SimpleSolid`는 `8x8`로 해석한다.
-- 건물 sprite는 footprint 바닥 중심에 anchor를 맞춘다. 지붕/장식은 footprint 밖으로 살짝 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
+- 이소메트릭 건물 원본도 `footprint_bottom_center`에 anchor를 맞춘 2D 평면 sprite로 취급한다. 지붕/장식·투명 여백은 footprint 밖으로 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
+- 건물의 draw depth는 sprite 전체 높이가 아니라 `footprint_bottom_center`의 y값을 기준으로 정한다. 따라서 서로 다른 이소메트릭 원본을 써도 앞뒤 겹침과 선택 판정은 논리 footprint로 일관되게 유지한다.
 - HP bar, 건설 progress bar, selection outline, range indicator는 runtime overlay로 처리한다.
 - 워3식 하단 정보 패널에 쓰는 건물 portrait는 1차에서는 `iconId`를 재사용한다. 필요하면 후속으로 `portraitId`를 manifest에 추가한다.
 

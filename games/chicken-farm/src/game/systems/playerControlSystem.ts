@@ -13,6 +13,7 @@ export type FarmInputKeys = Record<
     | 'f'
     | 'h'
     | 'left'
+    | 'm'
     | 'one'
     | 'right'
     | 's'
@@ -31,6 +32,7 @@ export type FarmInputKeys = Record<
     | 'terrainOverlay'
     | 'telemetryExport'
     | 'up'
+    | 'w'
     | 'x',
     Phaser.Input.Keyboard.Key
 >;

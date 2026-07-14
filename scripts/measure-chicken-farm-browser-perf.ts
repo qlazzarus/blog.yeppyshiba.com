@@ -174,13 +174,13 @@ async function runBrowserScenario() {
         if (!economyBefore.economyPoc || !economyBefore.wallet) {
             throw new Error('Missing economy state or shared wallet for lifecycle scenario');
         }
-        const fixtureId = await page.evaluate(({ x, y }) =>
+        const coopFixtureId = await page.evaluate(({ x, y }) =>
             window.__chickenFarmDebug!.createEconomyBuildingFixture('coop_basic', x, y),
         {
             x: clamp(primary.x + 384, 128, state.worldSize.x - 128),
             y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
         });
-        if (!fixtureId) throw new Error('Could not create completed-building lifecycle fixture');
+        if (!coopFixtureId) throw new Error('Could not create completed coop lifecycle fixture');
 
         await page.waitForFunction(
             (expectedCoopCount) =>
@@ -189,8 +189,36 @@ async function runBrowserScenario() {
             { timeout: 35_000 },
         );
         await collect('completed_coop_economy_lifecycle');
+        const wellFixtureId = await page.evaluate(({ x, y }) =>
+            window.__chickenFarmDebug!.createEconomyBuildingFixture('well_basic', x, y),
+        {
+            x: clamp(primary.x + 576, 128, state.worldSize.x - 128),
+            y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
+        });
+        if (!wellFixtureId) throw new Error('Could not create completed well lifecycle fixture');
+        await page.waitForFunction(
+            (expectedWellCount) =>
+                window.__chickenFarmDebug!.getState().economyPoc?.wells === expectedWellCount,
+            economyBefore.economyPoc.wells + 1,
+            { timeout: 20_000 },
+        );
+        await collect('completed_well_economy_lifecycle');
+        const marketFixtureId = await page.evaluate(({ x, y }) =>
+            window.__chickenFarmDebug!.createEconomyBuildingFixture('market', x, y),
+        {
+            x: clamp(primary.x + 768, 128, state.worldSize.x - 128),
+            y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
+        });
+        if (!marketFixtureId) throw new Error('Could not create completed market fixture');
+        await page.waitForFunction(
+            (expectedBuildingCount) =>
+                window.__chickenFarmDebug!.getState().buildingCount === expectedBuildingCount,
+            economyBefore.buildingCount + 3,
+            { timeout: 12_000 },
+        );
+        await collect('completed_market_sale_fixture');
         const economyAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
-        const expectedCoins = economyBefore.wallet.coins - 120;
+        const expectedCoins = economyBefore.wallet.coins - 120 - 30 - 18;
         const expectedLumber = economyBefore.wallet.lumber - 52;
         if (
             economyAfter.wallet?.coins !== expectedCoins ||
@@ -209,7 +237,9 @@ async function runBrowserScenario() {
                 viewport: { height: 720, width: 960 },
             },
             economyLifecycle: {
-                fixtureId,
+                coopFixtureId,
+                wellFixtureId,
+                marketFixtureId,
                 before: economyBefore,
                 after: economyAfter,
                 sharedWalletCostCheck: {

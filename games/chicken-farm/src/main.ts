@@ -7,6 +7,8 @@ import {
     CANVAS_WIDTH,
     CHICKEN_FARM_POC_FLAGS,
     MAJOR_TILE_PX,
+    OPEN_GAME_ART_DIRT_TILESET_KEY,
+    OPEN_GAME_ART_GRASS_TILESET_KEY,
     TILEMAP_KEY,
     TILESET_KEY,
     VISIBILITY_OVERLAY,
@@ -15,6 +17,7 @@ import {
 import type { PlayerStart, WorldMarker } from './game/ecs/components';
 import { COMBAT_POC_LAYOUT } from './game/poc/combatPocLayout';
 import { createBuildGrid } from './game/rendering/buildGridRenderer';
+import { createOpenGameArtTerrainLayer } from './game/rendering/openGameArtTerrainRenderer';
 import {
     createTileLayer,
     renderObjectLayer,
@@ -85,7 +88,7 @@ declare global {
         __chickenFarmDebug?: {
             getPerfSnapshot: () => ReturnType<PerformanceProfiler['getSnapshot']>;
             createEconomyBuildingFixture: (
-                templateId: 'coop_basic' | 'well_basic',
+                templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
                 y: number,
             ) => string | null;
@@ -257,6 +260,14 @@ class FarmScene extends Phaser.Scene {
 
     preload() {
         this.load.image(TILESET_KEY, CHICKEN_FARM_TILEMAP_POC_01.tilesetImagePath);
+        this.load.image(
+            OPEN_GAME_ART_DIRT_TILESET_KEY,
+            CHICKEN_FARM_TILEMAP_POC_01.groundSource.dirtImagePath,
+        );
+        this.load.image(
+            OPEN_GAME_ART_GRASS_TILESET_KEY,
+            CHICKEN_FARM_TILEMAP_POC_01.groundSource.grassImagePath,
+        );
         this.load.tilemapTiledJSON(TILEMAP_KEY, CHICKEN_FARM_TILEMAP_POC_01.mapPath);
         this.load.json(
             WPM_PATHING_GRID_KEY,
@@ -281,7 +292,14 @@ class FarmScene extends Phaser.Scene {
             throw new Error('Missing Kenney Tiny Town tileset');
         }
 
-        createTileLayer(map, tileset, 'ground', 0, this.worldScale, this.worldObjects);
+        createOpenGameArtTerrainLayer({
+            dirtTextureKey: OPEN_GAME_ART_DIRT_TILESET_KEY,
+            grassTextureKey: OPEN_GAME_ART_GRASS_TILESET_KEY,
+            map,
+            scene: this,
+            worldObjects: this.worldObjects,
+            worldScale: this.worldScale,
+        });
         createTileLayer(
             map,
             tileset,
@@ -2088,6 +2106,7 @@ class FarmScene extends Phaser.Scene {
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             h: Phaser.Input.Keyboard.KeyCodes.H,
             left: Phaser.Input.Keyboard.KeyCodes.A,
+            m: Phaser.Input.Keyboard.KeyCodes.M,
             microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
             one: Phaser.Input.Keyboard.KeyCodes.ONE,
             right: Phaser.Input.Keyboard.KeyCodes.D,
@@ -2102,6 +2121,7 @@ class FarmScene extends Phaser.Scene {
             three: Phaser.Input.Keyboard.KeyCodes.THREE,
             two: Phaser.Input.Keyboard.KeyCodes.TWO,
             up: Phaser.Input.Keyboard.KeyCodes.W,
+            w: Phaser.Input.Keyboard.KeyCodes.W,
             x: Phaser.Input.Keyboard.KeyCodes.X,
         }) as FarmScene['keys'];
     }
