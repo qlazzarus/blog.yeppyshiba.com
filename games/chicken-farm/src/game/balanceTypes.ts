@@ -30,6 +30,7 @@ export type DefenseBuildingId =
     | 'tower_arcane_medium'
     | 'tower_arcane_large'
     | 'tower_arcane_grand'
+    | 'campfire'
     | 'well_basic';
 export type BuildingId = IncomeBuildingId | DefenseBuildingId;
 export type CoreBuildingId = 'farm_house' | 'town_hall' | 'family_temple';

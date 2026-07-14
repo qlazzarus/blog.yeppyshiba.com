@@ -15,6 +15,7 @@ import {
     feedNearestEconomyChicken,
     herdEconomyChickens,
     pickupFieldEgg,
+    removeEconomyBuilding,
     startCoopHatch,
     upgradeEconomyWellToWindmill,
     updateChickenFarmEconomy,
@@ -34,6 +35,19 @@ async function main() {
     const state = createChickenFarmEconomyState({
         players: [{ carriedEggs: 0, coins: 120, id: 3 }],
     });
+    const lifecycleState = createChickenFarmEconomyState();
+    const lifecycleCoop = addEconomyCoop(lifecycleState, {
+        id: 'player-building-42',
+        ownerPlayerId: 3,
+        position: { x: 320, y: 320 },
+    });
+    const lifecycleWell = addEconomyWell(lifecycleState, {
+        id: 'player-building-43',
+        ownerPlayerId: 3,
+        position: { x: 448, y: 320 },
+    });
+    const removedLifecycleCoop = removeEconomyBuilding(lifecycleState, lifecycleCoop.id);
+    const removedLifecycleWell = removeEconomyBuilding(lifecycleState, lifecycleWell.id);
     const coop = addEconomyCoop(state, {
         kind: 'basic',
         ownerPlayerId: 3,
@@ -366,6 +380,41 @@ async function main() {
             wellCount: state.wells.length,
         },
         checks: [
+            {
+                actual: {
+                    coopInventoryRemoved: !lifecycleState.inventories.some(
+                        (inventory) => inventory.id === lifecycleCoop.id,
+                    ),
+                    coopRemoved: !lifecycleState.coops.some(
+                        (candidate) => candidate.id === lifecycleCoop.id,
+                    ),
+                    removedCoop: removedLifecycleCoop,
+                    removedWell: removedLifecycleWell,
+                    wellRemoved: !lifecycleState.wells.some(
+                        (candidate) => candidate.id === lifecycleWell.id,
+                    ),
+                },
+                expected: {
+                    coopInventoryRemoved: true,
+                    coopRemoved: true,
+                    removedCoop: 'coop',
+                    removedWell: 'well',
+                    wellRemoved: true,
+                },
+                id: 'world_building_id_owns_and_cleans_economy_capability',
+                pass:
+                    removedLifecycleCoop === 'coop' &&
+                    removedLifecycleWell === 'well' &&
+                    !lifecycleState.coops.some(
+                        (candidate) => candidate.id === lifecycleCoop.id,
+                    ) &&
+                    !lifecycleState.wells.some(
+                        (candidate) => candidate.id === lifecycleWell.id,
+                    ) &&
+                    !lifecycleState.inventories.some(
+                        (inventory) => inventory.id === lifecycleCoop.id,
+                    ),
+            },
             {
                 actual: beforeBuffDropCount,
                 expected: 0,

@@ -24,6 +24,11 @@ type PlacementValidation =
           readonly valid: false;
       };
 
+type PlacementValidationOptions = {
+    readonly ignoreBuilderSelection?: boolean;
+    readonly ignoreCost?: boolean;
+};
+
 type BuildStartValidation = PlacementValidation;
 
 type ConstructionPlacementSystemConfig = {
@@ -207,6 +212,20 @@ export class ConstructionPlacementSystem {
         return Boolean(this.activeBuildingId);
     }
 
+    /** Shared by charged item targeting: same snap and world/pathing checks,
+     * without requiring the normal builder selection or resource payment. */
+    getItemPlacementPreview(buildingId: MvpBuildingId, worldX: number, worldY: number) {
+        const snapped = snapBuildingTopLeft(buildingId, worldX, worldY);
+        const footprint = getBuildingFootprint(buildingId, snapped.x, snapped.y);
+        return {
+            footprint,
+            valid: this.validateFootprint(footprint, buildingId, {
+                ignoreBuilderSelection: true,
+                ignoreCost: true,
+            }),
+        };
+    }
+
     startPlacement(buildingId: MvpBuildingId) {
         this.activeBuildingId = buildingId;
         this.ghost.setVisible(true);
@@ -338,12 +357,13 @@ export class ConstructionPlacementSystem {
     private validateFootprint(
         footprint: GridPathRect,
         buildingId: MvpBuildingId,
+        options: PlacementValidationOptions = {},
     ): PlacementValidation {
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[buildingId];
-        if (!this.getSelectedBuilder()) {
+        if (!options.ignoreBuilderSelection && !this.getSelectedBuilder()) {
             return { reason: 'missing_builder_selection', valid: false };
         }
-        if (!this.buildingSystem.canAfford(template)) {
+        if (!options.ignoreCost && !this.buildingSystem.canAfford(template)) {
             return { reason: 'insufficient_resources', valid: false };
         }
         if (

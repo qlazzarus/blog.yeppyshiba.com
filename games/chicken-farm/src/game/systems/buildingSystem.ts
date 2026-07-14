@@ -68,6 +68,8 @@ type BuildingSystemConfig = {
     readonly getElapsedSec: () => number;
     readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly isTargetVisible?: (x: number, y: number) => boolean;
+    readonly onBuildingCompleted?: (building: PlayerBuilding) => void;
+    readonly onBuildingRemoved?: (building: PlayerBuilding, reason: string) => void;
     readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -77,7 +79,9 @@ type BuildingSystemConfig = {
 };
 
 type BuildRequest = {
+    readonly completeImmediately?: boolean;
     readonly ownerPlayerId: number;
+    readonly skipCost?: boolean;
     readonly templateId: MvpBuildingId;
     readonly workerUnitId?: string;
     readonly x: number;
@@ -130,6 +134,8 @@ export class BuildingSystem {
     private readonly getElapsedSec: () => number;
     private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
     private readonly isTargetVisible: (x: number, y: number) => boolean;
+    private readonly onBuildingCompleted?: (building: PlayerBuilding) => void;
+    private readonly onBuildingRemoved?: (building: PlayerBuilding, reason: string) => void;
     private readonly recordTelemetry?: (
         type: string,
         payload?: Record<string, unknown>,
@@ -144,6 +150,8 @@ export class BuildingSystem {
         this.getElapsedSec = config.getElapsedSec;
         this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
         this.isTargetVisible = config.isTargetVisible ?? (() => true);
+        this.onBuildingCompleted = config.onBuildingCompleted;
+        this.onBuildingRemoved = config.onBuildingRemoved;
         this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
         this.worldObjects = config.worldObjects;
@@ -260,11 +268,13 @@ export class BuildingSystem {
 
     createBuilding(request: BuildRequest) {
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[request.templateId];
-        if (!this.canAfford(template)) return null;
+        if (!request.skipCost && !this.canAfford(template)) return null;
 
-        this.economy.gold -= template.costCoins;
-        this.economy.coins = this.economy.gold;
-        this.economy.lumber -= template.costLumber ?? 0;
+        if (!request.skipCost) {
+            this.economy.gold -= template.costCoins;
+            this.economy.coins = this.economy.gold;
+            this.economy.lumber -= template.costLumber ?? 0;
+        }
 
         const footprint = getBuildingFootprint(request.templateId, request.x, request.y);
         const startedAtSec = this.getElapsedSec();
@@ -273,8 +283,10 @@ export class BuildingSystem {
             armor: template.armor,
             buildTimeSec: template.buildTimeSec,
             blocksPath: template.blocksPath,
-            constructionActiveSinceSec: request.workerUnitId ? startedAtSec : undefined,
-            constructionProgressSec: 0,
+            constructionActiveSinceSec:
+                request.completeImmediately || !request.workerUnitId ? undefined : startedAtSec,
+            constructionProgressSec: request.completeImmediately ? template.buildTimeSec : 0,
+            completedAtSec: request.completeImmediately ? startedAtSec : undefined,
             footprint,
             hp: template.hp,
             id: `player-building-${this.nextBuildingId}`,
@@ -282,7 +294,7 @@ export class BuildingSystem {
             nextAttackAtSec: startedAtSec,
             ownerPlayerId: request.ownerPlayerId,
             startedAtSec,
-            state: 'constructing',
+            state: request.completeImmediately ? 'complete' : 'constructing',
             targetableByWolves: template.targetableByWolves,
             templateId: request.templateId,
             workerUnitId: request.workerUnitId,
@@ -291,6 +303,7 @@ export class BuildingSystem {
         this.nextBuildingId += 1;
         this.buildings.push(building);
         this.createView(building, template);
+        if (request.completeImmediately) this.onBuildingCompleted?.(building);
         this.recordTelemetry?.('building_construction_started', {
             buildingId: building.id,
             templateId: building.templateId,
@@ -312,6 +325,7 @@ export class BuildingSystem {
                 building.activeWorkerUnitId = undefined;
                 building.completedAtSec = this.getElapsedSec();
                 building.state = 'complete';
+                this.onBuildingCompleted?.(building);
                 this.recordTelemetry?.('building_completed', {
                     buildingId: building.id,
                     templateId: building.templateId,
@@ -374,6 +388,7 @@ export class BuildingSystem {
         this.economy.lumber += refund.lumber;
         this.destroyView(building.id);
         this.buildings.splice(buildingIndex, 1);
+        this.onBuildingRemoved?.(building, reason);
         this.recordTelemetry?.('building_construction_cancelled', {
             buildingId,
             reason,

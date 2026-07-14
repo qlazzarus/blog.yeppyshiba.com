@@ -21,6 +21,13 @@ type BrowserPerfSnapshot = {
 };
 
 type BrowserDebugState = {
+    readonly economyPoc: {
+        readonly chickens: number;
+        readonly coops: number;
+        readonly fieldEggs: number;
+        readonly hatchJobs: number;
+        readonly wells: number;
+    } | null;
     readonly elapsedSec: number;
     readonly primaryUnit: {
         readonly id: string;
@@ -159,12 +166,39 @@ async function runBrowserScenario() {
             await collect(`smart_command_${target.id}`);
         }
 
+        const economyBefore = await page.evaluate(
+            () => window.__chickenFarmDebug!.getState().economyPoc,
+        );
+        if (!economyBefore) throw new Error('Missing economy state for lifecycle scenario');
+        const fixtureId = await page.evaluate(({ x, y }) =>
+            window.__chickenFarmDebug!.createEconomyBuildingFixture('coop_basic', x, y),
+        {
+            x: clamp(primary.x + 384, 128, state.worldSize.x - 128),
+            y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
+        });
+        if (!fixtureId) throw new Error('Could not create completed-building lifecycle fixture');
+
+        await page.waitForFunction(
+            (expectedCoopCount) =>
+                window.__chickenFarmDebug!.getState().economyPoc?.coops === expectedCoopCount,
+            economyBefore.coops + 1,
+            { timeout: 35_000 },
+        );
+        await collect('completed_coop_economy_lifecycle');
+
         return {
             generatedAt: new Date().toISOString(),
             parameters: {
                 baseUrl,
                 browser: 'playwright.chromium',
                 viewport: { height: 720, width: 960 },
+            },
+            economyLifecycle: {
+                fixtureId,
+                before: economyBefore,
+                after: await page.evaluate(
+                    () => window.__chickenFarmDebug!.getState().economyPoc,
+                ),
             },
             consoleMessages,
             pageErrors,

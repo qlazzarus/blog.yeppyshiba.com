@@ -1,6 +1,25 @@
 import type { BuildingTemplateConfig, MvpBuildingId } from './balanceTypes';
 
 export const BUILDING_TEMPLATES = {
+    campfire: {
+        armor: 0,
+        aura: {
+            amountPerSec: 2,
+            kind: 'heal',
+            rangePx: 96,
+        },
+        blocksPath: true,
+        buildTimeSec: 0,
+        category: 'support',
+        costCoins: 0,
+        displayName: '불터',
+        footprintCells: { h: 4, w: 4 },
+        hp: 100,
+        id: 'campfire',
+        originalCost: { gold: 0 },
+        source: { rawcode: 'h01Q' },
+        targetableByWolves: true,
+    },
     arcane_lab: {
         armor: 10,
         blocksPath: true,

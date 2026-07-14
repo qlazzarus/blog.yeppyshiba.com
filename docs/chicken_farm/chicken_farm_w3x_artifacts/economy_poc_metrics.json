@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T00:49:05.512Z",
+  "generatedAt": "2026-07-14T00:16:21.645Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -63,6 +63,24 @@
     "wellCount": 1
   },
   "checks": [
+    {
+      "actual": {
+        "coopInventoryRemoved": true,
+        "coopRemoved": true,
+        "removedCoop": "coop",
+        "removedWell": "well",
+        "wellRemoved": true
+      },
+      "expected": {
+        "coopInventoryRemoved": true,
+        "coopRemoved": true,
+        "removedCoop": "coop",
+        "removedWell": "well",
+        "wellRemoved": true
+      },
+      "id": "world_building_id_owns_and_cleans_economy_capability",
+      "pass": true
+    },
     {
       "actual": 0,
       "expected": 0,

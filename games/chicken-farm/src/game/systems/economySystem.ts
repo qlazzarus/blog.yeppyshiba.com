@@ -140,13 +140,14 @@ export function addEconomyChicken(
 export function addEconomyCoop(
     state: ChickenFarmEconomyState,
     config: {
+        readonly id?: string;
         readonly kind?: CoopKind;
         readonly ownerPlayerId: number;
         readonly position: EconomyPoint;
     },
 ) {
     const coop: EconomyCoopState = {
-        id: `coop-${state.coops.length + 1}`,
+        id: config.id ?? `coop-${state.coops.length + 1}`,
         kind: config.kind ?? 'basic',
         ownerPlayerId: config.ownerPlayerId,
         position: config.position,
@@ -164,19 +165,53 @@ export function addEconomyCoop(
 export function addEconomyWell(
     state: ChickenFarmEconomyState,
     config: {
+        readonly id?: string;
         readonly kind?: EconomyWellKind;
         readonly ownerPlayerId: number;
         readonly position: EconomyPoint;
     },
 ) {
     const well: EconomyWellState = {
-        id: `well-${state.wells.length + 1}`,
+        id: config.id ?? `well-${state.wells.length + 1}`,
         kind: config.kind ?? 'basic',
         ownerPlayerId: config.ownerPlayerId,
         position: config.position,
     };
     state.wells.push(well);
     return well;
+}
+
+/**
+ * Removes the economy capability owned by a world building.  The caller keeps
+ * the world/building lifecycle authoritative; this function only clears the
+ * derived economy records and any inventory or hatch jobs that reference it.
+ */
+export function removeEconomyBuilding(
+    state: ChickenFarmEconomyState,
+    buildingId: string,
+) {
+    const coopIndex = state.coops.findIndex((candidate) => candidate.id === buildingId);
+    if (coopIndex >= 0) {
+        state.coops.splice(coopIndex, 1);
+        const inventoryIndex = state.inventories.findIndex(
+            (candidate) => candidate.id === buildingId,
+        );
+        if (inventoryIndex >= 0) state.inventories.splice(inventoryIndex, 1);
+        for (let index = state.hatchJobs.length - 1; index >= 0; index -= 1) {
+            if (state.hatchJobs[index].coopId === buildingId) {
+                state.hatchJobs.splice(index, 1);
+            }
+        }
+        return 'coop' as const;
+    }
+
+    const wellIndex = state.wells.findIndex((candidate) => candidate.id === buildingId);
+    if (wellIndex >= 0) {
+        state.wells.splice(wellIndex, 1);
+        return 'well' as const;
+    }
+
+    return null;
 }
 
 export function upgradeEconomyWellToWindmill(
@@ -510,6 +545,32 @@ export function countInventoryItem(
         (total, slot) => total + (slot?.itemRawcode === itemRawcode ? slot.quantity : 0),
         0,
     );
+}
+
+export function grantEconomyInventoryItem(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly inventoryId: string;
+        readonly itemRawcode: EconomyItemRawcode;
+        readonly quantity: number;
+    },
+) {
+    return addInventoryItem(state, config.inventoryId, config);
+}
+
+export function consumeEconomyInventoryItem(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly inventoryId: string;
+        readonly itemRawcode: EconomyItemRawcode;
+        readonly slotIndex: number;
+    },
+) {
+    return removeInventoryItemAtSlot(state, config.inventoryId, {
+        itemRawcode: config.itemRawcode,
+        quantity: 1,
+        slotIndex: config.slotIndex,
+    });
 }
 
 export function sellCarriedEggs(
