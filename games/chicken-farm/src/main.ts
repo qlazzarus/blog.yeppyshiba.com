@@ -31,6 +31,7 @@ import {
     getBuildingFootprint,
     snapBuildingTopLeft,
 } from './game/systems/buildingSystem';
+import type { PlayerEconomyState } from './game/systems/buildingSystem';
 import {
     attachCompletedBuildingEconomy,
     detachBuildingEconomy,
@@ -52,6 +53,7 @@ import {
     grantEconomyInventoryItem,
     herdEconomyChickens,
     pickupFieldEgg,
+    sellEconomyInventoryEggStack,
     startCoopHatch,
     updateChickenFarmEconomy,
 } from './game/systems/economySystem';
@@ -110,6 +112,10 @@ declare global {
                       }
                     | null;
                 readonly selectedUnitCount: number;
+                readonly wallet: {
+                    readonly coins: number;
+                    readonly lumber: number;
+                } | null;
                 readonly worldSize: { readonly x: number; readonly y: number };
             };
             issueSmartCommand: (
@@ -152,6 +158,11 @@ type EconomyWorkerTask =
           readonly coopId: string;
           readonly sourceSlotIndex: number;
           readonly type: 'deposit_to_coop';
+          readonly unitId: string;
+      }
+    | {
+          readonly marketId: string;
+          readonly type: 'sell_at_market';
           readonly unitId: string;
       };
 
@@ -368,10 +379,14 @@ class FarmScene extends Phaser.Scene {
             this.debugText.setVisible(this.debugOverlayVisible);
             this.debugToggleText.setText(this.debugOverlayVisible ? 'DBG' : 'DBG');
         });
+        // Create this before construction so both systems receive the exact
+        // same player wallet object, not mirrored gold/coin counters.
+        this.createEconomyPoc();
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
                 damageEnemyTarget: (targetId, damage) =>
                     this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+                economy: this.getSharedPlayerEconomy(),
                 getElapsedSec: () => this.elapsedSec,
                 getAttackableEnemyTargets: () =>
                     this.combatPoc?.getAttackableEnemyTargets() ?? [],
@@ -447,7 +462,6 @@ class FarmScene extends Phaser.Scene {
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
             });
         }
-        this.createEconomyPoc();
         this.configureCameras(map);
         this.configurePointerSelection();
         if (CHICKEN_FARM_POC_FLAGS.combat || CHICKEN_FARM_POC_FLAGS.combatSmoke) {
@@ -602,7 +616,18 @@ class FarmScene extends Phaser.Scene {
         if (!player) return;
 
         this.economyState = createChickenFarmEconomyState({
-            players: [{ carriedEggs: 0, coins: 120, id: 3 }],
+            players: [
+                {
+                    carriedEggs: 0,
+                    coins: CHICKEN_FARM_BALANCE.economy.startingCoins,
+                    eggs: 0,
+                    gold: CHICKEN_FARM_BALANCE.economy.startingCoins,
+                    id: 3,
+                    lumber: CHICKEN_FARM_BALANCE.economy.startingLumber ?? 0,
+                    supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap ?? 0,
+                    supplyUsed: 0,
+                },
+            ],
         });
         this.ensureFarmerInventories();
         const farmer =
@@ -633,6 +658,23 @@ class FarmScene extends Phaser.Scene {
             farmerId: farmer?.id ?? null,
             marketBuildKitCharges: 1,
         });
+    }
+
+    private getSharedPlayerEconomy(): PlayerEconomyState {
+        const player = this.economyState?.players.find((candidate) => candidate.id === 3);
+        if (!player) {
+            throw new Error('Economy player 3 must exist before construction starts');
+        }
+
+        // `player` is the shared wallet object.  Main runtime initialization
+        // above supplies every construction field; the assignments preserve
+        // safe behavior for lightweight test fixtures.
+        player.eggs ??= 0;
+        player.gold ??= player.coins;
+        player.lumber ??= 0;
+        player.supplyCap ??= 0;
+        player.supplyUsed ??= 0;
+        return player as PlayerEconomyState;
     }
 
     private attachCompletedBuildingEconomy(building: Parameters<typeof attachCompletedBuildingEconomy>[1]) {
@@ -1093,6 +1135,59 @@ class FarmScene extends Phaser.Scene {
                 return;
             }
 
+            if (task.type === 'sell_at_market') {
+                const market = this.buildingSystem?.getBuilding(task.marketId);
+                const marketCenter = market
+                    ? {
+                          x: market.footprint.x + market.footprint.width / 2,
+                          y: market.footprint.y + market.footprint.height / 2,
+                      }
+                    : null;
+                if (
+                    !market ||
+                    market.state !== 'complete' ||
+                    (market.templateId !== 'market' && market.templateId !== 'grand_market') ||
+                    !marketCenter
+                ) {
+                    this.recordEconomyEvent('economy_worker_task_cancelled', {
+                        reason: 'market_missing',
+                        type: task.type,
+                        unitId,
+                    });
+                    this.economyWorkerTasks.delete(unitId);
+                    return;
+                }
+                if (
+                    Phaser.Math.Distance.Between(
+                        unit.position.x,
+                        unit.position.y,
+                        marketCenter.x,
+                        marketCenter.y,
+                    ) > ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX
+                ) {
+                    return;
+                }
+
+                const inventory = getEconomyInventory(state, unit.id);
+                const sales = (inventory?.slots ?? [])
+                    .map((slot, slotIndex) => ({ slot, slotIndex }))
+                    .filter(({ slot }) => slot?.itemRawcode === 'I006')
+                    .reverse()
+                    .map(({ slotIndex }) =>
+                        sellEconomyInventoryEggStack(state, {
+                            inventoryId: unit.id,
+                            marketId: market.id,
+                            ownerPlayerId: unit.ownerPlayerId,
+                            slotIndex,
+                        }),
+                    )
+                    .filter((sale): sale is NonNullable<typeof sale> => sale !== null);
+                sales.forEach((sale) => this.handleEconomyEvent(sale));
+                this.controllableUnits.clearUnitCommand(unit.id);
+                this.economyWorkerTasks.delete(unitId);
+                return;
+            }
+
             const coop = state.coops.find((candidate) => candidate.id === task.coopId);
             if (!coop) {
                 this.recordEconomyEvent('economy_worker_task_cancelled', {
@@ -1158,10 +1253,35 @@ class FarmScene extends Phaser.Scene {
             .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
         if (!selectedFarmer) return false;
 
-        const target = this.hitTestEconomyEntity(worldPoint.x, worldPoint.y);
-        if (!target) return false;
+        const market = this.buildingSystem?.hitTestBuilding(worldPoint.x, worldPoint.y);
+        if (
+            market?.state === 'complete' &&
+            (market.templateId === 'market' || market.templateId === 'grand_market') &&
+            this.getFarmerEggInventory(selectedFarmer.id) > 0
+        ) {
+            const marketCenter = {
+                x: market.footprint.x + market.footprint.width / 2,
+                y: market.footprint.y + market.footprint.height / 2,
+            };
+            this.controllableUnits.issueMoveCommandToUnits(
+                [selectedFarmer.id],
+                marketCenter,
+                this.isQueueCommandMode() ? 'append' : 'replace',
+            );
+            this.economyWorkerTasks.set(selectedFarmer.id, {
+                marketId: market.id,
+                type: 'sell_at_market',
+                unitId: selectedFarmer.id,
+            });
+            this.recordEconomyEvent('economy_farmer_market_sale_ordered', {
+                farmerId: selectedFarmer.id,
+                marketId: market.id,
+            });
+            return true;
+        }
 
-        if (target.type === 'egg') {
+        const target = this.hitTestEconomyEntity(worldPoint.x, worldPoint.y);
+        if (target?.type === 'egg') {
             const egg = state.fieldEggs.find((candidate) => candidate.id === target.id);
             if (!egg) return false;
 
@@ -2427,6 +2547,12 @@ class FarmScene extends Phaser.Scene {
                         : null,
                     selectedBuildingId: this.selectedBuildingId ?? null,
                     selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
+                    wallet: this.economyState
+                        ? {
+                              coins: this.economyState.players[0]?.coins ?? 0,
+                              lumber: this.economyState.players[0]?.lumber ?? 0,
+                          }
+                        : null,
                     worldSize: {
                         x: this.worldSize.x,
                         y: this.worldSize.y,
@@ -2561,9 +2687,15 @@ class FarmScene extends Phaser.Scene {
                 )}s`,
             );
             this.selectionInfoBodyText.setText(
-                `${workerText} | Cost ${template.originalCost?.gold ?? template.costCoins}g${
-                    template.originalCost?.lumber ? ` ${template.originalCost.lumber}l` : ''
-                } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
+                selectedBuilding.state === 'complete' &&
+                    (selectedBuilding.templateId === 'market' ||
+                        selectedBuilding.templateId === 'grand_market')
+                    ? '농부가 알을 들고 시장을 우클릭하면 판매합니다.'
+                    : `${workerText} | Cost ${template.originalCost?.gold ?? template.costCoins}g${
+                          template.originalCost?.lumber
+                              ? ` ${template.originalCost.lumber}l`
+                              : ''
+                      } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
             );
             this.clearInventorySlots();
             return;

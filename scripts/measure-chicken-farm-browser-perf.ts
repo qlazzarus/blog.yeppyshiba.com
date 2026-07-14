@@ -35,6 +35,10 @@ type BrowserDebugState = {
         readonly y: number;
     } | null;
     readonly selectedUnitCount: number;
+    readonly wallet: {
+        readonly coins: number;
+        readonly lumber: number;
+    } | null;
     readonly worldSize: { readonly x: number; readonly y: number };
 };
 
@@ -166,10 +170,10 @@ async function runBrowserScenario() {
             await collect(`smart_command_${target.id}`);
         }
 
-        const economyBefore = await page.evaluate(
-            () => window.__chickenFarmDebug!.getState().economyPoc,
-        );
-        if (!economyBefore) throw new Error('Missing economy state for lifecycle scenario');
+        const economyBefore = await page.evaluate(() => window.__chickenFarmDebug!.getState());
+        if (!economyBefore.economyPoc || !economyBefore.wallet) {
+            throw new Error('Missing economy state or shared wallet for lifecycle scenario');
+        }
         const fixtureId = await page.evaluate(({ x, y }) =>
             window.__chickenFarmDebug!.createEconomyBuildingFixture('coop_basic', x, y),
         {
@@ -181,10 +185,21 @@ async function runBrowserScenario() {
         await page.waitForFunction(
             (expectedCoopCount) =>
                 window.__chickenFarmDebug!.getState().economyPoc?.coops === expectedCoopCount,
-            economyBefore.coops + 1,
+            economyBefore.economyPoc.coops + 1,
             { timeout: 35_000 },
         );
         await collect('completed_coop_economy_lifecycle');
+        const economyAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
+        const expectedCoins = economyBefore.wallet.coins - 120;
+        const expectedLumber = economyBefore.wallet.lumber - 52;
+        if (
+            economyAfter.wallet?.coins !== expectedCoins ||
+            economyAfter.wallet.lumber !== expectedLumber
+        ) {
+            throw new Error(
+                `Shared wallet did not pay coop cost once: expected ${expectedCoins}/${expectedLumber}, got ${economyAfter.wallet?.coins}/${economyAfter.wallet?.lumber}`,
+            );
+        }
 
         return {
             generatedAt: new Date().toISOString(),
@@ -196,9 +211,12 @@ async function runBrowserScenario() {
             economyLifecycle: {
                 fixtureId,
                 before: economyBefore,
-                after: await page.evaluate(
-                    () => window.__chickenFarmDebug!.getState().economyPoc,
-                ),
+                after: economyAfter,
+                sharedWalletCostCheck: {
+                    expectedCoins,
+                    expectedLumber,
+                    pass: true,
+                },
             },
             consoleMessages,
             pageErrors,

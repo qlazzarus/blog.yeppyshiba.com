@@ -16,6 +16,7 @@ import {
     herdEconomyChickens,
     pickupFieldEgg,
     removeEconomyBuilding,
+    sellEconomyInventoryEggStack,
     startCoopHatch,
     upgradeEconomyWellToWindmill,
     updateChickenFarmEconomy,
@@ -218,6 +219,39 @@ async function main() {
         stackCoop.id,
         'I006',
     );
+    const sharedWallet = {
+        carriedEggs: 0,
+        coins: 120,
+        eggs: 0,
+        gold: 120,
+        id: 3,
+        lumber: 52,
+        supplyCap: 0,
+        supplyUsed: 0,
+    };
+    const walletState = createChickenFarmEconomyState({ players: [sharedWallet] });
+    const walletCoop = addEconomyCoop(walletState, {
+        id: 'wallet-coop',
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const walletInventory = ensureEconomyInventory(walletState, {
+        id: walletCoop.id,
+        ownerPlayerId: 3,
+    });
+    walletInventory.slots[0] = { itemRawcode: 'I006', quantity: 3 };
+    const saleWithoutMarket = sellEconomyInventoryEggStack(walletState, {
+        inventoryId: walletCoop.id,
+        marketId: '',
+        ownerPlayerId: 3,
+        slotIndex: 0,
+    });
+    const walletSale = sellEconomyInventoryEggStack(walletState, {
+        inventoryId: walletCoop.id,
+        marketId: 'player-building-market',
+        ownerPlayerId: 3,
+        slotIndex: 0,
+    });
 
     const vitalityState = createChickenFarmEconomyState();
     addEconomyWell(vitalityState, {
@@ -348,6 +382,13 @@ async function main() {
                 coopOccupiedSlots: stackedCoopSlots,
                 farmerEggsBeforeDeposit: stackedFarmerEggs,
                 farmerOccupiedSlotsBeforeDeposit: stackedFarmerSlots,
+            },
+            walletValidation: {
+                coins: sharedWallet.coins,
+                gold: sharedWallet.gold,
+                remainingCoopEggs: countInventoryItem(walletState, walletCoop.id, 'I006'),
+                saleWithoutMarket: saleWithoutMarket !== null,
+                soldEggs: walletSale?.soldEggs ?? 0,
             },
             vitalityValidation: {
                 basicWellAttractedCount,
@@ -575,6 +616,29 @@ async function main() {
                     stackedCoopEggs === 4 &&
                     stackedCoopEggsAfterExplicitHatch === 3 &&
                     Boolean(explicitStackHatch),
+            },
+            {
+                actual: {
+                    coins: sharedWallet.coins,
+                    gold: sharedWallet.gold,
+                    remainingCoopEggs: countInventoryItem(walletState, walletCoop.id, 'I006'),
+                    saleWithoutMarket: saleWithoutMarket !== null,
+                    soldEggs: walletSale?.soldEggs ?? 0,
+                },
+                expected: {
+                    coins: 156,
+                    gold: 156,
+                    remainingCoopEggs: 0,
+                    saleWithoutMarket: false,
+                    soldEggs: 3,
+                },
+                id: 'market_required_for_egg_sale_and_shared_wallet_updates_once',
+                pass:
+                    saleWithoutMarket === null &&
+                    walletSale?.soldEggs === 3 &&
+                    sharedWallet.coins === 156 &&
+                    sharedWallet.gold === 156 &&
+                    countInventoryItem(walletState, walletCoop.id, 'I006') === 0,
             },
             {
                 actual: {

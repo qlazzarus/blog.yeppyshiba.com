@@ -583,8 +583,47 @@ export function sellCarriedEggs(
     const soldEggs = player.carriedEggs;
     player.carriedEggs = 0;
     player.coins += soldEggs * state.config.eggSellValueCoins;
+    // `gold` remains a legacy HUD alias during the construction PoC.  Keep it
+    // synchronized when this player record is also used by BuildingSystem.
+    if (typeof player.gold === 'number') player.gold = player.coins;
     return {
         playerId,
+        soldEggs,
+        totalCoins: player.coins,
+        type: 'eggs_sold',
+    } satisfies EconomyEvent;
+}
+
+/** Sell one egg stack directly from a farmer or coop inventory. */
+export function sellEconomyInventoryEggStack(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly inventoryId: string;
+        /** The completed market authorizing this transaction. */
+        readonly marketId: string;
+        readonly ownerPlayerId: number;
+        readonly slotIndex: number;
+    },
+) {
+    const inventory = getEconomyInventory(state, config.inventoryId);
+    const player = state.players.find((candidate) => candidate.id === config.ownerPlayerId);
+    const slot = inventory?.slots[config.slotIndex];
+    if (!config.marketId || !inventory || !player || slot?.itemRawcode !== 'I006') {
+        return null;
+    }
+
+    const soldEggs = removeInventoryItemAtSlot(state, config.inventoryId, {
+        itemRawcode: 'I006',
+        quantity: slot.quantity,
+        slotIndex: config.slotIndex,
+    });
+    if (soldEggs <= 0) return null;
+
+    player.coins += soldEggs * state.config.eggSellValueCoins;
+    if (typeof player.gold === 'number') player.gold = player.coins;
+    syncCoopStoredEggs(state, config.inventoryId);
+    return {
+        playerId: player.id,
         soldEggs,
         totalCoins: player.coins,
         type: 'eggs_sold',

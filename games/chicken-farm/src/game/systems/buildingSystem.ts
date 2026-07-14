@@ -65,6 +65,8 @@ export type BuildingSelectionSummary = {
 
 type BuildingSystemConfig = {
     readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    /** Shared player wallet; when omitted the system creates an isolated PoC wallet. */
+    readonly economy?: PlayerEconomyState;
     readonly getElapsedSec: () => number;
     readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly isTargetVisible?: (x: number, y: number) => boolean;
@@ -117,18 +119,7 @@ const BUILDING_STATUS_STROKE_WIDTH_PX = 5;
 const BUILDING_HATCH_SPACING_PX = 24;
 
 export class BuildingSystem {
-    readonly economy: PlayerEconomyState = {
-        coins:
-            CHICKEN_FARM_BALANCE.economy.startingGold ??
-            CHICKEN_FARM_BALANCE.economy.startingCoins,
-        eggs: 0,
-        gold:
-            CHICKEN_FARM_BALANCE.economy.startingGold ??
-            CHICKEN_FARM_BALANCE.economy.startingCoins,
-        lumber: CHICKEN_FARM_BALANCE.economy.startingLumber ?? 0,
-        supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap ?? 0,
-        supplyUsed: 0,
-    };
+    readonly economy: PlayerEconomyState;
     private readonly buildings: PlayerBuilding[] = [];
     private readonly damageEnemyTarget: (targetId: string, damage: number) => boolean;
     private readonly getElapsedSec: () => number;
@@ -146,6 +137,18 @@ export class BuildingSystem {
     private nextBuildingId = 1;
 
     constructor(config: BuildingSystemConfig) {
+        this.economy = config.economy ?? {
+            coins:
+                CHICKEN_FARM_BALANCE.economy.startingGold ??
+                CHICKEN_FARM_BALANCE.economy.startingCoins,
+            eggs: 0,
+            gold:
+                CHICKEN_FARM_BALANCE.economy.startingGold ??
+                CHICKEN_FARM_BALANCE.economy.startingCoins,
+            lumber: CHICKEN_FARM_BALANCE.economy.startingLumber ?? 0,
+            supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap ?? 0,
+            supplyUsed: 0,
+        };
         this.damageEnemyTarget = config.damageEnemyTarget ?? (() => false);
         this.getElapsedSec = config.getElapsedSec;
         this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
@@ -271,8 +274,8 @@ export class BuildingSystem {
         if (!request.skipCost && !this.canAfford(template)) return null;
 
         if (!request.skipCost) {
-            this.economy.gold -= template.costCoins;
-            this.economy.coins = this.economy.gold;
+            this.economy.coins -= template.costCoins;
+            this.economy.gold = this.economy.coins;
             this.economy.lumber -= template.costLumber ?? 0;
         }
 
@@ -383,8 +386,8 @@ export class BuildingSystem {
                 (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
             ),
         };
-        this.economy.gold += refund.coins;
-        this.economy.coins = this.economy.gold;
+        this.economy.coins += refund.coins;
+        this.economy.gold = this.economy.coins;
         this.economy.lumber += refund.lumber;
         this.destroyView(building.id);
         this.buildings.splice(buildingIndex, 1);
