@@ -218,6 +218,7 @@ class FarmScene extends Phaser.Scene {
     private selectedBuildingId?: string;
     private selectedBuildingRangeGraphics?: Phaser.GameObjects.Graphics;
     private selectedEconomyEntity?: EconomyHitTarget;
+    private startItemPlacementGraphics?: Phaser.GameObjects.Graphics;
     private startItemPlacement?: StartItemPlacementState;
     private selectionInfoBodyText!: Phaser.GameObjects.Text;
     private selectionInfoNameText!: Phaser.GameObjects.Text;
@@ -515,6 +516,7 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.constructionPlacement', () =>
             this.constructionPlacement?.update(),
         );
+        this.updateStartItemPlacementGhost();
         this.performanceProfiler.measure('update.economyPoc', () =>
             this.updateEconomyPoc(),
         );
@@ -1682,6 +1684,7 @@ class FarmScene extends Phaser.Scene {
         if (this.startItemPlacement && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
             const placement = this.startItemPlacement;
             this.startItemPlacement = undefined;
+            this.startItemPlacementGraphics?.clear().setVisible(false);
             this.recordEconomyEvent('start_item_cancelled', {
                 itemRawcode: placement.itemRawcode,
                 reason: 'escape',
@@ -2182,14 +2185,25 @@ class FarmScene extends Phaser.Scene {
         const farmer = this.controllableUnits
             .getUnits()
             .find((unit) => unit.id === placement.inventoryId && unit.templateId === 'farmer');
-        const topLeft = snapBuildingTopLeft(placement.templateId, worldPoint.x, worldPoint.y);
+        const preview = this.constructionPlacement?.getItemPlacementPreview(
+            placement.templateId,
+            worldPoint.x,
+            worldPoint.y,
+        );
+        if (!preview || !preview.valid.valid) {
+            this.recordEconomyEvent('start_item_placement_rejected', {
+                itemRawcode: placement.itemRawcode,
+                reason: preview?.valid.valid ? 'placement_unavailable' : preview?.valid.reason,
+            });
+            return true;
+        }
         const building = this.buildingSystem?.createBuilding({
             completeImmediately: true,
             ownerPlayerId: farmer?.ownerPlayerId ?? 3,
             skipCost: true,
             templateId: placement.templateId,
-            x: topLeft.x,
-            y: topLeft.y,
+            x: preview.footprint.x,
+            y: preview.footprint.y,
         });
         if (!building || consumeEconomyInventoryItem(state, {
             inventoryId: placement.inventoryId,
@@ -2203,15 +2217,53 @@ class FarmScene extends Phaser.Scene {
             return true;
         }
         this.startItemPlacement = undefined;
+        this.startItemPlacementGraphics?.clear().setVisible(false);
         this.recordEconomyEvent('start_item_used', {
             buildingId: building.id,
             itemRawcode: placement.itemRawcode,
             templateId: placement.templateId,
-            x: topLeft.x,
-            y: topLeft.y,
+            x: preview.footprint.x,
+            y: preview.footprint.y,
         });
         this.updateSelectionInfo();
         return true;
+    }
+
+    private updateStartItemPlacementGhost() {
+        const placement = this.startItemPlacement;
+        if (!placement || !this.constructionPlacement) {
+            this.startItemPlacementGraphics?.clear().setVisible(false);
+            return;
+        }
+        const pointer = this.input.activePointer;
+        const worldPoint = this.worldCamera.getWorldPoint(pointer.x, pointer.y);
+        const preview = this.constructionPlacement.getItemPlacementPreview(
+            placement.templateId,
+            worldPoint.x,
+            worldPoint.y,
+        );
+        const graphics =
+            this.startItemPlacementGraphics ?? this.add.graphics().setDepth(49);
+        if (!this.startItemPlacementGraphics) {
+            this.startItemPlacementGraphics = graphics;
+            this.worldObjects.push(graphics);
+        }
+        const color = preview.valid.valid ? 0x63e083 : 0xe35d55;
+        graphics.clear().setVisible(true);
+        graphics.fillStyle(color, 0.2);
+        graphics.fillRect(
+            preview.footprint.x,
+            preview.footprint.y,
+            preview.footprint.width,
+            preview.footprint.height,
+        );
+        graphics.lineStyle(4, color, 0.96);
+        graphics.strokeRect(
+            preview.footprint.x,
+            preview.footprint.y,
+            preview.footprint.width,
+            preview.footprint.height,
+        );
     }
 
     private issueAttackTargetingCommand(worldPoint: Phaser.Math.Vector2) {

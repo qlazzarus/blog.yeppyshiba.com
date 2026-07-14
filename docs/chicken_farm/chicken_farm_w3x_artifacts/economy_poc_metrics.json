@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-13T11:00:23.751Z",
+  "generatedAt": "2026-07-14T00:16:21.645Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
