@@ -1,5 +1,6 @@
 import {
     getBoostRatio,
+    getDisplaySpeedKmh,
     getGearRpm,
     getInitialGearIndex,
     getTorqueScale,
@@ -11,6 +12,18 @@ import type {
     PlayerDriftState,
     PlayerVehicleState,
 } from './vehicle';
+
+const SHIFT_CUT_DECAY_POWER = 0.9;
+const SHIFT_DOWN_CUT_RATIO = 0.16;
+const SHIFT_DOWN_DURATION_SECONDS = 0.1;
+const SHIFT_UP_CUT_RATIO = 0.42;
+const SHIFT_UP_DURATION_SECONDS = 0.22;
+const LOW_SPEED_LATERAL_LOCK_KMH = 5;
+const LOW_SPEED_LATERAL_FULL_KMH = 60;
+const LOW_SPEED_DRIFT_LOCK_KMH = 45;
+const LOW_SPEED_DRIFT_VELOCITY_DECAY = 18;
+const LOW_SPEED_VISUAL_STEERING_LOCK_KMH = 5;
+const LOW_SPEED_VISUAL_STEERING_FULL_KMH = 60;
 
 export type PlayerVehicleControllerConfig = {
     accelSpeed: number;
@@ -176,10 +189,23 @@ export function createDefaultPlayerVehicleState(
         fuelCutActive: false,
         fuelCutTimer: 0,
         gearIndex,
+        guardrailBounceVelocity: 0,
+        guardrailContactInset: 0,
+        guardrailContactDirection: 0,
+        guardrailContactTimer: 0,
+        guardrailImpactCount: 0,
+        guardrailImpactCue: 0,
+        guardrailShoulderRatio: 0,
         gripCounterRoadLateralVelocity: 0,
         gripCounterRoadRatio: 0,
         gripSteerAngleLimit: 1,
         lateralOffset: 0,
+        lowSpeedLateralAuthority: getLowSpeedLateralAuthority(
+            getDisplaySpeedKmh(cruiseSpeed, accelSpeed, engineProfile),
+        ),
+        lowSpeedVisualSteeringAuthority: getLowSpeedVisualSteeringAuthority(
+            getDisplaySpeedKmh(cruiseSpeed, accelSpeed, engineProfile),
+        ),
         centeringCounterHoldTimer: 0,
         centeringForce: 0,
         centeringReleaseStartScale: 0.45,
@@ -190,6 +216,9 @@ export function createDefaultPlayerVehicleState(
         overspeedUndersteerTargetRatio: 0,
         overspeedUndersteerLateralVelocity: 0,
         rpm,
+        shiftCutRatio: 0,
+        shiftDirection: 0,
+        shiftTimer: 0,
         speed: cruiseSpeed,
         slipAngle: 0,
         steering: 0,
@@ -209,7 +238,18 @@ export function updatePlayerVehicle(
 ) {
     updateBrakePressure(player, input, config, seconds);
     updatePlayerSpeed(player, input, context, config, seconds);
+    const displaySpeedKmh = getDisplaySpeedKmh(
+        player.speed,
+        config.accelSpeed,
+        config.engineProfile,
+    );
+    const lowSpeedLateralAuthority = getLowSpeedLateralAuthority(displaySpeedKmh);
+    player.lowSpeedLateralAuthority = lowSpeedLateralAuthority;
+    player.lowSpeedVisualSteeringAuthority = getLowSpeedVisualSteeringAuthority(displaySpeedKmh);
     updateDriftState(player, input, context, config, seconds);
+    if (displaySpeedKmh < LOW_SPEED_DRIFT_LOCK_KMH && player.driftState !== 'grip') {
+        setDriftState(player, 'recovery', config);
+    }
     updateDriftLateralMotion(player, input, config, seconds);
 
     const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
@@ -285,6 +325,7 @@ export function updatePlayerVehicle(
         ? -roadSteerDirection *
             config.gripCounterRoadLateralMaxSpeed *
             speedRatio *
+            lowSpeedLateralAuthority *
             player.gripCounterRoadRatio
         : 0;
     player.gripCounterRoadLateralVelocity = approach(
@@ -349,10 +390,19 @@ export function updatePlayerVehicle(
         seconds,
     );
     const centeringForce = -player.lateralOffset * config.centeringResponse *
-        player.lateralCenteringScale * (1 - player.driftRatio * 0.34);
+        player.lateralCenteringScale * (1 - player.driftRatio * 0.34) *
+        lowSpeedLateralAuthority;
     player.centeringForce = centeringForce;
-    const steeringForce = gripSteerAxis * config.steerAcceleration * steerForceRatio * counterSteerScale;
-    const curveForce = -context.currentCurve * speedRatio * config.curveDriftAcceleration * (1 + player.driftRatio * 0.28);
+    const steeringForce = gripSteerAxis *
+        config.steerAcceleration *
+        steerForceRatio *
+        counterSteerScale *
+        lowSpeedLateralAuthority;
+    const curveForce = -context.currentCurve *
+        speedRatio *
+        config.curveDriftAcceleration *
+        (1 + player.driftRatio * 0.28) *
+        lowSpeedLateralAuthority;
     const dampingForce = -player.steeringVelocity * config.steerDamping * (1 - player.driftRatio * 0.2);
 
     player.steeringVelocity += (
@@ -366,7 +416,7 @@ export function updatePlayerVehicle(
         config.steerAcceleration,
         config.highSpeedLateralVelocityCap,
         smoothSpeed,
-    );
+    ) * lowSpeedLateralAuthority;
     const lateralVelocityLimit = counterSteering
         ? Math.min(
             baseLateralVelocityLimit,
@@ -390,12 +440,24 @@ export function updatePlayerVehicle(
         player.steeringVelocity = -lateralOffsetDirection * config.centeringNeutralInwardVelocityCap;
     }
     player.counterSteerLateralVelocity = counterSteering ? player.steeringVelocity : 0;
+    if (lowSpeedLateralAuthority <= 0) {
+        player.steeringVelocity = 0;
+        player.counterSteerLateralVelocity = 0;
+        player.gripCounterRoadLateralVelocity = 0;
+        player.overspeedUndersteerLateralVelocity = 0;
+        player.driftLateralVelocity = approach(
+            player.driftLateralVelocity,
+            0,
+            LOW_SPEED_DRIFT_VELOCITY_DECAY,
+            seconds,
+        );
+    }
     player.lateralOffset += (
         player.steeringVelocity +
         player.driftLateralVelocity +
         player.gripCounterRoadLateralVelocity +
         player.overspeedUndersteerLateralVelocity
-    ) * seconds;
+    ) * lowSpeedLateralAuthority * seconds;
     player.lateralOffset = clamp(
         player.lateralOffset,
         -config.maxRoadOffset,
@@ -825,6 +887,24 @@ export function getHighSpeedSteeringRatio(speedRatio: number, maxDrop: number) {
     return clamp(1 - smoothSpeed * maxDrop, 1 - maxDrop, 1);
 }
 
+export function getLowSpeedLateralAuthority(displaySpeedKmh: number) {
+    return smoothstep(clamp(
+        (displaySpeedKmh - LOW_SPEED_LATERAL_LOCK_KMH) /
+            (LOW_SPEED_LATERAL_FULL_KMH - LOW_SPEED_LATERAL_LOCK_KMH),
+        0,
+        1,
+    ));
+}
+
+export function getLowSpeedVisualSteeringAuthority(displaySpeedKmh: number) {
+    return smoothstep(clamp(
+        (displaySpeedKmh - LOW_SPEED_VISUAL_STEERING_LOCK_KMH) /
+            (LOW_SPEED_VISUAL_STEERING_FULL_KMH - LOW_SPEED_VISUAL_STEERING_LOCK_KMH),
+        0,
+        1,
+    ));
+}
+
 function getSmoothSpeedRatio(speedRatio: number) {
     return speedRatio * speedRatio * (3 - 2 * speedRatio);
 }
@@ -879,6 +959,7 @@ function updatePlayerSpeed(
         : 1;
     const engineForce = throttle *
         config.engineAcceleration *
+        config.engineProfile.accelerationScale *
         launchThrottleRatio *
         exitThrottleRatio *
         player.engineTorqueScale *
@@ -1045,6 +1126,7 @@ function updateEngineState(
 ) {
     const profile = config.engineProfile;
     let gearIndex = clamp(Math.round(player.gearIndex), 0, profile.gears.length - 1);
+    const previousGearIndex = gearIndex;
     let gear = profile.gears[gearIndex];
     const downshiftMargin = 0.025;
     const upshiftMargin = 0.005;
@@ -1057,6 +1139,19 @@ function updateEngineState(
     while (gearIndex > 0 && speedRatio < gear.speedRatioMin - downshiftMargin) {
         gearIndex -= 1;
         gear = profile.gears[gearIndex];
+    }
+
+    const shiftDirection = getDirection(gearIndex - previousGearIndex);
+    if (shiftDirection !== 0) {
+        player.shiftDirection = shiftDirection;
+        player.shiftTimer = shiftDirection > 0 ? SHIFT_UP_DURATION_SECONDS : SHIFT_DOWN_DURATION_SECONDS;
+    } else if (player.shiftTimer > 0) {
+        player.shiftTimer = Math.max(0, player.shiftTimer - seconds);
+        if (player.shiftTimer <= 0) {
+            player.shiftDirection = 0;
+        }
+    } else {
+        player.shiftDirection = 0;
     }
 
     const baseRpm = getGearRpm(profile, gearIndex, speedRatio);
@@ -1092,8 +1187,11 @@ function updateEngineState(
     player.boostRatio = player.fuelCutActive
         ? 0
         : getBoostRatio(profile, player.rpm, throttle, brake, cornerIntensity, speedRatio);
-    player.engineTorqueScale = getEngineTorqueScale(player.torqueScale, player.fuelCutActive) +
-        player.boostRatio * 0.12;
+    player.shiftCutRatio = player.fuelCutActive ? 0 : getShiftCutRatio(player);
+    player.engineTorqueScale = (
+        getEngineTorqueScale(player.torqueScale, player.fuelCutActive) +
+        player.boostRatio * 0.12
+    ) * (1 - player.shiftCutRatio);
 }
 
 function getThrottleRpmLift(induction: VehicleEngineProfile['induction']) {
@@ -1104,9 +1202,19 @@ function getThrottleRpmLift(induction: VehicleEngineProfile['induction']) {
 }
 
 function getEngineTorqueScale(torqueScale: number, fuelCutActive: boolean) {
-    const torqueMultiplier = lerp(0.78, 1.08, clamp(torqueScale, 0, 1));
+    const torqueMultiplier = lerp(0.7, 1.14, clamp(torqueScale, 0, 1));
 
     return fuelCutActive ? torqueMultiplier * 0.45 : torqueMultiplier;
+}
+
+function getShiftCutRatio(player: PlayerVehicleState) {
+    if (player.shiftTimer <= 0 || player.shiftDirection === 0) return 0;
+
+    const duration = player.shiftDirection > 0 ? SHIFT_UP_DURATION_SECONDS : SHIFT_DOWN_DURATION_SECONDS;
+    const peakCut = player.shiftDirection > 0 ? SHIFT_UP_CUT_RATIO : SHIFT_DOWN_CUT_RATIO;
+    const timerRatio = clamp(player.shiftTimer / duration, 0, 1);
+
+    return peakCut * Math.pow(timerRatio, SHIFT_CUT_DECAY_POWER);
 }
 
 function clamp(value: number, min: number, max: number) {

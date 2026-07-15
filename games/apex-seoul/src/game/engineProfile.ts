@@ -21,6 +21,7 @@ export type EngineBoostProfile = {
 };
 
 export type VehicleEngineProfile = {
+    accelerationScale: number;
     boost?: EngineBoostProfile;
     displayName: string;
     displayTopSpeedKmh: number;
@@ -38,6 +39,7 @@ export type VehicleEngineProfile = {
 };
 
 export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1,
     displayName: 'Raven Coupe',
     // Display calibration only. accelSpeed, gearing and torque remain the
     // handling model's units, while the Bugak downhill reads less like a
@@ -62,35 +64,37 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     shiftUpRpm: 7450,
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.28 },
-        { rpm: 2500, torqueScale: 0.42 },
-        { rpm: 4000, torqueScale: 0.62 },
-        { rpm: 5500, torqueScale: 0.82 },
-        { rpm: 6800, torqueScale: 1 },
-        { rpm: 7400, torqueScale: 0.95 },
-        { rpm: 7800, torqueScale: 0.78 },
+        { rpm: 2500, torqueScale: 0.38 },
+        { rpm: 4000, torqueScale: 0.58 },
+        { rpm: 5500, torqueScale: 0.76 },
+        { rpm: 6500, torqueScale: 0.93 },
+        { rpm: 7000, torqueScale: 1 },
+        { rpm: 7400, torqueScale: 0.94 },
+        { rpm: 7800, torqueScale: 0.7 },
     ],
 };
 
 export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1.05,
     boost: {
-        mainStartRpm: 5200,
+        mainStartRpm: 5600,
         peakEndRpm: 6500,
-        peakStartRpm: 5400,
-        startRpm: 2800,
+        peakStartRpm: 5800,
+        startRpm: 3200,
     },
     displayName: 'Vortex GT',
     displayTopSpeedKmh: 230,
     fuelCutReturnRpm: 6500,
     fuelCutStartRpm: 7000,
     gears: [
-        { label: '1', rpmMax: 6650, rpmMin: 950, speedRatioMax: 0.14, speedRatioMin: 0 },
-        { label: '2', rpmMax: 6650, rpmMin: 4400, speedRatioMax: 0.26, speedRatioMin: 0.1 },
-        { label: '3', rpmMax: 6650, rpmMin: 4400, speedRatioMax: 0.4, speedRatioMin: 0.22 },
-        { label: '4', rpmMax: 6650, rpmMin: 4400, speedRatioMax: 0.55, speedRatioMin: 0.35 },
-        { label: '5', rpmMax: 6650, rpmMin: 4400, speedRatioMax: 0.7, speedRatioMin: 0.5 },
-        { label: '6', rpmMax: 6650, rpmMin: 4400, speedRatioMax: 0.84, speedRatioMin: 0.64 },
-        { label: '7', rpmMax: 6500, rpmMin: 4400, speedRatioMax: 0.95, speedRatioMin: 0.78 },
-        { label: '8', rpmMax: 6200, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.9 },
+        { label: '1', rpmMax: 6650, rpmMin: 950, speedRatioMax: 0.16, speedRatioMin: 0 },
+        { label: '2', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.3, speedRatioMin: 0.11 },
+        { label: '3', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.45, speedRatioMin: 0.24 },
+        { label: '4', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.61, speedRatioMin: 0.4 },
+        { label: '5', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.77, speedRatioMin: 0.56 },
+        { label: '6', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.9, speedRatioMin: 0.72 },
+        { label: '7', rpmMax: 6500, rpmMin: 4000, speedRatioMax: 0.98, speedRatioMin: 0.86 },
+        { label: '8', rpmMax: 6200, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.94 },
     ],
     id: 'vortex-gt-twin-turbo',
     idleRpm: 950,
@@ -101,20 +105,21 @@ export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     shiftUpRpm: 6650,
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.32 },
-        { rpm: 2200, torqueScale: 0.44 },
-        { rpm: 2800, torqueScale: 0.58 },
-        { rpm: 3800, torqueScale: 0.78 },
-        { rpm: 5200, torqueScale: 1 },
-        { rpm: 6200, torqueScale: 0.98 },
-        { rpm: 7000, torqueScale: 0.76 },
+        { rpm: 2400, torqueScale: 0.42 },
+        { rpm: 3400, torqueScale: 0.62 },
+        { rpm: 4600, torqueScale: 0.88 },
+        { rpm: 5600, torqueScale: 1 },
+        { rpm: 6400, torqueScale: 0.98 },
+        { rpm: 7000, torqueScale: 0.72 },
     ],
 };
 
 export const APEX_S_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1,
     boost: {
         peakEndRpm: 6500,
-        peakStartRpm: 5000,
-        startRpm: 3600,
+        peakStartRpm: 4400,
+        startRpm: 3000,
     },
     displayName: 'Apex S',
     displayTopSpeedKmh: 215,
@@ -138,8 +143,8 @@ export const APEX_S_ENGINE_PROFILE: VehicleEngineProfile = {
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.3 },
         { rpm: 2400, torqueScale: 0.4 },
-        { rpm: 3600, torqueScale: 0.66 },
-        { rpm: 4600, torqueScale: 0.95 },
+        { rpm: 3400, torqueScale: 0.72 },
+        { rpm: 4600, torqueScale: 0.98 },
         { rpm: 5600, torqueScale: 1 },
         { rpm: 6500, torqueScale: 0.88 },
         { rpm: 7200, torqueScale: 0.7 },

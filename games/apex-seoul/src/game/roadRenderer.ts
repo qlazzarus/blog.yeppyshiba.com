@@ -9,6 +9,7 @@ import {
 import {
     getCameraSegmentProgress,
     getRoadElevationAt,
+    getRoadHalfWidthAt,
     getRoadSegment,
     type RoadTrack,
 } from './road';
@@ -33,8 +34,8 @@ type ProjectedSegment = {
     };
 };
 
-const ROAD_HALF_WIDTH = 960;
 const RUMBLE_WIDTH = 130;
+const EDGE_LINE_WIDTH = 24;
 const LANE_MARK_WIDTH = 18;
 const DRAW_SEGMENTS = 76;
 const CURVE_STEP = 86;
@@ -72,6 +73,8 @@ export function renderRoad(
         const farCenterX = boundaryCenters[i + 1];
         const nearElevation = boundaryElevations[i];
         const farElevation = boundaryElevations[i + 1];
+        const nearRoadHalfWidth = getRoadHalfWidthAt(track, nearWorldZ);
+        const farRoadHalfWidth = getRoadHalfWidthAt(track, farWorldZ);
         const road = projectRoadSlice(
             nearCenterX,
             farCenterX,
@@ -79,6 +82,8 @@ export function renderRoad(
             (farElevation - currentElevation) * ELEVATION_VISUAL_SCALE,
             nearWorldZ,
             farWorldZ,
+            nearRoadHalfWidth,
+            farRoadHalfWidth,
             camera,
             viewport,
         );
@@ -100,8 +105,8 @@ export function renderRoad(
         const projected = projectedSegments[i];
 
         drawRoadBody(graphics, projected.road, projected.absoluteIndex);
-        drawShoulder(graphics, projected.road, projected.absoluteIndex, -1, camera, viewport);
-        drawShoulder(graphics, projected.road, projected.absoluteIndex, 1, camera, viewport);
+        drawShoulder(graphics, projected.road, -1, camera, viewport);
+        drawShoulder(graphics, projected.road, 1, camera, viewport);
         drawLaneMarks(
             graphics,
             projected.road,
@@ -186,6 +191,8 @@ export function getRoadWidthAtScreenY(
             (boundaryElevations[i + 1] - currentElevation) * ELEVATION_VISUAL_SCALE,
             nearWorldZ,
             farWorldZ,
+            getRoadHalfWidthAt(track, nearWorldZ),
+            getRoadHalfWidthAt(track, farWorldZ),
             camera,
             viewport,
         );
@@ -241,9 +248,11 @@ function getVisibleBoundaryElevations(
 type ProjectedRoadSlice = {
     farCenterX: number;
     farElevation: number;
+    farRoadHalfWidth: number;
     farWorldZ: number;
     nearCenterX: number;
     nearElevation: number;
+    nearRoadHalfWidth: number;
     nearWorldZ: number;
     roadFarLeft: ScreenPoint;
     roadFarRight: ScreenPoint;
@@ -258,26 +267,28 @@ function projectRoadSlice(
     farElevation: number,
     nearWorldZ: number,
     farWorldZ: number,
+    nearRoadHalfWidth: number,
+    farRoadHalfWidth: number,
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ): ProjectedRoadSlice | null {
     const roadNearLeft = projectGroundPoint(
-        { x: nearCenterX - ROAD_HALF_WIDTH, y: nearElevation, z: nearWorldZ },
+        { x: nearCenterX - nearRoadHalfWidth, y: nearElevation, z: nearWorldZ },
         camera,
         viewport,
     );
     const roadNearRight = projectGroundPoint(
-        { x: nearCenterX + ROAD_HALF_WIDTH, y: nearElevation, z: nearWorldZ },
+        { x: nearCenterX + nearRoadHalfWidth, y: nearElevation, z: nearWorldZ },
         camera,
         viewport,
     );
     const roadFarLeft = projectGroundPoint(
-        { x: farCenterX - ROAD_HALF_WIDTH, y: farElevation, z: farWorldZ },
+        { x: farCenterX - farRoadHalfWidth, y: farElevation, z: farWorldZ },
         camera,
         viewport,
     );
     const roadFarRight = projectGroundPoint(
-        { x: farCenterX + ROAD_HALF_WIDTH, y: farElevation, z: farWorldZ },
+        { x: farCenterX + farRoadHalfWidth, y: farElevation, z: farWorldZ },
         camera,
         viewport,
     );
@@ -294,9 +305,11 @@ function projectRoadSlice(
     return {
         farCenterX,
         farElevation,
+        farRoadHalfWidth,
         farWorldZ,
         nearCenterX,
         nearElevation,
+        nearRoadHalfWidth,
         nearWorldZ,
         roadFarLeft,
         roadFarRight,
@@ -383,15 +396,14 @@ function drawDownhillTerrainFill(
 function drawShoulder(
     graphics: Phaser.GameObjects.Graphics,
     road: ProjectedRoadSlice,
-    absoluteIndex: number,
     side: -1 | 1,
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ) {
-    const innerNearX = road.nearCenterX + side * ROAD_HALF_WIDTH;
-    const outerNearX = road.nearCenterX + side * (ROAD_HALF_WIDTH + RUMBLE_WIDTH);
-    const innerFarX = road.farCenterX + side * ROAD_HALF_WIDTH;
-    const outerFarX = road.farCenterX + side * (ROAD_HALF_WIDTH + RUMBLE_WIDTH);
+    const innerNearX = road.nearCenterX + side * road.nearRoadHalfWidth;
+    const outerNearX = road.nearCenterX + side * (road.nearRoadHalfWidth + RUMBLE_WIDTH);
+    const innerFarX = road.farCenterX + side * road.farRoadHalfWidth;
+    const outerFarX = road.farCenterX + side * (road.farRoadHalfWidth + RUMBLE_WIDTH);
 
     fillProjectedRoadBand(
         graphics,
@@ -402,7 +414,18 @@ function drawShoulder(
         outerFarX,
         camera,
         viewport,
-        absoluteIndex % 2 === 0 ? 0x245f9d : 0x0a0f18,
+        0x0a0f18,
+    );
+    fillProjectedRoadBand(
+        graphics,
+        road,
+        innerNearX,
+        innerNearX + side * EDGE_LINE_WIDTH,
+        innerFarX,
+        innerFarX + side * EDGE_LINE_WIDTH,
+        camera,
+        viewport,
+        0x4f86ad,
     );
 }
 
@@ -419,13 +442,13 @@ function drawLaneMarks(
     for (let lane = 1; lane < laneCount; lane += 1) {
         const laneCenterRatio = lane / laneCount;
         const nearLaneCenterX = Phaser.Math.Linear(
-            road.nearCenterX - ROAD_HALF_WIDTH,
-            road.nearCenterX + ROAD_HALF_WIDTH,
+            road.nearCenterX - road.nearRoadHalfWidth,
+            road.nearCenterX + road.nearRoadHalfWidth,
             laneCenterRatio,
         );
         const farLaneCenterX = Phaser.Math.Linear(
-            road.farCenterX - ROAD_HALF_WIDTH,
-            road.farCenterX + ROAD_HALF_WIDTH,
+            road.farCenterX - road.farRoadHalfWidth,
+            road.farCenterX + road.farRoadHalfWidth,
             laneCenterRatio,
         );
 

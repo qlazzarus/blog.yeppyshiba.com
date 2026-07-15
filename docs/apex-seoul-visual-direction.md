@@ -1,6 +1,6 @@
 # Apex Seoul Visual Direction
 
-이 문서는 Apex Seoul의 그래픽 에셋 제작 기준을 하나로 묶기 위한 작업 메모다.
+이 문서는 Apex Seoul의 palette와 화면 무드를 빠르게 참고하기 위한 요약이다. 리소스 확보, 생성, 저장 위치, 라이선스, 승인 기준의 단일 기준은 [Apex Seoul 리소스 관리 원칙](apex-seoul-resource-management.md)에서 관리한다.
 
 현재 최종 방향은 **black/blue dreamlike Seoul downhill**이다. 낮 시간대 레이싱, 녹색 산길, 밝은 OutRun 해변 톤이 아니라, 서울 산길을 밤에 내려가는 느낌을 우선한다.
 
@@ -51,38 +51,6 @@ tail light accent: restrained red only
 - 다운힐 구간별로 달라지는 roadside marker
 - 차량 뒤쪽 접지감을 살리는 별도 shadow/glow pass
 
-## Pipeline Rules
+## 리소스 관리
 
-Three.js pose sheet와 ComfyUI retro filter는 소스 형태와 픽셀 스타일만 만든다. 최종 색은 deterministic postprocess에서 고정한다.
-
-```text
-pose render
--> pixel candidate
--> ComfyUI retro style filter
--> palette lock
--> black/blue postprocess variants
--> runtime screenshot QA
-```
-
-새 차량이나 variant를 추가할 때는 다음을 통과해야 한다.
-
-- black/blue variant가 생성된다.
-- alpha sprite에는 배경 glow나 baked shadow가 없다.
-- runtime QA는 `vehicle=ft86-retro&vehicleColor=blue`와 `vehicleColor=black`을 함께 비교한다.
-- 도로/표지/배경 색은 같은 screenshot에서 차량보다 더 밝게 주목을 빼앗지 않는다.
-
-## Asset Work Status
-
-Done:
-
-- `postprocess:ft86-retro`가 black variant 산출물을 생성한다.
-- runtime QA color set은 `blue,black,silver,red,yellow` 순서다.
-- 런타임 기본 차량은 `ft86-retro` blue variant 기준으로 바뀌었다.
-- 도로/표지/배경 색은 black/blue downhill 방향으로 1차 조정됐다.
-
-Next:
-
-1. FT86 runtime color QA contact sheet에서 blue와 black을 비교한다.
-2. 도시 불빛 horizon strip을 Graphics 임시 구현으로 먼저 만들고, 마음에 들면 bitmap/background layer로 분리한다.
-3. roadside object를 guard-post 중심에서 blue reflector/chevron pack 중심으로 재구성한다.
-4. 차량 tail light glow는 base sprite가 아니라 speed/brake 상태 기반 런타임 효과로 분리한다.
+차량/환경 파이프라인, Stable Diffusion·ComfyUI의 역할, source/generated/approved 디렉터리, 라이선스와 승인 체크리스트는 [리소스 관리 원칙](apex-seoul-resource-management.md)을 따른다. 실험 결과와 runtime QA 수치는 [Retro Asset Studio 진행 메모](apex-seoul-retro-asset-studio-progress-notes.md)에 남긴다.
