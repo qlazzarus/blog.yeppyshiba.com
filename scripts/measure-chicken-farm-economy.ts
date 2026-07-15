@@ -15,12 +15,17 @@ import {
     feedNearestEconomyChicken,
     herdEconomyChickens,
     pickupFieldEgg,
-    removeEconomyBuilding,
+    sellEconomyInventoryEggStack,
     startCoopHatch,
     upgradeEconomyWellToWindmill,
     updateChickenFarmEconomy,
 } from '../games/chicken-farm/src/game/systems/economySystem';
 import { resolveBuildingProductionExit } from '../games/chicken-farm/src/game/systems/buildingProductionExit';
+import {
+    attachCompletedBuildingEconomy,
+    detachBuildingEconomy,
+} from '../games/chicken-farm/src/game/systems/buildingEconomyAdapter';
+import type { PlayerBuilding } from '../games/chicken-farm/src/game/systems/buildingSystem';
 import type { EconomyEvent } from '../games/chicken-farm/src/game/systems/economyTypes';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,18 +41,46 @@ async function main() {
         players: [{ carriedEggs: 0, coins: 120, id: 3 }],
     });
     const lifecycleState = createChickenFarmEconomyState();
-    const lifecycleCoop = addEconomyCoop(lifecycleState, {
-        id: 'player-building-42',
-        ownerPlayerId: 3,
-        position: { x: 320, y: 320 },
-    });
-    const lifecycleWell = addEconomyWell(lifecycleState, {
-        id: 'player-building-43',
-        ownerPlayerId: 3,
-        position: { x: 448, y: 320 },
-    });
-    const removedLifecycleCoop = removeEconomyBuilding(lifecycleState, lifecycleCoop.id);
-    const removedLifecycleWell = removeEconomyBuilding(lifecycleState, lifecycleWell.id);
+    const lifecycleBuilding = (
+        id: string,
+        templateId: PlayerBuilding['templateId'],
+        x: number,
+        y: number,
+    ) =>
+        ({
+            footprint: { height: 128, width: 128, x, y },
+            id,
+            ownerPlayerId: 3,
+            templateId,
+        }) as PlayerBuilding;
+    const lifecycleCoopBuilding = lifecycleBuilding(
+        'player-building-42',
+        'coop_basic',
+        256,
+        256,
+    );
+    const lifecycleWellBuilding = lifecycleBuilding(
+        'player-building-43',
+        'well_basic',
+        384,
+        256,
+    );
+    const lifecycleCoop = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleCoopBuilding,
+    );
+    const lifecycleWell = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleWellBuilding,
+    );
+    const removedLifecycleCoop = detachBuildingEconomy(
+        lifecycleState,
+        lifecycleCoopBuilding,
+    );
+    const removedLifecycleWell = detachBuildingEconomy(
+        lifecycleState,
+        lifecycleWellBuilding,
+    );
     const coop = addEconomyCoop(state, {
         kind: 'basic',
         ownerPlayerId: 3,
@@ -218,6 +251,34 @@ async function main() {
         stackCoop.id,
         'I006',
     );
+    const sharedWallet = {
+        carriedEggs: 0,
+        coins: 120,
+        eggs: 0,
+        gold: 120,
+        id: 3,
+        lumber: 52,
+        supplyCap: 0,
+        supplyUsed: 0,
+    };
+    const walletState = createChickenFarmEconomyState({ players: [sharedWallet] });
+    const walletInventory = ensureEconomyInventory(walletState, {
+        id: 'wallet-farmer',
+        ownerPlayerId: 3,
+    });
+    walletInventory.slots[0] = { itemRawcode: 'I006', quantity: 3 };
+    const saleWithoutMarket = sellEconomyInventoryEggStack(walletState, {
+        inventoryId: walletInventory.id,
+        marketId: '',
+        ownerPlayerId: 3,
+        slotIndex: 0,
+    });
+    const walletSale = sellEconomyInventoryEggStack(walletState, {
+        inventoryId: walletInventory.id,
+        marketId: 'player-building-market',
+        ownerPlayerId: 3,
+        slotIndex: 0,
+    });
 
     const vitalityState = createChickenFarmEconomyState();
     addEconomyWell(vitalityState, {
@@ -349,6 +410,13 @@ async function main() {
                 farmerEggsBeforeDeposit: stackedFarmerEggs,
                 farmerOccupiedSlotsBeforeDeposit: stackedFarmerSlots,
             },
+            walletValidation: {
+                coins: sharedWallet.coins,
+                gold: sharedWallet.gold,
+                remainingFarmerEggs: countInventoryItem(walletState, walletInventory.id, 'I006'),
+                saleWithoutMarket: saleWithoutMarket !== null,
+                soldEggs: walletSale?.soldEggs ?? 0,
+            },
             vitalityValidation: {
                 basicWellAttractedCount,
                 finalAiState: vitalityChicken.aiState,
@@ -383,15 +451,15 @@ async function main() {
             {
                 actual: {
                     coopInventoryRemoved: !lifecycleState.inventories.some(
-                        (inventory) => inventory.id === lifecycleCoop.id,
+                        (inventory) => inventory.id === lifecycleCoopBuilding.id,
                     ),
                     coopRemoved: !lifecycleState.coops.some(
-                        (candidate) => candidate.id === lifecycleCoop.id,
+                        (candidate) => candidate.id === lifecycleCoopBuilding.id,
                     ),
                     removedCoop: removedLifecycleCoop,
                     removedWell: removedLifecycleWell,
                     wellRemoved: !lifecycleState.wells.some(
-                        (candidate) => candidate.id === lifecycleWell.id,
+                        (candidate) => candidate.id === lifecycleWellBuilding.id,
                     ),
                 },
                 expected: {
@@ -406,13 +474,13 @@ async function main() {
                     removedLifecycleCoop === 'coop' &&
                     removedLifecycleWell === 'well' &&
                     !lifecycleState.coops.some(
-                        (candidate) => candidate.id === lifecycleCoop.id,
+                        (candidate) => candidate.id === lifecycleCoopBuilding.id,
                     ) &&
                     !lifecycleState.wells.some(
-                        (candidate) => candidate.id === lifecycleWell.id,
+                        (candidate) => candidate.id === lifecycleWellBuilding.id,
                     ) &&
                     !lifecycleState.inventories.some(
-                        (inventory) => inventory.id === lifecycleCoop.id,
+                        (inventory) => inventory.id === lifecycleCoopBuilding.id,
                     ),
             },
             {
@@ -575,6 +643,29 @@ async function main() {
                     stackedCoopEggs === 4 &&
                     stackedCoopEggsAfterExplicitHatch === 3 &&
                     Boolean(explicitStackHatch),
+            },
+            {
+                actual: {
+                    coins: sharedWallet.coins,
+                    gold: sharedWallet.gold,
+                    remainingFarmerEggs: countInventoryItem(walletState, walletInventory.id, 'I006'),
+                    saleWithoutMarket: saleWithoutMarket !== null,
+                    soldEggs: walletSale?.soldEggs ?? 0,
+                },
+                expected: {
+                    coins: 156,
+                    gold: 156,
+                    remainingFarmerEggs: 0,
+                    saleWithoutMarket: false,
+                    soldEggs: 3,
+                },
+                id: 'market_required_for_egg_sale_and_shared_wallet_updates_once',
+                pass:
+                    saleWithoutMarket === null &&
+                    walletSale?.soldEggs === 3 &&
+                    sharedWallet.coins === 156 &&
+                    sharedWallet.gold === 156 &&
+                    countInventoryItem(walletState, walletInventory.id, 'I006') === 0,
             },
             {
                 actual: {

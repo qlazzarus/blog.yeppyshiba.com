@@ -84,10 +84,19 @@ export type PlayerVehicleState = {
     fuelCutActive: boolean;
     fuelCutTimer: number;
     gearIndex: number;
+    guardrailBounceVelocity: number;
+    guardrailContactInset: number;
+    guardrailContactDirection: -1 | 0 | 1;
+    guardrailContactTimer: number;
+    guardrailImpactCount: number;
+    guardrailImpactCue: number;
+    guardrailShoulderRatio: number;
     gripCounterRoadLateralVelocity: number;
     gripCounterRoadRatio: number;
     gripSteerAngleLimit: number;
     lateralOffset: number;
+    lowSpeedLateralAuthority: number;
+    lowSpeedVisualSteeringAuthority: number;
     centeringCounterHoldTimer: number;
     centeringForce: number;
     centeringReleaseStartScale: number;
@@ -98,6 +107,9 @@ export type PlayerVehicleState = {
     overspeedUndersteerTargetRatio: number;
     overspeedUndersteerLateralVelocity: number;
     rpm: number;
+    shiftCutRatio: number;
+    shiftDirection: -1 | 0 | 1;
+    shiftTimer: number;
     speed: number;
     slipAngle: number;
     steering: number;
@@ -133,6 +145,7 @@ export type RuntimeVehicleQaState = {
     vehicleBodyWidth: number;
     vehicleRoadRatio: number | null;
     physicalSteering: number;
+    lowSpeedVisualSteeringAuthority: number;
     visualSteering: number;
     visualSteeringThreshold: number;
 };

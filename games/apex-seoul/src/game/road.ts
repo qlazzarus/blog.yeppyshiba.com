@@ -4,6 +4,7 @@ export type RoadSegment = {
     index: number;
     laneCount: number;
     length: number;
+    roadHalfWidth: number;
 };
 
 export type RoadTrack = {
@@ -17,30 +18,47 @@ export type RoadTrack = {
 export const SEGMENT_LENGTH = 240;
 
 const DEFAULT_LANE_COUNT = 2;
+export const DEFAULT_ROAD_HALF_WIDTH = 960;
 
 export type RoadTrackId = 'bugak-ridge-downhill' | 'elevation-test';
 
 type TrackSection = {
     endCurve: number;
     endElevation: number;
+    endRoadHalfWidth?: number;
     startCurve: number;
     startElevation: number;
+    startRoadHalfWidth?: number;
     segments: number;
 };
 
 const BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS: TrackSection[] = [
     { endCurve: 0, endElevation: 540, segments: 8, startCurve: 0, startElevation: 560 },
-    { endCurve: 0.22, endElevation: 360, segments: 20, startCurve: 0, startElevation: 540 },
-    { endCurve: 0.62, endElevation: 220, segments: 28, startCurve: 0.22, startElevation: 360 },
-    { endCurve: 0.1, endElevation: 160, segments: 22, startCurve: 0.62, startElevation: 220 },
-    { endCurve: -0.72, endElevation: 10, segments: 34, startCurve: 0.1, startElevation: 160 },
-    { endCurve: -0.34, endElevation: -110, segments: 24, startCurve: -0.72, startElevation: 10 },
-    { endCurve: 0.58, endElevation: -240, segments: 32, startCurve: -0.34, startElevation: -110 },
-    { endCurve: -0.54, endElevation: -360, segments: 34, startCurve: 0.58, startElevation: -240 },
-    { endCurve: -0.12, endElevation: -420, segments: 22, startCurve: -0.54, startElevation: -360 },
-    { endCurve: 0.36, endElevation: -470, segments: 26, startCurve: -0.12, startElevation: -420 },
-    { endCurve: 0, endElevation: -500, segments: 18, startCurve: 0.36, startElevation: -470 },
-    { endCurve: 0, endElevation: -500, segments: 16, startCurve: 0, startElevation: -500 },
+    // R2: alternate short commitments with recoveries. The total length and
+    // downhill elevation budget are retained, while long one-direction runs
+    // are removed so the next corner can be read before it arrives.
+    { endCurve: 0.22, endElevation: 410, segments: 18, startCurve: 0, startElevation: 540 },
+    { endCurve: 0.66, endElevation: 300, endRoadHalfWidth: 820, segments: 14, startCurve: 0.22, startElevation: 410, startRoadHalfWidth: 960 },
+    { endCurve: 0.04, endElevation: 250, endRoadHalfWidth: 900, segments: 10, startCurve: 0.66, startElevation: 300, startRoadHalfWidth: 820 },
+    { endCurve: -0.62, endElevation: 160, endRoadHalfWidth: 820, segments: 12, startCurve: 0.04, startElevation: 250, startRoadHalfWidth: 900 },
+    { endCurve: -0.2, endElevation: 95, endRoadHalfWidth: 900, segments: 10, startCurve: -0.62, startElevation: 160, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: 60, endRoadHalfWidth: 960, segments: 10, startCurve: -0.2, startElevation: 95, startRoadHalfWidth: 900 },
+    { endCurve: 0.64, endElevation: -20, endRoadHalfWidth: 820, segments: 14, startCurve: 0, startElevation: 60, startRoadHalfWidth: 960 },
+    { endCurve: 0.16, endElevation: -75, endRoadHalfWidth: 900, segments: 10, startCurve: 0.64, startElevation: -20, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: -110, endRoadHalfWidth: 960, segments: 10, startCurve: 0.16, startElevation: -75, startRoadHalfWidth: 900 },
+    { endCurve: -0.66, endElevation: -185, endRoadHalfWidth: 820, segments: 14, startCurve: 0, startElevation: -110, startRoadHalfWidth: 960 },
+    { endCurve: -0.16, endElevation: -245, endRoadHalfWidth: 900, segments: 10, startCurve: -0.66, startElevation: -185, startRoadHalfWidth: 820 },
+    { endCurve: 0.03, endElevation: -300, endRoadHalfWidth: 960, segments: 12, startCurve: -0.16, startElevation: -245, startRoadHalfWidth: 900 },
+    { endCurve: 0.5, endElevation: -355, endRoadHalfWidth: 870, segments: 16, startCurve: 0.03, startElevation: -300, startRoadHalfWidth: 960 },
+    { endCurve: 0.08, endElevation: -390, endRoadHalfWidth: 920, segments: 12, startCurve: 0.5, startElevation: -355, startRoadHalfWidth: 870 },
+    { endCurve: -0.56, endElevation: -435, endRoadHalfWidth: 820, segments: 14, startCurve: 0.08, startElevation: -390, startRoadHalfWidth: 920 },
+    { endCurve: -0.1, endElevation: -465, endRoadHalfWidth: 960, segments: 10, startCurve: -0.56, startElevation: -435, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: -475, segments: 18, startCurve: -0.1, startElevation: -465 },
+    { endCurve: 0.56, endElevation: -485, endRoadHalfWidth: 820, segments: 16, startCurve: 0, startElevation: -475, startRoadHalfWidth: 960 },
+    { endCurve: 0.12, endElevation: -492, endRoadHalfWidth: 900, segments: 10, startCurve: 0.56, startElevation: -485, startRoadHalfWidth: 820 },
+    { endCurve: -0.5, endElevation: -498, endRoadHalfWidth: 870, segments: 12, startCurve: 0.12, startElevation: -492, startRoadHalfWidth: 900 },
+    { endCurve: -0.08, endElevation: -500, endRoadHalfWidth: 960, segments: 10, startCurve: -0.5, startElevation: -498, startRoadHalfWidth: 870 },
+    { endCurve: 0, endElevation: -500, segments: 14, startCurve: -0.08, startElevation: -500 },
 ];
 
 const BUGAK_RIDGE_DOWNHILL_SECTIONS = BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS;
@@ -91,6 +109,12 @@ function createTrackFromSections(id: RoadTrackId, name: string, sections: TrackS
             index: sectionIndex,
             laneCount: DEFAULT_LANE_COUNT,
             length: SEGMENT_LENGTH,
+            roadHalfWidth: ease(
+                section.startRoadHalfWidth ?? DEFAULT_ROAD_HALF_WIDTH,
+                section.endRoadHalfWidth ?? DEFAULT_ROAD_HALF_WIDTH,
+                sectionIndex,
+                section.segments,
+            ),
         })),
     ).map((segment, index) => ({
         ...segment,
@@ -131,6 +155,15 @@ export function getRoadElevationAt(track: RoadTrack, worldZ: number) {
     const next = getRoadSegment(track, segmentIndex + 1);
 
     return current.elevation + (next.elevation - current.elevation) * progress;
+}
+
+export function getRoadHalfWidthAt(track: RoadTrack, worldZ: number) {
+    const segmentIndex = Math.floor(worldZ / track.segmentLength);
+    const progress = getCameraSegmentProgress(track, worldZ);
+    const current = getRoadSegment(track, segmentIndex);
+    const next = getRoadSegment(track, segmentIndex + 1);
+
+    return current.roadHalfWidth + (next.roadHalfWidth - current.roadHalfWidth) * progress;
 }
 
 export function wrapDistance(value: number, length: number) {

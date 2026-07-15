@@ -1,10 +1,10 @@
 # Chicken Farm Sprite Asset Generation Plan
 
-이 문서는 Chicken Farm Phaser MVP에서 필요한 스프라이트/아이콘 에셋을 정리하고, 차후 GPT 이미지 생성을 통해 일관된 원본 후보를 만들기 위한 프롬프트 기준을 정의한다.
+이 문서는 Chicken Farm Phaser MVP에서 필요한 스프라이트/아이콘 에셋을 정리하고, 오픈소스 에셋 우선 도입 및 필요할 때의 생성·후처리 기준을 정의한다.
 
 ## 1. 방향
 
-GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 아니라, **원본 후보 생성 + 후처리 + sprite sheet 정규화** 파이프라인의 앞단으로 사용한다.
+현재 기본 방침은 **오픈소스 에셋 우선**이다. GPT 이미지 생성은 적합한 오픈소스 후보가 없을 때만, **원본 후보 생성 + 후처리 + sprite sheet 정규화** 파이프라인의 앞단으로 사용한다.
 
 효율적인 사용처:
 
@@ -21,6 +21,30 @@ GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 
 - 정확한 collision footprint가 필요한 건물 sprite
 - 선택 ring, HP bar, team color 같은 runtime UI 요소를 이미지에 포함하는 것
 
+### 1.1 라이선스·소싱 정책
+
+- 우선순위는 `CC0`이다. 배포 표기 부담 없이 프로젝트 에셋으로 정규화할 수 있다.
+- `CC-BY`는 원본 URL·저자·라이선스를 `docs/chicken_farm/`의 에셋 출처 목록에 기록할 수 있을 때만 사용한다.
+- `CC-BY-SA`와 `GPL` 에셋은 프로젝트 전체 배포 라이선스에 영향을 줄 수 있으므로, 현재 MVP에는 도입하지 않는다.
+- 다운로드한 외부 파일은 미리보기와 별개로 실제 압축 파일의 내용·라이선스 파일을 확인한 뒤 allowlist에 넣는다.
+- 하나의 지면 레이어에는 같은 타일 규격·팔레트의 타일군만 사용한다. 서로 다른 타일셋을 한 장의 지면처럼 섞지 않는다.
+
+### 1.2 현재 시각 에셋 스프린트 범위
+
+이번 패스는 **타일셋 교체만** 수행한다.
+
+- 기존 Kenney 지면 레이어를 CC0 잔디·흙 타일로 대체한다.
+- 유닛, 건물, 아이콘, 이펙트, 게임 규칙과 충돌/pathing 데이터는 바꾸지 않는다.
+- 건물 오픈소스 에셋의 다운로드·실제 sprite 교체는 다음 **건물 에셋 패스**에서 수행한다. 이소메트릭 원본을 2D sprite로 쓰는 방식 자체는 보류하지 않는다.
+- 기존 맵은 Kenney의 tile ID를 참조하므로 이미지 파일만 바꾸지 않는다. 새 지면 레이어를 별도로 구성해 기존 object/collision 레이어와 분리한다.
+
+### 1.3 현재 도입 에셋 출처
+
+| 용도 | 파일 | 원본 | 라이선스 | 적용 방식 |
+| --- | --- | --- | --- | --- |
+| 잔디 지면 | `tilesets/opengameart-theness/forest.png` | TheNess, [Grass and dirt tileset (Warcraft II style)](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | 8×8 중심 타일을 nearest-neighbor로 16×16 논리 타일에 맞춰 렌더링 |
+| 흙길 지면 | `tilesets/opengameart-theness/dirt.png` | TheNess, [Grass and dirt tileset (Warcraft II style)](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | 기존 ground 레이어의 흙길 위치만 매핑 |
+
 ## 2. 공통 스타일 가이드
 
 프로젝트는 원본 Warcraft III 유즈맵의 룰 감각을 참고하지만, 원본 에셋/아이콘/모델/명칭을 복제하지 않는다.
@@ -30,9 +54,29 @@ GPT 이미지 생성은 최종 game-ready sprite를 한 번에 뽑는 용도가 
 - 오리지널 stylized top-down fantasy farm defense
 - 작은 화면에서도 읽히는 큼직한 실루엣
 - 따뜻한 농장 색감과 어두운 밤 방어 분위기가 공존
-- 건물은 footprint가 읽히도록 위에서 약간 내려다본 3/4 top-down view
+- 건물은 이소메트릭(2.5D) 원본을 우선 허용하며, 런타임에서는 **하나의 2D 평면 sprite**로 배치한다. 3D 카메라나 메시 렌더링은 사용하지 않는다.
 - 유닛은 mobile/web 화면에서도 식별되도록 머리/몸/무기/역할이 명확해야 함
 - 선택 ring, HP bar, range indicator, shadow는 가능하면 runtime에서 별도 처리
+
+### 2.1 World depth / 앞뒤 가림 규칙
+
+건물과 유닛은 모두 2D sprite지만, 화면상 앞뒤 관계는 **발밑 기준 y-depth**로 정렬한다. 따라서 유닛이 건물의 위쪽(작은 y)으로 지나가면 건물 뒤로, 아래쪽(큰 y)으로 지나가면 건물 앞으로 보인다.
+
+| 레이어 | depth 규칙 | 목적 |
+| --- | --- | --- |
+| 지면 | 고정 최하위 | 잔디·흙길 |
+| 건물·유닛 본체 | `WORLD_DEPTH_BASE + footY` | 같은 월드 평면에서 앞뒤 가림 |
+| selection ring·발 그림자 | 본체보다 소폭 낮음 | 본체 아래에만 보이게 처리 |
+| HP/progress/nameplate | 본체보다 소폭 높음 | 건물 지붕이나 다른 본체에 가려지지 않게 처리 |
+| 건설 ghost·드래그 선택 | world actor보다 높음 | 입력 피드백 유지 |
+| fog/UI | world depth와 분리한 고정 상위 레이어 | 월드 정렬의 영향을 받지 않음 |
+
+구현 규칙:
+
+- `footY`는 유닛의 발밑 중심, 건물의 `footprint_bottom_center.y`다. 이미지 높이, 투명 여백, 이소메트릭 지붕 높이로 depth를 정하지 않는다.
+- 하나의 entity를 여러 Phaser object로 그릴 때는 본체·shadow·overlay가 같은 `footY`에서 파생된 depth를 사용한다. container 자체의 고정 depth와 자식의 임의 depth를 섞지 않는다.
+- 동일 `footY` 동률은 안정적인 entity id offset으로만 해소한다. 게임 상태·충돌·선택 판정은 draw depth에 의존하지 않는다.
+- 건물 sprite import 전, `unit above building -> 뒤`, `unit below building -> 앞`, `footY 동률 -> 결정적 순서` 세 경우를 headless/브라우저 측정으로 검증한다.
 
 공통 positive prompt:
 
@@ -43,7 +87,7 @@ original stylized top-down fantasy farm defense game sprite, chunky readable sil
 공통 negative prompt:
 
 ```text
-no text, no logo, no watermark, no UI frame, no health bar, no selection circle, no existing game character, no Warcraft asset, no photorealism, no isometric city builder scale, no background scene, no cropped object
+no text, no logo, no watermark, no UI frame, no health bar, no selection circle, no existing game character, no Warcraft asset, no photorealism, no background scene, no cropped object
 ```
 
 ## 3. 생성/후처리 파이프라인
@@ -77,7 +121,8 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 - 현재 runtime footprint cell은 32px이고, placement snap은 minor tile 2개 단위인 64px이다.
 - sprite source 크기는 시각 품질 기준이다. 예를 들어 3x3 건물은 collision footprint가 `96x96`이어도 source sprite는 `192x192`로 둔다.
 - W3X/Warsmash 근접 footprint는 `pathTex`를 우선한다. `4x4SimpleSolid`는 `4x4`, `8x8SimpleSolid`는 `8x8`로 해석한다.
-- 건물 sprite는 footprint 바닥 중심에 anchor를 맞춘다. 지붕/장식은 footprint 밖으로 살짝 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
+- 이소메트릭 건물 원본도 `footprint_bottom_center`에 anchor를 맞춘 2D 평면 sprite로 취급한다. 지붕/장식·투명 여백은 footprint 밖으로 올라와도 되지만, 바닥 접촉부는 footprint 안에서 읽혀야 한다.
+- 건물의 draw depth는 sprite 전체 높이가 아니라 `footprint_bottom_center`의 y값을 기준으로 정한다. 따라서 서로 다른 이소메트릭 원본을 써도 앞뒤 겹침과 선택 판정은 논리 footprint로 일관되게 유지한다.
 - HP bar, 건설 progress bar, selection outline, range indicator는 runtime overlay로 처리한다.
 - 워3식 하단 정보 패널에 쓰는 건물 portrait는 1차에서는 `iconId`를 재사용한다. 필요하면 후속으로 `portraitId`를 manifest에 추가한다.
 
@@ -86,11 +131,14 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 건설 PoC 이후 건물은 데이터와 에셋이 같은 id 체계를 공유해야 한다. `buildingTemplates.ts`의 building id마다 아래 manifest 필드를 매핑한다.
 
 ```ts
+type ExternalAssetCandidateId = string;
+
 type BuildingAssetManifestEntry = {
     readonly id: MvpBuildingId;
     readonly spriteId: string;
     readonly constructionSpriteId: string;
     readonly iconId: string;
+    readonly candidateSourceIds?: readonly ExternalAssetCandidateId[];
     readonly footprintCells: { readonly w: number; readonly h: number };
     readonly selectionBoundsPx?: { readonly w: number; readonly h: number };
     readonly sourceSizePx: { readonly w: number; readonly h: number };
@@ -112,6 +160,7 @@ type BuildingAssetManifestEntry = {
 | `constructionSpriteId` | 건설 중 scaffold 또는 단계별 sprite |
 | `iconId` | command card/build menu icon |
 | `selectionBoundsPx` | sprite가 footprint보다 크거나 작을 때 클릭/선택 보정 |
+| `candidateSourceIds` | 생성 전에 우선 검토할 외부 리소스 후보 id. 채택 전까지 runtime 의존성은 만들지 않음 |
 
 원본 build time은 아직 SLK/W3X 교차 검증이 부족하므로, MVP에서는 체감값을 먼저 채우고 `source.notes` 또는 별도 TSV에 원본 검증 상태를 남긴다.
 
@@ -142,7 +191,61 @@ type BuildingAssetManifestEntry = {
 
 ## 4. 우선순위별 Asset Manifest
 
+아래 목록은 더 이상 “전부 새로 생성할 리소스”만 뜻하지 않는다. 각 `Asset ID`는 **외부 유력 후보를 먼저 검토하고, 맞지 않을 때만 생성**한다. 후보는 sprite의 역할·실루엣·라이선스가 맞는지를 빠르게 검증하기 위한 연결이며, 다운로드·정규화·manifest 등록 전에는 채택으로 간주하지 않는다.
+
+### 4.1 확보 리소스 → Asset ID 연결
+
+`CC0`과 출처 표기 조건을 충족하면 사용할 수 있는 `CC-BY`만 연결했다. 보류·제외 리소스는 이 표에 넣지 않는다.
+
+| Candidate source ID | 리소스 | 라이선스 | 우선 연결 Asset ID | 채택 시 처리 |
+| --- | --- | --- | --- | --- |
+| `oga_theness_terrain` | [Grass and dirt tileset](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | `tile_grass_base`, `tile_dirt_path`, `tile_dark_forest_edge` | 현재 잔디·흙길에 적용됨. edge/overlay 확장은 같은 타일군에서만 추가. |
+| `kenney_tiny_farm` | Kenney Tiny Farm | CC0 | `tile_grass_base`, `tile_dirt_path`, `doodad_hay_bale`, `doodad_crate`, `building_coop_basic`, `building_market` | TheNess 지면과 무분별하게 섞지 않고, props 또는 교체 패스 단위로 palette를 확인. |
+| `kenney_animal_pack_redux` | Kenney Animal Pack Redux | CC0 | `unit_dog_basic` | 실제 dog frame·방향 수를 archive에서 확인한 뒤 임시/정식 여부 결정. |
+| `oga_chicken_sprites` | [OpenGameArt Chicken Sprites](https://opengameart.org/content/chicken-sprites) | CC0 | `unit_chicken_basic`, `unit_chicken_mid`, `unit_chicken_giant` | walk/peck frame을 우선 사용하고 등급별 recolor/scale은 후속 정규화. |
+| `oga_lpc_farm_animals` | OpenGameArt LPC style farm animals | CC-BY 3.0 경로 | `unit_chicken_basic`, `unit_chicken_mid`, `unit_chicken_giant` | GPL 파일은 제외하고 CC-BY 사용 파일만 allowlist·credits에 기록. |
+| `oga_lpc_wolf` | OpenGameArt LPC Wolf Animation | CC-BY/OGA-BY 경로 | `unit_wolf_basic` | 선택한 라이선스 경로·저자·URL·sheet frame mapping을 credits에 기록. |
+| `oga_lpc_cats_dogs` | OpenGameArt LPC Cats and Dogs | CC-BY/OGA-BY 경로 | `unit_dog_basic` | 선택한 라이선스 경로만 allowlist에 기록. |
+| `oga_guard_tower_iso` | [Medieval Wooden Guard Tower](https://opengameart.org/content/medieval-wooden-guard-tower-isometric-25d) | CC0 | `building_tower_scout` | 첫 2D isometric sprite adapter 및 y-depth 자동 측정 fixture. |
+| `oga_viking_archer_tower_iso` | [Viking Archer Tower](https://opengameart.org/content/viking-archer-tower-low-poly) | CC0 | `building_tower_guard_small`, `building_tower_guard_large` | base/roof/archer가 분리돼 있으면 본체와 overlay의 공통 `footY`를 검증. |
+| `oga_medieval_fountain_iso` | [Medieval Fountain](https://opengameart.org/content/medieval-fountain-with-animated-water) | CC0 | `building_well_basic` | 첫 패스는 정적 frame; 물 애니메이션은 후속 sprite sheet 작업. |
+| `oga_western_castle_iso` | [Western-European Castle](https://opengameart.org/content/western-european-castle-isometric-25d) | CC0 | `building_town_hall` | 대형 landmark라 footprint·selection bounds를 별도 조정. |
+| `oga_old_well_iso` | [Old Well](https://opengameart.org/content/old-well-bleeds-game-art) | CC-BY 3.0 | `building_well_basic` | CC0 분수보다 농장 우물 실루엣이 적합할 때의 대체 후보. Bleed 표기 필수. |
+| `oga_timbered_house_iso` | [Timbered House](https://opengameart.org/content/timbered-house) | CC-BY 3.0 | `building_farm_house`, `building_coop_basic` | 농가 우선 후보. Bleed 표기 필수, 닭장 전환 시 기능 표식은 runtime overlay로 보완. |
+| `oga_powers_icons` | [Powers Icons](https://opengameart.org/content/powers-icons) | CC0 | `icon_build`, `icon_cancel`, `icon_repair`, `icon_sell`, `icon_stop`, `icon_attack_move`, `icon_upgrade`, `icon_heal`, `icon_blessing` | 각 command의 의미가 맞는 개별 아이콘만 선택하고, 단축키 텍스트는 runtime UI로 유지. |
+| `oga_explosion_fx` | [Explosion](https://opengameart.org/content/explosion) | CC0 | `marker_target_command`, `building_destroyed_fx`(후속), `attack_impact_fx`(후속) | 기존 manifest에 없는 후속 FX id는 실제 전투·파괴 구현과 함께 추가. |
+
+### 4.2 추가 조사 유력 후보
+
+조사일: 2026-07-14. 아래는 현재 렌더링 구조에 맞는 추가 후보만 기록했다. 공통 기준은 **직교 지면은 유지하고, 이소메트릭 원본은 `footY` 정렬되는 독립 2D sprite로 사용**하는 것이다.
+
+| 우선도 | Candidate source ID | 리소스 | 라이선스 | 연결 Asset ID | 적합성·도입 조건 |
+| --- | --- | --- | --- | --- | --- |
+| A | `kenney_isometric_miniature_farm` | [Kenney Isometric Miniature Farm](https://kenney.nl/assets/isometric-miniature-farm) | CC0 | `building_coop_basic`, `building_egg_storage`, `building_market`, `building_farm_house`, `doodad_hay_bale`, `doodad_crate` | 농장 전용 60개 타일/오브젝트와 Tiled sample이 있어 가장 폭넓게 맞는다. 256×512 원본 전체를 한 번에 로드하지 않고 실제 채택한 PNG만 잘라 sprite atlas로 정규화한다. |
+| A | `oga_iso_spider` | [ISO Spider spritesheet](https://opengameart.org/content/iso-spider-spritesheet) | CC0 | `unit_spider_basic` | 8방향·13프레임 walk sheet라 현재 `footY` 정렬 검증에 적합하다. 2.1MB sheet에서 필요한 frame만 atlas로 추출한다. |
+| A | `oga_medieval_blacksmith_iso` | [Medieval Blacksmith](https://opengameart.org/content/medieval-blacksmith-isometric-25d) | CC0 | `building_blacksmith` | 동일 Feudal Wars 계열이라 기존 가드 타워·성 후보와 광원/시점 일관성이 높다. |
+| A | `oga_iso_medieval_set` | [Isometric (2.5D) Medieval Set](https://opengameart.org/content/isometric-25d-medieval-set) | CC0 공개 컬렉션 | `building_mercenary_barracks`, `building_tower_guard_*`, `building_town_hall` | barracks·archery range·stable·house 등으로 확장할 수 있다. 실제 사용할 개별 파일의 페이지·라이선스를 import 때 다시 기록한다. |
+| A | `oga_isometric_barn_farmhouse` | [Isometric Barn / Farmhouse](https://opengameart.org/content/isometric-barn-farmhouse) | CC0 선택 가능(다중 라이선스) | `building_farm_house`, `building_coop_basic` | 농장 역할과 실루엣이 정확히 맞는다. archive 내부 라이선스가 CC0 선택을 허용하는지 확인한 뒤만 도입한다. |
+| B | `oga_isometric_houses` | [Isometric Houses](https://opengameart.org/content/isometric-houses) | CC0 | `building_farm_house`, `building_market`, `building_grand_market` | 128×128, 16종 주택과 4방향이라 보급이 좋다. 농장 전용 표식(알 상자·간판)은 runtime prop으로 보완한다. |
+| B | `oga_isometric_house_pack` | [Isometric House Pack](https://opengameart.org/content/isometric-house-pack) | CC0 | `building_farm_house`, `building_market` | 작은 pixel-art 건물의 빠른 placeholder 후보. 기존 후보와 팔레트·광원 비교 후 한 계열만 채택한다. |
+| B | `oga_pixel_farm_shack` | [Pixel farm and shack](https://opengameart.org/content/pixel-farm-and-shack) | CC0 | `doodad_hay_bale`, `tile_trampled_grass`, `building_coop_basic` | 농작물·shack 구성은 적합하지만 크기 불일치 이력이 있어 지면 전체 교체용이 아니라 crop/doodad 선택 후보로 제한한다. |
+| B | `oga_iso_plants` | [Free isometric plants-pack](https://opengameart.org/content/free-isometric-plants-pack) | CC0 | `doodad_tree_small`, `doodad_bush`, `prop_spider_den` | 64×32 isometric 기준이라 depth 정렬과 잘 맞는다. archive가 크므로 필요 PNG만 선별하고 mobile texture budget을 측정한다. |
+| B | `oga_farmer_bleed_iso` | [Farmer — Bleed's Game Art](https://opengameart.org/content/farmer-bleeds-game-art) | CC-BY 3.0 | `unit_farmer` | 8방향의 걷기·괭이·씨앗·물주기 동작이 경제 루프와 매우 잘 맞는다. Bleed/URL/CC-BY 3.0을 credits에 기록한다. |
+| B | `oga_fences_walls_gate` | [Fences, Walls and a Gate](https://opengameart.org/content/fences-walls-and-a-gate) | CC0 | `building_fence_wood`, `building_wall_stone`, `building_gate_wood` | 역할은 정확하지만 이소메트릭 광원·원근은 archive preview로 확인해야 한다. 맞지 않으면 Feudal Wars 계열을 우선한다. |
+| B | `oga_iso_medieval_buildings` | [isometric medieval buildings](https://opengameart.org/content/isometric-medieval-buildings) | CC0 | `building_farm_house`, `building_mercenary_barracks` | 64×32/128×64 출력·그림자 variation이 있어 선택 폭이 넓다. 25MB archive라 필요한 sheet만 선별한다. |
+| B | `oga_svg_iso_buildings` | [SVG Isometric buildings](https://opengameart.org/content/svg-isometric-buildings) | CC0 | `building_farm_house`, `building_market`, `doodad_tree_small` | PNG sheet와 SVG가 함께 있어 해상도 정규화에 유리하다. SVG를 런타임에 직접 렌더링하지 않고 사전 PNG atlas로 변환한다. |
+| C | `oga_devolution_topdown` | [Devolution Topdown tilesets and sprites](https://opengameart.org/content/devolution-topdown-tilesets-and-sprites) | CC0 | `unit_farmer` 임시안, `unit_spider_basic` 임시안, `icon_*` | 16×16 top-down 계열이라 지면/유닛의 임시 placeholder에는 맞지만, 확정한 이소메트릭 건물 스타일과는 별도 계열이다. 건물에는 사용하지 않는다. |
+
+도입 순서:
+
+1. `kenney_isometric_miniature_farm`에서 닭장·시장·농가 후보를 선정한다.
+2. `oga_guard_tower_iso`와 `oga_iso_spider`를 각각 건물/유닛의 `footY` 앞뒤 가림 fixture로 쓴다.
+3. Feudal Wars CC0 계열(blacksmith, barracks, house)을 같은 광원 방향으로 묶어 방어·테크 건물을 채운다.
+4. CC-BY `oga_farmer_bleed_iso`는 credits manifest를 먼저 만든 후에만 가져온다.
+
 ### P0. 현재/다음 PoC 필수
+
+유력 외부 후보: `unit_farmer` → `oga_farmer_bleed_iso`(CC-BY credits 조건), `unit_dog_basic` → `kenney_animal_pack_redux` 또는 `oga_lpc_cats_dogs`, `unit_wolf_basic` → `oga_lpc_wolf`, `unit_spider_basic` → `oga_iso_spider`, `building_tower_scout` → `oga_guard_tower_iso`, `building_farm_house`/`building_coop_basic` → `kenney_isometric_miniature_farm` 또는 `oga_isometric_barn_farmhouse`, `building_fence_wood` → `oga_fences_walls_gate`, command icon 묶음 → `oga_powers_icons`.
 
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
@@ -167,6 +270,8 @@ type BuildingAssetManifestEntry = {
 
 ### P1. PoC 7 Economy
 
+유력 외부 후보: `unit_chicken_*` → `oga_chicken_sprites` 우선, CC-BY 대체안은 `oga_lpc_farm_animals`; `building_coop_mid`/`building_coop_high`/`building_egg_storage` → `kenney_isometric_miniature_farm`; `icon_upgrade` → `oga_powers_icons`. `icon_egg`·`icon_coin`은 정확한 의미의 CC0 후보를 별도 선별하거나 생성한다.
+
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
 | `unit_chicken_basic` | 기본 닭 | unit | `64x64` | plump white chicken, cute but readable |
@@ -180,6 +285,8 @@ type BuildingAssetManifestEntry = {
 | `icon_upgrade` | 업그레이드 | icon | `96x96` | upward arrow with hammer, rustic fantasy |
 
 ### P2. Core Buildings and Shop
+
+유력 외부 후보: `building_town_hall` → `oga_western_castle_iso` 또는 `oga_iso_medieval_set`; `building_market`/`building_grand_market` → `kenney_isometric_miniature_farm` 또는 `oga_isometric_houses`; `building_well_basic` → `oga_medieval_fountain_iso` 우선, 농장 우물 실루엣 대체안은 `oga_old_well_iso`(CC-BY credits 조건); `building_mercenary_barracks` → `oga_iso_medieval_set`; `building_blacksmith` → `oga_medieval_blacksmith_iso`.
 
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
@@ -196,6 +303,8 @@ type BuildingAssetManifestEntry = {
 
 ### P3. Defense Upgrade Lines
 
+유력 외부 후보: `building_fence_bronze`/`building_wall_stone`/`building_gate_wood` → `oga_fences_walls_gate`; `building_tower_guard_small`/`building_tower_guard_large` → `oga_viking_archer_tower_iso`; arcane·plasma 계열은 시각 역할이 달라 새 생성 대상으로 유지한다.
+
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
 | `building_fence_bronze` | 청동 울타리 | building | `64x128` | reinforced bronze fence segment |
@@ -209,6 +318,8 @@ type BuildingAssetManifestEntry = {
 | `building_tower_arcane_large` | 아케인 타워 상위 | building | `128x128` | grand arcane tower, larger crystal, magical energy |
 
 ### P4. Family, Support, Boss, Rewards
+
+유력 외부 후보: `unit_dog_big` → `kenney_animal_pack_redux` 또는 `oga_lpc_cats_dogs`의 scale/recolor 확장; `prop_spider_den` → `oga_iso_plants`를 배경 식생으로 사용하고 거미줄은 runtime overlay 또는 새 생성; `icon_heal`/`icon_blessing` → `oga_powers_icons`. 가족·보스·와이번·거북이·보상 상자는 현재 적합한 후보가 없어 새 생성 대상으로 유지한다.
 
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
@@ -226,6 +337,8 @@ type BuildingAssetManifestEntry = {
 | `icon_reward_chest` | 보상 | icon | `96x96` | rustic reward chest, eggs and coins |
 
 ### P5. Map Tiles and Doodads
+
+유력 외부 후보: `tile_grass_base`/`tile_dirt_path`/`tile_dark_forest_edge` → `oga_theness_terrain`; `tile_trampled_grass` → `oga_pixel_farm_shack`의 선택 crop 또는 새 생성; `doodad_tree_small`/`doodad_bush` → `oga_iso_plants` 또는 `oga_svg_iso_buildings`; `doodad_hay_bale`/`doodad_crate` → `kenney_isometric_miniature_farm`; `doodad_lamp_post`은 새 생성 또는 Kenney sample 안의 실물 확인 후 결정한다.
 
 | Asset ID | 용도 | 타입 | 크기 | 프롬프트 키워드 |
 | --- | --- | --- | ---: | --- |
@@ -274,13 +387,13 @@ no text, no logo, no watermark, no UI frame, no health bar, no selection circle,
 ```text
 {COMMON_POSITIVE_PROMPT}
 
-Create one {building_name} building sprite for a top-down farm defense game.
+Create one {building_name} as an isometric 2.5D building sprite for a farm defense game.
 Gameplay role: {gameplay_role}.
 Footprint: {footprint_cells} grid cells.
 Runtime footprint: {runtime_footprint_px}.
 Source sprite size: {source_size_px}.
 Visual traits: {visual_traits}.
-The building must read clearly from top-down view, fit inside a square sprite, have no background, and leave space around the base for runtime selection/placement indicators. The base should align to a footprint-bottom-center anchor.
+The building must read clearly as a 2D sprite, have no background, and leave space around the base for runtime selection/placement indicators. The base should align to a footprint-bottom-center anchor so units can depth-sort in front of and behind it.
 
 {COMMON_NEGATIVE_PROMPT}
 ```
@@ -290,7 +403,7 @@ The building must read clearly from top-down view, fit inside a square sprite, h
 ```text
 original stylized top-down fantasy farm defense game sprite, chunky readable silhouette, 3/4 top-down view, hand-painted texture feel, warm rural palette, slightly whimsical but survival-defense mood, clean transparent background, game-ready concept sprite, not based on any existing game asset
 
-Create one small wooden watch tower building sprite for a top-down farm defense game.
+Create one small wooden watch tower as an isometric 2.5D building sprite for a farm defense game.
 Gameplay role: early defensive tower.
 Footprint: 4x4 grid cells.
 Runtime footprint: 128x128 px.
@@ -399,6 +512,24 @@ No props, no units, no buildings, no text, no logos.
 | OpenGameArt LPC Character Bases + Universal LPC Spritesheet Generator | https://opengameart.org/content/lpc-character-bases | CC-BY-SA 3.0 / GPL 3.0 | `unit_farmer`, `unit_spouse`, children 후보 | 농부/가족/상인형 humanoid를 generator로 빠르게 만들 수 있다. | share-alike/GPL 부담이 커서 MVP repo 포함 전 라이선스 정책 결정 필요. |
 | OpenGameArt LPC Farming tilesets, magic animations and UI elements | https://opengameart.org/content/lpc-farming-tilesets-magic-animations-and-ui-elements | CC-BY-SA 3.0 / GPL 3.0 | fences, crops, market props, UI scroll blocks | 농장/시장/작물/울타리 reference가 풍부하다. | share-alike/GPL 부담. reference 또는 internal prototype 후보로 둔다. |
 
+### 제공 후보 라이선스 결정표
+
+분류 기준은 공개 웹 배포를 전제로 한 MVP의 보수적 운영 정책이다. 이는 법률 자문이 아니며, 실제 import 시 내려받은 파일 안의 라이선스·크레딧도 다시 대조한다.
+
+| 분류 | 후보 | 라이선스 | 결정 |
+| --- | --- | --- | --- |
+| 즉시 후보 | [Grass and dirt tileset](https://opengameart.org/content/grass-and-dirt-tileset-warcraft-ii-style) | CC0 | 이미 지면에 적용. |
+| 즉시 후보 | [Medieval Wooden Guard Tower](https://opengameart.org/content/medieval-wooden-guard-tower-isometric-25d) | CC0 | `building_tower_scout`의 첫 이소메트릭 2D sprite 후보. |
+| 즉시 후보 | [Viking Archer Tower](https://opengameart.org/content/viking-archer-tower-low-poly) | CC0 | `building_tower_guard_*` 후보. base/roof/archer 분리 구성은 runtime layer로 활용 가능. |
+| 즉시 후보 | [Medieval Fountain](https://opengameart.org/content/medieval-fountain-with-animated-water) | CC0 | 우물 또는 중앙 장식 후보. 애니메이션은 정적 sprite 도입 뒤 후속 적용. |
+| 즉시 후보 | [Western-European Castle](https://opengameart.org/content/western-european-castle-isometric-25d) | CC0 | `building_town_hall` 또는 후반 landmark 후보. |
+| 즉시 후보 | [Powers Icons](https://opengameart.org/content/powers-icons), [Explosion](https://opengameart.org/content/explosion) | CC0 | command card icon·전투 FX 후보. |
+| 출처 표기 후 후보 | [Old Well](https://opengameart.org/content/old-well-bleeds-game-art), [Timbered House](https://opengameart.org/content/timbered-house) | CC-BY 3.0 | 저자(Bleed), URL, CC-BY 3.0을 credits와 asset manifest에 기록한 경우만 import. |
+| 다운로드 검사 후 결정 | [RPG Tilesets pack](https://opengameart.org/content/rpg-tilesets-pack) | 페이지 표기는 CC0 | 16×16이라 기술적으로 좋지만, 게시물 댓글에 과거 라이선스 우려가 남아 있다. archive 내용과 제외 파일을 확인하기 전에는 import하지 않는다. |
+| 현재 제외 | [16x16 RPG Tileset](https://opengameart.org/content/16x16-rpg-tileset) | CC-BY-SA 3.0 / GPL 3.0 | 공개 MVP의 에셋 정책과 맞지 않는다. |
+| 현재 제외 | [Medieval Building Tiles](https://opengameart.org/content/medieval-building-tiles) | GPL 2.0 / GPL 3.0 / CC-BY-SA 3.0 | 공개 MVP의 에셋 정책과 맞지 않는다. |
+| 현재 제외 | [6 Isometric buildings](https://opengameart.org/content/6-isometric-buildings) | CC-BY-SA 3.0 | 공개 MVP의 에셋 정책과 맞지 않는다. |
+
 ### 보류 후보
 
 | 후보 | URL | 조건 | 판단 |
@@ -417,7 +548,7 @@ No props, no units, no buildings, no text, no logos.
 
 ### 현재 권장 결정
 
-1. P0 import는 `Kenney Tiny Farm`과 `OpenGameArt Chicken Sprites`를 먼저 검증한다.
+1. 지면 다음의 건물 에셋 패스는 CC0 `Medieval Wooden Guard Tower`로 시작한다. `building_tower_scout`에 2D sprite adapter와 y-depth 자동 측정을 먼저 연결한다.
 2. 늑대와 개는 `OpenGameArt LPC Wolf Animation`, `OpenGameArt LPC Cats and Dogs`를 attribution 포함 후보로 둔다.
 3. 농부는 당장 LPC Character Bases를 넣기보다, `unit_farmer`만 신규 생성/수작업 보정하거나 generator 결과를 internal prototype으로 비교한다.
 4. 최종 repo import 전에 `games/chicken-farm/assets/THIRD_PARTY_ASSETS.md`를 만들고 asset id, source URL, author, license, local file path를 기록한다.

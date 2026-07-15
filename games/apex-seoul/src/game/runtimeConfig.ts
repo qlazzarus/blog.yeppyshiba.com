@@ -3,6 +3,12 @@ import type { PlayerVehicleControllerConfig } from './playerVehicleController';
 
 export type RuntimeTuning = {
     cameraBaseFov: number;
+    cameraShakeDriftExitX: number;
+    cameraShakeDriftExitY: number;
+    cameraShakeFrequency: number;
+    cameraShakeScale: number;
+    cameraShakeThrottleX: number;
+    cameraShakeThrottleY: number;
     cameraSpeedFovBonus: number;
     curveScreenBias: number;
     debugProjectionGuides: boolean;
@@ -70,6 +76,42 @@ export function createRuntimeTuning(
 
     return {
         cameraBaseFov: readTuningNumber(params, 'fov', defaults.cameraBaseFov, 58, 82),
+        cameraShakeDriftExitX: readTuningNumber(
+            params,
+            'cameraShakeDriftX',
+            defaults.cameraShakeDriftExitX,
+            0,
+            3,
+        ),
+        cameraShakeDriftExitY: readTuningNumber(
+            params,
+            'cameraShakeDriftY',
+            defaults.cameraShakeDriftExitY,
+            0,
+            1.5,
+        ),
+        cameraShakeFrequency: readTuningNumber(
+            params,
+            'cameraShakeHz',
+            defaults.cameraShakeFrequency,
+            8,
+            60,
+        ),
+        cameraShakeScale: readTuningNumber(params, 'cameraShake', defaults.cameraShakeScale, 0, 1),
+        cameraShakeThrottleX: readTuningNumber(
+            params,
+            'cameraShakeThrottleX',
+            defaults.cameraShakeThrottleX,
+            0,
+            2,
+        ),
+        cameraShakeThrottleY: readTuningNumber(
+            params,
+            'cameraShakeThrottleY',
+            defaults.cameraShakeThrottleY,
+            0,
+            1,
+        ),
         cameraSpeedFovBonus: readTuningNumber(
             params,
             'fovBonus',

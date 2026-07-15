@@ -1,5 +1,6 @@
 import {
     getRoadRelativeVehicleTargetSize,
+    getVehicleScaleRoadWidth,
     updateRoadRelativeVehicleSize,
 } from '../src/game/vehicleRoadScale.ts';
 
@@ -43,6 +44,16 @@ const maxRatio = Math.max(...ratios);
 const targetSizes = steadySamples.map((sample) => sample.targetSize);
 const minTargetSize = Math.min(...targetSizes);
 const maxTargetSize = Math.max(...targetSizes);
+const fullRoadHalfWidth = 960;
+const narrowRoadHalfWidth = 820;
+const fullRoadWidth = 704;
+const narrowRoadWidth = fullRoadWidth * narrowRoadHalfWidth / fullRoadHalfWidth;
+const fullWidthTarget = getRoadRelativeVehicleTargetSize(baseSize, fullRoadWidth, config);
+const narrowWidthTarget = getRoadRelativeVehicleTargetSize(
+    baseSize,
+    getVehicleScaleRoadWidth(narrowRoadWidth, narrowRoadHalfWidth, fullRoadHalfWidth),
+    config,
+);
 
 const checks = [
     {
@@ -57,6 +68,10 @@ const checks = [
         label: 'size response remains below 80px/s',
         pass: maxSizeDeltaPerSec <= 80,
     },
+    {
+        label: 'R3 narrowed road does not shrink the vehicle target size',
+        pass: Math.abs(fullWidthTarget - narrowWidthTarget) <= 0.001,
+    },
 ];
 
 for (const check of checks) {
@@ -64,6 +79,11 @@ for (const check of checks) {
 }
 console.log(JSON.stringify({
     maxSizeDeltaPerSec: round(maxSizeDeltaPerSec),
+    r3NarrowRoad: {
+        actualRatio: round(fullWidthTarget / narrowRoadWidth),
+        fullWidthTarget: round(fullWidthTarget),
+        narrowWidthTarget: round(narrowWidthTarget),
+    },
     ratioRange: [round(minRatio), round(maxRatio)],
     samples: steadySamples.map((sample) => ({
         roadWidth: round(sample.roadWidth),

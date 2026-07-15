@@ -68,7 +68,17 @@ export type ChickenFarmEconomyConfig = {
 export type EconomyPlayerState = {
     carriedEggs: number;
     coins: number;
+    /**
+     * Construction and economy deliberately share this player record.  The
+     * pure economy system only needs coins, while construction also consumes
+     * the RTS resources below.
+     */
+    gold?: number;
+    eggs?: number;
     readonly id: number;
+    lumber?: number;
+    supplyCap?: number;
+    supplyUsed?: number;
 };
 
 export type EconomyChickenState = {

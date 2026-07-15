@@ -35,7 +35,7 @@ const isIndexable = getVisibleTagEntries(await getCollection('blog')).some(
 
 const title = `${label} 글 모음`;
 const description = meta?.description ?? `${label} 관련 글 모음`;
-const pageImage = pagePosts[0]?.data.image ?? '/images/profile-yeppyshiba.png';
+const pageImage = pagePosts[0]?.data.image ?? '/images/site/profile-yeppyshiba.png';
 
 const pageUrl = new URL(`/tag/${tag}/`, Astro.site).toString();
 

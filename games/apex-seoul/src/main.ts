@@ -28,6 +28,10 @@ import {
     type PlayerVehicleControllerConfig,
 } from './game/playerVehicleController';
 import {
+    applyGuardrailCollision,
+    GUARDRAIL_COLLISION_CONFIG,
+} from './game/guardrailCollision';
+import {
     createDefaultCamera,
     getHorizonY,
     projectGroundPoint,
@@ -36,7 +40,9 @@ import {
 } from './game/pseudo3dCamera';
 import {
     createRoadTrack,
+    DEFAULT_ROAD_HALF_WIDTH,
     getRoadElevationAt,
+    getRoadHalfWidthAt,
     parseRoadTrackId,
     wrapDistance,
     type RoadTrack,
@@ -49,9 +55,11 @@ import {
     type RoadRenderStats,
 } from './game/roadRenderer';
 import {
+    createRoadObjectMotionTracker,
     createRoadObjects,
     renderRoadObjects,
     type RoadObject,
+    type RoadObjectMotionTracker,
     type RoadObjectRenderStats,
 } from './game/roadObjectRenderer';
 import {
@@ -66,13 +74,26 @@ import {
 import { RuntimeTelemetryRecorder } from './game/runtimeTelemetry';
 import {
     getRoadRelativeVehicleTargetSize,
+    getVehicleScaleRoadWidth,
     updateRoadRelativeVehicleSize,
     type VehicleRoadScaleConfig,
 } from './game/vehicleRoadScale';
 import {
     createSpeedEffectShader,
+    getSpeedEffectExpectedPeakAlpha,
     type SpeedEffectShaderUniforms,
 } from './game/speedEffectShader';
+import {
+    createCameraEffectsConfig,
+    createCameraEffectsState,
+    DEFAULT_CAMERA_EFFECTS_CONFIG,
+    updateCameraEffects,
+} from './game/cameraEffects.js';
+import {
+    createSpeedCueState,
+    SPEED_CUE_CONFIG,
+    updateSpeedCue,
+} from './game/speedCue.js';
 import {
     drawShadowContactPatch,
     getContactTerrainCueIntensity,
@@ -96,12 +117,9 @@ import {
 
 const CAMERA_INPUT_RESPONSE = 14;
 const CAMERA_LATERAL_SPEED = 820;
-const CAMERA_BASE_FOV = 69;
 const CAMERA_DOWNHILL_EXTRA_PITCH = 42;
-const CAMERA_FOV_RESPONSE = 1.25;
 const CAMERA_MAX_SLOPE_PITCH = 34;
 const CAMERA_SLOPE_PITCH_RESPONSE = 3.2;
-const CAMERA_SPEED_FOV_BONUS = 5.2;
 const DEBUG_PROJECTION_GUIDES = false;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
 const COURSE_CHECKPOINT_RATIOS = [0.25, 0.5, 0.75];
@@ -119,7 +137,7 @@ const PLAYER_CENTERING_RELEASE_DELAY = 0.18;
 const PLAYER_CENTERING_RELEASE_SCALE_RESPONSE = 0.8;
 const PLAYER_CENTERING_RELEASE_SCALE = 0.45;
 const PLAYER_CENTERING_SCALE_RESPONSE = 4.8;
-const PLAYER_CRUISE_SPEED = 440;
+const PLAYER_CRUISE_SPEED = 0;
 const PLAYER_ACCEL_SPEED = 760;
 const PLAYER_CORNER_ACCEL_SPEED_DROP = 140;
 const PLAYER_CORNER_EASY_INTENSITY_THRESHOLD = 0.34;
@@ -135,8 +153,8 @@ const PLAYER_DOWNHILL_CORNER_BUDGET_SLOPE_ACCELERATION = 65;
 const PLAYER_DOWNHILL_CORNER_LATERAL_SCALE = 0.55;
 const PLAYER_DOWNHILL_CORNER_OVERSPEED_SCRUB = 145;
 const PLAYER_INPUT_RESPONSE = 18;
-const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.38;
-const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.3;
+const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.7;
+const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.5;
 const PLAYER_MAX_ROAD_OFFSET = 700;
 const PLAYER_OVERSPEED_UNDERSTEER_MAX = 0.54;
 const PLAYER_OVERSPEED_MEDIUM_UNDERSTEER_SCALE = 0.58;
@@ -235,7 +253,7 @@ const PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE = 0.62;
 const PLAYER_STEERING_VELOCITY_CUE = 0.2;
 const PLAYER_STEERING_SPEED_SCRUB = 64;
 const PLAYER_STEERING_SPEED_SCRUB_THRESHOLD = 0.22;
-const PLAYER_ENGINE_ACCELERATION = 170;
+const PLAYER_ENGINE_ACCELERATION = 82;
 const PLAYER_ENGINE_BRAKE_DECELERATION = 26;
 const PLAYER_ROLLING_RESISTANCE = 14;
 const PLAYER_AERO_DRAG = 0.00012;
@@ -246,13 +264,26 @@ const PLAYER_RPM_IDLE = 1100;
 const PLAYER_RPM_REDLINE = 7200;
 const PLAYER_RPM_RESPONSE = 7;
 const RUN_FINISH_COAST_SPEED = 0;
-const SPEED_EFFECT_MAX_ALPHA = 0.88;
-const SPEED_EFFECT_MIN_RATIO = 0.36;
 const SPEED_EFFECT_TIME_SCALE = 2.2;
 const TELEMETRY_DEFAULT_DURATION_SEC = 60;
 const TELEMETRY_DEFAULT_SAMPLE_HZ = 10;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 760;
+const CITY_SKYLINE_BASE_Y_RATIO = 0.38;
+const CITY_VIEW_SECTIONS = [
+    { end: 0.29, start: 0.1 },
+    { end: 0.76, start: 0.57 },
+];
+const CITY_VIEW_TRANSITION_RATIO = 0.025;
+const CITY_LIGHT_CURVE_OFFSET_MAX = 20;
+const CITY_LIGHT_CURVE_SCROLL = 0.008;
+const CITY_RIDGE_CURVE_OFFSET_MAX = 42;
+const CITY_RIDGE_CURVE_SCROLL = 0.017;
+const CITY_LIGHTS = [
+    [48, 0.66, 2], [82, 0.58, 1], [105, 0.71, 2], [136, 0.48, 1], [166, 0.63, 2],
+    [204, 0.55, 1], [237, 0.7, 2], [268, 0.6, 1], [307, 0.5, 2], [343, 0.69, 1],
+    [379, 0.57, 2], [412, 0.63, 1], [448, 0.52, 2], [486, 0.68, 1], [526, 0.59, 2],
+] as const;
 const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
     black: ft86RetroBlackVehicleSpriteUrl,
     blue: ft86RetroBlueVehicleSpriteUrl,
@@ -267,8 +298,14 @@ const PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
 const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
 const ACTIVE_ROAD_TRACK_ID = parseRoadTrackId(URL_PARAMS.get('track'));
 const RUNTIME_TUNING: RuntimeTuning = createRuntimeTuning(URL_PARAMS, {
-    cameraBaseFov: CAMERA_BASE_FOV,
-    cameraSpeedFovBonus: CAMERA_SPEED_FOV_BONUS,
+    cameraBaseFov: DEFAULT_CAMERA_EFFECTS_CONFIG.baseFov,
+    cameraShakeDriftExitX: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeDriftExitX,
+    cameraShakeDriftExitY: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeDriftExitY,
+    cameraShakeFrequency: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeFrequency,
+    cameraShakeScale: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeScale,
+    cameraShakeThrottleX: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeThrottleX,
+    cameraShakeThrottleY: DEFAULT_CAMERA_EFFECTS_CONFIG.shakeThrottleY,
+    cameraSpeedFovBonus: DEFAULT_CAMERA_EFFECTS_CONFIG.speedFovBonus,
     curveScreenBias: PLAYER_CURVE_SCREEN_BIAS,
     debugProjectionGuides: DEBUG_PROJECTION_GUIDES,
     highSpeedSteerWeakThreshold: PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD,
@@ -290,6 +327,7 @@ const RUNTIME_TUNING: RuntimeTuning = createRuntimeTuning(URL_PARAMS, {
     vehicleRotationDeg: PLAYER_VEHICLE_ROTATION_DEG,
     vehicleViewportRatio: PLAYER_VEHICLE_VIEWPORT_RATIO,
 });
+const CAMERA_EFFECTS_CONFIG = createCameraEffectsConfig(RUNTIME_TUNING);
 const RUNTIME_QA: RuntimeQaOverrides = createRuntimeQaOverrides(URL_PARAMS, {
     maxRoadOffset: PLAYER_MAX_ROAD_OFFSET,
     playerAccelSpeed: PLAYER_ACCEL_SPEED,
@@ -428,9 +466,14 @@ type PlayerVehicleRenderState = {
     roadWidthAtVehicleY: number | null;
 };
 
+type GuardrailVisualCollisionLimits = {
+    pavedHalfWidth: number;
+    railContactLimit: number;
+};
+
 class ApexSeoulScene extends Phaser.Scene {
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
-    private cameraFov = RUNTIME_TUNING.cameraBaseFov;
+    private cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
     private cameraManualPitch = 0;
     private cameraTerrainPitch = 0;
     private cameraVelocity = {
@@ -440,6 +483,7 @@ class ApexSeoulScene extends Phaser.Scene {
     };
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
+    private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
     private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
@@ -456,10 +500,18 @@ class ApexSeoulScene extends Phaser.Scene {
         PLAYER_ACCEL_SPEED,
     );
     private roadObjects: RoadObject[] = [];
+    private roadObjectMotionTracker: RoadObjectMotionTracker = createRoadObjectMotionTracker();
     private roadObjectStats: RoadObjectRenderStats | null = null;
     private roadStats: RoadRenderStats | null = null;
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
     private speedEffectIntensity = 0;
+    private speedEffectCue = {
+        base: 0,
+        downhill: 0,
+        driftExitBurst: 0,
+        throttleBurst: 0,
+    };
+    private speedCueState = createSpeedCueState();
     private speedEffectShader!: Phaser.GameObjects.Shader;
     private speedEffectTime = 0;
     private telemetry: RuntimeTelemetryRecorder | null = null;
@@ -481,11 +533,12 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     create() {
-        this.cameraResource.fovDegrees = RUNTIME_TUNING.cameraBaseFov;
+        this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.roadObjects = createRoadObjects(this.roadTrack);
         this.applyRuntimeQaOverrides();
         this.cameras.main.setBackgroundColor('#050812');
         this.graphics = this.add.graphics();
+        this.uiGraphics = this.add.graphics().setDepth(7);
         this.playerSoftShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_SHADOW_SOFT_ALPHA)
@@ -517,7 +570,7 @@ class ApexSeoulScene extends Phaser.Scene {
             this.getViewport(),
             () => this.getSpeedEffectShaderUniforms(),
         );
-        this.hudText = createHudText(this);
+        this.hudText = createHudText(this).setDepth(8);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = {
@@ -555,8 +608,8 @@ class ApexSeoulScene extends Phaser.Scene {
 
         if (RUNTIME_QA.freeze) {
             camera.pitch = this.updateCameraPitch(seconds);
-            camera.fovDegrees = this.updateCameraFov(seconds);
             this.updateSpeedEffect(seconds);
+            camera.fovDegrees = this.cameraEffects.fovDegrees;
             this.render();
             this.telemetry?.update(this.elapsedSec);
             return;
@@ -565,8 +618,8 @@ class ApexSeoulScene extends Phaser.Scene {
         if (this.runState.finished) {
             this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
             camera.pitch = this.updateCameraPitch(seconds);
-            camera.fovDegrees = this.updateCameraFov(seconds);
             this.updateSpeedEffect(seconds);
+            camera.fovDegrees = this.cameraEffects.fovDegrees;
             this.render();
             this.telemetry?.update(this.elapsedSec);
             return;
@@ -613,8 +666,8 @@ class ApexSeoulScene extends Phaser.Scene {
         );
         this.updateRunState(seconds);
         camera.pitch = this.updateCameraPitch(seconds);
-        camera.fovDegrees = this.updateCameraFov(seconds);
         this.updateSpeedEffect(seconds);
+        camera.fovDegrees = this.cameraEffects.fovDegrees;
         this.render();
         this.telemetry?.update(this.elapsedSec);
     }
@@ -624,6 +677,12 @@ class ApexSeoulScene extends Phaser.Scene {
         const horizonY = getHorizonY(this.cameraResource, viewport);
 
         this.graphics.clear();
+        this.graphics.setPosition(this.cameraEffects.shake.x, this.cameraEffects.shake.y);
+        this.speedEffectShader.setPosition(
+            viewport.width / 2 + this.cameraEffects.shake.x,
+            viewport.height / 2 + this.cameraEffects.shake.y,
+        );
+        this.uiGraphics.clear();
         this.drawBackground(viewport, horizonY);
         this.roadStats = renderRoad(
             this.graphics,
@@ -638,6 +697,8 @@ class ApexSeoulScene extends Phaser.Scene {
             this.roadTrack,
             this.cameraResource,
             viewport,
+            this.elapsedSec,
+            this.roadObjectMotionTracker,
         );
         if (RUNTIME_TUNING.debugProjectionGuides) {
             this.drawProjectionGuides(viewport);
@@ -659,17 +720,61 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private drawBackground(viewport: Viewport, horizonY: number) {
+        const skylineHorizonY = viewport.height * CITY_SKYLINE_BASE_Y_RATIO;
+        const cityViewBlend = getCityViewBlend(this.cameraResource.z / this.roadTrack.length);
+
         this.graphics.fillStyle(0x07101f, 1);
         this.graphics.fillRect(0, 0, viewport.width, Math.max(0, horizonY));
         this.graphics.fillStyle(0x14395f, 0.78);
-        this.graphics.fillRect(0, Math.max(0, horizonY - 42), viewport.width, 18);
+        this.graphics.fillRect(0, Math.max(0, skylineHorizonY - 42), viewport.width, 18);
         this.graphics.fillStyle(0x3f7dd7, 0.32);
-        this.graphics.fillRect(0, horizonY - 16, viewport.width, 2);
+        this.graphics.fillRect(0, skylineHorizonY - 16, viewport.width, 2);
+        this.drawCityView(viewport, skylineHorizonY, cityViewBlend);
         this.graphics.fillStyle(0x081520, 1);
         this.graphics.fillRect(0, horizonY, viewport.width, viewport.height - horizonY);
     }
 
+    private drawCityView(viewport: Viewport, horizonY: number, blend: number) {
+        if (blend <= 0) return;
+
+        const curveOffset = getRoadCenterOffsetAhead(this.roadTrack, this.cameraResource.z, 1600);
+        const lightOffset = Phaser.Math.Clamp(
+            curveOffset * CITY_LIGHT_CURVE_SCROLL,
+            -CITY_LIGHT_CURVE_OFFSET_MAX,
+            CITY_LIGHT_CURVE_OFFSET_MAX,
+        );
+        const ridgeOffset = Phaser.Math.Clamp(
+            curveOffset * CITY_RIDGE_CURVE_SCROLL,
+            -CITY_RIDGE_CURVE_OFFSET_MAX,
+            CITY_RIDGE_CURVE_OFFSET_MAX,
+        );
+        const alpha = 0.68 * blend;
+
+        this.graphics.fillStyle(0x163f66, 0.16 * blend);
+        this.graphics.fillRect(0, horizonY - 76, viewport.width * 0.63, 76);
+        this.graphics.fillStyle(0x1c5790, alpha);
+        for (const [x, heightRatio, size] of CITY_LIGHTS) {
+            const y = horizonY - 12 - heightRatio * 54;
+            this.graphics.fillRect(x + lightOffset, y, size, size);
+        }
+
+        this.graphics.fillStyle(0x06111f, 0.95 * blend);
+        this.graphics.beginPath();
+        this.graphics.moveTo(0, horizonY);
+        this.graphics.lineTo(0, horizonY - 118);
+        this.graphics.lineTo(82 + ridgeOffset, horizonY - 92);
+        this.graphics.lineTo(152 + ridgeOffset, horizonY - 58);
+        this.graphics.lineTo(228 + ridgeOffset, horizonY - 68);
+        this.graphics.lineTo(308 + ridgeOffset, horizonY - 35);
+        this.graphics.lineTo(388 + ridgeOffset, horizonY - 44);
+        this.graphics.lineTo(474 + ridgeOffset, horizonY - 16);
+        this.graphics.lineTo(viewport.width * 0.58, horizonY);
+        this.graphics.closePath();
+        this.graphics.fillPath();
+    }
+
     private drawProjectionGuides(viewport: Viewport) {
+
         const horizonY = getHorizonY(this.cameraResource, viewport);
 
         this.graphics.lineStyle(2, 0xf2d266, 0.75);
@@ -708,6 +813,11 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private updatePlayerVehicle(seconds: number) {
+        const controllerConfig = {
+            ...PLAYER_CONTROLLER_CONFIG,
+            maxRoadOffset: this.getCurrentRoadOffsetLimit(),
+        };
+
         updatePlayerVehicle(
             this.playerVehicle,
             {
@@ -719,9 +829,13 @@ class ApexSeoulScene extends Phaser.Scene {
                 currentCurve: this.roadStats?.currentCurve ?? 0,
                 slopeAcceleration: this.getSlopeAcceleration(),
             },
-            PLAYER_CONTROLLER_CONFIG,
+            controllerConfig,
             seconds,
         );
+        const guardrailContext = this.getGuardrailCollisionContext(this.getViewport(), controllerConfig.maxRoadOffset);
+
+        applyGuardrailCollision(this.playerVehicle, guardrailContext, seconds);
+        this.vehicleRenderState = null;
     }
 
     private getPlayerVehicleRenderState(viewport: Viewport): PlayerVehicleRenderState {
@@ -735,6 +849,19 @@ class ApexSeoulScene extends Phaser.Scene {
             viewport,
             anchor.y,
         );
+        const roadHalfWidthAtVehicle = getRoadHalfWidthAt(
+            this.roadTrack,
+            this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance,
+        );
+        // R3 intentionally keeps the car's scale independent of local road
+        // narrowing. Reconstruct the equivalent full-width screen span for
+        // the existing road-relative size response, while telemetry continues
+        // to report the actual narrowed span.
+        const roadWidthForVehicleScale = getVehicleScaleRoadWidth(
+            roadWidthAtVehicleY,
+            roadHalfWidthAtVehicle,
+            DEFAULT_ROAD_HALF_WIDTH,
+        );
         const roadScaleConfig: VehicleRoadScaleConfig = {
             deadZoneRatio: RUNTIME_TUNING.vehicleRoadScaleDeadZoneRatio,
             maxScale: RUNTIME_TUNING.vehicleRoadScaleMax,
@@ -744,7 +871,7 @@ class ApexSeoulScene extends Phaser.Scene {
         };
         const roadRelativeTargetSize = getRoadRelativeVehicleTargetSize(
             baseSize,
-            roadWidthAtVehicleY,
+            roadWidthForVehicleScale,
             roadScaleConfig,
         );
         const secondsSinceLastRender = this.lastVehicleSizeSample
@@ -796,7 +923,7 @@ class ApexSeoulScene extends Phaser.Scene {
             .setTexture(PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
             .setFlipX(vehicleFrame.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
-            .setPosition(anchor.x, anchor.y)
+            .setPosition(anchor.x + this.cameraEffects.shake.x, anchor.y + this.cameraEffects.shake.y)
             .setDisplaySize(displaySize, displaySize)
             .setRotation(Phaser.Math.DegToRad(
                 visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
@@ -807,6 +934,7 @@ class ApexSeoulScene extends Phaser.Scene {
             displaySize,
             flipX: vehicleFrame.flipX,
             frame: vehicleFrame.frame,
+            lowSpeedVisualSteeringAuthority: visualSteering.lowSpeedVisualSteeringAuthority,
             physicalSteering: visualSteering.physicalValue,
             roadRelativeScale,
             roadRelativeTargetSize,
@@ -861,8 +989,8 @@ class ApexSeoulScene extends Phaser.Scene {
             .setFlipX(vehicleFrame.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
-                chassisCenter.x + steeringOffset * 0.65,
-                chassisCenter.y - displaySize * 0.022,
+                chassisCenter.x + steeringOffset * 0.65 + this.cameraEffects.shake.x,
+                chassisCenter.y - displaySize * 0.022 + this.cameraEffects.shake.y,
             )
             .setDisplaySize(
                 displaySize * silhouetteScale.x * 1.16 * driftShadowScale,
@@ -878,8 +1006,8 @@ class ApexSeoulScene extends Phaser.Scene {
             .setFlipX(vehicleFrame.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
-                chassisCenter.x + steeringOffset,
-                chassisCenter.y - displaySize * 0.032,
+                chassisCenter.x + steeringOffset + this.cameraEffects.shake.x,
+                chassisCenter.y - displaySize * 0.032 + this.cameraEffects.shake.y,
             )
             .setDisplaySize(
                 displaySize * silhouetteScale.x * driftShadowScale,
@@ -962,23 +1090,56 @@ class ApexSeoulScene extends Phaser.Scene {
         };
     }
 
-    private updateCameraFov(seconds: number) {
-        const rawSpeedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
-        const speedRatio = rawSpeedRatio * rawSpeedRatio * (3 - 2 * rawSpeedRatio);
-        const targetFov = RUNTIME_TUNING.cameraBaseFov + speedRatio * RUNTIME_TUNING.cameraSpeedFovBonus;
-        const fovBlend = 1 - Math.exp(-CAMERA_FOV_RESPONSE * seconds);
-
-        this.cameraFov = Phaser.Math.Linear(this.cameraFov, targetFov, fovBlend);
-
-        return this.cameraFov;
-    }
-
     private getPlayerSpeedKmh() {
         return getDisplaySpeedKmh(
             this.playerVehicle.speed,
             PLAYER_ACCEL_SPEED,
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
         );
+    }
+
+    private getCurrentRoadOffsetLimit() {
+        return this.getCurrentPavedHalfWidth() + GUARDRAIL_COLLISION_CONFIG.contactClearance;
+    }
+
+    private getCurrentPavedHalfWidth() {
+        return getRoadHalfWidthAt(this.roadTrack, this.cameraResource.z);
+    }
+
+    private getGuardrailCollisionContext(viewport: Viewport, railContactLimit = this.getCurrentRoadOffsetLimit()) {
+        const visualLimits = this.getGuardrailVisualCollisionLimits(viewport);
+
+        return {
+            pavedHalfWidth: this.getCurrentPavedHalfWidth(),
+            railContactLimit,
+            visualPavedHalfWidth: visualLimits?.pavedHalfWidth ?? null,
+            visualRailContactLimit: visualLimits?.railContactLimit ?? null,
+        };
+    }
+
+    private getGuardrailVisualCollisionLimits(viewport: Viewport): GuardrailVisualCollisionLimits | null {
+        const renderState = this.getPlayerVehicleRenderState(viewport);
+
+        if (
+            !renderState.roadWidthAtVehicleY ||
+            renderState.roadWidthAtVehicleY <= 0 ||
+            renderState.anchor.scale <= 0
+        ) {
+            return null;
+        }
+
+        const roadHalfWidthWorld = (renderState.roadWidthAtVehicleY * 0.5) / renderState.anchor.scale;
+        const vehicleHalfWidthWorld = (renderState.displaySize * 0.5) / renderState.anchor.scale;
+        const pavedHalfWidth = Math.max(0, roadHalfWidthWorld - vehicleHalfWidthWorld);
+        const railContactLimit = Math.max(
+            pavedHalfWidth + 1,
+            roadHalfWidthWorld + GUARDRAIL_COLLISION_CONFIG.contactClearance - vehicleHalfWidthWorld,
+        );
+
+        return {
+            pavedHalfWidth,
+            railContactLimit,
+        };
     }
 
     private getVehicleVisualSteeringState() {
@@ -997,14 +1158,17 @@ class ApexSeoulScene extends Phaser.Scene {
 
         const physicalValue = this.playerVehicle.steering * visualScale;
         const player = this.playerVehicle;
+        const lowSpeedVisualSteeringAuthority = player.lowSpeedVisualSteeringAuthority;
+        const poseValue = physicalValue * lowSpeedVisualSteeringAuthority;
         const isSliding = player.driftState !== 'grip' && player.driftDirection !== 0;
 
         if (!isSliding) {
             return {
+                lowSpeedVisualSteeringAuthority,
                 physicalValue,
-                rotationValue: physicalValue,
+                rotationValue: poseValue,
                 threshold,
-                value: physicalValue,
+                value: poseValue,
             };
         }
 
@@ -1019,34 +1183,46 @@ class ApexSeoulScene extends Phaser.Scene {
         const trimmedYawStrength = Phaser.Math.Linear(yawStrength, 0.58, counterTrim);
 
         return {
+            lowSpeedVisualSteeringAuthority,
             physicalValue,
             rotationValue: 0,
             threshold,
-            value: player.driftDirection * trimmedYawStrength,
+            value: player.driftDirection * trimmedYawStrength * lowSpeedVisualSteeringAuthority,
         };
     }
 
     private updateSpeedEffect(seconds: number) {
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
-        const targetIntensity = Phaser.Math.Clamp(
-            (speedRatio - SPEED_EFFECT_MIN_RATIO) / (1 - SPEED_EFFECT_MIN_RATIO),
-            0,
-            1,
-        );
-        const smoothIntensity = targetIntensity * targetIntensity * (3 - 2 * targetIntensity);
+        const cue = updateSpeedCue(this.speedCueState, {
+            accelPressed: this.cursors.up.isDown,
+            downhillRatio: Math.max(0, this.getSlopeRatio()),
+            driftState: this.playerVehicle.driftState,
+            seconds,
+            speedRatio,
+        });
 
         this.speedEffectIntensity = Phaser.Math.Linear(
             this.speedEffectIntensity,
-            smoothIntensity * SPEED_EFFECT_MAX_ALPHA,
-            1 - Math.exp(-5.5 * seconds),
+            cue.intensity,
+            1 - Math.exp(-8 * seconds),
         );
         this.speedEffectTime += seconds * Phaser.Math.Linear(0.4, SPEED_EFFECT_TIME_SCALE, speedRatio);
+        this.speedEffectCue = cue;
+        this.cameraEffects = updateCameraEffects(this.cameraEffects, {
+            cue,
+            cueLimits: SPEED_CUE_CONFIG,
+            railImpact: this.playerVehicle.guardrailImpactCue,
+            seconds,
+            speedRatio,
+        }, CAMERA_EFFECTS_CONFIG);
     }
 
     private getSpeedEffectShaderUniforms(): SpeedEffectShaderUniforms {
         const viewport = this.getViewport();
 
         return {
+            downhillIntensity: this.speedEffectCue.downhill,
+            eventIntensity: this.speedEffectCue.throttleBurst + this.speedEffectCue.driftExitBurst,
             horizonY: getHorizonY(this.cameraResource, viewport),
             intensity: this.speedEffectIntensity,
             time: this.speedEffectTime,
@@ -1171,7 +1347,8 @@ class ApexSeoulScene extends Phaser.Scene {
 
     private restartRun() {
         this.cameraResource.z = 0;
-        this.cameraFov = RUNTIME_TUNING.cameraBaseFov;
+        this.cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
+        this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.cameraTerrainPitch = 0;
         this.cameraManualPitch = 0;
         this.playerVehicle = createDefaultPlayerVehicleState(
@@ -1179,6 +1356,7 @@ class ApexSeoulScene extends Phaser.Scene {
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
             PLAYER_ACCEL_SPEED,
         );
+        this.roadObjectMotionTracker.reset();
         this.runState = createInitialRunState();
         this.render();
     }
@@ -1191,12 +1369,12 @@ class ApexSeoulScene extends Phaser.Scene {
         const progress = Phaser.Math.Clamp(this.runState.progressRatio, 0, 1);
         const progressX = marginX + lineWidth * progress;
 
-        this.graphics.fillStyle(0x050812, 0.74);
-        this.graphics.fillRect(marginX - 12, lineY - 12, lineWidth + 24, 24);
-        this.graphics.fillStyle(0x14395f, 0.9);
-        this.graphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth, lineHeight);
-        this.graphics.fillStyle(0x67b7ff, 0.95);
-        this.graphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth * progress, lineHeight);
+        this.uiGraphics.fillStyle(0x050812, 0.74);
+        this.uiGraphics.fillRect(marginX - 12, lineY - 12, lineWidth + 24, 24);
+        this.uiGraphics.fillStyle(0x14395f, 0.9);
+        this.uiGraphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth, lineHeight);
+        this.uiGraphics.fillStyle(0x67b7ff, 0.95);
+        this.uiGraphics.fillRect(marginX, lineY - lineHeight / 2, lineWidth * progress, lineHeight);
 
         this.drawProgressTick(marginX, lineY, 0x9fcfff, 0.8);
 
@@ -1211,15 +1389,15 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.drawProgressTick(marginX + lineWidth, lineY, 0xb8dcff, 0.95);
 
-        this.graphics.fillStyle(0xe8f6ff, 1);
-        this.graphics.fillCircle(progressX, lineY, 6);
-        this.graphics.lineStyle(2, 0x050812, 0.9);
-        this.graphics.strokeCircle(progressX, lineY, 7);
+        this.uiGraphics.fillStyle(0xe8f6ff, 1);
+        this.uiGraphics.fillCircle(progressX, lineY, 6);
+        this.uiGraphics.lineStyle(2, 0x050812, 0.9);
+        this.uiGraphics.strokeCircle(progressX, lineY, 7);
     }
 
     private drawProgressTick(x: number, y: number, color: number, alpha: number) {
-        this.graphics.fillStyle(color, alpha);
-        this.graphics.fillRect(x - 2, y - 10, 4, 20);
+        this.uiGraphics.fillStyle(color, alpha);
+        this.uiGraphics.fillRect(x - 2, y - 10, 4, 20);
     }
 
     private publishRuntimeQaState(viewport: Viewport, horizonY: number) {
@@ -1233,15 +1411,27 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private getRuntimeQaState(viewport: Viewport, horizonY: number) {
+        const guardrailContext = this.getGuardrailCollisionContext(viewport);
+        const activeRailContactLimit = getEffectiveTelemetryLimit(
+            guardrailContext.railContactLimit,
+            guardrailContext.visualRailContactLimit,
+            this.playerVehicle.lateralOffset,
+        );
+
         return {
             camera: {
                 fovDegrees: this.cameraResource.fovDegrees,
+                fovCueDegrees: Number(this.cameraEffects.fovCueDegrees.toFixed(4)),
                 height: this.cameraResource.height,
                 horizonRatio: this.cameraResource.horizonRatio,
                 lateralOffset: this.cameraResource.lateralOffset,
                 manualPitch: this.cameraManualPitch,
                 pitch: this.cameraResource.pitch,
                 terrainPitch: this.cameraTerrainPitch,
+                shake: {
+                    x: Number(this.cameraEffects.shake.x.toFixed(3)),
+                    y: Number(this.cameraEffects.shake.y.toFixed(3)),
+                },
                 z: this.cameraResource.z,
             },
             elapsedSec: Number(this.elapsedSec.toFixed(3)),
@@ -1286,21 +1476,41 @@ class ApexSeoulScene extends Phaser.Scene {
                 driftTransitionLiftTimer: Number(this.playerVehicle.driftTransitionLiftTimer.toFixed(3)),
                 fuelCutActive: this.playerVehicle.fuelCutActive,
                 gear: this.playerVehicle.gearIndex + 1,
+                guardrailBounceVelocity: Number(this.playerVehicle.guardrailBounceVelocity.toFixed(3)),
+                guardrailContactInset: Number(this.playerVehicle.guardrailContactInset.toFixed(3)),
+                guardrailContactDirection: this.playerVehicle.guardrailContactDirection,
+                guardrailContactTimer: Number(this.playerVehicle.guardrailContactTimer.toFixed(3)),
+                guardrailImpactCount: this.playerVehicle.guardrailImpactCount,
+                guardrailImpactCue: Number(this.playerVehicle.guardrailImpactCue.toFixed(4)),
+                guardrailShoulderRatio: Number(this.playerVehicle.guardrailShoulderRatio.toFixed(4)),
+                guardrailVisualPavedHalfWidth: roundNullable(guardrailContext.visualPavedHalfWidth, 3),
+                guardrailVisualRailContactLimit: roundNullable(guardrailContext.visualRailContactLimit, 3),
+                guardrailActiveRailContactLimit: Number(activeRailContactLimit.toFixed(3)),
+                guardrailActiveContactRatio: Number((
+                    Math.abs(this.playerVehicle.lateralOffset) / activeRailContactLimit
+                ).toFixed(4)),
                 gripCounterRoadLateralVelocity: Number(this.playerVehicle.gripCounterRoadLateralVelocity.toFixed(3)),
                 gripCounterRoadRatio: Number(this.playerVehicle.gripCounterRoadRatio.toFixed(4)),
                 gripSteerAngleLimit: Number(this.playerVehicle.gripSteerAngleLimit.toFixed(4)),
                 lateralOffset: this.playerVehicle.lateralOffset,
+                lowSpeedLateralAuthority: Number(this.playerVehicle.lowSpeedLateralAuthority.toFixed(4)),
+                lowSpeedVisualSteeringAuthority: Number(this.playerVehicle.lowSpeedVisualSteeringAuthority.toFixed(4)),
                 centeringCounterHoldTimer: Number(this.playerVehicle.centeringCounterHoldTimer.toFixed(3)),
                 centeringForce: Number(this.playerVehicle.centeringForce.toFixed(3)),
                 centeringReleaseStartScale: Number(this.playerVehicle.centeringReleaseStartScale.toFixed(3)),
                 centeringReleaseTimer: Number(this.playerVehicle.centeringReleaseTimer.toFixed(3)),
                 lateralCenteringScale: Number(this.playerVehicle.lateralCenteringScale.toFixed(3)),
                 lateralCenteringTargetScale: Number(this.playerVehicle.lateralCenteringTargetScale.toFixed(3)),
-                roadOffsetRatio: Number((this.playerVehicle.lateralOffset / PLAYER_MAX_ROAD_OFFSET).toFixed(4)),
+                roadOffsetRatio: Number((
+                    this.playerVehicle.lateralOffset / this.getCurrentRoadOffsetLimit()
+                ).toFixed(4)),
                 overspeedUndersteerLateralVelocity: Number(this.playerVehicle.overspeedUndersteerLateralVelocity.toFixed(3)),
                 overspeedUndersteerRatio: Number(this.playerVehicle.overspeedUndersteerRatio.toFixed(4)),
                 overspeedUndersteerTargetRatio: Number(this.playerVehicle.overspeedUndersteerTargetRatio.toFixed(4)),
                 rpm: this.playerVehicle.rpm,
+                shiftCutRatio: Number(this.playerVehicle.shiftCutRatio.toFixed(4)),
+                shiftDirection: this.playerVehicle.shiftDirection,
+                shiftTimer: Number(this.playerVehicle.shiftTimer.toFixed(3)),
                 slopeAcceleration: this.getSlopeAcceleration(),
                 speed: this.playerVehicle.speed,
                 speedKmh: Number(this.getPlayerSpeedKmh().toFixed(1)),
@@ -1323,7 +1533,16 @@ class ApexSeoulScene extends Phaser.Scene {
                 progressRatio: Number(this.runState.progressRatio.toFixed(4)),
             },
             speedEffect: {
+                base: Number(this.speedEffectCue.base.toFixed(4)),
+                downhill: Number(this.speedEffectCue.downhill.toFixed(4)),
+                driftExitBurst: Number(this.speedEffectCue.driftExitBurst.toFixed(4)),
+                expectedPeakAlpha: Number(getSpeedEffectExpectedPeakAlpha({
+                    downhillIntensity: this.speedEffectCue.downhill,
+                    eventIntensity: this.speedEffectCue.throttleBurst + this.speedEffectCue.driftExitBurst,
+                    intensity: this.speedEffectIntensity,
+                }).toFixed(4)),
                 intensity: Number(this.speedEffectIntensity.toFixed(4)),
+                throttleBurst: Number(this.speedEffectCue.throttleBurst.toFixed(4)),
                 time: Number(this.speedEffectTime.toFixed(3)),
             },
             track: {
@@ -1338,6 +1557,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 asset: ACTIVE_RUNTIME_VEHICLE.id,
                 color: ACTIVE_RUNTIME_VEHICLE.color,
                 engine: {
+                    accelerationScale: ACTIVE_RUNTIME_VEHICLE.engineProfile.accelerationScale,
                     displayName: ACTIVE_RUNTIME_VEHICLE.engineProfile.displayName,
                     displayTopSpeedKmh: ACTIVE_RUNTIME_VEHICLE.engineProfile.displayTopSpeedKmh,
                     fuelCutStartRpm: ACTIVE_RUNTIME_VEHICLE.engineProfile.fuelCutStartRpm,
@@ -1362,6 +1582,27 @@ function createInitialRunState(): CourseRunState {
     };
 }
 
+function getCityViewBlend(progressRatio: number) {
+    return CITY_VIEW_SECTIONS.reduce((blend, section) => {
+        const enter = Phaser.Math.Clamp(
+            (progressRatio - section.start) / CITY_VIEW_TRANSITION_RATIO,
+            0,
+            1,
+        );
+        const exit = Phaser.Math.Clamp(
+            (section.end - progressRatio) / CITY_VIEW_TRANSITION_RATIO,
+            0,
+            1,
+        );
+
+        return Math.max(blend, smoothStep(Math.min(enter, exit)));
+    }, 0);
+}
+
+function smoothStep(value: number) {
+    return value * value * (3 - 2 * value);
+}
+
 const config: Phaser.Types.Core.GameConfig = {
     backgroundColor: '#101316',
     parent: 'game',
@@ -1383,6 +1624,26 @@ new Phaser.Game(config);
 
 function getAxis(positive: boolean, negative: boolean) {
     return Number(positive) - Number(negative);
+}
+
+function getEffectiveTelemetryLimit(
+    physicalLimit: number,
+    visualLimit: number | null | undefined,
+    lateralOffset: number,
+) {
+    const contactInset = lateralOffset < 0
+        ? GUARDRAIL_COLLISION_CONFIG.contactInsetLeft
+        : GUARDRAIL_COLLISION_CONFIG.contactInsetRight;
+
+    return typeof visualLimit === 'number' && Number.isFinite(visualLimit) && visualLimit > 0
+        ? Math.min(physicalLimit, Math.max(1, visualLimit - contactInset))
+        : physicalLimit;
+}
+
+function roundNullable(value: number | null | undefined, precision: number) {
+    return typeof value === 'number' && Number.isFinite(value)
+        ? Number(value.toFixed(precision))
+        : null;
 }
 
 type RuntimeVehicleAsset = {

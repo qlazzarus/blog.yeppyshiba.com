@@ -43,7 +43,7 @@ tags:
     - 하트코스
     - 라이딩 기록
     - 자전거 코스
-image: /images/rides/202605/20260510_heart_course.jpg
+image: /images/posts/202605/20260510_heart_course.jpg
 gpxUrl: /gpx/202605/20260510_morning_ride.gpx
 coverCredit: Han river bike path - gary4now
 coverLicense: CC BY 3.0

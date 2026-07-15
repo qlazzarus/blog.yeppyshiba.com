@@ -71,7 +71,7 @@ npm run ride:prepare -- \
 ```text
 public/gpx/202606/20260601-morning-ride.trimmed.gpx
 public/rides/202606/20260601-morning-ride/media.json
-public/images/rides/202606/20260601-morning-ride/frames/frame-000001.jpg
+public/images/posts/202606/20260601-morning-ride/frames/frame-000001.jpg
 ```
 
 동기화 기준:
@@ -116,7 +116,7 @@ tags:
     - 라이딩 기록
 gpxUrl: /gpx/202606/20260601-morning-ride.trimmed.gpx
 mediaManifestUrl: /rides/202606/20260601-morning-ride/media.json
-image: /images/rides/202606/20260601-morning-ride/frames/frame-000001.jpg
+image: /images/posts/202606/20260601-morning-ride/frames/frame-000001.jpg
 roadviewUpdateIntervalMs: 10000
 ---
 ```
@@ -209,7 +209,7 @@ drafts/20260601-morning-ride.assist.md
             "index": 1,
             "elapsedSec": 0,
             "time": "2026-06-01T07:20:00.000Z",
-            "src": "/images/rides/202606/20260601-morning-ride/frames/frame-000001.jpg",
+            "src": "/images/posts/202606/20260601-morning-ride/frames/frame-000001.jpg",
             "lat": 37.123,
             "lng": 127.123,
             "distanceKm": 0,

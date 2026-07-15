@@ -28,7 +28,7 @@ react 나 vue.js 같은 frontend framework 가 연상됩니다.
 데이터는 bloc 패턴과 같은 stream 에 대한 event 로 리스닝 받고 있고요.  
 (자세한 내용은 bloc pattern 이나 reactive programming 개념은 검색 해보세요!)
 
-![출처: https://www.instiz.net/name_enter/60415754](/images/posts/archive/69ac2650175cc118f093d921e6ad4faa.jpg)
+![출처: https://www.instiz.net/name_enter/60415754](/images/posts/201909/69ac2650175cc118f093d921e6ad4faa.jpg)
 
 > 버스 타요~
 

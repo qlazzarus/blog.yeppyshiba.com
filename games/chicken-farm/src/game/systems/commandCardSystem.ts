@@ -165,6 +165,20 @@ const BUILD_PAGE: readonly CommandCardButton[] = [
         label: 'Coop',
     },
     {
+        action: { buildingId: 'well_basic', type: 'start_build_placement' },
+        enabledWhenBuilderSelected: true,
+        hotkey: 'W',
+        id: 'build_well',
+        label: 'Well',
+    },
+    {
+        action: { buildingId: 'market', type: 'start_build_placement' },
+        enabledWhenBuilderSelected: true,
+        hotkey: 'M',
+        id: 'build_market',
+        label: 'Market',
+    },
+    {
         action: { page: 'root', type: 'open_page' },
         hotkey: 'Esc',
         id: 'back',

@@ -95,3 +95,4 @@ vehicle anchor and frame stability
 - `apex-seoul-outrun-downhill-game-review.md`: 코스와 주행 감각의 디자인 결정
 - `apex-seoul-next-priority-plan.md`: 바로 실행할 작업 순서
 - `apex-seoul-visual-direction.md`: black/blue visual direction
+- `apex-seoul-resource-management.md`: 리소스 확보·생성·보관·승인 단일 기준
