@@ -13,6 +13,7 @@ import {
     type RoadTrack,
 } from './road';
 import {
+    type CrestVisibilityEnvelope,
     ELEVATION_VISUAL_SCALE,
     getRoadCenterOffsetAhead,
 } from './roadRenderer';
@@ -48,6 +49,21 @@ export type RoadObjectRenderStats = {
     motionAnchorsVisible: number;
     rendered: number;
     visible: number;
+    wallForestSprites: WallForestSpriteState[];
+};
+
+export type WallForestSpriteState = {
+    height: number;
+    id: string;
+    variant: 'canopy' | 'clump';
+    width: number;
+    x: number;
+    y: number;
+};
+
+type RoadObjectRenderOptions = {
+    crestVisibilityEnvelope?: CrestVisibilityEnvelope;
+    horizonOcclusionY?: number | null;
 };
 
 export type RoadObjectMotionTracker = {
@@ -58,9 +74,16 @@ export type RoadObjectMotionTracker = {
 
 const OBJECT_DRAW_DISTANCE = 9800;
 const OBJECT_NEAR_CLIP_DISTANCE = 80;
+const CONTINUOUS_SPAN_NEAR_CLIP_DISTANCE = 520;
+// Guardrails sit closer to the road than the retaining wall. Starting their
+// projection closer to the camera pushes the near endpoint well beyond the
+// screen edge, so the continuous ribbon enters the viewport instead of ending
+// at its boundary on sharp curves or crests.
+const GUARDRAIL_SPAN_NEAR_CLIP_DISTANCE = 320;
 const ROAD_EDGE_OFFSET = 1180;
 const RIGHT_WALL_OFFSET = 1580;
 const RIGHT_TREE_OFFSET = 1830;
+const CONTINUOUS_SPAN_OVERLAP_SEGMENTS = 0.42;
 const CITY_VIEW_ZONES = [
     { end: 0.29, start: 0.1 },
     { end: 0.76, start: 0.57 },
@@ -74,7 +97,13 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
         const segment = getRoadSegment(track, Math.floor(z / track.segmentLength));
         const segmentIndex = Math.floor(z / track.segmentLength);
         const outsideSide = segment.curve >= 0 ? 1 : -1;
-        const spanEndZ = Math.min(z + track.segmentLength, track.length);
+        // Draw continuous roadside structures past the following segment
+        // boundary. The nearer span is rendered last, which hides projection
+        // seams that otherwise read as a brief cut at the screen edge.
+        const spanEndZ = Math.min(
+            z + track.segmentLength * (1 + CONTINUOUS_SPAN_OVERLAP_SEGMENTS),
+            track.length,
+        );
 
         objects.push({
             collisionRadius: 70,
@@ -95,24 +124,22 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             z,
         });
 
-        if (profile === 'wall-run' || profile === 'commitment') {
-            objects.push({
-                collisionRadius: 100,
-                id: `wall-span-${z}`,
-                kind: 'right-retaining-wall-span',
-                lateralOffset: RIGHT_WALL_OFFSET,
-                profile,
-                spanEndZ,
-                z,
-            });
-        }
+        objects.push({
+            collisionRadius: 100,
+            id: `wall-span-${z}`,
+            kind: 'right-retaining-wall-span',
+            lateralOffset: RIGHT_WALL_OFFSET,
+            profile,
+            spanEndZ,
+            z,
+        });
 
-        if ((profile === 'wall-run' || profile === 'commitment') && segmentIndex % 8 === 0) {
+        if ((profile === 'wall-run' || profile === 'commitment') && segmentIndex % 4 === 0) {
             objects.push({
                 collisionRadius: 90,
                 id: `wall-tree-${z}`,
                 kind: 'right-wall-tree',
-                lateralOffset: RIGHT_TREE_OFFSET,
+                lateralOffset: RIGHT_TREE_OFFSET + (segmentIndex % 8 === 0 ? -80 : 110),
                 profile,
                 z: z + track.segmentLength * 1.15,
             });
@@ -194,10 +221,19 @@ export function renderRoadObjects(
     viewport: Viewport,
     elapsedSec: number,
     motionTracker: RoadObjectMotionTracker,
+    options: RoadObjectRenderOptions = {},
 ): RoadObjectRenderStats {
     const currentElevation = getRoadElevationAt(track, camera.z);
     const visibleObjects = objects
-        .map((object) => projectRoadObject(object, track, camera, viewport, currentElevation))
+        .map((object) => projectRoadObject(
+            object,
+            track,
+            camera,
+            viewport,
+            currentElevation,
+            options.crestVisibilityEnvelope ?? [],
+            options.horizonOcclusionY ?? null,
+        ))
         .filter((object): object is ProjectedRoadObject => object !== null)
         .sort((a, b) => b.distanceAhead - a.distanceAhead || getRenderLayer(a.object) - getRenderLayer(b.object));
 
@@ -206,11 +242,15 @@ export function renderRoadObjects(
     }
 
     const stats = motionTracker.observe(visibleObjects, elapsedSec, viewport);
+    const wallForestSprites = visibleObjects
+        .filter((object) => object.object.kind === 'right-wall-tree')
+        .map(createWallForestSpriteState);
 
     return {
         ...stats,
         rendered: visibleObjects.length,
         visible: visibleObjects.length,
+        wallForestSprites,
     };
 }
 
@@ -268,6 +308,7 @@ export function createRoadObjectMotionTracker(): RoadObjectMotionTracker {
                 motionAnchorsVisible: anchors.length,
                 rendered: objects.length,
                 visible: objects.length,
+                wallForestSprites: [],
             };
 
             return stats;
@@ -290,6 +331,7 @@ function createEmptyRoadObjectStats(): RoadObjectRenderStats {
         motionAnchorsVisible: 0,
         rendered: 0,
         visible: 0,
+        wallForestSprites: [],
     };
 }
 
@@ -306,24 +348,37 @@ function projectRoadObject(
     camera: Pseudo3dCamera,
     viewport: Viewport,
     currentElevation: number,
+    crestVisibilityEnvelope: CrestVisibilityEnvelope,
+    horizonOcclusionY: number | null,
 ): ProjectedRoadObject | null {
+    const nearClipDistance = getObjectNearClipDistance(object);
     const startZ = object.spanEndZ
-        ? Math.max(object.z, camera.z + OBJECT_NEAR_CLIP_DISTANCE)
+        ? Math.max(object.z, camera.z + nearClipDistance)
         : object.z;
     const distanceAhead = startZ - camera.z;
 
-    if (distanceAhead < OBJECT_NEAR_CLIP_DISTANCE || distanceAhead > OBJECT_DRAW_DISTANCE) {
+    if (distanceAhead < nearClipDistance || distanceAhead > OBJECT_DRAW_DISTANCE) {
         return null;
     }
 
+    const crestPoint = getCrestVisibilityPoint(crestVisibilityEnvelope, distanceAhead);
+
+    if (crestPoint && !crestPoint.roadVisible) return null;
+
     const screen = projectRoadObjectScreen(object, startZ, track, camera, viewport, currentElevation);
-    const spanEndScreen = object.spanEndZ
-        ? projectRoadObjectScreen(object, object.spanEndZ, track, camera, viewport, currentElevation)
+    const spanEndZ = getVisibleSpanEndZ(object, startZ, camera.z, crestVisibilityEnvelope);
+
+    if (object.spanEndZ && spanEndZ === null) return null;
+    if (spanEndZ !== null && spanEndZ <= startZ) return null;
+
+    const spanEndScreen = spanEndZ !== null
+        ? projectRoadObjectScreen(object, spanEndZ, track, camera, viewport, currentElevation)
         : null;
 
     if (!screen.visible) return null;
     if (spanEndScreen && !spanEndScreen.visible) return null;
     if (screen.y < -120 || screen.y > viewport.height + 180) return null;
+    if (horizonOcclusionY !== null && screen.y <= horizonOcclusionY + 2) return null;
 
     return {
         distanceAhead,
@@ -331,6 +386,52 @@ function projectRoadObject(
         screen,
         spanEndScreen,
     };
+}
+
+function getObjectNearClipDistance(object: RoadObject) {
+    switch (object.kind) {
+        case 'left-cliff-guardrail-span':
+        case 'right-guardrail-span':
+            return GUARDRAIL_SPAN_NEAR_CLIP_DISTANCE;
+        case 'right-retaining-wall-span':
+            return CONTINUOUS_SPAN_NEAR_CLIP_DISTANCE;
+        default:
+            return OBJECT_NEAR_CLIP_DISTANCE;
+    }
+}
+
+function getCrestVisibilityPoint(
+    envelope: CrestVisibilityEnvelope,
+    distanceAhead: number,
+) {
+    if (envelope.length === 0) return undefined;
+
+    return envelope.find((point) => point.distanceAhead >= distanceAhead)
+        ?? envelope.at(-1);
+}
+
+function getVisibleSpanEndZ(
+    object: RoadObject,
+    startZ: number,
+    cameraZ: number,
+    envelope: CrestVisibilityEnvelope,
+) {
+    if (!object.spanEndZ) return null;
+
+    const endDistanceAhead = object.spanEndZ - cameraZ;
+    const endPoint = getCrestVisibilityPoint(envelope, endDistanceAhead);
+
+    if (!endPoint || endPoint.roadVisible) return object.spanEndZ;
+
+    const lastVisiblePoint = envelope.findLast(
+        (point) => point.distanceAhead <= endDistanceAhead && point.roadVisible,
+    );
+
+    if (!lastVisiblePoint) return null;
+
+    const clippedEndZ = cameraZ + lastVisiblePoint.distanceAhead;
+
+    return clippedEndZ > startZ ? clippedEndZ : null;
 }
 
 function projectRoadObjectScreen(
@@ -394,7 +495,6 @@ function drawRoadObject(
             drawRetainingWallSpan(graphics, projected);
             return;
         case 'right-wall-tree':
-            drawWallTree(graphics, projected.screen);
             return;
         case 'sign-speed':
             drawSpeedSign(graphics, projected.screen);
@@ -402,6 +502,24 @@ function drawRoadObject(
         default:
             return;
     }
+}
+
+function createWallForestSpriteState(projected: ProjectedRoadObject): WallForestSpriteState {
+    const variant = Math.floor(projected.object.z / 720) % 2 === 0 ? 'clump' : 'canopy';
+    const width = scaleValue(projected.screen, 1200, 58, 504);
+    const wallHeight = getRetainingWallHeight(projected.screen, 26);
+    const capRise = getRetainingWallCapRise(projected.screen, 2);
+    const topInset = getRetainingWallTopInset(projected.screen, 7);
+    const capDepth = scaleValue(projected.screen, 86, 5, 38);
+
+    return {
+        height: width * (variant === 'clump' ? 248 / 512 : 220 / 512),
+        id: projected.object.id,
+        variant,
+        width,
+        x: projected.screen.x + topInset - capDepth * 0.38,
+        y: projected.screen.y - wallHeight - capRise,
+    };
 }
 
 function drawChevron(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint, direction: -1 | 1) {
@@ -481,42 +599,69 @@ function drawRetainingWallSpan(graphics: Phaser.GameObjects.Graphics, projected:
     if (!far) return;
 
     const near = projected.screen;
-    const nearHeight = scaleValue(near, 620, 26, 310);
-    const farHeight = scaleValue(far, 620, 8, 310);
-    graphics.fillStyle(0x071523, 0.97);
-    fillQuad(graphics, near.x, near.y, far.x, far.y, far.x, far.y - farHeight, near.x, near.y - nearHeight);
-    graphics.lineStyle(Math.max(1, nearHeight * 0.024), 0x183955, 0.7);
-    graphics.lineBetween(near.x, near.y - nearHeight * 0.3, far.x, far.y - farHeight * 0.3);
-    graphics.lineBetween(near.x, near.y - nearHeight * 0.64, far.x, far.y - farHeight * 0.64);
+    const nearHeight = getRetainingWallHeight(near, 26);
+    const farHeight = getRetainingWallHeight(far, 8);
+    const nearTopY = near.y - nearHeight;
+    const farTopY = far.y - farHeight;
+    const nearTopX = near.x + getRetainingWallTopInset(near, 7);
+    const farTopX = far.x + getRetainingWallTopInset(far, 2);
+    graphics.fillStyle(0x0b243a, 0.98);
+    fillQuad(graphics, near.x, near.y, far.x, far.y, farTopX, farTopY, nearTopX, nearTopY);
+    graphics.lineStyle(Math.max(1, nearHeight * 0.024), 0x2e5e80, 0.86);
+    drawRetainingWallJoint(graphics, near, far, nearHeight, farHeight, 0.3);
+    drawRetainingWallJoint(graphics, near, far, nearHeight, farHeight, 0.64);
+
+    const nearCapDepth = scaleValue(near, 86, 5, 38);
+    const farCapDepth = scaleValue(far, 86, 2, 38);
+    const nearCapRise = getRetainingWallCapRise(near, 2);
+    const farCapRise = getRetainingWallCapRise(far, 1);
+    graphics.fillStyle(0x163d59, 0.99);
+    fillQuad(
+        graphics,
+        nearTopX,
+        nearTopY,
+        farTopX,
+        farTopY,
+        farTopX - farCapDepth,
+        farTopY - farCapRise,
+        nearTopX - nearCapDepth,
+        nearTopY - nearCapRise,
+    );
+    graphics.lineStyle(Math.max(1, nearCapRise * 0.42), 0x6097bd, 0.8);
+    graphics.lineBetween(
+        nearTopX - nearCapDepth,
+        nearTopY - nearCapRise,
+        farTopX - farCapDepth,
+        farTopY - farCapRise,
+    );
 }
 
-function drawWallTree(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint) {
-    const width = scaleValue(screen, 410, 16, 186);
-    const height = scaleValue(screen, 720, 34, 330);
-    const trunkHeight = height * 0.24;
+function drawRetainingWallJoint(
+    graphics: Phaser.GameObjects.Graphics,
+    near: ScreenPoint,
+    far: ScreenPoint,
+    nearHeight: number,
+    farHeight: number,
+    ratio: number,
+) {
+    graphics.lineBetween(
+        near.x + getRetainingWallTopInset(near, 7) * ratio,
+        near.y - nearHeight * ratio,
+        far.x + getRetainingWallTopInset(far, 2) * ratio,
+        far.y - farHeight * ratio,
+    );
+}
 
-    graphics.fillStyle(0x06111c, 0.98);
-    graphics.fillRect(screen.x - width * 0.08, screen.y - trunkHeight, width * 0.16, trunkHeight);
-    graphics.fillStyle(0x082138, 0.98);
-    fillTriangle(
-        graphics,
-        screen.x,
-        screen.y - height,
-        screen.x - width * 0.58,
-        screen.y - trunkHeight * 0.25,
-        screen.x + width * 0.58,
-        screen.y - trunkHeight * 0.25,
-    );
-    graphics.fillStyle(0x0c3150, 0.92);
-    fillTriangle(
-        graphics,
-        screen.x + width * 0.12,
-        screen.y - height * 0.74,
-        screen.x - width * 0.46,
-        screen.y - trunkHeight * 0.02,
-        screen.x + width * 0.5,
-        screen.y - trunkHeight * 0.02,
-    );
+function getRetainingWallHeight(screen: ScreenPoint, minimum: number) {
+    return scaleValue(screen, 620, minimum, 310);
+}
+
+function getRetainingWallCapRise(screen: ScreenPoint, minimum: number) {
+    return scaleValue(screen, 28, minimum, 14);
+}
+
+function getRetainingWallTopInset(screen: ScreenPoint, minimum: number) {
+    return scaleValue(screen, 180, minimum, 78);
 }
 
 function drawBlueReflector(graphics: Phaser.GameObjects.Graphics, screen: ScreenPoint) {

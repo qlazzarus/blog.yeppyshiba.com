@@ -64,7 +64,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
             `horizon ${(camera.horizonRatio * 100).toFixed(0)}% + pitch ${camera.pitch.toFixed(0)}px`,
             `height ${camera.height.toFixed(0)} | fov ${camera.fovDegrees.toFixed(1)} | z ${camera.z.toFixed(0)}`,
             roadStats
-                ? `segment ${roadStats.baseSegmentIndex} | curve ${roadStats.currentCurve.toFixed(2)} | elevation ${roadStats.currentElevation.toFixed(0)} | gap ${formatNullableNumber(roadStats.horizonGapY)} | visible ${roadStats.visibleSegments}`
+                ? `segment ${roadStats.baseSegmentIndex} | curve ${roadStats.currentCurve.toFixed(2)} | elevation ${roadStats.currentElevation.toFixed(0)} | crest ${formatNullableNumber(roadStats.crestEnvelopeY)} | occlusion ${formatNullableNumber(roadStats.horizonOcclusionY)} | visible ${roadStats.visibleSegments} | hidden ${roadStats.occludedSegments}`
                 : 'segment -- | curve -- | visible --',
             run.finished
                 ? `run FINISH ${formatRunTime(run.finishTimeSec ?? run.elapsedSec)} | progress 100% | checkpoints ${run.passedCheckpoints}/3 | R restart`
