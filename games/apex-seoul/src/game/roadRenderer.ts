@@ -13,17 +13,29 @@ import {
     getRoadSegment,
     type RoadTrack,
 } from './road';
+import { getWorldDistanceFog, WORLD_FOG_COLOR } from './worldDistanceFog';
 
 export type RoadRenderStats = {
     baseSegmentIndex: number;
+    crestEnvelopeY: number | null;
+    crestVisibilityEnvelope: CrestVisibilityEnvelope;
     currentCurve: number;
     currentElevation: number;
     horizonGapY: number | null;
+    horizonOcclusionY: number | null;
+    occludedSegments: number;
     visibleSegments: number;
 };
 
+export type CrestVisibilityEnvelope = Array<{
+    distanceAhead: number;
+    roadVisible: boolean;
+    screenY: number;
+}>;
+
 type RoadRenderOptions = {
     downhillCueRatio?: number;
+    drawHorizonOcclusion?: boolean;
 };
 
 type ProjectedSegment = {
@@ -40,6 +52,14 @@ const LANE_MARK_WIDTH = 18;
 const DRAW_SEGMENTS = 76;
 const CURVE_STEP = 86;
 const NEAR_CLIP_DISTANCE = 18;
+const ROAD_NEAR_COLORS = [0x101926, 0x0b121d] as const;
+const ROAD_FAR_COLOR = 0x03070c;
+const SHOULDER_NEAR_COLOR = 0x080e16;
+const SHOULDER_FAR_COLOR = 0x020509;
+const EDGE_LINE_NEAR_COLOR = 0x43789d;
+const EDGE_LINE_FAR_COLOR = 0x122b3e;
+const LANE_MARK_NEAR_COLOR = 0x5da9df;
+const LANE_MARK_FAR_COLOR = 0x1d435f;
 export const ELEVATION_VISUAL_SCALE = 4.2;
 
 export function renderRoad(
@@ -57,8 +77,6 @@ export function renderRoad(
     const projectedSegments: ProjectedSegment[] = [];
     const boundaryCenters = getVisibleBoundaryCenters(track, baseSegment, progress);
     const boundaryElevations = getVisibleBoundaryElevations(track, baseSegment, progress);
-    let visibleSegments = 0;
-    let horizonGapY: number | null = null;
 
     for (let i = 0; i <= DRAW_SEGMENTS; i += 1) {
         const absoluteIndex = baseSegment + i;
@@ -90,8 +108,6 @@ export function renderRoad(
 
         if (!road) continue;
 
-        visibleSegments += 1;
-        horizonGapY = getNearestHorizonGapY(horizonGapY, road);
         projectedSegments.push({
             absoluteIndex,
             road,
@@ -99,12 +115,25 @@ export function renderRoad(
         });
     }
 
-    drawDownhillTerrainFill(graphics, projectedSegments, camera, viewport, options.downhillCueRatio ?? 0);
+    const crestVisibility = applyCrestVisibilityEnvelope(projectedSegments, camera.z, viewport);
+    const visibleProjectedSegments = crestVisibility.visibleSegments;
+    const horizonGapY = visibleProjectedSegments.reduce<number | null>(
+        (gapY, projected) => getNearestHorizonGapY(gapY, projected.road),
+        null,
+    );
 
-    for (let i = projectedSegments.length - 1; i >= 0; i -= 1) {
-        const projected = projectedSegments[i];
+    const horizonOcclusionY = getHorizonOcclusionY(
+        visibleProjectedSegments,
+        horizonGapY,
+        camera,
+        viewport,
+        options.downhillCueRatio ?? 0,
+    );
 
-        drawRoadBody(graphics, projected.road, projected.absoluteIndex);
+    for (let i = visibleProjectedSegments.length - 1; i >= 0; i -= 1) {
+        const projected = visibleProjectedSegments[i];
+
+        drawRoadBody(graphics, projected.road, projected.absoluteIndex, camera.z);
         drawShoulder(graphics, projected.road, -1, camera, viewport);
         drawShoulder(graphics, projected.road, 1, camera, viewport);
         drawLaneMarks(
@@ -117,12 +146,20 @@ export function renderRoad(
         );
     }
 
+    if (options.drawHorizonOcclusion ?? true) {
+        renderHorizonOcclusion(graphics, horizonOcclusionY, camera, viewport);
+    }
+
     return {
         baseSegmentIndex,
+        crestEnvelopeY: crestVisibility.envelope.at(-1)?.screenY ?? null,
+        crestVisibilityEnvelope: crestVisibility.envelope,
         currentCurve,
         currentElevation,
         horizonGapY,
-        visibleSegments,
+        horizonOcclusionY,
+        occludedSegments: projectedSegments.length - visibleProjectedSegments.length,
+        visibleSegments: visibleProjectedSegments.length,
     };
 }
 
@@ -339,14 +376,18 @@ function drawRoadBody(
     graphics: Phaser.GameObjects.Graphics,
     road: ProjectedRoadSlice,
     absoluteIndex: number,
+    cameraZ: number,
 ) {
+    const distanceFade = getRoadDistanceFade(road, cameraZ);
+    const nearColor = ROAD_NEAR_COLORS[Math.abs(absoluteIndex) % ROAD_NEAR_COLORS.length];
+
     fillQuad(
         graphics,
         road.roadFarLeft,
         road.roadFarRight,
         road.roadNearRight,
         road.roadNearLeft,
-        absoluteIndex % 2 === 0 ? 0x101722 : 0x0c121b,
+        getFoggedRoadColor(nearColor, ROAD_FAR_COLOR, distanceFade, 0.85),
     );
 }
 
@@ -363,34 +404,76 @@ function getNearestHorizonGapY(currentGapY: number | null, road: ProjectedRoadSl
     return Math.min(currentGapY, topY);
 }
 
-function drawDownhillTerrainFill(
-    graphics: Phaser.GameObjects.Graphics,
+function applyCrestVisibilityEnvelope(
     projectedSegments: ProjectedSegment[],
+    cameraZ: number,
+    viewport: Viewport,
+) {
+    const envelope: CrestVisibilityEnvelope = [];
+    const visibleSegments: ProjectedSegment[] = [];
+    let crestY = viewport.height + 1;
+
+    for (const projected of projectedSegments) {
+        const sliceY = Math.min(projected.road.roadFarLeft.y, projected.road.roadFarRight.y);
+        const distanceAhead = Math.max(0, projected.road.farWorldZ - cameraZ);
+        const visible = sliceY <= crestY + 1.5;
+
+        if (visible) {
+            crestY = Math.min(crestY, sliceY);
+            visibleSegments.push(projected);
+        }
+
+        envelope.push({
+            distanceAhead,
+            roadVisible: visible,
+            screenY: crestY,
+        });
+    }
+
+    return { envelope, visibleSegments };
+}
+
+function getHorizonOcclusionY(
+    projectedSegments: ProjectedSegment[],
+    horizonGapY: number | null,
     camera: Pseudo3dCamera,
     viewport: Viewport,
     downhillCueRatio: number,
 ) {
-    if (downhillCueRatio <= 0 || projectedSegments.length === 0) return;
+    if (downhillCueRatio <= 0 || projectedSegments.length === 0) return null;
 
     const horizonY = getHorizonY(camera, viewport);
     const farthestRoad = projectedSegments.at(-1)?.road;
 
-    if (!farthestRoad) return;
+    if (!farthestRoad) return null;
 
     const farRoadTopY = Math.min(farthestRoad.roadFarLeft.y, farthestRoad.roadFarRight.y);
-    const gapTopY = horizonY - 2;
-    const gapBottomY = Phaser.Math.Clamp(
-        farRoadTopY,
+    const gapReferenceY = Math.max(horizonGapY ?? farRoadTopY, farRoadTopY);
+
+    return Phaser.Math.Clamp(
+        gapReferenceY,
         horizonY + 8,
         horizonY + Phaser.Math.Linear(34, 92, downhillCueRatio),
     );
+}
 
-    if (gapBottomY <= gapTopY) return;
+export function renderHorizonOcclusion(
+    graphics: Phaser.GameObjects.Graphics,
+    horizonOcclusionY: number | null,
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+) {
+    if (horizonOcclusionY === null) return;
 
-    graphics.fillStyle(0x071a2a, 0.95);
-    graphics.fillRect(0, gapTopY, viewport.width, gapBottomY - gapTopY);
-    graphics.fillStyle(0x245f9d, 0.42);
-    graphics.fillRect(0, gapBottomY - 3, viewport.width, 3);
+    const horizonY = getHorizonY(camera, viewport);
+    const gapTopY = horizonY - 2;
+
+    if (horizonOcclusionY <= gapTopY) return;
+
+    graphics.fillStyle(0x02060d, 0.94);
+    graphics.fillRect(0, gapTopY, viewport.width, horizonOcclusionY - gapTopY);
+    graphics.fillStyle(0x0b2135, 0.34);
+    graphics.fillRect(0, horizonOcclusionY - 2, viewport.width, 2);
 }
 
 function drawShoulder(
@@ -400,6 +483,7 @@ function drawShoulder(
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ) {
+    const distanceFade = getRoadDistanceFade(road, camera.z);
     const innerNearX = road.nearCenterX + side * road.nearRoadHalfWidth;
     const outerNearX = road.nearCenterX + side * (road.nearRoadHalfWidth + RUMBLE_WIDTH);
     const innerFarX = road.farCenterX + side * road.farRoadHalfWidth;
@@ -414,7 +498,7 @@ function drawShoulder(
         outerFarX,
         camera,
         viewport,
-        0x0a0f18,
+        getFoggedRoadColor(SHOULDER_NEAR_COLOR, SHOULDER_FAR_COLOR, distanceFade, 0.9),
     );
     fillProjectedRoadBand(
         graphics,
@@ -425,7 +509,7 @@ function drawShoulder(
         innerFarX + side * EDGE_LINE_WIDTH,
         camera,
         viewport,
-        0x4f86ad,
+        getFoggedRoadColor(EDGE_LINE_NEAR_COLOR, EDGE_LINE_FAR_COLOR, distanceFade, 0.52),
     );
 }
 
@@ -438,6 +522,8 @@ function drawLaneMarks(
     viewport: Viewport,
 ) {
     if (absoluteIndex % 3 !== 0) return;
+
+    const distanceFade = getRoadDistanceFade(road, camera.z);
 
     for (let lane = 1; lane < laneCount; lane += 1) {
         const laneCenterRatio = lane / laneCount;
@@ -461,9 +547,44 @@ function drawLaneMarks(
             farLaneCenterX + LANE_MARK_WIDTH,
             camera,
             viewport,
-            0x67b7ff,
+            getFoggedRoadColor(LANE_MARK_NEAR_COLOR, LANE_MARK_FAR_COLOR, distanceFade, 0.42),
         );
     }
+}
+
+function getRoadDistanceFade(road: ProjectedRoadSlice, cameraZ: number) {
+    const centerDistance = Math.max(
+        0,
+        (road.nearWorldZ + road.farWorldZ) * 0.5 - cameraZ,
+    );
+    return getWorldDistanceFog(centerDistance);
+}
+
+function mixColor(from: number, to: number, amount: number) {
+    const ratio = Phaser.Math.Clamp(amount, 0, 1);
+    const fromRed = (from >> 16) & 0xff;
+    const fromGreen = (from >> 8) & 0xff;
+    const fromBlue = from & 0xff;
+    const toRed = (to >> 16) & 0xff;
+    const toGreen = (to >> 8) & 0xff;
+    const toBlue = to & 0xff;
+    const red = Math.round(Phaser.Math.Linear(fromRed, toRed, ratio));
+    const green = Math.round(Phaser.Math.Linear(fromGreen, toGreen, ratio));
+    const blue = Math.round(Phaser.Math.Linear(fromBlue, toBlue, ratio));
+
+    return (red << 16) | (green << 8) | blue;
+}
+
+function getFoggedRoadColor(
+    nearColor: number,
+    farMaterialColor: number,
+    distanceFade: number,
+    fogExponent: number,
+) {
+    const materialColor = mixColor(nearColor, farMaterialColor, distanceFade);
+    const worldFogAmount = Math.pow(distanceFade, fogExponent);
+
+    return mixColor(materialColor, WORLD_FOG_COLOR, worldFogAmount);
 }
 
 function fillProjectedRoadBand(

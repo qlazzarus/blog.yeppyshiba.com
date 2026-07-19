@@ -1,5 +1,15 @@
 import Phaser from 'phaser';
 import './styles.css';
+import farCityParallaxUrl from '../assets/environment/approved/parallax-v1/city-far-blueblack.png';
+import farCityLightsUrl from '../assets/environment/approved/parallax-v1/city-far-lights-bluewhite.png';
+import cloudDarkBlueUrl from '../assets/environment/approved/parallax-v1/cloud-dark-blue.png';
+import moonCoolBlueUrl from '../assets/environment/approved/parallax-v1/moon-cool-blue.png';
+import nearRidgeParallaxUrl from '../assets/environment/approved/parallax-v1/ridge-near-blueblack.png';
+import wallForestTree01Url from '../assets/environment/approved/wall-forest-svg/tree-01-tall-pine.svg?no-inline';
+import wallForestTree02Url from '../assets/environment/approved/wall-forest-svg/tree-02-wide-pine.svg?no-inline';
+import wallForestTree03Url from '../assets/environment/approved/wall-forest-svg/tree-03-cypress.svg?no-inline';
+import wallForestTree04Url from '../assets/environment/approved/wall-forest-svg/tree-04-leaning-pine.svg?no-inline';
+import wallForestTree05Url from '../assets/environment/approved/wall-forest-svg/tree-05-broadleaf.svg?no-inline';
 import genesisG70VehicleAtlas from '../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
 import genesisG70VehicleShadowSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128-shadow.png';
 import genesisG70VehicleSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128.png';
@@ -51,6 +61,7 @@ import {
     ELEVATION_VISUAL_SCALE,
     getRoadCenterOffsetAhead,
     getRoadWidthAtScreenY,
+    renderHorizonOcclusion,
     renderRoad,
     type RoadRenderStats,
 } from './game/roadRenderer';
@@ -61,7 +72,9 @@ import {
     type RoadObject,
     type RoadObjectMotionTracker,
     type RoadObjectRenderStats,
+    type WallForestSpriteState,
 } from './game/roadObjectRenderer';
+import { RenderDepth } from './game/renderDepth';
 import {
     createRuntimeQaOverrides,
     createRuntimePlayerVehicleConfig,
@@ -83,6 +96,10 @@ import {
     getSpeedEffectExpectedPeakAlpha,
     type SpeedEffectShaderUniforms,
 } from './game/speedEffectShader';
+import {
+    createHeadlightShader,
+    type HeadlightShaderUniforms,
+} from './game/headlightShader';
 import {
     createCameraEffectsConfig,
     createCameraEffectsState,
@@ -176,6 +193,8 @@ const PLAYER_OVERSPEED_UNDERSTEER_SPEED_SCRUB = 28;
 const PLAYER_OVERSPEED_UNDERSTEER_SPEED_WINDOW = 150;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
 const PLAYER_ROAD_CONTACT_DISTANCE = 260;
+const PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO = 0.22;
+const PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO = 0.12;
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
 const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;
 const PLAYER_SHADOW_MAX_ALPHA = 0.18;
@@ -270,20 +289,25 @@ const TELEMETRY_DEFAULT_SAMPLE_HZ = 10;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 760;
 const CITY_SKYLINE_BASE_Y_RATIO = 0.38;
-const CITY_VIEW_SECTIONS = [
-    { end: 0.29, start: 0.1 },
-    { end: 0.76, start: 0.57 },
-];
-const CITY_VIEW_TRANSITION_RATIO = 0.025;
-const CITY_LIGHT_CURVE_OFFSET_MAX = 20;
-const CITY_LIGHT_CURVE_SCROLL = 0.008;
-const CITY_RIDGE_CURVE_OFFSET_MAX = 42;
-const CITY_RIDGE_CURVE_SCROLL = 0.017;
-const CITY_LIGHTS = [
-    [48, 0.66, 2], [82, 0.58, 1], [105, 0.71, 2], [136, 0.48, 1], [166, 0.63, 2],
-    [204, 0.55, 1], [237, 0.7, 2], [268, 0.6, 1], [307, 0.5, 2], [343, 0.69, 1],
-    [379, 0.57, 2], [412, 0.63, 1], [448, 0.52, 2], [486, 0.68, 1], [526, 0.59, 2],
+const CITY_FAR_PARALLAX_KEY = 'city-far-parallax';
+const CITY_FAR_LIGHTS_KEY = 'city-far-lights';
+const CITY_RIDGE_PARALLAX_KEY = 'city-ridge-parallax';
+const CLOUD_DARK_BLUE_KEY = 'cloud-dark-blue';
+const MOON_COOL_BLUE_KEY = 'moon-cool-blue';
+const WALL_FOREST_TREE_KEYS = [
+    'wall-forest-tree-01',
+    'wall-forest-tree-02',
+    'wall-forest-tree-03',
+    'wall-forest-tree-04',
+    'wall-forest-tree-05',
 ] as const;
+const CITY_PARALLAX_WIDTH = 1600;
+const CITY_FAR_PARALLAX_HEIGHT = 112;
+const CITY_RIDGE_PARALLAX_HEIGHT = 150;
+const CITY_RIDGE_BASELINE_OFFSET_Y = 42;
+const MOON_X_RATIO = 0.87;
+const MOON_Y_RATIO = 0.12;
+const MOON_DISPLAY_SIZE = 112;
 const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
     black: ft86RetroBlackVehicleSpriteUrl,
     blue: ft86RetroBlueVehicleSpriteUrl,
@@ -472,6 +496,7 @@ type GuardrailVisualCollisionLimits = {
 };
 
 class ApexSeoulScene extends Phaser.Scene {
+    private backgroundGraphics!: Phaser.GameObjects.Graphics;
     private cameraResource: Pseudo3dCamera = createDefaultCamera();
     private cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
     private cameraManualPitch = 0;
@@ -481,6 +506,12 @@ class ApexSeoulScene extends Phaser.Scene {
         lateral: 0,
         pitch: 0,
     };
+    private farCityParallax!: Phaser.GameObjects.Image;
+    private farCityLights!: Phaser.GameObjects.Image;
+    private farCloud!: Phaser.GameObjects.Image;
+    private foregroundOcclusionGraphics!: Phaser.GameObjects.Graphics;
+    private headlightShader!: Phaser.GameObjects.Shader;
+    private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
@@ -488,6 +519,9 @@ class ApexSeoulScene extends Phaser.Scene {
     private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
     private lastVehicleQaState: RuntimeVehicleQaState | null = null;
+    private moon!: Phaser.GameObjects.Image;
+    private nearCloud!: Phaser.GameObjects.Image;
+    private nearRidgeParallax!: Phaser.GameObjects.Image;
     private roadRelativeVehicleSize: number | null = null;
     private vehicleRenderState: PlayerVehicleRenderState | null = null;
     private lastVehicleSizeSample: { elapsedSec: number; size: number } | null = null;
@@ -504,6 +538,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private roadObjectStats: RoadObjectRenderStats | null = null;
     private roadStats: RoadRenderStats | null = null;
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
+    private wallForestSprites = new Map<string, Phaser.GameObjects.Image>();
     private speedEffectIntensity = 0;
     private speedEffectCue = {
         base: 0,
@@ -522,6 +557,16 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image(CITY_FAR_PARALLAX_KEY, farCityParallaxUrl);
+        this.load.image(CITY_FAR_LIGHTS_KEY, farCityLightsUrl);
+        this.load.image(CLOUD_DARK_BLUE_KEY, cloudDarkBlueUrl);
+        this.load.image(MOON_COOL_BLUE_KEY, moonCoolBlueUrl);
+        this.load.image(CITY_RIDGE_PARALLAX_KEY, nearRidgeParallaxUrl);
+        this.load.svg(WALL_FOREST_TREE_KEYS[0], wallForestTree01Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[1], wallForestTree02Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[2], wallForestTree03Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[3], wallForestTree04Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[4], wallForestTree05Url);
         this.load.spritesheet(PLAYER_VEHICLE_TEXTURE_KEY, ACTIVE_RUNTIME_VEHICLE.spriteUrl, {
             frameHeight: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
             frameWidth: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
@@ -537,13 +582,22 @@ class ApexSeoulScene extends Phaser.Scene {
         this.roadObjects = createRoadObjects(this.roadTrack);
         this.applyRuntimeQaOverrides();
         this.cameras.main.setBackgroundColor('#050812');
-        this.graphics = this.add.graphics();
-        this.uiGraphics = this.add.graphics().setDepth(7);
+        this.backgroundGraphics = this.add.graphics().setDepth(RenderDepth.Background);
+        this.moon = this.createSkyLayer(MOON_COOL_BLUE_KEY, RenderDepth.Moon);
+        this.farCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, RenderDepth.FarCloud);
+        this.nearCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, RenderDepth.NearCloud);
+        this.farCityParallax = this.createParallaxLayer(CITY_FAR_PARALLAX_KEY, RenderDepth.FarCity);
+        this.farCityLights = this.createParallaxLayer(CITY_FAR_LIGHTS_KEY, RenderDepth.FarCityLights);
+        this.nearRidgeParallax = this.createParallaxLayer(CITY_RIDGE_PARALLAX_KEY, RenderDepth.NearRidge);
+        this.terrainHorizonOcclusionGraphics = this.add.graphics().setDepth(RenderDepth.TerrainHorizonOcclusion);
+        this.graphics = this.add.graphics().setDepth(RenderDepth.World);
+        this.foregroundOcclusionGraphics = this.add.graphics().setDepth(RenderDepth.ForegroundMatte);
+        this.uiGraphics = this.add.graphics().setDepth(RenderDepth.Ui);
         this.playerSoftShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_SHADOW_SOFT_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
-            .setDepth(4.8)
+            .setDepth(RenderDepth.PlayerSoftShadow)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
@@ -553,14 +607,14 @@ class ApexSeoulScene extends Phaser.Scene {
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_SILHOUETTE_SHADOW_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
-            .setDepth(5)
+            .setDepth(RenderDepth.PlayerShadow)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
             );
         this.playerCar = this.add
             .image(0, 0, PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
-            .setDepth(6)
+            .setDepth(RenderDepth.Player)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
@@ -570,7 +624,12 @@ class ApexSeoulScene extends Phaser.Scene {
             this.getViewport(),
             () => this.getSpeedEffectShaderUniforms(),
         );
-        this.hudText = createHudText(this).setDepth(8);
+        this.headlightShader = createHeadlightShader(
+            this,
+            this.getViewport(),
+            () => this.getHeadlightShaderUniforms(),
+        );
+        this.hudText = createHudText(this);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = {
@@ -676,9 +735,20 @@ class ApexSeoulScene extends Phaser.Scene {
         const viewport = this.getViewport();
         const horizonY = getHorizonY(this.cameraResource, viewport);
 
+        this.backgroundGraphics.clear();
+        this.backgroundGraphics.setPosition(0, 0);
+        this.vehicleRenderState = null;
         this.graphics.clear();
         this.graphics.setPosition(this.cameraEffects.shake.x, this.cameraEffects.shake.y);
+        this.terrainHorizonOcclusionGraphics.clear();
+        this.terrainHorizonOcclusionGraphics.setPosition(this.cameraEffects.shake.x, this.cameraEffects.shake.y);
+        this.foregroundOcclusionGraphics.clear();
+        this.foregroundOcclusionGraphics.setPosition(0, 0);
         this.speedEffectShader.setPosition(
+            viewport.width / 2 + this.cameraEffects.shake.x,
+            viewport.height / 2 + this.cameraEffects.shake.y,
+        );
+        this.headlightShader.setPosition(
             viewport.width / 2 + this.cameraEffects.shake.x,
             viewport.height / 2 + this.cameraEffects.shake.y,
         );
@@ -689,7 +759,16 @@ class ApexSeoulScene extends Phaser.Scene {
             this.roadTrack,
             this.cameraResource,
             viewport,
-            { downhillCueRatio: this.getDownhillVisualCueRatio() },
+            {
+                downhillCueRatio: this.getDownhillVisualCueRatio(),
+                drawHorizonOcclusion: false,
+            },
+        );
+        renderHorizonOcclusion(
+            this.terrainHorizonOcclusionGraphics,
+            this.roadStats.horizonOcclusionY,
+            this.cameraResource,
+            viewport,
         );
         this.roadObjectStats = renderRoadObjects(
             this.graphics,
@@ -699,11 +778,19 @@ class ApexSeoulScene extends Phaser.Scene {
             viewport,
             this.elapsedSec,
             this.roadObjectMotionTracker,
+            {
+                crestVisibilityEnvelope: this.roadStats?.crestVisibilityEnvelope,
+                horizonOcclusionY: this.roadStats?.horizonOcclusionY,
+            },
         );
+        this.syncWallForestSprites([
+            ...this.roadObjectStats.leftCliffForestSprites,
+            ...this.roadObjectStats.wallForestSprites,
+        ]);
+        this.drawForegroundEdgeOcclusion(viewport);
         if (RUNTIME_TUNING.debugProjectionGuides) {
             this.drawProjectionGuides(viewport);
         }
-        this.vehicleRenderState = null;
         const vehicleRenderState = this.getPlayerVehicleRenderState(viewport);
         this.renderPlayerShadow(viewport, vehicleRenderState);
         this.renderPlayerVehicle(viewport, vehicleRenderState);
@@ -719,58 +806,150 @@ class ApexSeoulScene extends Phaser.Scene {
         };
     }
 
-    private drawBackground(viewport: Viewport, horizonY: number) {
-        const skylineHorizonY = viewport.height * CITY_SKYLINE_BASE_Y_RATIO;
-        const cityViewBlend = getCityViewBlend(this.cameraResource.z / this.roadTrack.length);
+    private drawForegroundEdgeOcclusion(viewport: Viewport) {
+        const sideWidth = Math.min(176, viewport.width * 0.16);
+        const bottomHeight = Math.min(104, viewport.height * 0.14);
+        const steps = 7;
 
-        this.graphics.fillStyle(0x07101f, 1);
-        this.graphics.fillRect(0, 0, viewport.width, Math.max(0, horizonY));
-        this.graphics.fillStyle(0x14395f, 0.78);
-        this.graphics.fillRect(0, Math.max(0, skylineHorizonY - 42), viewport.width, 18);
-        this.graphics.fillStyle(0x3f7dd7, 0.32);
-        this.graphics.fillRect(0, skylineHorizonY - 16, viewport.width, 2);
-        this.drawCityView(viewport, skylineHorizonY, cityViewBlend);
-        this.graphics.fillStyle(0x081520, 1);
-        this.graphics.fillRect(0, horizonY, viewport.width, viewport.height - horizonY);
+        // The pseudo-3D roadside ribbons must eventually leave the canvas.
+        // A layered night matte makes that exit read as foreground darkness,
+        // rather than as a hard geometry cut at the viewport edge.
+        for (let step = 0; step < steps; step += 1) {
+            const ratio = 1 - step / steps;
+            const sideBandWidth = sideWidth * ratio;
+            const bottomBandHeight = bottomHeight * ratio;
+
+            this.foregroundOcclusionGraphics.fillStyle(0x02060d, 0.14);
+            this.foregroundOcclusionGraphics.fillRect(0, 0, sideBandWidth, viewport.height);
+            this.foregroundOcclusionGraphics.fillRect(
+                viewport.width - sideBandWidth,
+                0,
+                sideBandWidth,
+                viewport.height,
+            );
+            this.foregroundOcclusionGraphics.fillStyle(0x010407, 0.11);
+            this.foregroundOcclusionGraphics.fillRect(
+                0,
+                viewport.height - bottomBandHeight,
+                viewport.width,
+                bottomBandHeight,
+            );
+        }
     }
 
-    private drawCityView(viewport: Viewport, horizonY: number, blend: number) {
-        if (blend <= 0) return;
+    private drawBackground(viewport: Viewport, horizonY: number) {
+        const skylineHorizonY = viewport.height * CITY_SKYLINE_BASE_Y_RATIO;
 
-        const curveOffset = getRoadCenterOffsetAhead(this.roadTrack, this.cameraResource.z, 1600);
-        const lightOffset = Phaser.Math.Clamp(
-            curveOffset * CITY_LIGHT_CURVE_SCROLL,
-            -CITY_LIGHT_CURVE_OFFSET_MAX,
-            CITY_LIGHT_CURVE_OFFSET_MAX,
-        );
-        const ridgeOffset = Phaser.Math.Clamp(
-            curveOffset * CITY_RIDGE_CURVE_SCROLL,
-            -CITY_RIDGE_CURVE_OFFSET_MAX,
-            CITY_RIDGE_CURVE_OFFSET_MAX,
-        );
-        const alpha = 0.68 * blend;
+        this.backgroundGraphics.fillStyle(0x07101f, 1);
+        this.backgroundGraphics.fillRect(0, 0, viewport.width, Math.max(0, horizonY));
+        this.backgroundGraphics.fillStyle(0x14395f, 0.24);
+        this.backgroundGraphics.fillRect(0, Math.max(0, skylineHorizonY - 42), viewport.width, 18);
+        this.backgroundGraphics.fillStyle(0x3f7dd7, 0.18);
+        this.backgroundGraphics.fillRect(0, skylineHorizonY - 16, viewport.width, 2);
+        this.drawMoonAndClouds(viewport);
+        this.drawCityView(viewport, skylineHorizonY);
+        this.backgroundGraphics.fillStyle(0x081520, 1);
+        this.backgroundGraphics.fillRect(0, horizonY, viewport.width, viewport.height - horizonY);
+    }
 
-        this.graphics.fillStyle(0x163f66, 0.16 * blend);
-        this.graphics.fillRect(0, horizonY - 76, viewport.width * 0.63, 76);
-        this.graphics.fillStyle(0x1c5790, alpha);
-        for (const [x, heightRatio, size] of CITY_LIGHTS) {
-            const y = horizonY - 12 - heightRatio * 54;
-            this.graphics.fillRect(x + lightOffset, y, size, size);
+    private drawCityView(viewport: Viewport, horizonY: number) {
+        const farOffset = getParallaxOffset(this.roadTrack, this.cameraResource.z, 2800, 0.004, 18);
+        const ridgeOffset = getParallaxOffset(this.roadTrack, this.cameraResource.z, 1200, 0.014, 64);
+
+        this.farCityParallax
+            .setAlpha(0.74)
+            .setDisplaySize(CITY_PARALLAX_WIDTH, CITY_FAR_PARALLAX_HEIGHT)
+            .setPosition(viewport.width / 2 + farOffset, horizonY - 6);
+        this.farCityLights
+            .setAlpha(getCityLightFlicker(this.elapsedSec, 0.8))
+            .setDisplaySize(CITY_PARALLAX_WIDTH, CITY_FAR_PARALLAX_HEIGHT)
+            .setPosition(viewport.width / 2 + farOffset, horizonY - 6);
+        this.nearRidgeParallax
+            .setAlpha(0.96)
+            .setDisplaySize(CITY_PARALLAX_WIDTH, CITY_RIDGE_PARALLAX_HEIGHT)
+            .setPosition(viewport.width / 2 + ridgeOffset, horizonY + CITY_RIDGE_BASELINE_OFFSET_Y);
+    }
+
+    private drawMoonAndClouds(viewport: Viewport) {
+        const moonX = viewport.width * MOON_X_RATIO;
+        const moonY = viewport.height * MOON_Y_RATIO;
+        const nearCloudDrift = (this.elapsedSec * 7) % 420 - 210;
+        const farCloudDrift = (this.elapsedSec * 3.5) % 360 - 180;
+
+        this.moon
+            .setAlpha(0.96)
+            .setDisplaySize(MOON_DISPLAY_SIZE, MOON_DISPLAY_SIZE)
+            .setPosition(moonX, moonY);
+        this.farCloud
+            .setAlpha(0.78)
+            .setDisplaySize(1600, 300)
+            .setPosition(viewport.width / 2 + farCloudDrift, moonY - 18);
+        this.nearCloud
+            .setAlpha(1)
+            .setDisplaySize(1600, 360)
+            .setPosition(viewport.width / 2 + nearCloudDrift, moonY + 26);
+    }
+
+    private createParallaxLayer(textureKey: string, depth: number) {
+        return this.add
+            .image(0, 0, textureKey)
+            .setAlpha(0)
+            .setDepth(depth)
+            .setOrigin(0.5, 1);
+    }
+
+    private createSkyLayer(textureKey: string, depth: number) {
+        return this.add
+            .image(0, 0, textureKey)
+            .setAlpha(0)
+            .setDepth(depth)
+            .setOrigin(0.5, 0.5);
+    }
+
+    private syncWallForestSprites(states: WallForestSpriteState[]) {
+        const activeIds = new Set(states.map((state) => state.id));
+
+        for (const state of states) {
+            let sprite = this.wallForestSprites.get(state.id);
+
+            if (!sprite) {
+                sprite = this.add
+                    .image(0, 0, WALL_FOREST_TREE_KEYS[state.variant])
+                    .setDepth(
+                        state.side === 'left-cliff'
+                            ? RenderDepth.LeftCliffForest
+                            : state.layer === 'back'
+                            ? RenderDepth.WallForestBack
+                            : RenderDepth.WallForestFront,
+                    )
+                    .setOrigin(0.5, 1);
+                if (state.side === 'left-cliff') {
+                    sprite.setCrop(0, 0, sprite.frame.width, sprite.frame.height * 0.62);
+                }
+                this.wallForestSprites.set(state.id, sprite);
+            }
+
+            sprite
+                .setAlpha(state.alpha)
+                .setDisplaySize(state.width, state.height)
+                .setDepth(
+                    state.side === 'left-cliff'
+                        ? RenderDepth.LeftCliffForest
+                        : state.layer === 'back'
+                        ? RenderDepth.WallForestBack
+                        : RenderDepth.WallForestFront,
+                )
+                .setPosition(
+                    state.x + this.cameraEffects.shake.x,
+                    state.y + this.cameraEffects.shake.y,
+                )
+                .setTint(state.tint)
+                .setVisible(true);
         }
 
-        this.graphics.fillStyle(0x06111f, 0.95 * blend);
-        this.graphics.beginPath();
-        this.graphics.moveTo(0, horizonY);
-        this.graphics.lineTo(0, horizonY - 118);
-        this.graphics.lineTo(82 + ridgeOffset, horizonY - 92);
-        this.graphics.lineTo(152 + ridgeOffset, horizonY - 58);
-        this.graphics.lineTo(228 + ridgeOffset, horizonY - 68);
-        this.graphics.lineTo(308 + ridgeOffset, horizonY - 35);
-        this.graphics.lineTo(388 + ridgeOffset, horizonY - 44);
-        this.graphics.lineTo(474 + ridgeOffset, horizonY - 16);
-        this.graphics.lineTo(viewport.width * 0.58, horizonY);
-        this.graphics.closePath();
-        this.graphics.fillPath();
+        for (const [id, sprite] of this.wallForestSprites) {
+            if (!activeIds.has(id)) sprite.setVisible(false);
+        }
     }
 
     private drawProjectionGuides(viewport: Viewport) {
@@ -1230,6 +1409,25 @@ class ApexSeoulScene extends Phaser.Scene {
         };
     }
 
+    private getHeadlightShaderUniforms(): HeadlightShaderUniforms {
+        const viewport = this.getViewport();
+        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+
+        return {
+            // The atlas frame has transparent headroom above the visible car.
+            // Anchor the beam to the visible front of the sprite instead of
+            // the frame's geometric top, which would detach it into the road.
+            carFrontX: this.playerCar.x,
+            carFrontY: this.playerCar.y -
+                this.playerCar.displayHeight * PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO,
+            // Use the rendered sprite width so the two pools stay attached to
+            // the physical left/right headlights as road-relative scaling changes.
+            lampHalfSpacing: this.playerCar.displayWidth * PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO,
+            intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio),
+            viewport,
+        };
+    }
+
     private updateCameraPitch(seconds: number) {
         const targetTerrainPitch = this.getSlopeCameraPitch();
         const pitchBlend = 1 - Math.exp(-CAMERA_SLOPE_PITCH_RESPONSE * seconds);
@@ -1582,25 +1780,25 @@ function createInitialRunState(): CourseRunState {
     };
 }
 
-function getCityViewBlend(progressRatio: number) {
-    return CITY_VIEW_SECTIONS.reduce((blend, section) => {
-        const enter = Phaser.Math.Clamp(
-            (progressRatio - section.start) / CITY_VIEW_TRANSITION_RATIO,
-            0,
-            1,
-        );
-        const exit = Phaser.Math.Clamp(
-            (section.end - progressRatio) / CITY_VIEW_TRANSITION_RATIO,
-            0,
-            1,
-        );
+function getCityLightFlicker(elapsedSec: number, phase: number) {
+    const slowPulse = (Math.sin(elapsedSec * 1.45 + phase) + 1) / 2;
+    const quickFlicker = (Math.sin(elapsedSec * 5.7 + phase * 2.3) + 1) / 2;
 
-        return Math.max(blend, smoothStep(Math.min(enter, exit)));
-    }, 0);
+    return Phaser.Math.Linear(0.54, 0.96, slowPulse * 0.72 + quickFlicker * 0.28);
 }
 
-function smoothStep(value: number) {
-    return value * value * (3 - 2 * value);
+function getParallaxOffset(
+    track: RoadTrack,
+    cameraZ: number,
+    lookAheadDistance: number,
+    scrollScale: number,
+    offsetLimit: number,
+) {
+    return Phaser.Math.Clamp(
+        getRoadCenterOffsetAhead(track, cameraZ, lookAheadDistance) * scrollScale,
+        -offsetLimit,
+        offsetLimit,
+    );
 }
 
 const config: Phaser.Types.Core.GameConfig = {

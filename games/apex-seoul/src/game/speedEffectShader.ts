@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Viewport } from './pseudo3dCamera';
+import { RenderDepth } from './renderDepth';
 
 export type SpeedEffectShaderUniforms = {
     downhillIntensity: number;
@@ -14,8 +15,6 @@ export type SpeedEffectEnvelope = Pick<
     SpeedEffectShaderUniforms,
     'downhillIntensity' | 'eventIntensity' | 'intensity'
 >;
-
-export const SPEED_EFFECT_SHADER_DEPTH = 4.35;
 
 // The shader's strongest possible blend contribution, not a pixel sample. This
 // keeps the visual envelope comparable in drive telemetry without implying a
@@ -114,6 +113,6 @@ export function createSpeedEffectShader(
             viewport.width,
             viewport.height,
         )
-        .setDepth(SPEED_EFFECT_SHADER_DEPTH)
+        .setDepth(RenderDepth.SpeedEffect)
         .setBlendMode(Phaser.BlendModes.ADD);
 }

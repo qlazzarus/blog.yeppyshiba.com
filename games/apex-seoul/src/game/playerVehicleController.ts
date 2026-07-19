@@ -1131,7 +1131,15 @@ function updateEngineState(
     const downshiftMargin = 0.025;
     const upshiftMargin = 0.005;
 
-    while (gearIndex < profile.gears.length - 1 && speedRatio > gear.speedRatioMax - upshiftMargin) {
+    // Gearing defines the mechanical envelope, but a powered upshift should
+    // happen at the profile's powerband target rather than merely crossing a
+    // speed boundary. This makes the per-vehicle shiftUpRpm setting live.
+    while (
+        gearIndex < profile.gears.length - 1 &&
+        throttle > 0 &&
+        speedRatio > gear.speedRatioMax - upshiftMargin &&
+        getGearRpm(profile, gearIndex, speedRatio) >= profile.shiftUpRpm
+    ) {
         gearIndex += 1;
         gear = profile.gears[gearIndex];
     }
@@ -1165,8 +1173,11 @@ function updateEngineState(
         player.fuelCutTimer = 0.12;
     }
 
+    const shiftedTargetRpm = shiftDirection > 0
+        ? Math.max(baseTargetRpm, profile.shiftDropRpm)
+        : baseTargetRpm;
     const targetRpm = clamp(
-        player.fuelCutActive ? Math.min(baseTargetRpm, profile.fuelCutReturnRpm) : baseTargetRpm,
+        player.fuelCutActive ? Math.min(shiftedTargetRpm, profile.fuelCutReturnRpm) : shiftedTargetRpm,
         profile.idleRpm,
         profile.maxRpm,
     );
