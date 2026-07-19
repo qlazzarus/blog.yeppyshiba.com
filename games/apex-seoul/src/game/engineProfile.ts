@@ -39,7 +39,8 @@ export type VehicleEngineProfile = {
 };
 
 export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
-    accelerationScale: 1,
+    // Preserves the prior downhill race pace after lengthening the lower gears.
+    accelerationScale: 1.05,
     displayName: 'Raven Coupe',
     // Display calibration only. accelSpeed, gearing and torque remain the
     // handling model's units, while the Bugak downhill reads less like a
@@ -48,29 +49,33 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     fuelCutReturnRpm: 7350,
     fuelCutStartRpm: 7750,
     gears: [
-        { label: '1', rpmMax: 7450, rpmMin: 1100, speedRatioMax: 0.18, speedRatioMin: 0 },
-        { label: '2', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.34, speedRatioMin: 0.14 },
-        { label: '3', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.52, speedRatioMin: 0.28 },
-        { label: '4', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.72, speedRatioMin: 0.45 },
-        { label: '5', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.9, speedRatioMin: 0.64 },
-        { label: '6', rpmMax: 7800, rpmMin: 5200, speedRatioMax: 1, speedRatioMin: 0.82 },
+        // FT86-inspired spacing: each full-throttle shift drops back into the
+        // 5,400–5,800 rpm pull instead of exhausting 1st and 5th immediately.
+        { label: '1', rpmMax: 7450, rpmMin: 1100, speedRatioMax: 0.285, speedRatioMin: 0 },
+        { label: '2', rpmMax: 7450, rpmMin: 4800, speedRatioMax: 0.405, speedRatioMin: 0.23 },
+        { label: '3', rpmMax: 7450, rpmMin: 5000, speedRatioMax: 0.515, speedRatioMin: 0.34 },
+        { label: '4', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.625, speedRatioMin: 0.46 },
+        { label: '5', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.755, speedRatioMin: 0.57 },
+        { label: '6', rpmMax: 7800, rpmMin: 5100, speedRatioMax: 1, speedRatioMin: 0.69 },
     ],
     id: 'raven-coupe-na',
     idleRpm: 1100,
     induction: 'na',
     maxRpm: 7800,
     redlineStartRpm: 7200,
-    shiftDropRpm: 5200,
-    shiftUpRpm: 7450,
+    shiftDropRpm: 5400,
+    shiftUpRpm: 7400,
     torqueCurve: [
-        { rpm: 1000, torqueScale: 0.28 },
+        { rpm: 1000, torqueScale: 0.25 },
         { rpm: 2500, torqueScale: 0.38 },
-        { rpm: 4000, torqueScale: 0.58 },
-        { rpm: 5500, torqueScale: 0.76 },
-        { rpm: 6500, torqueScale: 0.93 },
+        { rpm: 3500, torqueScale: 0.52 },
+        { rpm: 4300, torqueScale: 0.56 },
+        { rpm: 5200, torqueScale: 0.72 },
+        { rpm: 6000, torqueScale: 0.88 },
+        { rpm: 6600, torqueScale: 0.98 },
         { rpm: 7000, torqueScale: 1 },
-        { rpm: 7400, torqueScale: 0.94 },
-        { rpm: 7800, torqueScale: 0.7 },
+        { rpm: 7450, torqueScale: 0.86 },
+        { rpm: 7800, torqueScale: 0.68 },
     ],
 };
 

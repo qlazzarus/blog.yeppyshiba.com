@@ -11,9 +11,10 @@
 | `city-far-lights-bluewhite.png` | 가장 먼 도시 불빛 overlay | `source/oga-skyline` |
 | `moon-cool-blue.png` | sky layer의 청색 반달 | `source/oga-moon-overlay` |
 | `cloud-dark-blue.png` | sky layer의 어두운 투명 구름 strip | `source/oga-transparent-clouds` |
-| `wall-forest-clump-blueblack.png` | 오른쪽 옹벽 위 roadside 숲 sprite | `source/oga-forest-parallax` |
 
 All sources are CC0. `scripts/build-parallax-assets.mjs` generates the candidates using deterministic resize, palette conversion, alpha extraction, and strip composition. The generated point-light overlays only place lights inside opaque source building pixels, letting runtime flicker lights without fading the building silhouettes.
+
+오른쪽 옹벽 위 수목은 이 PNG strip 세트에 포함하지 않는다. 프로젝트 소유의 투명 SVG 5종은 `../wall-forest-svg/`에 두고, 런타임이 세그먼트별 back/front 군집으로 배치한다.
 
 ## Runtime constraints
 

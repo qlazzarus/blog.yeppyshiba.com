@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Pseudo3dCamera } from './pseudo3dCamera';
 import type { RoadTrack } from './road';
 import type { RoadRenderStats } from './roadRenderer';
+import { RenderDepth } from './renderDepth';
 import { formatNullableNumber, type RuntimeQaOverrides, type RuntimeTelemetryConfig, type RuntimeTuning } from './runtimeConfig';
 import type { PlayerVehicleState, VehicleTerrainCue } from './vehicle';
 
@@ -37,7 +38,7 @@ export function createHudText(scene: Phaser.Scene) {
             fontSize: '14px',
             lineSpacing: 5,
         })
-        .setDepth(10);
+        .setDepth(RenderDepth.Hud);
 }
 
 export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudState) {

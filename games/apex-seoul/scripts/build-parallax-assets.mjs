@@ -10,8 +10,6 @@ const WIDTH = 1600;
 const sources = {
     city: path.join(SOURCE_ROOT, 'oga-mountains-buildings/city_1.jpg'),
     cloud: path.join(SOURCE_ROOT, 'oga-transparent-clouds/fx_cloudalpha05.png'),
-    forestFront: path.join(SOURCE_ROOT, 'oga-forest-parallax/front.png'),
-    forestMiddle: path.join(SOURCE_ROOT, 'oga-forest-parallax/middle.png'),
     mountain: path.join(SOURCE_ROOT, 'oga-mountains-trees/mountainsfardetail_0.png'),
     moon: path.join(SOURCE_ROOT, 'oga-moon-overlay/moon_overlay.png'),
     skyline: [1, 2, 3, 4].map((index) => path.join(
@@ -29,25 +27,7 @@ await Promise.all([
     buildFarCity(),
     buildMoon(),
     buildCloud(),
-    buildWallForestClump(),
-    buildWallForestCanopy(),
 ]);
-
-async function buildWallForestClump() {
-    const forest = await recolorOpaqueForest(sources.forestFront, 512, 248);
-
-    await sharp(forest)
-        .png()
-        .toFile(path.join(OUTPUT_ROOT, 'wall-forest-clump-blueblack.png'));
-}
-
-async function buildWallForestCanopy() {
-    const forest = await recolorOpaqueForest(sources.forestMiddle, 512, 220, [9, 34, 60]);
-
-    await sharp(forest)
-        .png()
-        .toFile(path.join(OUTPUT_ROOT, 'wall-forest-canopy-blueblack.png'));
-}
 
 async function buildMoon() {
     const { data, info } = await sharp(sources.moon)
@@ -241,32 +221,6 @@ async function recolorTransparent(source, options) {
         data[index] = Math.round(options.red * value);
         data[index + 1] = Math.round(options.green * value);
         data[index + 2] = Math.round(options.blue * value);
-    }
-
-    return sharp(data, {
-        raw: {
-            channels: info.channels,
-            height: info.height,
-            width: info.width,
-        },
-    }).png().toBuffer();
-}
-
-async function recolorOpaqueForest(source, width, height, color = [12, 42, 72]) {
-    const { data, info } = await sharp(source)
-        .resize({ fit: 'fill', height, kernel: sharp.kernel.nearest, width })
-        .ensureAlpha()
-        .raw()
-        .toBuffer({ resolveWithObject: true });
-
-    for (let index = 0; index < data.length; index += info.channels) {
-        const luminance = data[index] * 0.2126 + data[index + 1] * 0.7152 + data[index + 2] * 0.0722;
-        const alpha = clamp((luminance - 10) * 9, 0, 255) * (data[index + 3] / 255);
-
-        data[index] = color[0];
-        data[index + 1] = color[1];
-        data[index + 2] = color[2];
-        data[index + 3] = Math.round(alpha);
     }
 
     return sharp(data, {

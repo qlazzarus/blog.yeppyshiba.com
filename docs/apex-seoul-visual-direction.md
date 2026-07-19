@@ -86,7 +86,7 @@ moon / cloud  : 도로와 무관한 sky anchor와 저속 풍향 이동
 | far city/light | FabinhoSC, Skyline Background | `city-far-blueblack.png` + light overlay |
 | moon | bart, Moon overlay texture | `moon-cool-blue.png` |
 | dark cloud | WickedInsignia, Clouds with Transparency | `cloud-dark-blue.png` |
-| wall-top forest | Robotrage, Forest Parallax | `wall-forest-clump-blueblack.png` |
+| wall-top forest | project-authored vector assets | `wall-forest-svg/tree-01…05-*.svg` |
 
 원본과 다운로드 URL·라이선스는 `assets/environment/source`의 각 `README.md`에 보관한다. 가공은 `npm run build:parallax-assets --workspace @games/apex-seoul`가 담당하며, 642px/250px 원본을 단순 확대하지 않고 잘라낸 건물 덩어리와 좌우 반전 변형을 겹쳐 `1600px` 폭 strip으로 재조합한다.
 
@@ -116,7 +116,9 @@ guardrail과 retaining wall 같은 연속 span은 point marker보다 이른 near
 
 canvas 경계에서는 연속 구조물도 결국 잘릴 수밖에 있으므로, road/object layer 위·HUD 아래에 야간 foreground matte를 둔다. 좌우와 하단의 다단 암부가 guardrail과 옹벽을 경계 전에 어둠으로 수렴시켜, 화면 바깥으로 계속되는 전경처럼 읽게 한다.
 
-옹벽 위의 숲은 CC0 `Forest Parallax`의 front·middle silhouette을 가공한 clump/canopy sprite로 교차 배치한다. 기존보다 `20%` 큰 scale과 두 배의 배치 빈도로 옹벽 상단을 빽빽하게 채워, downhill에서 숲속으로 진입하는 밀도를 만든다. tree ground contact는 road와 같은 crest visibility envelope를 사용하고, sprite는 wall보다 뒤·road보다 앞의 depth에서 base가 옹벽 상단 coping의 표면에 맞도록 둔다.
+옹벽 위의 숲은 투명 배경의 project-authored SVG 수목 5종을 back/front 군집으로 교차 배치한다. 모든 segment에 네 개의 겹치는 군집을 두고, 오른쪽 화면 가장자리를 끊김 없는 숲 벽으로 유지한다. 각 수목은 공통 바닥 접지선을 가지며, 세그먼트 인덱스 기반의 결정적 변형·간격으로 섞어 반복이 눈에 띄지 않게 한다. tree ground contact는 road와 같은 crest visibility envelope를 사용하고, sprite는 wall보다 뒤·road보다 앞의 depth에서 base가 옹벽 상단 coping의 표면에 맞도록 둔다.
+
+왼쪽 가드레일 너머에는 같은 SVG 수목을 절벽 아래에 배치한다. 왼쪽 수목은 상단 `62%`만 표시하고 base를 guardrail보다 아래로 내리므로, 화면에는 수관만 떠오른다. 네 겹 군집은 절벽 수관을 왼쪽 화면 가장자리까지 연속시킨다. 수목은 road와 left guardrail보다 낮은 depth여서 도로 → 난간 → 절벽 아래 숲의 순서를 유지하고, 열린 도시 조망은 수관 사이로 남긴다.
 
 ### 도로 depth lighting — 2026-07-16 적용
 
@@ -128,11 +130,11 @@ canvas 경계에서는 연속 구조물도 결국 잘릴 수밖에 있으므로,
 먼 도로     : asphalt는 밤색으로 수렴하고 반사 요소만 제한적으로 남긴다.
 ```
 
-`roadRenderer.ts`는 road slice의 world distance로 smoothstep fade를 계산한다. 야간 농도를 높이기 위해 약 `600z`까지만 가까운 asphalt palette를 유지하고, `4300z`에서 거의 검은 원경 암부로 수렴한다.
+`roadRenderer.ts`와 roadside renderer는 같은 world distance smoothstep fog를 계산한다. 야간 농도를 높이기 위해 약 `600z`까지만 가까운 palette를 유지하고, `4300z`에서 asphalt·rail·wall·수관이 함께 거의 검은 원경 암부로 수렴한다.
 
 - asphalt의 두 교차 색은 멀어질수록 같은 `0x050a11`로 수렴해 horizon 근처 stripe와 moire를 줄인다.
 - shoulder는 asphalt보다 어둡게 유지한다.
-- 중앙선과 edge line도 감쇠하지만 asphalt보다 밝은 blue를 남겨 다음 코너 방향을 읽게 한다.
+- 중앙선과 edge line은 가까운 구간에서는 asphalt보다 밝은 blue를 남겨 다음 코너 방향을 읽게 하되, 원거리에서는 별도의 far-blue 고정색으로 멈추지 않고 world fog 색으로 수렴한다.
 - speed shader는 계속 throttle/downhill/drift event cue만 담당하며 상시 전조등으로 사용하지 않는다.
 
 후속 전조등 cone을 추가할 경우 world-distance fade를 대체하지 않고, 가까운 화면 영역에 screen-space mask를 곱하는 별도 layer로 둔다. crest 뒤의 도로를 밝히지 않도록 visibility envelope 적용 이후에 연결한다.
@@ -143,6 +145,7 @@ canvas 경계에서는 연속 구조물도 결국 잘릴 수밖에 있으므로,
 - 먼 asphalt가 중앙 buffer와 자연스럽게 이어지되 도로 진행 방향은 읽힌다.
 - 먼 segment의 교차 stripe가 깜빡이거나 하나의 밝은 띠로 뭉치지 않는다.
 - 중앙선, edge line, reflector가 모두 같은 속도로 사라지지 않는다.
+- 가드레일, 옹벽, 표지판, 좌우 수관은 도로보다 밝게 원경에 남지 않는다. reflector는 완전히 사라지기 전에도 제한된 희미한 점광만 남긴다.
 - 오르막과 내리막에서 동일 world distance의 밝기 변화가 갑자기 튀지 않는다.
 
 ### 동적 horizon occlusion

@@ -5,8 +5,11 @@ import farCityLightsUrl from '../assets/environment/approved/parallax-v1/city-fa
 import cloudDarkBlueUrl from '../assets/environment/approved/parallax-v1/cloud-dark-blue.png';
 import moonCoolBlueUrl from '../assets/environment/approved/parallax-v1/moon-cool-blue.png';
 import nearRidgeParallaxUrl from '../assets/environment/approved/parallax-v1/ridge-near-blueblack.png';
-import wallForestCanopyUrl from '../assets/environment/approved/parallax-v1/wall-forest-canopy-blueblack.png';
-import wallForestClumpUrl from '../assets/environment/approved/parallax-v1/wall-forest-clump-blueblack.png';
+import wallForestTree01Url from '../assets/environment/approved/wall-forest-svg/tree-01-tall-pine.svg?no-inline';
+import wallForestTree02Url from '../assets/environment/approved/wall-forest-svg/tree-02-wide-pine.svg?no-inline';
+import wallForestTree03Url from '../assets/environment/approved/wall-forest-svg/tree-03-cypress.svg?no-inline';
+import wallForestTree04Url from '../assets/environment/approved/wall-forest-svg/tree-04-leaning-pine.svg?no-inline';
+import wallForestTree05Url from '../assets/environment/approved/wall-forest-svg/tree-05-broadleaf.svg?no-inline';
 import genesisG70VehicleAtlas from '../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
 import genesisG70VehicleShadowSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128-shadow.png';
 import genesisG70VehicleSpriteUrl from '../assets/vehicles/approved/sprites/genesis-g70-poc-128.png';
@@ -58,6 +61,7 @@ import {
     ELEVATION_VISUAL_SCALE,
     getRoadCenterOffsetAhead,
     getRoadWidthAtScreenY,
+    renderHorizonOcclusion,
     renderRoad,
     type RoadRenderStats,
 } from './game/roadRenderer';
@@ -70,6 +74,7 @@ import {
     type RoadObjectRenderStats,
     type WallForestSpriteState,
 } from './game/roadObjectRenderer';
+import { RenderDepth } from './game/renderDepth';
 import {
     createRuntimeQaOverrides,
     createRuntimePlayerVehicleConfig,
@@ -91,6 +96,10 @@ import {
     getSpeedEffectExpectedPeakAlpha,
     type SpeedEffectShaderUniforms,
 } from './game/speedEffectShader';
+import {
+    createHeadlightShader,
+    type HeadlightShaderUniforms,
+} from './game/headlightShader';
 import {
     createCameraEffectsConfig,
     createCameraEffectsState,
@@ -184,6 +193,8 @@ const PLAYER_OVERSPEED_UNDERSTEER_SPEED_SCRUB = 28;
 const PLAYER_OVERSPEED_UNDERSTEER_SPEED_WINDOW = 150;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
 const PLAYER_ROAD_CONTACT_DISTANCE = 260;
+const PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO = 0.22;
+const PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO = 0.12;
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
 const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;
 const PLAYER_SHADOW_MAX_ALPHA = 0.18;
@@ -283,8 +294,13 @@ const CITY_FAR_LIGHTS_KEY = 'city-far-lights';
 const CITY_RIDGE_PARALLAX_KEY = 'city-ridge-parallax';
 const CLOUD_DARK_BLUE_KEY = 'cloud-dark-blue';
 const MOON_COOL_BLUE_KEY = 'moon-cool-blue';
-const WALL_FOREST_CLUMP_KEY = 'wall-forest-clump';
-const WALL_FOREST_CANOPY_KEY = 'wall-forest-canopy';
+const WALL_FOREST_TREE_KEYS = [
+    'wall-forest-tree-01',
+    'wall-forest-tree-02',
+    'wall-forest-tree-03',
+    'wall-forest-tree-04',
+    'wall-forest-tree-05',
+] as const;
 const CITY_PARALLAX_WIDTH = 1600;
 const CITY_FAR_PARALLAX_HEIGHT = 112;
 const CITY_RIDGE_PARALLAX_HEIGHT = 150;
@@ -494,6 +510,8 @@ class ApexSeoulScene extends Phaser.Scene {
     private farCityLights!: Phaser.GameObjects.Image;
     private farCloud!: Phaser.GameObjects.Image;
     private foregroundOcclusionGraphics!: Phaser.GameObjects.Graphics;
+    private headlightShader!: Phaser.GameObjects.Shader;
+    private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
@@ -544,8 +562,11 @@ class ApexSeoulScene extends Phaser.Scene {
         this.load.image(CLOUD_DARK_BLUE_KEY, cloudDarkBlueUrl);
         this.load.image(MOON_COOL_BLUE_KEY, moonCoolBlueUrl);
         this.load.image(CITY_RIDGE_PARALLAX_KEY, nearRidgeParallaxUrl);
-        this.load.image(WALL_FOREST_CANOPY_KEY, wallForestCanopyUrl);
-        this.load.image(WALL_FOREST_CLUMP_KEY, wallForestClumpUrl);
+        this.load.svg(WALL_FOREST_TREE_KEYS[0], wallForestTree01Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[1], wallForestTree02Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[2], wallForestTree03Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[3], wallForestTree04Url);
+        this.load.svg(WALL_FOREST_TREE_KEYS[4], wallForestTree05Url);
         this.load.spritesheet(PLAYER_VEHICLE_TEXTURE_KEY, ACTIVE_RUNTIME_VEHICLE.spriteUrl, {
             frameHeight: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
             frameWidth: PLAYER_VEHICLE_ATLAS.apex.targetCellSize,
@@ -561,21 +582,22 @@ class ApexSeoulScene extends Phaser.Scene {
         this.roadObjects = createRoadObjects(this.roadTrack);
         this.applyRuntimeQaOverrides();
         this.cameras.main.setBackgroundColor('#050812');
-        this.backgroundGraphics = this.add.graphics().setDepth(0);
-        this.moon = this.createSkyLayer(MOON_COOL_BLUE_KEY, 0.5);
-        this.farCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, 0.6);
-        this.nearCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, 0.61);
-        this.farCityParallax = this.createParallaxLayer(CITY_FAR_PARALLAX_KEY, 1);
-        this.farCityLights = this.createParallaxLayer(CITY_FAR_LIGHTS_KEY, 1.01);
-        this.nearRidgeParallax = this.createParallaxLayer(CITY_RIDGE_PARALLAX_KEY, 1.2);
-        this.graphics = this.add.graphics().setDepth(2);
-        this.foregroundOcclusionGraphics = this.add.graphics().setDepth(6);
-        this.uiGraphics = this.add.graphics().setDepth(7);
+        this.backgroundGraphics = this.add.graphics().setDepth(RenderDepth.Background);
+        this.moon = this.createSkyLayer(MOON_COOL_BLUE_KEY, RenderDepth.Moon);
+        this.farCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, RenderDepth.FarCloud);
+        this.nearCloud = this.createSkyLayer(CLOUD_DARK_BLUE_KEY, RenderDepth.NearCloud);
+        this.farCityParallax = this.createParallaxLayer(CITY_FAR_PARALLAX_KEY, RenderDepth.FarCity);
+        this.farCityLights = this.createParallaxLayer(CITY_FAR_LIGHTS_KEY, RenderDepth.FarCityLights);
+        this.nearRidgeParallax = this.createParallaxLayer(CITY_RIDGE_PARALLAX_KEY, RenderDepth.NearRidge);
+        this.terrainHorizonOcclusionGraphics = this.add.graphics().setDepth(RenderDepth.TerrainHorizonOcclusion);
+        this.graphics = this.add.graphics().setDepth(RenderDepth.World);
+        this.foregroundOcclusionGraphics = this.add.graphics().setDepth(RenderDepth.ForegroundMatte);
+        this.uiGraphics = this.add.graphics().setDepth(RenderDepth.Ui);
         this.playerSoftShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_SHADOW_SOFT_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
-            .setDepth(4.8)
+            .setDepth(RenderDepth.PlayerSoftShadow)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
@@ -585,14 +607,14 @@ class ApexSeoulScene extends Phaser.Scene {
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_SILHOUETTE_SHADOW_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
-            .setDepth(5)
+            .setDepth(RenderDepth.PlayerShadow)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
             );
         this.playerCar = this.add
             .image(0, 0, PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
-            .setDepth(6)
+            .setDepth(RenderDepth.Player)
             .setOrigin(
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
@@ -602,7 +624,12 @@ class ApexSeoulScene extends Phaser.Scene {
             this.getViewport(),
             () => this.getSpeedEffectShaderUniforms(),
         );
-        this.hudText = createHudText(this).setDepth(8);
+        this.headlightShader = createHeadlightShader(
+            this,
+            this.getViewport(),
+            () => this.getHeadlightShaderUniforms(),
+        );
+        this.hudText = createHudText(this);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = {
@@ -710,11 +737,18 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.backgroundGraphics.clear();
         this.backgroundGraphics.setPosition(0, 0);
+        this.vehicleRenderState = null;
         this.graphics.clear();
         this.graphics.setPosition(this.cameraEffects.shake.x, this.cameraEffects.shake.y);
+        this.terrainHorizonOcclusionGraphics.clear();
+        this.terrainHorizonOcclusionGraphics.setPosition(this.cameraEffects.shake.x, this.cameraEffects.shake.y);
         this.foregroundOcclusionGraphics.clear();
         this.foregroundOcclusionGraphics.setPosition(0, 0);
         this.speedEffectShader.setPosition(
+            viewport.width / 2 + this.cameraEffects.shake.x,
+            viewport.height / 2 + this.cameraEffects.shake.y,
+        );
+        this.headlightShader.setPosition(
             viewport.width / 2 + this.cameraEffects.shake.x,
             viewport.height / 2 + this.cameraEffects.shake.y,
         );
@@ -725,7 +759,16 @@ class ApexSeoulScene extends Phaser.Scene {
             this.roadTrack,
             this.cameraResource,
             viewport,
-            { downhillCueRatio: this.getDownhillVisualCueRatio() },
+            {
+                downhillCueRatio: this.getDownhillVisualCueRatio(),
+                drawHorizonOcclusion: false,
+            },
+        );
+        renderHorizonOcclusion(
+            this.terrainHorizonOcclusionGraphics,
+            this.roadStats.horizonOcclusionY,
+            this.cameraResource,
+            viewport,
         );
         this.roadObjectStats = renderRoadObjects(
             this.graphics,
@@ -740,12 +783,14 @@ class ApexSeoulScene extends Phaser.Scene {
                 horizonOcclusionY: this.roadStats?.horizonOcclusionY,
             },
         );
-        this.syncWallForestSprites(this.roadObjectStats.wallForestSprites);
+        this.syncWallForestSprites([
+            ...this.roadObjectStats.leftCliffForestSprites,
+            ...this.roadObjectStats.wallForestSprites,
+        ]);
         this.drawForegroundEdgeOcclusion(viewport);
         if (RUNTIME_TUNING.debugProjectionGuides) {
             this.drawProjectionGuides(viewport);
         }
-        this.vehicleRenderState = null;
         const vehicleRenderState = this.getPlayerVehicleRenderState(viewport);
         this.renderPlayerShadow(viewport, vehicleRenderState);
         this.renderPlayerVehicle(viewport, vehicleRenderState);
@@ -868,20 +913,37 @@ class ApexSeoulScene extends Phaser.Scene {
             let sprite = this.wallForestSprites.get(state.id);
 
             if (!sprite) {
-                const textureKey = state.variant === 'canopy'
-                    ? WALL_FOREST_CANOPY_KEY
-                    : WALL_FOREST_CLUMP_KEY;
                 sprite = this.add
-                    .image(0, 0, textureKey)
-                    .setDepth(1.95)
+                    .image(0, 0, WALL_FOREST_TREE_KEYS[state.variant])
+                    .setDepth(
+                        state.side === 'left-cliff'
+                            ? RenderDepth.LeftCliffForest
+                            : state.layer === 'back'
+                            ? RenderDepth.WallForestBack
+                            : RenderDepth.WallForestFront,
+                    )
                     .setOrigin(0.5, 1);
+                if (state.side === 'left-cliff') {
+                    sprite.setCrop(0, 0, sprite.frame.width, sprite.frame.height * 0.62);
+                }
                 this.wallForestSprites.set(state.id, sprite);
             }
 
             sprite
-                .setAlpha(0.96)
+                .setAlpha(state.alpha)
                 .setDisplaySize(state.width, state.height)
-                .setPosition(state.x, state.y)
+                .setDepth(
+                    state.side === 'left-cliff'
+                        ? RenderDepth.LeftCliffForest
+                        : state.layer === 'back'
+                        ? RenderDepth.WallForestBack
+                        : RenderDepth.WallForestFront,
+                )
+                .setPosition(
+                    state.x + this.cameraEffects.shake.x,
+                    state.y + this.cameraEffects.shake.y,
+                )
+                .setTint(state.tint)
                 .setVisible(true);
         }
 
@@ -1343,6 +1405,25 @@ class ApexSeoulScene extends Phaser.Scene {
             horizonY: getHorizonY(this.cameraResource, viewport),
             intensity: this.speedEffectIntensity,
             time: this.speedEffectTime,
+            viewport,
+        };
+    }
+
+    private getHeadlightShaderUniforms(): HeadlightShaderUniforms {
+        const viewport = this.getViewport();
+        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+
+        return {
+            // The atlas frame has transparent headroom above the visible car.
+            // Anchor the beam to the visible front of the sprite instead of
+            // the frame's geometric top, which would detach it into the road.
+            carFrontX: this.playerCar.x,
+            carFrontY: this.playerCar.y -
+                this.playerCar.displayHeight * PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO,
+            // Use the rendered sprite width so the two pools stay attached to
+            // the physical left/right headlights as road-relative scaling changes.
+            lampHalfSpacing: this.playerCar.displayWidth * PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO,
+            intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio),
             viewport,
         };
     }
