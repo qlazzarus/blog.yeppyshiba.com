@@ -1,0 +1,17 @@
+---
+import { ADSENSE_CLIENT, ADSENSE_ENABLED } from '@/config/adsense';
+
+interface Props {
+    enabled?: boolean;
+}
+
+const { enabled = false } = Astro.props as Props;
+const shouldLoad = enabled && ADSENSE_ENABLED;
+const scriptUrl = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(ADSENSE_CLIENT)}`;
+---
+
+{
+    shouldLoad && (
+        <script async crossorigin='anonymous' src={scriptUrl} data-adsense-loader />
+    )
+}

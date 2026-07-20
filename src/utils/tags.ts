@@ -1,3 +1,4 @@
+import { isTagIndexable } from '@/config/seo';
 import { type TagGroup, type TagMeta, tagRegistry } from '@/config/tagRegistry';
 import type { CollectionEntry } from 'astro:content';
 import { slugify } from 'transliteration';
@@ -109,6 +110,12 @@ export function getTagEntries(posts: BlogPost[]): TagEntry[] {
 export function getVisibleTagEntries(posts: BlogPost[]): TagEntry[] {
     return getTagEntries(posts).filter(
         ({ meta, count }) => meta.featured || count >= 2,
+    );
+}
+
+export function getIndexableTagEntries(posts: BlogPost[]): TagEntry[] {
+    return getTagEntries(posts).filter(({ meta, count }) =>
+        isTagIndexable(meta, count),
     );
 }
 

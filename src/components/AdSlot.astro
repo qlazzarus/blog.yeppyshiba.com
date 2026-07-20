@@ -1,0 +1,95 @@
+---
+import { ADSENSE_CLIENT, ADSENSE_DEBUG, ADSENSE_ENABLED } from '@/config/adsense';
+
+type Placement =
+    | 'article-top'
+    | 'article-middle'
+    | 'article-bottom'
+    | 'sidebar'
+    | 'tools-bottom';
+
+interface Props {
+    slotId?: string;
+    placement: Placement;
+    format?: string;
+    responsive?: boolean;
+    debug?: boolean;
+}
+
+const {
+    slotId = '',
+    placement,
+    format = 'auto',
+    responsive = true,
+    debug = ADSENSE_DEBUG,
+} = Astro.props as Props;
+
+const shouldRenderAd = ADSENSE_ENABLED && Boolean(ADSENSE_CLIENT && slotId);
+const shouldRenderDebug = !shouldRenderAd && debug;
+const reservedHeight = placement === 'sidebar' ? '280px' : '250px';
+const initializeScript = `
+(() => {
+    const slots = document.querySelectorAll(
+        'ins.adsbygoogle:not([data-adsbygoogle-initialized])',
+    );
+
+    slots.forEach((element) => {
+        element.setAttribute('data-adsbygoogle-initialized', 'true');
+        try {
+            window.adsbygoogle = window.adsbygoogle || [];
+            window.adsbygoogle.push({});
+        } catch {
+            element.removeAttribute('data-adsbygoogle-initialized');
+        }
+    });
+})();`;
+---
+
+{
+    (shouldRenderAd || shouldRenderDebug) && (
+        <aside
+            class:list={[
+                'ad-slot not-prose mx-auto my-8 w-full overflow-hidden',
+                shouldRenderDebug &&
+                    'border-border bg-muted/30 flex items-center justify-center rounded border border-dashed',
+            ]}
+            style={`min-height:${reservedHeight}`}
+            aria-label='광고'
+            data-ad-placement={placement}
+        >
+            {shouldRenderAd ? (
+                <>
+                    <span class='text-muted-foreground block text-center text-[0.65rem]'>
+                        광고
+                    </span>
+                    <ins
+                        class='adsbygoogle block w-full'
+                        style={`display:block;min-height:${reservedHeight}`}
+                        data-ad-client={ADSENSE_CLIENT}
+                        data-ad-slot={slotId}
+                        data-ad-format={format}
+                        data-full-width-responsive={responsive ? 'true' : 'false'}
+                    />
+                </>
+            ) : (
+                <span class='text-muted-foreground text-sm'>
+                    광고 미리보기: {placement}
+                </span>
+            )}
+        </aside>
+    )
+}
+
+{shouldRenderAd && <script is:inline set:html={initializeScript} />}
+
+<style>
+    @media (max-width: 640px) {
+        .ad-slot {
+            min-height: 100px !important;
+        }
+
+        .ad-slot :global(.adsbygoogle) {
+            min-height: 100px !important;
+        }
+    }
+</style>

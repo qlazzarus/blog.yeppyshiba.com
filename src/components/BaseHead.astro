@@ -1,45 +1,67 @@
 ---
 import StructuredData from './StructuredData.astro';
-import { SITE_TITLE } from '@/consts';
+import { SITE_DEFAULT_IMAGE, SITE_TITLE } from '@/consts';
 import { getPublicTags } from '@/utils/tags';
 
 interface Props {
     title: string;
-    description: string;
+    description?: string;
+    canonical?: string;
     image?: string;
+    type?: 'website' | 'article';
     schemaType?: 'website' | 'article';
+    articleType?: 'BlogPosting' | 'Article' | 'TechArticle' | 'HowTo';
     breadcrumbs?: {
         name: string;
         item: string;
     }[];
     datePublished?: Date | string;
     dateModified?: Date | string;
+    publishedTime?: Date | string;
+    modifiedTime?: Date | string;
     tags?: Array<string | number>;
     category?: string;
     noindex?: boolean;
+    nofollow?: boolean;
+    titleTemplate?: boolean;
 }
 
 const {
     title: defaultTitle,
     description,
+    canonical,
     image,
-    schemaType = 'website',
+    type,
+    schemaType: legacySchemaType,
+    articleType,
     breadcrumbs = [],
     datePublished,
     dateModified,
+    publishedTime,
+    modifiedTime,
     tags = [],
     category,
     noindex = false,
+    nofollow = false,
+    titleTemplate = true,
 } = Astro.props as Props;
 
-const title = defaultTitle ? `${defaultTitle} - ${SITE_TITLE}` : SITE_TITLE;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const schemaType = type ?? legacySchemaType ?? 'website';
+const resolvedPublishedTime = publishedTime ?? datePublished;
+const resolvedModifiedTime = modifiedTime ?? dateModified;
+const title = titleTemplate
+    ? defaultTitle
+        ? `${defaultTitle} - ${SITE_TITLE}`
+        : SITE_TITLE
+    : defaultTitle;
+const canonicalURL = new URL(canonical ?? Astro.url.pathname, Astro.site);
 
-const fallbackImage = '/images/site/profile-yeppyshiba.png';
+const robots = `${noindex ? 'noindex' : 'index'},${nofollow ? 'nofollow' : 'follow'}`;
+const siteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
 
 function toAbsoluteUrl(src?: string) {
-    if (!src) return new URL(fallbackImage, Astro.site).toString();
-    if (src.startsWith('http')) return src;
+    if (!src) return new URL(SITE_DEFAULT_IMAGE, Astro.site).toString();
+    if (src.startsWith('http://') || src.startsWith('https://')) return src;
     return new URL(src, Astro.site).toString();
 }
 
@@ -60,7 +82,12 @@ const keywords = seoTags.join(', ');
     href={new URL('rss.xml', Astro.site)}
 />
 <meta name='generator' content={Astro.generator} />
-{noindex && <meta name='robots' content='noindex,follow' />}
+<meta name='robots' content={robots} />
+{
+    siteVerification && (
+        <meta name='google-site-verification' content={siteVerification} />
+    )
+}
 
 <!-- Font preloads -->
 <link
@@ -84,24 +111,38 @@ const keywords = seoTags.join(', ');
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name='title' content={title} />
-<meta name='description' content={description} />
+{description && <meta name='description' content={description} />}
 {keywords && <meta name='keywords' content={keywords} />}
 
 <!-- Open Graph / Facebook -->
 <meta property='og:type' content={schemaType === 'article' ? 'article' : 'website'} />
-<meta property='og:url' content={Astro.url} />
+<meta property='og:url' content={canonicalURL} />
 <meta property='og:site_name' content={SITE_TITLE} />
 <meta property='og:locale' content='ko_KR' />
 <meta property='og:title' content={title} />
-<meta property='og:description' content={description} />
+{description && <meta property='og:description' content={description} />}
 <meta property='og:image' content={ogImage} />
-{schemaType === 'article' && datePublished && (
-    <meta property='article:published_time' content={new Date(datePublished).toISOString()} />
-)}
-{schemaType === 'article' && dateModified && (
-    <meta property='article:modified_time' content={new Date(dateModified).toISOString()} />
-)}
-{schemaType === 'article' && category && <meta property='article:section' content={category} />}
+{
+    schemaType === 'article' && resolvedPublishedTime && (
+        <meta
+            property='article:published_time'
+            content={new Date(resolvedPublishedTime).toISOString()}
+        />
+    )
+}
+{
+    schemaType === 'article' && resolvedModifiedTime && (
+        <meta
+            property='article:modified_time'
+            content={new Date(resolvedModifiedTime).toISOString()}
+        />
+    )
+}
+{
+    schemaType === 'article' && category && (
+        <meta property='article:section' content={category} />
+    )
+}
 {
     schemaType === 'article' &&
         seoTags.map((tag) => <meta property='article:tag' content={tag} />)
@@ -109,19 +150,21 @@ const keywords = seoTags.join(', ');
 
 <!-- Twitter -->
 <meta name='twitter:card' content='summary_large_image' />
-<meta name='twitter:url' content={Astro.url.toString()} />
+<meta name='twitter:url' content={canonicalURL.toString()} />
 <meta name='twitter:title' content={title} />
-<meta name='twitter:description' content={description} />
+{description && <meta name='twitter:description' content={description} />}
 <meta name='twitter:image' content={ogImage} />
 
 <StructuredData
     type={schemaType}
+    articleType={articleType}
+    canonical={canonicalURL.toString()}
     title={defaultTitle}
     description={description}
     image={ogImage}
     breadcrumbs={breadcrumbs}
-    datePublished={datePublished}
-    dateModified={dateModified}
+    datePublished={resolvedPublishedTime}
+    dateModified={resolvedModifiedTime}
     tags={seoTags}
     category={category}
 />

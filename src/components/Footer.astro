@@ -3,7 +3,14 @@ import { SITE_TITLE } from '@/consts';
 const today = new Date();
 ---
 
-<footer class='border-border border-t py-4 text-center'>
+<footer class='border-border border-t py-5 text-center'>
+    <nav class='mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm'>
+        <a href='/about/' class='text-muted-foreground hover:text-foreground'>소개</a>
+        <a href='/privacy/' class='text-muted-foreground hover:text-foreground'
+            >개인정보처리 안내</a
+        >
+        <a href='/contact/' class='text-muted-foreground hover:text-foreground'>문의</a>
+    </nav>
     <small class='text-sm opacity-70'>
         &copy; 2022-{today.getFullYear()}
         {SITE_TITLE}. Built with Astro.

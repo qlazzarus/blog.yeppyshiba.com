@@ -40,6 +40,8 @@ const blog = defineCollection({
             coverLicense: z.string().optional(),
             coverSource: z.string().url().optional(),
             roadviewUpdateIntervalMs: z.number().optional(),
+            // Disable article advertising without changing the URL or layout.
+            ads: z.boolean().optional(),
         }),
 });
 

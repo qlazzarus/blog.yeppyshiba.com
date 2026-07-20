@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { POSTS_PER_PAGE } from '@/consts';
+import { POSTS_PER_PAGE, SITE_DESCRIPTION } from '@/consts';
 import Pagination from '@/components/Pagination.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
 
@@ -13,15 +13,17 @@ const feedEntries = posts;
 const totalPages = Math.max(1, Math.ceil(feedEntries.length / POSTS_PER_PAGE));
 const pageEntries = feedEntries.slice(0, POSTS_PER_PAGE);
 
-const title = 'Home';
-const description =
-    '웹 개발, 수학적 사고, 생활 리뷰와 라이딩 기록을 차분히 기록하는 Yeppyshiba의 개인 블로그입니다.';
-const pageImage =
-    pageEntries[0]?.data.image ??
-    '/images/site/profile-yeppyshiba.png';
+const title = 'Yeppyshiba Blog | Phaser 웹게임·Astro 개발·라이딩·근교 리뷰';
+const description = SITE_DESCRIPTION;
+const pageImage = pageEntries[0]?.data.image ?? '/images/site/profile-yeppyshiba.png';
 ---
 
-<BaseLayout title={title} description={description} image={pageImage}>
+<BaseLayout
+    title={title}
+    description={description}
+    image={pageImage}
+    titleTemplate={false}
+>
     <section>
         <EntryGrid entries={pageEntries} basePath='/article' />
         <div class='mt-6'>
