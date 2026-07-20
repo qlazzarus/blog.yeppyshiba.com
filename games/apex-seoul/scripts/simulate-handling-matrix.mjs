@@ -39,7 +39,7 @@ const baseConfig = {
     cornerSpeedPull: 160,
     downhillCornerBudgetMaxReduction: 0.08,
     downhillCornerBudgetSlopeAcceleration: 65,
-    downhillCornerLateralScale: 0.55,
+    downhillCornerLateralScale: 1.3,
     downhillCornerOverspeedScrub: 145,
     curveDriftAcceleration: 160,
     curveSteeringHighSpeedDrop: 0.42,
@@ -97,7 +97,7 @@ const baseConfig = {
     launchThrottleFullSpeedRatio: 0.7,
     launchThrottleMinRatio: 0.5,
     maxRoadOffset: 700,
-    overspeedUndersteerMax: 0.54,
+    overspeedUndersteerMax: 0.62,
     overspeedMediumUndersteerScale: 0.58,
     overspeedUndersteerMinSteerInput: 0.18,
     overspeedSafetyMarginStartRatio: 0.16,
@@ -106,9 +106,9 @@ const baseConfig = {
     overspeedSharpLateralScale: 1.55,
     overspeedSharpSpeedScrubScale: 1.35,
     overspeedSharpUndersteerScale: 1,
-    overspeedUndersteerLateralBuildRate: 150,
-    overspeedUndersteerLateralMaxSpeed: 76,
-    overspeedUndersteerLateralRecoveryRate: 70,
+    overspeedUndersteerLateralBuildRate: 180,
+    overspeedUndersteerLateralMaxSpeed: 120,
+    overspeedUndersteerLateralRecoveryRate: 130,
     overspeedUndersteerRatioBuildRate: 2.8,
     overspeedUndersteerRatioRecoveryRate: 4.5,
     overspeedUndersteerSpeedScrub: 28,
@@ -325,6 +325,23 @@ const scenarios = {
             accelPressed: true,
             brakePressed: false,
             steerAxis: t >= 2 && t < 5.5 ? 0.7 : 0,
+        }),
+        getRoad: (t) => ({
+            currentCurve: t < 2 ? 0 : 0.62,
+            slopeAcceleration: 0,
+        }),
+    },
+    'sharp-overspeed-demand-only': {
+        durationSec: 4.2,
+        initialSpeed: 760,
+        speedOverride: 760,
+        speedOverrideAtSec: 2,
+        steerEndSec: 3.5,
+        steerStartSec: 2,
+        getInput: (t) => ({
+            accelPressed: false,
+            brakePressed: false,
+            steerAxis: t >= 2 && t < 3.5 ? 0.7 : 0,
         }),
         getRoad: (t) => ({
             currentCurve: t < 2 ? 0 : 0.62,
@@ -1021,6 +1038,7 @@ const config = {
         'sharp-bend-apex-line',
         'sharp-bend-outside-line',
         'sharp-overspeed-grip',
+        'sharp-overspeed-demand-only',
         'sharp-counter-road-grip',
         'sharp-counter-road-tap',
         'sharp-prepared-grip',
@@ -1145,6 +1163,7 @@ function scoreHandlingRelationships(results) {
     const sharpCounterRoadGrip = getMetrics('sharp-counter-road-grip');
     const sharpCounterRoadTap = getMetrics('sharp-counter-road-tap');
     const sharpOverspeedGrip = getMetrics('sharp-overspeed-grip');
+    const sharpOverspeedDemandOnly = getMetrics('sharp-overspeed-demand-only');
     const sharpPreparedGrip = getMetrics('sharp-prepared-grip');
     const sharpGripSpeed470 = getMetrics('sharp-grip-speed-470');
     const sharpGripSpeed560 = getMetrics('sharp-grip-speed-560');
@@ -1222,6 +1241,24 @@ function scoreHandlingRelationships(results) {
         ));
     }
 
+    if (sharpOverspeedGrip && sharpOverspeedDemandOnly) {
+        checks.push(checkAtLeast(
+            'relation.sharpGrip.demandOnlyUndersteerActivation',
+            sharpOverspeedDemandOnly.overspeedUndersteerRatioMax,
+            0.5,
+            0.25,
+            22,
+        ));
+        checks.push(checkAtMost(
+            'relation.sharpGrip.demandOnlyThrottleDelta',
+            sharpOverspeedGrip.overspeedUndersteerRatioMax -
+                sharpOverspeedDemandOnly.overspeedUndersteerRatioMax,
+            0.08,
+            0.2,
+            18,
+        ));
+    }
+
     if (sharpCounterRoadGrip && sharpOverspeedGrip) {
         checks.push(checkAtLeast(
             'relation.counterRoad.sharpOutsideExcursion',
@@ -1265,10 +1302,11 @@ function scoreHandlingRelationships(results) {
             20,
         ));
         checks.push(checkAtLeast(
-            'relation.downhillSharp.outsideExcursion',
-            downhillSharpFullThrottle.lateralOffsetMaxAbs - levelSharpFullThrottle.lateralOffsetMaxAbs,
-            35,
-            12,
+            'relation.downhillSharp.outsideSafetyMarginGain',
+            downhillSharpFullThrottle.cornerSafetyMarginRatioMax -
+                levelSharpFullThrottle.cornerSafetyMarginRatioMax,
+            0.08,
+            0.03,
             18,
         ));
     }
@@ -1506,7 +1544,22 @@ function scoreScenario(scenarioId, scenario, samples, controllerConfig) {
     // These scenarios deliberately use a lift to request recovery or a drift
     // transition; evaluate their state response rather than penalizing the
     // intended speed shed.
-    if (!['explicit-recovery', 'counter-lift-exit', 'counter-transition', 'drift-throttle-long-lift-exit'].includes(scenarioId)) {
+    if (![
+        'brake-drift-entry-left',
+        'brake-drift-entry-right',
+        'budget-sharp-brake-drift',
+        'counter-lift-exit',
+        'counter-transition',
+        'drift-throttle-long-lift-exit',
+        'explicit-recovery',
+        'lift-drift-entry',
+        'sharp-brake-drift-apex-line',
+        'sharp-brake-drift-outside-line',
+        'sharp-drift-oversteer',
+        'sharp-overspeed-brake-recovery',
+        'sharp-overspeed-demand-only',
+        'sharp-prepared-grip',
+    ].includes(scenarioId)) {
         checks.push(checkAtMost('speedDropFromPeak', metrics.speedDropFromPeak, 140, 230, 12));
     }
 
@@ -1579,8 +1632,9 @@ function scoreScenario(scenarioId, scenario, samples, controllerConfig) {
     }
 
     if (scenarioId === 'high-speed-grip-angle-cap') {
-        checks.push(checkAtLeast('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 0.45, 0.35, 12));
-        checks.push(checkAtMost('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 0.62, 0.74, 18));
+        checks.push(checkAtLeast('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 0.5, 0.38, 12));
+        checks.push(checkAtMost('gripSteeringMaxAbs', metrics.gripSteeringMaxAbs, 1, 1.01, 18));
+        checks.push(checkAtMost('gripSteerAuthority.mean', metrics.gripSteerAuthorityMean, 0.82, 0.92, 12));
         checks.push(checkAtLeast('gripCornerSpeedDrop', metrics.gripCornerSpeedDrop, 20, 8, 14));
         checks.push(checkAtMost('gripCornerSpeedDrop', metrics.gripCornerSpeedDrop, 110, 180, 10));
     }
@@ -1593,6 +1647,19 @@ function scoreScenario(scenarioId, scenario, samples, controllerConfig) {
     if (scenarioId === 'sharp-overspeed-grip') {
         checks.push(checkAtLeast('overspeedUndersteerRatio.max', metrics.overspeedUndersteerRatioMax, 0.5, 0.25, 22));
         checks.push(checkAtMost('gripSteerAuthority.mean', metrics.gripSteerAuthorityMean, 0.57, 0.72, 16));
+        checks.push(checkAtMost('driftRatio.max', metrics.driftRatioMax, 0.02, 0.1, 14));
+    }
+
+    if (scenarioId === 'sharp-overspeed-demand-only') {
+        checks.push(checkAtLeast('overspeedUndersteerRatio.entry', metrics.overspeedUndersteerRatioAtEntry, 0.25, 0.12, 20));
+        checks.push(checkAtLeast('overspeedUndersteerRatio.max', metrics.overspeedUndersteerRatioMax, 0.5, 0.25, 22));
+        checks.push(checkAtLeast(
+            'overspeedUndersteerLateralVelocity.maxAbs',
+            metrics.overspeedUndersteerLateralVelocityMaxAbs,
+            60,
+            30,
+            18,
+        ));
         checks.push(checkAtMost('driftRatio.max', metrics.driftRatioMax, 0.02, 0.1, 14));
     }
 

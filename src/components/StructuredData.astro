@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE } from '@/consts';
+import { SITE_AUTHOR, SITE_LOGO, SITE_PUBLISHER, SITE_TITLE } from '@/consts';
 
 type ListItem = {
     name: string;
@@ -8,6 +8,8 @@ type ListItem = {
 
 interface Props {
     type?: 'website' | 'article';
+    articleType?: 'BlogPosting' | 'Article' | 'TechArticle' | 'HowTo';
+    canonical?: string;
     title?: string;
     description?: string;
     image?: string;
@@ -20,6 +22,8 @@ interface Props {
 
 const {
     type = 'website',
+    articleType = 'BlogPosting',
+    canonical,
     title,
     description,
     image,
@@ -31,7 +35,7 @@ const {
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? '';
-const currentUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const currentUrl = new URL(canonical ?? Astro.url.pathname, Astro.site).toString();
 
 const normalizeImage = (value?: string) => {
     if (!value) return undefined;
@@ -48,6 +52,16 @@ const websiteSchema = {
     url: siteUrl,
     inLanguage: 'ko-KR',
 };
+
+const personSchema =
+    type === 'website' && new URL(currentUrl).pathname === '/'
+        ? {
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: SITE_AUTHOR,
+              url: siteUrl,
+          }
+        : null;
 
 const breadcrumbSchema =
     breadcrumbs.length > 0
@@ -67,7 +81,7 @@ const articleSchema =
     type === 'article'
         ? {
               '@context': 'https://schema.org',
-              '@type': 'BlogPosting',
+              '@type': articleType,
               headline: title,
               description,
               mainEntityOfPage: currentUrl,
@@ -83,14 +97,14 @@ const articleSchema =
                     : undefined,
               author: {
                   '@type': 'Person',
-                  name: 'Yeppyshiba',
+                  name: SITE_AUTHOR,
               },
               publisher: {
                   '@type': 'Organization',
-                  name: SITE_TITLE,
+                  name: SITE_PUBLISHER,
                   logo: {
                       '@type': 'ImageObject',
-                      url: new URL('/images/site/akita-inu.png', Astro.site).toString(),
+                      url: new URL(SITE_LOGO, Astro.site).toString(),
                   },
               },
               articleSection: category,
@@ -102,7 +116,12 @@ const articleSchema =
           }
         : null;
 
-const schemas = [websiteSchema, breadcrumbSchema, articleSchema].filter(Boolean);
+const schemas = [
+    type === 'website' ? websiteSchema : null,
+    personSchema,
+    breadcrumbSchema,
+    articleSchema,
+].filter(Boolean);
 ---
 
 {

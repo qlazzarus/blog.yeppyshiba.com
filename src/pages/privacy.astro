@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '개인정보처리 안내';
+const description =
+    'Yeppyshiba Blog의 접속 기록, 분석 도구, 광고와 쿠키 사용 범위를 안내합니다.';
+const effectiveDate = '2026-07-20';
+---
+
+<BaseLayout
+    title={title}
+    description={description}
+    breadcrumbs={[
+        { name: 'Home', item: new URL('/', Astro.site).toString() },
+        { name: title, item: new URL('/privacy/', Astro.site).toString() },
+    ]}
+>
+    <article class='prose dark:prose-invert mx-auto max-w-3xl'>
+        <h1>{title}</h1>
+        <p>
+            이 페이지는 Yeppyshiba가 운영하는 개인 블로그에서 어떤 외부 서비스와
+            브라우저 저장 기능을 사용하는지 설명합니다. 별도의 회원가입이나 댓글 입력
+            기능은 제공하지 않습니다.
+        </p>
+
+        <h2>접속 기록과 분석</h2>
+        <p>
+            사이트 품질과 콘텐츠 이용 현황을 파악하기 위해 프로덕션 환경에서 Google
+            Analytics를 사용할 수 있습니다. 이 과정에서 접속 시간, 대략적인 지역,
+            기기·브라우저 정보, 방문 페이지와 같은 이용 정보가 Google의 정책에 따라
+            처리될 수 있습니다.
+        </p>
+
+        <h2>광고와 쿠키</h2>
+        <p>
+            Google AdSense가 활성화된 경우 Google과 광고 파트너가 광고 제공, 빈도 관리,
+            성과 측정을 위해 쿠키 또는 유사 기술을 사용할 수 있습니다. 광고가 비활성화된
+            빌드에서는 이 사이트의 AdSense 스크립트가 로드되지 않습니다. 광고 개인화와
+            동의 선택지는 적용되는 지역 및 Google의 동의 관리 설정에 따라 달라질 수
+            있습니다.
+        </p>
+
+        <h2>브라우저에 저장되는 정보</h2>
+        <p>
+            화면 테마와 일부 도구·게임의 진행 상태처럼 사용자가 선택한 설정은 브라우저의
+            로컬 저장소에 보관될 수 있습니다. 계산기와 GPX 도구에 입력한 데이터는 각
+            페이지에 달리 명시되지 않는 한 브라우저 안에서 처리됩니다.
+        </p>
+
+        <h2>외부 서비스와 링크</h2>
+        <p>
+            지도, 분석, 광고, 소셜 링크 등 외부 서비스에는 각 서비스 제공자의 정책이
+            적용됩니다. 외부 사이트로 이동한 이후의 데이터 처리는 해당 운영자가
+            담당합니다.
+        </p>
+
+        <h2>문의와 변경</h2>
+        <p>
+            개인정보 관련 문의는 <a href='/contact/'>문의 안내 페이지</a>의 채널을
+            이용해 주세요. 사용 서비스나 처리 범위가 바뀌면 이 안내와 시행일을 함께
+            갱신합니다.
+        </p>
+
+        <p><strong>시행일:</strong> {effectiveDate}</p>
+    </article>
+</BaseLayout>

@@ -1,19 +1,19 @@
 ---
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { getPlayableGames } from '@/lib/games';
 
 export async function getStaticPaths() {
-    const gamesDir = path.join(process.cwd(), 'games');
-    const entries = await readdir(gamesDir, { withFileTypes: true }).catch(() => []);
+    const games = await getPlayableGames();
 
-    return entries
-        .filter((entry) => entry.isDirectory())
-        .map((entry) => ({
-            params: { slug: entry.name },
-        }));
+    return games.map((game) => ({
+        params: { slug: game.slug },
+        props: { game },
+    }));
 }
 
 const slug = Astro.params.slug;
+const { game } = Astro.props;
 const gamesDir = path.join(process.cwd(), 'games');
 const publicGameAssetsDir = path.join(process.cwd(), 'public', 'game-assets');
 
@@ -62,7 +62,7 @@ function rewriteAssetTag(tag: string, slug: string) {
         <meta charset='UTF-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <meta name='robots' content='noindex,follow' />
-        <title>Isometric Minesweeper</title>
+        <title>{game.title}</title>
         {playAssetTags.map((tag) => <Fragment set:html={tag} />)}
     </head>
     <body>

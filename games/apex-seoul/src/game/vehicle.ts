@@ -53,6 +53,20 @@ export type PlayerDriftState = 'grip' | 'setup' | 'drift' | 'recovery';
 export type PlayerDriftEntryMode = 'none' | 'brake' | 'lift';
 export type PlayerCornerGrade = 'straight' | 'easy' | 'medium' | 'sharp';
 
+export type PlayerSpeedHandlingState = {
+    centeringScale: number;
+    gripAngleCap: number;
+    inputResponseScale: number;
+    lateralAuthority: number;
+    lateralVelocityCap: number;
+    neutralReturnVelocityCap: number;
+    speedRatio: number;
+    steeringForceScale: number;
+    steeringSlewRate: number;
+    visualAuthority: number;
+    visualYawScale: number;
+};
+
 export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
@@ -111,6 +125,7 @@ export type PlayerVehicleState = {
     shiftDirection: -1 | 0 | 1;
     shiftTimer: number;
     speed: number;
+    speedHandling: PlayerSpeedHandlingState;
     slipAngle: number;
     steering: number;
     steeringVelocity: number;

@@ -14,6 +14,8 @@ type Props = CollectionEntry<'blog'>;
 
 const post = Astro.props;
 const { Content } = await render(post);
+const articleTextLength = post.body?.replace(/\s+/gu, ' ').trim().length ?? 0;
+const adsEligible = post.data.ads !== false && articleTextLength >= 1500;
 
 // compute previous / next posts (sorted by date desc)
 const allPosts = await getCollection('blog');
@@ -90,6 +92,7 @@ const relatedPosts = sortedPosts
     nextPost={next ? { slug: next.id, title: next.data.title } : null}
     nearbyReviewPosts={nearbyReviewPosts}
     relatedPosts={relatedPosts}
+    adsEligible={adsEligible}
 >
     <Content />
 </Layout>

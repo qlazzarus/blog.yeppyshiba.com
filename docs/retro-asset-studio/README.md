@@ -2,7 +2,7 @@
 
 Local ComfyUI bridge and postprocess guide for Apex Seoul vehicle sprite assets.
 
-This README is the current operational guide. Historical experiments and blog notes live in `../apex-seoul-retro-asset-studio-progress-notes.md`; deferred source-model plans live in `retro-asset-studio-plan.md`.
+This README is the current operational guide. Published experiments live in `../../contents/phaser4-apex-seoul-comfyui-retro-palette-compiler.md`; deferred source-model plans live in `retro-asset-studio-plan.md`.
 
 ## Current Pipeline
 

@@ -1,19 +1,7 @@
-import {
-    createDefaultPlayerVehicleState,
-    updatePlayerVehicle,
-} from '../src/game/playerVehicleController.ts';
-import {
-    APEX_S_ENGINE_PROFILE,
-    getDisplaySpeedKmh,
-    RAVEN_COUPE_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
-} from '../src/game/engineProfile.ts';
+import { RAVEN_COUPE_ENGINE_PROFILE } from '../src/game/engineProfile.ts';
 
-const FRAME_SECONDS = 1 / 60;
-const ACCEL_SPEED = 760;
-const THRESHOLDS_KMH = [30, 60, 80, 100, 120, 150, 180];
-const BASE_CONFIG = {
-    accelSpeed: ACCEL_SPEED,
+export const HANDLING_TEST_CONFIG = {
+    accelSpeed: 760,
     aeroDrag: 0.00012,
     brakeSpeed: 0,
     braking: 330,
@@ -80,6 +68,7 @@ const BASE_CONFIG = {
     driftRecoveryRate: 2.3,
     engineAcceleration: 82,
     engineBrakeDeceleration: 26,
+    engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
     gripCounterRoadCenteringScale: 0.1,
     gripCounterRoadLateralBuildRate: 180,
     gripCounterRoadLateralMaxSpeed: 96,
@@ -122,84 +111,3 @@ const BASE_CONFIG = {
     steeringSpeedScrubThreshold: 0.22,
     steeringVelocityCue: 0.2,
 };
-const PROFILES = [
-    RAVEN_COUPE_ENGINE_PROFILE,
-    APEX_S_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
-];
-
-const rows = PROFILES.map((profile) => simulateProfile(profile));
-const raven = rows.find((row) => row.profileId === RAVEN_COUPE_ENGINE_PROFILE.id);
-const checks = [
-    between('raven0to60', raven.hits['60']?.timeSec, 8, 10.5),
-    between('raven0to100', raven.hits['100']?.timeSec, 12, 13.8),
-    atMost('raven100Gear', raven.hits['100']?.gear, 4),
-    atMost('raven0to100MaxLateralOffset', Math.abs(raven.maxLateralOffsetBefore100), 0.1),
-    equals('raven0to100DriftState', raven.driftStateAt100, 'grip'),
-];
-const report = { checks, pass: checks.every((check) => check.pass), rows };
-
-console.log(JSON.stringify(report, null, 2));
-if (!report.pass) process.exitCode = 1;
-
-function simulateProfile(profile) {
-    const config = { ...BASE_CONFIG, engineProfile: profile };
-    const player = createDefaultPlayerVehicleState(0, profile, ACCEL_SPEED);
-    const hits = {};
-    let maxLateralOffsetBefore100 = 0;
-    let driftStateAt100 = player.driftState;
-
-    for (let frame = 0; frame <= 60 * 45; frame += 1) {
-        const timeSec = frame * FRAME_SECONDS;
-        const speedKmh = getDisplaySpeedKmh(player.speed, ACCEL_SPEED, profile);
-
-        if (speedKmh < 100) {
-            maxLateralOffsetBefore100 = Math.max(maxLateralOffsetBefore100, Math.abs(player.lateralOffset));
-        }
-
-        for (const threshold of THRESHOLDS_KMH) {
-            if (!hits[threshold] && speedKmh >= threshold) {
-                hits[threshold] = {
-                    gear: player.gearIndex + 1,
-                    rpm: Math.round(player.rpm),
-                    speed: round(player.speed),
-                    timeSec: round(timeSec),
-                    torque: round(player.engineTorqueScale, 4),
-                };
-                if (threshold === 100) driftStateAt100 = player.driftState;
-            }
-        }
-
-        updatePlayerVehicle(
-            player,
-            { accelPressed: true, brakePressed: false, steerAxis: 0 },
-            { currentCurve: 0, slopeAcceleration: 0 },
-            config,
-            FRAME_SECONDS,
-        );
-    }
-
-    return {
-        displayName: profile.displayName,
-        driftStateAt100,
-        hits,
-        maxLateralOffsetBefore100: round(maxLateralOffsetBefore100, 4),
-        profileId: profile.id,
-    };
-}
-
-function atMost(id, value, target) {
-    return { id, pass: value <= target, target, value };
-}
-
-function between(id, value, min, max) {
-    return { id, max, min, pass: value >= min && value <= max, value };
-}
-
-function equals(id, value, target) {
-    return { id, pass: value === target, target, value };
-}
-
-function round(value, digits = 3) {
-    return Number(value.toFixed(digits));
-}

@@ -2,11 +2,13 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
+import AdSlot from '@/components/AdSlot.astro';
 import FormattedDate from '@/components/FormattedDate.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
 import GpxRouteViewer from '@/components/GpxRouteViewer.astro';
 import MapClient from '@/components/MapClient.astro';
 import { sortDisplayTags } from '@/utils/tags';
+import { ADSENSE_SLOTS } from '@/config/adsense';
 
 type ArticleProps = CollectionEntry<'blog'>['data'];
 
@@ -33,6 +35,7 @@ const {
     nextPost,
     nearbyReviewPosts,
     relatedPosts,
+    adsEligible = false,
 } = Astro.props as ArticleProps & {
     currentPostSlug?: string;
     prevPost?: { slug: string; title: string } | null;
@@ -42,6 +45,7 @@ const {
         post: CollectionEntry<'blog'>;
     }[];
     relatedPosts?: CollectionEntry<'blog'>[];
+    adsEligible?: boolean;
 };
 
 const hasLocation = typeof lat === 'number' && typeof lng === 'number';
@@ -77,6 +81,7 @@ export interface Props extends ArticleProps {
         post: CollectionEntry<'blog'>;
     }[];
     relatedPosts?: CollectionEntry<'blog'>[];
+    adsEligible?: boolean;
 }
 
 const breadcrumbs = [
@@ -100,11 +105,13 @@ const breadcrumbs = [
     description={summary}
     image={image}
     schemaType='article'
+    articleType={category === 'coding' ? 'TechArticle' : 'BlogPosting'}
     breadcrumbs={breadcrumbs}
     datePublished={date}
     dateModified={updated ?? date}
     tags={tags}
     category={category}
+    adsEnabled={adsEligible && Boolean(ADSENSE_SLOTS.articleBottom)}
 >
     <div>
         <header>
@@ -218,6 +225,11 @@ const breadcrumbs = [
                     />
                 </div>
             </section>
+        )
+    }
+    {
+        adsEligible && (
+            <AdSlot slotId={ADSENSE_SLOTS.articleBottom} placement='article-bottom' />
         )
     }
     <hr />

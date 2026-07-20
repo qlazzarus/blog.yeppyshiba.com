@@ -1,0 +1,29 @@
+---
+const defaultMeasurementId = 'G-P6NE4VJRLC';
+const measurementId =
+    import.meta.env.PUBLIC_GOOGLE_ANALYTICS_ID?.trim() || defaultMeasurementId;
+const analyticsEnabled =
+    import.meta.env.PROD &&
+    import.meta.env.PUBLIC_ANALYTICS_ENABLED?.trim().toLowerCase() !== 'false' &&
+    Boolean(measurementId);
+const configScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+    window.dataLayer.push(arguments);
+}
+gtag('js', new Date());
+gtag('config', ${JSON.stringify(measurementId)});`;
+---
+
+{
+    analyticsEnabled && (
+        <>
+            <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`}
+                data-google-analytics-loader
+            />
+            <script is:inline set:html={configScript} />
+        </>
+    )
+}

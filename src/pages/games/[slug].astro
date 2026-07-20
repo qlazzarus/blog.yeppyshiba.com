@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getGames } from '@/lib/games';
+
+export async function getStaticPaths() {
+    const games = await getGames();
+
+    return games.map((game) => ({
+        params: { slug: game.slug },
+        props: { game },
+    }));
+}
+
+const { game } = Astro.props;
+---
+
+<BaseLayout title={game.title} description={game.description}>
+    <section class='mx-auto max-w-5xl space-y-5'>
+        <div class='flex flex-wrap items-end justify-between gap-3'>
+            <div class='space-y-2'>
+                <p class='text-primary text-sm font-semibold'>{game.eyebrow}</p>
+                <h1 class='text-3xl font-bold tracking-tight'>{game.title}</h1>
+                <p class='text-muted-foreground max-w-3xl'>{game.summary}</p>
+            </div>
+            <a
+                href={`/play/${game.slug}/`}
+                class='border-border bg-card hover:bg-muted rounded border px-4 py-2 text-sm font-medium transition-colors'
+            >
+                가로 화면으로 열기
+            </a>
+        </div>
+
+        <iframe
+            src={`/play/${game.slug}/`}
+            title={game.title}
+            loading='lazy'
+            allow='fullscreen; screen-orientation'
+            class='border-border h-[min(75vh,620px)] w-full rounded-lg border bg-black'
+        >
+        </iframe>
+    </section>
+</BaseLayout>

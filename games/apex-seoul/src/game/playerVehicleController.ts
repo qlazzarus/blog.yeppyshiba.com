@@ -1,6 +1,5 @@
 import {
     getBoostRatio,
-    getDisplaySpeedKmh,
     getGearRpm,
     getInitialGearIndex,
     getTorqueScale,
@@ -10,6 +9,7 @@ import type {
     PlayerCornerGrade,
     PlayerDriftEntryMode,
     PlayerDriftState,
+    PlayerSpeedHandlingState,
     PlayerVehicleState,
 } from './vehicle';
 
@@ -18,12 +18,133 @@ const SHIFT_DOWN_CUT_RATIO = 0.16;
 const SHIFT_DOWN_DURATION_SECONDS = 0.1;
 const SHIFT_UP_CUT_RATIO = 0.42;
 const SHIFT_UP_DURATION_SECONDS = 0.22;
-const LOW_SPEED_LATERAL_LOCK_KMH = 5;
-const LOW_SPEED_LATERAL_FULL_KMH = 60;
-const LOW_SPEED_DRIFT_LOCK_KMH = 45;
+const LOW_SPEED_DRIFT_LOCK_RATIO = 0.33;
 const LOW_SPEED_DRIFT_VELOCITY_DECAY = 18;
-const LOW_SPEED_VISUAL_STEERING_LOCK_KMH = 5;
-const LOW_SPEED_VISUAL_STEERING_FULL_KMH = 60;
+
+type SpeedHandlingKnot = PlayerSpeedHandlingState;
+
+// The ratios are the raw speed values that currently display as
+// 0 / 5 / 10 / 30 / 60 / 110 / 145 / 170 / 185 km/h on Raven Coupe.
+// Display calibration never feeds back into the controller.
+const SPEED_HANDLING_KNOTS: SpeedHandlingKnot[] = [
+    {
+        centeringScale: 0,
+        gripAngleCap: 1,
+        inputResponseScale: 0.75,
+        lateralAuthority: 0,
+        lateralVelocityCap: 0,
+        neutralReturnVelocityCap: 0,
+        speedRatio: 0,
+        steeringForceScale: 0.75,
+        steeringSlewRate: 12,
+        visualAuthority: 0,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 0,
+        gripAngleCap: 1,
+        inputResponseScale: 0.78,
+        lateralAuthority: 0,
+        lateralVelocityCap: 0,
+        neutralReturnVelocityCap: 0,
+        speedRatio: 0.098184,
+        steeringForceScale: 0.78,
+        steeringSlewRate: 14,
+        visualAuthority: 0,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 1.08,
+        gripAngleCap: 1,
+        inputResponseScale: 0.84,
+        lateralAuthority: 0.025,
+        lateralVelocityCap: 28,
+        neutralReturnVelocityCap: 8,
+        speedRatio: 0.141024,
+        steeringForceScale: 0.84,
+        steeringSlewRate: 16,
+        visualAuthority: 0.08,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 1.08,
+        gripAngleCap: 1,
+        inputResponseScale: 0.95,
+        lateralAuthority: 0.36,
+        lateralVelocityCap: 110,
+        neutralReturnVelocityCap: 18,
+        speedRatio: 0.255219,
+        steeringForceScale: 0.94,
+        steeringSlewRate: 19,
+        visualAuthority: 0.55,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 1,
+        gripAngleCap: 1,
+        inputResponseScale: 1,
+        lateralAuthority: 1,
+        lateralVelocityCap: 220,
+        neutralReturnVelocityCap: 20,
+        speedRatio: 0.380614,
+        steeringForceScale: 1,
+        steeringSlewRate: 20,
+        visualAuthority: 1,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 1,
+        gripAngleCap: 1,
+        inputResponseScale: 1,
+        lateralAuthority: 1,
+        lateralVelocityCap: 205,
+        neutralReturnVelocityCap: 20,
+        speedRatio: 0.563403,
+        steeringForceScale: 0.96,
+        steeringSlewRate: 18,
+        visualAuthority: 1,
+        visualYawScale: 1,
+    },
+    {
+        centeringScale: 0.9,
+        gripAngleCap: 0.88,
+        inputResponseScale: 0.98,
+        lateralAuthority: 1,
+        lateralVelocityCap: 170,
+        neutralReturnVelocityCap: 18,
+        speedRatio: 0.699828,
+        steeringForceScale: 0.88,
+        steeringSlewRate: 14,
+        visualAuthority: 1,
+        visualYawScale: 0.96,
+    },
+    {
+        centeringScale: 0.8,
+        gripAngleCap: 0.78,
+        inputResponseScale: 0.95,
+        lateralAuthority: 1,
+        lateralVelocityCap: 125,
+        neutralReturnVelocityCap: 15,
+        speedRatio: 0.825087,
+        steeringForceScale: 0.78,
+        steeringSlewRate: 10,
+        visualAuthority: 1,
+        visualYawScale: 0.9,
+    },
+    {
+        centeringScale: 0.7,
+        gripAngleCap: 0.72,
+        inputResponseScale: 0.92,
+        lateralAuthority: 1,
+        lateralVelocityCap: 90,
+        neutralReturnVelocityCap: 12,
+        speedRatio: 1,
+        steeringForceScale: 0.68,
+        steeringSlewRate: 7.5,
+        visualAuthority: 1,
+        visualYawScale: 0.86,
+    },
+];
 
 export type PlayerVehicleControllerConfig = {
     accelSpeed: number;
@@ -154,6 +275,7 @@ export function createDefaultPlayerVehicleState(
     accelSpeed: number,
 ): PlayerVehicleState {
     const speedRatio = clamp(cruiseSpeed / accelSpeed, 0, 1);
+    const speedHandling = getSpeedHandlingSample(speedRatio);
     const gearIndex = getInitialGearIndex(engineProfile, speedRatio);
     const rpm = getGearRpm(engineProfile, gearIndex, speedRatio);
     const torqueScale = getTorqueScale(engineProfile, rpm);
@@ -200,12 +322,8 @@ export function createDefaultPlayerVehicleState(
         gripCounterRoadRatio: 0,
         gripSteerAngleLimit: 1,
         lateralOffset: 0,
-        lowSpeedLateralAuthority: getLowSpeedLateralAuthority(
-            getDisplaySpeedKmh(cruiseSpeed, accelSpeed, engineProfile),
-        ),
-        lowSpeedVisualSteeringAuthority: getLowSpeedVisualSteeringAuthority(
-            getDisplaySpeedKmh(cruiseSpeed, accelSpeed, engineProfile),
-        ),
+        lowSpeedLateralAuthority: speedHandling.lateralAuthority,
+        lowSpeedVisualSteeringAuthority: speedHandling.visualAuthority,
         centeringCounterHoldTimer: 0,
         centeringForce: 0,
         centeringReleaseStartScale: 0.45,
@@ -220,6 +338,7 @@ export function createDefaultPlayerVehicleState(
         shiftDirection: 0,
         shiftTimer: 0,
         speed: cruiseSpeed,
+        speedHandling,
         slipAngle: 0,
         steering: 0,
         steeringVelocity: 0,
@@ -238,33 +357,32 @@ export function updatePlayerVehicle(
 ) {
     updateBrakePressure(player, input, config, seconds);
     updatePlayerSpeed(player, input, context, config, seconds);
-    const displaySpeedKmh = getDisplaySpeedKmh(
-        player.speed,
-        config.accelSpeed,
-        config.engineProfile,
-    );
-    const lowSpeedLateralAuthority = getLowSpeedLateralAuthority(displaySpeedKmh);
-    player.lowSpeedLateralAuthority = lowSpeedLateralAuthority;
-    player.lowSpeedVisualSteeringAuthority = getLowSpeedVisualSteeringAuthority(displaySpeedKmh);
+    const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
+    const speedHandling = getSpeedHandlingSample(speedRatio);
+    const lowSpeedLateralAuthority = speedHandling.lateralAuthority;
+    player.speedHandling = speedHandling;
+    player.lowSpeedLateralAuthority = speedHandling.lateralAuthority;
+    player.lowSpeedVisualSteeringAuthority = speedHandling.visualAuthority;
     updateDriftState(player, input, context, config, seconds);
-    if (displaySpeedKmh < LOW_SPEED_DRIFT_LOCK_KMH && player.driftState !== 'grip') {
+    if (speedRatio < LOW_SPEED_DRIFT_LOCK_RATIO && player.driftState !== 'grip') {
         setDriftState(player, 'recovery', config);
     }
     updateDriftLateralMotion(player, input, config, seconds);
 
-    const speedRatio = clamp(player.speed / config.accelSpeed, 0, 1);
     const cornerIntensity = getCornerIntensity(context.currentCurve);
     const overspeedBandScale = getOverspeedUndersteerScale(player.cornerGrade, config);
-    const budgetOverspeedTarget = smoothstep(clamp(
+    // Corner demand and current speed determine understeer strength. Steering
+    // only confirms that the tires are being asked to turn; throttle position
+    // does not gate the effect, so coasting cannot clear it before speed drops.
+    const cornerDemandOverspeedTarget = smoothstep(clamp(
         player.cornerSpeedOverBudget / config.overspeedUndersteerSpeedWindow,
         0,
         1,
     ));
     const overspeedUndersteerActive = player.driftState === 'grip' &&
-        input.accelPressed &&
         Math.abs(input.steerAxis) >= config.overspeedUndersteerMinSteerInput;
     player.overspeedUndersteerTargetRatio = overspeedUndersteerActive
-        ? budgetOverspeedTarget * overspeedBandScale
+        ? cornerDemandOverspeedTarget * overspeedBandScale
         : 0;
     player.overspeedUndersteerRatio = approach(
         player.overspeedUndersteerRatio,
@@ -296,20 +414,8 @@ export function updatePlayerVehicle(
             : config.overspeedUndersteerLateralRecoveryRate,
         seconds,
     );
-    const steerForceRatio = getHighSpeedSteeringRatio(
-        speedRatio,
-        config.highSpeedSteerForceDrop,
-    );
-    const steerVisualRatio = getHighSpeedSteeringRatio(
-        speedRatio,
-        config.highSpeedSteerVisualDrop,
-    );
-    const curveVisualRatio = getHighSpeedSteeringRatio(
-        speedRatio,
-        config.curveSteeringHighSpeedDrop,
-    );
     player.gripSteerAngleLimit = player.driftState === 'grip'
-        ? getGripSteerAngleLimit(speedRatio, config) * overspeedSteerScale
+        ? speedHandling.gripAngleCap * overspeedSteerScale
         : 1;
     const gripSteerAxis = input.steerAxis * player.gripSteerAngleLimit;
     const inputSteerDirection = getDirection(input.steerAxis);
@@ -391,11 +497,11 @@ export function updatePlayerVehicle(
     );
     const centeringForce = -player.lateralOffset * config.centeringResponse *
         player.lateralCenteringScale * (1 - player.driftRatio * 0.34) *
-        lowSpeedLateralAuthority;
+        lowSpeedLateralAuthority * speedHandling.centeringScale;
     player.centeringForce = centeringForce;
     const steeringForce = gripSteerAxis *
         config.steerAcceleration *
-        steerForceRatio *
+        speedHandling.steeringForceScale *
         counterSteerScale *
         lowSpeedLateralAuthority;
     const curveForce = -context.currentCurve *
@@ -411,12 +517,7 @@ export function updatePlayerVehicle(
         curveForce +
         dampingForce
     ) * seconds;
-    const smoothSpeed = getSmoothSpeedRatio(speedRatio);
-    const baseLateralVelocityLimit = lerp(
-        config.steerAcceleration,
-        config.highSpeedLateralVelocityCap,
-        smoothSpeed,
-    ) * lowSpeedLateralAuthority;
+    const baseLateralVelocityLimit = speedHandling.lateralVelocityCap;
     const lateralVelocityLimit = counterSteering
         ? Math.min(
             baseLateralVelocityLimit,
@@ -435,9 +536,9 @@ export function updatePlayerVehicle(
     if (
         neutralRelease &&
         lateralOffsetDirection !== 0 &&
-        player.steeringVelocity * lateralOffsetDirection < -config.centeringNeutralInwardVelocityCap
+        player.steeringVelocity * lateralOffsetDirection < -speedHandling.neutralReturnVelocityCap
     ) {
-        player.steeringVelocity = -lateralOffsetDirection * config.centeringNeutralInwardVelocityCap;
+        player.steeringVelocity = -lateralOffsetDirection * speedHandling.neutralReturnVelocityCap;
     }
     player.counterSteerLateralVelocity = counterSteering ? player.steeringVelocity : 0;
     if (lowSpeedLateralAuthority <= 0) {
@@ -457,7 +558,7 @@ export function updatePlayerVehicle(
         player.driftLateralVelocity +
         player.gripCounterRoadLateralVelocity +
         player.overspeedUndersteerLateralVelocity
-    ) * lowSpeedLateralAuthority * seconds;
+    ) * seconds;
     player.lateralOffset = clamp(
         player.lateralOffset,
         -config.maxRoadOffset,
@@ -471,25 +572,25 @@ export function updatePlayerVehicle(
         player.steeringVelocity = 0;
     }
 
+    const visualGripAngleLimit = player.driftState === 'grip'
+        ? speedHandling.gripAngleCap
+        : 1;
+    const visualSteerAxis = input.steerAxis *
+        visualGripAngleLimit *
+        speedHandling.visualAuthority *
+        speedHandling.visualYawScale;
     const targetSteering = clamp(
-        gripSteerAxis * steerVisualRatio +
+        visualSteerAxis +
             (player.steeringVelocity / config.steerAcceleration) * config.steeringVelocityCue -
-            context.currentCurve * speedRatio * curveVisualRatio * config.curveSteeringCue,
+            context.currentCurve * speedRatio * speedHandling.visualYawScale * config.curveSteeringCue,
         -1,
         1,
     );
-    const inputResponseRatio = getHighSpeedSteeringRatio(
-        speedRatio,
-        config.highSpeedInputResponseDrop,
+    const steeringBlend = 1 - Math.exp(
+        -config.inputResponse * speedHandling.inputResponseScale * seconds,
     );
-    const steeringBlend = 1 - Math.exp(-config.inputResponse * inputResponseRatio * seconds);
     const nextSteering = lerp(player.steering, targetSteering, steeringBlend);
-    const steeringSlewRate = lerp(
-        24,
-        config.highSpeedSteeringSlewRate,
-        smoothSpeed,
-    );
-    const maxSteeringDelta = steeringSlewRate * seconds;
+    const maxSteeringDelta = speedHandling.steeringSlewRate * seconds;
 
     player.steering = clamp(
         nextSteering,
@@ -867,42 +968,69 @@ function getOverspeedUndersteerScale(
     return 0;
 }
 
-export function getGripSteerAngleLimit(
-    speedRatio: number,
-    config: Pick<PlayerVehicleControllerConfig, 'gripSteerAngleHighSpeedCap' | 'gripSteerAngleHighSpeedStartRatio'>,
-) {
-    const start = config.gripSteerAngleHighSpeedStartRatio;
-    const progress = smoothstep(clamp((speedRatio - start) / Math.max(0.01, 1 - start), 0, 1));
-
-    return lerp(1, config.gripSteerAngleHighSpeedCap, progress);
-}
-
 function getDriftEntryMode(brakeEntry: boolean, liftEntry: boolean): PlayerDriftEntryMode {
     return brakeEntry ? 'brake' : liftEntry ? 'lift' : 'none';
 }
 
-export function getHighSpeedSteeringRatio(speedRatio: number, maxDrop: number) {
-    const smoothSpeed = getSmoothSpeedRatio(speedRatio);
-
-    return clamp(1 - smoothSpeed * maxDrop, 1 - maxDrop, 1);
-}
-
 export function getLowSpeedLateralAuthority(displaySpeedKmh: number) {
-    return smoothstep(clamp(
-        (displaySpeedKmh - LOW_SPEED_LATERAL_LOCK_KMH) /
-            (LOW_SPEED_LATERAL_FULL_KMH - LOW_SPEED_LATERAL_LOCK_KMH),
-        0,
-        1,
-    ));
+    return getSpeedHandlingSample(getReferenceSpeedRatio(displaySpeedKmh)).lateralAuthority;
 }
 
 export function getLowSpeedVisualSteeringAuthority(displaySpeedKmh: number) {
-    return smoothstep(clamp(
-        (displaySpeedKmh - LOW_SPEED_VISUAL_STEERING_LOCK_KMH) /
-            (LOW_SPEED_VISUAL_STEERING_FULL_KMH - LOW_SPEED_VISUAL_STEERING_LOCK_KMH),
+    return getSpeedHandlingSample(getReferenceSpeedRatio(displaySpeedKmh)).visualAuthority;
+}
+
+export function getSpeedHandlingSample(speedRatio: number): PlayerSpeedHandlingState {
+    const ratio = clamp(speedRatio, 0, 1);
+    const upperIndex = SPEED_HANDLING_KNOTS.findIndex((knot) => knot.speedRatio >= ratio);
+
+    if (upperIndex <= 0) return { ...SPEED_HANDLING_KNOTS[0], speedRatio: ratio };
+    if (upperIndex < 0) {
+        return {
+            ...SPEED_HANDLING_KNOTS[SPEED_HANDLING_KNOTS.length - 1],
+            speedRatio: ratio,
+        };
+    }
+
+    const lower = SPEED_HANDLING_KNOTS[upperIndex - 1];
+    const upper = SPEED_HANDLING_KNOTS[upperIndex];
+    const progress = smoothstep(clamp(
+        (ratio - lower.speedRatio) / Math.max(0.000001, upper.speedRatio - lower.speedRatio),
         0,
         1,
     ));
+
+    return {
+        centeringScale: lerp(lower.centeringScale, upper.centeringScale, progress),
+        gripAngleCap: lerp(lower.gripAngleCap, upper.gripAngleCap, progress),
+        inputResponseScale: lerp(lower.inputResponseScale, upper.inputResponseScale, progress),
+        lateralAuthority: lerp(lower.lateralAuthority, upper.lateralAuthority, progress),
+        lateralVelocityCap: lerp(lower.lateralVelocityCap, upper.lateralVelocityCap, progress),
+        neutralReturnVelocityCap: lerp(
+            lower.neutralReturnVelocityCap,
+            upper.neutralReturnVelocityCap,
+            progress,
+        ),
+        speedRatio: ratio,
+        steeringForceScale: lerp(lower.steeringForceScale, upper.steeringForceScale, progress),
+        steeringSlewRate: lerp(lower.steeringSlewRate, upper.steeringSlewRate, progress),
+        visualAuthority: lerp(lower.visualAuthority, upper.visualAuthority, progress),
+        visualYawScale: lerp(lower.visualYawScale, upper.visualYawScale, progress),
+    };
+}
+
+function getReferenceSpeedRatio(displaySpeedKmh: number) {
+    const target = clamp(displaySpeedKmh / 185, 0, 1);
+    let lower = 0;
+    let upper = 1;
+
+    for (let iteration = 0; iteration < 24; iteration += 1) {
+        const midpoint = (lower + upper) * 0.5;
+        if (smoothstep(midpoint) < target) lower = midpoint;
+        else upper = midpoint;
+    }
+
+    return (lower + upper) * 0.5;
 }
 
 function getSmoothSpeedRatio(speedRatio: number) {

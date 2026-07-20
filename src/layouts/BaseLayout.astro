@@ -1,5 +1,7 @@
 ---
 import BaseHead from '@/components/BaseHead.astro';
+import AdSenseScript from '@/components/AdSenseScript.astro';
+import Analytics from '@/components/Analytics.astro';
 import Footer from '@/components/Footer.astro';
 import Header from '@/components/Header.astro';
 import { SITE_LANG } from '@/consts';
@@ -8,14 +10,22 @@ import '@/styles/global.css';
 const {
     title,
     description,
+    canonical,
     image,
+    type,
     schemaType,
+    articleType,
     breadcrumbs,
     datePublished,
     dateModified,
+    publishedTime,
+    modifiedTime,
     tags,
     category,
     noindex,
+    nofollow,
+    titleTemplate,
+    adsEnabled = false,
 } = Astro.props;
 ---
 
@@ -24,15 +34,23 @@ const {
         <BaseHead
             title={title}
             description={description}
+            canonical={canonical}
             image={image}
+            type={type}
             schemaType={schemaType}
+            articleType={articleType}
             breadcrumbs={breadcrumbs}
             datePublished={datePublished}
             dateModified={dateModified}
+            publishedTime={publishedTime}
+            modifiedTime={modifiedTime}
             tags={tags}
             category={category}
             noindex={noindex}
+            nofollow={nofollow}
+            titleTemplate={titleTemplate}
         />
+        <AdSenseScript enabled={adsEnabled} />
         <script is:inline>
             // Early theme init to prevent flash (FOUC)
             (function () {
@@ -48,17 +66,7 @@ const {
                 } catch {}
             })();
         </script>
-        <!-- ✅ Google tag (gtag.js) -->
-        <script async src='https://www.googletagmanager.com/gtag/js?id=G-P6NE4VJRLC'
-        ></script>
-        <script is:inline>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
-            gtag('config', 'G-P6NE4VJRLC');
-        </script>
+        <Analytics />
         <style>
             /* Keep native dialog hidden unless opened to avoid stray renderings */
             dialog:not([open]) {

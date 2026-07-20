@@ -195,4 +195,4 @@ downhill horizon fill은 envelope의 가장 먼 유효 경계를 사용한다. r
 
 ## 리소스 관리
 
-차량/환경 파이프라인, Stable Diffusion·ComfyUI의 역할, source/generated/approved 디렉터리, 라이선스와 승인 체크리스트는 [리소스 관리 원칙](apex-seoul-resource-management.md)을 따른다. 실험 결과와 runtime QA 수치는 [Retro Asset Studio 진행 메모](apex-seoul-retro-asset-studio-progress-notes.md)에 남긴다.
+차량/환경 파이프라인, Stable Diffusion·ComfyUI의 역할, source/generated/approved 디렉터리, 라이선스와 승인 체크리스트는 [리소스 관리 원칙](apex-seoul-resource-management.md)을 따른다. 반복 가능한 차량 생성·후처리 절차는 [Retro Asset Studio 운영 가이드](retro-asset-studio/README.md), 승인 결과는 asset manifest와 QA 산출물에 남긴다.

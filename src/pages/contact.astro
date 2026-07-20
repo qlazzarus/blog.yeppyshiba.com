@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = '문의';
+const description =
+    'Yeppyshiba Blog의 콘텐츠 정정, 기술 제안, 개인정보 관련 문의 방법입니다.';
+const contacts = [
+    {
+        href: 'https://github.com/qlazzarus',
+        label: 'GitHub',
+        description: '코드와 기술 문서에 관한 공개 이슈 또는 프로필 연락 수단',
+    },
+    {
+        href: 'https://www.linkedin.com/in/yeppyshiba/',
+        label: 'LinkedIn',
+        description: '프로필 메시지를 통한 일반 문의',
+    },
+];
+---
+
+<BaseLayout
+    title={title}
+    description={description}
+    breadcrumbs={[
+        { name: 'Home', item: new URL('/', Astro.site).toString() },
+        { name: title, item: new URL('/contact/', Astro.site).toString() },
+    ]}
+>
+    <section class='mx-auto max-w-2xl space-y-6'>
+        <div class='space-y-2'>
+            <h1 class='text-3xl font-bold tracking-tight'>{title}</h1>
+            <p class='text-muted-foreground leading-7'>
+                콘텐츠의 사실관계 정정, 출처·저작권, 개인정보, 기술적인 제안은 아래 공개
+                프로필을 통해 알려 주세요. 비밀번호, 계좌 정보 등 민감한 정보는 보내지
+                마세요.
+            </p>
+        </div>
+
+        <ul class='grid gap-4'>
+            {
+                contacts.map((contact) => (
+                    <li>
+                        <a
+                            href={contact.href}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            class='bg-card border-border hover:border-primary/50 block rounded-xl border p-5 transition-colors'
+                        >
+                            <span class='font-semibold'>{contact.label}</span>
+                            <span class='text-muted-foreground mt-1 block text-sm'>
+                                {contact.description}
+                            </span>
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+    </section>
+</BaseLayout>
