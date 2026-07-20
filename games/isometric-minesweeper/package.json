@@ -3,6 +3,12 @@
     "private": true,
     "type": "module",
     "version": "0.0.1",
+    "game": {
+        "title": "Isometric Minesweeper",
+        "eyebrow": "Phaser 4 Lab",
+        "description": "Isometric 좌표계와 Phaser 4 기반 ECS 패턴으로 만든 난이도 선택형 지뢰찾기 웹게임입니다.",
+        "summary": "첫 클릭 안전 처리, 빈 칸 연쇄 오픈, 난이도 선택, 타이머를 붙여 플레이 가능한 Phaser 4 지뢰찾기로 다듬고 있습니다."
+    },
     "scripts": {
         "dev": "vite --host 0.0.0.0",
         "build": "vite build",

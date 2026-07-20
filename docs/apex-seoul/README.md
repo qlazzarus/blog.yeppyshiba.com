@@ -6,16 +6,16 @@
 
 ## 먼저 볼 문서
 
-| 문서 | 역할 |
-| --- | --- |
-| [구현 로드맵](../pseudo-3d-apex-seoul-roadmap.md) | 게임 목표, 구현 기반, 장기 방향 |
-| [다음 구현 우선순위](../apex-seoul-next-priority-plan.md) | 현재 작업 순서와 완료 조건 |
-| [속도대별 핸들링](../apex-seoul-speed-band-handling-plan.md) | 핸들링 구조, understeer, QA 단일 기준 |
-| [Visual Direction](../apex-seoul-visual-direction.md) | black/blue 야간 화면과 원근 규칙 |
-| [Render Layer Tracker](../apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계 |
-| [헤드라이트 설계](../apex-seoul-headlight-rendering-plan.md) | 전방 light pool 구조와 시각 QA |
-| [리소스 관리](../apex-seoul-resource-management.md) | asset 출처, 생성, 승인, 저장 정책 |
-| [Retro Asset Studio](../retro-asset-studio/README.md) | 차량 sprite 생성·후처리 운영 가이드 |
+| 문서                                                         | 역할                                  |
+| ------------------------------------------------------------ | ------------------------------------- |
+| [구현 로드맵](./pseudo-3d-apex-seoul-roadmap.md)             | 게임 목표, 구현 기반, 장기 방향       |
+| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | 현재 작업 순서와 완료 조건            |
+| [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, understeer, QA 단일 기준 |
+| [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
+| [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
+| [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |
+| [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |
+| [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |
 
 ## 문서 운영 규칙
 
@@ -29,4 +29,3 @@
 ## 공개 기록
 
 발행된 Apex Seoul 글은 `contents/phaser4-apex-seoul-*.md` 패턴으로 관리한다. 공개 글은 당시의 구현 과정과 수치를 설명하는 기록이며, 현재 기본값을 판단할 때는 위 내부 문서를 우선한다.
-

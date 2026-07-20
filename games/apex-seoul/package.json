@@ -3,6 +3,12 @@
     "private": true,
     "type": "module",
     "version": "0.0.1",
+    "game": {
+        "title": "Apex Seoul",
+        "eyebrow": "Phaser 4 Lab",
+        "description": "Phaser 4 기반 Pseudo 3D 드리프트 레이싱 게임 Apex Seoul의 구현 실험입니다.",
+        "summary": "Pseudo 3D 카메라, 도로 투영, 드리프트 물리를 단계적으로 붙여 모바일 브라우저에서도 플레이 가능한 레이싱 게임으로 키우는 실험입니다."
+    },
     "scripts": {
         "analyze:drive-telemetry": "node scripts/analyze-drive-telemetry.mjs",
         "dev": "vite --host 0.0.0.0",
