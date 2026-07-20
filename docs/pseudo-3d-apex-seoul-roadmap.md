@@ -20,6 +20,19 @@
 4. counter-steer는 먼저 angle/line 조절이며, 반대 drift는 명시적인 전환 동작이다.
 5. 실제 북악 도로를 그대로 재현하지 않고, 게임에 필요한 리듬으로 재구성한다.
 
+## 주행 상태의 역할
+
+| 상태 | 역할 |
+| --- | --- |
+| Grip | 기본 고속 주행과 easy bend |
+| Setup | brake 또는 throttle lift 뒤의 drift 준비 |
+| Drift | sharp bend와 S 구간의 바깥 momentum 선택지 |
+| Counter trim | drift 방향을 유지하면서 angle과 line을 줄이는 입력 |
+| Counter transition | 명시적인 lift/re-accel 뒤 반대 drift로 전환 |
+| Recovery | 입력 해제, 저속, 코너 종료 뒤 grip으로 정렬 |
+
+counter만으로 drift 방향을 반전하지 않는다. drift는 모든 코너의 정답이 아니며, easy bend에서는 grip이 더 빠르고 sharp/S 구간에서만 line 선택지가 되어야 한다.
+
 ## 구현 완료 기반
 
 ### Pseudo-3D / 코스
@@ -47,7 +60,7 @@
 
 ## 현재 단계
 
-주행의 기반은 갖춰졌고 drift는 플레이 가능한 수준이다. 다음 완성 목표는 “더 빠른 숫자”가 아니라 **속도 상태의 대비**와 **라인 선택이 있는 코너링**이다.
+주행 기반과 속도별 handling profile은 갖춰졌다. 현재 최우선은 자동 QA를 통과한 grip/understeer/drift를 실제 주행에서 검증하는 것이다. 이후 완성 목표는 “더 빠른 숫자”가 아니라 **속도 상태의 대비**와 **라인 선택이 있는 코너링**이다.
 
 | 현재 강점 | 현재 공백 |
 | --- | --- |
@@ -91,8 +104,9 @@ vehicle anchor and frame stability
 
 ## 관련 문서
 
-- `apex-seoul-handling-outrun-review.md`: 현재 handling model, telemetry, QA
-- `apex-seoul-outrun-downhill-game-review.md`: 코스와 주행 감각의 디자인 결정
+- `apex-seoul/README.md`: 내부 문서 진입점과 역할 구분
 - `apex-seoul-next-priority-plan.md`: 바로 실행할 작업 순서
+- `apex-seoul-speed-band-handling-plan.md`: 현재 handling model과 QA
 - `apex-seoul-visual-direction.md`: black/blue visual direction
+- `apex-seoul-render-layer-tracker.md`: 렌더 depth와 occlusion 규칙
 - `apex-seoul-resource-management.md`: 리소스 확보·생성·보관·승인 단일 기준

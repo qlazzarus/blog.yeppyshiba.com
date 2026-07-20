@@ -33,7 +33,6 @@ import {
 import {
     createDefaultPlayerVehicleState,
     getCornerIntensity,
-    getHighSpeedSteeringRatio,
     updatePlayerVehicle,
     type PlayerVehicleControllerConfig,
 } from './game/playerVehicleController';
@@ -167,13 +166,13 @@ const PLAYER_CORNER_SHARP_SPEED_LOSS_SCALE = 1.18;
 const PLAYER_CORNER_SPEED_PULL = 160;
 const PLAYER_DOWNHILL_CORNER_BUDGET_MAX_REDUCTION = 0.08;
 const PLAYER_DOWNHILL_CORNER_BUDGET_SLOPE_ACCELERATION = 65;
-const PLAYER_DOWNHILL_CORNER_LATERAL_SCALE = 0.55;
+const PLAYER_DOWNHILL_CORNER_LATERAL_SCALE = 1.3;
 const PLAYER_DOWNHILL_CORNER_OVERSPEED_SCRUB = 145;
 const PLAYER_INPUT_RESPONSE = 18;
 const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.7;
 const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.5;
 const PLAYER_MAX_ROAD_OFFSET = 700;
-const PLAYER_OVERSPEED_UNDERSTEER_MAX = 0.54;
+const PLAYER_OVERSPEED_UNDERSTEER_MAX = 0.62;
 const PLAYER_OVERSPEED_MEDIUM_UNDERSTEER_SCALE = 0.58;
 const PLAYER_OVERSPEED_UNDERSTEER_MIN_STEER_INPUT = 0.18;
 const PLAYER_OVERSPEED_SAFETY_MARGIN_START_RATIO = 0.16;
@@ -184,9 +183,9 @@ const PLAYER_OVERSPEED_SAFETY_MARGIN_SCRUB = 75;
 const PLAYER_OVERSPEED_SHARP_LATERAL_SCALE = 1.55;
 const PLAYER_OVERSPEED_SHARP_SPEED_SCRUB_SCALE = 1.35;
 const PLAYER_OVERSPEED_SHARP_UNDERSTEER_SCALE = 1;
-const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_BUILD_RATE = 150;
-const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_MAX_SPEED = 76;
-const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_RECOVERY_RATE = 70;
+const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_BUILD_RATE = 180;
+const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_MAX_SPEED = 120;
+const PLAYER_OVERSPEED_UNDERSTEER_LATERAL_RECOVERY_RATE = 130;
 const PLAYER_OVERSPEED_UNDERSTEER_RATIO_BUILD_RATE = 2.8;
 const PLAYER_OVERSPEED_UNDERSTEER_RATIO_RECOVERY_RATE = 4.5;
 const PLAYER_OVERSPEED_UNDERSTEER_SPEED_SCRUB = 28;
@@ -267,8 +266,8 @@ const PLAYER_GRIP_COUNTER_ROAD_LATERAL_BUILD_RATE = 180;
 const PLAYER_GRIP_COUNTER_ROAD_LATERAL_MAX_SPEED = 96;
 const PLAYER_GRIP_COUNTER_ROAD_LATERAL_RECOVERY_RATE = 150;
 const PLAYER_GRIP_COUNTER_ROAD_SPEED_SCRUB = 72;
-const PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.34;
-const PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE = 0.62;
+const PLAYER_HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.22;
+const PLAYER_HIGH_SPEED_VISUAL_STEERING_SCALE = 1;
 const PLAYER_STEERING_VELOCITY_CUE = 0.2;
 const PLAYER_STEERING_SPEED_SCRUB = 64;
 const PLAYER_STEERING_SPEED_SCRUB_THRESHOLD = 0.22;
@@ -978,10 +977,7 @@ class ApexSeoulScene extends Phaser.Scene {
             roadStats: stats,
             slopeAcceleration: this.getSlopeAcceleration(),
             speedKmh: this.getPlayerSpeedKmh(),
-            steeringRatio: getHighSpeedSteeringRatio(
-                Phaser.Math.Clamp(player.speed / PLAYER_ACCEL_SPEED, 0, 1),
-                PLAYER_CONTROLLER_CONFIG.highSpeedSteerVisualDrop,
-            ),
+            steeringRatio: player.speedHandling.visualYawScale,
             telemetry: RUNTIME_TELEMETRY,
             telemetryEventCount: this.telemetry?.getEventCount() ?? 0,
             track: this.roadTrack,
@@ -1324,7 +1320,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private getVehicleVisualSteeringState() {
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
         const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
-        const visualScale = Phaser.Math.Linear(
+        const tuningVisualScale = Phaser.Math.Linear(
             1,
             RUNTIME_TUNING.highSpeedVisualSteeringScale,
             smoothSpeed,
@@ -1335,10 +1331,13 @@ class ApexSeoulScene extends Phaser.Scene {
             smoothSpeed,
         );
 
-        const physicalValue = this.playerVehicle.steering * visualScale;
+        // Speed-dependent yaw is already sampled once in the controller.
+        // The runtime multiplier defaults to 1 and remains only as an
+        // explicit QA override instead of a second default attenuation.
+        const physicalValue = this.playerVehicle.steering * tuningVisualScale;
         const player = this.playerVehicle;
         const lowSpeedVisualSteeringAuthority = player.lowSpeedVisualSteeringAuthority;
-        const poseValue = physicalValue * lowSpeedVisualSteeringAuthority;
+        const poseValue = physicalValue;
         const isSliding = player.driftState !== 'grip' && player.driftDirection !== 0;
 
         if (!isSliding) {
@@ -1693,6 +1692,21 @@ class ApexSeoulScene extends Phaser.Scene {
                 lateralOffset: this.playerVehicle.lateralOffset,
                 lowSpeedLateralAuthority: Number(this.playerVehicle.lowSpeedLateralAuthority.toFixed(4)),
                 lowSpeedVisualSteeringAuthority: Number(this.playerVehicle.lowSpeedVisualSteeringAuthority.toFixed(4)),
+                handlingSpeedRatio: Number(this.playerVehicle.speedHandling.speedRatio.toFixed(4)),
+                speedHandling: {
+                    centeringScale: Number(this.playerVehicle.speedHandling.centeringScale.toFixed(4)),
+                    gripAngleCap: Number(this.playerVehicle.speedHandling.gripAngleCap.toFixed(4)),
+                    inputResponseScale: Number(this.playerVehicle.speedHandling.inputResponseScale.toFixed(4)),
+                    lateralAuthority: Number(this.playerVehicle.speedHandling.lateralAuthority.toFixed(4)),
+                    lateralVelocityCap: Number(this.playerVehicle.speedHandling.lateralVelocityCap.toFixed(3)),
+                    neutralReturnVelocityCap: Number(
+                        this.playerVehicle.speedHandling.neutralReturnVelocityCap.toFixed(3),
+                    ),
+                    steeringForceScale: Number(this.playerVehicle.speedHandling.steeringForceScale.toFixed(4)),
+                    steeringSlewRate: Number(this.playerVehicle.speedHandling.steeringSlewRate.toFixed(3)),
+                    visualAuthority: Number(this.playerVehicle.speedHandling.visualAuthority.toFixed(4)),
+                    visualYawScale: Number(this.playerVehicle.speedHandling.visualYawScale.toFixed(4)),
+                },
                 centeringCounterHoldTimer: Number(this.playerVehicle.centeringCounterHoldTimer.toFixed(3)),
                 centeringForce: Number(this.playerVehicle.centeringForce.toFixed(3)),
                 centeringReleaseStartScale: Number(this.playerVehicle.centeringReleaseStartScale.toFixed(3)),

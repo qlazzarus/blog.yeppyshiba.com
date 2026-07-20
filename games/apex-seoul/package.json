@@ -25,6 +25,7 @@
         "qa:road-rhythm": "node scripts/audit-road-rhythm.mjs",
         "qa:road-width": "node scripts/audit-road-width.mjs",
         "qa:speed-cue": "node scripts/simulate-speed-cue.mjs",
+        "qa:speed-handling-sweep": "node scripts/simulate-speed-handling-sweep.mjs",
         "qa:standing-start": "node scripts/simulate-standing-start.mjs",
         "qa:vehicle-road-scale": "node scripts/simulate-vehicle-road-scale.mjs",
         "qa:ft86-runtime-colors": "node scripts/capture-runtime-vehicle-qa.mjs --vehicle ft86-retro --vehicle-colors blue,black,silver,red,yellow --output-dir assets/vehicles/generated/runtime-qa/ft86-retro-colors",

@@ -11,8 +11,7 @@ import {
 
 const FRAME_SECONDS = 1 / 60;
 const ACCEL_SPEED = 760;
-const HIGH_SPEED_VISUAL_STEERING_SCALE = 0.62;
-const HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.34;
+const HIGH_SPEED_STEER_WEAK_THRESHOLD = 0.22;
 const STEER_WEAK_THRESHOLD = 0.14;
 const VEHICLE_ROTATION_DEG = 3.5;
 const CONFIG = {
@@ -42,7 +41,7 @@ const CONFIG = {
     cornerSpeedPull: 160,
     downhillCornerBudgetMaxReduction: 0.08,
     downhillCornerBudgetSlopeAcceleration: 65,
-    downhillCornerLateralScale: 0.55,
+    downhillCornerLateralScale: 1.3,
     downhillCornerOverspeedScrub: 145,
     curveDriftAcceleration: 160,
     curveSteeringHighSpeedDrop: 0.42,
@@ -100,7 +99,7 @@ const CONFIG = {
     launchThrottleFullSpeedRatio: 0.7,
     launchThrottleMinRatio: 0.5,
     maxRoadOffset: 700,
-    overspeedUndersteerMax: 0.54,
+    overspeedUndersteerMax: 0.62,
     overspeedMediumUndersteerScale: 0.58,
     overspeedUndersteerMinSteerInput: 0.18,
     overspeedSafetyMarginStartRatio: 0.16,
@@ -109,9 +108,9 @@ const CONFIG = {
     overspeedSharpLateralScale: 1.55,
     overspeedSharpSpeedScrubScale: 1.35,
     overspeedSharpUndersteerScale: 1,
-    overspeedUndersteerLateralBuildRate: 150,
-    overspeedUndersteerLateralMaxSpeed: 76,
-    overspeedUndersteerLateralRecoveryRate: 70,
+    overspeedUndersteerLateralBuildRate: 180,
+    overspeedUndersteerLateralMaxSpeed: 120,
+    overspeedUndersteerLateralRecoveryRate: 130,
     overspeedUndersteerRatioBuildRate: 2.8,
     overspeedUndersteerRatioRecoveryRate: 4.5,
     overspeedUndersteerSpeedScrub: 28,
@@ -159,9 +158,9 @@ checks.push(atMost('launchFirst350msLateralOffset', Math.abs(launchSteer.lateral
 checks.push(atMost('launchFirst350msVisualSteering', Math.abs(launchSteer.visualSteering), 0.01));
 checks.push(equals('launchFirst350msVisualFrame', launchSteer.visualFrame, 'center'));
 checks.push(between('crawlLateralOffset', Math.abs(crawl.lateralOffset), 0.01, 22));
-checks.push(atMost('crawlVisualSteering', Math.abs(crawl.visualSteering), 0.08));
+checks.push(atMost('crawlVisualSteering', Math.abs(crawl.visualSteering), 0.1));
 checks.push(equals('crawlVisualFrame', crawl.visualFrame, 'center'));
-checks.push(atLeast('mediumLateralOffset', Math.abs(medium.lateralOffset), 180));
+checks.push(between('mediumLateralOffset', Math.abs(medium.lateralOffset), 180, 320));
 checks.push(atLeast('mediumVisualSteering', Math.abs(medium.visualSteering), 0.55));
 checks.push(equals('driftLockedState', driftLock.driftState, 'grip'));
 checks.push(atMost('driftLockedRatio', driftLock.driftRatio, 0.01));
@@ -243,9 +242,8 @@ function snapshot(player) {
 function getVisualSteeringSnapshot(player) {
     const speedRatio = clamp(player.speed / ACCEL_SPEED, 0, 1);
     const smoothSpeed = smoothstep(speedRatio);
-    const visualScale = lerp(1, HIGH_SPEED_VISUAL_STEERING_SCALE, smoothSpeed);
     const threshold = lerp(STEER_WEAK_THRESHOLD, HIGH_SPEED_STEER_WEAK_THRESHOLD, smoothSpeed);
-    const value = player.steering * visualScale * player.lowSpeedVisualSteeringAuthority;
+    const value = player.steering;
 
     return {
         frame: selectVisualFrame(value, threshold),
