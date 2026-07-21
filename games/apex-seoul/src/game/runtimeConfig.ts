@@ -379,13 +379,6 @@ export function createRuntimePlayerVehicleConfig(
             0.5,
             16,
         ),
-        cornerAccelSpeedDrop: readTuningNumber(
-            params,
-            'cornerAccelDrop',
-            defaults.cornerAccelSpeedDrop,
-            0,
-            280,
-        ),
         cornerEasyIntensityThreshold: readTuningNumber(
             params,
             'cornerEasyThreshold',
@@ -406,6 +399,34 @@ export function createRuntimePlayerVehicleConfig(
             defaults.cornerLineSpeedBonus,
             0,
             140,
+        ),
+        cornerSevereLineScrubScale: readTuningNumber(
+            params,
+            'cornerSevereLineScale',
+            defaults.cornerSevereLineScrubScale,
+            0,
+            3,
+        ),
+        cornerSevereOverspeedFullRatio: readTuningNumber(
+            params,
+            'cornerSevereFull',
+            defaults.cornerSevereOverspeedFullRatio,
+            1,
+            2,
+        ),
+        cornerSevereOverspeedScrub: readTuningNumber(
+            params,
+            'cornerSevereScrub',
+            defaults.cornerSevereOverspeedScrub,
+            0,
+            200,
+        ),
+        cornerSevereOverspeedStartRatio: readTuningNumber(
+            params,
+            'cornerSevereStart',
+            defaults.cornerSevereOverspeedStartRatio,
+            1,
+            2,
         ),
         cornerSharpIntensityThreshold: readTuningNumber(
             params,

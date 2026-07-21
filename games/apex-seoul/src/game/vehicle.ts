@@ -89,6 +89,35 @@ export type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 export type PlayerDriftState = 'grip' | 'setup' | 'drift' | 'recovery';
 export type PlayerDriftEntryMode = 'none' | 'brake' | 'lift';
 export type PlayerCornerGrade = 'straight' | 'easy' | 'medium' | 'sharp';
+export type PlayerCornerSpeedLossZone = 'within-budget' | 'overspeed' | 'severe-overspeed';
+
+export type PlayerCornerDemandSample = {
+    baseTargetSpeed: number;
+    cornerIntensity: number;
+    downhillCarryRatio: number;
+    grade: PlayerCornerGrade;
+    lateralDemand: number;
+    lineQuality: number;
+    lineSpeedAdjustment: number;
+    overspeedRatio: number;
+    safetyMarginRatio: number;
+    severeOverspeedRatio: number;
+    speedOverBudget: number;
+    speedLossZone: PlayerCornerSpeedLossZone;
+    speedRatioToBudget: number;
+    targetSpeed: number;
+};
+
+export type PlayerCornerSpeedLossSample = {
+    counterRoadScrubForce: number;
+    downhillScrubForce: number;
+    lineSafetyScrubForce: number;
+    overspeedTireScrubForce: number;
+    severeOverspeedScrubForce: number;
+    steeringScrubForce: number;
+    totalForce: number;
+    zone: PlayerCornerSpeedLossZone;
+};
 
 export type PlayerSpeedHandlingState = {
     centeringScale: number;
@@ -107,16 +136,12 @@ export type PlayerSpeedHandlingState = {
 export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
-    cornerGrade: PlayerCornerGrade;
-    cornerLineQuality: number;
-    cornerSafetyMarginRatio: number;
-    cornerSpeedBudget: number;
-    cornerSpeedOverBudget: number;
+    cornerDemand: PlayerCornerDemandSample;
+    cornerSpeedLoss: PlayerCornerSpeedLossSample;
     counterSteerTimer: number;
     counterSteerLateralVelocity: number;
     counterSteerEntryDriftVelocity: number;
     counterTrimRatio: number;
-    downhillCornerCarryRatio: number;
     engineTorqueScale: number;
     driftDirection: -1 | 0 | 1;
     driftBaseLateralVelocity: number;

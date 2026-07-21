@@ -1,8 +1,10 @@
 # Apex Seoul 속도대별 핸들링 개선 계획
 
-갱신일: 2026-07-20
+갱신일: 2026-07-21
 
 상태: P0~P4 구현 완료. P5 실주행 확인과 최종 체감 보정이 남아 있다.
+
+> 2026-07-21 이후 225km/h envelope의 속도 연출과 185~225km/h handling 확장은 [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)에서 관리한다. 이 문서는 기존 0~185km/h 승인값과 구현 근거를 보존한다.
 
 ## 결론
 
@@ -30,7 +32,7 @@
 
 이번 반복에서 직접 바꾸지 않는 것:
 
-- 엔진 출력, 기어비, `0–100km/h`, 표시 최고속
+- 엔진 출력, 기어비, `0–100km/h`, 표시 최고속. Raven Coupe의 FT86 기반 구동계 개선은 [별도 파워밴드 계획](./apex-seoul-raven-ft86-powerband-plan.md)에서 관리한다.
 - 코스 geometry와 curve grade 경계
 - 카메라 FOV, speed shader, roadside object 밀도
 - 차량별 별도 grip 성격
@@ -38,7 +40,7 @@
 
 ## 현재 기준선
 
-2026-07-20 현재 Raven Coupe 표시 최고속은 `185km/h`다. 기존 문서의 `200~205km/h` 표기는 과거 표시 스케일이므로 이번 계획의 속도대 기준으로 사용하지 않는다.
+2026-07-21 현재 Raven Coupe의 FT86 기반 물리 속도 envelope는 `225km/h`로 갱신됐다. 이 문서의 기존 `0~185km/h` 조향 sweep은 핸들링 회귀 기준으로 유지하고, 구동계·속도계·0-100 기준은 [Raven/FT86 파워밴드 계획](./apex-seoul-raven-ft86-powerband-plan.md)을 따른다.
 
 자동 기준선:
 
@@ -50,7 +52,7 @@
 | 60km/h 2초 풀 조향 | offset `233.0486u`, visual `0.7655` | 10→60km/h 사이 체감 변화가 너무 큼 |
 | 185km/h sharp overspeed grip | understeer `1.0`, 평균 grip authority `0.433`, max offset `89.111u` | 제한은 강하지만 trajectory 변화는 작아 둔감함으로 읽힐 수 있음 |
 | handling simulation baseline | `73.1/100` | 비교용 지표. 그대로 출시 gate로 쓰기에는 scoring 보정이 필요 |
-| standing start | Raven `0–100=13.133초`, pass | 종방향 성능은 이번 변경의 통제 변수 |
+| standing start | Raven `0–100=8.117초`, pass | 구동계 측정은 별도 파워밴드 문서에서 관리 |
 
 `qa:handling-sim`의 가장 큰 관계 실패는 downhill sharp가 level sharp보다 바깥 이동을 `35u` 이상 더 만들어야 한다는 기준에서 실제 차이가 `-0.456u`였던 항목이다. 반면 prepared grip처럼 의도적으로 브레이크를 쓰는 시나리오도 공통 `speedDropFromPeak`에 감점된다. 따라서 현재 점수는 후보 간 비교에는 사용하되, P0에서 의도적 감속을 실패로 세는 scoring부터 분리해야 한다.
 

@@ -107,6 +107,7 @@ vehicle anchor and frame stability
 - `apex-seoul/README.md`: 내부 문서 진입점과 역할 구분
 - `apex-seoul-next-priority-plan.md`: 바로 실행할 작업 순서
 - `apex-seoul-speed-band-handling-plan.md`: 현재 handling model과 QA
+- `apex-seoul-speed-sense-handling-revision-plan.md`: 225km/h 속도 연출과 고속 handling 후속 작업
 - `apex-seoul-visual-direction.md`: black/blue visual direction
 - `apex-seoul-render-layer-tracker.md`: 렌더 depth와 occlusion 규칙
 - `apex-seoul-resource-management.md`: 리소스 확보·생성·보관·승인 단일 기준

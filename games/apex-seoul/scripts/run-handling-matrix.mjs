@@ -22,7 +22,7 @@ const candidates = [
     },
     {
         id: 'less-corner-pull',
-        query: 'cornerAccelDrop=100&cornerPull=120',
+        query: 'cornerPull=120',
     },
     {
         id: 'stronger-engine',
@@ -42,7 +42,6 @@ const candidates = [
             'curveDrift=160',
             'curveCueDrop=0.38',
             'curveSteeringCue=0.06',
-            'cornerAccelDrop=100',
             'cornerPull=120',
             'engineAccel=170',
             'steeringCue=0.20',

@@ -11,6 +11,8 @@
 | [구현 로드맵](./pseudo-3d-apex-seoul-roadmap.md)             | 게임 목표, 구현 기반, 장기 방향       |
 | [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | 현재 작업 순서와 완료 조건            |
 | [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, understeer, QA 단일 기준 |
+| [Raven/FT86 파워밴드](./apex-seoul-raven-ft86-powerband-plan.md) | Raven Coupe의 FT86 기반 기어비·RPM·가속 개선 |
+| [225km/h 속도감·핸들링](./apex-seoul-speed-sense-handling-revision-plan.md) | 속도 연출, 185~225km/h 조향, 통합 QA 후속 계획 |
 | [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |

@@ -168,19 +168,22 @@ const PLAYER_CENTERING_RELEASE_SCALE = 0.45;
 const PLAYER_CENTERING_SCALE_RESPONSE = 4.8;
 const PLAYER_CRUISE_SPEED = 0;
 const PLAYER_ACCEL_SPEED = 760;
-const PLAYER_CORNER_ACCEL_SPEED_DROP = 140;
 const PLAYER_CORNER_EASY_INTENSITY_THRESHOLD = 0.34;
-const PLAYER_CORNER_EASY_SPEED_LOSS_SCALE = 0.35;
+const PLAYER_CORNER_EASY_SPEED_LOSS_SCALE = 0.95;
 const PLAYER_CORNER_LINE_SPEED_BONUS = 70;
 const PLAYER_CORNER_LINE_TARGET_OFFSET = 260;
+const PLAYER_CORNER_SEVERE_LINE_SCRUB_SCALE = 1.2;
+const PLAYER_CORNER_SEVERE_OVERSPEED_FULL_RATIO = 1.45;
+const PLAYER_CORNER_SEVERE_OVERSPEED_SCRUB = 140;
+const PLAYER_CORNER_SEVERE_OVERSPEED_START_RATIO = 1.18;
 const PLAYER_CORNER_SHARP_INTENSITY_THRESHOLD = 0.7;
 const PLAYER_CORNER_SHARP_LINE_REWARD_SCALE = 1.35;
 const PLAYER_CORNER_SHARP_SPEED_LOSS_SCALE = 1.18;
-const PLAYER_CORNER_SPEED_PULL = 160;
-const PLAYER_DOWNHILL_CORNER_BUDGET_MAX_REDUCTION = 0.08;
+const PLAYER_CORNER_SPEED_PULL = 100;
+const PLAYER_DOWNHILL_CORNER_BUDGET_MAX_REDUCTION = 0;
 const PLAYER_DOWNHILL_CORNER_BUDGET_SLOPE_ACCELERATION = 65;
 const PLAYER_DOWNHILL_CORNER_LATERAL_SCALE = 1.3;
-const PLAYER_DOWNHILL_CORNER_OVERSPEED_SCRUB = 145;
+const PLAYER_DOWNHILL_CORNER_OVERSPEED_SCRUB = 0;
 const PLAYER_INPUT_RESPONSE = 18;
 const PLAYER_LAUNCH_THROTTLE_FULL_SPEED_RATIO = 0.7;
 const PLAYER_LAUNCH_THROTTLE_MIN_RATIO = 0.5;
@@ -401,11 +404,14 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     centeringReleaseScaleResponse: PLAYER_CENTERING_RELEASE_SCALE_RESPONSE,
     centeringReleaseScale: PLAYER_CENTERING_RELEASE_SCALE,
     centeringScaleResponse: PLAYER_CENTERING_SCALE_RESPONSE,
-    cornerAccelSpeedDrop: PLAYER_CORNER_ACCEL_SPEED_DROP,
     cornerEasyIntensityThreshold: PLAYER_CORNER_EASY_INTENSITY_THRESHOLD,
     cornerEasySpeedLossScale: PLAYER_CORNER_EASY_SPEED_LOSS_SCALE,
     cornerLineSpeedBonus: PLAYER_CORNER_LINE_SPEED_BONUS,
     cornerLineTargetOffset: PLAYER_CORNER_LINE_TARGET_OFFSET,
+    cornerSevereLineScrubScale: PLAYER_CORNER_SEVERE_LINE_SCRUB_SCALE,
+    cornerSevereOverspeedFullRatio: PLAYER_CORNER_SEVERE_OVERSPEED_FULL_RATIO,
+    cornerSevereOverspeedScrub: PLAYER_CORNER_SEVERE_OVERSPEED_SCRUB,
+    cornerSevereOverspeedStartRatio: PLAYER_CORNER_SEVERE_OVERSPEED_START_RATIO,
     cornerSharpIntensityThreshold: PLAYER_CORNER_SHARP_INTENSITY_THRESHOLD,
     cornerSharpLineRewardScale: PLAYER_CORNER_SHARP_LINE_REWARD_SCALE,
     cornerSharpSpeedLossScale: PLAYER_CORNER_SHARP_SPEED_LOSS_SCALE,
@@ -2021,21 +2027,41 @@ class ApexSeoulScene extends Phaser.Scene {
             player: {
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
                 brakePressure: Number(this.playerVehicle.brakePressure.toFixed(4)),
-                cornerGrade: this.playerVehicle.cornerGrade,
-                cornerLineQuality: Number(this.playerVehicle.cornerLineQuality.toFixed(4)),
-                cornerSafetyMarginRatio: Number(this.playerVehicle.cornerSafetyMarginRatio.toFixed(4)),
-                cornerSpeedBudget: Number(this.playerVehicle.cornerSpeedBudget.toFixed(3)),
-                cornerSpeedBudgetKmh: Number(getDisplaySpeedKmh(
-                    this.playerVehicle.cornerSpeedBudget,
-                    PLAYER_ACCEL_SPEED,
-                    ACTIVE_RUNTIME_VEHICLE.engineProfile,
-                ).toFixed(1)),
-                cornerSpeedOverBudget: Number(this.playerVehicle.cornerSpeedOverBudget.toFixed(3)),
+                cornerDemand: {
+                    baseTargetSpeed: Number(this.playerVehicle.cornerDemand.baseTargetSpeed.toFixed(3)),
+                    cornerIntensity: Number(this.playerVehicle.cornerDemand.cornerIntensity.toFixed(4)),
+                    downhillCarryRatio: Number(this.playerVehicle.cornerDemand.downhillCarryRatio.toFixed(4)),
+                    grade: this.playerVehicle.cornerDemand.grade,
+                    lateralDemand: Number(this.playerVehicle.cornerDemand.lateralDemand.toFixed(4)),
+                    lineQuality: Number(this.playerVehicle.cornerDemand.lineQuality.toFixed(4)),
+                    lineSpeedAdjustment: Number(this.playerVehicle.cornerDemand.lineSpeedAdjustment.toFixed(3)),
+                    overspeedRatio: Number(this.playerVehicle.cornerDemand.overspeedRatio.toFixed(4)),
+                    safetyMarginRatio: Number(this.playerVehicle.cornerDemand.safetyMarginRatio.toFixed(4)),
+                    severeOverspeedRatio: Number(this.playerVehicle.cornerDemand.severeOverspeedRatio.toFixed(4)),
+                    speedOverBudget: Number(this.playerVehicle.cornerDemand.speedOverBudget.toFixed(3)),
+                    speedLossZone: this.playerVehicle.cornerDemand.speedLossZone,
+                    speedRatioToBudget: Number(this.playerVehicle.cornerDemand.speedRatioToBudget.toFixed(4)),
+                    targetSpeed: Number(this.playerVehicle.cornerDemand.targetSpeed.toFixed(3)),
+                    targetSpeedKmh: Number(getDisplaySpeedKmh(
+                        this.playerVehicle.cornerDemand.targetSpeed,
+                        PLAYER_ACCEL_SPEED,
+                        ACTIVE_RUNTIME_VEHICLE.engineProfile,
+                    ).toFixed(1)),
+                },
+                cornerSpeedLoss: {
+                    counterRoadScrubForce: Number(this.playerVehicle.cornerSpeedLoss.counterRoadScrubForce.toFixed(3)),
+                    downhillScrubForce: Number(this.playerVehicle.cornerSpeedLoss.downhillScrubForce.toFixed(3)),
+                    lineSafetyScrubForce: Number(this.playerVehicle.cornerSpeedLoss.lineSafetyScrubForce.toFixed(3)),
+                    overspeedTireScrubForce: Number(this.playerVehicle.cornerSpeedLoss.overspeedTireScrubForce.toFixed(3)),
+                    severeOverspeedScrubForce: Number(this.playerVehicle.cornerSpeedLoss.severeOverspeedScrubForce.toFixed(3)),
+                    steeringScrubForce: Number(this.playerVehicle.cornerSpeedLoss.steeringScrubForce.toFixed(3)),
+                    totalForce: Number(this.playerVehicle.cornerSpeedLoss.totalForce.toFixed(3)),
+                    zone: this.playerVehicle.cornerSpeedLoss.zone,
+                },
                 counterSteerTimer: Number(this.playerVehicle.counterSteerTimer.toFixed(3)),
                 counterSteerLateralVelocity: Number(this.playerVehicle.counterSteerLateralVelocity.toFixed(3)),
                 counterSteerEntryDriftVelocity: Number(this.playerVehicle.counterSteerEntryDriftVelocity.toFixed(3)),
                 counterTrimRatio: Number(this.playerVehicle.counterTrimRatio.toFixed(4)),
-                downhillCornerCarryRatio: Number(this.playerVehicle.downhillCornerCarryRatio.toFixed(4)),
                 engineTorqueScale: Number(this.playerVehicle.engineTorqueScale.toFixed(4)),
                 driftDirection: this.playerVehicle.driftDirection,
                 driftBaseLateralVelocity: Number(this.playerVehicle.driftBaseLateralVelocity.toFixed(3)),
