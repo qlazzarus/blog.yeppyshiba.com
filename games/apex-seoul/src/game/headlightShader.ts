@@ -3,10 +3,16 @@ import type { Viewport } from './pseudo3dCamera';
 import { RenderDepth } from './renderDepth';
 
 export type HeadlightShaderUniforms = {
-    carFrontX: number;
-    carFrontY: number;
-    lampHalfSpacing: number;
+    beamAimX: number;
     intensity: number;
+    lampLeft: {
+        x: number;
+        y: number;
+    };
+    lampRight: {
+        x: number;
+        y: number;
+    };
     viewport: Viewport;
 };
 
@@ -15,10 +21,13 @@ precision mediump float;
 
 varying vec2 outTexCoord;
 
-uniform vec2 uCarFront;
-uniform float uLampHalfSpacing;
+uniform float uBeamAimX;
 uniform float uIntensity;
+uniform vec2 uLampLeftOrigin;
+uniform vec2 uLampRightOrigin;
 uniform vec2 uResolution;
+
+const float HEADLIGHT_BEAM_REACH = 0.295;
 
 float softEllipse(vec2 point, vec2 center, vec2 radius, float edgeStart) {
     float distanceFromCenter = length((point - center) / radius);
@@ -27,16 +36,14 @@ float softEllipse(vec2 point, vec2 center, vec2 radius, float edgeStart) {
 }
 
 vec3 getLampProjection(vec2 point, float side) {
-    float aspect = uResolution.x / uResolution.y;
-    float lampX = side * uLampHalfSpacing * aspect;
     float beamStart = -0.012;
-    float beamReach = 0.295;
+    float beamReach = HEADLIGHT_BEAM_REACH;
     float progress = clamp((point.y - beamStart) / (beamReach - beamStart), 0.0, 1.0);
 
     // Each lamp starts as a narrow strip at the bumper, moves slightly
     // outward, and grows wider with distance. Together the two fans form the
     // inverse-trapezoid throw that was missing from the ellipse-only version.
-    float pathX = lampX + side * mix(0.004, 0.045, pow(progress, 0.82));
+    float pathX = side * mix(0.004, 0.045, pow(progress, 0.82));
     float halfWidth = mix(0.020, 0.105, pow(progress, 0.72));
     float normalizedLateral = abs(point.x - pathX) / halfWidth;
     float outerFan = 1.0 - smoothstep(0.58, 1.12, normalizedLateral);
@@ -53,15 +60,12 @@ vec3 getLampProjection(vec2 point, float side) {
 }
 
 vec3 getLampPool(vec2 point, float side) {
-    float aspect = uResolution.x / uResolution.y;
-    float lampX = side * uLampHalfSpacing * aspect;
-
     // The farther part of each pool fans slightly away from the car center.
     // Three nested, borderless ellipses make one continuous pool: a broad
     // spill, the readable beam body, and a compact white-blue hot spot.
-    vec2 spillCenter = vec2(lampX + side * 0.014, 0.086);
-    vec2 bodyCenter = vec2(lampX + side * 0.020, 0.098);
-    vec2 hotCenter = vec2(lampX + side * 0.024, 0.108);
+    vec2 spillCenter = vec2(side * 0.014, 0.086);
+    vec2 bodyCenter = vec2(side * 0.020, 0.098);
+    vec2 hotCenter = vec2(side * 0.024, 0.108);
 
     float spill = softEllipse(point, spillCenter, vec2(0.225, 0.135), 0.24);
     float body = softEllipse(point, bodyCenter, vec2(0.170, 0.095), 0.18);
@@ -80,16 +84,32 @@ vec3 getLampPool(vec2 point, float side) {
         hot * vec3(0.180, 0.290, 0.360);
 }
 
+vec2 getLampPoint(vec2 uv, vec2 lampOrigin) {
+    // WebGL coordinates grow upward. Work in aspect-corrected, lamp-relative
+    // coordinates so every atlas pose can attach to its actual front lamps.
+    vec2 point = uv - lampOrigin;
+    float aspect = uResolution.x / uResolution.y;
+    point.x *= aspect;
+
+    // Keep both lamps attached to the bumper, then progressively steer the
+    // fan and light pools toward the damped screen-space target. Shearing the
+    // field avoids rotating the near pool behind the car on sharp turns.
+    // Bring enough of the aim into the near pool for a grip turn to read,
+    // while retaining a zero-offset bumper attachment.
+    float aimProgress = pow(clamp(point.y / HEADLIGHT_BEAM_REACH, 0.0, 1.0), 0.52);
+    point.x -= uBeamAimX * aspect * aimProgress;
+
+    return point;
+}
+
 void main() {
     vec2 uv = outTexCoord;
-    // WebGL coordinates grow upward. Work in aspect-corrected, car-relative
-    // coordinates so the pools keep the same silhouette at every viewport.
-    vec2 point = uv - uCarFront;
-    point.x *= uResolution.x / uResolution.y;
-    vec3 leftProjection = getLampProjection(point, -1.0);
-    vec3 rightProjection = getLampProjection(point, 1.0);
-    vec3 leftPool = getLampPool(point, -1.0);
-    vec3 rightPool = getLampPool(point, 1.0);
+    vec2 leftPoint = getLampPoint(uv, uLampLeftOrigin);
+    vec2 rightPoint = getLampPoint(uv, uLampRightOrigin);
+    vec3 leftProjection = getLampProjection(leftPoint, -1.0);
+    vec3 rightProjection = getLampProjection(rightPoint, 1.0);
+    vec3 leftPool = getLampPool(leftPoint, -1.0);
+    vec3 rightPool = getLampPool(rightPoint, 1.0);
     vec3 color = (
         leftProjection +
         rightProjection +
@@ -117,12 +137,15 @@ export function createHeadlightShader(
                 setupUniforms: (setUniform: (name: string, value: unknown) => void) => {
                     const uniforms = getUniforms();
 
-                    setUniform('uCarFront', [
-                        uniforms.carFrontX / uniforms.viewport.width,
-                        1 - uniforms.carFrontY / uniforms.viewport.height,
+                    setUniform('uLampLeftOrigin', [
+                        uniforms.lampLeft.x / uniforms.viewport.width,
+                        1 - uniforms.lampLeft.y / uniforms.viewport.height,
                     ]);
-                    setUniform('uLampHalfSpacing',
-                        uniforms.lampHalfSpacing / uniforms.viewport.width);
+                    setUniform('uLampRightOrigin', [
+                        uniforms.lampRight.x / uniforms.viewport.width,
+                        1 - uniforms.lampRight.y / uniforms.viewport.height,
+                    ]);
+                    setUniform('uBeamAimX', uniforms.beamAimX / uniforms.viewport.width);
                     setUniform('uIntensity', uniforms.intensity);
                     setUniform('uResolution', [uniforms.viewport.width, uniforms.viewport.height]);
                 },

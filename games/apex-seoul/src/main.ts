@@ -100,6 +100,11 @@ import {
     type HeadlightShaderUniforms,
 } from './game/headlightShader';
 import {
+    composeVehicleHeadlightAim,
+    getVehicleHeadlightScreenPose,
+    type VehicleHeadlightScreenPose,
+} from './game/vehicleHeadlight';
+import {
     createCameraEffectsConfig,
     createCameraEffectsState,
     DEFAULT_CAMERA_EFFECTS_CONFIG,
@@ -192,8 +197,14 @@ const PLAYER_OVERSPEED_UNDERSTEER_SPEED_SCRUB = 28;
 const PLAYER_OVERSPEED_UNDERSTEER_SPEED_WINDOW = 150;
 const PLAYER_ROAD_ANCHOR_DISTANCE = 640;
 const PLAYER_ROAD_CONTACT_DISTANCE = 260;
-const PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO = 0.22;
-const PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO = 0.12;
+const PLAYER_HEADLIGHT_AIM_FINE_STEER_PX = 14;
+const PLAYER_HEADLIGHT_AIM_FINE_ATTACK_SECONDS = 0.05;
+const PLAYER_HEADLIGHT_AIM_FINE_RETURN_SECONDS = 0.1;
+const PLAYER_HEADLIGHT_AIM_MAX_PX = 72;
+const PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX = 54;
+const PLAYER_HEADLIGHT_AIM_ROAD_ASSIST_RESPONSE_SECONDS = 0.2;
+const PLAYER_HEADLIGHT_AIM_ROAD_STRONG_POSE_WEIGHT = 0.1;
+const PLAYER_HEADLIGHT_AIM_ROAD_WEAK_POSE_WEIGHT = 0.35;
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
 const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;
 const PLAYER_SHADOW_MAX_ALPHA = 0.18;
@@ -489,6 +500,21 @@ type PlayerVehicleRenderState = {
     roadWidthAtVehicleY: number | null;
 };
 
+type PlayerVehicleVisualSteeringState = {
+    lowSpeedVisualSteeringAuthority: number;
+    physicalValue: number;
+    rotationValue: number;
+    threshold: number;
+    value: number;
+};
+
+type PlayerVehiclePoseRenderState = {
+    flipX: boolean;
+    frameId: string;
+    rotationRadians: number;
+    visualSteering: PlayerVehicleVisualSteeringState;
+};
+
 type GuardrailVisualCollisionLimits = {
     pavedHalfWidth: number;
     railContactLimit: number;
@@ -510,6 +536,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private farCloud!: Phaser.GameObjects.Image;
     private foregroundOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private headlightShader!: Phaser.GameObjects.Shader;
+    private headlightLampPose: VehicleHeadlightScreenPose | null = null;
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private graphics!: Phaser.GameObjects.Graphics;
@@ -536,6 +563,12 @@ class ApexSeoulScene extends Phaser.Scene {
     private roadObjectMotionTracker: RoadObjectMotionTracker = createRoadObjectMotionTracker();
     private roadObjectStats: RoadObjectRenderStats | null = null;
     private roadStats: RoadRenderStats | null = null;
+    private headlightAimTargetX = 0;
+    private headlightAimX = 0;
+    private headlightFineAimX = 0;
+    private headlightFramePoseAimX = 0;
+    private headlightRawRoadAimX = 0;
+    private headlightRoadAimX = 0;
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
     private wallForestSprites = new Map<string, Phaser.GameObjects.Image>();
     private speedEffectIntensity = 0;
@@ -651,7 +684,7 @@ class ApexSeoulScene extends Phaser.Scene {
             },
         );
 
-        this.scale.on('resize', this.render, this);
+        this.scale.on('resize', () => this.render(0));
         this.render();
     }
 
@@ -668,7 +701,7 @@ class ApexSeoulScene extends Phaser.Scene {
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
             camera.fovDegrees = this.cameraEffects.fovDegrees;
-            this.render();
+            this.render(seconds);
             this.telemetry?.update(this.elapsedSec);
             return;
         }
@@ -678,7 +711,7 @@ class ApexSeoulScene extends Phaser.Scene {
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
             camera.fovDegrees = this.cameraEffects.fovDegrees;
-            this.render();
+            this.render(seconds);
             this.telemetry?.update(this.elapsedSec);
             return;
         }
@@ -726,11 +759,11 @@ class ApexSeoulScene extends Phaser.Scene {
         camera.pitch = this.updateCameraPitch(seconds);
         this.updateSpeedEffect(seconds);
         camera.fovDegrees = this.cameraEffects.fovDegrees;
-        this.render();
+        this.render(seconds);
         this.telemetry?.update(this.elapsedSec);
     }
 
-    private render() {
+    private render(seconds = 0) {
         const viewport = this.getViewport();
         const horizonY = getHorizonY(this.cameraResource, viewport);
 
@@ -791,8 +824,11 @@ class ApexSeoulScene extends Phaser.Scene {
             this.drawProjectionGuides(viewport);
         }
         const vehicleRenderState = this.getPlayerVehicleRenderState(viewport);
-        this.renderPlayerShadow(viewport, vehicleRenderState);
-        this.renderPlayerVehicle(viewport, vehicleRenderState);
+        const vehiclePoseState = this.getPlayerVehiclePoseRenderState(vehicleRenderState.anchor);
+
+        this.updateHeadlightState(seconds, vehicleRenderState, vehiclePoseState);
+        this.renderPlayerShadow(viewport, vehicleRenderState, vehiclePoseState);
+        this.renderPlayerVehicle(vehicleRenderState, vehiclePoseState);
         this.renderCourseProgress(viewport);
         this.renderHud();
         this.publishRuntimeQaState(viewport, horizonY);
@@ -1073,8 +1109,30 @@ class ApexSeoulScene extends Phaser.Scene {
         return this.vehicleRenderState;
     }
 
-    private renderPlayerVehicle(viewport: Viewport, renderState: PlayerVehicleRenderState) {
-        const player = this.playerVehicle;
+    private getPlayerVehiclePoseRenderState(anchor: VehicleAnchor): PlayerVehiclePoseRenderState {
+        const visualSteering = this.getVehicleVisualSteeringState();
+        const vehicleFrame = selectPlayerVehicleFrame(
+            PLAYER_VEHICLE_ATLAS,
+            RUNTIME_TUNING,
+            visualSteering.value,
+            anchor.terrainCue,
+            visualSteering.threshold,
+        );
+
+        return {
+            flipX: vehicleFrame.flipX,
+            frameId: vehicleFrame.frame,
+            rotationRadians: Phaser.Math.DegToRad(
+                visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
+            ),
+            visualSteering,
+        };
+    }
+
+    private renderPlayerVehicle(
+        renderState: PlayerVehicleRenderState,
+        poseState: PlayerVehiclePoseRenderState,
+    ) {
         const { anchor, displaySize, roadRelativeScale, roadRelativeTargetSize, roadWidthAtVehicleY } = renderState;
         const previousSizeSample = this.lastVehicleSizeSample;
         const elapsedSinceLastSizeSample = previousSizeSample
@@ -1084,31 +1142,22 @@ class ApexSeoulScene extends Phaser.Scene {
             ? (displaySize - previousSizeSample.size) / elapsedSinceLastSizeSample
             : 0;
         const vehicleBodyWidth = displaySize;
-        const visualSteering = this.getVehicleVisualSteeringState();
-        const vehicleFrame = selectPlayerVehicleFrame(
-            PLAYER_VEHICLE_ATLAS,
-            RUNTIME_TUNING,
-            visualSteering.value,
-            anchor.terrainCue,
-            visualSteering.threshold,
-        );
-        const frame = PLAYER_VEHICLE_ATLAS.frames[vehicleFrame.frame];
+        const visualSteering = poseState.visualSteering;
+        const frame = PLAYER_VEHICLE_ATLAS.frames[poseState.frameId];
 
         this.playerCar
-            .setTexture(PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
-            .setFlipX(vehicleFrame.flipX)
+            .setTexture(PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
+            .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x + this.cameraEffects.shake.x, anchor.y + this.cameraEffects.shake.y)
             .setDisplaySize(displaySize, displaySize)
-            .setRotation(Phaser.Math.DegToRad(
-                visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
-            ));
+            .setRotation(poseState.rotationRadians);
 
         this.lastVehicleQaState = {
             anchor,
             displaySize,
-            flipX: vehicleFrame.flipX,
-            frame: vehicleFrame.frame,
+            flipX: poseState.flipX,
+            frame: poseState.frameId,
             lowSpeedVisualSteeringAuthority: visualSteering.lowSpeedVisualSteeringAuthority,
             physicalSteering: visualSteering.physicalValue,
             roadRelativeScale,
@@ -1127,20 +1176,17 @@ class ApexSeoulScene extends Phaser.Scene {
         this.lastVehicleSizeSample = { elapsedSec: this.elapsedSec, size: displaySize };
     }
 
-    private renderPlayerShadow(_viewport: Viewport, renderState: PlayerVehicleRenderState) {
+    private renderPlayerShadow(
+        _viewport: Viewport,
+        renderState: PlayerVehicleRenderState,
+        poseState: PlayerVehiclePoseRenderState,
+    ) {
         const { anchor, displaySize } = renderState;
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
         const terrainIntensity = getContactTerrainCueIntensity(anchor.contactTerrainRatio);
-        const visualSteering = this.getVehicleVisualSteeringState();
-        const vehicleFrame = selectPlayerVehicleFrame(
-            PLAYER_VEHICLE_ATLAS,
-            RUNTIME_TUNING,
-            visualSteering.value,
-            anchor.terrainCue,
-            visualSteering.threshold,
-        );
-        const frame = PLAYER_VEHICLE_ATLAS.frames[vehicleFrame.frame];
-        const shadowProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame);
+        const visualSteering = poseState.visualSteering;
+        const frame = PLAYER_VEHICLE_ATLAS.frames[poseState.frameId];
+        const shadowProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, poseState.frameId);
         const silhouetteScale = getSilhouetteShadowScale(anchor.contactTerrainRatio, speedRatio);
         const silhouetteAlpha = PLAYER_SILHOUETTE_SHADOW_ALPHA *
             Phaser.Math.Clamp(anchor.scale * 13, 0.76, 1.08);
@@ -1151,7 +1197,7 @@ class ApexSeoulScene extends Phaser.Scene {
             frame,
             anchor,
             displaySize,
-            vehicleFrame.flipX,
+            poseState.flipX,
             terrainIntensity,
         );
         const steeringOffset = visualSteering.value * displaySize * 0.018;
@@ -1159,9 +1205,9 @@ class ApexSeoulScene extends Phaser.Scene {
         const alpha = PLAYER_SHADOW_MAX_ALPHA * Phaser.Math.Clamp(anchor.scale * 13, 0.7, 1);
 
         this.playerSoftShadowCar
-            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
+            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
             .setAlpha(softShadowAlpha)
-            .setFlipX(vehicleFrame.flipX)
+            .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
                 chassisCenter.x + steeringOffset * 0.65 + this.cameraEffects.shake.x,
@@ -1176,9 +1222,9 @@ class ApexSeoulScene extends Phaser.Scene {
             ));
 
         this.playerShadowCar
-            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, vehicleFrame.frame))
+            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
             .setAlpha(silhouetteAlpha)
-            .setFlipX(vehicleFrame.flipX)
+            .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
                 chassisCenter.x + steeringOffset + this.cameraEffects.shake.x,
@@ -1317,7 +1363,7 @@ class ApexSeoulScene extends Phaser.Scene {
         };
     }
 
-    private getVehicleVisualSteeringState() {
+    private getVehicleVisualSteeringState(): PlayerVehicleVisualSteeringState {
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
         const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
         const tuningVisualScale = Phaser.Math.Linear(
@@ -1411,20 +1457,97 @@ class ApexSeoulScene extends Phaser.Scene {
     private getHeadlightShaderUniforms(): HeadlightShaderUniforms {
         const viewport = this.getViewport();
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_ACCEL_SPEED, 0, 1);
+        const fallbackY = this.playerCar.y - this.playerCar.displayHeight * 0.22;
+        const fallbackSpacing = this.playerCar.displayWidth * 0.045;
+        const lampPose = this.headlightLampPose;
 
         return {
-            // The atlas frame has transparent headroom above the visible car.
-            // Anchor the beam to the visible front of the sprite instead of
-            // the frame's geometric top, which would detach it into the road.
-            carFrontX: this.playerCar.x,
-            carFrontY: this.playerCar.y -
-                this.playerCar.displayHeight * PLAYER_HEADLIGHT_EMITTER_SPRITE_OFFSET_RATIO,
-            // Use the rendered sprite width so the two pools stay attached to
-            // the physical left/right headlights as road-relative scaling changes.
-            lampHalfSpacing: this.playerCar.displayWidth * PLAYER_HEADLIGHT_LAMP_HALF_SPACING_RATIO,
+            beamAimX: this.headlightAimX,
             intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio),
+            lampLeft: lampPose?.lampLeft ?? {
+                x: this.playerCar.x - fallbackSpacing,
+                y: fallbackY,
+            },
+            lampRight: lampPose?.lampRight ?? {
+                x: this.playerCar.x + fallbackSpacing,
+                y: fallbackY,
+            },
             viewport,
         };
+    }
+
+    private updateHeadlightState(
+        seconds: number,
+        renderState: PlayerVehicleRenderState,
+        poseState: PlayerVehiclePoseRenderState,
+    ) {
+        const { anchor, displaySize } = renderState;
+        const lampPose = getVehicleHeadlightScreenPose(
+            PLAYER_VEHICLE_ATLAS,
+            poseState.frameId,
+            {
+                displaySize,
+                flipX: poseState.flipX,
+                rotationRadians: poseState.rotationRadians,
+                x: anchor.x + this.cameraEffects.shake.x,
+                y: anchor.y + this.cameraEffects.shake.y,
+            },
+        );
+        const visualSteering = poseState.visualSteering;
+        const rawRoadAimX = Phaser.Math.Clamp(
+            this.roadStats?.headlightRoadTangent?.aimX ?? 0,
+            -PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
+            PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
+        );
+        const framePoseAimX = Phaser.Math.Clamp(
+            lampPose.poseAimX,
+            -PLAYER_HEADLIGHT_AIM_MAX_PX,
+            PLAYER_HEADLIGHT_AIM_MAX_PX,
+        );
+        const poseStrength = Phaser.Math.Clamp(
+            Math.abs(framePoseAimX) / PLAYER_HEADLIGHT_AIM_MAX_PX,
+            0,
+            1,
+        );
+        const roadWeight = Phaser.Math.Linear(
+            PLAYER_HEADLIGHT_AIM_ROAD_WEAK_POSE_WEIGHT,
+            PLAYER_HEADLIGHT_AIM_ROAD_STRONG_POSE_WEIGHT,
+            poseStrength,
+        );
+        const roadAssistTargetX = rawRoadAimX * roadWeight;
+        const roadBlend = 1 - Math.exp(
+            -seconds / PLAYER_HEADLIGHT_AIM_ROAD_ASSIST_RESPONSE_SECONDS,
+        );
+        const fineAimTargetX = visualSteering.value * PLAYER_HEADLIGHT_AIM_FINE_STEER_PX;
+        const fineMovesAway = Math.abs(fineAimTargetX) > Math.abs(this.headlightFineAimX);
+        const fineResponseSeconds = fineMovesAway
+            ? PLAYER_HEADLIGHT_AIM_FINE_ATTACK_SECONDS
+            : PLAYER_HEADLIGHT_AIM_FINE_RETURN_SECONDS;
+        const fineBlend = 1 - Math.exp(-seconds / fineResponseSeconds);
+
+        this.headlightLampPose = lampPose;
+        this.headlightFramePoseAimX = framePoseAimX;
+        this.headlightRawRoadAimX = rawRoadAimX;
+        this.headlightRoadAimX = Phaser.Math.Linear(
+            this.headlightRoadAimX,
+            roadAssistTargetX,
+            roadBlend,
+        );
+        this.headlightFineAimX = Phaser.Math.Linear(
+            this.headlightFineAimX,
+            fineAimTargetX,
+            fineBlend,
+        );
+
+        this.headlightAimTargetX = composeVehicleHeadlightAim(
+            framePoseAimX,
+            this.headlightFineAimX,
+            this.headlightRoadAimX,
+            PLAYER_HEADLIGHT_AIM_MAX_PX,
+        );
+        // The atlas frame and its headlight profile are selected together, so
+        // the body-pose component must be visible in the same rendered frame.
+        this.headlightAimX = this.headlightAimTargetX;
     }
 
     private updateCameraPitch(seconds: number) {
@@ -1554,6 +1677,13 @@ class ApexSeoulScene extends Phaser.Scene {
             PLAYER_ACCEL_SPEED,
         );
         this.roadObjectMotionTracker.reset();
+        this.headlightAimTargetX = 0;
+        this.headlightAimX = 0;
+        this.headlightFineAimX = 0;
+        this.headlightFramePoseAimX = 0;
+        this.headlightLampPose = null;
+        this.headlightRawRoadAimX = 0;
+        this.headlightRoadAimX = 0;
         this.runState = createInitialRunState();
         this.render();
     }
@@ -1632,6 +1762,16 @@ class ApexSeoulScene extends Phaser.Scene {
                 z: this.cameraResource.z,
             },
             elapsedSec: Number(this.elapsedSec.toFixed(3)),
+            headlight: {
+                aimTargetX: Number(this.headlightAimTargetX.toFixed(3)),
+                aimX: Number(this.headlightAimX.toFixed(3)),
+                fineAimX: Number(this.headlightFineAimX.toFixed(3)),
+                framePoseAimX: Number(this.headlightFramePoseAimX.toFixed(3)),
+                lampPose: this.headlightLampPose,
+                rawRoadAimX: Number(this.headlightRawRoadAimX.toFixed(3)),
+                roadAssistAimX: Number(this.headlightRoadAimX.toFixed(3)),
+                roadTangent: this.roadStats?.headlightRoadTangent ?? null,
+            },
             horizonY,
             input: {
                 accelPressed: this.cursors.up.isDown,

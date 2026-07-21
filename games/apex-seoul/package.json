@@ -26,6 +26,7 @@
         "qa:handling-sim": "node scripts/simulate-handling-matrix.mjs",
         "qa:camera-effects": "node scripts/simulate-camera-effects.mjs",
         "qa:guardrail-collision": "node scripts/simulate-guardrail-collision.mjs",
+        "qa:headlight-profiles": "tsx scripts/audit-headlight-profiles.ts",
         "qa:low-speed-steering": "node scripts/simulate-low-speed-steering.mjs",
         "qa:powerband-reference": "node scripts/audit-powerband-reference.mjs",
         "qa:road-rhythm": "node scripts/audit-road-rhythm.mjs",

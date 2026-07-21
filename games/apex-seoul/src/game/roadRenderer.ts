@@ -21,10 +21,19 @@ export type RoadRenderStats = {
     crestVisibilityEnvelope: CrestVisibilityEnvelope;
     currentCurve: number;
     currentElevation: number;
+    headlightRoadTangent: HeadlightRoadTangent | null;
     horizonGapY: number | null;
     horizonOcclusionY: number | null;
     occludedSegments: number;
     visibleSegments: number;
+};
+
+export type HeadlightRoadTangent = {
+    aimX: number;
+    farCenterX: number;
+    farScreenY: number;
+    nearCenterX: number;
+    nearScreenY: number;
 };
 
 export type CrestVisibilityEnvelope = Array<{
@@ -60,6 +69,8 @@ const EDGE_LINE_NEAR_COLOR = 0x43789d;
 const EDGE_LINE_FAR_COLOR = 0x122b3e;
 const LANE_MARK_NEAR_COLOR = 0x5da9df;
 const LANE_MARK_FAR_COLOR = 0x1d435f;
+const HEADLIGHT_TANGENT_FAR_SCREEN_Y_RATIO = 0.48;
+const HEADLIGHT_TANGENT_NEAR_SCREEN_Y_RATIO = 0.68;
 export const ELEVATION_VISUAL_SCALE = 4.2;
 
 export function renderRoad(
@@ -117,6 +128,10 @@ export function renderRoad(
 
     const crestVisibility = applyCrestVisibilityEnvelope(projectedSegments, camera.z, viewport);
     const visibleProjectedSegments = crestVisibility.visibleSegments;
+    const headlightRoadTangent = getHeadlightRoadTangent(
+        visibleProjectedSegments,
+        viewport,
+    );
     const horizonGapY = visibleProjectedSegments.reduce<number | null>(
         (gapY, projected) => getNearestHorizonGapY(gapY, projected.road),
         null,
@@ -156,6 +171,7 @@ export function renderRoad(
         crestVisibilityEnvelope: crestVisibility.envelope,
         currentCurve,
         currentElevation,
+        headlightRoadTangent,
         horizonGapY,
         horizonOcclusionY,
         occludedSegments: projectedSegments.length - visibleProjectedSegments.length,
@@ -356,6 +372,12 @@ function projectRoadSlice(
 }
 
 function getRoadWidthAtY(road: ProjectedRoadSlice, screenY: number) {
+    const span = getRoadSpanAtY(road, screenY);
+
+    return span ? Math.abs(span.rightX - span.leftX) : null;
+}
+
+function getRoadSpanAtY(road: ProjectedRoadSlice, screenY: number) {
     const nearY = road.roadNearLeft.y;
     const farY = road.roadFarLeft.y;
     const minimumY = Math.min(nearY, farY);
@@ -369,7 +391,43 @@ function getRoadWidthAtY(road: ProjectedRoadSlice, screenY: number) {
     const leftX = Phaser.Math.Linear(road.roadFarLeft.x, road.roadNearLeft.x, ratio);
     const rightX = Phaser.Math.Linear(road.roadFarRight.x, road.roadNearRight.x, ratio);
 
-    return Math.abs(rightX - leftX);
+    return { leftX, rightX };
+}
+
+function getHeadlightRoadTangent(
+    projectedSegments: ProjectedSegment[],
+    viewport: Viewport,
+): HeadlightRoadTangent | null {
+    const nearScreenY = viewport.height * HEADLIGHT_TANGENT_NEAR_SCREEN_Y_RATIO;
+    const farScreenY = viewport.height * HEADLIGHT_TANGENT_FAR_SCREEN_Y_RATIO;
+    const nearCenterX = getVisibleRoadCenterAtY(projectedSegments, nearScreenY);
+    const farCenterX = getVisibleRoadCenterAtY(projectedSegments, farScreenY);
+
+    if (nearCenterX === null || farCenterX === null) return null;
+
+    return {
+        aimX: farCenterX - nearCenterX,
+        farCenterX,
+        farScreenY,
+        nearCenterX,
+        nearScreenY,
+    };
+}
+
+function getVisibleRoadCenterAtY(
+    projectedSegments: ProjectedSegment[],
+    screenY: number,
+) {
+    // Segments are ordered near-to-far. When elevation makes multiple slices
+    // overlap at the same screen Y, the nearest rendered surface owns the
+    // sample, matching the far-to-near draw order below.
+    for (const projected of projectedSegments) {
+        const span = getRoadSpanAtY(projected.road, screenY);
+
+        if (span) return (span.leftX + span.rightX) / 2;
+    }
+
+    return null;
 }
 
 function drawRoadBody(

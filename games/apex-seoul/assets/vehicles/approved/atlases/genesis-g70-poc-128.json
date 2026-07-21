@@ -8,6 +8,53 @@
     },
     "decision": "pass",
     "score": 90,
+    "headlightProfiles": {
+      "center": {
+        "lampLeft": { "x": 0.455, "y": 0.45 },
+        "lampRight": { "x": 0.545, "y": 0.45 },
+        "poseAimX": 0
+      },
+      "steer-right-1": {
+        "lampLeft": { "x": 0.63, "y": 0.5 },
+        "lampRight": { "x": 0.74, "y": 0.54 },
+        "poseAimX": 0.11
+      },
+      "steer-right-2": {
+        "lampLeft": { "x": 0.7, "y": 0.54 },
+        "lampRight": { "x": 0.83, "y": 0.585 },
+        "poseAimX": 0.19
+      },
+      "downhill-center": {
+        "lampLeft": { "x": 0.455, "y": 0.485 },
+        "lampRight": { "x": 0.545, "y": 0.485 },
+        "poseAimX": 0
+      },
+      "downhill-right-1": {
+        "lampLeft": { "x": 0.64, "y": 0.535 },
+        "lampRight": { "x": 0.75, "y": 0.575 },
+        "poseAimX": 0.11
+      },
+      "downhill-right-2": {
+        "lampLeft": { "x": 0.71, "y": 0.565 },
+        "lampRight": { "x": 0.84, "y": 0.61 },
+        "poseAimX": 0.19
+      },
+      "uphill-center": {
+        "lampLeft": { "x": 0.455, "y": 0.425 },
+        "lampRight": { "x": 0.545, "y": 0.425 },
+        "poseAimX": 0
+      },
+      "uphill-right-1": {
+        "lampLeft": { "x": 0.62, "y": 0.475 },
+        "lampRight": { "x": 0.73, "y": 0.515 },
+        "poseAimX": 0.11
+      },
+      "uphill-right-2": {
+        "lampLeft": { "x": 0.69, "y": 0.515 },
+        "lampRight": { "x": 0.82, "y": 0.56 },
+        "poseAimX": 0.19
+      }
+    },
     "steeringStates": {
       "steer-left-2": {
         "flipX": true,

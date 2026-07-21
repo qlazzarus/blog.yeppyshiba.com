@@ -35,8 +35,21 @@ export type VehicleShadowProfile = {
     tireContacts: VehicleShadowElement[];
 };
 
+export type VehicleHeadlightProfile = {
+    lampLeft: {
+        x: number;
+        y: number;
+    };
+    lampRight: {
+        x: number;
+        y: number;
+    };
+    poseAimX: number;
+};
+
 export type VehicleAtlas = {
     apex: {
+        headlightProfiles: Record<string, VehicleHeadlightProfile>;
         shadowProfiles: Record<string, VehicleShadowProfile>;
         steeringStates: Record<PlayerSteeringStateId, {
             flipX: boolean;
