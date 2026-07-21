@@ -218,7 +218,7 @@ const PLAYER_HEADLIGHT_AIM_ROAD_WEAK_POSE_WEIGHT = 0.35;
 const PLAYER_HEADLIGHT_FOOTPRINT_FALLBACK = {
     farHalfWidthRatio: 0.125,
     nearPaddingPx: 4,
-    reachRatio: 0.14,
+    reachRatio: 0.098,
 };
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
 const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;

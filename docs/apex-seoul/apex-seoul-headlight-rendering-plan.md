@@ -1044,6 +1044,48 @@ center와 strong의 footprint 수치는 변경하지 않는다.
 - 최종 QA는 `qa:headlight-profiles`의 방향 profile 12개·sprite anchor 18개를 통과했다. visual matrix는 FT86 15장과 G70 15장 모두 실패 없이 캡처했다.
 - 최종 캡처는 `.astro/headlight-hl-rev-7-ft86-final-v3/`와 `.astro/headlight-hl-rev-7-g70-final/`에 저장했다.
 
+## 8차 미세 조정 — center reach 70%와 side lamp anchor 보정
+
+### 목표
+
+- 정면 조사 길이는 HL-REV-7 대비 정확히 `70%`로 줄인다.
+- 측면 조사각을 바꾸지 않고 광원 시작점인 lamp anchor 자체를 차량 안쪽의 올바른 높이로 올린다.
+- 기존 dual emitter, perspective 감쇠, toe-in과 bounded overlap은 유지한다.
+
+### 데이터 계약
+
+center reach는 level/downhill/uphill 순서로 다음과 같이 변경한다.
+
+| terrain | HL-REV-7 | HL-REV-8 |
+| --- | ---: | ---: |
+| level | `0.140h` | `0.098h` |
+| downhill | `0.150h` | `0.105h` |
+| uphill | `0.120h` | `0.084h` |
+
+첫 구현의 progressive `screenLiftRatio`는 시작점은 그대로 두고 조사면의 경로만 휘게 만들어 사용자 의도와 달랐으므로 폐기한다. shader와 emitter 계약에서 해당 uniform을 제거하고 두 atlas의 side lamp Y만 평행 이동한다.
+
+- medium: 두 lamp Y를 각각 `-0.030` frame ratio 이동
+- strong: 두 lamp Y를 각각 `-0.040` frame ratio 이동
+- 같은 pose의 두 lamp에 동일한 delta를 적용하므로 lamp segment 기울기, `emitterForwardYawDeg`, optical swivel은 변하지 않는다.
+- center lamp anchor는 변경하지 않는다.
+
+### 완료 기준
+
+- [x] 두 atlas의 center reach를 기존 값의 `70%`로 변경
+- [x] fallback center reach를 `0.098h`로 변경
+- [x] 잘못 적용한 progressive screen lift와 shader uniform 제거
+- [x] medium/strong lamp anchor Y를 동일 delta로 평행 이동
+- [x] profile audit와 production build
+- [x] FT86/G70 visual matrix 확인
+
+### HL-REV-8 구현 결과
+
+- 정면은 기존 광도와 폭을 유지하면서 reach만 70%로 줄었다.
+- 측면은 조사 방향을 바꾸지 않고 광원 시작점과 전체 footprint를 medium/strong 각각 frame ratio `0.030/0.040`만큼 위로 평행 이동한다.
+- `qa:headlight-profiles`에서 방향 profile 12개와 sprite anchor 18개가 통과했고, 두 lamp에 같은 Y delta가 적용되어 기존 lamp segment pitch가 유지됨을 검증한다.
+- production build가 성공했고 FT86/G70 각각 15개 visual matrix가 실패 없이 캡처되었다.
+- 최종 캡처는 `.astro/headlight-hl-rev-8-ft86-anchor-corrected/`와 `.astro/headlight-hl-rev-8-g70-anchor-corrected/`에 저장했다.
+
 ## 기존 1차 구현 기록
 
 ### 구현 순서

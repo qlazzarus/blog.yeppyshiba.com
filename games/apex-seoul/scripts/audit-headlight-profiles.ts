@@ -266,6 +266,12 @@ for (const { atlasPath, spritePath } of vehicleAssets) {
         assert(rightPose.footprint.farHalfWidthRatio >= minimumFarHalfWidth &&
             rightPose.footprint.farHalfWidthRatio <= maximumFarHalfWidth,
         `${atlasPath}:${frameId} far width ratio must remain in the pose-projected range`);
+        assertNear(
+            atlas.apex.headlightProfiles[frameId].lampRight.y -
+                atlas.apex.headlightProfiles[frameId].lampLeft.y,
+            frameId.endsWith('right-2') ? 0.045 : 0.04,
+            `${atlasPath}:${frameId} anchor lift must preserve lamp segment pitch`,
+        );
         assertNear(rightEmitter.rightIntensity, 1,
             `${atlasPath}:${frameId} right pose near lamp intensity`);
         assertNear(rightEmitter.rightReachScale, 1,
@@ -597,12 +603,12 @@ function assertTerrainFootprintOrdering(atlasPath: string, atlas: VehicleAtlas) 
         `${atlasPath} downhill width must exceed level width`);
     assert(uphill.farHalfWidthRatio < level.farHalfWidthRatio,
         `${atlasPath} uphill width must be narrower than level width`);
-    assertNear(level.reachRatio, 0.14,
-        `${atlasPath} HL-REV-1 level center reach`);
-    assertNear(downhill.reachRatio, 0.15,
-        `${atlasPath} HL-REV-1 downhill center reach`);
-    assertNear(uphill.reachRatio, 0.12,
-        `${atlasPath} HL-REV-1 uphill center reach`);
+    assertNear(level.reachRatio, 0.098,
+        `${atlasPath} HL-REV-8 level center reach`);
+    assertNear(downhill.reachRatio, 0.105,
+        `${atlasPath} HL-REV-8 downhill center reach`);
+    assertNear(uphill.reachRatio, 0.084,
+        `${atlasPath} HL-REV-8 uphill center reach`);
     assertNear(level.farHalfWidthRatio, 0.125,
         `${atlasPath} HL-REV-1 level center width`);
     assertNear(downhill.farHalfWidthRatio, 0.14,
@@ -615,8 +621,8 @@ function assertTerrainFootprintOrdering(atlasPath: string, atlas: VehicleAtlas) 
         QA_VIEWPORT_HEIGHT,
     ).reach;
 
-    assert(levelReachPixels >= 99 && levelReachPixels <= 110,
-        `${atlasPath} level center reach must end within 99..110px at 760px viewport`);
+    assert(levelReachPixels >= 74 && levelReachPixels <= 75,
+        `${atlasPath} level center reach must end within 74..75px at 760px viewport`);
 
     const terrainProfiles = [
         ['center', 'steer-right-1', 'steer-right-2'],
@@ -629,8 +635,6 @@ function assertTerrainFootprintOrdering(atlasPath: string, atlas: VehicleAtlas) 
         const rightOneFootprint = profiles[rightOneId].footprint;
         const rightTwoFootprint = profiles[rightTwoId].footprint;
 
-        assert(centerFootprint.reachRatio > rightOneFootprint.reachRatio,
-            `${atlasPath}:${rightOneId} reach must be shorter than center`);
         assert(rightOneFootprint.reachRatio > rightTwoFootprint.reachRatio,
             `${atlasPath}:${rightTwoId} reach must be shorter than right-1`);
         assert(centerFootprint.farHalfWidthRatio > rightOneFootprint.farHalfWidthRatio,
