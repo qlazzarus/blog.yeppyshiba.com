@@ -101,7 +101,15 @@ import {
 } from './game/headlightShader';
 import {
     composeVehicleHeadlightAim,
+    composeVehicleHeadlightCurveIntent,
+    getVehicleHeadlightCornerFillGuide,
+    getVehicleHeadlightEmitterState,
+    getVehicleHeadlightFootprintDimensions,
+    getVehicleHeadlightFootprintGuide,
+    getVehicleHeadlightOpticalState,
     getVehicleHeadlightScreenPose,
+    updateVehicleHeadlightCurveIntent,
+    type VehicleHeadlightOpticalState,
     type VehicleHeadlightScreenPose,
 } from './game/vehicleHeadlight';
 import {
@@ -200,11 +208,18 @@ const PLAYER_ROAD_CONTACT_DISTANCE = 260;
 const PLAYER_HEADLIGHT_AIM_FINE_STEER_PX = 14;
 const PLAYER_HEADLIGHT_AIM_FINE_ATTACK_SECONDS = 0.05;
 const PLAYER_HEADLIGHT_AIM_FINE_RETURN_SECONDS = 0.1;
+const PLAYER_HEADLIGHT_CURVE_INTENT_DRIFT_ROAD_WEIGHT = 0.3;
+const PLAYER_HEADLIGHT_CURVE_INTENT_GRIP_ROAD_WEIGHT = 0.55;
 const PLAYER_HEADLIGHT_AIM_MAX_PX = 72;
 const PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX = 54;
 const PLAYER_HEADLIGHT_AIM_ROAD_ASSIST_RESPONSE_SECONDS = 0.2;
 const PLAYER_HEADLIGHT_AIM_ROAD_STRONG_POSE_WEIGHT = 0.1;
 const PLAYER_HEADLIGHT_AIM_ROAD_WEAK_POSE_WEIGHT = 0.35;
+const PLAYER_HEADLIGHT_FOOTPRINT_FALLBACK = {
+    farHalfWidthRatio: 0.125,
+    nearPaddingPx: 4,
+    reachRatio: 0.14,
+};
 const PLAYER_SCREEN_ANCHOR_RATIO = 0.88;
 const PLAYER_SHADOW_BASELINE_Y_OFFSET = 0.028;
 const PLAYER_SHADOW_MAX_ALPHA = 0.18;
@@ -565,10 +580,14 @@ class ApexSeoulScene extends Phaser.Scene {
     private roadStats: RoadRenderStats | null = null;
     private headlightAimTargetX = 0;
     private headlightAimX = 0;
+    private headlightCurveIntent = 0;
+    private headlightCurveIntentTarget = 0;
     private headlightFineAimX = 0;
     private headlightFramePoseAimX = 0;
     private headlightRawRoadAimX = 0;
     private headlightRoadAimX = 0;
+    private headlightOpticalState: VehicleHeadlightOpticalState =
+        getVehicleHeadlightOpticalState(PLAYER_VEHICLE_ATLAS, 0);
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
     private wallForestSprites = new Map<string, Phaser.GameObjects.Image>();
     private speedEffectIntensity = 0;
@@ -830,6 +849,9 @@ class ApexSeoulScene extends Phaser.Scene {
         this.renderPlayerShadow(viewport, vehicleRenderState, vehiclePoseState);
         this.renderPlayerVehicle(vehicleRenderState, vehiclePoseState);
         this.renderCourseProgress(viewport);
+        if (RUNTIME_TUNING.debugProjectionGuides) {
+            this.drawHeadlightFootprintGuides();
+        }
         this.renderHud();
         this.publishRuntimeQaState(viewport, horizonY);
     }
@@ -996,6 +1018,144 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.graphics.lineStyle(1, 0xeef2f3, 0.3);
         this.graphics.lineBetween(viewport.width / 2, horizonY, viewport.width / 2, viewport.height);
+    }
+
+    private drawHeadlightFootprintGuides() {
+        const pose = this.headlightLampPose;
+
+        if (!pose) return;
+
+        const viewport = this.getViewport();
+        const footprint = getVehicleHeadlightFootprintDimensions(
+            pose.footprint,
+            viewport.height,
+        );
+        const guide = getVehicleHeadlightFootprintGuide(pose, {
+            farHalfWidth: footprint.farHalfWidth,
+            nearPadding: footprint.nearPadding,
+            reach: footprint.reach,
+        });
+        const emitter = getVehicleHeadlightEmitterState(pose);
+        const cornerGuide = getVehicleHeadlightCornerFillGuide(
+            pose,
+            this.headlightOpticalState,
+            {
+                farHalfWidth: footprint.farHalfWidth,
+                nearPadding: footprint.nearPadding,
+                reach: footprint.reach,
+            },
+        );
+        const axisTipX = pose.beamCenter.x + pose.mainForwardAxis.x * 92;
+        const axisTipY = pose.beamCenter.y + pose.mainForwardAxis.y * 92;
+        const frameAxisRadians = Phaser.Math.DegToRad(pose.frameForwardYawDeg);
+        const frameAxis = {
+            x: Math.sin(frameAxisRadians),
+            y: -Math.cos(frameAxisRadians),
+        };
+
+        // Draw above the player only in debug mode, so the exact lamp segment
+        // and the proposed local-axis footprint remain readable on dark road.
+        this.uiGraphics.lineStyle(2, 0xffd166, 0.96);
+        this.uiGraphics.lineBetween(
+            pose.lampLeft.x,
+            pose.lampLeft.y,
+            pose.lampRight.x,
+            pose.lampRight.y,
+        );
+        this.uiGraphics.fillStyle(0xffd166, 0.96);
+        this.uiGraphics.fillCircle(pose.lampLeft.x, pose.lampLeft.y, 4);
+        this.uiGraphics.fillCircle(pose.lampRight.x, pose.lampRight.y, 4);
+
+        // Orange rays expose the two cores converging into the shared spill.
+        // Opacity identifies the perspective-dimmed far-side lamp.
+        this.uiGraphics.lineStyle(1, 0xff9f43, 0.8 * emitter.leftIntensity);
+        this.uiGraphics.lineBetween(
+            pose.lampLeft.x,
+            pose.lampLeft.y,
+            guide.midCenter.x,
+            guide.midCenter.y,
+        );
+        this.uiGraphics.lineStyle(1, 0xff9f43, 0.8 * emitter.rightIntensity);
+        this.uiGraphics.lineBetween(
+            pose.lampRight.x,
+            pose.lampRight.y,
+            guide.midCenter.x,
+            guide.midCenter.y,
+        );
+
+        // White is the forward direction painted into the selected atlas
+        // frame. Cyan adds the runtime sprite transform; blue then adds the
+        // small progressive optical swivel relative to that base in HL-REV-6.
+        this.uiGraphics.lineStyle(2, 0xf3f7ff, 0.78);
+        this.uiGraphics.lineBetween(
+            pose.beamCenter.x,
+            pose.beamCenter.y,
+            pose.beamCenter.x + frameAxis.x * 78,
+            pose.beamCenter.y + frameAxis.y * 78,
+        );
+
+        this.uiGraphics.lineStyle(2, 0x4ee3d1, 0.86);
+        this.uiGraphics.lineBetween(
+            pose.beamCenter.x,
+            pose.beamCenter.y,
+            pose.beamCenter.x + pose.beamForwardAxis.x * 85,
+            pose.beamCenter.y + pose.beamForwardAxis.y * 85,
+        );
+
+        this.uiGraphics.lineStyle(2, 0x65d8ff, 0.92);
+        this.uiGraphics.lineBetween(pose.beamCenter.x, pose.beamCenter.y, axisTipX, axisTipY);
+        this.uiGraphics.fillStyle(0x65d8ff, 0.96);
+        this.uiGraphics.fillCircle(pose.beamCenter.x, pose.beamCenter.y, 3);
+
+        // Green is the rendered HL-REV-4 corner-fill wedge. Its near segment
+        // stays inside the main footprint while its short asymmetric far edge
+        // extends only toward the inside of the turn.
+        this.uiGraphics.lineStyle(
+            2,
+            0x71f79f,
+            Phaser.Math.Linear(0.08, 0.9, this.headlightOpticalState.cornerFillWeight),
+        );
+        this.uiGraphics.lineBetween(
+            cornerGuide.nearCenter.x,
+            cornerGuide.nearCenter.y,
+            cornerGuide.farCenter.x,
+            cornerGuide.farCenter.y,
+        );
+        if (this.headlightOpticalState.cornerFillWeight > 0) {
+            this.uiGraphics.lineBetween(
+                cornerGuide.nearLeft.x,
+                cornerGuide.nearLeft.y,
+                cornerGuide.nearRight.x,
+                cornerGuide.nearRight.y,
+            );
+            this.uiGraphics.lineBetween(
+                cornerGuide.nearLeft.x,
+                cornerGuide.nearLeft.y,
+                cornerGuide.farLeft.x,
+                cornerGuide.farLeft.y,
+            );
+            this.uiGraphics.lineBetween(
+                cornerGuide.nearRight.x,
+                cornerGuide.nearRight.y,
+                cornerGuide.farRight.x,
+                cornerGuide.farRight.y,
+            );
+            this.uiGraphics.lineBetween(
+                cornerGuide.farLeft.x,
+                cornerGuide.farLeft.y,
+                cornerGuide.farRight.x,
+                cornerGuide.farRight.y,
+            );
+        }
+
+        this.uiGraphics.lineStyle(2, 0xff6bc7, 0.82);
+        this.uiGraphics.lineBetween(guide.nearLeft.x, guide.nearLeft.y, guide.nearRight.x, guide.nearRight.y);
+        this.uiGraphics.lineBetween(guide.nearLeft.x, guide.nearLeft.y, guide.midLeft.x, guide.midLeft.y);
+        this.uiGraphics.lineBetween(guide.midLeft.x, guide.midLeft.y, guide.farLeft.x, guide.farLeft.y);
+        this.uiGraphics.lineBetween(guide.nearRight.x, guide.nearRight.y, guide.midRight.x, guide.midRight.y);
+        this.uiGraphics.lineBetween(guide.midRight.x, guide.midRight.y, guide.farRight.x, guide.farRight.y);
+        this.uiGraphics.lineBetween(guide.midLeft.x, guide.midLeft.y, guide.midRight.x, guide.midRight.y);
+        this.uiGraphics.lineBetween(guide.farLeft.x, guide.farLeft.y, guide.farRight.x, guide.farRight.y);
     }
 
     private renderHud() {
@@ -1460,18 +1620,52 @@ class ApexSeoulScene extends Phaser.Scene {
         const fallbackY = this.playerCar.y - this.playerCar.displayHeight * 0.22;
         const fallbackSpacing = this.playerCar.displayWidth * 0.045;
         const lampPose = this.headlightLampPose;
+        const footprint = getVehicleHeadlightFootprintDimensions(
+            lampPose?.footprint ?? PLAYER_HEADLIGHT_FOOTPRINT_FALLBACK,
+            viewport.height,
+        );
+        const emitter = lampPose
+            ? getVehicleHeadlightEmitterState(lampPose)
+            : {
+                leftIntensity: 1,
+                leftReachScale: 1,
+                lobeWidthScale: 0.6,
+                mergeStartRatio: 0.58,
+                rightIntensity: 1,
+                rightReachScale: 1,
+            };
 
         return {
-            beamAimX: this.headlightAimX,
+            beamCenter: lampPose?.beamCenter ?? {
+                x: this.playerCar.x,
+                y: fallbackY,
+            },
+            beamForwardAxis: lampPose?.beamForwardAxis ?? { x: 0, y: -1 },
+            beamLateralAxis: lampPose?.beamLateralAxis ?? { x: 1, y: 0 },
+            cornerFillIntensity: this.headlightOpticalState.cornerFillIntensity,
+            cornerFillReachScale: this.headlightOpticalState.cornerFillReachScale,
+            cornerFillWeight: this.headlightOpticalState.cornerFillWeight,
+            cornerFillYawDeg: this.headlightOpticalState.cornerFillYawDeg,
+            farHalfWidthRatio: footprint.farHalfWidthRatio,
             intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio),
-            lampLeft: lampPose?.lampLeft ?? {
+            lampHalfSpan: lampPose?.lampHalfSpan ?? fallbackSpacing,
+            lampLeftIntensity: emitter.leftIntensity,
+            lampLeftOrigin: lampPose?.lampLeft ?? {
                 x: this.playerCar.x - fallbackSpacing,
                 y: fallbackY,
             },
-            lampRight: lampPose?.lampRight ?? {
+            lampLeftReachScale: emitter.leftReachScale,
+            lampRightIntensity: emitter.rightIntensity,
+            lampRightOrigin: lampPose?.lampRight ?? {
                 x: this.playerCar.x + fallbackSpacing,
                 y: fallbackY,
             },
+            lampRightReachScale: emitter.rightReachScale,
+            lobeWidthScale: emitter.lobeWidthScale,
+            mainSwivelDeg: lampPose?.mainSwivelDeg ?? 0,
+            mergeStartRatio: emitter.mergeStartRatio,
+            nearPaddingPx: footprint.nearPadding,
+            reachRatio: footprint.reachRatio,
             viewport,
         };
     }
@@ -1482,22 +1676,43 @@ class ApexSeoulScene extends Phaser.Scene {
         poseState: PlayerVehiclePoseRenderState,
     ) {
         const { anchor, displaySize } = renderState;
+        const visualSteering = poseState.visualSteering;
+        const rawRoadAimX = Phaser.Math.Clamp(
+            this.roadStats?.headlightRoadTangent?.aimX ?? 0,
+            -PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
+            PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
+        );
+        const roadIntent = rawRoadAimX / PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX;
+        const curveRoadWeight = this.playerVehicle.driftState === 'grip'
+            ? PLAYER_HEADLIGHT_CURVE_INTENT_GRIP_ROAD_WEIGHT
+            : PLAYER_HEADLIGHT_CURVE_INTENT_DRIFT_ROAD_WEIGHT;
+        const curveIntentTarget = composeVehicleHeadlightCurveIntent(
+            visualSteering.value,
+            roadIntent,
+            curveRoadWeight,
+        );
+        this.headlightCurveIntentTarget = curveIntentTarget;
+        this.headlightCurveIntent = updateVehicleHeadlightCurveIntent(
+            this.headlightCurveIntent,
+            curveIntentTarget,
+            seconds,
+        );
+        this.headlightOpticalState = getVehicleHeadlightOpticalState(
+            PLAYER_VEHICLE_ATLAS,
+            this.headlightCurveIntent,
+        );
+
         const lampPose = getVehicleHeadlightScreenPose(
             PLAYER_VEHICLE_ATLAS,
             poseState.frameId,
             {
                 displaySize,
                 flipX: poseState.flipX,
+                mainSwivelDeg: this.headlightOpticalState.mainSwivelDeg,
                 rotationRadians: poseState.rotationRadians,
                 x: anchor.x + this.cameraEffects.shake.x,
                 y: anchor.y + this.cameraEffects.shake.y,
             },
-        );
-        const visualSteering = poseState.visualSteering;
-        const rawRoadAimX = Phaser.Math.Clamp(
-            this.roadStats?.headlightRoadTangent?.aimX ?? 0,
-            -PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
-            PLAYER_HEADLIGHT_AIM_MAX_ROAD_PX,
         );
         const framePoseAimX = Phaser.Math.Clamp(
             lampPose.poseAimX,
@@ -1538,7 +1753,6 @@ class ApexSeoulScene extends Phaser.Scene {
             fineAimTargetX,
             fineBlend,
         );
-
         this.headlightAimTargetX = composeVehicleHeadlightAim(
             framePoseAimX,
             this.headlightFineAimX,
@@ -1679,11 +1893,17 @@ class ApexSeoulScene extends Phaser.Scene {
         this.roadObjectMotionTracker.reset();
         this.headlightAimTargetX = 0;
         this.headlightAimX = 0;
+        this.headlightCurveIntent = 0;
+        this.headlightCurveIntentTarget = 0;
         this.headlightFineAimX = 0;
         this.headlightFramePoseAimX = 0;
         this.headlightLampPose = null;
         this.headlightRawRoadAimX = 0;
         this.headlightRoadAimX = 0;
+        this.headlightOpticalState = getVehicleHeadlightOpticalState(
+            PLAYER_VEHICLE_ATLAS,
+            0,
+        );
         this.runState = createInitialRunState();
         this.render();
     }
@@ -1765,9 +1985,29 @@ class ApexSeoulScene extends Phaser.Scene {
             headlight: {
                 aimTargetX: Number(this.headlightAimTargetX.toFixed(3)),
                 aimX: Number(this.headlightAimX.toFixed(3)),
+                cornerFillIntensity: Number(
+                    this.headlightOpticalState.cornerFillIntensity.toFixed(4),
+                ),
+                cornerFillReachScale: Number(
+                    this.headlightOpticalState.cornerFillReachScale.toFixed(4),
+                ),
+                cornerFillWeight: Number(
+                    this.headlightOpticalState.cornerFillWeight.toFixed(4),
+                ),
+                cornerFillYawDeg: Number(
+                    this.headlightOpticalState.cornerFillYawDeg.toFixed(3),
+                ),
+                curveIntent: Number(this.headlightCurveIntent.toFixed(4)),
+                curveIntentTarget: Number(this.headlightCurveIntentTarget.toFixed(4)),
                 fineAimX: Number(this.headlightFineAimX.toFixed(3)),
                 framePoseAimX: Number(this.headlightFramePoseAimX.toFixed(3)),
+                emitterState: this.headlightLampPose
+                    ? getVehicleHeadlightEmitterState(this.headlightLampPose)
+                    : null,
                 lampPose: this.headlightLampPose,
+                mainSwivelDeg: Number(
+                    this.headlightOpticalState.mainSwivelDeg.toFixed(3),
+                ),
                 rawRoadAimX: Number(this.headlightRawRoadAimX.toFixed(3)),
                 roadAssistAimX: Number(this.headlightRoadAimX.toFixed(3)),
                 roadTangent: this.roadStats?.headlightRoadTangent ?? null,

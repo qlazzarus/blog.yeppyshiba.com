@@ -13,8 +13,8 @@ const scenarios = {
         events: [
             { atSec: 0, key: 'ArrowUp', type: 'down' },
             { atSec: 4, key: 'ArrowLeft', type: 'down' },
-            { atSec: 6.2, key: 'ArrowDown', type: 'down' },
-            { atSec: 7.6, key: 'ArrowDown', type: 'up' },
+            { atSec: 6.2, key: 'Space', type: 'down' },
+            { atSec: 7.6, key: 'Space', type: 'up' },
             { atSec: 8, key: 'ArrowLeft', type: 'up' },
             { atSec: 18, key: 'ArrowUp', type: 'up' },
         ],
@@ -136,6 +136,11 @@ const scenario = scenarios[config.scenario];
 
 if (!scenario) {
     throw new Error(`Unknown scenario "${config.scenario}". Use --list-scenarios to inspect options.`);
+}
+
+if (process.platform !== 'win32' && config.browser?.startsWith('/mnt/')) {
+    await runCaptureWithWindowsNode();
+    process.exit(0);
 }
 
 const durationSec = config.durationSec ?? scenario.durationSec;
@@ -377,6 +382,41 @@ async function launchBrowser() {
         browser,
         close: () => browser.close(),
     };
+}
+
+async function runCaptureWithWindowsNode() {
+    const windowsNodePath = '/mnt/c/Program Files/nodejs/node.exe';
+    const forwardedArgs = [];
+
+    for (let index = 2; index < process.argv.length; index += 1) {
+        if (process.argv[index] === '--browser') {
+            index += 1;
+            continue;
+        }
+
+        forwardedArgs.push(process.argv[index]);
+    }
+
+    forwardedArgs.push('--browser', toWindowsPath(config.browser));
+
+    await new Promise((resolve, reject) => {
+        const child = spawn(windowsNodePath, [
+            toWindowsPath(fileURLToPath(import.meta.url)),
+            ...forwardedArgs,
+        ], {
+            stdio: 'inherit',
+        });
+
+        child.on('error', reject);
+        child.on('close', (code) => {
+            if (code === 0) {
+                resolve();
+                return;
+            }
+
+            reject(new Error(`Windows drive telemetry process exited with code ${code}`));
+        });
+    });
 }
 
 async function launchWindowsBrowserOverCdp(browserPath) {

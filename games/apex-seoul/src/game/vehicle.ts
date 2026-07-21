@@ -35,7 +35,30 @@ export type VehicleShadowProfile = {
     tireContacts: VehicleShadowElement[];
 };
 
+export type VehicleHeadlightFootprintProfile = {
+    farHalfWidthRatio: number;
+    nearPaddingPx: number;
+    reachRatio: number;
+};
+
+export type VehicleHeadlightOpticalProfile = {
+    cornerFillIntensity: number;
+    cornerFillReachScale: number;
+    cornerFillYawDeg: number;
+    mainSwivelDeg: number;
+};
+
+export type VehicleHeadlightEmitterProfile = {
+    farLampIntensity: number;
+    farLampReachScale: number;
+    lobeWidthScale: number;
+    mergeStartRatio: number;
+};
+
 export type VehicleHeadlightProfile = {
+    emitter: VehicleHeadlightEmitterProfile;
+    emitterForwardYawDeg: number;
+    footprint: VehicleHeadlightFootprintProfile;
     lampLeft: {
         x: number;
         y: number;
@@ -44,6 +67,7 @@ export type VehicleHeadlightProfile = {
         x: number;
         y: number;
     };
+    optical: VehicleHeadlightOpticalProfile;
     poseAimX: number;
 };
 

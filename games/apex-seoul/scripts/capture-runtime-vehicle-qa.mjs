@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import sharp from 'sharp';
+import { chromium } from 'playwright';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -11,6 +11,9 @@ const config = {
     baseUrl: 'http://localhost:5173/game-assets/apex-seoul/',
     browser: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
     capture: true,
+    contactSheet: true,
+    contactSheetOnly: false,
+    guideDir: null,
     outputDir: 'assets/vehicles/generated/runtime-qa/genesis-g70-poc',
     track: null,
     vehicle: null,
@@ -48,21 +51,71 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--height' && next) {
         config.viewportHeight = parsePositiveInteger(arg, next);
         index += 1;
+    } else if (arg === '--guide-dir' && next) {
+        config.guideDir = next;
+        index += 1;
     } else if (arg === '--virtual-time-budget' && next) {
         config.virtualTimeBudget = parsePositiveInteger(arg, next);
         index += 1;
     } else if (arg === '--manifest-only') {
         config.capture = false;
+    } else if (arg === '--skip-contact-sheet') {
+        config.contactSheet = false;
+    } else if (arg === '--contact-sheet-only') {
+        config.capture = false;
+        config.contactSheetOnly = true;
     }
 }
 
 const outputDir = resolveProjectPath(config.outputDir, '--output-dir');
+const guideDir = config.guideDir
+    ? resolveProjectPath(config.guideDir, '--guide-dir')
+    : null;
 const screenshotDir = path.join(outputDir, 'screenshots');
 const scenarios = buildRuntimeQaScenarios();
+
+if (config.contactSheetOnly) {
+    const manifestPath = path.join(outputDir, 'runtime-qa.manifest.json');
+    const existingReport = JSON.parse(await readFile(manifestPath, 'utf8'));
+    const capturedScenarios = existingReport.scenarios.filter(
+        (scenario) => scenario.status === 'captured',
+    );
+
+    await buildContactSheet(
+        capturedScenarios,
+        path.join(outputDir, 'contact-sheet.png'),
+        guideDir,
+    );
+    console.log(`Contact sheet wrote ${path.relative(projectRoot, path.join(outputDir, 'contact-sheet.png'))}`);
+    process.exit(0);
+}
+
+if (process.platform !== 'win32' && config.capture && config.browser.startsWith('/mnt/')) {
+    await runCaptureWithWindowsNode();
+
+    if (config.contactSheet) {
+        const manifestPath = path.join(outputDir, 'runtime-qa.manifest.json');
+        const delegatedReport = JSON.parse(await readFile(manifestPath, 'utf8'));
+        const capturedScenarios = delegatedReport.scenarios.filter(
+            (scenario) => scenario.status === 'captured',
+        );
+
+        await buildContactSheet(
+            capturedScenarios,
+            path.join(outputDir, 'contact-sheet.png'),
+            guideDir,
+        );
+        console.log(`Contact sheet wrote ${path.relative(projectRoot, path.join(outputDir, 'contact-sheet.png'))}`);
+    }
+
+    process.exit(0);
+}
+
 const report = {
     baseUrl: config.baseUrl,
     browser: config.browser,
     contactSheet: path.relative(projectRoot, path.join(outputDir, 'contact-sheet.png')),
+    guideDir: guideDir ? path.relative(projectRoot, guideDir) : null,
     generatedAt: new Date().toISOString(),
     notes: [
         'Screenshots are deterministic runtime experience samples, not final aesthetic approval.',
@@ -81,33 +134,43 @@ const report = {
 
 await mkdir(screenshotDir, { recursive: true });
 
-for (const scenario of scenarios) {
-    const url = buildScenarioUrl(config.baseUrl, scenario.params);
-    const screenshotPath = path.join(screenshotDir, `${scenario.id}.png`);
-    const scenarioReport = {
-        ...scenario,
-        screenshot: path.relative(projectRoot, screenshotPath),
-        status: config.capture ? 'pending' : 'manifest-only',
-        url,
-    };
+const captureBrowser = config.capture ? await launchCaptureBrowser() : null;
 
-    if (config.capture) {
-        try {
-            await captureScreenshot(url, screenshotPath);
-            scenarioReport.status = 'captured';
-        } catch (error) {
-            scenarioReport.status = 'capture-failed';
-            scenarioReport.error = error instanceof Error ? error.message : String(error);
+try {
+    for (const scenario of scenarios) {
+        const url = buildScenarioUrl(config.baseUrl, scenario.params);
+        const screenshotPath = path.join(screenshotDir, `${scenario.id}.png`);
+        const scenarioReport = {
+            ...scenario,
+            screenshot: path.relative(projectRoot, screenshotPath),
+            status: config.capture ? 'pending' : 'manifest-only',
+            url,
+        };
+
+        if (captureBrowser) {
+            try {
+                await captureScreenshot(captureBrowser.context, url, screenshotPath);
+                scenarioReport.status = 'captured';
+            } catch (error) {
+                scenarioReport.status = 'capture-failed';
+                scenarioReport.error = error instanceof Error ? error.message : String(error);
+            }
         }
-    }
 
-    report.scenarios.push(scenarioReport);
+        report.scenarios.push(scenarioReport);
+    }
+} finally {
+    await captureBrowser?.close();
 }
 
 const capturedScenarios = report.scenarios.filter((scenario) => scenario.status === 'captured');
 
-if (capturedScenarios.length > 0) {
-    await buildContactSheet(capturedScenarios, path.join(outputDir, 'contact-sheet.png'));
+if (capturedScenarios.length > 0 && config.contactSheet) {
+    await buildContactSheet(
+        capturedScenarios,
+        path.join(outputDir, 'contact-sheet.png'),
+        guideDir,
+    );
 } else {
     report.contactSheet = null;
 }
@@ -126,7 +189,9 @@ function buildRuntimeQaScenarios() {
     const vehicleSamples = buildVehicleSamples();
     const steeringSamples = [
         { id: 'left-strong', qaSteer: -1 },
+        { id: 'left-medium', qaSteer: -0.5 },
         { id: 'center', qaSteer: 0 },
+        { id: 'right-medium', qaSteer: 0.5 },
         { id: 'right-strong', qaSteer: 1 },
     ];
     const terrainSamples = [
@@ -209,26 +274,80 @@ function buildScenarioUrl(baseUrl, params) {
     return url.toString();
 }
 
-async function captureScreenshot(url, outputPath) {
+async function captureScreenshot(context, url, outputPath) {
     await mkdir(path.dirname(outputPath), { recursive: true });
+    const page = await context.newPage();
 
-    const args = [
-        '--headless=new',
-        '--disable-gpu',
-        `--window-size=${config.viewportWidth},${config.viewportHeight}`,
-        `--virtual-time-budget=${config.virtualTimeBudget}`,
-        `--screenshot=${toBrowserPath(outputPath)}`,
-        url,
-    ];
+    try {
+        await page.setViewportSize({
+            height: config.viewportHeight,
+            width: config.viewportWidth,
+        });
+        await page.goto(url, {
+            timeout: 15000,
+            waitUntil: 'domcontentloaded',
+        });
+        await page.waitForFunction(
+            () => {
+                const canvas = document.querySelector('canvas');
+
+                return canvas instanceof HTMLCanvasElement && canvas.width > 0 && canvas.height > 0;
+            },
+            null,
+            { timeout: 10000 },
+        );
+        await page.waitForTimeout(config.virtualTimeBudget);
+        await page.screenshot({ path: outputPath });
+    } finally {
+        await page.close();
+    }
+}
+
+async function launchCaptureBrowser() {
+    const browser = await chromium.launch({
+        args: [
+            '--enable-webgl',
+            '--enable-unsafe-swiftshader',
+            '--use-angle=swiftshader',
+            '--use-gl=angle',
+        ],
+        executablePath: config.browser,
+        headless: true,
+    });
+
+    return {
+        close: () => browser.close(),
+        context: await browser.newContext(),
+    };
+}
+
+async function runCaptureWithWindowsNode() {
+    const windowsNodePath = '/mnt/c/Program Files/nodejs/node.exe';
+    const forwardedArgs = [];
+
+    for (let index = 2; index < process.argv.length; index += 1) {
+        if (process.argv[index] === '--browser') {
+            index += 1;
+            continue;
+        }
+
+        if (process.argv[index] === '--contact-sheet-only') continue;
+
+        forwardedArgs.push(process.argv[index]);
+    }
+
+    forwardedArgs.push(
+        '--browser',
+        toWindowsPath(config.browser),
+        '--skip-contact-sheet',
+    );
 
     await new Promise((resolve, reject) => {
-        const child = spawn(config.browser, args, {
-            stdio: ['ignore', 'pipe', 'pipe'],
-        });
-        let stderr = '';
-
-        child.stderr.on('data', (chunk) => {
-            stderr += chunk.toString();
+        const child = spawn(windowsNodePath, [
+            toWindowsPath(fileURLToPath(import.meta.url)),
+            ...forwardedArgs,
+        ], {
+            stdio: 'inherit',
         });
 
         child.on('error', reject);
@@ -238,14 +357,12 @@ async function captureScreenshot(url, outputPath) {
                 return;
             }
 
-            reject(new Error(`Browser exited with code ${code}: ${stderr.trim()}`));
+            reject(new Error(`Windows runtime QA process exited with code ${code}`));
         });
     });
 }
 
-function toBrowserPath(filePath) {
-    if (!config.browser.startsWith('/mnt/')) return filePath;
-
+function toWindowsPath(filePath) {
     const result = spawnSync('wslpath', ['-w', filePath], {
         encoding: 'utf8',
     });
@@ -255,16 +372,21 @@ function toBrowserPath(filePath) {
     return result.stdout.trim();
 }
 
-async function buildContactSheet(scenarios, outputPath) {
-    const cellWidth = 400;
-    const cellHeight = 253;
-    const columns = 3;
+async function buildContactSheet(scenarios, outputPath, comparisonGuideDir = null) {
+    const { default: sharp } = await import('sharp');
+    const cellWidth = 320;
+    const sampleHeight = 203;
+    const cellHeight = comparisonGuideDir ? sampleHeight * 2 : sampleHeight;
+    const columns = 5;
     const rows = Math.ceil(scenarios.length / columns);
     const composites = [];
 
     for (let index = 0; index < scenarios.length; index += 1) {
         const scenario = scenarios[index];
-        const screenshotPath = path.resolve(projectRoot, scenario.screenshot);
+        const screenshotPath = path.resolve(
+            projectRoot,
+            scenario.screenshot.replaceAll('\\', '/'),
+        );
         const image = await sharp(screenshotPath)
             .resize(cellWidth, cellHeight, {
                 fit: 'cover',
@@ -278,6 +400,27 @@ async function buildContactSheet(scenarios, outputPath) {
             left: (index % columns) * cellWidth,
             top: Math.floor(index / columns) * cellHeight,
         });
+
+        if (comparisonGuideDir) {
+            const guideScreenshotPath = path.join(
+                comparisonGuideDir,
+                'screenshots',
+                path.basename(screenshotPath),
+            );
+            const guideImage = await sharp(guideScreenshotPath)
+                .resize(cellWidth, sampleHeight, {
+                    fit: 'cover',
+                    position: 'center',
+                })
+                .png()
+                .toBuffer();
+
+            composites.push({
+                input: guideImage,
+                left: (index % columns) * cellWidth,
+                top: Math.floor(index / columns) * cellHeight + sampleHeight,
+            });
+        }
     }
 
     await sharp({
