@@ -272,6 +272,28 @@ for (const { atlasPath, spritePath } of vehicleAssets) {
             frameId.endsWith('right-2') ? 0.045 : 0.04,
             `${atlasPath}:${frameId} anchor lift must preserve lamp segment pitch`,
         );
+        const terrainLampMeanY = (
+            atlas.apex.headlightProfiles[frameId].lampLeft.y +
+            atlas.apex.headlightProfiles[frameId].lampRight.y
+        ) * 0.5;
+        const levelProfileId = frameId.endsWith('right-2')
+            ? 'steer-right-2'
+            : 'steer-right-1';
+        const levelProfile = atlas.apex.headlightProfiles[levelProfileId];
+        const levelLampMeanY = (levelProfile.lampLeft.y + levelProfile.lampRight.y) * 0.5;
+
+        if (frameId === levelProfileId) {
+            assertNear(
+                terrainLampMeanY,
+                frameId.endsWith('right-2') ? 0.5225 : 0.49,
+                `${atlasPath}:${frameId} approved level side anchor height`,
+            );
+        } else {
+            assert(
+                terrainLampMeanY <= levelLampMeanY + 0.011,
+                `${atlasPath}:${frameId} terrain side anchor must not sit below level`,
+            );
+        }
         assertNear(rightEmitter.rightIntensity, 1,
             `${atlasPath}:${frameId} right pose near lamp intensity`);
         assertNear(rightEmitter.rightReachScale, 1,

@@ -1086,6 +1086,36 @@ center reach는 level/downhill/uphill 순서로 다음과 같이 변경한다.
 - production build가 성공했고 FT86/G70 각각 15개 visual matrix가 실패 없이 캡처되었다.
 - 최종 캡처는 `.astro/headlight-hl-rev-8-ft86-anchor-corrected/`와 `.astro/headlight-hl-rev-8-g70-anchor-corrected/`에 저장했다.
 
+## 9차 terrain side anchor 보정
+
+### 문제와 범위
+
+- HL-REV-8 이후 level left/right는 승인 가능한 높이가 되었다.
+- downhill/uphill side profile에는 terrain별 기존 lamp Y offset이 남아 있어 광원 시작점이 다시 차량 아래로 내려가 보였다.
+- level profile, 조사각, reach, width, dual emitter 합성은 변경하지 않는다.
+
+### 적용 계약
+
+- 두 atlas의 `downhill-right-1/2`, `uphill-right-1/2`에만 추가 Y `-0.030` frame ratio를 적용한다.
+- 각 profile의 두 lamp에 같은 delta를 적용해 lamp segment pitch와 `emitterForwardYawDeg`를 유지한다.
+- terrain side lamp 평균 Y는 승인된 level 평균 Y보다 `0.011` 이상 아래로 내려갈 수 없다.
+
+### 상태
+
+- [x] FT86/G70 terrain side lamp anchor 보정
+- [x] level side anchor 값 불변
+- [x] lamp segment pitch와 terrain/level 높이 계약 audit 추가
+- [x] profile audit와 production build
+- [x] FT86/G70 terrain visual matrix 확인
+
+### HL-REV-9 구현 결과
+
+- level side profile과 정면 70% reach는 변경하지 않았다.
+- downhill/uphill side lamp origin만 추가로 약 `9.6px` 위로 이동했다(`displaySize 320px` 기준).
+- profile QA에서 방향 profile 12개, sprite anchor 18개, lamp segment pitch와 terrain/level 높이 계약이 통과했다.
+- production build와 FT86/G70 각각 15개 visual matrix가 성공했다.
+- 최종 캡처는 `.astro/headlight-hl-rev-9-ft86-terrain-anchor/`와 `.astro/headlight-hl-rev-9-g70-terrain-anchor/`에 저장했다.
+
 ## 기존 1차 구현 기록
 
 ### 구현 순서
