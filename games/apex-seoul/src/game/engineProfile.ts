@@ -36,27 +36,36 @@ export type VehicleEngineProfile = {
     shiftDropRpm: number;
     shiftUpRpm: number;
     torqueCurve: EngineTorquePoint[];
+    drivetrainModel?: 'arcade' | 'physical';
+    gearRatios?: number[];
+    finalDriveRatio?: number;
+    tireCircumferenceM?: number;
+    drivetrainEfficiency?: number;
+    drivetrainForceScale?: number;
 };
 
 export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
-    // Preserves the prior downhill race pace after lengthening the lower gears.
-    accelerationScale: 1.05,
+    // Raven Coupe is the in-game name; the drivetrain references the Toyota GT86/FT86.
+    accelerationScale: 1.34,
     displayName: 'Raven Coupe',
-    // Display calibration only. accelSpeed, gearing and torque remain the
-    // handling model's units, while the Bugak downhill reads less like a
-    // supercar speedometer.
-    displayTopSpeedKmh: 185,
+    // The physics envelope maps to the Raven/FT86 reference top-speed target;
+    // handling still uses normalized world units internally.
+    displayTopSpeedKmh: 225,
+    drivetrainModel: 'physical',
+    drivetrainEfficiency: 0.85,
+    drivetrainForceScale: 0.50,
+    finalDriveRatio: 4.1,
     fuelCutReturnRpm: 7350,
     fuelCutStartRpm: 7750,
     gears: [
         // FT86-inspired spacing: each full-throttle shift drops back into the
         // 5,400–5,800 rpm pull instead of exhausting 1st and 5th immediately.
-        { label: '1', rpmMax: 7450, rpmMin: 1100, speedRatioMax: 0.285, speedRatioMin: 0 },
-        { label: '2', rpmMax: 7450, rpmMin: 4800, speedRatioMax: 0.405, speedRatioMin: 0.23 },
-        { label: '3', rpmMax: 7450, rpmMin: 5000, speedRatioMax: 0.515, speedRatioMin: 0.34 },
-        { label: '4', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.625, speedRatioMin: 0.46 },
-        { label: '5', rpmMax: 7450, rpmMin: 5200, speedRatioMax: 0.755, speedRatioMin: 0.57 },
-        { label: '6', rpmMax: 7800, rpmMin: 5100, speedRatioMax: 1, speedRatioMin: 0.69 },
+        { label: '1', rpmMax: 7400, rpmMin: 1100, speedRatioMax: 0.201, speedRatioMin: 0 },
+        { label: '2', rpmMax: 7400, rpmMin: 4400, speedRatioMax: 0.333, speedRatioMin: 0.201 },
+        { label: '3', rpmMax: 7400, rpmMin: 5200, speedRatioMax: 0.473, speedRatioMin: 0.333 },
+        { label: '4', rpmMax: 7400, rpmMin: 5800, speedRatioMax: 0.600, speedRatioMin: 0.473 },
+        { label: '5', rpmMax: 7400, rpmMin: 6000, speedRatioMax: 0.728, speedRatioMin: 0.600 },
+        { label: '6', rpmMax: 7800, rpmMin: 5100, speedRatioMax: 1, speedRatioMin: 0.728 },
     ],
     id: 'raven-coupe-na',
     idleRpm: 1100,
@@ -70,13 +79,16 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
         { rpm: 2500, torqueScale: 0.38 },
         { rpm: 3500, torqueScale: 0.52 },
         { rpm: 4300, torqueScale: 0.56 },
-        { rpm: 5200, torqueScale: 0.72 },
-        { rpm: 6000, torqueScale: 0.88 },
-        { rpm: 6600, torqueScale: 0.98 },
-        { rpm: 7000, torqueScale: 1 },
-        { rpm: 7450, torqueScale: 0.86 },
+        { rpm: 5200, torqueScale: 0.82 },
+        { rpm: 6000, torqueScale: 0.94 },
+        { rpm: 6400, torqueScale: 1 },
+        { rpm: 6600, torqueScale: 1 },
+        { rpm: 7000, torqueScale: 0.96 },
+        { rpm: 7400, torqueScale: 0.84 },
         { rpm: 7800, torqueScale: 0.68 },
     ],
+    gearRatios: [3.626, 2.188, 1.541, 1.213, 1, 0.767],
+    tireCircumferenceM: 1.964,
 };
 
 export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
@@ -163,6 +175,14 @@ export const VEHICLE_ENGINE_PROFILES = {
 } as const;
 
 export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: number) {
+    if (hasPhysicalDrivetrain(profile)) {
+        const firstSustainableGear = profile.gears.findIndex(
+            (_, gearIndex) => getGearRpm(profile, gearIndex, speedRatio) <= profile.shiftUpRpm,
+        );
+
+        return firstSustainableGear < 0 ? profile.gears.length - 1 : firstSustainableGear;
+    }
+
     const exactGearIndex = profile.gears.findIndex(
         (gear) => speedRatio >= gear.speedRatioMin && speedRatio <= gear.speedRatioMax,
     );
@@ -174,8 +194,37 @@ export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: n
     return nextGearIndex < 0 ? profile.gears.length - 1 : Math.max(0, nextGearIndex - 1);
 }
 
+export function getPhysicalDownshiftRpm(profile: VehicleEngineProfile, gearIndex: number) {
+    if (!hasPhysicalDrivetrain(profile) || gearIndex <= 0) return profile.idleRpm;
+
+    const currentGearIndex = clamp(Math.round(gearIndex), 1, profile.gearRatios.length - 1);
+    const previousRatio = profile.gearRatios[currentGearIndex - 1];
+    const currentRatio = profile.gearRatios[currentGearIndex];
+
+    // Derive the current-gear threshold so a downshift lands the previous gear
+    // at the profile's existing shiftDropRpm target. Adjacent physical ratios
+    // provide hysteresis without consulting the legacy speed envelope.
+    return Math.max(
+        profile.idleRpm,
+        profile.shiftDropRpm * currentRatio / previousRatio,
+    );
+}
+
 export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, speedRatio: number) {
     const gear = profile.gears[clamp(Math.round(gearIndex), 0, profile.gears.length - 1)];
+
+    if (profile.drivetrainModel === 'physical' && profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM) {
+        const speedKmh = clamp(speedRatio, 0, 1) * profile.displayTopSpeedKmh;
+        const wheelRpm = (speedKmh / 3.6) / profile.tireCircumferenceM * 60;
+        const ratio = profile.gearRatios[clamp(Math.round(gearIndex), 0, profile.gearRatios.length - 1)];
+
+        return clamp(
+            wheelRpm * ratio * profile.finalDriveRatio,
+            profile.idleRpm,
+            profile.maxRpm,
+        );
+    }
+
     const progress = gear.speedRatioMax <= gear.speedRatioMin
         ? 1
         : smoothstep(clamp(
@@ -185,6 +234,15 @@ export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, spe
         ));
 
     return lerp(gear.rpmMin, gear.rpmMax, progress);
+}
+
+function hasPhysicalDrivetrain(profile: VehicleEngineProfile): profile is VehicleEngineProfile & {
+    finalDriveRatio: number;
+    gearRatios: number[];
+    tireCircumferenceM: number;
+} {
+    return profile.drivetrainModel === 'physical' &&
+        Boolean(profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM);
 }
 
 export function getTorqueScale(profile: VehicleEngineProfile, rpm: number) {
@@ -240,7 +298,9 @@ export function getBoostRatio(
 
 export function getDisplaySpeedKmh(speed: number, accelSpeed: number, profile: VehicleEngineProfile) {
     const speedRatio = clamp(speed / accelSpeed, 0, 1);
-    const displayRatio = smoothstep(speedRatio);
+    const displayRatio = profile.drivetrainModel === 'physical'
+        ? speedRatio
+        : smoothstep(speedRatio);
 
     return lerp(0, profile.displayTopSpeedKmh, displayRatio);
 }

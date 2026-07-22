@@ -25,6 +25,7 @@ export type CameraEffectsConfig = {
     shakeThrottleX: number;
     shakeThrottleY: number;
     speedFovBonus: number;
+    speedFovBands: Array<{ bonusRatio: number; speedKmh: number }>;
     throttleFovImpulse: number;
 };
 
@@ -57,7 +58,9 @@ export function updateCameraEffects(
         cueLimits: CameraEffectCueLimits;
         railImpact?: number;
         seconds: number;
-        speedRatio: number;
+        speedKmh: number;
     },
     config: CameraEffectsConfig,
 ): CameraEffectsState;
+
+export function getSpeedFovBonus(speedKmh: number, config?: CameraEffectsConfig): number;

@@ -12,7 +12,7 @@ const ACCEL_SPEED = 760;
 const BOOST_TORQUE_LIFT = 0.12;
 const TORQUE_SCALE_MAX = 1.14;
 const TORQUE_SCALE_MIN = 0.7;
-const COMMON_SPEEDS_KMH = [60, 90, 120, 150, 180, 210, 230];
+const COMMON_SPEEDS_KMH = [60, 80, 90, 100, 120, 150, 180, 210, 230];
 const REFERENCE_PROFILES = [
     RAVEN_COUPE_ENGINE_PROFILE,
     VORTEX_GT_ENGINE_PROFILE,
@@ -26,7 +26,7 @@ const rowsByVehicle = REFERENCE_PROFILES.map((profile) => ({
 
 console.log('# Apex Seoul Powerband Reference');
 console.log('');
-console.log('Display speed is converted back through the runtime display-speed curve, so the table compares vehicle character at player-facing km/h rather than raw physics units.');
+console.log('Each profile is sampled at player-facing km/h; physical Raven uses a linear physics-speed mapping while legacy profiles retain their display curve.');
 
 for (const { profile, rows } of rowsByVehicle) {
     console.log('');
@@ -44,6 +44,30 @@ for (const { profile, rows } of rowsByVehicle) {
     }
 }
 
+const ravenRows = rowsByVehicle.find(({ profile }) => profile.id === RAVEN_COUPE_ENGINE_PROFILE.id)?.rows ?? [];
+const ravenAt = (speedKmh) => ravenRows.find((row) => row.speedKmh === speedKmh);
+const checks = [
+    check('raven.physicalModel', RAVEN_COUPE_ENGINE_PROFILE.drivetrainModel === 'physical'),
+    check('raven.topSpeedEnvelope', RAVEN_COUPE_ENGINE_PROFILE.displayTopSpeedKmh === 225),
+    check('raven.gearRatios', JSON.stringify(RAVEN_COUPE_ENGINE_PROFILE.gearRatios) === JSON.stringify([3.626, 2.188, 1.541, 1.213, 1, 0.767])),
+    check('raven.60kmh.secondGear', ravenAt(60)?.gear === 2),
+    check('raven.100kmh.thirdGear', ravenAt(100)?.gear === 3),
+    check('raven.100kmh.rpmWindow', between(ravenAt(100)?.rpm, 5000, 6200)),
+];
+
+console.log('');
+console.log('# Raven drivetrain checks');
+console.log(JSON.stringify({ checks, pass: checks.every((check) => check.pass) }, null, 2));
+if (checks.some((check) => !check.pass)) process.exitCode = 1;
+
+function check(id, pass) {
+    return { id, pass };
+}
+
+function between(value, min, max) {
+    return typeof value === 'number' && value >= min && value <= max;
+}
+
 function getReferenceRows(profile) {
     const speeds = [...COMMON_SPEEDS_KMH, profile.displayTopSpeedKmh]
         .filter((speed, index, values) => speed <= profile.displayTopSpeedKmh && values.indexOf(speed) === index)
@@ -51,7 +75,9 @@ function getReferenceRows(profile) {
 
     return speeds.map((speedKmh) => {
         const displayRatio = speedKmh / profile.displayTopSpeedKmh;
-        const speedRatio = inverseSmoothstep(displayRatio);
+        const speedRatio = profile.drivetrainModel === 'physical'
+            ? displayRatio
+            : inverseSmoothstep(displayRatio);
         const gearIndex = getInitialGearIndex(profile, speedRatio);
         const rpm = getGearRpm(profile, gearIndex, speedRatio);
         const torqueScale = getTorqueScale(profile, rpm);

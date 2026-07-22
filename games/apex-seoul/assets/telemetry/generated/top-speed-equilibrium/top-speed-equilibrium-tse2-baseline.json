@@ -1,0 +1,1684 @@
+{
+  "checks": [
+    {
+      "id": "allScenariosReachTerminalWindow",
+      "pass": true,
+      "target": true,
+      "value": [
+        {
+          "id": "uphill",
+          "reached": true
+        },
+        {
+          "id": "level",
+          "reached": true
+        },
+        {
+          "id": "sh7-mild-downhill",
+          "reached": true
+        }
+      ]
+    },
+    {
+      "id": "forceIdentityErrorMax",
+      "pass": true,
+      "target": [
+        0,
+        0.000001
+      ],
+      "value": 0
+    },
+    {
+      "id": "tse1TerminalDeltaKmhMax",
+      "pass": true,
+      "target": [
+        0,
+        0.001
+      ],
+      "value": 0
+    },
+    {
+      "id": "physicalInitialGearSelection",
+      "pass": true,
+      "target": [
+        {
+          "expectedGear": 2,
+          "speedKmh": 60
+        },
+        {
+          "expectedGear": 2,
+          "speedKmh": 80
+        },
+        {
+          "expectedGear": 3,
+          "speedKmh": 100
+        },
+        {
+          "expectedGear": 3,
+          "speedKmh": 120
+        },
+        {
+          "expectedGear": 4,
+          "speedKmh": 150
+        },
+        {
+          "expectedGear": 5,
+          "speedKmh": 180
+        },
+        {
+          "expectedGear": 6,
+          "speedKmh": 225
+        }
+      ],
+      "value": [
+        {
+          "gear": 2,
+          "speedKmh": 60
+        },
+        {
+          "gear": 2,
+          "speedKmh": 80
+        },
+        {
+          "gear": 3,
+          "speedKmh": 100
+        },
+        {
+          "gear": 3,
+          "speedKmh": 120
+        },
+        {
+          "gear": 4,
+          "speedKmh": 150
+        },
+        {
+          "gear": 5,
+          "speedKmh": 180
+        },
+        {
+          "gear": 6,
+          "speedKmh": 225
+        }
+      ]
+    },
+    {
+      "id": "physicalInitialGearIgnoresLegacyEnvelope",
+      "pass": true,
+      "target": {
+        "80kmh": 2,
+        "120kmh": 3
+      },
+      "value": {
+        "80kmh": 2,
+        "120kmh": 3
+      }
+    },
+    {
+      "id": "observedUpshiftsMatchPhysicalRpm",
+      "pass": true,
+      "target": "all powered shifts are upward within 50rpm of 7400",
+      "value": [
+        {
+          "id": "uphill",
+          "shifts": [
+            {
+              "fromGear": 1,
+              "mechanicalRpm": 7374.52815548,
+              "toGear": 2
+            },
+            {
+              "fromGear": 2,
+              "mechanicalRpm": 7396.48917224,
+              "toGear": 3
+            }
+          ]
+        },
+        {
+          "id": "level",
+          "shifts": [
+            {
+              "fromGear": 1,
+              "mechanicalRpm": 7358.67813193,
+              "toGear": 2
+            },
+            {
+              "fromGear": 2,
+              "mechanicalRpm": 7394.85116347,
+              "toGear": 3
+            },
+            {
+              "fromGear": 3,
+              "mechanicalRpm": 7399.21968096,
+              "toGear": 4
+            }
+          ]
+        },
+        {
+          "id": "sh7-mild-downhill",
+          "shifts": [
+            {
+              "fromGear": 1,
+              "mechanicalRpm": 7362.62761857,
+              "toGear": 2
+            },
+            {
+              "fromGear": 2,
+              "mechanicalRpm": 7396.47077553,
+              "toGear": 3
+            },
+            {
+              "fromGear": 3,
+              "mechanicalRpm": 7399.6295438,
+              "toGear": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physicalDownshiftTargetIdentity",
+      "pass": true,
+      "target": 5400,
+      "value": [
+        {
+          "gear": 2,
+          "previousGearLandingRpm": 5400
+        },
+        {
+          "gear": 3,
+          "previousGearLandingRpm": 5400
+        },
+        {
+          "gear": 4,
+          "previousGearLandingRpm": 5400
+        },
+        {
+          "gear": 5,
+          "previousGearLandingRpm": 5400
+        },
+        {
+          "gear": 6,
+          "previousGearLandingRpm": 5400
+        }
+      ]
+    },
+    {
+      "id": "physicalDownshiftRuntimeBoundary",
+      "pass": true,
+      "target": "50rpm below threshold downshifts once; 50rpm above holds current gear",
+      "value": [
+        {
+          "above": {
+            "mechanicalRpm": 3308.4666299,
+            "selectedGear": 2,
+            "speedKmh": 43.45985951
+          },
+          "below": {
+            "mechanicalRpm": 3208.4666299,
+            "selectedGear": 1,
+            "speedKmh": 42.14626429
+          },
+          "gear": 2,
+          "thresholdRpm": 3258.4666299
+        },
+        {
+          "above": {
+            "mechanicalRpm": 3853.19926874,
+            "selectedGear": 3,
+            "speedKmh": 71.86670072
+          },
+          "below": {
+            "mechanicalRpm": 3753.19926874,
+            "selectedGear": 2,
+            "speedKmh": 70.00158304
+          },
+          "gear": 3,
+          "thresholdRpm": 3803.19926874
+        },
+        {
+          "above": {
+            "mechanicalRpm": 4300.6164828,
+            "selectedGear": 4,
+            "speedKmh": 101.90108104
+          },
+          "below": {
+            "mechanicalRpm": 4200.6164828,
+            "selectedGear": 3,
+            "speedKmh": 99.53162816
+          },
+          "gear": 4,
+          "thresholdRpm": 4250.6164828
+        },
+        {
+          "above": {
+            "mechanicalRpm": 4501.77246496,
+            "selectedGear": 5,
+            "speedKmh": 129.3875286
+          },
+          "below": {
+            "mechanicalRpm": 4401.77246496,
+            "selectedGear": 4,
+            "speedKmh": 126.51338226
+          },
+          "gear": 5,
+          "thresholdRpm": 4451.77246496
+        },
+        {
+          "above": {
+            "mechanicalRpm": 4191.8,
+            "selectedGear": 6,
+            "speedKmh": 157.07753108
+          },
+          "below": {
+            "mechanicalRpm": 4091.8,
+            "selectedGear": 5,
+            "speedKmh": 153.33027379
+          },
+          "gear": 6,
+          "thresholdRpm": 4141.8
+        }
+      ]
+    },
+    {
+      "id": "gearHysteresisSlopeOrderingReproduced",
+      "pass": true,
+      "target": "current baseline keeps uphill in 3rd above the level 4th-gear terminal",
+      "value": [
+        {
+          "gear": 3,
+          "id": "uphill",
+          "speedKmh": 128.39893526
+        },
+        {
+          "gear": 4,
+          "id": "level",
+          "speedKmh": 126.75937832
+        },
+        {
+          "gear": 4,
+          "id": "sh7-mild-downhill",
+          "speedKmh": 140.83503104
+        }
+      ]
+    },
+    {
+      "id": "levelTerminalBaselineKmh",
+      "pass": true,
+      "target": [
+        120,
+        135
+      ],
+      "value": 126.75937832
+    },
+    {
+      "id": "sh7TerminalBaselineKmh",
+      "pass": true,
+      "target": [
+        135,
+        150
+      ],
+      "value": 140.83503104
+    },
+    {
+      "id": "levelAndSh7RemainFourthGear",
+      "pass": true,
+      "target": {
+        "level": 4,
+        "sh7": 4
+      },
+      "value": {
+        "level": 4,
+        "sh7": 4
+      }
+    },
+    {
+      "id": "noScenarioUsesHardClamp",
+      "pass": true,
+      "target": false,
+      "value": [
+        {
+          "hitHardClamp": false,
+          "id": "uphill"
+        },
+        {
+          "hitHardClamp": false,
+          "id": "level"
+        },
+        {
+          "hitHardClamp": false,
+          "id": "sh7-mild-downhill"
+        }
+      ]
+    },
+    {
+      "id": "straightHasNoCornerLoss",
+      "pass": true,
+      "target": 0,
+      "value": [
+        {
+          "cornerLossMax": 0,
+          "id": "uphill"
+        },
+        {
+          "cornerLossMax": 0,
+          "id": "level"
+        },
+        {
+          "cornerLossMax": 0,
+          "id": "sh7-mild-downhill"
+        }
+      ]
+    },
+    {
+      "id": "fourthGearEnvelopeMismatchReproduced",
+      "pass": true,
+      "target": "physical 7,400rpm speed exceeds declared max by >= 35km/h",
+      "value": {
+        "declaredMaxSpeedKmh": 135,
+        "gear": 4,
+        "physicalShiftSpeedKmh": 175.339513,
+        "shiftRpm": 7400
+      }
+    }
+  ],
+  "constants": {
+    "accelSpeed": 760,
+    "aeroDrag": 0.00012,
+    "engineAcceleration": 82,
+    "frameSeconds": 0.01666667,
+    "maximumDurationSec": 600,
+    "rollingResistance": 14,
+    "physicalDownshiftLandingRpm": 5400,
+    "sampleIntervalSec": 5,
+    "terminalAcceleration": 0.01,
+    "terminalSpeedDeltaKmh": 0.01,
+    "terminalWindowSec": 5
+  },
+  "findings": {
+    "fourthGearDeclaredMaxSpeedKmh": 135,
+    "fourthGearPhysicalShiftSpeedKmh": 175.339513,
+    "levelTargetEquilibriumReached": false,
+    "levelTerminalGapTo225Kmh": 98.24062168,
+    "slopeSpeedOrderingMonotonic": false,
+    "sh7RuntimeComparisonKmh": {
+      "measured": 140.7,
+      "simulatedTerminal": 140.83503104
+    },
+    "tse1TerminalDeltaKmhMax": 0
+  },
+  "downshiftEnvelopeRows": [
+    {
+      "downshiftRpm": 3258.4666299,
+      "downshiftSpeedKmh": 42.8030619,
+      "gear": 2,
+      "previousGear": 1,
+      "previousGearLandingRpm": 5400
+    },
+    {
+      "downshiftRpm": 3803.19926874,
+      "downshiftSpeedKmh": 70.93414188,
+      "gear": 3,
+      "previousGear": 2,
+      "previousGearLandingRpm": 5400
+    },
+    {
+      "downshiftRpm": 4250.6164828,
+      "downshiftSpeedKmh": 100.7163546,
+      "gear": 4,
+      "previousGear": 3,
+      "previousGearLandingRpm": 5400
+    },
+    {
+      "downshiftRpm": 4451.77246496,
+      "downshiftSpeedKmh": 127.95045543,
+      "gear": 5,
+      "previousGear": 4,
+      "previousGearLandingRpm": 5400
+    },
+    {
+      "downshiftRpm": 4141.8,
+      "downshiftSpeedKmh": 155.20390244,
+      "gear": 6,
+      "previousGear": 5,
+      "previousGearLandingRpm": 5400
+    }
+  ],
+  "downshiftProbeRows": [
+    {
+      "above": {
+        "mechanicalRpm": 3308.4666299,
+        "selectedGear": 2,
+        "speedKmh": 43.45985951
+      },
+      "below": {
+        "mechanicalRpm": 3208.4666299,
+        "selectedGear": 1,
+        "speedKmh": 42.14626429
+      },
+      "gear": 2,
+      "thresholdRpm": 3258.4666299
+    },
+    {
+      "above": {
+        "mechanicalRpm": 3853.19926874,
+        "selectedGear": 3,
+        "speedKmh": 71.86670072
+      },
+      "below": {
+        "mechanicalRpm": 3753.19926874,
+        "selectedGear": 2,
+        "speedKmh": 70.00158304
+      },
+      "gear": 3,
+      "thresholdRpm": 3803.19926874
+    },
+    {
+      "above": {
+        "mechanicalRpm": 4300.6164828,
+        "selectedGear": 4,
+        "speedKmh": 101.90108104
+      },
+      "below": {
+        "mechanicalRpm": 4200.6164828,
+        "selectedGear": 3,
+        "speedKmh": 99.53162816
+      },
+      "gear": 4,
+      "thresholdRpm": 4250.6164828
+    },
+    {
+      "above": {
+        "mechanicalRpm": 4501.77246496,
+        "selectedGear": 5,
+        "speedKmh": 129.3875286
+      },
+      "below": {
+        "mechanicalRpm": 4401.77246496,
+        "selectedGear": 4,
+        "speedKmh": 126.51338226
+      },
+      "gear": 5,
+      "thresholdRpm": 4451.77246496
+    },
+    {
+      "above": {
+        "mechanicalRpm": 4191.8,
+        "selectedGear": 6,
+        "speedKmh": 157.07753108
+      },
+      "below": {
+        "mechanicalRpm": 4091.8,
+        "selectedGear": 5,
+        "speedKmh": 153.33027379
+      },
+      "gear": 6,
+      "thresholdRpm": 4141.8
+    }
+  ],
+  "gearEnvelopeRows": [
+    {
+      "declaredMaxSpeedKmh": 45.225,
+      "gear": 1,
+      "physicalShiftSpeedKmh": 58.65604778,
+      "shiftRpm": 7400
+    },
+    {
+      "declaredMaxSpeedKmh": 74.925,
+      "gear": 2,
+      "physicalShiftSpeedKmh": 97.20604628,
+      "shiftRpm": 7400
+    },
+    {
+      "declaredMaxSpeedKmh": 106.425,
+      "gear": 3,
+      "physicalShiftSpeedKmh": 138.01870816,
+      "shiftRpm": 7400
+    },
+    {
+      "declaredMaxSpeedKmh": 135,
+      "gear": 4,
+      "physicalShiftSpeedKmh": 175.339513,
+      "shiftRpm": 7400
+    },
+    {
+      "declaredMaxSpeedKmh": 163.8,
+      "gear": 5,
+      "physicalShiftSpeedKmh": 212.68682927,
+      "shiftRpm": 7400
+    },
+    {
+      "declaredMaxSpeedKmh": 225,
+      "gear": 6,
+      "physicalShiftSpeedKmh": 277.29703946,
+      "shiftRpm": 7400
+    }
+  ],
+  "generatedAt": "2026-07-22T03:58:09.062Z",
+  "initialGearRows": [
+    {
+      "expectedGear": 2,
+      "gear": 2,
+      "speedKmh": 60
+    },
+    {
+      "expectedGear": 2,
+      "gear": 2,
+      "speedKmh": 80
+    },
+    {
+      "expectedGear": 3,
+      "gear": 3,
+      "speedKmh": 100
+    },
+    {
+      "expectedGear": 3,
+      "gear": 3,
+      "speedKmh": 120
+    },
+    {
+      "expectedGear": 4,
+      "gear": 4,
+      "speedKmh": 150
+    },
+    {
+      "expectedGear": 5,
+      "gear": 5,
+      "speedKmh": 180
+    },
+    {
+      "expectedGear": 6,
+      "gear": 6,
+      "speedKmh": 225
+    }
+  ],
+  "pass": true,
+  "rows": [
+    {
+      "cornerLossMax": 0,
+      "forceIdentityErrorMax": 0,
+      "hitHardClamp": false,
+      "id": "uphill",
+      "label": "uphill -10",
+      "samples": [
+        {
+          "force": {
+            "aeroDrag": 0,
+            "cornerLoss": 0,
+            "drive": 56.87309586,
+            "engineBrake": 0,
+            "netAcceleration": 32.87309586,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 1,
+          "mechanicalRpm": 1100,
+          "rpm": 1126.42837496,
+          "speedKmh": 0.16220278,
+          "speedUnitPerSec": 0.54788493,
+          "timeSec": 0,
+          "windowSpeedDeltaKmh": null
+        },
+        {
+          "force": {
+            "aeroDrag": 5.02480322,
+            "cornerLoss": 0,
+            "drive": 49.98906427,
+            "engineBrake": 0,
+            "netAcceleration": 20.96426105,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 2,
+          "mechanicalRpm": 4611.86167093,
+          "rpm": 4842.87595803,
+          "speedKmh": 60.68463654,
+          "speedUnitPerSec": 204.97921676,
+          "timeSec": 5,
+          "windowSpeedDeltaKmh": 60.52243377
+        },
+        {
+          "force": {
+            "aeroDrag": 12.93968764,
+            "cornerLoss": 0,
+            "drive": 43.9398885,
+            "engineBrake": 0,
+            "netAcceleration": 7.00020086,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 5212.35468881,
+          "rpm": 5783.9877047,
+          "speedKmh": 97.25108919,
+          "speedUnitPerSec": 328.49256795,
+          "timeSec": 10,
+          "windowSpeedDeltaKmh": 36.56645265
+        },
+        {
+          "force": {
+            "aeroDrag": 15.43762541,
+            "cornerLoss": 0,
+            "drive": 45.35370088,
+            "engineBrake": 0,
+            "netAcceleration": 5.91607547,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 5693.27699037,
+          "rpm": 5927.3153562,
+          "speedKmh": 106.21550675,
+          "speedUnitPerSec": 358.77237837,
+          "timeSec": 15,
+          "windowSpeedDeltaKmh": 8.96441756
+        },
+        {
+          "force": {
+            "aeroDrag": 17.97057156,
+            "cornerLoss": 0,
+            "drive": 47.31802177,
+            "engineBrake": 0,
+            "netAcceleration": 5.34745021,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6142.61094948,
+          "rpm": 6377.2161503,
+          "speedKmh": 114.59330814,
+          "speedUnitPerSec": 387.07072972,
+          "timeSec": 20,
+          "windowSpeedDeltaKmh": 8.37780139
+        },
+        {
+          "force": {
+            "aeroDrag": 20.09869451,
+            "cornerLoss": 0,
+            "drive": 47.53644647,
+            "engineBrake": 0,
+            "netAcceleration": 3.43775196,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6496.14917023,
+          "rpm": 6732.65673457,
+          "speedKmh": 121.17778914,
+          "speedUnitPerSec": 409.31164332,
+          "timeSec": 25,
+          "windowSpeedDeltaKmh": 6.584481
+        },
+        {
+          "force": {
+            "aeroDrag": 21.39865503,
+            "cornerLoss": 0,
+            "drive": 47.2998524,
+            "engineBrake": 0,
+            "netAcceleration": 1.90119737,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6702.93955622,
+          "rpm": 6941.00681737,
+          "speedKmh": 125.0270915,
+          "speedUnitPerSec": 422.3137313,
+          "timeSec": 30,
+          "windowSpeedDeltaKmh": 3.84930236
+        },
+        {
+          "force": {
+            "aeroDrag": 22.09772542,
+            "cornerLoss": 0,
+            "drive": 46.96067238,
+            "engineBrake": 0,
+            "netAcceleration": 0.86294695,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6811.54846233,
+          "rpm": 7050.6666306,
+          "speedKmh": 127.04765246,
+          "speedUnitPerSec": 429.13873721,
+          "timeSec": 35,
+          "windowSpeedDeltaKmh": 2.02056096
+        },
+        {
+          "force": {
+            "aeroDrag": 22.38775513,
+            "cornerLoss": 0,
+            "drive": 46.72579127,
+            "engineBrake": 0,
+            "netAcceleration": 0.33803614,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6856.10308014,
+          "rpm": 7095.75759399,
+          "speedKmh": 127.8760585,
+          "speedUnitPerSec": 431.9369087,
+          "timeSec": 40,
+          "windowSpeedDeltaKmh": 0.82840603
+        },
+        {
+          "force": {
+            "aeroDrag": 22.5015419,
+            "cornerLoss": 0,
+            "drive": 46.63316928,
+            "engineBrake": 0,
+            "netAcceleration": 0.13162738,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6873.50422249,
+          "rpm": 7113.36968621,
+          "speedKmh": 128.19959181,
+          "speedUnitPerSec": 433.02973235,
+          "timeSec": 45,
+          "windowSpeedDeltaKmh": 0.32353332
+        },
+        {
+          "force": {
+            "aeroDrag": 22.54587577,
+            "cornerLoss": 0,
+            "drive": 46.59701096,
+            "engineBrake": 0,
+            "netAcceleration": 0.05113519,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6880.27218302,
+          "rpm": 7120.21991657,
+          "speedKmh": 128.32542508,
+          "speedUnitPerSec": 433.45476915,
+          "timeSec": 50,
+          "windowSpeedDeltaKmh": 0.12583326
+        },
+        {
+          "force": {
+            "aeroDrag": 22.5631028,
+            "cornerLoss": 0,
+            "drive": 46.5829501,
+            "engineBrake": 0,
+            "netAcceleration": 0.0198473,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6882.90024805,
+          "rpm": 7122.87996149,
+          "speedKmh": 128.3742872,
+          "speedUnitPerSec": 433.61981455,
+          "timeSec": 55,
+          "windowSpeedDeltaKmh": 0.04886212
+        },
+        {
+          "force": {
+            "aeroDrag": 22.56978981,
+            "cornerLoss": 0,
+            "drive": 46.57749052,
+            "engineBrake": 0,
+            "netAcceleration": 0.00770071,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6883.92011129,
+          "rpm": 7123.91224011,
+          "speedKmh": 128.39324892,
+          "speedUnitPerSec": 433.68386301,
+          "timeSec": 60,
+          "windowSpeedDeltaKmh": 0.01896172
+        },
+        {
+          "force": {
+            "aeroDrag": 22.57179533,
+            "cornerLoss": 0,
+            "drive": 46.57585294,
+            "engineBrake": 0,
+            "netAcceleration": 0.0040576,
+            "rollingResistance": 14,
+            "slope": -10
+          },
+          "gear": 3,
+          "mechanicalRpm": 6884.22595371,
+          "rpm": 7124.22180629,
+          "speedKmh": 128.39893526,
+          "speedUnitPerSec": 433.70307022,
+          "timeSec": 63.38333333,
+          "windowSpeedDeltaKmh": 0.00999168
+        }
+      ],
+      "shifts": [
+        {
+          "fromGear": 1,
+          "mechanicalRpm": 7374.52815548,
+          "speedKmh": 58.73376298,
+          "timeSec": 4.65,
+          "toGear": 2
+        },
+        {
+          "fromGear": 2,
+          "mechanicalRpm": 7396.48917224,
+          "speedKmh": 97.26710251,
+          "timeSec": 9.86666667,
+          "toGear": 3
+        }
+      ],
+      "slopeAcceleration": -10,
+      "terminal": {
+        "force": {
+          "aeroDrag": 22.57179533,
+          "cornerLoss": 0,
+          "drive": 46.57585294,
+          "engineBrake": 0,
+          "netAcceleration": 0.0040576,
+          "rollingResistance": 14,
+          "slope": -10
+        },
+        "gear": 3,
+        "mechanicalRpm": 6884.22595371,
+        "reached": true,
+        "recentSpeedDeltaKmh": 0.00999168,
+        "rpm": 7124.22180629,
+        "speedKmh": 128.39893526,
+        "speedUnitPerSec": 433.70307022,
+        "timeSec": 63.38333333
+      }
+    },
+    {
+      "cornerLossMax": 0,
+      "forceIdentityErrorMax": 0,
+      "hitHardClamp": false,
+      "id": "level",
+      "label": "level 0",
+      "samples": [
+        {
+          "force": {
+            "aeroDrag": 0,
+            "cornerLoss": 0,
+            "drive": 56.87309586,
+            "engineBrake": 0,
+            "netAcceleration": 42.87309586,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 1,
+          "mechanicalRpm": 1100,
+          "rpm": 1126.42837496,
+          "speedKmh": 0.21154488,
+          "speedUnitPerSec": 0.7145516,
+          "timeSec": 0,
+          "windowSpeedDeltaKmh": null
+        },
+        {
+          "force": {
+            "aeroDrag": 6.81425802,
+            "cornerLoss": 0,
+            "drive": 55.80079051,
+            "engineBrake": 0,
+            "netAcceleration": 34.98653249,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 2,
+          "mechanicalRpm": 5370.63985444,
+          "rpm": 5560.99189344,
+          "speedKmh": 70.72109933,
+          "speedUnitPerSec": 238.88015774,
+          "timeSec": 5,
+          "windowSpeedDeltaKmh": 70.50955445
+        },
+        {
+          "force": {
+            "aeroDrag": 16.25384419,
+            "cornerLoss": 0,
+            "drive": 45.99897101,
+            "engineBrake": 0,
+            "netAcceleration": 15.74512682,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 3,
+          "mechanicalRpm": 5841.84608665,
+          "rpm": 6065.97440972,
+          "speedKmh": 109.03499384,
+          "speedUnitPerSec": 368.2959792,
+          "timeSec": 10,
+          "windowSpeedDeltaKmh": 38.31389451
+        },
+        {
+          "force": {
+            "aeroDrag": 22.76676492,
+            "cornerLoss": 0,
+            "drive": 46.47342863,
+            "engineBrake": 0,
+            "netAcceleration": 9.70666371,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 3,
+          "mechanicalRpm": 6913.89414462,
+          "rpm": 7143.9720094,
+          "speedKmh": 129.00015664,
+          "speedUnitPerSec": 435.73386242,
+          "timeSec": 15,
+          "windowSpeedDeltaKmh": 19.9651628
+        },
+        {
+          "force": {
+            "aeroDrag": 26.03946515,
+            "cornerLoss": 0,
+            "drive": 43.26710224,
+            "engineBrake": 0,
+            "netAcceleration": 3.22763709,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 3,
+          "mechanicalRpm": 7394.14723634,
+          "rpm": 7630.83465902,
+          "speedKmh": 137.92547307,
+          "speedUnitPerSec": 465.88159792,
+          "timeSec": 20,
+          "windowSpeedDeltaKmh": 8.92531643
+        },
+        {
+          "force": {
+            "aeroDrag": 24.67609355,
+            "cornerLoss": 0,
+            "drive": 36.71735019,
+            "engineBrake": 0,
+            "netAcceleration": -1.95874336,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5665.89380761,
+          "rpm": 5907.45645143,
+          "speedKmh": 134.24101906,
+          "speedUnitPerSec": 453.43633104,
+          "timeSec": 25,
+          "windowSpeedDeltaKmh": 3.68445401
+        },
+        {
+          "force": {
+            "aeroDrag": 23.81017181,
+            "cornerLoss": 0,
+            "drive": 36.509316,
+            "engineBrake": 0,
+            "netAcceleration": -1.30085581,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5565.59360284,
+          "rpm": 5806.63101745,
+          "speedKmh": 131.86769912,
+          "speedUnitPerSec": 445.41978371,
+          "timeSec": 30,
+          "windowSpeedDeltaKmh": 2.37331993
+        },
+        {
+          "force": {
+            "aeroDrag": 23.23841792,
+            "cornerLoss": 0,
+            "drive": 36.35839512,
+            "engineBrake": 0,
+            "netAcceleration": -0.8800228,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5498.36422831,
+          "rpm": 5739.06586523,
+          "speedKmh": 130.27680725,
+          "speedUnitPerSec": 440.0461045,
+          "timeSec": 35,
+          "windowSpeedDeltaKmh": 1.59089187
+        },
+        {
+          "force": {
+            "aeroDrag": 22.85322701,
+            "cornerLoss": 0,
+            "drive": 36.25054903,
+            "engineBrake": 0,
+            "netAcceleration": -0.60267797,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5452.60444637,
+          "rpm": 5693.08488014,
+          "speedKmh": 129.19391926,
+          "speedUnitPerSec": 436.3883495,
+          "timeSec": 40,
+          "windowSpeedDeltaKmh": 1.08288799
+        },
+        {
+          "force": {
+            "aeroDrag": 22.5902047,
+            "cornerLoss": 0,
+            "drive": 36.174025,
+            "engineBrake": 0,
+            "netAcceleration": -0.4161797,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5421.13608907,
+          "rpm": 5661.46781636,
+          "speedKmh": 128.44921158,
+          "speedUnitPerSec": 433.87289246,
+          "timeSec": 45,
+          "windowSpeedDeltaKmh": 0.74470768
+        },
+        {
+          "force": {
+            "aeroDrag": 22.40895098,
+            "cornerLoss": 0,
+            "drive": 36.11991984,
+            "engineBrake": 0,
+            "netAcceleration": -0.28903113,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5399.34389972,
+          "rpm": 5639.57426233,
+          "speedKmh": 127.9334833,
+          "speedUnitPerSec": 432.13087694,
+          "timeSec": 50,
+          "windowSpeedDeltaKmh": 0.51572828
+        },
+        {
+          "force": {
+            "aeroDrag": 22.28325694,
+            "cornerLoss": 0,
+            "drive": 36.08173956,
+            "engineBrake": 0,
+            "netAcceleration": -0.20151738,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5384.17987686,
+          "rpm": 5624.34048111,
+          "speedKmh": 127.57461074,
+          "speedUnitPerSec": 430.91868517,
+          "timeSec": 55,
+          "windowSpeedDeltaKmh": 0.35887256
+        },
+        {
+          "force": {
+            "aeroDrag": 22.19571136,
+            "cornerLoss": 0,
+            "drive": 36.05482668,
+            "engineBrake": 0,
+            "netAcceleration": -0.14088468,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5373.59289157,
+          "rpm": 5613.70516898,
+          "speedKmh": 127.32405629,
+          "speedUnitPerSec": 430.0723679,
+          "timeSec": 60,
+          "windowSpeedDeltaKmh": 0.25055445
+        },
+        {
+          "force": {
+            "aeroDrag": 22.13455106,
+            "cornerLoss": 0,
+            "drive": 36.0358686,
+            "engineBrake": 0,
+            "netAcceleration": -0.09868246,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5366.18431472,
+          "rpm": 5606.26295725,
+          "speedKmh": 127.14872178,
+          "speedUnitPerSec": 429.48012691,
+          "timeSec": 65,
+          "windowSpeedDeltaKmh": 0.1753345
+        },
+        {
+          "force": {
+            "aeroDrag": 22.09173335,
+            "cornerLoss": 0,
+            "drive": 36.02251953,
+            "engineBrake": 0,
+            "netAcceleration": -0.06921382,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5360.99155252,
+          "rpm": 5601.04670977,
+          "speedKmh": 127.02582713,
+          "speedUnitPerSec": 429.0650161,
+          "timeSec": 70,
+          "windowSpeedDeltaKmh": 0.12289465
+        },
+        {
+          "force": {
+            "aeroDrag": 22.06171273,
+            "cornerLoss": 0,
+            "drive": 36.01312243,
+            "engineBrake": 0,
+            "netAcceleration": -0.04859031,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5357.34776844,
+          "rpm": 5597.38649011,
+          "speedKmh": 126.93959115,
+          "speedUnitPerSec": 428.7737301,
+          "timeSec": 75,
+          "windowSpeedDeltaKmh": 0.08623599
+        },
+        {
+          "force": {
+            "aeroDrag": 22.04064265,
+            "cornerLoss": 0,
+            "drive": 36.00650845,
+            "engineBrake": 0,
+            "netAcceleration": -0.0341342,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5354.78888437,
+          "rpm": 5594.8160857,
+          "speedKmh": 126.87903093,
+          "speedUnitPerSec": 428.56917113,
+          "timeSec": 80,
+          "windowSpeedDeltaKmh": 0.06056022
+        },
+        {
+          "force": {
+            "aeroDrag": 22.02584377,
+            "cornerLoss": 0,
+            "drive": 36.00185386,
+            "engineBrake": 0,
+            "netAcceleration": -0.02398991,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5352.99088392,
+          "rpm": 5593.01000122,
+          "speedKmh": 126.83647821,
+          "speedUnitPerSec": 428.4254375,
+          "timeSec": 85,
+          "windowSpeedDeltaKmh": 0.04255272
+        },
+        {
+          "force": {
+            "aeroDrag": 22.01544425,
+            "cornerLoss": 0,
+            "drive": 35.99857844,
+            "engineBrake": 0,
+            "netAcceleration": -0.01686581,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5351.7270257,
+          "rpm": 5591.74046583,
+          "speedKmh": 126.80656683,
+          "speedUnitPerSec": 428.32440353,
+          "timeSec": 90,
+          "windowSpeedDeltaKmh": 0.02991137
+        },
+        {
+          "force": {
+            "aeroDrag": 22.00813365,
+            "cornerLoss": 0,
+            "drive": 35.99627366,
+            "engineBrake": 0,
+            "netAcceleration": -0.01185998,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5350.83838558,
+          "rpm": 5590.8478366,
+          "speedKmh": 126.78553562,
+          "speedUnitPerSec": 428.25336478,
+          "timeSec": 95,
+          "windowSpeedDeltaKmh": 0.02103121
+        },
+        {
+          "force": {
+            "aeroDrag": 22.00299318,
+            "cornerLoss": 0,
+            "drive": 35.99465195,
+            "engineBrake": 0,
+            "netAcceleration": -0.00834123,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5350.21344729,
+          "rpm": 5590.22009426,
+          "speedKmh": 126.77074537,
+          "speedUnitPerSec": 428.20340658,
+          "timeSec": 100,
+          "windowSpeedDeltaKmh": 0.01479026
+        },
+        {
+          "force": {
+            "aeroDrag": 21.999378,
+            "cornerLoss": 0,
+            "drive": 35.99351088,
+            "engineBrake": 0,
+            "netAcceleration": -0.00586711,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5349.77389843,
+          "rpm": 5589.77857382,
+          "speedKmh": 126.76034267,
+          "speedUnitPerSec": 428.16826858,
+          "timeSec": 105,
+          "windowSpeedDeltaKmh": 0.0104027
+        },
+        {
+          "force": {
+            "aeroDrag": 21.99904287,
+            "cornerLoss": 0,
+            "drive": 35.99340509,
+            "engineBrake": 0,
+            "netAcceleration": -0.00563779,
+            "rollingResistance": 14,
+            "slope": 0
+          },
+          "gear": 4,
+          "mechanicalRpm": 5349.73315117,
+          "rpm": 5589.73764381,
+          "speedKmh": 126.75937832,
+          "speedUnitPerSec": 428.16501121,
+          "timeSec": 105.56666667,
+          "windowSpeedDeltaKmh": 0.00999604
+        }
+      ],
+      "shifts": [
+        {
+          "fromGear": 1,
+          "mechanicalRpm": 7358.67813193,
+          "speedKmh": 58.6602057,
+          "timeSec": 3.73333333,
+          "toGear": 2
+        },
+        {
+          "fromGear": 2,
+          "mechanicalRpm": 7394.85116347,
+          "speedKmh": 97.29574912,
+          "timeSec": 7.46666667,
+          "toGear": 3
+        },
+        {
+          "fromGear": 3,
+          "mechanicalRpm": 7399.21968096,
+          "speedKmh": 138.01970264,
+          "timeSec": 20.1,
+          "toGear": 4
+        }
+      ],
+      "slopeAcceleration": 0,
+      "terminal": {
+        "force": {
+          "aeroDrag": 21.99904287,
+          "cornerLoss": 0,
+          "drive": 35.99340509,
+          "engineBrake": 0,
+          "netAcceleration": -0.00563779,
+          "rollingResistance": 14,
+          "slope": 0
+        },
+        "gear": 4,
+        "mechanicalRpm": 5349.73315117,
+        "reached": true,
+        "recentSpeedDeltaKmh": 0.00999604,
+        "rpm": 5589.73764381,
+        "speedKmh": 126.75937832,
+        "speedUnitPerSec": 428.16501121,
+        "timeSec": 105.56666667
+      }
+    },
+    {
+      "cornerLossMax": 0,
+      "forceIdentityErrorMax": 0,
+      "hitHardClamp": false,
+      "id": "sh7-mild-downhill",
+      "label": "SH-7 mild downhill +3.987697",
+      "samples": [
+        {
+          "force": {
+            "aeroDrag": 0,
+            "cornerLoss": 0,
+            "drive": 56.87309586,
+            "engineBrake": 0,
+            "netAcceleration": 46.86079286,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 1,
+          "mechanicalRpm": 1100,
+          "rpm": 1126.42837496,
+          "speedKmh": 0.23122102,
+          "speedUnitPerSec": 0.78101321,
+          "timeSec": 0,
+          "windowSpeedDeltaKmh": null
+        },
+        {
+          "force": {
+            "aeroDrag": 7.76953282,
+            "cornerLoss": 0,
+            "drive": 58.17141088,
+            "engineBrake": 0,
+            "netAcceleration": 40.38957506,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 2,
+          "mechanicalRpm": 5734.74611915,
+          "rpm": 5917.42102554,
+          "speedKmh": 75.53064157,
+          "speedUnitPerSec": 255.12572263,
+          "timeSec": 5,
+          "windowSpeedDeltaKmh": 75.29942055
+        },
+        {
+          "force": {
+            "aeroDrag": 18.30868339,
+            "cornerLoss": 0,
+            "drive": 47.45763247,
+            "engineBrake": 0,
+            "netAcceleration": 19.13664608,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 3,
+          "mechanicalRpm": 6200.12751807,
+          "rpm": 6420.77763653,
+          "speedKmh": 115.73409863,
+          "speedUnitPerSec": 390.92406647,
+          "timeSec": 10,
+          "windowSpeedDeltaKmh": 40.20345706
+        },
+        {
+          "force": {
+            "aeroDrag": 25.50097012,
+            "cornerLoss": 0,
+            "drive": 43.91081231,
+            "engineBrake": 0,
+            "netAcceleration": 8.39753919,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 3,
+          "mechanicalRpm": 7317.29249654,
+          "rpm": 7548.67617707,
+          "speedKmh": 136.51755111,
+          "speedUnitPerSec": 461.12595043,
+          "timeSec": 15,
+          "windowSpeedDeltaKmh": 20.78345249
+        },
+        {
+          "force": {
+            "aeroDrag": 26.38721162,
+            "cornerLoss": 0,
+            "drive": 37.05054792,
+            "engineBrake": 0,
+            "netAcceleration": 0.65103331,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5859.04692848,
+          "rpm": 6098.527176,
+          "speedKmh": 138.83056843,
+          "speedUnitPerSec": 468.93880891,
+          "timeSec": 20,
+          "windowSpeedDeltaKmh": 2.31301731
+        },
+        {
+          "force": {
+            "aeroDrag": 26.68065828,
+            "cornerLoss": 0,
+            "drive": 37.09962612,
+            "engineBrake": 0,
+            "netAcceleration": 0.40666485,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5891.53547122,
+          "rpm": 6131.2107695,
+          "speedKmh": 139.59916337,
+          "speedUnitPerSec": 471.53495184,
+          "timeSec": 25,
+          "windowSpeedDeltaKmh": 0.76859495
+        },
+        {
+          "force": {
+            "aeroDrag": 26.86421412,
+            "cornerLoss": 0,
+            "drive": 37.12897066,
+            "engineBrake": 0,
+            "netAcceleration": 0.25245355,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5911.76683363,
+          "rpm": 6151.56524613,
+          "speedKmh": 140.07777506,
+          "speedUnitPerSec": 473.15159576,
+          "timeSec": 30,
+          "windowSpeedDeltaKmh": 0.47861169
+        },
+        {
+          "force": {
+            "aeroDrag": 26.97826054,
+            "cornerLoss": 0,
+            "drive": 37.14668013,
+            "engineBrake": 0,
+            "netAcceleration": 0.15611659,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5924.30213125,
+          "rpm": 6164.17746399,
+          "speedKmh": 140.37431768,
+          "speedUnitPerSec": 474.15325085,
+          "timeSec": 35,
+          "windowSpeedDeltaKmh": 0.29654262
+        },
+        {
+          "force": {
+            "aeroDrag": 27.04882312,
+            "cornerLoss": 0,
+            "drive": 37.1574372,
+            "engineBrake": 0,
+            "netAcceleration": 0.09631108,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5932.04468059,
+          "rpm": 6171.96776883,
+          "speedKmh": 140.55747865,
+          "speedUnitPerSec": 474.77192788,
+          "timeSec": 40,
+          "windowSpeedDeltaKmh": 0.18316097
+        },
+        {
+          "force": {
+            "aeroDrag": 27.09236824,
+            "cornerLoss": 0,
+            "drive": 37.16399933,
+            "engineBrake": 0,
+            "netAcceleration": 0.0593281,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5936.81767393,
+          "rpm": 6176.77029502,
+          "speedKmh": 140.67039,
+          "speedUnitPerSec": 475.15331732,
+          "timeSec": 45,
+          "windowSpeedDeltaKmh": 0.11291135
+        },
+        {
+          "force": {
+            "aeroDrag": 27.11919746,
+            "cornerLoss": 0,
+            "drive": 37.1680135,
+            "engineBrake": 0,
+            "netAcceleration": 0.03651304,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5939.75652391,
+          "rpm": 6179.72736457,
+          "speedKmh": 140.73991209,
+          "speedUnitPerSec": 475.38814749,
+          "timeSec": 50,
+          "windowSpeedDeltaKmh": 0.06952209
+        },
+        {
+          "force": {
+            "aeroDrag": 27.13571128,
+            "cornerLoss": 0,
+            "drive": 37.17047333,
+            "engineBrake": 0,
+            "netAcceleration": 0.02245905,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5941.56471085,
+          "rpm": 6181.54677491,
+          "speedKmh": 140.78268688,
+          "speedUnitPerSec": 475.53263124,
+          "timeSec": 55,
+          "windowSpeedDeltaKmh": 0.04277479
+        },
+        {
+          "force": {
+            "aeroDrag": 27.14586963,
+            "cornerLoss": 0,
+            "drive": 37.17198233,
+            "engineBrake": 0,
+            "netAcceleration": 0.01380971,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5942.67672883,
+          "rpm": 6182.66570026,
+          "speedKmh": 140.80899294,
+          "speedUnitPerSec": 475.62148728,
+          "timeSec": 60,
+          "windowSpeedDeltaKmh": 0.02630606
+        },
+        {
+          "force": {
+            "aeroDrag": 27.15211611,
+            "cornerLoss": 0,
+            "drive": 37.17290866,
+            "engineBrake": 0,
+            "netAcceleration": 0.00848956,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5943.36041819,
+          "rpm": 6183.35363832,
+          "speedKmh": 140.82516639,
+          "speedUnitPerSec": 475.67611758,
+          "timeSec": 65,
+          "windowSpeedDeltaKmh": 0.01617345
+        },
+        {
+          "force": {
+            "aeroDrag": 27.15592637,
+            "cornerLoss": 0,
+            "drive": 37.17347313,
+            "engineBrake": 0,
+            "netAcceleration": 0.00524376,
+            "rollingResistance": 14,
+            "slope": 3.987697
+          },
+          "gear": 4,
+          "mechanicalRpm": 5943.77742023,
+          "rpm": 6183.77323249,
+          "speedKmh": 140.83503104,
+          "speedUnitPerSec": 475.70943818,
+          "timeSec": 69.95,
+          "windowSpeedDeltaKmh": 0.00999052
+        }
+      ],
+      "shifts": [
+        {
+          "fromGear": 1,
+          "mechanicalRpm": 7362.62761857,
+          "speedKmh": 58.71163051,
+          "timeSec": 3.46666667,
+          "toGear": 2
+        },
+        {
+          "fromGear": 2,
+          "mechanicalRpm": 7396.47077553,
+          "speedKmh": 97.33689987,
+          "timeSec": 6.81666667,
+          "toGear": 3
+        },
+        {
+          "fromGear": 3,
+          "mechanicalRpm": 7399.6295438,
+          "speedKmh": 138.04714326,
+          "timeSec": 15.66666667,
+          "toGear": 4
+        }
+      ],
+      "slopeAcceleration": 3.987697,
+      "terminal": {
+        "force": {
+          "aeroDrag": 27.15592637,
+          "cornerLoss": 0,
+          "drive": 37.17347313,
+          "engineBrake": 0,
+          "netAcceleration": 0.00524376,
+          "rollingResistance": 14,
+          "slope": 3.987697
+        },
+        "gear": 4,
+        "mechanicalRpm": 5943.77742023,
+        "reached": true,
+        "recentSpeedDeltaKmh": 0.00999052,
+        "rpm": 6183.77323249,
+        "speedKmh": 140.83503104,
+        "speedUnitPerSec": 475.70943818,
+        "timeSec": 69.95
+      }
+    }
+  ],
+  "schemaVersion": 2,
+  "stage": "TSE-2"
+}

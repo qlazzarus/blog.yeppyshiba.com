@@ -1,0 +1,438 @@
+{
+  "candidateRows": [
+    {
+      "aeroDrag": 0.00012,
+      "engineAcceleration": 82,
+      "id": "production",
+      "intent": "TSE-2 control",
+      "gearsVisited": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "hitHardClamp": false,
+      "hits": {
+        "60": 3.916666666667,
+        "100": 8.1
+      },
+      "maximumGear": 4,
+      "terminal": {
+        "gear": 4,
+        "netAcceleration": -0.005637787909,
+        "recentSpeedDeltaKmh": 0.009996041243,
+        "rpm": 5589.737019810103,
+        "speedKmh": 126.759378317565,
+        "speedUnitPerSec": 428.165011205998,
+        "timeSec": 105.566666666667,
+        "reached": true
+      }
+    },
+    {
+      "aeroDrag": 0.00000779678,
+      "engineAcceleration": 82,
+      "id": "aero-equilibrium-223",
+      "intent": "223km/h level equilibrium",
+      "gearsVisited": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitHardClamp": false,
+      "hits": {
+        "60": 3.816666666667,
+        "100": 7.083333333333,
+        "200": 26.366666666667,
+        "220": 88.583333333333,
+        "175.34": 17.883333333333,
+        "212.687": 33.316666666667
+      },
+      "maximumGear": 6,
+      "terminal": {
+        "gear": 6,
+        "netAcceleration": 0.006377305582,
+        "recentSpeedDeltaKmh": 0.009999555135,
+        "rpm": 6188.713030917585,
+        "speedKmh": 222.913717463456,
+        "speedUnitPerSec": 752.953001209895,
+        "timeSec": 245.8,
+        "reached": true
+      }
+    },
+    {
+      "aeroDrag": 0.000007661283,
+      "engineAcceleration": 82,
+      "id": "aero-equilibrium-224",
+      "intent": "224km/h level equilibrium",
+      "gearsVisited": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitHardClamp": false,
+      "hits": {
+        "60": 3.816666666667,
+        "100": 7.083333333333,
+        "200": 26.3,
+        "220": 80.016666666667,
+        "223": 141.25,
+        "175.34": 17.883333333333,
+        "212.687": 33.183333333333
+      },
+      "maximumGear": 6,
+      "terminal": {
+        "gear": 6,
+        "netAcceleration": 0.006376922286,
+        "recentSpeedDeltaKmh": 0.009996652257,
+        "rpm": 6215.391432020107,
+        "speedKmh": 223.913425784762,
+        "speedUnitPerSec": 756.329793761863,
+        "timeSec": 250.416666666667,
+        "reached": true
+      }
+    },
+    {
+      "aeroDrag": 0.000007527021,
+      "engineAcceleration": 82,
+      "id": "aero-equilibrium-225",
+      "intent": "225km/h level equilibrium",
+      "gearsVisited": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitHardClamp": false,
+      "hits": {
+        "60": 3.816666666667,
+        "100": 7.066666666667,
+        "200": 26.25,
+        "220": 73.966666666667,
+        "223": 114.616666666667,
+        "175.34": 17.85,
+        "212.687": 33.033333333333
+      },
+      "maximumGear": 6,
+      "terminal": {
+        "gear": 6,
+        "netAcceleration": 0.006378456112,
+        "recentSpeedDeltaKmh": 0.009996766842,
+        "rpm": 6242.169606462663,
+        "speedKmh": 224.916872910338,
+        "speedUnitPerSec": 759.719215163807,
+        "timeSec": 254.833333333333,
+        "reached": true
+      }
+    },
+    {
+      "aeroDrag": 0.00012,
+      "engineAcceleration": 372.429601657546,
+      "id": "global-engine-equilibrium-225",
+      "intent": "analytical global engine-force alternative",
+      "gearsVisited": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitHardClamp": true,
+      "hits": {
+        "60": 0.7,
+        "100": 1.316666666667,
+        "200": 4.6,
+        "220": 9.883333333333,
+        "223": 13.8,
+        "175.34": 3.183333333333,
+        "212.687": 5.766666666667
+      },
+      "maximumGear": 6,
+      "terminal": {
+        "gear": 6,
+        "netAcceleration": 0.01961034313,
+        "reached": false,
+        "recentSpeedDeltaKmh": 0,
+        "rpm": 6244.391547861503,
+        "speedKmh": 225,
+        "speedUnitPerSec": 760,
+        "timeSec": 600
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "productionMatchesTse2Level",
+      "pass": true,
+      "target": 126.75937832,
+      "value": 126.759378317565
+    },
+    {
+      "id": "derivedAeroOrdering",
+      "pass": true,
+      "target": "aero(223) > aero(224) > aero(225)",
+      "value": [
+        {
+          "aeroDrag": 0.00000779678,
+          "targetSpeedKmh": 223
+        },
+        {
+          "aeroDrag": 0.000007661283,
+          "targetSpeedKmh": 224
+        },
+        {
+          "aeroDrag": 0.000007527021,
+          "targetSpeedKmh": 225
+        }
+      ]
+    },
+    {
+      "id": "selectedForceAt224",
+      "pass": true,
+      "target": [
+        0,
+        0.001
+      ],
+      "value": 0.00029256
+    },
+    {
+      "id": "selectedForceBracketsTarget",
+      "pass": true,
+      "target": "net acceleration positive at 223 and negative at 225",
+      "value": {
+        "223": 0.076587046976,
+        "224": -0.000292560476,
+        "225": -0.077555010389
+      }
+    },
+    {
+      "id": "selectedTerminalKmh",
+      "pass": true,
+      "target": [
+        223,
+        225
+      ],
+      "value": 223.91342578
+    },
+    {
+      "id": "selectedTerminalSixthGear",
+      "pass": true,
+      "target": 6,
+      "value": 6
+    },
+    {
+      "id": "selectedAvoidsHardClamp",
+      "pass": true,
+      "target": false,
+      "value": false
+    },
+    {
+      "id": "selectedReachesFourthFifthSixth",
+      "pass": true,
+      "target": [
+        4,
+        5,
+        6
+      ],
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "selectedExposesLowSpeedRegressionForTse4",
+      "pass": true,
+      "target": "0-100 becomes faster than the 7.8s lower gate before TSE-4 compensation",
+      "value": 7.083333333333
+    },
+    {
+      "id": "topGearOnlyCannotUnblockCurrentRun",
+      "pass": true,
+      "target": "production run never reaches 5th/6th, so a 6th-only boost cannot solve reachability",
+      "value": 4
+    },
+    {
+      "id": "globalEngineAlternativeBreaksStandingStart",
+      "pass": true,
+      "target": "global force scaling makes 0-100 unrealistically faster than the 7.8s gate",
+      "value": 1.316666666667
+    }
+  ],
+  "decision": {
+    "applyInStage": "TSE-4",
+    "rejected": [
+      {
+        "id": "global-engine-equilibrium-225",
+        "reason": "multiplies low-gear force and destroys the approved standing-start curve",
+        "requiredScale": 4.541824410458
+      },
+      {
+        "id": "sixth-gear-only-force-boost",
+        "reason": "production equilibrium stops in 4th, so the candidate cannot reach its own activation gear"
+      }
+    ],
+    "selectedAeroDrag": 0.000007661283,
+    "selectedCandidate": "aero-equilibrium-224",
+    "selectedTargetSpeedKmh": 224,
+    "status": "recommended-for-tse4-calibration-not-applied-to-production"
+  },
+  "derivedAeroRows": [
+    {
+      "aeroDrag": 0.00000779678,
+      "availableAeroForce": 4.423715310403,
+      "engineForce": 18.423715310403,
+      "rollingResistance": 14,
+      "targetSpeedKmh": 223
+    },
+    {
+      "aeroDrag": 0.000007661283,
+      "availableAeroForce": 4.385909756671,
+      "engineForce": 18.385909756671,
+      "rollingResistance": 14,
+      "targetSpeedKmh": 224
+    },
+    {
+      "aeroDrag": 0.000007527021,
+      "availableAeroForce": 4.347607219525,
+      "engineForce": 18.347607219525,
+      "rollingResistance": 14,
+      "targetSpeedKmh": 225
+    }
+  ],
+  "forceBudgetRows": [
+    {
+      "aeroDrag": 13.691259259259,
+      "engineForce": 43.804179816874,
+      "gear": 3,
+      "netAcceleration": 16.112920557614,
+      "rollingResistance": 14,
+      "rpm": 5603.59915553357,
+      "speedKmh": 100,
+      "speedUnitPerSec": 337.777777777778
+    },
+    {
+      "aeroDrag": 30.805333333333,
+      "engineForce": 37.143071521542,
+      "gear": 4,
+      "netAcceleration": -7.662261811791,
+      "rollingResistance": 14,
+      "rpm": 6569.824037607257,
+      "speedKmh": 150,
+      "speedUnitPerSec": 506.666666666667
+    },
+    {
+      "aeroDrag": 42.092565737624,
+      "engineForce": 28.39603348482,
+      "gear": 5,
+      "netAcceleration": -27.696532252803,
+      "rollingResistance": 14,
+      "rpm": 6338.355140371549,
+      "speedKmh": 175.34,
+      "speedUnitPerSec": 592.259555555556
+    },
+    {
+      "aeroDrag": 54.765037037037,
+      "engineForce": 25.331797743036,
+      "gear": 5,
+      "netAcceleration": -43.433239294001,
+      "rollingResistance": 14,
+      "rpm": 7195.076933086435,
+      "speedKmh": 200,
+      "speedUnitPerSec": 675.555555555556
+    },
+    {
+      "aeroDrag": 61.93345175252,
+      "engineForce": 18.7971678986,
+      "gear": 6,
+      "netAcceleration": -57.13628385392,
+      "rollingResistance": 14,
+      "rpm": 5912.262023809281,
+      "speedKmh": 212.687,
+      "speedUnitPerSec": 718.409422222222
+    },
+    {
+      "aeroDrag": 68.08526317037,
+      "engineForce": 18.419157252113,
+      "gear": 6,
+      "netAcceleration": -63.666105918257,
+      "rollingResistance": 14,
+      "rpm": 6187.071787751276,
+      "speedKmh": 223,
+      "speedUnitPerSec": 753.244444444445
+    },
+    {
+      "aeroDrag": 68.697262459259,
+      "engineForce": 18.381327331378,
+      "gear": 6,
+      "netAcceleration": -64.315935127881,
+      "rollingResistance": 14,
+      "rpm": 6213.717682056077,
+      "speedKmh": 224,
+      "speedUnitPerSec": 756.622222222222
+    },
+    {
+      "aeroDrag": 69.312,
+      "engineForce": 18.343289495774,
+      "gear": 6,
+      "netAcceleration": -64.968710504226,
+      "rollingResistance": 14,
+      "rpm": 6240.363393694272,
+      "speedKmh": 225,
+      "speedUnitPerSec": 760
+    }
+  ],
+  "generatedAt": "2026-07-22T03:58:09.283Z",
+  "pass": true,
+  "productionConstants": {
+    "accelSpeed": 760,
+    "aeroDrag": 0.00012,
+    "engineAcceleration": 82,
+    "rollingResistance": 14
+  },
+  "schemaVersion": 1,
+  "selectedForceBracket": [
+    {
+      "aeroDrag": 4.346837258639,
+      "engineForce": 18.423424305615,
+      "gear": 6,
+      "netAcceleration": 0.076587046976,
+      "rollingResistance": 14,
+      "rpm": 6191.023927055038,
+      "speedKmh": 223,
+      "speedUnitPerSec": 753.244444444445
+    },
+    {
+      "aeroDrag": 4.385909756671,
+      "engineForce": 18.385617196195,
+      "gear": 6,
+      "netAcceleration": -0.000292560476,
+      "rollingResistance": 14,
+      "rpm": 6217.705345065169,
+      "speedKmh": 224,
+      "speedUnitPerSec": 756.622222222222
+    },
+    {
+      "aeroDrag": 4.425157075723,
+      "engineForce": 18.347602065334,
+      "gear": 6,
+      "netAcceleration": -0.077555010389,
+      "rollingResistance": 14,
+      "rpm": 6244.386739338511,
+      "speedKmh": 225,
+      "speedUnitPerSec": 760
+    }
+  ],
+  "stage": "TSE-3"
+}

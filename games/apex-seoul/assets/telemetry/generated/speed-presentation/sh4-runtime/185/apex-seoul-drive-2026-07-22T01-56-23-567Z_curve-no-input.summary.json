@@ -1,0 +1,107 @@
+{
+  "config": {
+    "baseUrl": "http://localhost:5173/game-assets/apex-seoul/",
+    "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "durationSec": 5,
+    "query": "qaSpeed=624.889&qaZ=42011",
+    "sampleHz": 10,
+    "scenario": "curve-no-input",
+    "track": null,
+    "viewport": {
+      "height": 760,
+      "width": 1200
+    }
+  },
+  "finishedAt": "2026-07-22T01:56:39.191Z",
+  "jsonl": "assets\\telemetry\\generated\\speed-presentation\\sh4-runtime\\185\\apex-seoul-drive-2026-07-22T01-56-23-567Z_curve-no-input.jsonl",
+  "maxVehicleYDelta": 0.005,
+  "sampleCount": 50,
+  "screenshot": "assets\\telemetry\\generated\\speed-presentation\\sh4-runtime\\185\\sh4-185.png",
+  "scenario": {
+    "durationSec": 5,
+    "events": [
+      {
+        "atSec": 0,
+        "key": "ArrowUp",
+        "type": "down"
+      },
+      {
+        "atSec": 24,
+        "key": "ArrowUp",
+        "type": "up"
+      }
+    ],
+    "id": "curve-no-input"
+  },
+  "sessionId": "2026-07-22T01-56-23-567Z_curve-no-input",
+  "startedAt": "2026-07-22T01:56:23.567Z",
+  "terrainCounts": {
+    "level": 50
+  },
+  "frameCounts": {
+    "center": 50
+  },
+  "ranges": {
+    "cameraFovDegrees": {
+      "max": 72.913,
+      "min": 69.379
+    },
+    "cameraPitch": {
+      "max": -0.302,
+      "min": -1.318
+    },
+    "horizonGapY": {
+      "max": 331.881,
+      "min": 328.127
+    },
+    "horizonY": {
+      "max": 288.498,
+      "min": 287.482
+    },
+    "lateralOffset": {
+      "max": -0.088,
+      "min": -12.449
+    },
+    "motionAnchorPassRate": {
+      "max": 0,
+      "min": 0
+    },
+    "motionAnchorScreenVelocity": {
+      "max": 0.022,
+      "min": 0
+    },
+    "motionAnchorsVisible": {
+      "max": 2,
+      "min": 2
+    },
+    "speedEffectExpectedPeakAlpha": {
+      "max": 0.011,
+      "min": 0.007
+    },
+    "speedEffectIntensity": {
+      "max": 0.117,
+      "min": 0.053
+    },
+    "speedKmh": {
+      "max": 184.9,
+      "min": 184.8
+    },
+    "slopeAcceleration": {
+      "max": 4.706,
+      "min": 4.704
+    },
+    "speed": {
+      "max": 624.416,
+      "min": 624.221
+    },
+    "steering": {
+      "max": -0.007,
+      "min": -0.009
+    },
+    "vehicleY": {
+      "max": 673.555,
+      "min": 673.551
+    }
+  },
+  "url": "http://localhost:5173/game-assets/apex-seoul/?qaSpeed=624.889&qaZ=42011"
+}

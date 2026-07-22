@@ -5,12 +5,11 @@ export const GUARDRAIL_COLLISION_CONFIG = {
     bounceMinVelocity: 42,
     contactBounceHoldSeconds: 0.08,
     contactCooldownSeconds: 0.12,
-    contactClearance: 130,
-    contactInsetLeft: 56,
-    contactInsetRight: 48,
+    contactClearance: 220,
     impactSpeedLossScale: 0.09,
     impactVelocityThreshold: 12,
     lateralVelocityDamping: 0.22,
+    physicalVehicleHalfWidth: 240,
     shoulderScrubPerSecond: 28,
     sustainedContactScrubPerSecond: 46,
 };
@@ -18,9 +17,37 @@ export const GUARDRAIL_COLLISION_CONFIG = {
 export type GuardrailCollisionContext = {
     pavedHalfWidth: number;
     railContactLimit: number;
-    visualPavedHalfWidth?: number | null;
-    visualRailContactLimit?: number | null;
+    vehicleHalfWidth: number;
 };
+
+export type GuardrailCollisionGeometry = {
+    pavedCenterLimit: number;
+    railCenterLimit: number;
+    railOffset: number;
+    shoulderWidth: number;
+    vehicleHalfWidth: number;
+};
+
+export function getGuardrailCollisionGeometry(
+    context: GuardrailCollisionContext,
+): GuardrailCollisionGeometry {
+    const vehicleHalfWidth = sanitizeNonNegative(context.vehicleHalfWidth);
+    const pavedHalfWidth = sanitizePositive(context.pavedHalfWidth);
+    const railOffset = Math.max(pavedHalfWidth + 1, sanitizePositive(context.railContactLimit));
+    const pavedCenterLimit = Math.max(1, pavedHalfWidth - vehicleHalfWidth);
+    const railCenterLimit = Math.max(
+        pavedCenterLimit + 1,
+        railOffset - vehicleHalfWidth,
+    );
+
+    return {
+        pavedCenterLimit,
+        railCenterLimit,
+        railOffset,
+        shoulderWidth: railCenterLimit - pavedCenterLimit,
+        vehicleHalfWidth,
+    };
+}
 
 export function applyGuardrailCollision(
     player: PlayerVehicleState,
@@ -29,16 +56,18 @@ export function applyGuardrailCollision(
 ) {
     const offsetMagnitude = Math.abs(player.lateralOffset);
     const side = getDirection(player.lateralOffset);
-    const railContactLimit = getEffectiveRailContactLimit(context, side);
-    const pavedHalfWidth = getEffectivePavedHalfWidth(context, railContactLimit);
-    const shoulderWidth = Math.max(1, railContactLimit - pavedHalfWidth);
-    const shoulderRatio = clamp((offsetMagnitude - pavedHalfWidth) / shoulderWidth, 0, 1);
-    const isContacting = side !== 0 && offsetMagnitude >= railContactLimit - 0.001;
+    const geometry = getGuardrailCollisionGeometry(context);
+    const shoulderRatio = clamp(
+        (offsetMagnitude - geometry.pavedCenterLimit) / geometry.shoulderWidth,
+        0,
+        1,
+    );
+    const isContacting = side !== 0 && offsetMagnitude >= geometry.railCenterLimit - 0.001;
 
     player.guardrailShoulderRatio = shoulderRatio;
     player.guardrailImpactCue = approach(player.guardrailImpactCue, 0, 6, seconds);
     player.guardrailBounceVelocity = approach(player.guardrailBounceVelocity, 0, 220, seconds);
-    player.guardrailContactInset = getAppliedContactInset(context, side);
+    player.guardrailContactInset = geometry.vehicleHalfWidth;
 
     if (shoulderRatio > 0) {
         player.speed = Math.max(
@@ -67,7 +96,7 @@ export function applyGuardrailCollision(
     ) * (0.35 + speedRatio * 0.65);
     const firstContact = player.guardrailContactTimer <= 0;
 
-    player.lateralOffset = side * railContactLimit;
+    player.lateralOffset = side * geometry.railCenterLimit;
     player.guardrailContactDirection = side;
     player.guardrailContactTimer = GUARDRAIL_COLLISION_CONFIG.contactCooldownSeconds;
     const bounceVelocity = firstContact
@@ -92,37 +121,12 @@ export function applyGuardrailCollision(
     }
 }
 
-function getEffectiveRailContactLimit(context: GuardrailCollisionContext, side: -1 | 0 | 1) {
-    const visualLimit = sanitizePositiveLimit(context.visualRailContactLimit);
-    const contactInset = getAppliedContactInset(context, side);
-
-    return visualLimit === null
-        ? context.railContactLimit
-        : Math.min(context.railContactLimit, Math.max(1, visualLimit - contactInset));
+function sanitizePositive(value: number) {
+    return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 1;
 }
 
-function getEffectivePavedHalfWidth(context: GuardrailCollisionContext, railContactLimit: number) {
-    const visualLimit = sanitizePositiveLimit(context.visualPavedHalfWidth);
-    const pavedHalfWidth = visualLimit === null
-        ? context.pavedHalfWidth
-        : Math.min(context.pavedHalfWidth, visualLimit);
-
-    return Math.min(pavedHalfWidth, railContactLimit - 1);
-}
-
-function sanitizePositiveLimit(value: number | null | undefined) {
-    return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
-}
-
-function getAppliedContactInset(context: GuardrailCollisionContext, side: -1 | 0 | 1) {
-    const visualLimit = sanitizePositiveLimit(context.visualRailContactLimit);
-    const contactInset = side < 0
-        ? GUARDRAIL_COLLISION_CONFIG.contactInsetLeft
-        : GUARDRAIL_COLLISION_CONFIG.contactInsetRight;
-
-    return visualLimit === null
-        ? 0
-        : Math.min(contactInset, Math.max(0, visualLimit - 1));
+function sanitizeNonNegative(value: number) {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
 }
 
 function getBounceVelocity(impactRatio: number) {

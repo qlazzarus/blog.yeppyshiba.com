@@ -89,6 +89,35 @@ export type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 export type PlayerDriftState = 'grip' | 'setup' | 'drift' | 'recovery';
 export type PlayerDriftEntryMode = 'none' | 'brake' | 'lift';
 export type PlayerCornerGrade = 'straight' | 'easy' | 'medium' | 'sharp';
+export type PlayerCornerSpeedLossZone = 'within-budget' | 'overspeed' | 'severe-overspeed';
+
+export type PlayerCornerDemandSample = {
+    baseTargetSpeed: number;
+    cornerIntensity: number;
+    downhillCarryRatio: number;
+    grade: PlayerCornerGrade;
+    lateralDemand: number;
+    lineQuality: number;
+    lineSpeedAdjustment: number;
+    overspeedRatio: number;
+    safetyMarginRatio: number;
+    severeOverspeedRatio: number;
+    speedOverBudget: number;
+    speedLossZone: PlayerCornerSpeedLossZone;
+    speedRatioToBudget: number;
+    targetSpeed: number;
+};
+
+export type PlayerCornerSpeedLossSample = {
+    counterRoadScrubForce: number;
+    downhillScrubForce: number;
+    lineSafetyScrubForce: number;
+    overspeedTireScrubForce: number;
+    severeOverspeedScrubForce: number;
+    steeringScrubForce: number;
+    totalForce: number;
+    zone: PlayerCornerSpeedLossZone;
+};
 
 export type PlayerSpeedHandlingState = {
     centeringScale: number;
@@ -104,19 +133,31 @@ export type PlayerSpeedHandlingState = {
     visualYawScale: number;
 };
 
+export type PlayerLongitudinalForceSample = {
+    aeroDrag: number;
+    brakeForce: number;
+    cornerLossForce: number;
+    engineBrakeForce: number;
+    engineForce: number;
+    engineTorqueScale: number;
+    gearIndex: number;
+    netAcceleration: number;
+    rollingResistance: number;
+    rpm: number;
+    slopeAcceleration: number;
+    speed: number;
+    speedRatio: number;
+};
+
 export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
-    cornerGrade: PlayerCornerGrade;
-    cornerLineQuality: number;
-    cornerSafetyMarginRatio: number;
-    cornerSpeedBudget: number;
-    cornerSpeedOverBudget: number;
+    cornerDemand: PlayerCornerDemandSample;
+    cornerSpeedLoss: PlayerCornerSpeedLossSample;
     counterSteerTimer: number;
     counterSteerLateralVelocity: number;
     counterSteerEntryDriftVelocity: number;
     counterTrimRatio: number;
-    downhillCornerCarryRatio: number;
     engineTorqueScale: number;
     driftDirection: -1 | 0 | 1;
     driftBaseLateralVelocity: number;
@@ -154,8 +195,11 @@ export type PlayerVehicleState = {
     centeringReleaseTimer: number;
     lateralCenteringScale: number;
     lateralCenteringTargetScale: number;
+    longitudinalForce: PlayerLongitudinalForceSample;
     overspeedUndersteerRatio: number;
     overspeedUndersteerTargetRatio: number;
+    overspeedUndersteerSteerDemandRatio: number;
+    overspeedUndersteerLoadTransferScale: number;
     overspeedUndersteerLateralVelocity: number;
     rpm: number;
     shiftCutRatio: number;
@@ -185,9 +229,13 @@ export type VehicleAnchor = {
 
 export type RuntimeVehicleQaState = {
     anchor: VehicleAnchor;
+    bodyYawAuthority: number;
+    bodyYawSteering: number;
     displaySize: number;
     flipX: boolean;
     frame: string;
+    gripAuthorityRatio: number;
+    inputPoseSteering: number;
     rotationDeg: number;
     roadWidthAtVehicleY: number | null;
     roadRelativeScale: number;
@@ -197,9 +245,11 @@ export type RuntimeVehicleQaState = {
     vehicleBodyWidth: number;
     vehicleRoadRatio: number | null;
     physicalSteering: number;
+    poseAuthority: number;
     lowSpeedVisualSteeringAuthority: number;
     visualSteering: number;
     visualSteeringThreshold: number;
+    understeerCueIntensity: number;
 };
 
 export function selectPlayerVehicleFrame(

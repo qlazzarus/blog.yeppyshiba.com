@@ -28,19 +28,22 @@ const baseConfig = {
     centeringReleaseScaleResponse: 0.8,
     centeringReleaseScale: 0.45,
     centeringScaleResponse: 4.8,
-    cornerAccelSpeedDrop: 140,
     cornerEasyIntensityThreshold: 0.34,
-    cornerEasySpeedLossScale: 0.35,
+    cornerEasySpeedLossScale: 0.95,
     cornerLineSpeedBonus: 70,
     cornerLineTargetOffset: 260,
+    cornerSevereLineScrubScale: 1.2,
+    cornerSevereOverspeedFullRatio: 1.45,
+    cornerSevereOverspeedScrub: 140,
+    cornerSevereOverspeedStartRatio: 1.18,
     cornerSharpIntensityThreshold: 0.7,
     cornerSharpLineRewardScale: 1.35,
     cornerSharpSpeedLossScale: 1.18,
-    cornerSpeedPull: 160,
-    downhillCornerBudgetMaxReduction: 0.08,
+    cornerSpeedPull: 100,
+    downhillCornerBudgetMaxReduction: 0,
     downhillCornerBudgetSlopeAcceleration: 65,
     downhillCornerLateralScale: 1.3,
-    downhillCornerOverspeedScrub: 145,
+    downhillCornerOverspeedScrub: 0,
     curveDriftAcceleration: 160,
     curveSteeringHighSpeedDrop: 0.42,
     curveSteeringCue: 0.06,
@@ -98,17 +101,27 @@ const baseConfig = {
     launchThrottleMinRatio: 0.5,
     maxRoadOffset: 700,
     overspeedUndersteerMax: 0.62,
+    overspeedEasyUndersteerFullRatio: 0.2,
+    overspeedEasyUndersteerScale: 0.3,
     overspeedMediumUndersteerScale: 0.58,
-    overspeedUndersteerMinSteerInput: 0.18,
+    overspeedUndersteerMinSteerInput: 0.08,
+    overspeedUndersteerSteerInputFull: 0.45,
+    overspeedUndersteerLiftTargetScale: 0.55,
+    overspeedUndersteerBrakeTargetScale: 0.28,
+    overspeedEasyLateralScale: 4,
+    overspeedEasyRoadMaxRatio: 0.22,
+    overspeedMediumLateralScale: 1.15,
+    overspeedMediumRoadMaxRatio: 0.42,
     overspeedSafetyMarginStartRatio: 0.16,
     overspeedSafetyMarginFullRatio: 0.32,
     overspeedSafetyMarginScrub: 75,
     overspeedSharpLateralScale: 1.55,
     overspeedSharpSpeedScrubScale: 1.35,
     overspeedSharpUndersteerScale: 1,
-    overspeedUndersteerLateralBuildRate: 180,
-    overspeedUndersteerLateralMaxSpeed: 120,
-    overspeedUndersteerLateralRecoveryRate: 130,
+    overspeedUndersteerRoadBuildRate: 2.2,
+    overspeedUndersteerRoadMaxRatio: 0.54,
+    overspeedUndersteerRoadRecoveryRate: 7.5,
+    overspeedUndersteerRoadSpeedRate: 0.72,
     overspeedUndersteerRatioBuildRate: 2.8,
     overspeedUndersteerRatioRecoveryRate: 4.5,
     overspeedUndersteerSpeedScrub: 28,
@@ -127,7 +140,6 @@ const candidates = [
     {
         id: 'previous-baseline',
         patch: {
-            cornerAccelSpeedDrop: 150,
             cornerSpeedPull: 190,
             curveDriftAcceleration: 260,
             curveSteeringHighSpeedDrop: 0,
@@ -152,7 +164,6 @@ const candidates = [
     {
         id: 'previous-2026-07-10-baseline',
         patch: {
-            cornerAccelSpeedDrop: 100,
             cornerSpeedPull: 120,
             curveSteeringHighSpeedDrop: 0.38,
             highSpeedInputResponseDrop: 0,
@@ -216,7 +227,6 @@ const candidates = [
     {
         id: 'even-less-corner-pull',
         patch: {
-            cornerAccelSpeedDrop: 80,
             cornerSpeedPull: 100,
         },
     },
@@ -253,7 +263,6 @@ const candidates = [
     {
         id: 'combined-second-pass',
         patch: {
-            cornerAccelSpeedDrop: 80,
             cornerSpeedPull: 100,
             curveDriftAcceleration: 130,
             curveSteeringHighSpeedDrop: 0.38,
@@ -1287,16 +1296,19 @@ function scoreHandlingRelationships(results) {
     }
 
     if (levelSharpFullThrottle && downhillSharpFullThrottle) {
-        checks.push(checkAtLeast(
-            'relation.downhillSharp.budgetReduction',
-            levelSharpFullThrottle.cornerSpeedBudgetAtEntry - downhillSharpFullThrottle.cornerSpeedBudgetAtEntry,
-            24,
-            12,
+        checks.push(checkAtMost(
+            'relation.downhillSharp.sharedBudgetDelta',
+            Math.abs(
+                levelSharpFullThrottle.cornerSpeedBudgetAtEntry -
+                    downhillSharpFullThrottle.cornerSpeedBudgetAtEntry,
+            ),
+            2,
+            8,
             20,
         ));
         checks.push(checkAtLeast(
-            'relation.downhillSharp.exitLoss',
-            levelSharpFullThrottle.cornerSpeedAtExit - downhillSharpFullThrottle.cornerSpeedAtExit,
+            'relation.downhillSharp.naturalExitCarry',
+            downhillSharpFullThrottle.cornerSpeedAtExit - levelSharpFullThrottle.cornerSpeedAtExit,
             22,
             8,
             20,
@@ -1315,7 +1327,7 @@ function scoreHandlingRelationships(results) {
         checks.push(checkAtLeast(
             'relation.downhillSharp.preparedEntryRelief',
             downhillSharpFullThrottle.cornerSpeedOverBudgetAtEntry - downhillSharpPreparedGrip.cornerSpeedOverBudgetAtEntry,
-            100,
+            90,
             55,
             18,
         ));
@@ -1489,12 +1501,12 @@ function simulateScenario(scenario, controllerConfig) {
 
         samples.push({
             currentCurve: road.currentCurve,
-            cornerGrade: player.cornerGrade,
-            cornerLineQuality: player.cornerLineQuality,
-            downhillCornerCarryRatio: player.downhillCornerCarryRatio,
-            cornerSafetyMarginRatio: player.cornerSafetyMarginRatio,
-            cornerSpeedBudget: player.cornerSpeedBudget,
-            cornerSpeedOverBudget: player.cornerSpeedOverBudget,
+            cornerGrade: player.cornerDemand.grade,
+            cornerLineQuality: player.cornerDemand.lineQuality,
+            downhillCornerCarryRatio: player.cornerDemand.downhillCarryRatio,
+            cornerSafetyMarginRatio: player.cornerDemand.safetyMarginRatio,
+            cornerSpeedBudget: player.cornerDemand.targetSpeed,
+            cornerSpeedOverBudget: player.cornerDemand.speedOverBudget,
             driftRatio: player.driftRatio,
             driftState: player.driftState,
             driftThrottleLiftTimer: player.driftThrottleLiftTimer,

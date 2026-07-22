@@ -14,7 +14,6 @@ const SAMPLE_SPEEDS_KMH = [0, 5, 10, 30, 60, 90, 110, 130, 145, 160, 170, 180, 1
 const CONFIG = {
     ...HANDLING_TEST_CONFIG,
     aeroDrag: 0,
-    cornerAccelSpeedDrop: 0,
     cornerSpeedPull: 0,
     engineAcceleration: 0,
     engineBrakeDeceleration: 0,

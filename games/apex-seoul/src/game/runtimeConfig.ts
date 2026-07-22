@@ -37,9 +37,12 @@ export type RuntimeTuningDefaults = RuntimeTuning;
 export type RuntimeQaOverrides = {
     enabled: boolean;
     freeze: boolean;
+    initialSpeed: number | null;
+    initialZ: number | null;
     lateralOffset: number | null;
     speed: number | null;
     steering: number | null;
+    timeScale: number;
     z: number | null;
 };
 
@@ -247,8 +250,16 @@ export function createRuntimeQaOverrides(
     defaults: RuntimeQaDefaults,
 ): RuntimeQaOverrides {
     const freeze = readBooleanParam(params, 'qaFreeze', false);
+    const initialSpeed = readOptionalTuningNumber(
+        params,
+        'qaStartSpeed',
+        0,
+        defaults.playerAccelSpeed,
+    );
+    const initialZ = readOptionalTuningNumber(params, 'qaStartZ', 0, Number.MAX_SAFE_INTEGER);
     const steering = readOptionalTuningNumber(params, 'qaSteer', -1, 1);
     const speed = readOptionalTuningNumber(params, 'qaSpeed', 0, defaults.playerAccelSpeed);
+    const timeScale = readTuningNumber(params, 'qaTimeScale', 1, 1, 4);
     const z = readOptionalTuningNumber(params, 'qaZ', 0, Number.MAX_SAFE_INTEGER);
     const lateralOffset = readOptionalTuningNumber(
         params,
@@ -258,11 +269,15 @@ export function createRuntimeQaOverrides(
     );
 
     return {
-        enabled: freeze || steering !== null || speed !== null || z !== null || lateralOffset !== null,
+        enabled: freeze || initialSpeed !== null || initialZ !== null || steering !== null ||
+            speed !== null || z !== null || lateralOffset !== null,
         freeze,
+        initialSpeed,
+        initialZ,
         lateralOffset,
         speed,
         steering,
+        timeScale,
         z,
     };
 }
@@ -379,13 +394,6 @@ export function createRuntimePlayerVehicleConfig(
             0.5,
             16,
         ),
-        cornerAccelSpeedDrop: readTuningNumber(
-            params,
-            'cornerAccelDrop',
-            defaults.cornerAccelSpeedDrop,
-            0,
-            280,
-        ),
         cornerEasyIntensityThreshold: readTuningNumber(
             params,
             'cornerEasyThreshold',
@@ -406,6 +414,34 @@ export function createRuntimePlayerVehicleConfig(
             defaults.cornerLineSpeedBonus,
             0,
             140,
+        ),
+        cornerSevereLineScrubScale: readTuningNumber(
+            params,
+            'cornerSevereLineScale',
+            defaults.cornerSevereLineScrubScale,
+            0,
+            3,
+        ),
+        cornerSevereOverspeedFullRatio: readTuningNumber(
+            params,
+            'cornerSevereFull',
+            defaults.cornerSevereOverspeedFullRatio,
+            1,
+            2,
+        ),
+        cornerSevereOverspeedScrub: readTuningNumber(
+            params,
+            'cornerSevereScrub',
+            defaults.cornerSevereOverspeedScrub,
+            0,
+            200,
+        ),
+        cornerSevereOverspeedStartRatio: readTuningNumber(
+            params,
+            'cornerSevereStart',
+            defaults.cornerSevereOverspeedStartRatio,
+            1,
+            2,
         ),
         cornerSharpIntensityThreshold: readTuningNumber(
             params,
@@ -833,6 +869,20 @@ export function createRuntimePlayerVehicleConfig(
             0,
             0.8,
         ),
+        overspeedEasyUndersteerFullRatio: readTuningNumber(
+            params,
+            'overspeedEasyUndersteerFullRatio',
+            defaults.overspeedEasyUndersteerFullRatio,
+            0.05,
+            1,
+        ),
+        overspeedEasyUndersteerScale: readTuningNumber(
+            params,
+            'overspeedEasyUndersteerScale',
+            defaults.overspeedEasyUndersteerScale,
+            0,
+            0.6,
+        ),
         overspeedMediumUndersteerScale: readTuningNumber(
             params,
             'overspeedMediumUndersteerScale',
@@ -846,6 +896,55 @@ export function createRuntimePlayerVehicleConfig(
             defaults.overspeedUndersteerMinSteerInput,
             0,
             1,
+        ),
+        overspeedUndersteerSteerInputFull: readTuningNumber(
+            params,
+            'overspeedUndersteerSteerInputFull',
+            defaults.overspeedUndersteerSteerInputFull,
+            0.1,
+            1,
+        ),
+        overspeedUndersteerLiftTargetScale: readTuningNumber(
+            params,
+            'overspeedUndersteerLiftTargetScale',
+            defaults.overspeedUndersteerLiftTargetScale,
+            0,
+            1,
+        ),
+        overspeedUndersteerBrakeTargetScale: readTuningNumber(
+            params,
+            'overspeedUndersteerBrakeTargetScale',
+            defaults.overspeedUndersteerBrakeTargetScale,
+            0,
+            1,
+        ),
+        overspeedEasyLateralScale: readTuningNumber(
+            params,
+            'overspeedEasyLateralScale',
+            defaults.overspeedEasyLateralScale,
+            0.5,
+            5,
+        ),
+        overspeedEasyRoadMaxRatio: readTuningNumber(
+            params,
+            'overspeedEasyRoadMaxRatio',
+            defaults.overspeedEasyRoadMaxRatio,
+            0.05,
+            0.5,
+        ),
+        overspeedMediumLateralScale: readTuningNumber(
+            params,
+            'overspeedMediumLateralScale',
+            defaults.overspeedMediumLateralScale,
+            0.5,
+            3,
+        ),
+        overspeedMediumRoadMaxRatio: readTuningNumber(
+            params,
+            'overspeedMediumRoadMaxRatio',
+            defaults.overspeedMediumRoadMaxRatio,
+            0.1,
+            0.7,
         ),
         overspeedSafetyMarginStartRatio: readTuningNumber(
             params,
@@ -889,26 +988,33 @@ export function createRuntimePlayerVehicleConfig(
             0,
             1.4,
         ),
-        overspeedUndersteerLateralBuildRate: readTuningNumber(
+        overspeedUndersteerRoadBuildRate: readTuningNumber(
             params,
-            'overspeedUndersteerLateralBuild',
-            defaults.overspeedUndersteerLateralBuildRate,
+            'overspeedUndersteerRoadBuildRate',
+            defaults.overspeedUndersteerRoadBuildRate,
             0,
-            320,
+            6,
         ),
-        overspeedUndersteerLateralMaxSpeed: readTuningNumber(
+        overspeedUndersteerRoadMaxRatio: readTuningNumber(
             params,
-            'overspeedUndersteerLateralMax',
-            defaults.overspeedUndersteerLateralMaxSpeed,
+            'overspeedUndersteerRoadMaxRatio',
+            defaults.overspeedUndersteerRoadMaxRatio,
+            0.1,
+            0.9,
+        ),
+        overspeedUndersteerRoadRecoveryRate: readTuningNumber(
+            params,
+            'overspeedUndersteerRoadRecoveryRate',
+            defaults.overspeedUndersteerRoadRecoveryRate,
+            0.1,
+            8,
+        ),
+        overspeedUndersteerRoadSpeedRate: readTuningNumber(
+            params,
+            'overspeedUndersteerRoadSpeedRate',
+            defaults.overspeedUndersteerRoadSpeedRate,
             0,
-            160,
-        ),
-        overspeedUndersteerLateralRecoveryRate: readTuningNumber(
-            params,
-            'overspeedUndersteerLateralRecovery',
-            defaults.overspeedUndersteerLateralRecoveryRate,
-            20,
-            260,
+            1.5,
         ),
         overspeedUndersteerRatioBuildRate: readTuningNumber(
             params,

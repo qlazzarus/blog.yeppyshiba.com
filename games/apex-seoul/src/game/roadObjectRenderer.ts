@@ -21,6 +21,8 @@ import {
     getWorldDistanceFog,
     mixWithWorldFog,
 } from './worldDistanceFog';
+import { SPEED_PRESENTATION_WORLD_CONFIG } from './speedPresentationConfig';
+import { GUARDRAIL_COLLISION_CONFIG } from './guardrailCollision';
 
 export type RoadObjectKind =
     | 'blue-reflector'
@@ -99,7 +101,6 @@ const CONTINUOUS_SPAN_NEAR_CLIP_DISTANCE = 520;
 // screen edge, so the continuous ribbon enters the viewport instead of ending
 // at its boundary on sharp curves or crests.
 const GUARDRAIL_SPAN_NEAR_CLIP_DISTANCE = 320;
-const ROAD_EDGE_OFFSET = 1180;
 const LEFT_TREE_OFFSET = -1680;
 const RIGHT_WALL_OFFSET = 1580;
 const RIGHT_TREE_OFFSET = 1660;
@@ -142,6 +143,8 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
         const profile = getRoadsideProfile(track, z);
         const segment = getRoadSegment(track, Math.floor(z / track.segmentLength));
         const segmentIndex = Math.floor(z / track.segmentLength);
+        const roadEdgeOffset = segment.roadHalfWidth +
+            GUARDRAIL_COLLISION_CONFIG.contactClearance;
         const outsideSide = segment.curve >= 0 ? 1 : -1;
         // Draw continuous roadside structures past the following segment
         // boundary. The nearer span is rendered last, which hides projection
@@ -155,7 +158,7 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             collisionRadius: 70,
             id: `guard-left-span-${z}`,
             kind: 'left-cliff-guardrail-span',
-            lateralOffset: -ROAD_EDGE_OFFSET,
+            lateralOffset: -roadEdgeOffset,
             profile,
             spanEndZ,
             z,
@@ -164,7 +167,7 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             collisionRadius: 70,
             id: `guard-right-span-${z}`,
             kind: 'right-guardrail-span',
-            lateralOffset: ROAD_EDGE_OFFSET,
+            lateralOffset: roadEdgeOffset,
             profile,
             spanEndZ,
             z,
@@ -217,23 +220,23 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             });
         }
 
-        if (segmentIndex % 4 === 0) {
+        if (segmentIndex % SPEED_PRESENTATION_WORLD_CONFIG.leftGuardrailPostSegmentInterval === 0) {
             objects.push({
                 collisionRadius: 50,
                 id: `guard-left-post-${z}`,
                 kind: 'left-cliff-guardrail-post',
-                lateralOffset: -ROAD_EDGE_OFFSET,
+                lateralOffset: -roadEdgeOffset,
                 profile,
                 z,
             });
         }
 
-        if (segmentIndex % 3 === 0) {
+        if (segmentIndex % SPEED_PRESENTATION_WORLD_CONFIG.rightGuardrailPostSegmentInterval === 0) {
             objects.push({
                 collisionRadius: 50,
                 id: `guard-right-post-${z}`,
                 kind: 'right-guardrail-post',
-                lateralOffset: ROAD_EDGE_OFFSET,
+                lateralOffset: roadEdgeOffset,
                 profile,
                 z,
             });
@@ -244,7 +247,7 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
                 collisionRadius: 90,
                 id: `chevron-${z}`,
                 kind: outsideSide > 0 ? 'chevron-right' : 'chevron-left',
-                lateralOffset: outsideSide * (ROAD_EDGE_OFFSET + 220),
+                lateralOffset: outsideSide * (roadEdgeOffset + 220),
                 profile,
                 z: z + track.segmentLength * 1.1,
             });
@@ -253,32 +256,43 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
 
     // Deliberately small Graphics markers rather than final roadside art. Their
     // denser cadence creates a measurable near-field depth reference.
-    for (let z = track.segmentLength * 3; z < track.length; z += track.segmentLength * 2) {
+    for (
+        let z = track.segmentLength * 3;
+        z < track.length;
+        z += track.segmentLength * SPEED_PRESENTATION_WORLD_CONFIG.reflectorSegmentInterval
+    ) {
         const profile = getRoadsideProfile(track, z);
 
         if (profile !== 'commitment' && profile !== 'wall-run') continue;
 
         const segment = getRoadSegment(track, Math.floor(z / track.segmentLength));
+        const roadEdgeOffset = segment.roadHalfWidth +
+            GUARDRAIL_COLLISION_CONFIG.contactClearance;
         const outsideSide = segment.curve >= 0 ? 1 : -1;
 
         objects.push({
             collisionRadius: 50,
             id: `motion-anchor-reflector-${z}`,
             kind: 'blue-reflector',
-            lateralOffset: outsideSide * (ROAD_EDGE_OFFSET + 95),
+            lateralOffset: outsideSide * (roadEdgeOffset + 95),
             profile,
             z: z + track.segmentLength * 0.6,
         });
     }
+
+    const speedSignZ = track.segmentLength * 7;
+    const speedSignSegment = getRoadSegment(track, 7);
+    const speedSignRoadEdgeOffset = speedSignSegment.roadHalfWidth +
+        GUARDRAIL_COLLISION_CONFIG.contactClearance;
 
     objects.push(
         {
             collisionRadius: 100,
             id: 'speed-sign-entry',
             kind: 'sign-speed',
-            lateralOffset: ROAD_EDGE_OFFSET + 220,
+            lateralOffset: speedSignRoadEdgeOffset + 220,
             profile: 'open-view',
-            z: track.segmentLength * 7,
+            z: speedSignZ,
         },
     );
 

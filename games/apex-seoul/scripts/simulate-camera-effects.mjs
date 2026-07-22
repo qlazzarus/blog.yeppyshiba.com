@@ -1,12 +1,13 @@
 import {
     createCameraEffectsState,
     DEFAULT_CAMERA_EFFECTS_CONFIG,
+    getSpeedFovBonus,
     updateCameraEffects,
 } from '../src/game/cameraEffects.js';
 import { SPEED_CUE_CONFIG } from '../src/game/speedCue.js';
 
 const FRAME_SECONDS = 1 / 60;
-const HIGH_SPEED_RATIO = 0.92;
+const HIGH_SPEED_KMH = 207;
 const zeroCue = { downhill: 0, driftExitBurst: 0, throttleBurst: 0 };
 
 const scenarios = {
@@ -18,6 +19,9 @@ const scenarios = {
 };
 
 const metrics = {
+    fovBonus185Kmh: getSpeedFovBonus(185),
+    fovBonus210Kmh: getSpeedFovBonus(210),
+    fovBonus225Kmh: getSpeedFovBonus(225),
     disabledPeakShake: peakShake(scenarios['camera-shake-disabled']),
     driftExitPeakShake: peakShake(scenarios['drift-exit']),
     steadyPeakShake: peakShake(scenarios['steady-cruise']),
@@ -26,6 +30,9 @@ const metrics = {
     throttlePeakFovCue: peak(scenarios['throttle-reentry'], 'fovCueDegrees'),
 };
 const checks = [
+    atMost('fovBonus225Upper', metrics.fovBonus225Kmh, 5.5),
+    atLeast('fovBonus225Lower', metrics.fovBonus225Kmh, 4),
+    between('topBandFovDelta', metrics.fovBonus225Kmh - metrics.fovBonus185Kmh, 1.2, 1.5),
     atMost('disabledPeakShake', metrics.disabledPeakShake, 0.0001),
     atLeast('driftExitPeakShake', metrics.driftExitPeakShake, 0.8),
     atLeast('railImpactPeakShake', metrics.railImpactPeakShake, 1.8),
@@ -61,7 +68,7 @@ function runScenario(config, getCue) {
             cueLimits: SPEED_CUE_CONFIG,
             railImpact: 'railImpact' in input ? input.railImpact : 0,
             seconds: FRAME_SECONDS,
-            speedRatio: HIGH_SPEED_RATIO,
+            speedKmh: HIGH_SPEED_KMH,
         }, config);
         samples.push(state);
     }
@@ -83,6 +90,10 @@ function atLeast(id, value, target) {
 
 function atMost(id, value, target) {
     return { id, pass: value <= target, target, value: round(value) };
+}
+
+function between(id, value, min, max) {
+    return { id, max, min, pass: value >= min && value <= max, value: round(value) };
 }
 
 function roundObject(values) {

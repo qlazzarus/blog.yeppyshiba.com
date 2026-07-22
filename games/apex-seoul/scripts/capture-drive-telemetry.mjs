@@ -77,6 +77,56 @@ const scenarios = {
             { atSec: 20, key: 'ArrowUp', type: 'up' },
         ],
     },
+    'sh7-grip-corners': {
+        durationSec: 9,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 0.3, key: 'ArrowRight', type: 'down' },
+            { atSec: 0.9, key: 'ArrowRight', type: 'up' },
+            { atSec: 1.3, key: 'ArrowRight', type: 'down' },
+            { atSec: 1.9, key: 'ArrowRight', type: 'up' },
+            { atSec: 4.5, key: 'ArrowLeft', type: 'down' },
+            { atSec: 5.1, key: 'ArrowLeft', type: 'up' },
+            { atSec: 5.5, key: 'ArrowLeft', type: 'down' },
+            { atSec: 6.1, key: 'ArrowLeft', type: 'up' },
+            { atSec: 9, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'sh7-drift-mixed': {
+        durationSec: 8,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 0.15, key: 'ArrowLeft', type: 'down' },
+            { atSec: 0.3, key: 'Space', type: 'down' },
+            // Release as soon as brake-entry is armed. Holding to 0.8s made
+            // speed fall below the drift sustain threshold before countersteer.
+            { atSec: 0.45, key: 'Space', type: 'up' },
+            { atSec: 0.55, key: 'ArrowLeft', type: 'up' },
+            { atSec: 0.55, key: 'ArrowRight', type: 'down' },
+            // Observe counter trim while still in drift, then use a deliberate
+            // neutral throttle window to enter recovery.
+            { atSec: 1.05, key: 'ArrowRight', type: 'up' },
+            { atSec: 1.05, key: 'ArrowUp', type: 'up' },
+            // Reapply after recovery begins so recovery -> grip emits the
+            // dedicated drift-exit speed cue instead of a generic throttle blip.
+            { atSec: 1.45, key: 'ArrowUp', type: 'down' },
+            { atSec: 8, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'sh7-straight-accel': {
+        durationSec: 14,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 14, key: 'ArrowUp', type: 'up' },
+        ],
+    },
+    'sh7-straight-tse5-1x': {
+        durationSec: 70,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            { atSec: 70, key: 'ArrowUp', type: 'up' },
+        ],
+    },
 };
 
 const config = {
@@ -87,6 +137,8 @@ const config = {
     query: null,
     sampleHz: 10,
     scenario: 'straight-accel-20s',
+    screenshotAtSec: null,
+    screenshotName: 'drive-sample.png',
     track: null,
     viewportHeight: 760,
     viewportWidth: 1200,
@@ -119,6 +171,12 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--scenario' && next) {
         config.scenario = next;
+        index += 1;
+    } else if (arg === '--screenshot-at-sec' && next) {
+        config.screenshotAtSec = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--screenshot-name' && next) {
+        config.screenshotName = next;
         index += 1;
     } else if (arg === '--track' && next) {
         config.track = next;
@@ -155,6 +213,9 @@ const sessionId = [
 ].join('_');
 const jsonlPath = path.join(outputDir, `apex-seoul-drive-${sessionId}.jsonl`);
 const summaryPath = path.join(outputDir, `apex-seoul-drive-${sessionId}.summary.json`);
+const screenshotPath = config.screenshotAtSec === null
+    ? null
+    : path.join(outputDir, path.basename(config.screenshotName));
 const samples = [];
 
 let browserHandle;
@@ -178,6 +239,12 @@ const page = await browserHandle.browser.newPage({
         width: config.viewportWidth,
     },
 });
+page.on('console', (message) => {
+    if (message.type() === 'error') console.error(`[browser console] ${message.text()}`);
+});
+page.on('pageerror', (error) => {
+    console.error(`[browser pageerror] ${error.message}`);
+});
 
 try {
     await page.goto(url, {
@@ -193,6 +260,7 @@ try {
     const events = [...scenario.events].sort((left, right) => left.atSec - right.atSec);
     let nextEventIndex = 0;
     let currentTimeMs = 0;
+    let screenshotCaptured = false;
 
     for (let index = 0; index < sampleCount; index += 1) {
         const targetTimeMs = Math.round(index * sampleIntervalMs);
@@ -219,6 +287,15 @@ try {
             scenario: config.scenario,
             type: 'drive_sample',
         });
+
+        if (
+            screenshotPath &&
+            !screenshotCaptured &&
+            currentTimeMs >= Math.round(config.screenshotAtSec * 1000)
+        ) {
+            await page.screenshot({ path: screenshotPath });
+            screenshotCaptured = true;
+        }
     }
 } finally {
     await releaseScenarioKeys(page, scenario).catch(() => {});
@@ -231,6 +308,7 @@ const summary = buildSummary({
     finishedAt: new Date(),
     jsonlPath,
     samples,
+    screenshotPath,
     scenario,
     sessionId,
     startedAt,
@@ -263,14 +341,21 @@ function buildTelemetryUrl() {
     return url.toString();
 }
 
-function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, scenario, sessionId, startedAt, url }) {
+function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, scenario, screenshotPath, sessionId, startedAt, url }) {
     const terrainCounts = new Map();
     const frameCounts = new Map();
     const ranges = {
+        cameraFovDegrees: createRange(),
         cameraPitch: createRange(),
         horizonGapY: createRange(),
         horizonY: createRange(),
         lateralOffset: createRange(),
+        motionAnchorPassRate: createRange(),
+        motionAnchorScreenVelocity: createRange(),
+        motionAnchorsVisible: createRange(),
+        speedEffectExpectedPeakAlpha: createRange(),
+        speedEffectIntensity: createRange(),
+        speedKmh: createRange(),
         slopeAcceleration: createRange(),
         speed: createRange(),
         steering: createRange(),
@@ -287,10 +372,17 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
 
         increment(terrainCounts, terrainCue);
         increment(frameCounts, frame);
+        addRangeValue(ranges.cameraFovDegrees, state.camera?.fovDegrees);
         addRangeValue(ranges.cameraPitch, state.camera?.pitch);
         addRangeValue(ranges.horizonGapY, state.road?.horizonGapY);
         addRangeValue(ranges.horizonY, state.horizonY);
         addRangeValue(ranges.lateralOffset, state.player?.lateralOffset);
+        addRangeValue(ranges.motionAnchorPassRate, state.roadObjects?.motionAnchorPassRate);
+        addRangeValue(ranges.motionAnchorScreenVelocity, state.roadObjects?.motionAnchorScreenVelocity);
+        addRangeValue(ranges.motionAnchorsVisible, state.roadObjects?.motionAnchorsVisible);
+        addRangeValue(ranges.speedEffectExpectedPeakAlpha, state.speedEffect?.expectedPeakAlpha);
+        addRangeValue(ranges.speedEffectIntensity, state.speedEffect?.intensity);
+        addRangeValue(ranges.speedKmh, state.player?.speedKmh);
         addRangeValue(ranges.slopeAcceleration, state.player?.slopeAcceleration);
         addRangeValue(ranges.speed, state.player?.speed);
         addRangeValue(ranges.steering, state.player?.steering);
@@ -321,6 +413,7 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
         jsonl: path.relative(projectRoot, jsonlPath),
         maxVehicleYDelta: Number(maxVehicleYDelta.toFixed(3)),
         sampleCount: samples.length,
+        screenshot: screenshotPath ? path.relative(projectRoot, screenshotPath) : null,
         scenario: {
             durationSec,
             events: scenario.events,

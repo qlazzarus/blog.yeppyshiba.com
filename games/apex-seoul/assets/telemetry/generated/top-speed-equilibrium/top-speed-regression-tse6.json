@@ -1,0 +1,304 @@
+{
+  "acceleration": {
+    "corrected": {
+      "zeroTo100Sec": 8.083333333333,
+      "zeroTo60Sec": 4.033333333333
+    },
+    "dragOnlyCandidate": {
+      "zeroTo100Sec": 7.083333333333,
+      "zeroTo60Sec": 3.816666666667
+    },
+    "splits": {
+      "deterministicLevel": {
+        "100-175.34": 13.75,
+        "175.34-212.687": 16.466666666667,
+        "212.687-223": 113.533333333333
+      },
+      "runtimeSh7": {
+        "100-175.34": 11.213,
+        "175.34-212.687": 10.78,
+        "212.687-223": 7.966
+      }
+    }
+  },
+  "beforeAfter": [
+    {
+      "classification": "historical level force equilibrium",
+      "gear": 4,
+      "id": "before-level-tse2",
+      "speedKmh": 126.75937832
+    },
+    {
+      "classification": "historical SH-7 runtime observation",
+      "gear": 4,
+      "id": "before-sh7-runtime",
+      "speedKmh": 140.7
+    },
+    {
+      "classification": "force-equilibrium",
+      "gear": 6,
+      "id": "after-level-tse4",
+      "speedKmh": 223.953313488908
+    },
+    {
+      "classification": "mild-downhill-safety-cap",
+      "gear": 6,
+      "id": "after-sh7-runtime-tse5",
+      "speedKmh": 225
+    }
+  ],
+  "checks": [
+    {
+      "id": "historicalTse1Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "historicalTse2Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "historicalTse3Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "productionTse4Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "runtimeTse5Ready",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "cornerDemandTse6Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "handlingRelationsTse6Pass",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "speedPresentationPreserved",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "standingStart0to100Sec",
+      "pass": true,
+      "target": [
+        7.8,
+        8.3
+      ],
+      "value": 8.083333333333
+    },
+    {
+      "id": "standingStartGearAt60",
+      "pass": true,
+      "target": 2,
+      "value": 2
+    },
+    {
+      "id": "standingStartGearAt100",
+      "pass": true,
+      "target": 3,
+      "value": 3
+    },
+    {
+      "id": "levelNaturalEquilibriumKmh",
+      "pass": true,
+      "target": [
+        223,
+        225
+      ],
+      "value": 223.953313488908
+    },
+    {
+      "id": "levelAvoidsClamp",
+      "pass": true,
+      "target": false,
+      "value": false
+    },
+    {
+      "id": "runtimeReaches225",
+      "pass": true,
+      "target": 225,
+      "value": 225
+    },
+    {
+      "id": "runtimeStraightIsClean",
+      "pass": true,
+      "target": 0,
+      "value": {
+        "cornerLoss": 0,
+        "guardrailImpacts": 0,
+        "steering": 0
+      }
+    },
+    {
+      "id": "slopeOrderingAndClassification",
+      "pass": true,
+      "target": "uphill < level equilibrium < downhill safety-cap",
+      "value": {
+        "downhill": [
+          225,
+          "safety-cap"
+        ],
+        "level": [
+          223.953313488908,
+          "force-equilibrium"
+        ],
+        "uphill": [
+          168.710930168434,
+          "observed-at-300s"
+        ]
+      }
+    },
+    {
+      "id": "forceBracketStillNatural",
+      "pass": true,
+      "target": "positive / approximately zero / negative at 223 / 224 / 225km/h",
+      "value": [
+        0.074416324086,
+        -0.000835741632,
+        -0.077555010389
+      ]
+    },
+    {
+      "id": "cornerLossUsesCalibratedStraightReference",
+      "pass": true,
+      "target": "level loss exceeds safety-cap downhill by >= 5 percentage points for each grade",
+      "value": [
+        {
+          "downhillCornerLossPercent": 0,
+          "downhillRawLossPercent": 0,
+          "grade": "easy",
+          "levelCornerLossPercent": 6.501,
+          "levelMinusDownhillPercentagePoints": 6.501
+        },
+        {
+          "downhillCornerLossPercent": 21.44,
+          "downhillRawLossPercent": 21.257,
+          "grade": "medium",
+          "levelCornerLossPercent": 28.242,
+          "levelMinusDownhillPercentagePoints": 6.802
+        },
+        {
+          "downhillCornerLossPercent": 42.714,
+          "downhillRawLossPercent": 42.296,
+          "grade": "sharp",
+          "levelCornerLossPercent": 47.956,
+          "levelMinusDownhillPercentagePoints": 5.242
+        }
+      ]
+    }
+  ],
+  "cornerRows": [
+    {
+      "downhillCornerLossPercent": 0,
+      "downhillRawLossPercent": 0,
+      "grade": "easy",
+      "levelCornerLossPercent": 6.501,
+      "levelMinusDownhillPercentagePoints": 6.501
+    },
+    {
+      "downhillCornerLossPercent": 21.44,
+      "downhillRawLossPercent": 21.257,
+      "grade": "medium",
+      "levelCornerLossPercent": 28.242,
+      "levelMinusDownhillPercentagePoints": 6.802
+    },
+    {
+      "downhillCornerLossPercent": 42.714,
+      "downhillRawLossPercent": 42.296,
+      "grade": "sharp",
+      "levelCornerLossPercent": 47.956,
+      "levelMinusDownhillPercentagePoints": 5.242
+    }
+  ],
+  "forceAt225": {
+    "after": {
+      "aero": 4.425157075723,
+      "drive": 18.347602065334,
+      "netAcceleration": -0.077555010389,
+      "rolling": 14
+    },
+    "before": {
+      "aero": 69.312,
+      "drive": 18.343289495774,
+      "netAcceleration": -64.968710504226,
+      "rolling": 14
+    }
+  },
+  "gearBoundary": {
+    "declaredFourthMaxSpeedKmh": 135,
+    "physicalFourthShiftSpeedKmh": 175.339513,
+    "shiftRpm": 7400
+  },
+  "generatedAt": "2026-07-22T05:08:29.566Z",
+  "pass": true,
+  "slopeRows": [
+    {
+      "classification": "observed-at-300s",
+      "id": "uphill",
+      "speedKmh": 168.710930168434
+    },
+    {
+      "classification": "force-equilibrium",
+      "id": "level",
+      "speedKmh": 223.953313488908
+    },
+    {
+      "classification": "safety-cap",
+      "id": "sh7-mild-downhill",
+      "speedKmh": 225
+    }
+  ],
+  "sourceRuns": [
+    {
+      "id": "standing-start",
+      "script": "scripts/simulate-standing-start.mjs",
+      "status": "pass"
+    },
+    {
+      "id": "top-speed-calibration",
+      "script": "scripts/audit-top-speed-calibration.mjs",
+      "status": "pass"
+    },
+    {
+      "id": "sh7-runtime",
+      "script": "scripts/audit-sh7-runtime.mjs",
+      "status": "pass"
+    },
+    {
+      "id": "corner-demand",
+      "script": "scripts/simulate-corner-demand-sweep.mjs",
+      "status": "pass"
+    },
+    {
+      "id": "handling-relations",
+      "script": "scripts/audit-handling-relations.mjs",
+      "status": "pass"
+    },
+    {
+      "id": "speed-presentation",
+      "script": "scripts/simulate-speed-presentation-sweep.mjs",
+      "status": "pass"
+    }
+  ],
+  "stage": "TSE-6",
+  "status": "top-speed-regression-locked-integrated-sh7-manual-approval-pending"
+}
