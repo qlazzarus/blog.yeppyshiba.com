@@ -1,6 +1,6 @@
 # Apex Seoul 내부 문서 안내
 
-갱신일: 2026-07-20
+갱신일: 2026-07-22
 
 이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다.
 

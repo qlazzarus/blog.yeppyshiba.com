@@ -2,6 +2,7 @@ import {
     getBoostRatio,
     getGearRpm,
     getInitialGearIndex,
+    getPhysicalDownshiftRpm,
     getTorqueScale,
     type VehicleEngineProfile,
 } from './engineProfile.ts';
@@ -236,17 +237,27 @@ export type PlayerVehicleControllerConfig = {
     launchThrottleMinRatio: number;
     maxRoadOffset: number;
     overspeedUndersteerMax: number;
+    overspeedEasyUndersteerFullRatio: number;
+    overspeedEasyUndersteerScale: number;
     overspeedMediumUndersteerScale: number;
     overspeedUndersteerMinSteerInput: number;
+    overspeedUndersteerSteerInputFull: number;
+    overspeedUndersteerLiftTargetScale: number;
+    overspeedUndersteerBrakeTargetScale: number;
     overspeedSafetyMarginStartRatio: number;
     overspeedSafetyMarginFullRatio: number;
     overspeedSafetyMarginScrub: number;
     overspeedSharpLateralScale: number;
     overspeedSharpSpeedScrubScale: number;
     overspeedSharpUndersteerScale: number;
-    overspeedUndersteerLateralBuildRate: number;
-    overspeedUndersteerLateralMaxSpeed: number;
-    overspeedUndersteerLateralRecoveryRate: number;
+    overspeedEasyLateralScale: number;
+    overspeedEasyRoadMaxRatio: number;
+    overspeedMediumLateralScale: number;
+    overspeedMediumRoadMaxRatio: number;
+    overspeedUndersteerRoadBuildRate: number;
+    overspeedUndersteerRoadMaxRatio: number;
+    overspeedUndersteerRoadRecoveryRate: number;
+    overspeedUndersteerRoadSpeedRate: number;
     overspeedUndersteerRatioBuildRate: number;
     overspeedUndersteerRatioRecoveryRate: number;
     overspeedUndersteerSpeedScrub: number;
@@ -330,8 +341,25 @@ export function createDefaultPlayerVehicleState(
         centeringReleaseTimer: 0,
         lateralCenteringScale: 0.45,
         lateralCenteringTargetScale: 0.45,
+        longitudinalForce: {
+            aeroDrag: 0,
+            brakeForce: 0,
+            cornerLossForce: 0,
+            engineBrakeForce: 0,
+            engineForce: 0,
+            engineTorqueScale: getEngineTorqueScale(torqueScale, false),
+            gearIndex,
+            netAcceleration: 0,
+            rollingResistance: 0,
+            rpm,
+            slopeAcceleration: 0,
+            speed: cruiseSpeed,
+            speedRatio,
+        },
         overspeedUndersteerRatio: 0,
         overspeedUndersteerTargetRatio: 0,
+        overspeedUndersteerSteerDemandRatio: 0,
+        overspeedUndersteerLoadTransferScale: 1,
         overspeedUndersteerLateralVelocity: 0,
         rpm,
         shiftCutRatio: 0,
@@ -370,15 +398,28 @@ export function updatePlayerVehicle(
     updateDriftLateralMotion(player, input, config, seconds);
 
     const cornerIntensity = getCornerIntensity(context.currentCurve);
-    const overspeedBandScale = getOverspeedUndersteerScale(player.cornerDemand.grade, config);
-    // Corner demand and current speed determine understeer strength. Steering
-    // only confirms that the tires are being asked to turn; throttle position
-    // does not gate the effect, so coasting cannot clear it before speed drops.
-    const cornerDemandOverspeedTarget = player.cornerDemand.overspeedRatio;
-    const overspeedUndersteerActive = player.driftState === 'grip' &&
-        Math.abs(input.steerAxis) >= config.overspeedUndersteerMinSteerInput;
+    const overspeedBandDemand = getOverspeedUndersteerDemand(
+        player.cornerDemand.grade,
+        player.cornerDemand.overspeedRatio,
+        config,
+    );
+    // Steering demand is a smooth confirmation of tire load, not an on/off
+    // switch. Lifting or braking restores front authority through load transfer,
+    // while current corner overspeed remains the single source of demand.
+    player.overspeedUndersteerSteerDemandRatio = getOverspeedSteerDemandRatio(
+        input.steerAxis,
+        config,
+    );
+    player.overspeedUndersteerLoadTransferScale = input.brakePressed
+        ? lerp(1, config.overspeedUndersteerBrakeTargetScale, player.brakePressure)
+        : input.accelPressed
+            ? 1
+            : config.overspeedUndersteerLiftTargetScale;
+    const overspeedUndersteerActive = player.driftState === 'grip';
     player.overspeedUndersteerTargetRatio = overspeedUndersteerActive
-        ? cornerDemandOverspeedTarget * overspeedBandScale
+        ? overspeedBandDemand *
+            player.overspeedUndersteerSteerDemandRatio *
+            player.overspeedUndersteerLoadTransferScale
         : 0;
     player.overspeedUndersteerRatio = approach(
         player.overspeedUndersteerRatio,
@@ -391,23 +432,53 @@ export function updatePlayerVehicle(
     const overspeedSteerScale = 1 - player.overspeedUndersteerRatio * config.overspeedUndersteerMax;
     const overspeedLateralGradeScale = player.cornerDemand.grade === 'sharp'
         ? config.overspeedSharpLateralScale
-        : 1;
+        : player.cornerDemand.grade === 'medium'
+            ? config.overspeedMediumLateralScale
+            : player.cornerDemand.grade === 'easy'
+                ? config.overspeedEasyLateralScale
+                : 0;
+    const downhillGradeResponse = player.cornerDemand.grade === 'sharp'
+        ? 1
+        : player.cornerDemand.grade === 'medium'
+            ? 0.65
+            : 0.2;
     const downhillLateralScale = 1 +
-        player.cornerDemand.downhillCarryRatio * config.downhillCornerLateralScale;
+        player.cornerDemand.downhillCarryRatio *
+            config.downhillCornerLateralScale *
+            downhillGradeResponse;
+    const roadDirection = getDirection(context.currentCurve);
+    const outwardRoadRatio = roadDirection === 0
+        ? 0
+        : Math.max(0, -roadDirection * player.lateralOffset / config.maxRoadOffset);
+    const outwardRoadMaxRatio = player.cornerDemand.grade === 'easy'
+        ? config.overspeedEasyRoadMaxRatio
+        : player.cornerDemand.grade === 'medium'
+            ? config.overspeedMediumRoadMaxRatio
+            : config.overspeedUndersteerRoadMaxRatio;
+    const outwardTaperStart = outwardRoadMaxRatio * 0.72;
+    const outwardCapacityRatio = 1 - smoothstep(clamp(
+        (outwardRoadRatio - outwardTaperStart) /
+            Math.max(0.01, outwardRoadMaxRatio - outwardTaperStart),
+        0,
+        1,
+    ));
     const overspeedOutwardTarget = player.overspeedUndersteerRatio > 0
-        ? -getDirection(context.currentCurve) *
-            config.overspeedUndersteerLateralMaxSpeed *
+        ? -roadDirection *
+            config.maxRoadOffset *
+            config.overspeedUndersteerRoadSpeedRate *
             speedRatio *
             overspeedLateralGradeScale *
             downhillLateralScale *
-            player.overspeedUndersteerRatio
+            player.overspeedUndersteerRatio *
+            outwardCapacityRatio
         : 0;
     player.overspeedUndersteerLateralVelocity = approach(
         player.overspeedUndersteerLateralVelocity,
         overspeedOutwardTarget,
-        player.overspeedUndersteerRatio > 0
-            ? config.overspeedUndersteerLateralBuildRate
-            : config.overspeedUndersteerLateralRecoveryRate,
+        Math.abs(overspeedOutwardTarget) >
+            Math.abs(player.overspeedUndersteerLateralVelocity)
+            ? config.maxRoadOffset * config.overspeedUndersteerRoadBuildRate
+            : config.maxRoadOffset * config.overspeedUndersteerRoadRecoveryRate,
         seconds,
     );
     player.gripSteerAngleLimit = player.driftState === 'grip'
@@ -1027,17 +1098,47 @@ function getDownhillCornerCarryRatio(
     ));
 }
 
-function getOverspeedUndersteerScale(
+function getOverspeedUndersteerDemand(
     grade: PlayerCornerGrade,
+    overspeedRatio: number,
     config: Pick<
         PlayerVehicleControllerConfig,
-        'overspeedMediumUndersteerScale' | 'overspeedSharpUndersteerScale'
+        'overspeedEasyUndersteerFullRatio' |
+        'overspeedEasyUndersteerScale' |
+        'overspeedMediumUndersteerScale' |
+        'overspeedSharpUndersteerScale'
     >,
 ) {
-    if (grade === 'medium') return config.overspeedMediumUndersteerScale;
-    if (grade === 'sharp') return config.overspeedSharpUndersteerScale;
+    if (grade === 'easy') {
+        const easyDemand = smoothstep(clamp(
+            overspeedRatio / Math.max(0.01, config.overspeedEasyUndersteerFullRatio),
+            0,
+            1,
+        ));
+        return easyDemand * config.overspeedEasyUndersteerScale;
+    }
+    if (grade === 'medium') return overspeedRatio * config.overspeedMediumUndersteerScale;
+    if (grade === 'sharp') return overspeedRatio * config.overspeedSharpUndersteerScale;
 
     return 0;
+}
+
+function getOverspeedSteerDemandRatio(
+    steerAxis: number,
+    config: Pick<
+        PlayerVehicleControllerConfig,
+        'overspeedUndersteerMinSteerInput' | 'overspeedUndersteerSteerInputFull'
+    >,
+) {
+    const range = Math.max(
+        0.01,
+        config.overspeedUndersteerSteerInputFull - config.overspeedUndersteerMinSteerInput,
+    );
+    return smoothstep(clamp(
+        (Math.abs(steerAxis) - config.overspeedUndersteerMinSteerInput) / range,
+        0,
+        1,
+    ));
 }
 
 function getDriftEntryMode(brakeEntry: boolean, liftEntry: boolean): PlayerDriftEntryMode {
@@ -1240,6 +1341,22 @@ function updatePlayerSpeed(
         overspeedSafetyMarginScrubForce -
         gripCounterRoadScrubForce;
 
+    player.longitudinalForce = {
+        aeroDrag,
+        brakeForce,
+        cornerLossForce: totalCornerSpeedLossForce,
+        engineBrakeForce,
+        engineForce,
+        engineTorqueScale: player.engineTorqueScale,
+        gearIndex: player.gearIndex,
+        netAcceleration: acceleration,
+        rollingResistance,
+        rpm: player.rpm,
+        slopeAcceleration: context.slopeAcceleration,
+        speed: player.speed,
+        speedRatio,
+    };
+
     player.speed = clamp(
         player.speed + acceleration * seconds,
         config.brakeSpeed,
@@ -1371,21 +1488,28 @@ function updateEngineState(
     let gear = profile.gears[gearIndex];
     const downshiftMargin = 0.025;
     const upshiftMargin = 0.005;
+    const usesPhysicalShiftSchedule = profile.drivetrainModel === 'physical';
 
-    // Gearing defines the mechanical envelope, but a powered upshift should
-    // happen at the profile's powerband target rather than merely crossing a
-    // speed boundary. This makes the per-vehicle shiftUpRpm setting live.
+    // Physical profiles use mechanical RPM as the single powered shift
+    // boundary. Arcade profiles retain their authored speed envelope and RPM
+    // target because those gear ranges are presentation data rather than real
+    // ratios.
     while (
         gearIndex < profile.gears.length - 1 &&
         throttle > 0 &&
-        speedRatio > gear.speedRatioMax - upshiftMargin &&
+        (usesPhysicalShiftSchedule || speedRatio > gear.speedRatioMax - upshiftMargin) &&
         getGearRpm(profile, gearIndex, speedRatio) >= profile.shiftUpRpm
     ) {
         gearIndex += 1;
         gear = profile.gears[gearIndex];
     }
 
-    while (gearIndex > 0 && speedRatio < gear.speedRatioMin - downshiftMargin) {
+    while (
+        gearIndex > 0 &&
+        (usesPhysicalShiftSchedule
+            ? getGearRpm(profile, gearIndex, speedRatio) < getPhysicalDownshiftRpm(profile, gearIndex)
+            : speedRatio < gear.speedRatioMin - downshiftMargin)
+    ) {
         gearIndex -= 1;
         gear = profile.gears[gearIndex];
     }

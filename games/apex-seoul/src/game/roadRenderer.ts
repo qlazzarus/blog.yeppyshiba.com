@@ -11,9 +11,11 @@ import {
     getRoadElevationAt,
     getRoadHalfWidthAt,
     getRoadSegment,
+    SEGMENT_LENGTH,
     type RoadTrack,
 } from './road';
 import { getWorldDistanceFog, WORLD_FOG_COLOR } from './worldDistanceFog';
+import { SPEED_PRESENTATION_WORLD_CONFIG } from './speedPresentationConfig';
 
 export type RoadRenderStats = {
     baseSegmentIndex: number;
@@ -223,6 +225,22 @@ export function getRoadWidthAtScreenY(
     viewport: Viewport,
     screenY: number,
 ) {
+    const span = getRoadSpanAtScreenY(track, camera, viewport, screenY);
+
+    return span ? Math.abs(span.rightX - span.leftX) : null;
+}
+
+export type RoadScreenSpan = {
+    leftX: number;
+    rightX: number;
+};
+
+export function getRoadSpanAtScreenY(
+    track: RoadTrack,
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+    screenY: number,
+): RoadScreenSpan | null {
     const baseSegment = Math.floor(camera.z / track.segmentLength);
     const progress = getCameraSegmentProgress(track, camera.z);
     const currentElevation = getRoadElevationAt(track, camera.z);
@@ -249,9 +267,9 @@ export function getRoadWidthAtScreenY(
             camera,
             viewport,
         );
-        const width = road ? getRoadWidthAtY(road, screenY) : null;
+        const span = road ? getRoadSpanAtY(road, screenY) : null;
 
-        if (width !== null) return width;
+        if (span) return span;
     }
 
     return null;
@@ -579,26 +597,30 @@ function drawLaneMarks(
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ) {
-    if (absoluteIndex % 3 !== 0) return;
+    if (absoluteIndex % SPEED_PRESENTATION_WORLD_CONFIG.laneDashSegmentInterval !== 0) return;
 
-    const distanceFade = getRoadDistanceFade(road, camera.z);
+    const laneMarkRoad = getLaneMarkRoadSlice(road, absoluteIndex, camera, viewport);
+
+    if (!laneMarkRoad) return;
+
+    const distanceFade = getRoadDistanceFade(laneMarkRoad, camera.z);
 
     for (let lane = 1; lane < laneCount; lane += 1) {
         const laneCenterRatio = lane / laneCount;
         const nearLaneCenterX = Phaser.Math.Linear(
-            road.nearCenterX - road.nearRoadHalfWidth,
-            road.nearCenterX + road.nearRoadHalfWidth,
+            laneMarkRoad.nearCenterX - laneMarkRoad.nearRoadHalfWidth,
+            laneMarkRoad.nearCenterX + laneMarkRoad.nearRoadHalfWidth,
             laneCenterRatio,
         );
         const farLaneCenterX = Phaser.Math.Linear(
-            road.farCenterX - road.farRoadHalfWidth,
-            road.farCenterX + road.farRoadHalfWidth,
+            laneMarkRoad.farCenterX - laneMarkRoad.farRoadHalfWidth,
+            laneMarkRoad.farCenterX + laneMarkRoad.farRoadHalfWidth,
             laneCenterRatio,
         );
 
         fillProjectedRoadBand(
             graphics,
-            road,
+            laneMarkRoad,
             nearLaneCenterX - LANE_MARK_WIDTH,
             nearLaneCenterX + LANE_MARK_WIDTH,
             farLaneCenterX - LANE_MARK_WIDTH,
@@ -608,6 +630,48 @@ function drawLaneMarks(
             getFoggedRoadColor(LANE_MARK_NEAR_COLOR, LANE_MARK_FAR_COLOR, distanceFade, 0.42),
         );
     }
+}
+
+function getLaneMarkRoadSlice(
+    road: ProjectedRoadSlice,
+    absoluteIndex: number,
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+) {
+    const segmentStartZ = absoluteIndex * SEGMENT_LENGTH;
+    const dashStartZ = segmentStartZ +
+        SEGMENT_LENGTH * SPEED_PRESENTATION_WORLD_CONFIG.laneDashStartRatio;
+    const dashEndZ = dashStartZ +
+        SEGMENT_LENGTH * SPEED_PRESENTATION_WORLD_CONFIG.laneDashLengthRatio;
+    const clippedStartZ = Math.max(road.nearWorldZ, dashStartZ);
+    const clippedEndZ = Math.min(road.farWorldZ, dashEndZ);
+
+    if (clippedEndZ <= clippedStartZ) return null;
+
+    const worldSpan = Math.max(0.000001, road.farWorldZ - road.nearWorldZ);
+    const startRatio = Phaser.Math.Clamp(
+        (clippedStartZ - road.nearWorldZ) / worldSpan,
+        0,
+        1,
+    );
+    const endRatio = Phaser.Math.Clamp(
+        (clippedEndZ - road.nearWorldZ) / worldSpan,
+        0,
+        1,
+    );
+
+    return projectRoadSlice(
+        Phaser.Math.Linear(road.nearCenterX, road.farCenterX, startRatio),
+        Phaser.Math.Linear(road.nearCenterX, road.farCenterX, endRatio),
+        Phaser.Math.Linear(road.nearElevation, road.farElevation, startRatio),
+        Phaser.Math.Linear(road.nearElevation, road.farElevation, endRatio),
+        clippedStartZ,
+        clippedEndZ,
+        Phaser.Math.Linear(road.nearRoadHalfWidth, road.farRoadHalfWidth, startRatio),
+        Phaser.Math.Linear(road.nearRoadHalfWidth, road.farRoadHalfWidth, endRatio),
+        camera,
+        viewport,
+    );
 }
 
 function getRoadDistanceFade(road: ProjectedRoadSlice, cameraZ: number) {

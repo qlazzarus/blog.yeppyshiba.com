@@ -1,8 +1,8 @@
 # Apex Seoul Raven Coupe(FT86 참조) 파워밴드·구동계 개선 계획
 
-갱신일: 2026-07-21
+갱신일: 2026-07-22
 
-상태: DRV-1~DRV-6 구현 완료. 변속·가속 자동 측정과 회귀 검증을 계속 보완한다.
+상태: DRV-1~DRV-6와 TSE-1~TSE-6 완료. FT86 기준 가속·평지 평형·SH-7 runtime 최고속 회귀를 고정했다.
 
 ## 문서 목적
 
@@ -210,7 +210,7 @@ RAVEN_COUPE_ENGINE_PROFILE
 | 0-100km/h | 8.117초 | 통과 |
 | 60km/h 기어/RPM | 2단 / 4,958rpm | 통과 |
 | 100km/h 기어/RPM | 3단 / 5,587rpm | 통과 |
-| Raven 최고 표시 속도 | 225km/h envelope | 통과 |
+| Raven 최고 표시 속도 | 225km/h envelope | 환산/clamp 통과, 실제 평형 미검증 |
 | Genesis G70/Apex S standing-start 회귀 | 기존 기준 유지 | 통과 |
 
 통과한 명령:
@@ -225,6 +225,42 @@ npm run build --workspace @games/apex-seoul
 
 현재 0-60은 0-100 목표를 맞추는 과정에서 실차 공식 0-62mph보다 빠르게 측정된다. 다음 반복에서는 launch traction/저단 구동력 곡선을 별도 조정하되, 0-100 목표와 기어 전환 RPM을 먼저 보존한다.
 
+## 2026-07-22 SH-7 최고속 평형 재진단
+
+SH-7 straight runtime에서 Raven은 59.4초 full throttle 후에도 `140.7km/h`, 4단 `6,176rpm`에 머물렀다. 기존 표의 `225km/h envelope 통과`는 unit↔km/h 환산과 표시/clamp 상한을 뜻했으며, 평지에서 실제 구동력과 저항이 225km/h에 평형을 이룬다는 뜻이 아니었다.
+
+진단 결과는 두 층으로 나뉜다.
+
+1. 물리 4단 7,400rpm은 약 `175.3km/h`인데 기존 speed envelope의 4단 끝은 `135km/h`다. upshift가 두 조건을 동시에 요구하고 차량이 약 141km/h에서 먼저 평형을 이루므로 4단에 고착된다.
+2. 강제로 6단 225km/h를 대입해도 drive force 약 `18.3`보다 rolling+aero resistance 약 `83.3`이 크다. 변속 조건만 고쳐서는 최고속 평형을 만들 수 없다.
+
+후속 작업은 [최고속 평형·Visual Rail Boundary 진단 및 개선 계획](./apex-seoul-top-speed-equilibrium-diagnosis-plan.md)의 `TSE-1~TSE-6`을 따른다. 0-100과 저단 변속을 통제 변수로 유지하고, level terminal force budget을 별도 자동 측정한 뒤에만 225km/h 최고속을 승인한다.
+
+TSE-1 자동 측정은 level `126.759km/h`, SH-7 slope `140.835km/h`를 terminal로 확정했다. SH-7 실제값 `140.7km/h`와 일치하며 힘 합계 오차는 `0`이다. uphill은 3단에 남아 `128.399km/h`, level은 4단으로 변속 후 `126.759km/h`로 감속해 경사 관계까지 역전됐다. TSE-2에서 중복 변속 기준을 제거해 이 현상 중 shift schedule과 force budget의 책임을 분리한다.
+
+TSE-2에서 physical profile의 초기 기어와 powered upshift는 실제 RPM만 사용하게 됐다. downshift 역시 legacy `speedRatioMin` 대신 한 단 내린 뒤 `shiftDropRpm = 5,400`이 되도록 실제 인접 기어비에서 경계를 파생한다. 80/120/150/180km/h 초기 단수는 `2/3/4/5단`으로 실제 가속 주행과 일치하며, TSE-1 terminal 결과와 0-100 `8.117초`는 변하지 않았다. 변속 기준 중복을 제거해도 최고속 부족이 그대로 남았으므로 다음 원인은 TSE-3의 고속 force budget으로 격리됐다.
+
+TSE-3은 production 값을 바꾸지 않고 223/224/225km/h 평형용 aero coefficient를 역산했다. 선택값은 `0.000007661283`, 목표는 level `224km/h`다. 이 후보는 223km/h에서 가속, 225km/h에서 감속하며 6단 `223.913km/h`에 clamp 없이 수렴한다. 전역 engine 증폭은 약 4.542배가 필요해 0-100이 1.317초가 되므로 폐기했고, 6단 전용 boost는 현재 차량이 4단에서 멈춰 활성화될 수 없어 폐기했다. 선택 aero만 적용할 때 0-100이 7.083초가 되는 영향은 TSE-4 calibration 대상으로 넘겼다.
+
+TSE-4에서는 선택한 aero를 production에 적용하고 `launchThrottleFullSpeedRatio`만 `0.7 → 1.0`으로 늘렸다. 그 결과 0-60 `4.05초`, 0-100 `8.10초`를 유지하면서 level은 6단 `223.953km/h`에서 hard clamp 없이 자연 평형을 이룬다. uphill/level/downhill 속도 관계도 복구됐다. SH-7 내리막의 225km/h는 양의 경사 가속이 남은 safety cap이므로 평지 force equilibrium과 별도로 표기한다.
+
+TSE-5 실제 WebGL 1× 캡처에서도 SH-7 직선은 runtime `39.383초`에 225km/h·6단에 도달했다. 전체 700 sample 동안 조향, corner loss, guardrail impact와 fuel cut은 발생하지 않았다. 평지 223.953km/h는 force equilibrium, SH-7 225km/h는 mild downhill safety cap이라는 분류도 deterministic/runtime 사이에서 일치한다.
+
+TSE-6은 위 결과를 `qa:top-speed-regression` 한 명령으로 고정했다. 기존 4단 고착, 4단 선언/물리 경계 불일치, 225km/h force deficit, drag-only 후보의 0-100 과속, launch 보정 후 결과, level/uphill/downhill 관계와 runtime 1×를 한 보고서에서 비교한다. 225km/h corner-loss도 새 production straight control을 기준으로 재설정해 handling 관계형 QA가 다시 통과한다.
+
+자동 생성물:
+
+- [TSE-1 최고속 평형 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.json)
+- [TSE-1 최고속 평형 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.md)
+- [TSE-2 물리 변속·평형 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.json)
+- [TSE-2 물리 변속·평형 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.md)
+- [TSE-3 force budget JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.json)
+- [TSE-3 force budget 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.md)
+- [TSE-4 calibration JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.json)
+- [TSE-4 calibration 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.md)
+- [TSE-5 SH-7 runtime 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [TSE-6 통합 회귀 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.md)
+
 ## 블로그 글감 / 시행착오 로그
 
 이 문서는 구현 중 다음 내용을 계속 기록한다.
@@ -236,6 +272,8 @@ npm run build --workspace @games/apex-seoul
 5. 실제 RPM 계산 도입 후 변속 직후 체감이 어떻게 달라졌는가
 6. 물리 속도와 HUD 표시 속도를 분리해야 했던 이유
 7. 실차 수치와 게임 코스/내리막 감각 사이에서 어떤 타협을 했는가
+8. 225km/h 환산과 clamp는 맞았지만 실제 차량은 4단 140.7km/h에서 멈춘 이유
+9. standing-start QA와 terminal-speed equilibrium QA가 서로 다른 문제를 검증한다는 사실
 
 각 단계의 전후 `qa:powerband-reference` 출력, standing-start 결과, 대표 캡처를 남긴다. 최종 구현이 안정되면 공개 글에서 전체 과정을 시행착오 순서로 재구성한다.
 

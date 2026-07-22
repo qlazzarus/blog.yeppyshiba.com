@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "id": "bothSidesCaptured",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "id": "leftContactGapPx",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "rightContactGapPx",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "leftRailEdgeIdentityPx",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "rightRailEdgeIdentityPx",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "leftWorldLimitIdentity",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "rightWorldLimitIdentity",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "id": "frozenContactHasNoImpact",
+      "pass": true,
+      "target": 0,
+      "value": [
+        0,
+        0
+      ]
+    }
+  ],
+  "contacts": [
+    {
+      "activeGapPx": 0,
+      "activeLimit": 940,
+      "impactCount": 0,
+      "lateralOffset": 940,
+      "normalizedOffset": 1,
+      "railX": 1067.9557,
+      "side": 1,
+      "source": "assets/telemetry/generated/speed-presentation/rail-projection/apex-seoul-drive-2026-07-22T04-53-40-214Z_sh7-grip-corners.jsonl",
+      "vehicleEdgeX": 1067.9557
+    },
+    {
+      "activeGapPx": 0,
+      "activeLimit": 940,
+      "impactCount": 0,
+      "lateralOffset": -940,
+      "normalizedOffset": -1,
+      "railX": 211.3216,
+      "side": -1,
+      "source": "assets/telemetry/generated/speed-presentation/rail-projection/apex-seoul-drive-2026-07-22T04-53-41-455Z_sh7-grip-corners.jsonl",
+      "vehicleEdgeX": 211.3216
+    }
+  ],
+  "generatedAt": "2026-07-22T04:54:51.783Z",
+  "pass": true,
+  "schemaVersion": 1
+}

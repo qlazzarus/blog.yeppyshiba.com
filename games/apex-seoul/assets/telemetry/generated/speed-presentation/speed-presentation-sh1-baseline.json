@@ -1,0 +1,1043 @@
+{
+  "checks": [
+    {
+      "id": "sampleCount",
+      "pass": true,
+      "target": 12,
+      "value": 12
+    },
+    {
+      "id": "inverseIdentityErrorKmhMax",
+      "pass": true,
+      "target": [
+        0,
+        0.000001
+      ],
+      "value": 0
+    },
+    {
+      "id": "cadenceIdentityErrorMax",
+      "pass": true,
+      "target": [
+        0,
+        0.000001
+      ],
+      "value": 4.8e-7
+    },
+    {
+      "id": "fovIdentityErrorMax",
+      "pass": true,
+      "target": [
+        0,
+        0.00001
+      ],
+      "value": 0.00000304
+    },
+    {
+      "id": "worldUnitProgression",
+      "pass": true,
+      "target": "strictly increasing above 0km/h",
+      "value": [
+        0,
+        101.333333,
+        202.666667,
+        304,
+        371.555556,
+        439.111111,
+        506.666667,
+        574.222222,
+        624.888889,
+        675.555556,
+        709.333333,
+        760
+      ]
+    },
+    {
+      "id": "speedCueEnvelopeBounds",
+      "pass": true,
+      "target": "all cue channels remain within runtime maxima",
+      "value": true
+    },
+    {
+      "id": "stationaryHoldOffset",
+      "pass": true,
+      "target": [
+        0,
+        0.001
+      ],
+      "value": 0
+    },
+    {
+      "id": "stationaryHoldPose",
+      "pass": true,
+      "target": [
+        0,
+        0.001
+      ],
+      "value": 0
+    },
+    {
+      "id": "handlingSamplesFinite",
+      "pass": true,
+      "target": true,
+      "value": true
+    }
+  ],
+  "config": {
+    "accelSpeed": 760,
+    "camera": {
+      "baseFov": 69,
+      "downhillFovImpulse": 0.45,
+      "driftExitFovImpulse": 1.2,
+      "fovCueResponse": 11,
+      "fovResponse": 1.25,
+      "shakeDriftExitX": 1.2,
+      "shakeDriftExitY": 0.5,
+      "shakeFrequency": 32,
+      "shakeRailImpactX": 2.2,
+      "shakeRailImpactY": 0.9,
+      "shakeScale": 1,
+      "shakeThrottleX": 0.6,
+      "shakeThrottleY": 0.25,
+      "speedFovBonus": 5.2,
+      "throttleFovImpulse": 0.8
+    },
+    "cadence": {
+      "laneDashSegmentInterval": 3,
+      "leftGuardrailPostSegmentInterval": 4,
+      "reflectorSegmentInterval": 2,
+      "rightGuardrailPostSegmentInterval": 3,
+      "speedEffectTimeScaleMax": 2.2,
+      "speedEffectTimeScaleMin": 0.4
+    },
+    "displayTopSpeedKmh": 225,
+    "roadSegmentLength": 240,
+    "sampleSpeedsKmh": [
+      0,
+      30,
+      60,
+      90,
+      110,
+      130,
+      150,
+      170,
+      185,
+      200,
+      210,
+      225
+    ],
+    "speedCue": {
+      "baseMaxIntensity": 0.1,
+      "downhillMaxIntensity": 0.16,
+      "driftExitBurstDuration": 0.34,
+      "driftExitBurstMaxIntensity": 0.26,
+      "minimumSpeedRatio": 0.36,
+      "throttleBurstDuration": 0.26,
+      "throttleBurstMaxIntensity": 0.2
+    }
+  },
+  "findings": [
+    {
+      "id": "nearFieldCadenceBelowTarget",
+      "status": "observed",
+      "targetPassesPerSec": [
+        3,
+        4
+      ],
+      "value": 1.055556
+    },
+    {
+      "deltaDegrees": 0.435,
+      "fromKmh": 185,
+      "id": "topBandFovCompression",
+      "status": "observed",
+      "toKmh": 225
+    },
+    {
+      "id": "topBandHandlingPlateau",
+      "profileDelta": 0,
+      "status": "observed"
+    }
+  ],
+  "generatedAt": "2026-07-22T01:29:59.069Z",
+  "pass": true,
+  "rows": [
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 0
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0,
+        "driftExitFovCuePeakDegrees": 0,
+        "speedFovBonusDegrees": 0,
+        "steadyFovDegrees": 69,
+        "throttleFovCuePeakDegrees": 0
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 0,
+          "offsetMaxAbs": 0,
+          "poseMaxAbs": 0,
+          "velocityAbs": 0,
+          "velocityMaxAbs": 0
+        },
+        "profile": {
+          "centeringScale": 0,
+          "gripAngleCap": 1,
+          "inputResponseScale": 0.75,
+          "lateralAuthority": 0,
+          "lateralVelocityCap": 0,
+          "neutralReturnVelocityCap": 0,
+          "speedRatio": 0,
+          "steeringForceScale": 0.75,
+          "steeringSlewRate": 12,
+          "visualAuthority": 0,
+          "visualYawScale": 1
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 0,
+          "poseAfterOneSecAbs": 0,
+          "releaseStartOffsetAbs": 0,
+          "velocityAfterOneSecAbs": 0
+        },
+        "tap": {
+          "offsetAbs": 0,
+          "offsetMaxAbs": 0,
+          "poseMaxAbs": 0,
+          "velocityAbs": 0,
+          "velocityMaxAbs": 0
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0,
+        "driftExitEventIntensity": 0,
+        "speedEffectTimeScale": 0.4,
+        "steadyIntensity": 0,
+        "throttleEventIntensity": 0
+      },
+      "speedKmh": 0,
+      "speedRatio": 0,
+      "speedCue": {
+        "base": 0,
+        "downhill": 0,
+        "driftExitBurstPeak": 0,
+        "intensitySteady": 0,
+        "throttleBurstPeak": 0
+      },
+      "worldUnitsPerSec": 0
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.140741,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.105556,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0.211111,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.140741,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 0.422222
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0,
+        "driftExitFovCuePeakDegrees": 0,
+        "speedFovBonusDegrees": 0.252681,
+        "steadyFovDegrees": 69.252681,
+        "throttleFovCuePeakDegrees": 0
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 53.328304,
+          "offsetMaxAbs": 53.328304,
+          "poseMaxAbs": 0.55707,
+          "velocityAbs": 56.505089,
+          "velocityMaxAbs": 58.667221
+        },
+        "profile": {
+          "centeringScale": 1.08,
+          "gripAngleCap": 1,
+          "inputResponseScale": 0.95,
+          "lateralAuthority": 0.36,
+          "lateralVelocityCap": 110,
+          "neutralReturnVelocityCap": 18,
+          "speedRatio": 0.133333,
+          "steeringForceScale": 0.94,
+          "steeringSlewRate": 19,
+          "visualAuthority": 0.55,
+          "visualYawScale": 1
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 53.063977,
+          "poseAfterOneSecAbs": 0.000747,
+          "releaseStartOffsetAbs": 53.328304,
+          "velocityAfterOneSecAbs": 6.127827
+        },
+        "tap": {
+          "offsetAbs": 8.410109,
+          "offsetMaxAbs": 8.771313,
+          "poseMaxAbs": 0.512082,
+          "velocityAbs": 0.960641,
+          "velocityMaxAbs": 46.973293
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0,
+        "driftExitEventIntensity": 0,
+        "speedEffectTimeScale": 0.64,
+        "steadyIntensity": 0,
+        "throttleEventIntensity": 0
+      },
+      "speedKmh": 30,
+      "speedRatio": 0.133333,
+      "speedCue": {
+        "base": 0,
+        "downhill": 0,
+        "driftExitBurstPeak": 0,
+        "intensitySteady": 0,
+        "throttleBurstPeak": 0
+      },
+      "worldUnitsPerSec": 101.333333
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.281481,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.211111,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0.422222,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.281481,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 0.844444
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0,
+        "driftExitFovCuePeakDegrees": 0,
+        "speedFovBonusDegrees": 0.912119,
+        "steadyFovDegrees": 69.912119,
+        "throttleFovCuePeakDegrees": 0
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 149.706367,
+          "offsetMaxAbs": 149.706367,
+          "poseMaxAbs": 1,
+          "velocityAbs": 148.942097,
+          "velocityMaxAbs": 167.574509
+        },
+        "profile": {
+          "centeringScale": 1,
+          "gripAngleCap": 1,
+          "inputResponseScale": 1,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 220,
+          "neutralReturnVelocityCap": 20,
+          "speedRatio": 0.266667,
+          "steeringForceScale": 1,
+          "steeringSlewRate": 20,
+          "visualAuthority": 1,
+          "visualYawScale": 1
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 141.363329,
+          "poseAfterOneSecAbs": 0.002424,
+          "releaseStartOffsetAbs": 149.706367,
+          "velocityAfterOneSecAbs": 20
+        },
+        "tap": {
+          "offsetAbs": 21.886025,
+          "offsetMaxAbs": 25.025025,
+          "poseMaxAbs": 0.932794,
+          "velocityAbs": 6.599823,
+          "velocityMaxAbs": 138.118106
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0,
+        "driftExitEventIntensity": 0,
+        "speedEffectTimeScale": 0.88,
+        "steadyIntensity": 0,
+        "throttleEventIntensity": 0
+      },
+      "speedKmh": 60,
+      "speedRatio": 0.266667,
+      "speedCue": {
+        "base": 0,
+        "downhill": 0,
+        "driftExitBurstPeak": 0,
+        "intensitySteady": 0,
+        "throttleBurstPeak": 0
+      },
+      "worldUnitsPerSec": 202.666667
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.422222,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.316667,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0.633333,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.422222,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 1.266667
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.005054,
+        "driftExitFovCuePeakDegrees": 0.012816,
+        "speedFovBonusDegrees": 1.8304,
+        "steadyFovDegrees": 70.8304,
+        "throttleFovCuePeakDegrees": 0
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 145.825986,
+          "offsetMaxAbs": 145.825986,
+          "poseMaxAbs": 1,
+          "velocityAbs": 145.081525,
+          "velocityMaxAbs": 163.230987
+        },
+        "profile": {
+          "centeringScale": 1,
+          "gripAngleCap": 1,
+          "inputResponseScale": 1,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 210.280019,
+          "neutralReturnVelocityCap": 20,
+          "speedRatio": 0.4,
+          "steeringForceScale": 0.97408,
+          "steeringSlewRate": 18.704003,
+          "visualAuthority": 1,
+          "visualYawScale": 1
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 137.30176,
+          "poseAfterOneSecAbs": 0.002424,
+          "releaseStartOffsetAbs": 145.825986,
+          "velocityAfterOneSecAbs": 20
+        },
+        "tap": {
+          "offsetAbs": 21.31874,
+          "offsetMaxAbs": 24.376378,
+          "poseMaxAbs": 0.932794,
+          "velocityAbs": 6.428756,
+          "velocityMaxAbs": 134.538092
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.00292,
+        "driftExitEventIntensity": 0.002777,
+        "speedEffectTimeScale": 1.12,
+        "steadyIntensity": 0.001123,
+        "throttleEventIntensity": 0
+      },
+      "speedKmh": 90,
+      "speedRatio": 0.4,
+      "speedCue": {
+        "base": 0.001123,
+        "downhill": 0.001797,
+        "driftExitBurstPeak": 0.002777,
+        "intensitySteady": 0.001123,
+        "throttleBurstPeak": 0
+      },
+      "worldUnitsPerSec": 304
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.516049,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.387037,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0.774074,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.516049,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 1.548148
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.047401,
+        "driftExitFovCuePeakDegrees": 0.120206,
+        "speedFovBonusDegrees": 2.513348,
+        "steadyFovDegrees": 71.513348,
+        "throttleFovCuePeakDegrees": 0.078866
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 143.718112,
+          "offsetMaxAbs": 143.718112,
+          "poseMaxAbs": 1,
+          "velocityAbs": 142.984413,
+          "velocityMaxAbs": 160.871529
+        },
+        "profile": {
+          "centeringScale": 1,
+          "gripAngleCap": 1,
+          "inputResponseScale": 1,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 205,
+          "neutralReturnVelocityCap": 20,
+          "speedRatio": 0.488889,
+          "steeringForceScale": 0.96,
+          "steeringSlewRate": 18,
+          "visualAuthority": 1,
+          "visualYawScale": 1
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 135.095463,
+          "poseAfterOneSecAbs": 0.002424,
+          "releaseStartOffsetAbs": 143.718112,
+          "velocityAfterOneSecAbs": 20
+        },
+        "tap": {
+          "offsetAbs": 21.010584,
+          "offsetMaxAbs": 24.024024,
+          "poseMaxAbs": 0.932794,
+          "velocityAbs": 6.335831,
+          "velocityMaxAbs": 132.593382
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.027388,
+        "driftExitEventIntensity": 0.026045,
+        "speedEffectTimeScale": 1.28,
+        "steadyIntensity": 0.010534,
+        "throttleEventIntensity": 0.019717
+      },
+      "speedKmh": 110,
+      "speedRatio": 0.488889,
+      "speedCue": {
+        "base": 0.010534,
+        "downhill": 0.016854,
+        "driftExitBurstPeak": 0.026045,
+        "intensitySteady": 0.010534,
+        "throttleBurstPeak": 0.019717
+      },
+      "worldUnitsPerSec": 371.555556
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.609877,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.457407,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 0.914815,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.609877,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 1.82963
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.120853,
+        "driftExitFovCuePeakDegrees": 0.306476,
+        "speedFovBonusDegrees": 3.201773,
+        "steadyFovDegrees": 72.201773,
+        "throttleFovCuePeakDegrees": 0.201077
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 127.169679,
+          "offsetMaxAbs": 127.169679,
+          "poseMaxAbs": 0.921739,
+          "velocityAbs": 127.329808,
+          "velocityMaxAbs": 142.054408
+        },
+        "profile": {
+          "centeringScale": 0.939358,
+          "gripAngleCap": 0.92723,
+          "inputResponseScale": 0.987872,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 183.775442,
+          "neutralReturnVelocityCap": 18.787168,
+          "speedRatio": 0.577778,
+          "steeringForceScale": 0.911487,
+          "steeringSlewRate": 15.574336,
+          "visualAuthority": 1,
+          "visualYawScale": 0.975743
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 119.061448,
+          "poseAfterOneSecAbs": 0.002277,
+          "releaseStartOffsetAbs": 127.169679,
+          "velocityAfterOneSecAbs": 18.787168
+        },
+        "tap": {
+          "offsetAbs": 18.73478,
+          "offsetMaxAbs": 21.212482,
+          "poseMaxAbs": 0.852987,
+          "velocityAbs": 5.294748,
+          "velocityMaxAbs": 116.789548
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.069827,
+        "driftExitEventIntensity": 0.066404,
+        "speedEffectTimeScale": 1.44,
+        "steadyIntensity": 0.026857,
+        "throttleEventIntensity": 0.05027
+      },
+      "speedKmh": 130,
+      "speedRatio": 0.577778,
+      "speedCue": {
+        "base": 0.026857,
+        "downhill": 0.042971,
+        "driftExitBurstPeak": 0.066404,
+        "intensitySteady": 0.026857,
+        "throttleBurstPeak": 0.05027
+      },
+      "worldUnitsPerSec": 439.111111
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.703704,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.527778,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.055556,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.703704,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 2.111111
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.210942,
+        "driftExitFovCuePeakDegrees": 0.534938,
+        "speedFovBonusDegrees": 3.851852,
+        "steadyFovDegrees": 72.851852,
+        "throttleFovCuePeakDegrees": 0.350969
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 114.26025,
+          "offsetMaxAbs": 114.26025,
+          "poseMaxAbs": 0.844642,
+          "velocityAbs": 115.001817,
+          "velocityMaxAbs": 127.417385
+        },
+        "profile": {
+          "centeringScale": 0.8896,
+          "gripAngleCap": 0.8696,
+          "inputResponseScale": 0.97688,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 165.319896,
+          "neutralReturnVelocityCap": 17.687993,
+          "speedRatio": 0.666667,
+          "steeringForceScale": 0.8696,
+          "steeringSlewRate": 13.583991,
+          "visualAuthority": 1,
+          "visualYawScale": 0.95376
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 106.655366,
+          "poseAfterOneSecAbs": 0.002144,
+          "releaseStartOffsetAbs": 114.26025,
+          "velocityAfterOneSecAbs": 17.687993
+        },
+        "tap": {
+          "offsetAbs": 16.938981,
+          "offsetMaxAbs": 19.029346,
+          "poseMaxAbs": 0.779934,
+          "velocityAbs": 4.525014,
+          "velocityMaxAbs": 104.539818
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.12188,
+        "driftExitEventIntensity": 0.115905,
+        "speedEffectTimeScale": 1.6,
+        "steadyIntensity": 0.046877,
+        "throttleEventIntensity": 0.087744
+      },
+      "speedKmh": 150,
+      "speedRatio": 0.666667,
+      "speedCue": {
+        "base": 0.046877,
+        "downhill": 0.075003,
+        "driftExitBurstPeak": 0.115905,
+        "intensitySteady": 0.046877,
+        "throttleBurstPeak": 0.087744
+      },
+      "worldUnitsPerSec": 506.666667
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.797531,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.598148,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.196296,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.797531,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 2.392593
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.303202,
+        "driftExitFovCuePeakDegrees": 0.768903,
+        "speedFovBonusDegrees": 4.419757,
+        "steadyFovDegrees": 73.419757,
+        "throttleFovCuePeakDegrees": 0.504472
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 92.620713,
+          "offsetMaxAbs": 92.620713,
+          "poseMaxAbs": 0.714328,
+          "velocityAbs": 94.096109,
+          "velocityMaxAbs": 102.982602
+        },
+        "profile": {
+          "centeringScale": 0.8,
+          "gripAngleCap": 0.78,
+          "inputResponseScale": 0.95,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 125,
+          "neutralReturnVelocityCap": 15,
+          "speedRatio": 0.755556,
+          "steeringForceScale": 0.78,
+          "steeringSlewRate": 10,
+          "visualAuthority": 1,
+          "visualYawScale": 0.9
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 86.436417,
+          "poseAfterOneSecAbs": 0.001818,
+          "releaseStartOffsetAbs": 92.620713,
+          "velocityAfterOneSecAbs": 15
+        },
+        "tap": {
+          "offsetAbs": 13.886199,
+          "offsetMaxAbs": 15.382164,
+          "poseMaxAbs": 0.655063,
+          "velocityAbs": 3.324297,
+          "velocityMaxAbs": 84.168656
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.175186,
+        "driftExitEventIntensity": 0.166599,
+        "speedEffectTimeScale": 1.76,
+        "steadyIntensity": 0.067379,
+        "throttleEventIntensity": 0.12612
+      },
+      "speedKmh": 170,
+      "speedRatio": 0.755556,
+      "speedCue": {
+        "base": 0.067379,
+        "downhill": 0.107807,
+        "driftExitBurstPeak": 0.166599,
+        "intensitySteady": 0.067379,
+        "throttleBurstPeak": 0.12612
+      },
+      "worldUnitsPerSec": 574.222222
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.867901,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.650926,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.301852,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.867901,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 2.603704
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.365117,
+        "driftExitFovCuePeakDegrees": 0.925919,
+        "speedFovBonusDegrees": 4.765397,
+        "steadyFovDegrees": 73.765397,
+        "throttleFovCuePeakDegrees": 0.607489
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 75.16314,
+          "offsetMaxAbs": 75.16314,
+          "poseMaxAbs": 0.629172,
+          "velocityAbs": 77.154539,
+          "velocityMaxAbs": 83.313854
+        },
+        "profile": {
+          "centeringScale": 0.7,
+          "gripAngleCap": 0.72,
+          "inputResponseScale": 0.92,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 90,
+          "neutralReturnVelocityCap": 12,
+          "speedRatio": 0.822222,
+          "steeringForceScale": 0.68,
+          "steeringSlewRate": 7.5,
+          "visualAuthority": 1,
+          "visualYawScale": 0.86
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 70.745629,
+          "poseAfterOneSecAbs": 0.001454,
+          "releaseStartOffsetAbs": 75.16314,
+          "velocityAfterOneSecAbs": 12
+        },
+        "tap": {
+          "offsetAbs": 11.410086,
+          "offsetMaxAbs": 12.447119,
+          "poseMaxAbs": 0.571098,
+          "velocityAbs": 2.380555,
+          "velocityMaxAbs": 67.788762
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.21096,
+        "driftExitEventIntensity": 0.200619,
+        "speedEffectTimeScale": 1.88,
+        "steadyIntensity": 0.081139,
+        "throttleEventIntensity": 0.151875
+      },
+      "speedKmh": 185,
+      "speedRatio": 0.822222,
+      "speedCue": {
+        "base": 0.081139,
+        "downhill": 0.129822,
+        "driftExitBurstPeak": 0.200619,
+        "intensitySteady": 0.081139,
+        "throttleBurstPeak": 0.151875
+      },
+      "worldUnitsPerSec": 624.888889
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.938272,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.703704,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.407407,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.938272,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 2.814815
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.414012,
+        "driftExitFovCuePeakDegrees": 1.049914,
+        "speedFovBonusDegrees": 5.021674,
+        "steadyFovDegrees": 74.021674,
+        "throttleFovCuePeakDegrees": 0.688841
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 75.16314,
+          "offsetMaxAbs": 75.16314,
+          "poseMaxAbs": 0.629172,
+          "velocityAbs": 77.154539,
+          "velocityMaxAbs": 83.313854
+        },
+        "profile": {
+          "centeringScale": 0.7,
+          "gripAngleCap": 0.72,
+          "inputResponseScale": 0.92,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 90,
+          "neutralReturnVelocityCap": 12,
+          "speedRatio": 0.888889,
+          "steeringForceScale": 0.68,
+          "steeringSlewRate": 7.5,
+          "visualAuthority": 1,
+          "visualYawScale": 0.86
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 70.745629,
+          "poseAfterOneSecAbs": 0.001454,
+          "releaseStartOffsetAbs": 75.16314,
+          "velocityAfterOneSecAbs": 12
+        },
+        "tap": {
+          "offsetAbs": 11.410086,
+          "offsetMaxAbs": 12.447119,
+          "poseMaxAbs": 0.571098,
+          "velocityAbs": 2.380555,
+          "velocityMaxAbs": 67.788762
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.239211,
+        "driftExitEventIntensity": 0.227485,
+        "speedEffectTimeScale": 2,
+        "steadyIntensity": 0.092004,
+        "throttleEventIntensity": 0.172213
+      },
+      "speedKmh": 200,
+      "speedRatio": 0.888889,
+      "speedCue": {
+        "base": 0.092004,
+        "downhill": 0.147207,
+        "driftExitBurstPeak": 0.227485,
+        "intensitySteady": 0.092004,
+        "throttleBurstPeak": 0.172213
+      },
+      "worldUnitsPerSec": 675.555556
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 0.985185,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.738889,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.477778,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 0.985185,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 2.955556
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.436362,
+        "driftExitFovCuePeakDegrees": 1.10659,
+        "speedFovBonusDegrees": 5.133748,
+        "steadyFovDegrees": 74.133748,
+        "throttleFovCuePeakDegrees": 0.726026
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 75.16314,
+          "offsetMaxAbs": 75.16314,
+          "poseMaxAbs": 0.629172,
+          "velocityAbs": 77.154539,
+          "velocityMaxAbs": 83.313854
+        },
+        "profile": {
+          "centeringScale": 0.7,
+          "gripAngleCap": 0.72,
+          "inputResponseScale": 0.92,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 90,
+          "neutralReturnVelocityCap": 12,
+          "speedRatio": 0.933333,
+          "steeringForceScale": 0.68,
+          "steeringSlewRate": 7.5,
+          "visualAuthority": 1,
+          "visualYawScale": 0.86
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 70.745629,
+          "poseAfterOneSecAbs": 0.001454,
+          "releaseStartOffsetAbs": 75.16314,
+          "velocityAfterOneSecAbs": 12
+        },
+        "tap": {
+          "offsetAbs": 11.410086,
+          "offsetMaxAbs": 12.447119,
+          "poseMaxAbs": 0.571098,
+          "velocityAbs": 2.380555,
+          "velocityMaxAbs": 67.788762
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.252124,
+        "driftExitEventIntensity": 0.239765,
+        "speedEffectTimeScale": 2.08,
+        "steadyIntensity": 0.096971,
+        "throttleEventIntensity": 0.18151
+      },
+      "speedKmh": 210,
+      "speedRatio": 0.933333,
+      "speedCue": {
+        "base": 0.096971,
+        "downhill": 0.155153,
+        "driftExitBurstPeak": 0.239765,
+        "intensitySteady": 0.096971,
+        "throttleBurstPeak": 0.18151
+      },
+      "worldUnitsPerSec": 709.333333
+    },
+    {
+      "cadence": {
+        "laneDashPassesPerSec": 1.055556,
+        "laneDashSpacingUnits": 720,
+        "leftPostPassesPerSec": 0.791667,
+        "leftPostSpacingUnits": 960,
+        "reflectorMaxPassesPerSec": 1.583333,
+        "reflectorSpacingUnits": 480,
+        "rightPostPassesPerSec": 1.055556,
+        "rightPostSpacingUnits": 720,
+        "segmentPassesPerSec": 3.166667
+      },
+      "camera": {
+        "downhillFovCuePeakDegrees": 0.449992,
+        "driftExitFovCuePeakDegrees": 1.141157,
+        "speedFovBonusDegrees": 5.2,
+        "steadyFovDegrees": 74.2,
+        "throttleFovCuePeakDegrees": 0.748705
+      },
+      "handling": {
+        "hold": {
+          "offsetAbs": 75.16314,
+          "offsetMaxAbs": 75.16314,
+          "poseMaxAbs": 0.629172,
+          "velocityAbs": 77.154539,
+          "velocityMaxAbs": 83.313854
+        },
+        "profile": {
+          "centeringScale": 0.7,
+          "gripAngleCap": 0.72,
+          "inputResponseScale": 0.92,
+          "lateralAuthority": 1,
+          "lateralVelocityCap": 90,
+          "neutralReturnVelocityCap": 12,
+          "speedRatio": 1,
+          "steeringForceScale": 0.68,
+          "steeringSlewRate": 7.5,
+          "visualAuthority": 1,
+          "visualYawScale": 0.86
+        },
+        "release": {
+          "offsetAfterOneSecAbs": 70.745629,
+          "poseAfterOneSecAbs": 0.001454,
+          "releaseStartOffsetAbs": 75.16314,
+          "velocityAfterOneSecAbs": 12
+        },
+        "tap": {
+          "offsetAbs": 11.410086,
+          "offsetMaxAbs": 12.447119,
+          "poseMaxAbs": 0.571098,
+          "velocityAbs": 2.380555,
+          "velocityMaxAbs": 67.788762
+        }
+      },
+      "inverseIdentityErrorKmh": 0,
+      "shader": {
+        "downhillIntensity": 0.26,
+        "driftExitEventIntensity": 0.247255,
+        "speedEffectTimeScale": 2.2,
+        "steadyIntensity": 0.1,
+        "throttleEventIntensity": 0.187179
+      },
+      "speedKmh": 225,
+      "speedRatio": 1,
+      "speedCue": {
+        "base": 0.1,
+        "downhill": 0.16,
+        "driftExitBurstPeak": 0.247255,
+        "intensitySteady": 0.1,
+        "throttleBurstPeak": 0.187179
+      },
+      "worldUnitsPerSec": 760
+    }
+  ],
+  "schemaVersion": 1
+}

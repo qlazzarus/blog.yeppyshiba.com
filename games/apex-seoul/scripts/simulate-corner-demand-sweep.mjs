@@ -1,7 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GUARDRAIL_COLLISION_CONFIG, applyGuardrailCollision } from '../src/game/guardrailCollision.ts';
+import {
+    GUARDRAIL_COLLISION_CONFIG,
+    applyGuardrailCollision,
+    getGuardrailCollisionGeometry,
+} from '../src/game/guardrailCollision.ts';
 import {
     getDisplaySpeedKmh,
     RAVEN_COUPE_ENGINE_PROFILE,
@@ -50,6 +54,7 @@ const RECOVERY_START_SEC = 2;
 const config = {
     outputDir: 'assets/telemetry/generated/corner-demand',
     sampleHz: 60,
+    snapshotId: null,
 };
 
 for (let index = 2; index < process.argv.length; index += 1) {
@@ -61,6 +66,12 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--sample-hz' && next) {
         config.sampleHz = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--snapshot-id' && next) {
+        if (!/^[a-z0-9-]+$/.test(next)) {
+            throw new Error('--snapshot-id requires a lowercase alphanumeric id');
+        }
+        config.snapshotId = next;
         index += 1;
     }
 }
@@ -101,12 +112,25 @@ const report = {
             severeScrub: controllerDefaults.cornerSevereOverspeedScrub,
             severeStartRatio: controllerDefaults.cornerSevereOverspeedStartRatio,
         },
+        understeerTrajectory: {
+            brakeTargetScale: controllerDefaults.overspeedUndersteerBrakeTargetScale,
+            easyRoadMaxRatio: controllerDefaults.overspeedEasyRoadMaxRatio,
+            liftTargetScale: controllerDefaults.overspeedUndersteerLiftTargetScale,
+            mediumRoadMaxRatio: controllerDefaults.overspeedMediumRoadMaxRatio,
+            roadBuildRate: controllerDefaults.overspeedUndersteerRoadBuildRate,
+            roadMaxRatio: controllerDefaults.overspeedUndersteerRoadMaxRatio,
+            roadRecoveryRate: controllerDefaults.overspeedUndersteerRoadRecoveryRate,
+            roadSpeedRate: controllerDefaults.overspeedUndersteerRoadSpeedRate,
+            steerInputFull: controllerDefaults.overspeedUndersteerSteerInputFull,
+            steerInputStart: controllerDefaults.overspeedUndersteerMinSteerInput,
+        },
         durationSec: DURATION_SEC,
         grades: GRADE_FIXTURES.map(({ curve, id, pavedHalfWidth, steerAxis }) => ({
             curve,
             id,
             pavedHalfWidth,
-            railContactLimit: pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
+            railContactLimit: getPhysicalRoadOffsetLimit(pavedHalfWidth),
+            railOffset: getPhysicalRailOffset(pavedHalfWidth),
             steerAxis,
         })),
         preparationModes: PREPARATION_MODES,
@@ -120,7 +144,7 @@ const report = {
     observations,
     pass: checks.every((check) => check.pass),
     recoveryRows,
-    schemaVersion: 3,
+    schemaVersion: 5,
     straightControlRows,
     syntheticRows,
     track: {
@@ -137,6 +161,22 @@ const markdownPath = path.join(outputDir, 'corner-demand-baseline.md');
 await mkdir(outputDir, { recursive: true });
 await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
 await writeFile(markdownPath, buildMarkdownReport(report));
+
+if (config.snapshotId) {
+    const snapshotJsonPath = path.join(
+        outputDir,
+        `corner-demand-${config.snapshotId}-baseline.json`,
+    );
+    const snapshotMarkdownPath = path.join(
+        outputDir,
+        `corner-demand-${config.snapshotId}-baseline.md`,
+    );
+
+    await writeFile(snapshotJsonPath, `${JSON.stringify(report, null, 2)}\n`);
+    await writeFile(snapshotMarkdownPath, buildMarkdownReport(report));
+    console.log(`Snapshot JSON: ${path.relative(projectRoot, snapshotJsonPath)}`);
+    console.log(`Snapshot table: ${path.relative(projectRoot, snapshotMarkdownPath)}`);
+}
 
 console.log(`Corner demand sweep: ${report.pass ? 'PASS' : 'FAIL'}`);
 console.log(`Synthetic scenarios: ${syntheticRows.length}`);
@@ -228,7 +268,8 @@ function buildTrackDefinitions() {
                 expectedGrade: fixture.expectedGrade,
                 id: fixture.id,
                 pavedHalfWidth: round(segment.roadHalfWidth),
-                railContactLimit: round(segment.roadHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance),
+                railContactLimit: round(getPhysicalRoadOffsetLimit(segment.roadHalfWidth)),
+                railOffset: round(getPhysicalRailOffset(segment.roadHalfWidth)),
                 segmentIndex: fixture.segmentIndex,
                 slopeAcceleration: round(slopeAcceleration),
             },
@@ -271,7 +312,7 @@ function createScenarioDefinition({
         id,
         initialSpeed: kmhToRaw(speedKmh),
         kind,
-        maxRoadOffset: grade.pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
+        maxRoadOffset: getPhysicalRoadOffsetLimit(grade.pavedHalfWidth),
         metadata,
         pavedHalfWidth: grade.pavedHalfWidth,
         preparationMode,
@@ -309,9 +350,11 @@ function runScenario(definition) {
         updatePlayerVehicle(player, input, road, controllerConfig, dt);
         applyGuardrailCollision(player, {
             pavedHalfWidth: definition.pavedHalfWidth,
-            railContactLimit: definition.maxRoadOffset,
+            railContactLimit: getPhysicalRailOffset(definition.pavedHalfWidth),
+            vehicleHalfWidth: GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,
         }, dt);
         samples.push({
+            brakePressure: player.brakePressure,
             cornerGrade: player.cornerDemand.grade,
             cornerIntensity: player.cornerDemand.cornerIntensity,
             cornerLineQuality: player.cornerDemand.lineQuality,
@@ -331,11 +374,15 @@ function runScenario(definition) {
             guardrailImpactCount: player.guardrailImpactCount,
             guardrailShoulderRatio: player.guardrailShoulderRatio,
             inputSteerAxis: input.steerAxis,
+            inputAccelPressed: input.accelPressed,
+            inputBrakePressed: input.brakePressed,
             lateralOffset: player.lateralOffset,
             lineSafetyScrubForce: player.cornerSpeedLoss.lineSafetyScrubForce,
             overspeedTireScrubForce: player.cornerSpeedLoss.overspeedTireScrubForce,
             overspeedUndersteerLateralVelocity: player.overspeedUndersteerLateralVelocity,
+            overspeedUndersteerLoadTransferScale: player.overspeedUndersteerLoadTransferScale,
             overspeedUndersteerRatio: player.overspeedUndersteerRatio,
+            overspeedUndersteerSteerDemandRatio: player.overspeedUndersteerSteerDemandRatio,
             overspeedUndersteerTargetRatio: player.overspeedUndersteerTargetRatio,
             severeOverspeedScrubForce: player.cornerSpeedLoss.severeOverspeedScrubForce,
             speed: player.speed,
@@ -389,6 +436,11 @@ function collectScenarioMetrics(definition, samples, controllerConfig) {
     const speedToBudgetRatio = entry.cornerSpeedRatioToBudget;
     const cornerIntensity = getCornerIntensity(definition.curve);
     const recoveryMs = measureUndersteerRecoveryMs(samples, definition.recoveryStartSec);
+    const recoveryRelief400ms = measureUndersteerRecoveryRelief(
+        samples,
+        definition.recoveryStartSec,
+        0.4,
+    );
     const demandIdentityErrorMax = Math.max(...cornerSamples.map((sample) => {
         const expectedSpeedRatio = sample.speedBeforeUpdate / sample.cornerSpeedBudget;
         const expectedDemand = sample.cornerGrade === 'straight'
@@ -403,14 +455,20 @@ function collectScenarioMetrics(definition, samples, controllerConfig) {
         )
     )));
     const understeerDemandAlignmentErrorMax = Math.max(...cornerSamples.map((sample) => {
-        const gradeScale = sample.cornerGrade === 'medium'
-            ? controllerConfig.overspeedMediumUndersteerScale
-            : sample.cornerGrade === 'sharp'
-                ? controllerConfig.overspeedSharpUndersteerScale
-                : 0;
-        const active = sample.driftState === 'grip' &&
-            Math.abs(sample.inputSteerAxis) >= controllerConfig.overspeedUndersteerMinSteerInput;
-        const expectedTarget = active ? sample.cornerOverspeedRatio * gradeScale : 0;
+        const bandDemand = getExpectedUndersteerBandDemand(sample, controllerConfig);
+        const steerDemand = getExpectedUndersteerSteerDemand(sample, controllerConfig);
+        const loadTransferScale = sample.inputBrakePressed
+            ? lerp(
+                1,
+                controllerConfig.overspeedUndersteerBrakeTargetScale,
+                sample.brakePressure,
+            )
+            : sample.inputAccelPressed
+                ? 1
+                : controllerConfig.overspeedUndersteerLiftTargetScale;
+        const expectedTarget = sample.driftState === 'grip'
+            ? bandDemand * steerDemand * loadTransferScale
+            : 0;
         return Math.abs(sample.overspeedUndersteerTargetRatio - expectedTarget);
     }));
 
@@ -446,15 +504,30 @@ function collectScenarioMetrics(definition, samples, controllerConfig) {
         overspeedUndersteerLateralVelocityMaxAbs: round(Math.max(
             ...cornerSamples.map((sample) => Math.abs(sample.overspeedUndersteerLateralVelocity)),
         )),
+        overspeedUndersteerLateralVelocityRoadRateMaxAbs: round(Math.max(
+            ...cornerSamples.map((sample) => (
+                Math.abs(sample.overspeedUndersteerLateralVelocity) / definition.maxRoadOffset
+            )),
+        )),
+        overspeedUndersteerLoadTransferScaleMin: round(Math.min(
+            ...cornerSamples.map((sample) => sample.overspeedUndersteerLoadTransferScale),
+        )),
+        overspeedUndersteerMean: average(
+            cornerSamples.map((sample) => sample.overspeedUndersteerRatio),
+        ),
         overspeedUndersteerMax: round(Math.max(
             ...cornerSamples.map((sample) => sample.overspeedUndersteerRatio),
         )),
         overspeedUndersteerTargetMax: round(Math.max(
             ...cornerSamples.map((sample) => sample.overspeedUndersteerTargetRatio),
         )),
+        overspeedUndersteerSteerDemandMax: round(Math.max(
+            ...cornerSamples.map((sample) => sample.overspeedUndersteerSteerDemandRatio),
+        )),
         pavedHalfWidth: round(definition.pavedHalfWidth),
         preparationMode: definition.preparationMode,
         recoveryMs,
+        recoveryRelief400ms,
         safetyMarginMax: round(Math.max(
             ...cornerSamples.map((sample) => sample.cornerSafetyMarginRatio),
         )),
@@ -533,8 +606,57 @@ function measureUndersteerRecoveryMs(samples, recoveryStartSec) {
     return recovered ? Math.round((recovered.t - recoveryStartSec) * 1000) : null;
 }
 
+function measureUndersteerRecoveryRelief(samples, recoveryStartSec, windowSec) {
+    if (typeof recoveryStartSec !== 'number') return null;
+
+    const before = findAtOrAfter(samples, recoveryStartSec - 1 / config.sampleHz);
+    const after = findAtOrAfter(samples, recoveryStartSec + windowSec);
+    if (!before || !after || before.overspeedUndersteerRatio < 0.05) return null;
+
+    return round(clamp(
+        (before.overspeedUndersteerRatio - after.overspeedUndersteerRatio) /
+            before.overspeedUndersteerRatio,
+        0,
+        1,
+    ));
+}
+
+function getExpectedUndersteerBandDemand(sample, controllerConfig) {
+    if (sample.cornerGrade === 'easy') {
+        return smoothstep(clamp(
+            sample.cornerOverspeedRatio /
+                Math.max(0.01, controllerConfig.overspeedEasyUndersteerFullRatio),
+            0,
+            1,
+        )) * controllerConfig.overspeedEasyUndersteerScale;
+    }
+    if (sample.cornerGrade === 'medium') {
+        return sample.cornerOverspeedRatio * controllerConfig.overspeedMediumUndersteerScale;
+    }
+    if (sample.cornerGrade === 'sharp') {
+        return sample.cornerOverspeedRatio * controllerConfig.overspeedSharpUndersteerScale;
+    }
+    return 0;
+}
+
+function getExpectedUndersteerSteerDemand(sample, controllerConfig) {
+    const range = Math.max(
+        0.01,
+        controllerConfig.overspeedUndersteerSteerInputFull -
+            controllerConfig.overspeedUndersteerMinSteerInput,
+    );
+    return smoothstep(clamp(
+        (Math.abs(sample.inputSteerAxis) - controllerConfig.overspeedUndersteerMinSteerInput) /
+            range,
+        0,
+        1,
+    ));
+}
+
 function simulateStandingStartControl() {
-    const controllerConfig = createPlayerControllerBaselineConfig({ maxRoadOffset: 1090 });
+    const controllerConfig = createPlayerControllerBaselineConfig({
+        maxRoadOffset: getPhysicalRoadOffsetLimit(960),
+    });
     const player = createDefaultPlayerVehicleState(
         0,
         controllerConfig.engineProfile,
@@ -585,6 +707,7 @@ function simulateStandingStartControl() {
 function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRows, trackRows }) {
     const trackGrades = new Set(trackRows.map((row) => row.metadata?.actualGrade));
     const allRows = [...syntheticRows, ...recoveryRows, ...trackRows];
+    const easy195 = findRow(syntheticRows, 'easy', 'level', 195, 'full-throttle');
     const easy225 = findRow(syntheticRows, 'easy', 'level', 225, 'full-throttle');
     const easy225Lift = findRow(syntheticRows, 'easy', 'level', 225, 'lift');
     const easy225Brake = findRow(syntheticRows, 'easy', 'level', 225, 'brake-prepared');
@@ -597,6 +720,12 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
     const easy225Downhill = findRow(syntheticRows, 'easy', 'downhill', 225, 'full-throttle');
     const medium225Downhill = findRow(syntheticRows, 'medium', 'downhill', 225, 'full-throttle');
     const sharp225Downhill = findRow(syntheticRows, 'sharp', 'downhill', 225, 'full-throttle');
+    const liftRecovery225 = recoveryRows.filter((row) => (
+        row.initialSpeedKmh === 225 && row.preparationMode === 'lift-recovery'
+    ));
+    const brakeRecovery225 = recoveryRows.filter((row) => (
+        row.initialSpeedKmh === 225 && row.preparationMode === 'brake-recovery'
+    ));
     const demandIdentityErrorMax = Math.max(...allRows.map((row) => row.demandIdentityErrorMax));
     const speedRatioIdentityErrorMax = Math.max(
         ...allRows.map((row) => row.speedRatioIdentityErrorMax),
@@ -629,12 +758,24 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             true,
             true,
         ),
-        checkBetween('hnd3Easy225CornerLoss', easy225.cornerSpeedLossPercent, 0.5, 3),
-        checkBetween('hnd3Medium225CornerLoss', medium225.cornerSpeedLossPercent, 6, 12),
-        checkBetween('hnd3Sharp225CornerLoss', sharp225.cornerSpeedLossPercent, 16, 25),
-        checkBetween('hnd3Easy225DownhillRawLoss', easy225Downhill.speedLossPercent, 5, 12),
-        checkBetween('hnd3Medium225DownhillRawLoss', medium225Downhill.speedLossPercent, 15, 25),
-        checkBetween('hnd3Sharp225DownhillRawLoss', sharp225Downhill.speedLossPercent, 25, 38),
+        checkBetween('tse6LevelEasy225CornerLoss', easy225.cornerSpeedLossPercent, 5.5, 7.5),
+        checkBetween('tse6LevelMedium225CornerLoss', medium225.cornerSpeedLossPercent, 26, 31),
+        checkBetween('tse6LevelSharp225CornerLoss', sharp225.cornerSpeedLossPercent, 45, 51),
+        checkBetween('tse6DownhillEasy225RawLoss', easy225Downhill.speedLossPercent, -0.1, 0.1),
+        checkBetween('tse6DownhillMedium225RawLoss', medium225Downhill.speedLossPercent, 18, 25),
+        checkBetween('tse6DownhillSharp225RawLoss', sharp225Downhill.speedLossPercent, 39, 46),
+        check(
+            'tse6LevelLossAboveDownhillByGrade',
+            easy225.cornerSpeedLossPercent - easy225Downhill.cornerSpeedLossPercent >= 5 &&
+                medium225.cornerSpeedLossPercent - medium225Downhill.cornerSpeedLossPercent >= 5 &&
+                sharp225.cornerSpeedLossPercent - sharp225Downhill.cornerSpeedLossPercent >= 5,
+            'level corner-only loss exceeds downhill by >= 5 percentage points for every grade',
+            {
+                easy: round(easy225.cornerSpeedLossPercent - easy225Downhill.cornerSpeedLossPercent),
+                medium: round(medium225.cornerSpeedLossPercent - medium225Downhill.cornerSpeedLossPercent),
+                sharp: round(sharp225.cornerSpeedLossPercent - sharp225Downhill.cornerSpeedLossPercent),
+            },
+        ),
         check(
             'hnd3CornerLossGradeOrdering',
             sharp225.cornerSpeedLossPercent > medium225.cornerSpeedLossPercent &&
@@ -712,6 +853,57 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             0,
             understeerDemandAlignmentErrorMax,
         ),
+        checkBetween('hnd4Easy195OutwardRoadRatio', easy195.outwardExcursionRoadRatio, 0, 0.12),
+        checkBetween('hnd4Easy195Understeer', easy195.overspeedUndersteerMax, 0, 0.15),
+        checkBetween('hnd4Easy225OutwardRoadRatio', easy225.outwardExcursionRoadRatio, 0.1, 0.22),
+        checkBetween('hnd4Easy225Understeer', easy225.overspeedUndersteerMax, 0.15, 0.35),
+        checkBetween('hnd4Medium225OutwardRoadRatio', medium225.outwardExcursionRoadRatio, 0.22, 0.38),
+        checkBetween('hnd4Medium225Understeer', medium225.overspeedUndersteerMax, 0.4, 0.7),
+        checkBetween('hnd4Sharp225OutwardRoadRatio', sharp225.outwardExcursionRoadRatio, 0.35, 0.55),
+        checkBetween('hnd4Sharp225Understeer', sharp225.overspeedUndersteerMax, 0.7, 1),
+        check(
+            'hnd4OutwardTrajectoryOrdering',
+            sharp225.outwardExcursionRoadRatio > medium225.outwardExcursionRoadRatio &&
+                medium225.outwardExcursionRoadRatio > easy225.outwardExcursionRoadRatio,
+            'sharp > medium > easy',
+            [
+                sharp225.outwardExcursionRoadRatio,
+                medium225.outwardExcursionRoadRatio,
+                easy225.outwardExcursionRoadRatio,
+            ],
+        ),
+        check(
+            'hnd4RoadWidthCaps',
+            easy225Downhill.outwardExcursionRoadRatio <= 0.24 &&
+                medium225Downhill.outwardExcursionRoadRatio <= 0.44 &&
+                sharp225Downhill.outwardExcursionRoadRatio <= 0.56,
+            { easy: 0.24, medium: 0.44, sharp: 0.56 },
+            {
+                easy: easy225Downhill.outwardExcursionRoadRatio,
+                medium: medium225Downhill.outwardExcursionRoadRatio,
+                sharp: sharp225Downhill.outwardExcursionRoadRatio,
+            },
+        ),
+        check(
+            'hnd4LiftRecoveryRelief',
+            liftRecovery225.every((row) => row.recoveryRelief400ms >= 0.35),
+            '>= 0.35 at 400ms',
+            liftRecovery225.map((row) => row.recoveryRelief400ms),
+        ),
+        check(
+            'hnd4BrakeRecoveryRelief',
+            brakeRecovery225.every((row) => row.recoveryRelief400ms >= 0.55),
+            '>= 0.55 at 400ms',
+            brakeRecovery225.map((row) => row.recoveryRelief400ms),
+        ),
+        check(
+            'hnd4NoForcedGuardrailImpact',
+            [easy225, medium225, sharp225, easy225Downhill, medium225Downhill, sharp225Downhill]
+                .every((row) => row.guardrailImpactCount === 0),
+            0,
+            [easy225, medium225, sharp225, easy225Downhill, medium225Downhill, sharp225Downhill]
+                .map((row) => row.guardrailImpactCount),
+        ),
         check(
             'zeroTo100Control',
             controls.zeroTo100Sec >= controls.zeroTo100TargetSec[0] &&
@@ -735,6 +927,7 @@ function buildObservations(syntheticRows, trackRows) {
         `easy 225 full-throttle raw loss ${format(easy225.speedLossPercent)}% / corner-only ${format(easy225.cornerSpeedLossPercent)}% / zone ${easy225.speedLossZoneAtEntry}`,
         `medium 225 full-throttle raw loss ${format(medium225.speedLossPercent)}% / corner-only ${format(medium225.cornerSpeedLossPercent)}% / severe ${format(medium225.severeOverspeedRatioAtEntry)}`,
         `sharp 225 full-throttle raw loss ${format(sharp225.speedLossPercent)}% / corner-only ${format(sharp225.cornerSpeedLossPercent)}% / severe ${format(sharp225.severeOverspeedRatioAtEntry)}`,
+        `HND-4 outward/road easy ${format(easy225.outwardExcursionRoadRatio)} / medium ${format(medium225.outwardExcursionRoadRatio)} / sharp ${format(sharp225.outwardExcursionRoadRatio)}`,
         `Bugak sharp segment ${actualSharp.metadata.segmentIndex} uses maxRoadOffset ${format(actualSharp.maxRoadOffset)} and reaches outward road ratio ${format(actualSharp.outwardExcursionRoadRatio)}`,
         `single target alignment error: demand ${format(sharp225.demandIdentityErrorMax, 6)} / understeer ${format(sharp225.understeerDemandAlignmentErrorMax, 6)}`,
     ];
@@ -742,7 +935,7 @@ function buildObservations(syntheticRows, trackRows) {
 
 function buildMarkdownReport(report) {
     const lines = [
-        '# Apex Seoul HND-3 Progressive Corner Speed Loss',
+        '# Apex Seoul TSE-6 Corner Demand Regression',
         '',
         `Generated: ${report.generatedAt}`,
         '',
@@ -755,7 +948,10 @@ function buildMarkdownReport(report) {
         `- drivetrain: ${report.controls.drivetrainModel}, final drive ${report.controls.finalDrive}`,
         `- gear ratios: ${report.controls.gearRatios.join(' / ')}`,
         '- HND-2 invariant: speed scrub and understeer read the same corner-demand target',
-        '- HND-3 comparison: corner-only loss uses a matched straight control with the same speed, slope and pedal preparation',
+        '- TSE-6 comparison: corner-only loss uses the calibrated production straight control with the same speed, slope and pedal preparation',
+        '- A positive downhill force can hold the 225km/h safety cap, so level loss is expected to exceed downhill loss after TSE-4',
+        '- HND-4 trajectory: outward motion is normalized by available road width and capped per corner grade',
+        '- HND-4 recovery: lift/brake load transfer reduces understeer demand continuously',
         '',
         '## Baseline observations',
         '',
@@ -769,12 +965,13 @@ function buildMarkdownReport(report) {
         '',
         '## Understeer recovery',
         '',
-        '| grade | slope | km/h | action | entry | exit | US max | recovery ms | outward/road | drift |',
-        '| --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+        '| grade | slope | km/h | action | entry | exit | US max | relief 400ms | recovery ms | outward/road | drift |',
+        '| --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
         ...report.recoveryRows.map((row) => (
             `| ${row.grade} | ${row.slopeId} | ${row.initialSpeedKmh} | ${row.preparationMode} | ` +
             `${format(row.entrySpeedKmh)} | ${format(row.exitSpeedKmh)} | ` +
-            `${format(row.overspeedUndersteerMax)} | ${row.recoveryMs ?? '-'} | ` +
+            `${format(row.overspeedUndersteerMax)} | ${format(row.recoveryRelief400ms)} | ` +
+            `${row.recoveryMs ?? '-'} | ` +
             `${format(row.outwardExcursionRoadRatio)} | ${format(row.accidentalDriftRatio)} |`
         )),
         '',
@@ -845,6 +1042,18 @@ function kmhToRaw(speedKmh) {
     return speedKmh / RAVEN_COUPE_ENGINE_PROFILE.displayTopSpeedKmh * ACCEL_SPEED;
 }
 
+function getPhysicalRailOffset(pavedHalfWidth) {
+    return pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance;
+}
+
+function getPhysicalRoadOffsetLimit(pavedHalfWidth) {
+    return getGuardrailCollisionGeometry({
+        pavedHalfWidth,
+        railContactLimit: getPhysicalRailOffset(pavedHalfWidth),
+        vehicleHalfWidth: GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,
+    }).railCenterLimit;
+}
+
 function rawToKmh(speed, controllerConfig) {
     return round(getDisplaySpeedKmh(
         speed,
@@ -881,6 +1090,14 @@ function ratioMatching(values, predicate) {
 
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+}
+
+function lerp(start, end, amount) {
+    return start + (end - start) * amount;
+}
+
+function smoothstep(value) {
+    return value * value * (3 - 2 * value);
 }
 
 function round(value, digits = 3) {

@@ -133,6 +133,22 @@ export type PlayerSpeedHandlingState = {
     visualYawScale: number;
 };
 
+export type PlayerLongitudinalForceSample = {
+    aeroDrag: number;
+    brakeForce: number;
+    cornerLossForce: number;
+    engineBrakeForce: number;
+    engineForce: number;
+    engineTorqueScale: number;
+    gearIndex: number;
+    netAcceleration: number;
+    rollingResistance: number;
+    rpm: number;
+    slopeAcceleration: number;
+    speed: number;
+    speedRatio: number;
+};
+
 export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
@@ -179,8 +195,11 @@ export type PlayerVehicleState = {
     centeringReleaseTimer: number;
     lateralCenteringScale: number;
     lateralCenteringTargetScale: number;
+    longitudinalForce: PlayerLongitudinalForceSample;
     overspeedUndersteerRatio: number;
     overspeedUndersteerTargetRatio: number;
+    overspeedUndersteerSteerDemandRatio: number;
+    overspeedUndersteerLoadTransferScale: number;
     overspeedUndersteerLateralVelocity: number;
     rpm: number;
     shiftCutRatio: number;
@@ -210,9 +229,13 @@ export type VehicleAnchor = {
 
 export type RuntimeVehicleQaState = {
     anchor: VehicleAnchor;
+    bodyYawAuthority: number;
+    bodyYawSteering: number;
     displaySize: number;
     flipX: boolean;
     frame: string;
+    gripAuthorityRatio: number;
+    inputPoseSteering: number;
     rotationDeg: number;
     roadWidthAtVehicleY: number | null;
     roadRelativeScale: number;
@@ -222,9 +245,11 @@ export type RuntimeVehicleQaState = {
     vehicleBodyWidth: number;
     vehicleRoadRatio: number | null;
     physicalSteering: number;
+    poseAuthority: number;
     lowSpeedVisualSteeringAuthority: number;
     visualSteering: number;
     visualSteeringThreshold: number;
+    understeerCueIntensity: number;
 };
 
 export function selectPlayerVehicleFrame(

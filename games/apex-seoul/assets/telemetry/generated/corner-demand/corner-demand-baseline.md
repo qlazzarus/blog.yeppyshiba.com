@@ -1,137 +1,141 @@
-# Apex Seoul HND-3 Progressive Corner Speed Loss
+# Apex Seoul TSE-6 Corner Demand Regression
 
-Generated: 2026-07-21T11:34:19.379Z
+Generated: 2026-07-22T05:08:29.098Z
 
 Status: **PASS**
 
 ## Control variables
 
-- Raven 0-100km/h: 8.117s (target 7.8~8.3s)
-- 60km/h: gear 2, 4958rpm
+- Raven 0-100km/h: 8.1s (target 7.8~8.3s)
+- 60km/h: gear 2, 4961rpm
 - drivetrain: physical, final drive 4.1
 - gear ratios: 3.626 / 2.188 / 1.541 / 1.213 / 1 / 0.767
 - HND-2 invariant: speed scrub and understeer read the same corner-demand target
-- HND-3 comparison: corner-only loss uses a matched straight control with the same speed, slope and pedal preparation
+- TSE-6 comparison: corner-only loss uses the calibrated production straight control with the same speed, slope and pedal preparation
+- A positive downhill force can hold the 225km/h safety cap, so level loss is expected to exceed downhill loss after TSE-4
+- HND-4 trajectory: outward motion is normalized by available road width and capped per corner grade
+- HND-4 recovery: lift/brake load transfer reduces understeer demand continuously
 
 ## Baseline observations
 
-- easy 225 full-throttle raw loss 16.359% / corner-only 0.747% / zone overspeed
-- medium 225 full-throttle raw loss 24.101% / corner-only 8.7% / severe 0.543
-- sharp 225 full-throttle raw loss 35.259% / corner-only 20.145% / severe 1
-- Bugak sharp segment 64 uses maxRoadOffset 960.096 and reaches outward road ratio 0.053
+- easy 225 full-throttle raw loss 6.463% / corner-only 6.501% / zone overspeed
+- medium 225 full-throttle raw loss 27.94% / corner-only 28.242% / severe 0.991
+- sharp 225 full-throttle raw loss 47.418% / corner-only 47.956% / severe 1
+- HND-4 outward/road easy 0.207 / medium 0.353 / sharp 0.454
+- Bugak sharp segment 64 uses maxRoadOffset 810.096 and reaches outward road ratio 0.481
 - single target alignment error: demand 0 / understeer 0
 
 ## Synthetic matrix
 
 | grade | slope | km/h | preparation | entry | exit | raw loss % | straight exit | corner loss % | zone | severe | budget | demand | US max | outward/road | drift |
 | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| easy | level | 130 | full-throttle | 129.749 | 128.293 | 1.122 | 129.256 | 0.742 | within-budget | 0 | 194.85 | 0.123 | 0 | 0 | 0 |
-| easy | level | 130 | lift | 119.045 | 119.026 | 0.016 | 120.179 | 0.969 | within-budget | 0 | 194.85 | 0.104 | 0 | 0 | 0 |
-| easy | level | 130 | brake-prepared | 91.528 | 101.012 | -10.362 | 102.144 | 1.237 | within-budget | 0 | 194.85 | 0.061 | 0 | 0 | 0 |
-| easy | downhill | 130 | full-throttle | 148.445 | 180.999 | -21.931 | 181.956 | 0.645 | within-budget | 0 | 194.85 | 0.161 | 0 | 0 | 0 |
-| easy | downhill | 130 | lift | 137.668 | 174.899 | -27.044 | 175.705 | 0.585 | within-budget | 0 | 194.85 | 0.138 | 0 | 0 | 0 |
-| easy | downhill | 130 | brake-prepared | 109.839 | 154.011 | -40.214 | 155.009 | 0.909 | within-budget | 0 | 194.85 | 0.088 | 0 | 0 | 0 |
-| medium | level | 130 | full-throttle | 129.756 | 124.726 | 3.876 | 129.256 | 3.491 | within-budget | 0 | 156.825 | 0.38 | 0 | 0 | 0 |
-| medium | level | 130 | lift | 119.051 | 115.05 | 3.36 | 120.179 | 4.308 | within-budget | 0 | 156.825 | 0.32 | 0 | 0 | 0 |
-| medium | level | 130 | brake-prepared | 91.533 | 97.332 | -6.335 | 102.144 | 5.257 | within-budget | 0 | 156.825 | 0.189 | 0 | 0 | 0 |
-| medium | downhill | 130 | full-throttle | 148.452 | 175.991 | -18.551 | 181.956 | 4.018 | within-budget | 0 | 156.825 | 0.496 | 0.154 | 0 | 0 |
-| medium | downhill | 130 | lift | 137.675 | 172.293 | -25.145 | 175.705 | 2.478 | within-budget | 0 | 156.825 | 0.426 | 0.072 | 0 | 0 |
-| medium | downhill | 130 | brake-prepared | 109.845 | 150.713 | -37.205 | 155.009 | 3.911 | within-budget | 0 | 156.825 | 0.271 | 0 | 0 | 0 |
-| sharp | level | 130 | full-throttle | 129.756 | 121.097 | 6.673 | 129.256 | 6.288 | within-budget | 0 | 132.75 | 0.823 | 0 | 0 | 0 |
-| sharp | level | 130 | lift | 119.051 | 110.994 | 6.767 | 120.179 | 7.715 | within-budget | 0 | 132.75 | 0.692 | 0 | 0 | 0 |
-| sharp | level | 130 | brake-prepared | 91.533 | 93.675 | -2.34 | 102.144 | 9.252 | within-budget | 0 | 132.75 | 0.409 | 0 | 0 | 0 |
-| sharp | downhill | 130 | full-throttle | 148.268 | 145.622 | 1.785 | 181.956 | 24.506 | overspeed | 0 | 132.75 | 1.073 | 0.436 | 0.083 | 0 |
-| sharp | downhill | 130 | lift | 137.655 | 150.297 | -9.184 | 175.705 | 18.458 | overspeed | 0 | 132.75 | 0.922 | 0.415 | 0.025 | 0 |
-| sharp | downhill | 130 | brake-prepared | 109.845 | 147.36 | -34.152 | 155.009 | 6.963 | within-budget | 0 | 132.75 | 0.587 | 0 | 0 | 0 |
-| easy | level | 160 | full-throttle | 154.294 | 142.118 | 7.892 | 143.091 | 0.631 | within-budget | 0 | 194.85 | 0.174 | 0 | 0 | 0 |
-| easy | level | 160 | lift | 144.952 | 134.932 | 6.912 | 135.885 | 0.657 | within-budget | 0 | 194.85 | 0.154 | 0 | 0 | 0 |
-| easy | level | 160 | brake-prepared | 117.49 | 116.407 | 0.922 | 117.621 | 1.033 | within-budget | 0 | 194.85 | 0.101 | 0 | 0 | 0 |
-| easy | downhill | 160 | full-throttle | 172.54 | 194.655 | -12.817 | 195.774 | 0.649 | within-budget | 0 | 194.85 | 0.217 | 0 | 0 | 0 |
-| easy | downhill | 160 | lift | 163.305 | 188.652 | -15.521 | 189.742 | 0.667 | within-budget | 0 | 194.85 | 0.195 | 0 | 0 | 0 |
-| easy | downhill | 160 | brake-prepared | 135.649 | 168.688 | -24.356 | 169.68 | 0.731 | within-budget | 0 | 194.85 | 0.134 | 0 | 0 | 0 |
-| medium | level | 160 | full-throttle | 154.302 | 139.439 | 9.633 | 143.091 | 2.367 | within-budget | 0 | 156.825 | 0.538 | 0 | 0 | 0 |
-| medium | level | 160 | lift | 144.959 | 131.947 | 8.977 | 135.885 | 2.717 | within-budget | 0 | 156.825 | 0.475 | 0 | 0 | 0 |
-| medium | level | 160 | brake-prepared | 117.496 | 112.35 | 4.38 | 117.621 | 4.486 | within-budget | 0 | 156.825 | 0.312 | 0 | 0 | 0 |
-| medium | downhill | 160 | full-throttle | 172.45 | 177.308 | -2.817 | 195.774 | 10.708 | overspeed | 0 | 156.825 | 0.671 | 0.263 | 0.008 | 0 |
-| medium | downhill | 160 | lift | 163.294 | 177.147 | -8.483 | 189.742 | 7.713 | overspeed | 0 | 156.825 | 0.601 | 0.22 | 0 | 0 |
-| medium | downhill | 160 | brake-prepared | 135.656 | 166.46 | -22.707 | 169.68 | 2.374 | within-budget | 0 | 156.825 | 0.414 | 0.01 | 0 | 0 |
-| sharp | level | 160 | full-throttle | 153.984 | 130.153 | 15.476 | 143.091 | 8.402 | overspeed | 0 | 132.75 | 1.165 | 0.373 | 0 | 0 |
-| sharp | level | 160 | lift | 144.835 | 127.766 | 11.785 | 135.885 | 5.606 | overspeed | 0 | 132.75 | 1.028 | 0.17 | 0 | 0 |
-| sharp | level | 160 | brake-prepared | 117.496 | 108.321 | 7.809 | 117.621 | 7.915 | within-budget | 0 | 132.75 | 0.675 | 0 | 0 | 0 |
-| sharp | downhill | 160 | full-throttle | 171.665 | 141.537 | 17.551 | 195.774 | 31.595 | severe-overspeed | 0.408 | 132.75 | 1.452 | 0.78 | 0.112 | 0 |
-| sharp | downhill | 160 | lift | 162.757 | 142.572 | 12.402 | 189.742 | 28.982 | severe-overspeed | 0.086 | 132.75 | 1.3 | 0.64 | 0.095 | 0 |
-| sharp | downhill | 160 | brake-prepared | 135.649 | 152.301 | -12.276 | 169.68 | 12.812 | overspeed | 0 | 132.75 | 0.896 | 0.256 | 0 | 0 |
-| easy | level | 195 | full-throttle | 182.034 | 156.751 | 13.889 | 157.526 | 0.426 | within-budget | 0 | 194.85 | 0.243 | 0 | 0 | 0 |
-| easy | level | 195 | lift | 174.33 | 152.98 | 12.247 | 153.818 | 0.481 | within-budget | 0 | 194.85 | 0.223 | 0 | 0 | 0 |
-| easy | level | 195 | brake-prepared | 147.045 | 135.638 | 7.757 | 136.599 | 0.654 | within-budget | 0 | 194.85 | 0.158 | 0 | 0 | 0 |
-| easy | downhill | 195 | full-throttle | 200.053 | 206.026 | -2.986 | 209.279 | 1.626 | overspeed | 0 | 194.85 | 0.293 | 0 | 0 | 0 |
-| easy | downhill | 195 | lift | 192.461 | 202.618 | -5.277 | 204.341 | 0.895 | within-budget | 0 | 194.85 | 0.271 | 0 | 0 | 0 |
-| easy | downhill | 195 | brake-prepared | 164.864 | 183.847 | -11.514 | 184.962 | 0.676 | within-budget | 0 | 194.85 | 0.199 | 0 | 0 | 0 |
-| medium | level | 195 | full-throttle | 181.83 | 152.223 | 16.283 | 157.526 | 2.916 | overspeed | 0 | 156.825 | 0.75 | 0.306 | 0 | 0 |
-| medium | level | 195 | lift | 174.216 | 149.87 | 13.975 | 153.818 | 2.266 | overspeed | 0 | 156.825 | 0.688 | 0.186 | 0 | 0 |
-| medium | level | 195 | brake-prepared | 147.052 | 132.69 | 9.767 | 136.599 | 2.658 | within-budget | 0 | 156.825 | 0.489 | 0 | 0 | 0 |
-| medium | downhill | 195 | full-throttle | 199.61 | 176.114 | 11.771 | 209.279 | 16.615 | severe-overspeed | 0.286 | 156.825 | 0.904 | 0.558 | 0.067 | 0 |
-| medium | downhill | 195 | lift | 192.126 | 175.707 | 8.546 | 204.341 | 14.904 | severe-overspeed | 0.079 | 156.825 | 0.836 | 0.488 | 0.051 | 0 |
-| medium | downhill | 195 | brake-prepared | 164.843 | 174.387 | -5.79 | 184.962 | 6.415 | overspeed | 0 | 156.825 | 0.613 | 0.154 | 0 | 0 |
-| sharp | level | 195 | full-throttle | 180.905 | 132.802 | 26.59 | 157.526 | 13.667 | severe-overspeed | 0.801 | 132.75 | 1.623 | 0.793 | 0.012 | 0 |
-| sharp | level | 195 | lift | 173.387 | 132.483 | 23.591 | 153.818 | 12.305 | severe-overspeed | 0.498 | 132.75 | 1.488 | 0.701 | 0.006 | 0 |
-| sharp | level | 195 | brake-prepared | 146.888 | 127.773 | 13.013 | 136.599 | 6.009 | overspeed | 0 | 132.75 | 1.058 | 0.214 | 0 | 0 |
-| sharp | downhill | 195 | full-throttle | 198.813 | 140.115 | 29.524 | 209.279 | 34.788 | severe-overspeed | 1 | 132.75 | 1.954 | 1 | 0.134 | 0 |
-| sharp | downhill | 195 | lift | 191.214 | 140.524 | 26.51 | 204.341 | 33.375 | severe-overspeed | 1 | 132.75 | 1.808 | 0.971 | 0.127 | 0 |
-| sharp | downhill | 195 | brake-prepared | 164.259 | 142.52 | 13.235 | 184.962 | 25.838 | severe-overspeed | 0.131 | 132.75 | 1.326 | 0.652 | 0.092 | 0 |
-| easy | level | 225 | full-throttle | 207.14 | 173.255 | 16.359 | 174.802 | 0.747 | overspeed | 0 | 194.85 | 0.315 | 0 | 0 | 0 |
-| easy | level | 225 | lift | 199.674 | 168.529 | 15.598 | 169.717 | 0.595 | overspeed | 0 | 194.85 | 0.292 | 0 | 0 | 0 |
-| easy | level | 225 | brake-prepared | 172.19 | 151.449 | 12.046 | 152.28 | 0.483 | within-budget | 0 | 194.85 | 0.218 | 0 | 0 | 0 |
-| easy | downhill | 225 | full-throttle | 224.861 | 213.502 | 5.051 | 225 | 5.113 | overspeed | 0 | 194.85 | 0.37 | 0 | 0 | 0 |
-| easy | downhill | 225 | lift | 217.521 | 211.51 | 2.764 | 220.43 | 4.101 | overspeed | 0 | 194.85 | 0.346 | 0 | 0 | 0 |
-| easy | downhill | 225 | brake-prepared | 190.255 | 201.01 | -5.653 | 202.453 | 0.758 | within-budget | 0 | 194.85 | 0.265 | 0 | 0 | 0 |
-| medium | level | 225 | full-throttle | 206.624 | 156.825 | 24.101 | 174.802 | 8.7 | severe-overspeed | 0.543 | 156.825 | 0.972 | 0.573 | 0.007 | 0 |
-| medium | level | 225 | lift | 199.231 | 155.761 | 21.819 | 169.717 | 7.005 | severe-overspeed | 0.284 | 156.825 | 0.903 | 0.525 | 0.004 | 0 |
-| medium | level | 225 | brake-prepared | 172.099 | 148.627 | 13.639 | 152.28 | 2.123 | overspeed | 0 | 156.825 | 0.672 | 0.148 | 0 | 0 |
-| medium | downhill | 225 | full-throttle | 224.269 | 177.439 | 20.881 | 225 | 21.207 | severe-overspeed | 0.991 | 156.825 | 1.144 | 0.58 | 0.101 | 0 |
-| medium | downhill | 225 | lift | 216.937 | 177.046 | 18.388 | 220.43 | 19.998 | severe-overspeed | 0.864 | 156.825 | 1.07 | 0.58 | 0.093 | 0 |
-| medium | downhill | 225 | brake-prepared | 189.952 | 175.342 | 7.691 | 202.453 | 14.273 | severe-overspeed | 0.041 | 156.825 | 0.817 | 0.459 | 0.044 | 0 |
-| sharp | level | 225 | full-throttle | 205.927 | 133.318 | 35.259 | 174.802 | 20.145 | severe-overspeed | 1 | 132.75 | 2.103 | 1 | 0.034 | 0 |
-| sharp | level | 225 | lift | 198.433 | 133.215 | 32.867 | 169.717 | 18.395 | severe-overspeed | 1 | 132.75 | 1.953 | 0.973 | 0.027 | 0 |
-| sharp | level | 225 | brake-prepared | 171.313 | 131.757 | 23.09 | 152.28 | 11.98 | severe-overspeed | 0.411 | 132.75 | 1.453 | 0.676 | 0.004 | 0 |
-| sharp | downhill | 225 | full-throttle | 223.743 | 138.753 | 37.986 | 225 | 38.547 | severe-overspeed | 1 | 132.75 | 2.474 | 1 | 0.155 | 0 |
-| sharp | downhill | 225 | lift | 216.363 | 139.16 | 35.682 | 220.43 | 37.562 | severe-overspeed | 1 | 132.75 | 2.314 | 1 | 0.149 | 0 |
-| sharp | downhill | 225 | brake-prepared | 189.014 | 140.564 | 25.633 | 202.453 | 32.743 | severe-overspeed | 0.988 | 132.75 | 1.768 | 0.948 | 0.124 | 0 |
+| easy | level | 130 | full-throttle | 136.825 | 147.798 | -8.019 | 148.865 | 0.78 | within-budget | 0 | 194.85 | 0.137 | 0 | 0 | 0 |
+| easy | level | 130 | lift | 125.538 | 140.092 | -11.593 | 140.895 | 0.64 | within-budget | 0 | 194.85 | 0.115 | 0 | 0 | 0 |
+| easy | level | 130 | brake-prepared | 96.778 | 111.173 | -14.875 | 112.439 | 1.308 | within-budget | 0 | 194.85 | 0.068 | 0 | 0 | 0 |
+| easy | downhill | 130 | full-throttle | 154.872 | 208.471 | -34.608 | 210.292 | 1.176 | within-budget | 0 | 194.85 | 0.175 | 0.3 | 0.117 | 0 |
+| easy | downhill | 130 | lift | 144.654 | 200.075 | -38.312 | 201.333 | 0.87 | within-budget | 0 | 194.85 | 0.152 | 0.013 | 0 | 0 |
+| easy | downhill | 130 | brake-prepared | 115.669 | 173.148 | -49.693 | 174.283 | 0.981 | within-budget | 0 | 194.85 | 0.097 | 0 | 0 | 0 |
+| medium | level | 130 | full-throttle | 136.832 | 144.568 | -5.654 | 148.865 | 3.14 | within-budget | 0 | 156.825 | 0.422 | 0 | 0 | 0 |
+| medium | level | 130 | lift | 125.544 | 137.753 | -9.725 | 140.895 | 2.503 | within-budget | 0 | 156.825 | 0.355 | 0 | 0 | 0 |
+| medium | level | 130 | brake-prepared | 96.783 | 107.121 | -10.681 | 112.439 | 5.495 | within-budget | 0 | 156.825 | 0.211 | 0 | 0 | 0 |
+| medium | downhill | 130 | full-throttle | 154.88 | 178.187 | -15.049 | 210.292 | 20.729 | within-budget | 0 | 156.825 | 0.539 | 0.507 | 0.385 | 0 |
+| medium | downhill | 130 | lift | 144.661 | 180.065 | -24.474 | 201.333 | 14.702 | within-budget | 0 | 156.825 | 0.47 | 0.52 | 0.362 | 0 |
+| medium | downhill | 130 | brake-prepared | 115.675 | 169.932 | -46.905 | 174.283 | 3.761 | within-budget | 0 | 156.825 | 0.301 | 0.032 | 0 | 0 |
+| sharp | level | 130 | full-throttle | 136.817 | 141.001 | -3.058 | 148.865 | 5.748 | overspeed | 0 | 132.75 | 0.913 | 0.027 | 0 | 0 |
+| sharp | level | 130 | lift | 125.544 | 134.385 | -7.042 | 140.895 | 5.185 | within-budget | 0 | 132.75 | 0.769 | 0 | 0 | 0 |
+| sharp | level | 130 | brake-prepared | 96.783 | 103.127 | -6.555 | 112.439 | 9.622 | within-budget | 0 | 132.75 | 0.457 | 0 | 0 | 0 |
+| sharp | downhill | 130 | full-throttle | 154.559 | 130.123 | 15.81 | 210.292 | 51.87 | overspeed | 0 | 132.75 | 1.166 | 0.911 | 0.49 | 0 |
+| sharp | downhill | 130 | lift | 144.551 | 130.12 | 9.983 | 201.333 | 49.265 | overspeed | 0 | 132.75 | 1.017 | 0.851 | 0.488 | 0 |
+| sharp | downhill | 130 | brake-prepared | 115.675 | 141.501 | -22.327 | 174.283 | 28.34 | within-budget | 0 | 132.75 | 0.65 | 0.936 | 0.411 | 0 |
+| easy | level | 160 | full-throttle | 164.647 | 173.7 | -5.498 | 174.878 | 0.715 | within-budget | 0 | 194.85 | 0.198 | 0 | 0 | 0 |
+| easy | level | 160 | lift | 154.459 | 164.833 | -6.716 | 165.977 | 0.741 | within-budget | 0 | 194.85 | 0.174 | 0 | 0 | 0 |
+| easy | level | 160 | brake-prepared | 125.588 | 134.958 | -7.46 | 136.037 | 0.859 | within-budget | 0 | 194.85 | 0.115 | 0 | 0 | 0 |
+| easy | downhill | 160 | full-throttle | 183.249 | 225 | -22.784 | 225 | 0 | within-budget | 0 | 194.85 | 0.245 | 0.3 | 0.222 | 0 |
+| easy | downhill | 160 | lift | 173.869 | 220.162 | -26.625 | 225 | 2.783 | within-budget | 0 | 194.85 | 0.22 | 0.3 | 0.222 | 0 |
+| easy | downhill | 160 | brake-prepared | 145.139 | 200.506 | -38.148 | 201.787 | 0.883 | within-budget | 0 | 194.85 | 0.153 | 0.019 | 0 | 0 |
+| medium | level | 160 | full-throttle | 164.627 | 167.993 | -2.045 | 174.878 | 4.182 | overspeed | 0 | 156.825 | 0.612 | 0.058 | 0 | 0 |
+| medium | level | 160 | lift | 154.467 | 162.926 | -5.476 | 165.977 | 1.975 | within-budget | 0 | 156.825 | 0.538 | 0 | 0 | 0 |
+| medium | level | 160 | brake-prepared | 125.595 | 130.992 | -4.297 | 136.037 | 4.017 | within-budget | 0 | 156.825 | 0.356 | 0 | 0 | 0 |
+| medium | downhill | 160 | full-throttle | 183.037 | 177.758 | 2.884 | 225 | 25.81 | overspeed | 0 | 156.825 | 0.756 | 0.551 | 0.386 | 0 |
+| medium | downhill | 160 | lift | 173.766 | 177.701 | -2.265 | 225 | 27.22 | overspeed | 0 | 156.825 | 0.68 | 0.511 | 0.385 | 0 |
+| medium | downhill | 160 | brake-prepared | 145.146 | 179.899 | -23.943 | 201.787 | 15.08 | within-budget | 0 | 156.825 | 0.474 | 0.52 | 0.366 | 0 |
+| sharp | level | 160 | full-throttle | 164.048 | 120.501 | 26.545 | 174.878 | 33.147 | severe-overspeed | 0.125 | 132.75 | 1.324 | 0.75 | 0.331 | 0 |
+| sharp | level | 160 | lift | 154.149 | 127.298 | 17.419 | 165.977 | 25.092 | overspeed | 0 | 132.75 | 1.165 | 0.498 | 0.232 | 0 |
+| sharp | level | 160 | brake-prepared | 125.595 | 126.945 | -1.075 | 136.037 | 7.239 | within-budget | 0 | 132.75 | 0.771 | 0 | 0 | 0 |
+| sharp | downhill | 160 | full-throttle | 182.106 | 129.187 | 29.06 | 225 | 52.614 | severe-overspeed | 0.823 | 132.75 | 1.634 | 0.999 | 0.511 | 0 |
+| sharp | downhill | 160 | lift | 172.957 | 130.128 | 24.763 | 225 | 54.853 | severe-overspeed | 0.455 | 132.75 | 1.471 | 0.977 | 0.502 | 0 |
+| sharp | downhill | 160 | brake-prepared | 145.027 | 130.043 | 10.332 | 201.787 | 49.469 | overspeed | 0 | 132.75 | 1.024 | 0.851 | 0.488 | 0 |
+| easy | level | 195 | full-throttle | 197.438 | 200.792 | -1.699 | 202.865 | 1.05 | overspeed | 0 | 194.85 | 0.285 | 0.049 | 0.025 | 0 |
+| easy | level | 195 | lift | 188.359 | 193.411 | -2.683 | 194.8 | 0.737 | within-budget | 0 | 194.85 | 0.259 | 0 | 0 | 0 |
+| easy | level | 195 | brake-prepared | 159.428 | 164.74 | -3.332 | 165.975 | 0.775 | within-budget | 0 | 194.85 | 0.186 | 0 | 0 | 0 |
+| easy | downhill | 195 | full-throttle | 216.068 | 225 | -4.134 | 225 | 0 | overspeed | 0 | 194.85 | 0.341 | 0.3 | 0.221 | 0 |
+| easy | downhill | 195 | lift | 207.711 | 225 | -8.324 | 225 | 0 | overspeed | 0 | 194.85 | 0.315 | 0.3 | 0.221 | 0 |
+| easy | downhill | 195 | brake-prepared | 178.899 | 222.876 | -24.582 | 225 | 1.187 | within-budget | 0 | 194.85 | 0.233 | 0.3 | 0.224 | 0 |
+| medium | level | 195 | full-throttle | 197.027 | 163.166 | 17.186 | 202.865 | 20.149 | severe-overspeed | 0.206 | 156.825 | 0.88 | 0.545 | 0.322 | 0 |
+| medium | level | 195 | lift | 188.082 | 164.664 | 12.451 | 194.8 | 16.023 | severe-overspeed | 0.017 | 156.825 | 0.801 | 0.439 | 0.213 | 0 |
+| medium | level | 195 | brake-prepared | 159.433 | 162.815 | -2.121 | 165.975 | 1.982 | overspeed | 0 | 156.825 | 0.574 | 0.006 | 0 | 0 |
+| medium | downhill | 195 | full-throttle | 215.491 | 176.744 | 17.981 | 225 | 22.394 | severe-overspeed | 0.817 | 156.825 | 1.052 | 0.58 | 0.39 | 0 |
+| medium | downhill | 195 | lift | 207.195 | 177.934 | 14.122 | 225 | 22.716 | severe-overspeed | 0.542 | 156.825 | 0.972 | 0.58 | 0.389 | 0 |
+| medium | downhill | 195 | brake-prepared | 178.738 | 177.65 | 0.609 | 225 | 26.491 | overspeed | 0 | 156.825 | 0.72 | 0.53 | 0.385 | 0 |
+| sharp | level | 195 | full-throttle | 196.193 | 118.349 | 39.677 | 202.865 | 43.078 | severe-overspeed | 1 | 132.75 | 1.904 | 1 | 0.391 | 0 |
+| sharp | level | 195 | lift | 187.133 | 118.917 | 36.453 | 194.8 | 40.55 | severe-overspeed | 0.963 | 132.75 | 1.733 | 0.99 | 0.371 | 0 |
+| sharp | level | 195 | brake-prepared | 158.996 | 124.393 | 21.764 | 165.975 | 26.153 | severe-overspeed | 0.017 | 132.75 | 1.242 | 0.612 | 0.272 | 0 |
+| sharp | downhill | 195 | full-throttle | 214.899 | 129.259 | 39.851 | 225 | 44.552 | severe-overspeed | 1 | 132.75 | 2.276 | 1 | 0.551 | 0 |
+| sharp | downhill | 195 | lift | 206.497 | 129.235 | 37.415 | 225 | 46.376 | severe-overspeed | 1 | 132.75 | 2.102 | 1 | 0.541 | 0 |
+| sharp | downhill | 195 | brake-prepared | 177.85 | 129.032 | 27.449 | 225 | 53.96 | severe-overspeed | 0.666 | 132.75 | 1.558 | 0.988 | 0.504 | 0 |
+| easy | level | 225 | full-throttle | 224.833 | 210.302 | 6.463 | 224.918 | 6.501 | overspeed | 0 | 194.85 | 0.37 | 0.3 | 0.207 | 0 |
+| easy | level | 225 | lift | 217.033 | 207.053 | 4.598 | 217.476 | 4.802 | overspeed | 0 | 194.85 | 0.345 | 0.3 | 0.206 | 0 |
+| easy | level | 225 | brake-prepared | 188.005 | 187.177 | 0.44 | 188.597 | 0.755 | within-budget | 0 | 194.85 | 0.259 | 0 | 0 | 0 |
+| easy | downhill | 225 | full-throttle | 225 | 225 | 0 | 225 | 0 | overspeed | 0 | 194.85 | 0.37 | 0.3 | 0.221 | 0 |
+| easy | downhill | 225 | lift | 225 | 225 | 0 | 225 | 0 | overspeed | 0 | 194.85 | 0.37 | 0.3 | 0.221 | 0 |
+| easy | downhill | 225 | brake-prepared | 200.782 | 225 | -12.062 | 225 | 0 | overspeed | 0 | 194.85 | 0.294 | 0.3 | 0.22 | 0 |
+| medium | level | 225 | full-throttle | 224.241 | 161.587 | 27.94 | 224.918 | 28.242 | severe-overspeed | 0.991 | 156.825 | 1.143 | 0.58 | 0.353 | 0 |
+| medium | level | 225 | lift | 216.451 | 161.218 | 25.517 | 217.476 | 25.991 | severe-overspeed | 0.852 | 156.825 | 1.065 | 0.58 | 0.347 | 0 |
+| medium | level | 225 | brake-prepared | 187.732 | 162.628 | 13.372 | 188.597 | 13.833 | severe-overspeed | 0.014 | 156.825 | 0.799 | 0.426 | 0.169 | 0 |
+| medium | downhill | 225 | full-throttle | 224.589 | 176.848 | 21.257 | 225 | 21.44 | severe-overspeed | 0.991 | 156.825 | 1.144 | 0.58 | 0.39 | 0 |
+| medium | downhill | 225 | lift | 224.589 | 176.848 | 21.257 | 225 | 21.44 | severe-overspeed | 0.991 | 156.825 | 1.144 | 0.58 | 0.39 | 0 |
+| medium | downhill | 225 | brake-prepared | 200.332 | 176.459 | 11.917 | 225 | 24.23 | severe-overspeed | 0.303 | 156.825 | 0.908 | 0.58 | 0.388 | 0 |
+| sharp | level | 225 | full-throttle | 223.715 | 117.634 | 47.418 | 224.918 | 47.956 | severe-overspeed | 1 | 132.75 | 2.473 | 1 | 0.454 | 0 |
+| sharp | level | 225 | lift | 215.872 | 117.632 | 45.508 | 217.476 | 46.251 | severe-overspeed | 1 | 132.75 | 2.304 | 1 | 0.44 | 0 |
+| sharp | level | 225 | brake-prepared | 186.782 | 118.812 | 36.39 | 188.597 | 37.362 | severe-overspeed | 0.958 | 132.75 | 1.728 | 0.982 | 0.365 | 0 |
+| sharp | downhill | 225 | full-throttle | 224.064 | 129.293 | 42.296 | 225 | 42.714 | severe-overspeed | 1 | 132.75 | 2.474 | 1 | 0.558 | 0 |
+| sharp | downhill | 225 | lift | 224.063 | 129.293 | 42.296 | 225 | 42.714 | severe-overspeed | 1 | 132.75 | 2.474 | 1 | 0.558 | 0 |
+| sharp | downhill | 225 | brake-prepared | 199.542 | 129.061 | 35.321 | 225 | 48.08 | severe-overspeed | 1 | 132.75 | 1.965 | 1 | 0.526 | 0 |
 
 ## Understeer recovery
 
-| grade | slope | km/h | action | entry | exit | US max | recovery ms | outward/road | drift |
-| --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| medium | level | 195 | lift-recovery | 181.83 | 142.25 | 0.306 | 0 | 0 | 0 |
-| medium | level | 195 | brake-recovery | 181.83 | 125.446 | 0.306 | 0 | 0 | 0 |
-| medium | downhill | 195 | lift-recovery | 199.61 | 172.182 | 0.558 | - | 0.053 | 0 |
-| medium | downhill | 195 | brake-recovery | 199.61 | 164.7 | 0.558 | 267 | 0.049 | 0 |
-| sharp | level | 195 | lift-recovery | 180.905 | 123.211 | 0.793 | 50 | 0.012 | 0 |
-| sharp | level | 195 | brake-recovery | 180.905 | 103.885 | 0.793 | 33 | 0.012 | 0 |
-| sharp | downhill | 195 | lift-recovery | 198.813 | 140.778 | 1 | 883 | 0.101 | 0 |
-| sharp | downhill | 195 | brake-recovery | 198.813 | 136.714 | 1 | 250 | 0.094 | 0 |
-| medium | level | 225 | lift-recovery | 206.624 | 149.769 | 0.573 | 200 | 0.007 | 0 |
-| medium | level | 225 | brake-recovery | 206.624 | 131.547 | 0.573 | 117 | 0.007 | 0 |
-| medium | downhill | 225 | lift-recovery | 224.269 | 173.71 | 0.58 | - | 0.082 | 0 |
-| medium | downhill | 225 | brake-recovery | 224.269 | 166.225 | 0.58 | 350 | 0.07 | 0 |
-| sharp | level | 225 | lift-recovery | 205.927 | 125.026 | 1 | 167 | 0.034 | 0 |
-| sharp | level | 225 | brake-recovery | 205.927 | 106.546 | 1 | 100 | 0.034 | 0 |
-| sharp | downhill | 225 | lift-recovery | 223.743 | 138.988 | 1 | - | 0.129 | 0 |
-| sharp | downhill | 225 | brake-recovery | 223.743 | 137.857 | 1 | 300 | 0.111 | 0 |
+| grade | slope | km/h | action | entry | exit | US max | relief 400ms | recovery ms | outward/road | drift |
+| --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| medium | level | 195 | lift-recovery | 197.027 | 159.479 | 0.545 | 0.705 | 500 | 0.243 | 0 |
+| medium | level | 195 | brake-recovery | 197.027 | 142.749 | 0.545 | 1 | 167 | 0.245 | 0 |
+| medium | downhill | 195 | lift-recovery | 215.491 | 174.618 | 0.58 | 0.555 | - | 0.388 | 0 |
+| medium | downhill | 195 | brake-recovery | 215.491 | 166.493 | 0.58 | 0.904 | 250 | 0.389 | 0 |
+| sharp | level | 195 | lift-recovery | 196.193 | 110.842 | 1 | 0.851 | 83 | 0.388 | 0 |
+| sharp | level | 195 | brake-recovery | 196.193 | 94.887 | 1 | 1 | 83 | 0.388 | 0 |
+| sharp | downhill | 195 | lift-recovery | 214.899 | 127.933 | 1 | 0.691 | 483 | 0.551 | 0 |
+| sharp | downhill | 195 | brake-recovery | 214.899 | 124.015 | 1 | 1 | 150 | 0.551 | 0 |
+| medium | level | 225 | lift-recovery | 224.241 | 157.238 | 0.58 | 0.67 | 650 | 0.32 | 0 |
+| medium | level | 225 | brake-recovery | 224.241 | 145.019 | 0.58 | 0.995 | 200 | 0.32 | 0 |
+| medium | downhill | 225 | lift-recovery | 224.589 | 174.848 | 0.58 | 0.55 | - | 0.389 | 0 |
+| medium | downhill | 225 | brake-recovery | 224.589 | 167.113 | 0.58 | 0.888 | 267 | 0.389 | 0 |
+| sharp | level | 225 | lift-recovery | 223.715 | 112.06 | 1 | 0.836 | 167 | 0.454 | 0 |
+| sharp | level | 225 | brake-recovery | 223.715 | 97.486 | 1 | 1 | 100 | 0.454 | 0 |
+| sharp | downhill | 225 | lift-recovery | 224.064 | 128.117 | 1 | 0.71 | 533 | 0.558 | 0 |
+| sharp | downhill | 225 | brake-recovery | 224.064 | 124.319 | 1 | 0.999 | 150 | 0.558 | 0 |
 
 ## Fixed Bugak Ridge segments
 
 | segment | grade | curve | slope accel | road half | max offset | preparation | entry | exit | loss % | US max | outward/road |
 | ---: | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 25 | easy | 0.22 | 5.47 | 960 | 1090 | full-throttle | 208.631 | 177.259 | 15.037 | 0 | 0 |
-| 25 | easy | 0.22 | 5.47 | 960 | 1090 | lift | 201.18 | 172.753 | 14.13 | 0 | 0 |
-| 25 | easy | 0.22 | 5.47 | 960 | 1090 | brake-prepared | 173.713 | 154.819 | 10.877 | 0 | 0 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 1043.801 | full-throttle | 211.688 | 165.109 | 22.003 | 0.58 | 0.019 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 1043.801 | lift | 204.315 | 164.205 | 19.632 | 0.57 | 0.013 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 1043.801 | brake-prepared | 177.199 | 158.652 | 10.467 | 0.233 | 0 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 960.096 | full-throttle | 210.223 | 138.198 | 34.261 | 1 | 0.053 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 960.096 | lift | 202.754 | 138.418 | 31.731 | 1 | 0.045 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 960.096 | brake-prepared | 175.521 | 138.775 | 20.935 | 0.763 | 0.015 |
+| 25 | easy | 0.22 | 5.47 | 960 | 940 | full-throttle | 224.874 | 211.916 | 5.762 | 0.3 | 0.207 |
+| 25 | easy | 0.22 | 5.47 | 960 | 940 | lift | 218.105 | 209.355 | 4.012 | 0.3 | 0.206 |
+| 25 | easy | 0.22 | 5.47 | 960 | 940 | brake-prepared | 189.094 | 192.123 | -1.602 | 0 | 0 |
+| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | full-throttle | 224.423 | 169.211 | 24.602 | 0.58 | 0.375 |
+| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | lift | 220.125 | 169.009 | 23.221 | 0.58 | 0.373 |
+| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | brake-prepared | 191.362 | 167.363 | 12.541 | 0.495 | 0.356 |
+| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | full-throttle | 223.925 | 124.054 | 44.6 | 1 | 0.481 |
+| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | lift | 218.989 | 123.937 | 43.405 | 1 | 0.477 |
+| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | brake-prepared | 189.884 | 123.265 | 35.084 | 1 | 0.445 |
 
 ## Invariant checks
 
@@ -143,19 +147,33 @@ Status: **PASS**
 | trackScenarioCount | yes | 9 | 9 |
 | trackGradeCoverage | yes | easy, medium, sharp | easy, medium, sharp |
 | requiredMetricsPresent | yes | true | true |
-| hnd3Easy225CornerLoss | yes | 0.5, 3 | 0.747 |
-| hnd3Medium225CornerLoss | yes | 6, 12 | 8.7 |
-| hnd3Sharp225CornerLoss | yes | 16, 25 | 20.145 |
-| hnd3Easy225DownhillRawLoss | yes | 5, 12 | 5.051 |
-| hnd3Medium225DownhillRawLoss | yes | 15, 25 | 20.881 |
-| hnd3Sharp225DownhillRawLoss | yes | 25, 38 | 37.986 |
-| hnd3CornerLossGradeOrdering | yes | sharp > medium > easy | 20.145 > 8.7 > 0.747 |
-| hnd3PreparedLossRelief | yes | full-throttle > lift > brake-prepared | {"easy":[0.747,0.595,0.483],"medium":[8.7,7.005,2.123],"sharp":[20.145,18.395,11.98]} |
-| hnd3SpeedLossZoneProgression | yes | easy overspeed < medium severe < sharp severe | overspeed/0, severe-overspeed/0.543, severe-overspeed/1 |
-| hnd3SevereScrubProgression | yes | easy = 0 < medium < sharp | 0, 3.446, 20.422 |
+| tse6LevelEasy225CornerLoss | yes | 5.5, 7.5 | 6.501 |
+| tse6LevelMedium225CornerLoss | yes | 26, 31 | 28.242 |
+| tse6LevelSharp225CornerLoss | yes | 45, 51 | 47.956 |
+| tse6DownhillEasy225RawLoss | yes | -0.1, 0.1 | 0 |
+| tse6DownhillMedium225RawLoss | yes | 18, 25 | 21.257 |
+| tse6DownhillSharp225RawLoss | yes | 39, 46 | 42.296 |
+| tse6LevelLossAboveDownhillByGrade | yes | level corner-only loss exceeds downhill by >= 5 percentage points for every grade | {"easy":6.501,"medium":6.802,"sharp":5.242} |
+| hnd3CornerLossGradeOrdering | yes | sharp > medium > easy | 47.956 > 28.242 > 6.501 |
+| hnd3PreparedLossRelief | yes | full-throttle > lift > brake-prepared | {"easy":[6.501,4.802,0.755],"medium":[28.242,25.991,13.833],"sharp":[47.956,46.251,37.362]} |
+| hnd3SpeedLossZoneProgression | yes | easy overspeed < medium severe < sharp severe | overspeed/0, severe-overspeed/0.991, severe-overspeed/1 |
+| hnd3SevereScrubProgression | yes | easy = 0 < medium < sharp | 0, 29.995, 65.539 |
 | singleTargetSpeedRatioIdentity | yes | 0 | 0 |
 | singleTargetLateralDemandIdentity | yes | 0 | 0 |
 | understeerUsesCornerDemandOverspeed | yes | 0 | 0 |
-| zeroTo100Control | yes | 7.8, 8.3 | 8.117 |
+| hnd4Easy195OutwardRoadRatio | yes | 0, 0.12 | 0.025 |
+| hnd4Easy195Understeer | yes | 0, 0.15 | 0.049 |
+| hnd4Easy225OutwardRoadRatio | yes | 0.1, 0.22 | 0.207 |
+| hnd4Easy225Understeer | yes | 0.15, 0.35 | 0.3 |
+| hnd4Medium225OutwardRoadRatio | yes | 0.22, 0.38 | 0.353 |
+| hnd4Medium225Understeer | yes | 0.4, 0.7 | 0.58 |
+| hnd4Sharp225OutwardRoadRatio | yes | 0.35, 0.55 | 0.454 |
+| hnd4Sharp225Understeer | yes | 0.7, 1 | 1 |
+| hnd4OutwardTrajectoryOrdering | yes | sharp > medium > easy | 0.454, 0.353, 0.207 |
+| hnd4RoadWidthCaps | yes | {"easy":0.24,"medium":0.44,"sharp":0.56} | {"easy":0.221,"medium":0.39,"sharp":0.558} |
+| hnd4LiftRecoveryRelief | yes | >= 0.35 at 400ms | 0.67, 0.55, 0.836, 0.71 |
+| hnd4BrakeRecoveryRelief | yes | >= 0.55 at 400ms | 0.995, 0.888, 1, 0.999 |
+| hnd4NoForcedGuardrailImpact | yes | 0 | 0, 0, 0, 0, 0, 0 |
+| zeroTo100Control | yes | 7.8, 8.3 | 8.1 |
 | sixtyKmhSecondGear | yes | 2 | 2 |
 

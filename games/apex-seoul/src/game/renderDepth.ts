@@ -22,6 +22,7 @@ export enum RenderDepth {
     PlayerSoftShadow = 4.8,
     PlayerShadow = 5,
     ForegroundMatte = 6,
+    PlayerTireCue = 6.05,
     Player = 6.1,
     Ui = 7,
     Hud = 8,

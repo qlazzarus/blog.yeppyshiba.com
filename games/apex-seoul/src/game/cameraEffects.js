@@ -15,6 +15,15 @@ export const DEFAULT_CAMERA_EFFECTS_CONFIG = {
     shakeThrottleX: 0.6,
     shakeThrottleY: 0.25,
     speedFovBonus: 5.2,
+    speedFovBands: [
+        { bonusRatio: 0, speedKmh: 0 },
+        { bonusRatio: 0.15, speedKmh: 60 },
+        { bonusRatio: 0.38, speedKmh: 110 },
+        { bonusRatio: 0.58, speedKmh: 150 },
+        { bonusRatio: 0.75, speedKmh: 185 },
+        { bonusRatio: 0.91, speedKmh: 210 },
+        { bonusRatio: 1, speedKmh: 225 },
+    ],
     throttleFovImpulse: 0.8,
 };
 
@@ -42,8 +51,7 @@ export function createCameraEffectsState(config) {
 }
 
 export function updateCameraEffects(state, input, config) {
-    const rawSpeedRatio = clamp(input.speedRatio, 0, 1);
-    const smoothSpeedRatio = smoothStep(rawSpeedRatio);
+    const speedFovBonusDegrees = getSpeedFovBonus(input.speedKmh, config);
     const throttleRatio = clamp(input.cue.throttleBurst / input.cueLimits.throttleBurstMaxIntensity, 0, 1);
     const downhillRatio = clamp(input.cue.downhill / input.cueLimits.downhillMaxIntensity, 0, 1);
     const driftExitRatio = clamp(input.cue.driftExitBurst / input.cueLimits.driftExitBurstMaxIntensity, 0, 1);
@@ -54,7 +62,7 @@ export function updateCameraEffects(state, input, config) {
         + railImpactRatio * 0.45;
     const cueBlend = 1 - Math.exp(-config.fovCueResponse * input.seconds);
     const fovCueDegrees = linear(state.fovCueDegrees, targetCueDegrees, cueBlend);
-    const targetFov = config.baseFov + smoothSpeedRatio * config.speedFovBonus + fovCueDegrees;
+    const targetFov = config.baseFov + speedFovBonusDegrees + fovCueDegrees;
     const fovBlend = 1 - Math.exp(-config.fovResponse * input.seconds);
     const shakePhase = state.shakePhase + input.seconds * config.shakeFrequency;
     const xAmplitude = config.shakeScale * (
@@ -77,6 +85,28 @@ export function updateCameraEffects(state, input, config) {
         },
         shakePhase,
     };
+}
+
+export function getSpeedFovBonus(speedKmh, config = DEFAULT_CAMERA_EFFECTS_CONFIG) {
+    const bands = config.speedFovBands;
+    const speed = Number.isFinite(speedKmh) ? Math.max(0, speedKmh) : 0;
+
+    if (speed <= bands[0].speedKmh) return bands[0].bonusRatio * config.speedFovBonus;
+
+    const upperIndex = bands.findIndex((band) => speed <= band.speedKmh);
+
+    if (upperIndex < 0) return bands.at(-1).bonusRatio * config.speedFovBonus;
+
+    const lower = bands[upperIndex - 1];
+    const upper = bands[upperIndex];
+    const bandRatio = clamp(
+        (speed - lower.speedKmh) / Math.max(0.000001, upper.speedKmh - lower.speedKmh),
+        0,
+        1,
+    );
+    const bonusRatio = linear(lower.bonusRatio, upper.bonusRatio, smoothStep(bandRatio));
+
+    return bonusRatio * config.speedFovBonus;
 }
 
 function clamp(value, min, max) {

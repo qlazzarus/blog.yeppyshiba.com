@@ -175,6 +175,14 @@ export const VEHICLE_ENGINE_PROFILES = {
 } as const;
 
 export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: number) {
+    if (hasPhysicalDrivetrain(profile)) {
+        const firstSustainableGear = profile.gears.findIndex(
+            (_, gearIndex) => getGearRpm(profile, gearIndex, speedRatio) <= profile.shiftUpRpm,
+        );
+
+        return firstSustainableGear < 0 ? profile.gears.length - 1 : firstSustainableGear;
+    }
+
     const exactGearIndex = profile.gears.findIndex(
         (gear) => speedRatio >= gear.speedRatioMin && speedRatio <= gear.speedRatioMax,
     );
@@ -184,6 +192,22 @@ export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: n
     const nextGearIndex = profile.gears.findIndex((gear) => speedRatio < gear.speedRatioMin);
 
     return nextGearIndex < 0 ? profile.gears.length - 1 : Math.max(0, nextGearIndex - 1);
+}
+
+export function getPhysicalDownshiftRpm(profile: VehicleEngineProfile, gearIndex: number) {
+    if (!hasPhysicalDrivetrain(profile) || gearIndex <= 0) return profile.idleRpm;
+
+    const currentGearIndex = clamp(Math.round(gearIndex), 1, profile.gearRatios.length - 1);
+    const previousRatio = profile.gearRatios[currentGearIndex - 1];
+    const currentRatio = profile.gearRatios[currentGearIndex];
+
+    // Derive the current-gear threshold so a downshift lands the previous gear
+    // at the profile's existing shiftDropRpm target. Adjacent physical ratios
+    // provide hysteresis without consulting the legacy speed envelope.
+    return Math.max(
+        profile.idleRpm,
+        profile.shiftDropRpm * currentRatio / previousRatio,
+    );
 }
 
 export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, speedRatio: number) {
@@ -210,6 +234,15 @@ export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, spe
         ));
 
     return lerp(gear.rpmMin, gear.rpmMax, progress);
+}
+
+function hasPhysicalDrivetrain(profile: VehicleEngineProfile): profile is VehicleEngineProfile & {
+    finalDriveRatio: number;
+    gearRatios: number[];
+    tireCircumferenceM: number;
+} {
+    return profile.drivetrainModel === 'physical' &&
+        Boolean(profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM);
 }
 
 export function getTorqueScale(profile: VehicleEngineProfile, rpm: number) {

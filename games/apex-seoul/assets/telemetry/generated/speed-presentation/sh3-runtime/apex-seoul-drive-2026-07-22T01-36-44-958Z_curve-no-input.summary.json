@@ -1,0 +1,93 @@
+{
+  "config": {
+    "baseUrl": "http://localhost:5173/game-assets/apex-seoul/",
+    "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "durationSec": 10,
+    "query": "qaSpeed=760",
+    "sampleHz": 10,
+    "scenario": "curve-no-input",
+    "track": null,
+    "viewport": {
+      "height": 760,
+      "width": 1200
+    }
+  },
+  "finishedAt": "2026-07-22T01:37:09.134Z",
+  "jsonl": "assets\\telemetry\\generated\\speed-presentation\\sh3-runtime\\apex-seoul-drive-2026-07-22T01-36-44-958Z_curve-no-input.jsonl",
+  "maxVehicleYDelta": 12.77,
+  "sampleCount": 100,
+  "screenshot": "assets\\telemetry\\generated\\speed-presentation\\sh3-runtime\\sh3-225-cadence.png",
+  "scenario": {
+    "durationSec": 10,
+    "events": [
+      {
+        "atSec": 0,
+        "key": "ArrowUp",
+        "type": "down"
+      },
+      {
+        "atSec": 24,
+        "key": "ArrowUp",
+        "type": "up"
+      }
+    ],
+    "id": "curve-no-input"
+  },
+  "sessionId": "2026-07-22T01-36-44-958Z_curve-no-input",
+  "startedAt": "2026-07-22T01:36:44.958Z",
+  "terrainCounts": {
+    "level": 66,
+    "downhill": 34
+  },
+  "frameCounts": {
+    "center": 66,
+    "downhill-center": 34
+  },
+  "ranges": {
+    "cameraPitch": {
+      "max": -0.283,
+      "min": -6.419
+    },
+    "horizonGapY": {
+      "max": 378.275,
+      "min": 355.21
+    },
+    "horizonY": {
+      "max": 288.517,
+      "min": 282.381
+    },
+    "lateralOffset": {
+      "max": 0,
+      "min": -32.932
+    },
+    "motionAnchorPassRate": {
+      "max": 4,
+      "min": 0
+    },
+    "motionAnchorScreenVelocity": {
+      "max": 102.077,
+      "min": 0.66
+    },
+    "motionAnchorsVisible": {
+      "max": 17,
+      "min": 6
+    },
+    "slopeAcceleration": {
+      "max": 18.562,
+      "min": 1.342
+    },
+    "speed": {
+      "max": 759.195,
+      "min": 754.406
+    },
+    "steering": {
+      "max": 0.027,
+      "min": -0.035
+    },
+    "vehicleY": {
+      "max": 686.8,
+      "min": 668.8
+    }
+  },
+  "url": "http://localhost:5173/game-assets/apex-seoul/?qaSpeed=760"
+}

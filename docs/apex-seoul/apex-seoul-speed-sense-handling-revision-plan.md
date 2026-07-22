@@ -1,8 +1,8 @@
 # Apex Seoul 225km/h 속도감·핸들링 후속 개선 계획
 
-갱신일: 2026-07-21
+갱신일: 2026-07-22
 
-상태: HND-3 progressive corner speed loss 완료. 다음 단계는 HND-4 understeer 궤적 실패다.
+상태: HND-6, SH-1~SH-4, TSE-1~TSE-6 완료. Visual rail 수정과 grip/drift 재측정 전까지 통합 실주행 승인을 보류한다.
 
 ## 목적
 
@@ -299,6 +299,8 @@ HND-3 구현 중 level 225km/h synthetic scenario는 코너가 없는 full-throt
 
 ### HND-4 — understeer를 실제 궤적 실패로 연결
 
+상태: **완료 (2026-07-22)**
+
 현재의 grip angle 제한과 outward velocity를 유지하되 road-width 정규화 결과를 기준으로 재조정한다.
 
 - easy도 최고속 과속에서는 약한 understeer를 허용하되 일상 속도에는 개입하지 않는다.
@@ -318,7 +320,44 @@ HND-3 구현 중 level 225km/h synthetic scenario는 코너가 없는 full-throt
 
 wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음 코너 준비가 나빠지는 정도를 먼저 목표로 한다.
 
+#### 구현 결과
+
+- easy 과속 응답을 별도 포화 곡선으로 추가해 195km/h 이하 평지에서는 개입하지 않고 225km/h에서만 약하게 발동시켰다.
+- `overspeedUndersteerMinSteerInput`의 hard gate를 start→full `0.08~0.45` smooth ramp로 교체했다.
+- lateral target velocity와 build/recovery를 `maxRoadOffset` 비율로 계산해 서로 다른 도로 폭에서도 같은 line-loss 비율을 사용한다.
+- 최대 바깥 이동을 easy/medium/sharp `0.22 / 0.42 / 0.54`로 나누고 한계에 접근하면 velocity target을 완만하게 줄인다.
+- downhill 증폭은 easy/medium/sharp별 반응을 다르게 해 완만한 코너가 급코너와 같은 폭으로 밀리지 않게 했다.
+- lift는 target을 `0.55`, brake는 brake pressure에 따라 최대 `0.28`까지 줄여 front authority 회복을 연속적으로 표현한다.
+- line miss가 guardrail 충돌을 강제하지 않도록 225km/h level/downhill 대표 6개 조건의 충돌 횟수 `0`을 gate로 고정했다.
+- `qa:corner-demand-sweep`을 schema 4로 올리고 road-width trajectory, 조향 ramp, load-transfer recovery metric을 추가했다.
+
+대표 결과:
+
+| 조건 | outward/road | understeer max |
+| --- | ---: | ---: |
+| easy / level / 195 / full | 0.000 | 0.000 |
+| easy / level / 225 / full | 0.103 | 0.265 |
+| medium / level / 225 / full | 0.248 | 0.579 |
+| sharp / level / 225 / full | 0.384 | 1.000 |
+| easy / downhill / 225 / full | 0.223 | 0.300 |
+| medium / downhill / 225 / full | 0.389 | 0.580 |
+| sharp / downhill / 225 / full | 0.547 | 1.000 |
+
+회복 gate 결과:
+
+- 225km/h medium/sharp level/downhill의 400ms lift relief는 `0.626~0.914`다.
+- 같은 조건의 brake relief는 `0.977~1.000`이다.
+- 0-100 통제값은 `8.117초`, 60km/h 2단을 유지했다.
+- 실제 Bugak sharp segment 64는 road-width 대비 약 `0.46` 바깥 이동을 만들어 정상 line 통과와 구분된다.
+
+자동 생성물:
+
+- [HND-4 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.json)
+- [HND-4 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.md)
+
 ### HND-5 — trajectory와 차량 pose의 차이를 읽히게 하기
+
+상태: **완료 (2026-07-22)**
 
 물리 결과가 HND-4 gate를 통과한 뒤에만 추가한다.
 
@@ -327,7 +366,26 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 - road가 바깥으로 밀려나는 움직임, 짧은 tire scrub cue, debug overlay를 우선한다.
 - 상시 camera shake, 과도한 sprite 회전, drift smoke로 understeer를 대신하지 않는다.
 
+#### 구현 결과
+
+- 기존에는 HND-4 물리가 `gripSteerAngleLimit`을 줄여도 sprite frame과 차체 회전이 제한 전 `player.steering`을 그대로 사용했다.
+- input pose, frame pose, body yaw를 분리했다. 입력 방향은 남기되 frame은 부분 제한하고 실제 sprite rotation과 shadow는 grip authority를 더 직접적으로 따른다.
+- easy/medium/sharp 225 기준 body yaw authority는 `0.953 / 0.689 / 0.460`, frame pose authority는 `0.973 / 0.820 / 0.687`로 단계적으로 줄어든다.
+- understeer와 road-width 정규화 lateral velocity가 함께 클 때만 차량 뒤에 짧은 2선 tire-scrub cue를 표시한다. smoke, 추가 camera shake, 강제 sprite 회전은 사용하지 않았다.
+- lift/brake 또는 drift 전환 시 body authority와 cue가 별도 attack/release response로 연속 회복된다.
+- HUD와 runtime telemetry에 `grip/body/pose authority`, input pose, body yaw, scrub cue를 추가했다.
+- `qa:understeer-visual`은 정상 grip 무변형, grade별 authority/cue 순서, input→frame→body 관계, 400ms 회복, drift bypass를 자동 검증한다.
+- 실제 Bugak segment 64 runtime 캡처에서 understeer `1.00`, grip `0.38`, body `0.57`, pose `0.75`, scrub cue `0.61`을 확인했다.
+
+자동 생성물:
+
+- [HND-5 visual authority JSON](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.json)
+- [HND-5 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.md)
+- [HND-5 sharp runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/hnd5-sharp-understeer.png)
+
 ### HND-6 — 관계형 QA와 실주행 승인
+
+상태: **자동 관계형 QA 완료 (2026-07-22) / 실주행 최종 승인 보류**
 
 자동 QA는 절대 상수뿐 아니라 다음 관계를 검증한다.
 
@@ -338,7 +396,94 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 - straight acceleration과 0-100은 handling 변경 전후 오차 범위 안에 있음
 - grip understeer 중 accidental drift ratio는 0에 가까움
 
-마지막으로 같은 build에서 level/left, downhill/right, sharp S-bend를 실주행하고 telemetry와 캡처를 남긴다. HND-6 승인 후 `SH-1~SH-4` 속도감 작업을 재개한다.
+마지막으로 같은 build에서 level/left, downhill/right, sharp S-bend를 실주행하고 telemetry와 캡처를 남긴다. HND-6 승인 또는 사용자 별도 진행 결정 후 `SH-1~SH-4` 속도감 작업을 재개한다.
+
+#### 자동 관계형 QA 결과
+
+- 새 `qa:handling-relations`가 매 실행마다 `qa:corner-demand-sweep`과 `qa:understeer-visual`을 먼저 갱신한 뒤 HND-1/HND-3 고정 baseline과 현재 결과를 교차 검증한다.
+- 준비 조작은 `brake-prepared`, line quality는 도로 폭 차이를 제거한 `1 - outward excursion / available road width`로 정의했다.
+- level/downhill의 easy/medium/sharp 6개 조건 모두 준비 조작 후 평균 understeer가 감소했다. 감소량은 `0.028~0.289`다.
+- 같은 6개 조건의 line retention은 모두 증가했으며 증가량은 `0.009~0.238`이다.
+- 고정 Bugak easy/medium/sharp 구간에서도 understeer relief `0.045 / 0.247 / 0.059`, line retention gain `0.173 / 0.295 / 0.053`으로 같은 관계를 유지했다.
+- 225km/h corner-only loss는 level `0.770 < 11.198 < 29.704%`, downhill `5.533 < 25.042 < 43.423%`로 easy→medium→sharp 순서를 통과했다.
+- downhill sharp loss는 level sharp보다 `13.719%p` 크다.
+- HND-3의 matched straight control 24개 대비 exit speed 최대 오차는 `0km/h`, HND-1 대비 0-100 오차는 `0초`다.
+- synthetic/고정 Bugak grip scenario의 accidental drift ratio 최댓값은 `0`이다.
+
+자동 생성물:
+
+- [HND-6 관계형 QA JSON](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.json)
+- [HND-6 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.md)
+
+실주행 최종 승인은 자동 QA 통과와 분리한다. `level/left`, `downhill/right`, `sharp S-bend` 체크박스와 캡처는 사용자 체감 검토가 끝날 때까지 미완료로 유지하며, 현재 결과만으로 `SH-1~SH-4` 재개를 자동 승인하지 않는다. 다만 사용자가 별도로 진행을 지시한 SH-1~SH-4는 이 승인과 분리해 완료했다.
+
+## 2026-07-22 속도→world unit 역산 진단
+
+### 질문을 바꾼 이유
+
+기존 구현은 주로 내부 `speed unit`을 표시 km/h로 바꾸고 그 ratio로 handling/FOV/shader를 구동했다. 하지만 플레이어가 느끼는 것은 속도계 숫자가 아니라 **그 속도에서 도로와 가까운 물체가 화면을 얼마나 자주 통과하는가**다. 따라서 이번 진단은 변환 방향을 반대로 놓았다.
+
+```text
+원래 질문: 이 world speed unit은 몇 km/h인가?
+역산 질문: 60 / 100 / 150 / 185 / 225km/h라면 매초 몇 unit을 이동하고 무엇이 몇 번 지나가는가?
+```
+
+Raven Coupe는 `drivetrainModel = physical`이라 표시 속도가 선형이다.
+
+```text
+display km/h = speed unit / 760 × 225
+speed unit/s = display km/h / 225 × 760
+             = display km/h × 3.37778
+```
+
+`camera.z`는 매 frame `player.speed × seconds`만큼 증가하므로 이 값은 단순한 계기판용 숫자가 아니라 초당 world 이동량이기도 하다. 따라서 `accelSpeed`나 환산식을 속도감 목적으로 바꾸면 구동계뿐 아니라 코스 통과 시간, 코너 window, 오브젝트 cadence까지 동시에 달라진다.
+
+### 현재 inverse baseline
+
+현재 `segmentLength = 240 unit`, lane dash는 3 segment마다 하나, blue reflector는 해당 roadside profile에서 2 segment마다 하나다. reflector 값은 배치 가능한 구간에서의 이론상 최대 cadence이며 실제 open-view/recovery에서는 더 낮다.
+
+| 표시 속도 | world unit/s | segment/s | lane dash/s | reflector 최대/s | FOV bonus | steady base cue |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0km/h | 0.0 | 0.00 | 0.00 | 0.00 | 0.00° | 0.000 |
+| 30km/h | 101.3 | 0.42 | 0.14 | 0.21 | 0.25° | 0.000 |
+| 60km/h | 202.7 | 0.84 | 0.28 | 0.42 | 0.91° | 0.000 |
+| 90km/h | 304.0 | 1.27 | 0.42 | 0.63 | 1.83° | 0.001 |
+| 110km/h | 371.6 | 1.55 | 0.52 | 0.77 | 2.51° | 0.011 |
+| 130km/h | 439.1 | 1.83 | 0.61 | 0.91 | 3.20° | 0.027 |
+| 150km/h | 506.7 | 2.11 | 0.70 | 1.06 | 3.85° | 0.047 |
+| 170km/h | 574.2 | 2.39 | 0.80 | 1.20 | 4.42° | 0.067 |
+| 185km/h | 624.9 | 2.60 | 0.87 | 1.30 | 4.77° | 0.081 |
+| 200km/h | 675.6 | 2.81 | 0.94 | 1.41 | 5.02° | 0.092 |
+| 210km/h | 709.3 | 2.96 | 0.99 | 1.48 | 5.13° | 0.097 |
+| 225km/h | 760.0 | 3.17 | 1.06 | 1.58 | 5.20° | 0.100 |
+
+물리 거리로 해석하는 것은 최종 게임 스케일이 아니라 진단용 sanity check다. 그래도 `225km/h = 62.5m/s`를 그대로 대입하면 `1m ≈ 12.16 unit`, 한 segment는 약 `19.7m`, lane dash cycle 3 segment는 약 `59.2m`가 된다. 이 때문에 최고속에서도 lane dash가 약 `0.95초`에 한 번, 150km/h에서는 약 `1.42초`에 한 번만 지나간다.
+
+### 진단 결론
+
+1. `760 unit = 225km/h` 선형 환산은 FT86 구동계와 현재 0-100 기준에 맞으므로 속도감 조정을 위해 바꾸지 않는다.
+2. 가장 큰 병목은 가까운 marker cadence다. 최고속 lane dash가 약 `1.06Hz`라 150→225km/h의 증가가 화면 리듬에서 충분히 분리되지 않는다.
+3. FOV는 150km/h에서 최대 bonus의 약 `74%`, 185km/h에서 약 `92%`에 도달한다. 185→225km/h에 남은 차이는 `0.43°`뿐이라 최고속 band가 압축된다.
+4. steady base cue는 약 81km/h에서 시작하지만 100km/h에도 약 `0.005`이고, 185km/h에는 최대치의 `81%`다. 중속 발동은 약하고 고속에서는 FOV와 함께 포화되는 구조다.
+5. 따라서 world speed를 과장하거나 distant city/cloud를 빠르게 움직이는 대신 lane dash/reflector 같은 near-field geometry의 통과 리듬을 먼저 재설계한다.
+
+### 개선 방향과 실행 순서
+
+설계 단계 명칭은 `SH-1~SH-4`를 유지하지만 실제 구현 우선순위는 다음처럼 판단한다.
+
+```text
+SH-1 inverse presentation baseline
+  → SH-3 roadside cadence
+  → SH-2 km/h speed cue bands
+  → SH-4 FOV / shader 보조 조정
+```
+
+- SH-1은 단순 speed ratio 표가 아니라 `km/h → world unit/s → segment/lane/reflector/post pass rate → FOV/cue/shader`를 한 행에 남긴다.
+- SH-3은 lane dash를 road geometry segment와 분리해 한 segment 안에 짧은 dash/gap cadence를 만들 수 있게 한다. 210~225km/h near marker의 첫 목표는 약 `3~4 pass/s`이며 실제 캡처로 flicker 여부를 확인한다.
+- reflector는 commitment/wall-run 구간의 near-field 보조로 조밀하게 만들되 open-view의 공간 대비는 유지한다. guardrail post는 화면 과밀을 피하기 위해 첫 반복에서는 유지한다.
+- SH-2는 raw `minimumSpeedRatio` 대신 `70 / 110 / 150 / 185 / 210km/h`처럼 의미가 드러나는 band를 사용한다.
+- SH-4는 185→225km/h에 FOV 변화 약 `1.2~1.5°`를 남기는 piecewise envelope를 검토한다. roadside가 주 cue이며 shader와 camera impulse는 사건성 보조로 유지한다.
+- 이 진단 단계에서는 drivetrain, `accelSpeed`, handling, corner budget을 변경하지 않는다.
 
 ## 목표 감각
 
@@ -355,6 +500,8 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 
 ### SH-1 — 속도감·핸들링 기준선 자동 측정
 
+상태: **완료 (2026-07-22)**
+
 새 `qa:speed-presentation-sweep`을 추가한다.
 
 측정 속도:
@@ -365,19 +512,51 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 
 측정 항목:
 
+- 표시 km/h에서 역산한 world unit/s와 변환 identity 오차
 - speed cue base/downhill/event intensity
 - camera base FOV, speed bonus, impulse 포함 FOV
 - shader intensity와 시간 배율
-- lane dash / reflector / guardrail post 예상 초당 통과량
+- segment, lane dash, reflector, guardrail post의 spacing과 예상 초당 통과량
 - steering force, grip angle, lateral velocity cap, visual yaw
 - 1초 tap/hold/release의 offset, velocity, pose
 
 완료 조건:
 
+- physical drivetrain에서 `unit = km/h / 225 × 760` identity 오차가 `0`에 가깝다.
 - 185~225km/h가 같은 값으로 뭉치는 채널을 표로 확인할 수 있다.
 - 현재 build의 결과를 JSON과 사람이 읽는 표로 남긴다.
 
+#### 구현 결과
+
+- `qa:speed-presentation-sweep`을 추가해 `0 / 30 / 60 / 90 / 110 / 130 / 150 / 170 / 185 / 200 / 210 / 225km/h` 12개 band를 한 번에 측정한다.
+- 각 행에 역산 world unit/s, segment/lane/reflector/좌우 post cadence, steady/downhill/event speed cue, speed FOV와 event impulse, shader 입력과 time scale을 기록한다.
+- 같은 속도에서 straight 1초 tap/hold/release를 재현하고 steering force, grip cap, lateral cap, visual yaw와 pose/offset/velocity를 함께 남긴다.
+- lane dash, reflector, guardrail post 간격과 shader time scale을 `SPEED_PRESENTATION_WORLD_CONFIG`로 모았다. 렌더러와 QA가 같은 값을 읽으며 기존 runtime 값과 화면 결과는 변경하지 않았다.
+- physical inverse identity 최대 오차는 `0km/h`, cadence 식 오차는 직렬화 반올림 범위 안에서 `0`에 가깝다.
+
+고정된 핵심 진단:
+
+| 항목 | SH-1 결과 | 해석 |
+| --- | ---: | --- |
+| 225km/h segment cadence | `3.167/s` | world 이동량 자체는 충분히 증가함 |
+| 225km/h lane cadence | `1.056/s` | near-field 목표 `3~4/s`보다 희박함 |
+| 225km/h reflector 최대 cadence | `1.583/s` | profile 제한이 있어 실제 평균은 더 낮음 |
+| 185→225km/h FOV 증가 | `0.435°` | top-speed band가 현재 smooth curve 끝에 압축됨 |
+| 185 / 225 steady cue | `0.081 / 0.100` | 최고속 전에 base cue가 상당 부분 포화됨 |
+| 185→225 handling profile delta | `0` | straight base handling knot가 185km/h 이후 plateau |
+
+마지막 handling 항목은 HND-4/5가 실패했다는 뜻이 아니다. HND는 과속 코너의 trajectory/body authority overlay를 추가했고, SH-1은 straight에서 읽는 base speed handling profile이 185~225km/h 사이 동일하다는 사실을 별도로 고정한 것이다.
+
+자동 생성물:
+
+- [SH-1 inverse presentation JSON](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.json)
+- [SH-1 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
+
+SH-1에서는 상수 tuning을 하지 않았고, 측정 결과에서 가장 큰 병목으로 확인된 roadside cadence를 SH-3에서 먼저 개선한 뒤 SH-2 km/h cue와 SH-4 FOV/shader를 완료했다. 후속 SH-7 통합 캡처에서는 presentation 회귀 통과와 별개인 physics/collision blocker를 발견했다.
+
 ### SH-2 — speed cue를 물리 속도 기준으로 재정의
+
+상태: **완료 (2026-07-22)**
 
 raw ratio 임계값을 직접 읽지 않고 Raven의 물리 km/h band를 명시한다.
 
@@ -394,7 +573,40 @@ top-speed hold : 210~225km/h에서 추가 포화 금지
 - downhill과 drift exit는 base에 영구적으로 누적하지 않는다.
 - 최고속에서도 상시 camera shake를 사용하지 않는다.
 
+#### 구현 결과
+
+- `minimumSpeedRatio: 0.36` 하나로 계산하던 envelope를 `70 / 110 / 150 / 185 / 210 / 225km/h` band로 교체했다.
+- 각 band의 steady cue 비율은 `0 / 0.12 / 0.42 / 0.72 / 1 / 1`이며 band 사이는 smoothstep으로 이어진다.
+- 실제 runtime은 차량의 물리 속도를 `getDisplaySpeedKmh()`로 환산해 cue에 전달한다. speed cue 내부는 더 이상 최고속 대비 raw ratio를 입력받지 않는다.
+- steady base 최대 강도 `0.1`과 downhill/drift-exit 최대치는 유지했다. drivetrain, handling, SH-3 geometry cadence와 FOV 식은 변경하지 않았다.
+- throttle burst의 첫 프레임 상태를 `null`로 분리해 고속 상태의 초기 hold에는 발동하지 않고, 명시적인 `false → true` 페달 재입력에만 발동한다.
+- 210~225km/h steady/downhill/event cue는 같은 값으로 hold된다. 이 구간의 추가 속도감은 SH-3 roadside cadence가 담당한다.
+
+| 속도 | SH-1/SH-3 base | SH-2 base | SH-2 의미 |
+| ---: | ---: | ---: | --- |
+| 60km/h | `0` | `0` | cue 미개입 |
+| 90km/h | `0.001` | `0.006` | 흐름이 읽히기 시작 |
+| 110km/h | `0.011` | `0.012` | cruise band |
+| 150km/h | `0.047` | `0.042` | roadside가 주 cue |
+| 185km/h | `0.081` | `0.072` | 최고속 전 포화 완화 |
+| 210km/h | `0.097` | `0.100` | full steady cue |
+| 225km/h | `0.100` | `0.100` | top-speed hold |
+
+검증 결과:
+
+- `qa:speed-cue`에서 0~225km/h envelope 단조 증가, 70km/h 미만 0, band별 강도와 210→225km/h delta `0`을 자동 확인한다.
+- 207km/h에서 초기 throttle hold burst는 `0`, 페달 재입력 peak는 `0.1851`, drift-exit peak는 `0.2445`다.
+- SH-2 presentation sweep은 km/h band identity, cue 범위, SH-3 cadence와 기존 물리/handling invariant를 함께 통과한다.
+
+자동 생성물:
+
+- [SH-2 km/h cue snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh2-baseline.md)
+
+SH-2로 raw ratio cue와 최고속 상시 증가 문제는 해소됐다. 당시 남아 있던 185→225km/h FOV 압축은 SH-4에서 처리했다.
+
 ### SH-3 — roadside flow를 주 속도 cue로 조정
+
+상태: **완료 (2026-07-22)**
 
 우선순위는 shader보다 가까운 geometry다.
 
@@ -409,7 +621,43 @@ top-speed hold : 210~225km/h에서 추가 포화 금지
 - 가까운 marker가 flicker나 한 프레임 pop으로 보이지 않는다.
 - distant city/cloud가 빠르게 움직여 속도감을 대신하지 않는다.
 
+#### 구현 결과
+
+- lane dash를 `3 segment마다 한 segment 전체`를 칠하던 구조에서 `매 segment 안의 짧은 dash/gap`으로 바꿨다.
+- 새 dash는 segment 시작의 `0.16` 지점부터 길이 `0.34 segment`만 그린다. 기존 painted duty 약 1/3은 유지하면서 통과 사건만 세 배로 늘렸다.
+- dash의 시작/끝 world Z를 현재 road slice에 clip한 뒤 center/elevation/road width를 보간해 다시 투영한다. 가까운 첫 segment에서도 dash가 카메라 뒤에서 갑자기 생기지 않는다.
+- blue reflector는 commitment/wall-run profile 제한을 유지한 채 간격만 `2 segment → 1 segment`로 줄였다.
+- 좌우 guardrail post 간격 `4 / 3 segment`, forest, chevron, distant background는 변경하지 않았다.
+- `SPEED_PRESENTATION_WORLD_CONFIG`가 lane dash의 start/length/interval과 reflector/post 간격을 함께 소유한다.
+
+SH-1 대비 theoretical cadence:
+
+| 속도 | lane SH-1 | lane SH-3 | reflector SH-1 | reflector SH-3 |
+| ---: | ---: | ---: | ---: | ---: |
+| 150km/h | `0.704/s` | `2.111/s` | `1.056/s` | `2.111/s` |
+| 185km/h | `0.868/s` | `2.604/s` | `1.302/s` | `2.604/s` |
+| 210km/h | `0.985/s` | `2.956/s` | `1.478/s` | `2.956/s` |
+| 225km/h | `1.056/s` | `3.167/s` | `1.583/s` | `3.167/s` |
+
+검증 결과:
+
+- SH-3 snapshot의 210km/h lane cadence `2.956/s`, 225km/h lane/reflector cadence `3.167/s`가 자동 gate를 통과했다.
+- 225km/h actual runtime에서 reflector rolling pass rate 최대 `4/s`, screen velocity 최대 약 `102px/s`, visible anchor `6~17개`를 기록했다.
+- 실제 캡처에서 중앙선은 여러 개의 짧은 dash로 분리되고 guardrail post는 기존 밀도를 유지했다. 10초 runtime telemetry에서 보이는 motion anchor는 `6~17개`로 유지됐고 캡처에서 화면 전체 과밀은 없었다. 주행 중 flicker 체감은 최종 실주행 검토 항목으로 남긴다.
+- inverse identity, speed cue, FOV, straight handling 값은 SH-1과 동일하다. 이번 단계는 presentation geometry cadence만 변경했다.
+
+자동 생성물:
+
+- [SH-1 변경 전 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
+- [SH-3 cadence snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh3-baseline.md)
+- [SH-3 225km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/apex-seoul-drive-2026-07-22T01-36-44-958Z_curve-no-input.summary.json)
+- [SH-3 225km/h runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/sh3-225-cadence.png)
+
+SH-3으로 near-field cadence 병목은 자동 기준상 해소됐다. km/h cue는 SH-2, top-band FOV 압축은 SH-4에서 완료했다.
+
 ### SH-4 — FOV와 shader를 보조 채널로 재조정
+
+상태: **완료 (2026-07-22)**
 
 roadside flow가 안정된 뒤 진행한다.
 
@@ -427,6 +675,42 @@ roadside flow가 안정된 뒤 진행한다.
 | speed FOV bonus | `4~5.5°` |
 | throttle impulse | `≤ 0.8°` |
 | drift-exit impulse | `≤ 1.2°` |
+
+#### 구현 결과
+
+- 단일 `smoothstep(speedRatio)` FOV를 `0 / 60 / 110 / 150 / 185 / 210 / 225km/h` piecewise envelope로 교체했다.
+- 최대 `5.2°`는 유지하되 bonus 비율을 `0 / 0.15 / 0.38 / 0.58 / 0.75 / 0.91 / 1`로 배치했다. 185km/h bonus를 `4.765° → 3.9°`로 낮춰 185→225km/h에 `1.3°`를 남겼다.
+- runtime camera는 SH-2와 동일하게 실제 표시 km/h를 입력받는다. band 사이는 smoothstep으로 연결되고 기존 FOV response와 사건 impulse response는 유지된다.
+- shader target intensity를 공용 `getSpeedEffectIntensity()`로 제한하고 최대치를 `0.38`로 고정했다. downhill, throttle, drift-exit가 동시에 겹쳐도 이를 넘지 않는다.
+- steady shader는 210~225km/h에서 `0.1`로 hold된다. 이 구간에서는 FOV만 `4.732° → 5.2°`로 증가하므로 두 채널의 동시 포화를 피한다.
+- throttle/drift-exit camera impulse 상수 `0.8° / 1.2°`와 shake 상수는 변경하지 않았다.
+
+| 속도 | SH-2 FOV bonus | SH-4 FOV bonus |
+| ---: | ---: | ---: |
+| 60km/h | `0.912°` | `0.780°` |
+| 110km/h | `2.513°` | `1.976°` |
+| 150km/h | `3.852°` | `3.016°` |
+| 185km/h | `4.765°` | `3.900°` |
+| 210km/h | `5.134°` | `4.732°` |
+| 225km/h | `5.200°` | `5.200°` |
+
+검증 결과:
+
+- 225km/h FOV bonus `5.2°`, 185→225km/h delta `1.3°`, steady shader `0.1`, 최악의 event overlap shader `0.38`로 잠정 gate를 통과했다.
+- 1초 측정 camera impulse peak는 throttle `0.749°`, drift-exit `1.141°`로 상한 안에 있다.
+- 실제 WebGL 185/225km/h 캡처에서 camera FOV 최대는 `72.913° / 74.217°`, 차이는 `1.304°`였다.
+- 같은 downhill runtime의 shader intensity 최대는 `0.117 / 0.168`, 예상 peak alpha는 `0.011 / 0.018`로 과도한 전면 glow 없이 유지됐다.
+- drivetrain, 0-100, handling, SH-2 cue와 SH-3 cadence는 변경하지 않았다.
+
+자동 생성물:
+
+- [SH-4 FOV/shader snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh4-baseline.md)
+- [185km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/apex-seoul-drive-2026-07-22T01-56-23-567Z_curve-no-input.summary.json)
+- [185km/h runtime capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/sh4-185.png)
+- [225km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/apex-seoul-drive-2026-07-22T01-56-56-113Z_curve-no-input.summary.json)
+- [225km/h runtime capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/sh4-225.png)
+
+SH-1~SH-4의 자동 gate는 모두 완료됐다. 후속 SH-7 통합 telemetry는 캡처를 마쳤지만 blocking gate 때문에 사용자 체감 승인을 보류했으며, FOV/shader 추가 tuning은 실제 비교 주행 리뷰가 있을 때만 진행한다.
 
 ### SH-5 — handling profile을 225km/h까지 확장
 
@@ -472,6 +756,8 @@ roadside flow가 안정된 뒤 진행한다.
 
 ### SH-7 — 통합 telemetry와 실주행 승인
 
+상태: **자동 승인 READY / 사용자 실주행 승인 대기 (2026-07-22)**
+
 자동 QA 뒤 같은 build로 최소 세 run을 기록한다.
 
 1. straight acceleration: 0→225km/h
@@ -488,6 +774,54 @@ handling sample
 corner budget / understeer / drift state
 ```
 
+#### 구현 및 측정 결과
+
+- `qaStartSpeed`와 `qaStartZ`를 추가해 물리를 매 frame 덮어쓰지 않고 원하는 속도·코스 위치에서 실제 controller run을 시작할 수 있게 했다.
+- 장시간 직선 측정용 `qaTimeScale`은 QA에서만 `1~4x`를 허용한다. 4x run은 같은 update 식을 사용하며, 별도로 남은 55초 1x run과 최고속 결과가 같았다.
+- `sh7-straight-accel`, `sh7-grip-corners`, `sh7-drift-mixed` 입력 시나리오와 `qa:sh7-telemetry` 통합 audit를 추가했다.
+- audit는 최신 세 JSONL을 자동 선택해 physics speed/gear/rpm, FOV/shader, theoretical segment cadence, corner grade, understeer, drift state, guardrail contact를 한 표로 합친다.
+- 캡처 파일과 필수 채널의 유효성은 통과했다. 자동 승인과 사용자 실주행 승인은 blocking gate와 분리했다.
+
+초기 진단 캡처는 다음과 같았다.
+
+| run | 샘플 | 속도 | 관측 상태 | shader max | 결과 |
+| --- | ---: | ---: | --- | ---: | --- |
+| straight | `140` | `0.9~140.7km/h` | gear `1~4`, grip | `0.0401` | 225km/h 미도달 |
+| grip | `90` | `34.4~183.5km/h` | easy/medium/sharp, grip only | `0.1215` | visual rail impact `3` |
+| drift | `80` | `39.1~182.6km/h` | brake setup/drift/recovery | `0.1225` | impact `1`, counter/exit burst 미관측 |
+
+확정된 blocking gate:
+
+1. flat straight full-throttle는 55초 1x와 14초 4x 모두 `140.7km/h`에서 평형을 이뤄 목표 `223~225km/h`에 도달하지 못했다.
+2. grip/drift run은 실제 road offset ratio가 각각 최대 `0.1335 / 0.1378`인데 visual rail contact ratio가 `1.0015 / 1.0010`에 도달해 충돌했다. 도로 폭 사용량과 충돌 경계가 맞지 않는다.
+3. drift는 `setup → drift → recovery`와 brake entry를 기록했지만 counter-steer timer와 drift-exit burst는 모두 `0`이었다. 충돌 감속이 정상 exit cycle을 오염시켰다.
+
+유지된 관계:
+
+- straight에는 guardrail impact가 없고 grip run은 끝까지 accidental drift 없이 `grip`을 유지했다.
+- grip은 easy/medium/sharp 세 grade, drift는 within-budget/overspeed와 brake entry를 모두 기록했다.
+- shader 최대는 세 run 모두 `0.38` gate 아래이며 FOV, shader, cadence, handling 채널은 모두 finite다.
+- 따라서 이 초기 시점에는 SH-1~SH-4 presentation 회귀만 통과했고 SH-7 자동 승인은 부여하지 않았다.
+
+자동 생성물:
+
+- [SH-7 통합 보고서](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [straight capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/sh7-straight.png)
+- [grip capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip.png)
+- [drift capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift.png)
+
+후속 진단에서 flat 최고속은 `4단 변속 도달 불가 + 6단 force budget 부족`, visual rail은 `화면 합성 좌표와 물리 lateral 좌표 혼합`이 원인으로 확정됐다. 수치와 실행 단계는 [최고속 평형·Visual Rail Boundary 진단 및 개선 계획](./apex-seoul-top-speed-equilibrium-diagnosis-plan.md)에 기록한다.
+
+후속 `TSE-1~TSE-6`, `RAIL-1~RAIL-2`와 drift 입력 교정을 마친 최종 결과는 다음과 같다.
+
+| run | 샘플 | 속도 | 관측 상태 | shader max | 결과 |
+| --- | ---: | ---: | --- | ---: | --- |
+| straight | `700` | `0.2~225km/h` | gear `1~6`, grip | `0.1056` | READY |
+| grip | `90` | `113~193.6km/h` | easy/medium/sharp, grip only | `0.1089` | impact `0` |
+| drift | `80` | `134.7~191.5km/h` | setup/drift/recovery/grip, counter `0.749초` | `0.1339` | impact `0`, exit burst `0.0354` |
+
+브레이크는 drift entry threshold 직후 해제하고 반대 조향을 drift 상태 안에서 유지한다. 이후 neutral throttle로 recovery를 만들고 grip 복귀 직후 가속을 재입력한다. recovery→grip 전환과 브라우저 입력 반영이 한 프레임 어긋나도 cue가 사라지지 않도록 `0.28초` 재가속 허용 창을 추가했다. `qa:sh7-telemetry` 결과는 `Approval: READY`, `Blocking gates: none`이다. 사용자 실주행 승인은 별도로 요청한다.
+
 ## 자동 검증 계획
 
 ```bash
@@ -495,6 +829,10 @@ npm run qa:powerband-reference --workspace @games/apex-seoul
 npm run qa:standing-start --workspace @games/apex-seoul
 npm run qa:speed-cue --workspace @games/apex-seoul
 npm run qa:speed-presentation-sweep --workspace @games/apex-seoul
+npm run qa:top-speed-equilibrium --workspace @games/apex-seoul
+npm run qa:top-speed-force-budget --workspace @games/apex-seoul
+npm run qa:top-speed-calibration --workspace @games/apex-seoul
+npm run qa:top-speed-regression --workspace @games/apex-seoul
 npm run qa:speed-handling-sweep --workspace @games/apex-seoul
 npm run qa:corner-demand-sweep --workspace @games/apex-seoul
 npm run qa:handling-sim --workspace @games/apex-seoul
@@ -503,7 +841,7 @@ npm run qa:drive-telemetry --workspace @games/apex-seoul
 npm run build --workspace @games/apex-seoul
 ```
 
-`qa:corner-demand-sweep`은 HND-1에서 추가했다. `qa:speed-presentation-sweep`은 SH-1에서 새로 추가한다. 나머지 명령의 기존 gate는 원인 없이 완화하지 않는다.
+`qa:corner-demand-sweep`은 HND-1, `qa:speed-presentation-sweep`은 SH-1에서 추가했다. 나머지 명령의 기존 gate는 원인 없이 완화하지 않는다.
 
 ## 완료 조건
 
@@ -520,8 +858,18 @@ npm run build --workspace @games/apex-seoul
 구현 중 다음 전후 자료를 보관한다.
 
 - 185km/h 기준 연출이 225km/h에서 어떻게 어긋났는가
+- `unit → km/h`만 보다가 `km/h → unit → 초당 통과 횟수`로 질문을 뒤집은 계기
+- 환산식은 맞았지만 225km/h lane dash가 약 `1.06Hz`라 느리게 보였던 시행착오
+- 한 segment 약 `19.7m`, 기존 lane dash cycle 약 `59.2m`라는 sanity check와 pseudo-3D 스케일의 차이
+- FOV가 185km/h에서 이미 약 `92%` 포화되어 최고속 band가 `0.43°`에 압축됐던 문제
 - raw ratio cue를 물리 km/h 기준으로 바꾼 이유
 - shader보다 roadside cadence가 속도감에 더 크게 작용한 장면
+- painted duty는 거의 유지하면서 `긴 dash/긴 공백`을 `짧은 dash/짧은 공백`으로 바꿔 pass rate를 세 배 만든 과정
+- SH-1 `1.056/s`와 SH-3 `3.167/s` 표, 225km/h runtime reflector 최대 `4/s` 캡처 비교
 - 185~225km/h handling knot를 추가하기 전후의 tap/hold/release 표
 - 속도감을 키우면서 camera shake를 상시화하지 않은 이유
 - FT86 기반 구동계를 유지하면서 아케이드 코너링을 조정한 타협점
+- 225km/h 표시 envelope를 통과했지만 실제 구동력은 4단 140.7km/h에서 평형을 이뤘던 실패
+- 기존 speed ratio 변속표와 실제 기어비 기반 7,400rpm 변속점이 동시에 남아 4단 고착을 만든 과정
+- 0-100 자동 측정만으로 terminal speed를 보장할 수 없었던 이유
+- 화면 도로 폭과 차량 display size를 물리 collision 폭으로 역산해 도로의 12~14%에서 rail impact가 발생한 사례

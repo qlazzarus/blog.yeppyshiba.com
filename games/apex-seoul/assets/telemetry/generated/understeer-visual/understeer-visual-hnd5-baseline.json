@@ -1,0 +1,270 @@
+{
+  "checks": [
+    {
+      "id": "withinBudget.bodyYawAuthority",
+      "pass": true,
+      "target": [
+        0.999,
+        1
+      ],
+      "value": 1
+    },
+    {
+      "id": "withinBudget.poseAuthority",
+      "pass": true,
+      "target": [
+        0.999,
+        1
+      ],
+      "value": 1
+    },
+    {
+      "id": "withinBudget.cueIntensity",
+      "pass": true,
+      "target": [
+        0,
+        0.001
+      ],
+      "value": 0
+    },
+    {
+      "id": "bodyAuthorityOrdering",
+      "pass": true,
+      "target": "easy > medium > sharp",
+      "value": [
+        0.9531,
+        0.6891,
+        0.46
+      ]
+    },
+    {
+      "id": "easy.bodyYawAuthority",
+      "pass": true,
+      "target": [
+        0.85,
+        1
+      ],
+      "value": 0.9531
+    },
+    {
+      "id": "medium.bodyYawAuthority",
+      "pass": true,
+      "target": [
+        0.58,
+        0.82
+      ],
+      "value": 0.6891
+    },
+    {
+      "id": "sharp.bodyYawAuthority",
+      "pass": true,
+      "target": [
+        0.44,
+        0.55
+      ],
+      "value": 0.46
+    },
+    {
+      "id": "easy.poseAuthority",
+      "pass": true,
+      "target": [
+        0.9,
+        1
+      ],
+      "value": 0.9728
+    },
+    {
+      "id": "medium.poseAuthority",
+      "pass": true,
+      "target": [
+        0.72,
+        0.9
+      ],
+      "value": 0.8197
+    },
+    {
+      "id": "sharp.poseAuthority",
+      "pass": true,
+      "target": [
+        0.62,
+        0.75
+      ],
+      "value": 0.6868
+    },
+    {
+      "id": "inputPoseRemainsAheadOfBodyYaw",
+      "pass": true,
+      "target": "input pose >= frame pose > body yaw",
+      "value": [
+        {
+          "body": 0.5528,
+          "input": 0.58,
+          "pose": 0.5642
+        },
+        {
+          "body": 0.3997,
+          "input": 0.58,
+          "pose": 0.4754
+        },
+        {
+          "body": 0.2668,
+          "input": 0.58,
+          "pose": 0.3983
+        }
+      ]
+    },
+    {
+      "id": "cueOrdering",
+      "pass": true,
+      "target": "easy < medium < sharp",
+      "value": [
+        0.0857,
+        0.6309,
+        1
+      ]
+    },
+    {
+      "id": "easy.cueIntensity",
+      "pass": true,
+      "target": [
+        0.02,
+        0.2
+      ],
+      "value": 0.0857
+    },
+    {
+      "id": "medium.cueIntensity",
+      "pass": true,
+      "target": [
+        0.45,
+        0.8
+      ],
+      "value": 0.6309
+    },
+    {
+      "id": "sharp.cueIntensity",
+      "pass": true,
+      "target": [
+        0.9,
+        1
+      ],
+      "value": 1
+    },
+    {
+      "id": "sharp.authorityStepMax",
+      "pass": true,
+      "target": [
+        0,
+        0.09
+      ],
+      "value": 0.0752
+    },
+    {
+      "id": "sharp.cueStepMax",
+      "pass": true,
+      "target": [
+        0,
+        0.22
+      ],
+      "value": 0.2081
+    },
+    {
+      "id": "recovery.bodyYawAuthority400ms",
+      "pass": true,
+      "target": [
+        0.9,
+        1
+      ],
+      "value": 0.9836
+    },
+    {
+      "id": "recovery.cueIntensity400ms",
+      "pass": true,
+      "target": [
+        0,
+        0.08
+      ],
+      "value": 0.0409
+    },
+    {
+      "id": "driftBypass.bodyYawAuthority",
+      "pass": true,
+      "target": [
+        0.99,
+        1
+      ],
+      "value": 0.9987
+    },
+    {
+      "id": "driftBypass.cueIntensity",
+      "pass": true,
+      "target": [
+        0,
+        0.05
+      ],
+      "value": 0.0183
+    }
+  ],
+  "generatedAt": "2026-07-22T05:08:29.251Z",
+  "pass": true,
+  "recovery": {
+    "bodyYawAuthority": 0.9836,
+    "bodyYawValue": 0.5705,
+    "cueIntensity": 0.0409,
+    "gripAuthorityRatio": 0.9167,
+    "inputPoseValue": 0.58,
+    "poseAuthority": 0.9905,
+    "poseValue": 0.5745
+  },
+  "rows": [
+    {
+      "bodyYawAuthority": 1,
+      "bodyYawValue": 0.58,
+      "cueIntensity": 0,
+      "gripAuthorityRatio": 1,
+      "inputPoseValue": 0.58,
+      "poseAuthority": 1,
+      "poseValue": 0.58,
+      "authorityStepMax": 0,
+      "cueStepMax": 0,
+      "id": "within-budget"
+    },
+    {
+      "bodyYawAuthority": 0.9531,
+      "bodyYawValue": 0.5528,
+      "cueIntensity": 0.0857,
+      "gripAuthorityRatio": 0.8361,
+      "inputPoseValue": 0.58,
+      "poseAuthority": 0.9728,
+      "poseValue": 0.5642,
+      "authorityStepMax": 0.0065,
+      "cueStepMax": 0.0178,
+      "id": "easy-225"
+    },
+    {
+      "bodyYawAuthority": 0.6891,
+      "bodyYawValue": 0.3997,
+      "cueIntensity": 0.6309,
+      "gripAuthorityRatio": 0.6417,
+      "inputPoseValue": 0.58,
+      "poseAuthority": 0.8197,
+      "poseValue": 0.4754,
+      "authorityStepMax": 0.0433,
+      "cueStepMax": 0.1313,
+      "id": "medium-225"
+    },
+    {
+      "bodyYawAuthority": 0.46,
+      "bodyYawValue": 0.2668,
+      "cueIntensity": 1,
+      "gripAuthorityRatio": 0.4083,
+      "inputPoseValue": 0.58,
+      "poseAuthority": 0.6868,
+      "poseValue": 0.3983,
+      "authorityStepMax": 0.0752,
+      "cueStepMax": 0.2081,
+      "id": "sharp-225"
+    }
+  ],
+  "schemaVersion": 1
+}

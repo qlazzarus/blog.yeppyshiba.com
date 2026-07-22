@@ -1,0 +1,600 @@
+{
+  "approvalReady": true,
+  "blockers": [],
+  "captureValid": true,
+  "checks": [
+    {
+      "blocking": false,
+      "id": "threeRuntimeRuns",
+      "pass": true,
+      "target": true,
+      "value": true
+    },
+    {
+      "blocking": false,
+      "id": "straightStartsNearZeroKmh",
+      "pass": true,
+      "target": "<= 5km/h",
+      "value": 0.2
+    },
+    {
+      "blocking": true,
+      "id": "straightReaches225Kmh",
+      "pass": true,
+      "target": ">= 223km/h",
+      "value": 225
+    },
+    {
+      "blocking": false,
+      "id": "straightNoGuardrailImpact",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": true,
+      "id": "straightUsesOneXTimeScale",
+      "pass": true,
+      "target": [
+        1
+      ],
+      "value": [
+        1
+      ]
+    },
+    {
+      "blocking": true,
+      "id": "straightThrottleHeld",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": true,
+      "id": "straightRemainsStraight",
+      "pass": true,
+      "target": [
+        "straight"
+      ],
+      "value": [
+        "straight"
+      ]
+    },
+    {
+      "blocking": true,
+      "id": "straightNoSteering",
+      "pass": true,
+      "target": "<= 0.001",
+      "value": {
+        "input": 0,
+        "state": 0
+      }
+    },
+    {
+      "blocking": true,
+      "id": "straightNoCornerLoss",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": true,
+      "id": "straightReachesSixthGear",
+      "pass": true,
+      "target": 6,
+      "value": 6
+    },
+    {
+      "blocking": true,
+      "id": "straightAvoidsFuelCut",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": true,
+      "id": "straightUsesSh7MildDownhill",
+      "pass": true,
+      "target": "3.5~4.5 slope acceleration",
+      "value": {
+        "max": 4.0189,
+        "min": 3.9359
+      }
+    },
+    {
+      "blocking": false,
+      "id": "gripCoversAllGrades",
+      "pass": true,
+      "target": [
+        "easy",
+        "medium",
+        "sharp"
+      ],
+      "value": [
+        "easy",
+        "medium",
+        "sharp",
+        "straight"
+      ]
+    },
+    {
+      "blocking": false,
+      "id": "gripRemainsGripOnly",
+      "pass": true,
+      "target": [
+        "grip"
+      ],
+      "value": [
+        "grip"
+      ]
+    },
+    {
+      "blocking": true,
+      "id": "gripNoGuardrailImpact",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": false,
+      "id": "gripRailProjectionCoverage",
+      "pass": true,
+      "target": 90,
+      "value": 90
+    },
+    {
+      "blocking": false,
+      "id": "gripRailProjectionIdentity",
+      "pass": true,
+      "target": "<= 0.0002",
+      "value": 0
+    },
+    {
+      "blocking": false,
+      "id": "gripRailScreenGapNonNegative",
+      "pass": true,
+      "target": ">= -0.01px",
+      "value": 139.3255
+    },
+    {
+      "blocking": false,
+      "id": "driftBrakeEntry",
+      "pass": true,
+      "target": "brake",
+      "value": [
+        "brake",
+        "none"
+      ]
+    },
+    {
+      "blocking": false,
+      "id": "driftStateCycle",
+      "pass": true,
+      "target": [
+        "setup",
+        "drift",
+        "recovery"
+      ],
+      "value": [
+        "drift",
+        "grip",
+        "recovery",
+        "setup"
+      ]
+    },
+    {
+      "blocking": true,
+      "id": "driftCounterObserved",
+      "pass": true,
+      "target": "> 0s",
+      "value": 0.749
+    },
+    {
+      "blocking": true,
+      "id": "driftExitBurstObserved",
+      "pass": true,
+      "target": "> 0.01",
+      "value": 0.0354
+    },
+    {
+      "blocking": true,
+      "id": "driftNoGuardrailImpact",
+      "pass": true,
+      "target": 0,
+      "value": 0
+    },
+    {
+      "blocking": false,
+      "id": "driftRailProjectionCoverage",
+      "pass": true,
+      "target": 80,
+      "value": 80
+    },
+    {
+      "blocking": false,
+      "id": "driftRailProjectionIdentity",
+      "pass": true,
+      "target": "<= 0.0002",
+      "value": 0
+    },
+    {
+      "blocking": false,
+      "id": "driftRailScreenGapNonNegative",
+      "pass": true,
+      "target": ">= -0.01px",
+      "value": 260.5679
+    },
+    {
+      "blocking": false,
+      "id": "shaderEnvelopeBounded",
+      "pass": true,
+      "target": "<= 0.38",
+      "value": {
+        "straight": 0.1056,
+        "grip": 0.1089,
+        "drift": 0.1339
+      }
+    },
+    {
+      "blocking": false,
+      "id": "presentationChannelsFinite",
+      "pass": true,
+      "target": true,
+      "value": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "flatStraightTopSpeedShortfall",
+      "observedKmh": 225,
+      "status": "resolved",
+      "targetKmh": 225
+    },
+    {
+      "driftActiveGapPx": {
+        "max": 382.8621,
+        "min": 260.5679
+      },
+      "driftProjectionRatioError": 0,
+      "gripActiveGapPx": {
+        "max": 384.1525,
+        "min": 139.3255
+      },
+      "gripProjectionRatioError": 0,
+      "id": "railScreenProjectionMismatch",
+      "status": "resolved"
+    },
+    {
+      "driftRoadRatio": 0.1291,
+      "driftVisualRailRatio": 0.1291,
+      "gripRoadRatio": 0.5304,
+      "gripVisualRailRatio": 0.5304,
+      "id": "visualRailContactMismatch",
+      "status": "resolved"
+    },
+    {
+      "counterSteerTimer": 0.749,
+      "driftExitBurst": 0.0354,
+      "id": "driftCounterExitNotObserved",
+      "status": "resolved"
+    }
+  ],
+  "generatedAt": "2026-07-22T05:08:27.927Z",
+  "manualApproval": "pending",
+  "runs": {
+    "straight": {
+      "accelReleasedSamples": 0,
+      "cornerGrades": [
+        "straight"
+      ],
+      "driftEntryModes": [
+        "none"
+      ],
+      "driftStates": [
+        "grip"
+      ],
+      "fovDegrees": {
+        "max": 74.2157,
+        "min": 69
+      },
+      "gear": {
+        "max": 6,
+        "min": 1
+      },
+      "activeRailScreenGapPx": {
+        "max": null,
+        "min": null
+      },
+      "guardrailImpacts": 0,
+      "fuelCutSamples": 0,
+      "hits": {
+        "60": {
+          "elapsedSec": 3.886,
+          "gear": 2,
+          "rpm": 4917.944601059693,
+          "speedKmh": 60.9
+        },
+        "100": {
+          "elapsedSec": 7.561,
+          "gear": 3,
+          "rpm": 5634.149297459978,
+          "speedKmh": 101.1
+        },
+        "223": {
+          "elapsedSec": 37.52,
+          "gear": 6,
+          "rpm": 6188.983961634709,
+          "speedKmh": 223
+        },
+        "225": {
+          "elapsedSec": 39.383,
+          "gear": 6,
+          "rpm": 6244.1322013402205,
+          "speedKmh": 225
+        },
+        "175.34": {
+          "elapsedSec": 18.774,
+          "gear": 5,
+          "rpm": 6626.112916935201,
+          "speedKmh": 175.6
+        },
+        "212.687": {
+          "elapsedSec": 29.554,
+          "gear": 6,
+          "rpm": 6294.19616951489,
+          "speedKmh": 212.7
+        }
+      },
+      "maxActiveRailContactRatio": 0,
+      "guardrailProjectionSamples": 0,
+      "maxGuardrailProjectionRatioError": 0,
+      "maxCounterSteerTimer": 0,
+      "maxCornerLossForce": 0,
+      "maxDriftExitBurst": 0,
+      "maxDriftRatio": 0,
+      "maxMotionAnchorPassRate": 0,
+      "maxAbsSteerInput": 0,
+      "maxAbsSteering": 0,
+      "maxRoadOffsetRatio": 0,
+      "maxShaderExpectedPeakAlpha": 0.0101,
+      "maxShaderIntensity": 0.1056,
+      "maxTheoreticalSegmentPassRate": 3.1667,
+      "maxUndersteerRatio": 0,
+      "rpm": {
+        "max": 7628.5944,
+        "min": 1146.943
+      },
+      "runtimeElapsedSec": {
+        "max": 126.716,
+        "min": 0.078
+      },
+      "sampleCount": 700,
+      "segmentTimesSec": {
+        "100-175.34": 11.213,
+        "175.34-212.687": 10.78,
+        "212.687-223": 7.966
+      },
+      "source": "assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T04-07-58-110Z_sh7-straight-tse5-1x.jsonl",
+      "slopeAcceleration": {
+        "max": 4.0189,
+        "min": 3.9359
+      },
+      "speedKmh": {
+        "max": 225,
+        "min": 0.2
+      },
+      "speedLossZones": [
+        "within-budget"
+      ],
+      "qaTimeScales": [
+        1
+      ]
+    },
+    "grip": {
+      "accelReleasedSamples": 0,
+      "cornerGrades": [
+        "easy",
+        "medium",
+        "sharp",
+        "straight"
+      ],
+      "driftEntryModes": [
+        "none"
+      ],
+      "driftStates": [
+        "grip"
+      ],
+      "fovDegrees": {
+        "max": 73.0219,
+        "min": 69.3531
+      },
+      "gear": {
+        "max": 5,
+        "min": 4
+      },
+      "activeRailScreenGapPx": {
+        "max": 384.1525,
+        "min": 139.3255
+      },
+      "guardrailImpacts": 0,
+      "fuelCutSamples": 0,
+      "hits": {
+        "60": {
+          "elapsedSec": 0.075,
+          "gear": 5,
+          "rpm": 6473.625808113625,
+          "speedKmh": 184.5
+        },
+        "100": {
+          "elapsedSec": 0.075,
+          "gear": 5,
+          "rpm": 6473.625808113625,
+          "speedKmh": 184.5
+        },
+        "223": null,
+        "225": null,
+        "175.34": {
+          "elapsedSec": 0.075,
+          "gear": 5,
+          "rpm": 6473.625808113625,
+          "speedKmh": 184.5
+        },
+        "212.687": null
+      },
+      "maxActiveRailContactRatio": 0.5304,
+      "guardrailProjectionSamples": 90,
+      "maxGuardrailProjectionRatioError": 0,
+      "maxCounterSteerTimer": 0,
+      "maxCornerLossForce": 200.785,
+      "maxDriftExitBurst": 0,
+      "maxDriftRatio": 0,
+      "maxMotionAnchorPassRate": 3,
+      "maxAbsSteerInput": 1,
+      "maxAbsSteering": 1,
+      "maxRoadOffsetRatio": 0.5304,
+      "maxShaderExpectedPeakAlpha": 0.0107,
+      "maxShaderIntensity": 0.1089,
+      "maxTheoreticalSegmentPassRate": 2.724,
+      "maxUndersteerRatio": 0.4955,
+      "rpm": {
+        "max": 6965.4237,
+        "min": 4857.5624
+      },
+      "runtimeElapsedSec": {
+        "max": 16.956,
+        "min": 0.075
+      },
+      "sampleCount": 90,
+      "segmentTimesSec": {
+        "100-175.34": 0,
+        "175.34-212.687": null,
+        "212.687-223": null
+      },
+      "source": "assets/telemetry/generated/speed-presentation/sh7-runtime/grip/apex-seoul-drive-2026-07-22T04-50-47-597Z_sh7-grip-corners.jsonl",
+      "slopeAcceleration": {
+        "max": 18.6575,
+        "min": 1.7692
+      },
+      "speedKmh": {
+        "max": 193.6,
+        "min": 113
+      },
+      "speedLossZones": [
+        "overspeed",
+        "severe-overspeed",
+        "within-budget"
+      ],
+      "qaTimeScales": [
+        1
+      ]
+    },
+    "drift": {
+      "accelReleasedSamples": 4,
+      "cornerGrades": [
+        "easy",
+        "medium",
+        "sharp",
+        "straight"
+      ],
+      "driftEntryModes": [
+        "brake",
+        "none"
+      ],
+      "driftStates": [
+        "drift",
+        "grip",
+        "recovery",
+        "setup"
+      ],
+      "fovDegrees": {
+        "max": 72.9981,
+        "min": 69.3717
+      },
+      "gear": {
+        "max": 5,
+        "min": 5
+      },
+      "activeRailScreenGapPx": {
+        "max": 382.8621,
+        "min": 260.5679
+      },
+      "guardrailImpacts": 0,
+      "fuelCutSamples": 0,
+      "hits": {
+        "60": {
+          "elapsedSec": 0.079,
+          "gear": 5,
+          "rpm": 6467.346593079936,
+          "speedKmh": 183.9
+        },
+        "100": {
+          "elapsedSec": 0.079,
+          "gear": 5,
+          "rpm": 6467.346593079936,
+          "speedKmh": 183.9
+        },
+        "223": null,
+        "225": null,
+        "175.34": {
+          "elapsedSec": 0.079,
+          "gear": 5,
+          "rpm": 6467.346593079936,
+          "speedKmh": 183.9
+        },
+        "212.687": null
+      },
+      "maxActiveRailContactRatio": 0.1291,
+      "guardrailProjectionSamples": 80,
+      "maxGuardrailProjectionRatioError": 0,
+      "maxCounterSteerTimer": 0.749,
+      "maxCornerLossForce": 53.459,
+      "maxDriftExitBurst": 0.0354,
+      "maxDriftRatio": 0.7734,
+      "maxMotionAnchorPassRate": 3,
+      "maxAbsSteerInput": 1,
+      "maxAbsSteering": 0.989,
+      "maxRoadOffsetRatio": 0.1291,
+      "maxShaderExpectedPeakAlpha": 0.0141,
+      "maxShaderIntensity": 0.1339,
+      "maxTheoreticalSegmentPassRate": 2.6958,
+      "maxUndersteerRatio": 0.372,
+      "rpm": {
+        "max": 6628.5708,
+        "min": 4336.3977
+      },
+      "runtimeElapsedSec": {
+        "max": 15.029,
+        "min": 0.079
+      },
+      "sampleCount": 80,
+      "segmentTimesSec": {
+        "100-175.34": 0,
+        "175.34-212.687": null,
+        "212.687-223": null
+      },
+      "source": "assets/telemetry/generated/speed-presentation/sh7-runtime/drift/apex-seoul-drive-2026-07-22T05-06-19-244Z_sh7-drift-mixed.jsonl",
+      "slopeAcceleration": {
+        "max": 16.9683,
+        "min": 1.4503
+      },
+      "speedKmh": {
+        "max": 191.5,
+        "min": 134.7
+      },
+      "speedLossZones": [
+        "overspeed",
+        "severe-overspeed",
+        "within-budget"
+      ],
+      "qaTimeScales": [
+        1
+      ]
+    }
+  },
+  "schemaVersion": 3,
+  "tse5": {
+    "blockers": [],
+    "ready": true,
+    "status": "runtime-straight-verified-manual-driving-approval-still-pending"
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "config": {
+    "baseUrl": "http://localhost:5173/game-assets/apex-seoul/",
+    "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "durationSec": 8,
+    "query": "qaStartSpeed=624.889&qaStartZ=13200",
+    "sampleHz": 10,
+    "scenario": "sh7-drift-mixed",
+    "track": null,
+    "viewport": {
+      "height": 760,
+      "width": 1200
+    }
+  },
+  "finishedAt": "2026-07-22T02:24:30.064Z",
+  "jsonl": "assets\\telemetry\\generated\\speed-presentation\\sh7-runtime\\drift\\apex-seoul-drive-2026-07-22T02-24-08-688Z_sh7-drift-mixed.jsonl",
+  "maxVehicleYDelta": 6.519,
+  "sampleCount": 80,
+  "screenshot": "assets\\telemetry\\generated\\speed-presentation\\sh7-runtime\\drift\\sh7-drift.png",
+  "scenario": {
+    "durationSec": 8,
+    "events": [
+      {
+        "atSec": 0,
+        "key": "ArrowUp",
+        "type": "down"
+      },
+      {
+        "atSec": 0.15,
+        "key": "ArrowLeft",
+        "type": "down"
+      },
+      {
+        "atSec": 0.3,
+        "key": "Space",
+        "type": "down"
+      },
+      {
+        "atSec": 0.8,
+        "key": "Space",
+        "type": "up"
+      },
+      {
+        "atSec": 1.15,
+        "key": "ArrowLeft",
+        "type": "up"
+      },
+      {
+        "atSec": 1.2,
+        "key": "ArrowRight",
+        "type": "down"
+      },
+      {
+        "atSec": 2,
+        "key": "ArrowRight",
+        "type": "up"
+      },
+      {
+        "atSec": 2.6,
+        "key": "ArrowUp",
+        "type": "up"
+      },
+      {
+        "atSec": 3.2,
+        "key": "ArrowUp",
+        "type": "down"
+      },
+      {
+        "atSec": 8,
+        "key": "ArrowUp",
+        "type": "up"
+      }
+    ],
+    "id": "sh7-drift-mixed"
+  },
+  "sessionId": "2026-07-22T02-24-08-688Z_sh7-drift-mixed",
+  "startedAt": "2026-07-22T02:24:08.688Z",
+  "terrainCounts": {
+    "downhill": 16,
+    "level": 64
+  },
+  "frameCounts": {
+    "downhill-center": 16,
+    "steer-right-1": 6,
+    "steer-right-2": 12,
+    "center": 46
+  },
+  "ranges": {
+    "cameraFovDegrees": {
+      "max": 71.659,
+      "min": 69.421
+    },
+    "cameraPitch": {
+      "max": -0.401,
+      "min": -3.93
+    },
+    "horizonGapY": {
+      "max": 367.179,
+      "min": 360.392
+    },
+    "horizonY": {
+      "max": 288.399,
+      "min": 284.87
+    },
+    "lateralOffset": {
+      "max": 74.719,
+      "min": -132.239
+    },
+    "motionAnchorPassRate": {
+      "max": 0,
+      "min": 0
+    },
+    "motionAnchorScreenVelocity": {
+      "max": 105.249,
+      "min": 0.743
+    },
+    "motionAnchorsVisible": {
+      "max": 19,
+      "min": 14
+    },
+    "speedEffectExpectedPeakAlpha": {
+      "max": 0.013,
+      "min": 0
+    },
+    "speedEffectIntensity": {
+      "max": 0.122,
+      "min": 0
+    },
+    "speedKmh": {
+      "max": 182.6,
+      "min": 39.1
+    },
+    "slopeAcceleration": {
+      "max": 16.917,
+      "min": 1.824
+    },
+    "speed": {
+      "max": 616.695,
+      "min": 132.205
+    },
+    "steering": {
+      "max": 0.746,
+      "min": -0.999
+    },
+    "vehicleY": {
+      "max": 686.8,
+      "min": 668.8
+    }
+  },
+  "url": "http://localhost:5173/game-assets/apex-seoul/?qaStartSpeed=624.889&qaStartZ=13200"
+}

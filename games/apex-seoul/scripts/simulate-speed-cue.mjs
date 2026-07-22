@@ -1,35 +1,47 @@
 import {
     createSpeedCueState,
+    getSpeedCueRatio,
+    SPEED_CUE_CONFIG,
     updateSpeedCue,
 } from '../src/game/speedCue.js';
 
 const FRAME_SECONDS = 1 / 60;
-const HIGH_SPEED_RATIO = 0.92;
+const HIGH_SPEED_KMH = 207;
+const sampledEnvelope = Array.from({ length: 226 }, (_, speedKmh) => getSpeedCueRatio(speedKmh));
+const envelopeIsMonotonic = sampledEnvelope.every(
+    (value, index) => index === 0 || value >= sampledEnvelope[index - 1],
+);
 const results = {
     'brake-drift-exit': runScenario(2, (time) => ({
         accelPressed: true,
         downhillRatio: 0,
         driftState: time < 0.7 ? 'recovery' : 'grip',
-        speedRatio: HIGH_SPEED_RATIO,
+        speedKmh: HIGH_SPEED_KMH,
     })),
     'level-vs-downhill': null,
+    'delayed-drift-exit-reapply': runScenario(2, (time) => ({
+        accelPressed: time >= 0.82,
+        downhillRatio: 0,
+        driftState: time < 0.7 ? 'recovery' : 'grip',
+        speedKmh: HIGH_SPEED_KMH,
+    })),
     'lift-no-burst': runScenario(2, (time) => ({
         accelPressed: time < 0.7,
         downhillRatio: 0,
         driftState: 'grip',
-        speedRatio: HIGH_SPEED_RATIO,
+        speedKmh: HIGH_SPEED_KMH,
     })),
     'steady-cruise': runScenario(2, () => ({
         accelPressed: true,
         downhillRatio: 0,
         driftState: 'grip',
-        speedRatio: HIGH_SPEED_RATIO,
+        speedKmh: HIGH_SPEED_KMH,
     })),
     'throttle-reentry': runScenario(2, (time) => ({
         accelPressed: time >= 0.7,
         downhillRatio: 0,
         driftState: 'grip',
-        speedRatio: HIGH_SPEED_RATIO,
+        speedKmh: HIGH_SPEED_KMH,
     })),
 };
 
@@ -37,20 +49,28 @@ const level = runScenario(2, () => ({
     accelPressed: true,
     downhillRatio: 0,
     driftState: 'grip',
-    speedRatio: HIGH_SPEED_RATIO,
+    speedKmh: HIGH_SPEED_KMH,
 }));
 const downhill = runScenario(2, () => ({
     accelPressed: true,
     downhillRatio: 1,
     driftState: 'grip',
-    speedRatio: HIGH_SPEED_RATIO,
+    speedKmh: HIGH_SPEED_KMH,
 }));
 results['level-vs-downhill'] = { downhill, level };
 
 const metrics = {
+    baseAt69Kmh: getSpeedCueRatio(69) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt110Kmh: getSpeedCueRatio(110) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt150Kmh: getSpeedCueRatio(150) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt185Kmh: getSpeedCueRatio(185) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt210Kmh: getSpeedCueRatio(210) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt225Kmh: getSpeedCueRatio(225) * SPEED_CUE_CONFIG.baseMaxIntensity,
     downhillDelta: averageCue(downhill, 'downhill', 0.8) - averageCue(level, 'downhill', 0.8),
     driftExitBurstDuration: activeDuration(results['brake-drift-exit'], 'driftExitBurst', 0.02),
     driftExitBurstPeak: peakCue(results['brake-drift-exit'], 'driftExitBurst'),
+    delayedDriftExitBurstPeak: peakCue(results['delayed-drift-exit-reapply'], 'driftExitBurst'),
+    initialHoldBurstPeak: peakCue(results['steady-cruise'], 'throttleBurst'),
     liftBurstPeakAfterRelease: peakCueAfter(results['lift-no-burst'], 'throttleBurst', 0.7),
     steadyCruisePeakAfterWarmup: peakCueAfter(results['steady-cruise'], 'intensity', 0.5),
     throttleBurstDuration: activeDuration(results['throttle-reentry'], 'throttleBurst', 0.02),
@@ -58,9 +78,22 @@ const metrics = {
 };
 
 const checks = [
+    checkAtMost('belowStartBase', metrics.baseAt69Kmh, 0.000001),
+    {
+        id: 'kmhEnvelopeMonotonic',
+        pass: envelopeIsMonotonic,
+        target: 'non-decreasing from 0 to 225km/h',
+        value: envelopeIsMonotonic,
+    },
+    checkBetween('cruiseBandBase', metrics.baseAt110Kmh, 0.0119, 0.0121),
+    checkBetween('highSpeedBandBase', metrics.baseAt150Kmh, 0.0419, 0.0421),
+    checkBetween('fastBandBase', metrics.baseAt185Kmh, 0.0719, 0.0721),
+    checkAtMost('topSpeedHoldDelta', Math.abs(metrics.baseAt225Kmh - metrics.baseAt210Kmh), 0.000001),
     checkAtLeast('downhillDelta', metrics.downhillDelta, 0.1),
     checkBetween('driftExitBurstDuration', metrics.driftExitBurstDuration, 0.15, 0.34),
     checkAtLeast('driftExitBurstPeak', metrics.driftExitBurstPeak, 0.18),
+    checkAtLeast('delayedDriftExitBurstPeak', metrics.delayedDriftExitBurstPeak, 0.18),
+    checkAtMost('initialHoldBurstPeak', metrics.initialHoldBurstPeak, 0.001),
     checkAtMost('liftBurstPeakAfterRelease', metrics.liftBurstPeakAfterRelease, 0.001),
     checkAtMost('steadyCruisePeakAfterWarmup', metrics.steadyCruisePeakAfterWarmup, 0.11),
     checkBetween('throttleBurstDuration', metrics.throttleBurstDuration, 0.12, 0.26),
