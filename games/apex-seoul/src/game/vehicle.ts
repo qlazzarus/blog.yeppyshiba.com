@@ -258,8 +258,13 @@ export function selectPlayerVehicleFrame(
     steering: number,
     terrainCue: VehicleTerrainCue,
     steeringThreshold = tuning.steerWeakThreshold,
+    allowStrongSteering = true,
 ) {
-    const steeringState = selectPlayerSteeringState(steering, steeringThreshold);
+    const steeringState = selectPlayerSteeringState(
+        steering,
+        steeringThreshold,
+        allowStrongSteering,
+    );
     const fallback = atlas.apex.steeringStates[steeringState];
 
     if (terrainCue === 'level') return fallback;
@@ -422,11 +427,15 @@ export function getVehicleFrameIndex(atlas: VehicleAtlas, frameId: string) {
     return (frame.y / cellSize) * 3 + frame.x / cellSize;
 }
 
-function selectPlayerSteeringState(steering: number, threshold: number): PlayerSteeringStateId {
+function selectPlayerSteeringState(
+    steering: number,
+    threshold: number,
+    allowStrongSteering: boolean,
+): PlayerSteeringStateId {
     const strongThreshold = threshold + (1 - threshold) * 0.62;
 
-    if (steering <= -strongThreshold) return 'steer-left-2';
-    if (steering >= strongThreshold) return 'steer-right-2';
+    if (allowStrongSteering && steering <= -strongThreshold) return 'steer-left-2';
+    if (allowStrongSteering && steering >= strongThreshold) return 'steer-right-2';
     if (steering <= -threshold) return 'steer-left-1';
     if (steering >= threshold) return 'steer-right-1';
 

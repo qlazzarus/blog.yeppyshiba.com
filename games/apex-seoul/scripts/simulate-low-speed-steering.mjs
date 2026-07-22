@@ -175,6 +175,7 @@ checks.push(atMost('crawlVisualSteering', Math.abs(crawl.visualSteering), 0.1));
 checks.push(equals('crawlVisualFrame', crawl.visualFrame, 'center'));
 checks.push(between('mediumLateralOffset', Math.abs(medium.lateralOffset), 180, 320));
 checks.push(atLeast('mediumVisualSteering', Math.abs(medium.visualSteering), 0.55));
+checks.push(equals('mediumGripVisualFrame', medium.visualFrame, 'steer-right-1'));
 checks.push(equals('driftLockedState', driftLock.driftState, 'grip'));
 checks.push(atMost('driftLockedRatio', driftLock.driftRatio, 0.01));
 
@@ -259,18 +260,18 @@ function getVisualSteeringSnapshot(player) {
     const value = player.steering;
 
     return {
-        frame: selectVisualFrame(value, threshold),
+        frame: selectVisualFrame(value, threshold, player.driftState !== 'grip'),
         rotationDeg: value * VEHICLE_ROTATION_DEG,
         threshold,
         value,
     };
 }
 
-function selectVisualFrame(steering, threshold) {
+function selectVisualFrame(steering, threshold, allowStrongSteering) {
     const strongThreshold = threshold + (1 - threshold) * 0.62;
 
-    if (steering <= -strongThreshold) return 'steer-left-2';
-    if (steering >= strongThreshold) return 'steer-right-2';
+    if (allowStrongSteering && steering <= -strongThreshold) return 'steer-left-2';
+    if (allowStrongSteering && steering >= strongThreshold) return 'steer-right-2';
     if (steering <= -threshold) return 'steer-left-1';
     if (steering >= threshold) return 'steer-right-1';
 

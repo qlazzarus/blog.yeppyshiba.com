@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-22
 
-상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2 자동 검증 완료. 사용자 실주행 최종 승인이 다음 단계다.
+상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2 자동 검증 완료. 사용자 리뷰에서 코너 통과 속도감이 새 최우선 과제로 확인됐다.
 
 이 문서는 **앞으로 할 일만** 관리한다. 완료된 구현 과정과 발행용 글감은 누적하지 않는다. 세부 설계와 수치는 각 단일 기준 문서 및 자동 QA 결과를 따른다.
 
@@ -44,6 +44,19 @@
 세부 설계와 단계는 [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)을 따른다.
 
 SH-7 blocker의 진단 근거와 실행 단위는 [최고속 평형·Visual Rail Boundary 진단 및 개선 계획](./apex-seoul-top-speed-equilibrium-diagnosis-plan.md)을 단일 기준으로 사용한다.
+
+코너 통과 속도감의 진단, 목표 cadence와 코스 연장 조건은 [코너 통과 속도감 개선 계획](./apex-seoul-corner-speed-sense-improvement-plan.md)을 단일 기준으로 사용한다.
+
+## P0 — 코너 통과 속도감 CSS-1~CSS-5
+
+- 현재 15~27 segment인 강한 commitment run을 시간 단위로 다시 측정한다. 가장 긴 27 segment는 130km/h에서 약 14.8초, 150km/h에서도 약 12.8초다.
+- CSS-1에서 entry/apex/exit duration, 코너 near marker pass rate와 screen velocity를 고정한다.
+- CSS-2에서 첫 27-segment 코너만 `10~14 segment` prototype으로 압축해 동일 replay A/B를 만든다.
+- CSS-3에서 코너 lane dash와 바깥쪽 reflector를 fractional Z로 보강해 130~185km/h에서 `4~6 pass/s`를 목표로 한다.
+- prototype 승인 후 CSS-4에서 전체 commitment를 `8~14 segment` 중심으로 재편한다.
+- 코스가 짧아질 경우 느린 코너를 늘리는 대신 fast recovery/easy sweep을 추가한다. 전체 후보는 `340~380 segment`다.
+- 표시 km/h, `camera.z` 물리 진행량, 구동계, handling과 corner demand는 변경하지 않는다.
+- 카메라와 shader 추가 조정은 코스 시간 구조와 near-field flow를 검증한 뒤 CSS-5에서만 검토한다.
 
 ## P1 — 최고속 평형 TSE-1~TSE-6
 

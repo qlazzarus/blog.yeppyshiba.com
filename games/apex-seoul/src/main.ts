@@ -1369,6 +1369,10 @@ class ApexSeoulScene extends Phaser.Scene {
             visualSteering.value,
             anchor.terrainCue,
             visualSteering.threshold,
+            // A large grip input is still a planted turn. Reserve the fully
+            // yawed atlas pose for setup/drift/recovery, where it represents
+            // actual body slip rather than steering lock.
+            this.playerVehicle.driftState !== 'grip',
         );
 
         return {
