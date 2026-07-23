@@ -15,6 +15,7 @@
 | [225km/h 속도감·핸들링](./apex-seoul-speed-sense-handling-revision-plan.md) | 속도 연출, 185~225km/h 조향, 통합 QA 후속 계획 |
 | [코너 통과 속도감](./apex-seoul-corner-speed-sense-improvement-plan.md) | 코너 시간 길이, near-field flow, 코스 리듬·연장 계획 |
 | [아웃런 참고 속도감 후속](./apex-seoul-outrun-speed-sense-reference-plan.md) | longitudinal unit-scale 비교, 도로 흐름, 카메라·고저차와 후순위 traffic/audio 계획 |
+| [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md) | 현재 unit/projection과 공식 60fps 영상 표본 비교, ORS-2A 진단 범위 |
 | [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |

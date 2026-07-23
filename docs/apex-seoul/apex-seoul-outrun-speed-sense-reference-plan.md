@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-23
 
-상태: longitudinal unit-scale 검증을 첫 gate로 추가했다. ORS-3 traffic과 ORS-5 audio는 기본 도로 흐름 승인 뒤로 보류한다.
+상태: ORS-1 unit/reference audit 완료. 다음 gate는 ORS-2A longitudinal scale A/B다. ORS-3 traffic과 ORS-5 audio는 기본 도로 흐름 승인 뒤로 보류한다.
 
 ## 목표
 
@@ -57,11 +57,12 @@ macro event
 segment flow        = worldTravelSpeed / segmentLength
 road-width flow     = worldTravelSpeed / fullRoadWidth
 visible-depth time  = objectDrawDistance / worldTravelSpeed
-near-pass time      = object가 screenY 60% → 95%를 통과하는 시간
+primary near-pass  = object가 screenY 60% → 85%를 통과하는 시간
+compat near-pass   = object가 screenY 60% → 95%를 통과하는 시간
 scale doubling time = roadside object 높이가 2배가 되는 시간
 ```
 
-`segment/s`와 `road-width/s`는 내부 구조 비교용이다. 최종 승인은 상용 게임 영상과 Apex replay의 `near-pass time`, `scale doubling time`처럼 화면에서 직접 관찰되는 값으로 한다.
+`segment/s`와 `road-width/s`는 내부 구조 비교용이다. 최종 승인은 상용 게임 영상과 Apex replay의 `near-pass time`, `scale doubling time`처럼 화면에서 직접 관찰되는 값으로 한다. 3인칭 차량과 lateral exit가 화면 95% 지점을 가리는 경우가 많아 A/B의 primary gate는 `60→85%`, 기존 계획과의 호환 기록은 `60→95%`로 분리한다.
 
 ### 현재 Apex Seoul 수치
 
@@ -72,14 +73,14 @@ scale doubling time = roadside object 높이가 2배가 되는 시간
 - road object nominal draw distance `= 9,800u`
 - `worldTravelSpeed = km/h / 225 × 760`
 
-| 표시 속도 | world u/s | segment/s | 기본 road-width/s | 9,800u 통과 시간 |
-| ---: | ---: | ---: | ---: | ---: |
-| 110km/h | 371.56 | 1.548 | 0.194 | 26.38초 |
-| 150km/h | 506.67 | 2.111 | 0.264 | 19.34초 |
-| 185km/h | 624.89 | 2.604 | 0.325 | 15.68초 |
-| 225km/h | 760.00 | 3.167 | 0.396 | 12.89초 |
+| 표시 속도 | world u/s | segment/s | 기본 road-width/s | 9,800u 통과 | screenY 60→85% | screenY 60→95% |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 110km/h | 371.56 | 1.548 | 0.194 | 26.38초 | 4.472초 | 5.163초 |
+| 150km/h | 506.67 | 2.111 | 0.264 | 19.34초 | 3.217초 | 3.714초 |
+| 185km/h | 624.89 | 2.604 | 0.325 | 15.68초 | 2.567초 | 2.963초 |
+| 225km/h | 760.00 | 3.167 | 0.396 | 12.89초 | 2.061초 | 2.379초 |
 
-실제 오브젝트는 fog, crest와 screen-size threshold 때문에 9,800u 전체 구간에서 선명하게 보이지 않는다. 따라서 마지막 열은 실제 체감 시간이 아니라 현재 world scale의 상한 성격을 설명하는 값이다.
+실제 오브젝트는 fog, crest와 screen-size threshold 때문에 9,800u 전체 구간에서 선명하게 보이지 않는다. 따라서 `9,800u 통과` 열은 실제 체감 시간이 아니라 현재 world scale의 상한 성격을 설명하는 값이다.
 
 ### 소스가 공개된 OutRun식 엔진과의 구조 차이
 
@@ -96,11 +97,17 @@ Jake Gordon의 Javascript Racer는 다음 값을 사용한다.
 
 원본 OutRun을 재구현한 CannonBall은 HUD에 표시하는 `car_increment >> 16`과 road position을 직접 동일시하지 않는다. `CAR_BASE_INC`를 곱한 fixed-point 변환을 거쳐 `road_pos`를 증가시킨다. 즉 표시 속도와 코스 좌표 이동 사이에 명시적인 변환 계층이 있다.
 
-이 비교로 현재 단계에서 확정할 수 있는 것은 다음뿐이다.
+ORS-1 자동 audit과 공식 60fps trailer frame annotation으로 다음을 확정했다.
 
-- Apex의 `1 physical speed unit = 1 longitudinal world unit/s` 관계는 검증된 기준이 아니다.
+- Apex의 `1 physical speed unit = 1 longitudinal world unit/s` 관계는 현재 속도감 목표에 비해 느린 1차 원인이다.
+- 225km/h의 `screenY 60→85%` 통과 시간은 Javascript Racer 최고속보다 `8.25배`, 공식 trailer의 Horizon Chase/Slipstream 표본보다 약 `6.87~23.56배` 길다.
+- 현재 185km/h corner lane/reflector cadence는 약 `5.21/s`라 marker 수는 1차 원인이 아니다.
+- sign/chevron처럼 구분되는 사건은 코스 전체에 3개뿐이고 최장 공백은 `46,776u`, 185km/h에서 약 `74.85초`라 content gap은 2차 원인이다.
+- steady FOV는 110→225km/h에서 `70.976°→74.2°`로 넓어지지만 225km/h 통과 시간이 여전히 `2.061초`이므로 projection은 보조 원인이다.
 - 다른 게임의 배율을 그대로 가져오는 것도 근거가 부족하다.
 - traffic, audio와 추가 효과 전에 longitudinal scale을 독립 변수로 A/B해야 한다.
+
+재현 명령과 원자료는 [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md)에 고정한다.
 
 ## 핵심 판단
 
@@ -169,7 +176,7 @@ Horizon Chase의 camera offset·tilt는 속도 임계 이후 조향 순간에만
 
 ## 실행 계획
 
-### ORS-1 — 타 게임 unit-scale 정규화와 화면 기준선
+### ORS-1 — 타 게임 unit-scale 정규화와 화면 기준선 — 완료
 
 소스가 공개된 엔진은 내부 단위를 계산하고, 상용 게임은 60fps 이상 gameplay footage를 화면 단위로 측정한다.
 
@@ -190,7 +197,7 @@ Horizon Chase의 camera offset·tilt는 속도 임계 이후 조향 순간에만
 
 - micro marker pass/s
 - segment/s, road-width/s와 nominal visible-depth time
-- road mark와 roadside object의 `screenY 60% → 95%` 통과 시간
+- road mark와 roadside object의 primary `screenY 60% → 85%`, compatibility `60% → 95%` 통과 시간
 - roadside object의 `16→32px`, `32→64px` scale doubling time
 - 화면 높이 `15%` 이상으로 커졌다가 사라지는 meso pass 수
 - traffic, gate, crest, 환경 전환의 macro event 수
@@ -198,6 +205,15 @@ Horizon Chase의 camera offset·tilt는 속도 임계 이후 조향 순간에만
 - camera FOV/offset/roll과 player anchor 변화
 
 비교 캡처는 HUD on/off를 각각 남긴다. 체감 평가는 HUD off 10초 클립으로 현재 빌드와 후보를 무작위 비교한다.
+
+구현 결과:
+
+- `npm run qa:outrun-unit-scale --workspace @games/apex-seoul`
+- Apex 110/150/185/225km/h의 unit, cadence, projection과 scale doubling 시간을 JSON/Markdown으로 자동 생성한다.
+- Javascript Racer는 공개 소스 상수를 projection까지 정규화했고 CannonBall은 표시 speed와 road position 사이의 변환 계층을 고정했다.
+- Horizon Chase Turbo와 Slipstream은 공식 Steam 1920×1080/60fps trailer의 연속 장면을 frame range로 기록했다. 상용 게임의 raw unit는 추정하지 않는다.
+- 공식 SEGA AGES Out Run 영상은 cut/UI가 없는 재현 가능한 straight probe가 없어 정성 참고로만 남기고 수치 표에서는 제외했다.
+- 현재 원인은 `longitudinal unit scale=primary`, `content gap/projection=secondary`, `marker density=not-primary`로 분리됐다.
 
 완료 조건:
 
@@ -214,17 +230,19 @@ ORS-1 결과를 바탕으로 표시 km/h와 powertrain을 고정한 채 world pr
 | 후보 | longitudinalUnitScale | 150km/h segment/s | 185km/h segment/s |
 | --- | ---: | ---: | ---: |
 | U0 | 1.00 | 2.111 | 2.604 |
-| U1 | 1.25 | 2.639 | 3.255 |
-| U2 | 1.50 | 3.167 | 3.906 |
-| U3 진단 상한 | 1.75 | 3.694 | 4.556 |
+| U1 | 1.50 | 3.167 | 3.906 |
+| U2 | 2.00 | 4.222 | 5.207 |
+| U3 진단 상한 | 3.00 | 6.333 | 7.811 |
 
 규칙:
 
 - 표시 km/h, engine force, gear, RPM과 가속 시간은 변경하지 않는다.
 - `worldTravelSpeed` 변환을 한 곳에서 만들고 모든 spatial consumer가 같은 값을 사용한다.
 - candidate별 corner entry/apex/exit 시간, steering input window와 rail 접근을 다시 측정한다.
-- U3는 목표값이 아니라 느린 원인이 unit scale인지 확인하기 위한 진단 상한이다.
+- 기존 `1.00 / 1.25 / 1.50 / 1.75`는 가설을 반증하기에 범위가 좁아 ORS-1 결과에 따라 확대했다.
+- U3 `3.00`은 목표값이 아니라 느린 원인이 unit scale인지 확인하기 위한 진단 상한이다.
 - 다른 게임의 `60 segment/s` 같은 값을 목표로 복사하지 않는다.
+- `2.00+`에서 속도감은 맞지만 grip corner 조작 시간이 무너지면 camera 효과로 숨기지 않고 선택 배율에 맞춘 longitudinal course resampling을 함께 검토한다.
 
 완료 조건:
 
@@ -333,7 +351,7 @@ unit scale, roadside, camera/crest, sector와 traffic까지 승인된 뒤 소리
 실행 순서는 번호 순서가 아니라 다음 gate를 따른다.
 
 ```text
-ORS-1 unit/reference audit
+ORS-1 unit/reference audit ✓
   → ORS-2A longitudinal scale A/B
   → 사용자 속도감·핸들링 리뷰
   → ORS-2B roadside hero pass
@@ -343,13 +361,13 @@ ORS-1 unit/reference audit
   → ORS-5 audio
 ```
 
-현재 구현 범위는 `ORS-1 → ORS-2A`까지다. traffic과 audio는 이 범위에 포함하지 않는다.
+ORS-1은 완료됐고 현재 구현 범위는 `ORS-2A`다. traffic과 audio는 이 범위에 포함하지 않는다.
 
 ## 통합 승인 기준
 
 - 표시 km/h, engine/gear, corner demand, understeer, drift와 collision 상수는 유지한다. `camera.z` 진행률은 선택한 world conversion을 사용한다.
 - 표시 속도와 world progression의 환산은 한 곳에서 정의되고 모든 spatial system이 같은 값을 사용한다.
-- 타 게임 비교는 raw unit가 아니라 segment/s, near-pass time과 scale doubling time을 함께 기록한다.
+- 타 게임 비교는 raw unit가 아니라 segment/s, primary `60→85%`/compatibility `60→95%` near-pass time과 scale doubling time을 함께 기록한다.
 - 코너 marker `4~6 pass/s`는 유지하되 더 늘리지 않는다.
 - 150~185km/h에서 meso event 최대 공백은 `5초` 이하, macro event는 평균 `6~10초`마다 발생한다.
 - HUD off 10초 A/B에서 현재 빌드보다 빠르게 보이고, 110/150/185km/h 순서가 구분된다.

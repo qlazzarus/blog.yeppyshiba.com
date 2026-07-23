@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-23
 
-상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2, CSS-1~CSS-4 자동 검증 완료. 다음 최우선 과제는 content 추가가 아니라 현재 `225km/h = 760u/s = 3.167 segment/s` 종방향 환산을 타 OutRun식 게임과 정규화 비교하는 것이다.
+상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2, CSS-1~CSS-4와 ORS-1 자동 검증 완료. 다음 최우선 과제는 ORS-2A longitudinal scale `1.00 / 1.50 / 2.00 / 3.00` A/B다.
 
 이 문서는 **앞으로 할 일만** 관리한다. 완료된 구현 과정과 발행용 글감은 누적하지 않는다. 세부 설계와 수치는 각 단일 기준 문서 및 자동 QA 결과를 따른다.
 
@@ -22,6 +22,8 @@
 - SH-2에서 초기 throttle hold burst는 `0`, 207km/h 페달 재입력 peak는 `0.1851`로 측정됐다.
 - SH-4 shader는 steady `0.1`, 모든 event overlap `0.38`을 상한으로 하며 210~225km/h steady 값이 증가하지 않는다.
 - SH-4 실제 WebGL 185/225km/h FOV 최대는 `72.913° / 74.217°`로 측정됐다.
+- ORS-1에서 225km/h의 flat-ground `screenY 60→85% / 60→95%` 통과 시간은 `2.061 / 2.379초`로 측정됐다.
+- ORS-1 원인 분리는 `longitudinal unit scale=primary`, `content gap/projection=secondary`, `marker density=not-primary`다.
 - SH-7 직선은 TSE 수정 후 1x runtime에서 `225km/h`, 6단에 도달한다.
 - RAIL-1 재측정에서 grip/drift의 물리 rail ratio는 최대 `0.6263 / 0.3528`이며 rail impact는 모두 `0회`다.
 - 최종 drift run은 setup/drift/recovery/grip, counter timer `0.749초`, exit burst `0.0354`를 기록했다.
@@ -52,9 +54,11 @@ SH-7 blocker의 진단 근거와 실행 단위는 [최고속 평형·Visual Rail
 ## P0 — 아웃런 참고 속도감 ORS-1~ORS-6
 
 - 현재 CSS 기준선의 코너 marker `4~6 pass/s`, 표시 km/h, handling과 코스 geometry를 고정한다.
-- ORS-1에서 Apex, Javascript Racer와 CannonBall의 speed→road-position 구조를 `segment/s`, `road-width/s`, visible-depth time으로 비교한다.
-- OutRun/Horizon Chase/Slipstream 영상과 Apex HUD-off replay는 `screenY 60→95%` 통과 시간과 object scale doubling time으로 비교한다.
-- ORS-2A에서 표시 km/h와 powertrain을 고정하고 longitudinal scale `1.00 / 1.25 / 1.50 / 1.75`를 A/B한다.
+- ORS-1 완료: Apex, Javascript Racer와 CannonBall의 speed→road-position 구조를 `segment/s`, `road-width/s`, visible-depth time으로 비교했다.
+- ORS-1 결과는 `longitudinal unit scale=primary`, `content gap/projection=secondary`, `marker density=not-primary`다.
+- 공식 60fps 영상과 Apex projection은 primary `screenY 60→85%`, compatibility `60→95%` 통과 시간과 object scale doubling time으로 비교한다.
+- ORS-2A에서 표시 km/h와 powertrain을 고정하고 longitudinal scale `1.00 / 1.50 / 2.00 / 3.00`을 A/B한다. `3.00`은 진단 상한이다.
+- `2.00+`에서 속도감만 맞고 grip corner 시간이 무너지면 선택 배율에 맞춘 longitudinal course resampling을 함께 검토한다.
 - ORS-2A 사용자 리뷰와 handling gate 통과 뒤 ORS-2B에서 큰 roadside object를 `3~5초` 간격으로 배치한다.
 - ORS-4는 crest reveal과 `0.35~0.75°`의 짧은 camera bank만 후보로 두며 steady FOV와 상시 shake는 변경하지 않는다.
 - ORS-6 sector transition까지 기본 도로 흐름을 먼저 승인한다.
@@ -167,7 +171,7 @@ npm run build --workspace @games/apex-seoul
 ## 완료 조건
 
 - 60/100/150/185/210/225km/h가 HUD 없이 단계적으로 구분된다.
-- 150/185/225km/h의 segment/s, near-pass time과 scale doubling time이 기록되고 타 게임 영상과 같은 기준으로 비교된다.
+- 150/185/225km/h의 segment/s, primary `60→85%`/compatibility `60→95%` near-pass time과 scale doubling time이 기록되고 타 게임 영상과 같은 기준으로 비교된다.
 - 150~185km/h에서 큰 roadside pass의 최대 공백이 5초 이하이고 traffic/crest/gate 같은 macro event가 평균 6~10초마다 발생한다.
 - 185~225km/h에서 조향 pose와 trajectory가 모두 남고 연속적으로 제한된다.
 - 0-100km/h가 `7.8~8.3초`를 유지한다.
