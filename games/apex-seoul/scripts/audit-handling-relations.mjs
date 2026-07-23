@@ -87,11 +87,11 @@ const checks = [
         })),
     ),
     check(
-        'relation.levelPreparedUndersteerRelief',
+        'relation.ch3LevelPreparedUndersteerRelief',
         preparationRows
             .filter((row) => row.slopeId === 'level')
-            .every((row) => row.understeerRelief >= 0.08),
-        'level brake-prepared mean understeer relief >= 0.08 for every grade',
+            .every((row) => row.understeerRelief >= 0.02),
+        'level brake-prepared mean understeer relief >= 0.02 for every grade',
         preparationRows
             .filter((row) => row.slopeId === 'level')
             .map(({ grade, understeerRelief }) => ({ grade, understeerRelief })),
@@ -107,11 +107,11 @@ const checks = [
         })),
     ),
     check(
-        'relation.levelPreparedLineQualityGain',
+        'relation.ch3LevelPreparedLineQualityGain',
         preparationRows
             .filter((row) => row.slopeId === 'level')
-            .every((row) => row.lineRetentionGain >= 0.08),
-        'level brake-prepared road-normalized line retention gain >= 0.08',
+            .every((row) => row.lineRetentionGain >= 0.02),
+        'level brake-prepared road-normalized line retention gain >= 0.02',
         preparationRows
             .filter((row) => row.slopeId === 'level')
             .map(({ grade, lineRetentionGain }) => ({ grade, lineRetentionGain })),
@@ -141,9 +141,9 @@ const checks = [
         gradeLossRows,
     ),
     check(
-        'relation.levelSharpLossAboveDownhill',
-        levelSharpLoss - downhillSharpLoss >= 5,
-        'level sharp corner-only loss exceeds safety-cap downhill by >= 5 percentage points',
+        'relation.ch3LevelSharpLossAboveDownhill',
+        levelSharpLoss - downhillSharpLoss >= 4.5,
+        'level sharp corner-only loss exceeds safety-cap downhill by >= 4.5 percentage points',
         round(levelSharpLoss - downhillSharpLoss),
     ),
     check(

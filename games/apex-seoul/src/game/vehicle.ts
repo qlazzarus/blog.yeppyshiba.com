@@ -116,6 +116,7 @@ export type PlayerCornerSpeedLossSample = {
     severeOverspeedScrubForce: number;
     steeringScrubForce: number;
     totalForce: number;
+    trajectoryScrubRatio: number;
     zone: PlayerCornerSpeedLossZone;
 };
 
@@ -153,6 +154,7 @@ export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
     cornerDemand: PlayerCornerDemandSample;
+    cornerInertiaLateralVelocity: number;
     cornerSpeedLoss: PlayerCornerSpeedLossSample;
     counterSteerTimer: number;
     counterSteerLateralVelocity: number;
@@ -185,6 +187,7 @@ export type PlayerVehicleState = {
     guardrailShoulderRatio: number;
     gripCounterRoadLateralVelocity: number;
     gripCounterRoadRatio: number;
+    gripFollowAuthority: number;
     gripSteerAngleLimit: number;
     lateralOffset: number;
     lowSpeedLateralAuthority: number;
@@ -202,6 +205,9 @@ export type PlayerVehicleState = {
     overspeedUndersteerLoadTransferScale: number;
     overspeedUndersteerLateralVelocity: number;
     rpm: number;
+    passiveGripYawRate: number;
+    requiredRoadYawRate: number;
+    residualRoadYawRate: number;
     shiftCutRatio: number;
     shiftDirection: -1 | 0 | 1;
     shiftTimer: number;
@@ -213,6 +219,7 @@ export type PlayerVehicleState = {
     torqueScale: number;
     traction: number;
     throttleWasPressed: boolean;
+    vehicleHeadingError: number;
 };
 
 export type VehicleAnchor = {

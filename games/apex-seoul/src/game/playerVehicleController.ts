@@ -23,6 +23,11 @@ const SHIFT_UP_CUT_RATIO = 0.42;
 const SHIFT_UP_DURATION_SECONDS = 0.22;
 const LOW_SPEED_DRIFT_LOCK_RATIO = 0.33;
 const LOW_SPEED_DRIFT_VELOCITY_DECAY = 18;
+const VEHICLE_HEADING_SOFT_RESPONSE = 0.42;
+const VEHICLE_HEADING_SOFT_ALIGN_START = 0.72;
+const VEHICLE_HEADING_SOFT_ALIGN_RATE = 2.4;
+const VEHICLE_HEADING_ROAD_RESPONSE = 0.78;
+const VEHICLE_HEADING_STEER_RESPONSE = 1.15;
 
 type SpeedHandlingKnot = PlayerSpeedHandlingState;
 
@@ -176,7 +181,9 @@ export type PlayerVehicleControllerConfig = {
     cornerSharpLineRewardScale: number;
     cornerSharpSpeedLossScale: number;
     cornerSpeedPull: number;
-    curveDriftAcceleration: number;
+    cornerInertiaBuildRate: number;
+    cornerInertiaMaxLateralSpeed: number;
+    cornerInertiaRecoveryRate: number;
     curveSteeringHighSpeedDrop: number;
     curveSteeringCue: number;
     driftBuildRate: number;
@@ -281,6 +288,8 @@ export type PlayerVehicleInput = {
 
 export type PlayerVehicleUpdateContext = {
     currentCurve: number;
+    longitudinalScale?: number;
+    previewRoadCurve?: number;
     slopeAcceleration: number;
 };
 
@@ -299,6 +308,7 @@ export function createDefaultPlayerVehicleState(
         brakePressure: 0,
         boostRatio: 0,
         cornerDemand: createDefaultCornerDemandSample(cruiseSpeed, accelSpeed),
+        cornerInertiaLateralVelocity: 0,
         cornerSpeedLoss: createDefaultCornerSpeedLossSample(),
         counterSteerTimer: 0,
         counterSteerLateralVelocity: 0,
@@ -331,6 +341,7 @@ export function createDefaultPlayerVehicleState(
         guardrailShoulderRatio: 0,
         gripCounterRoadLateralVelocity: 0,
         gripCounterRoadRatio: 0,
+        gripFollowAuthority: 1,
         gripSteerAngleLimit: 1,
         lateralOffset: 0,
         lowSpeedLateralAuthority: speedHandling.lateralAuthority,
@@ -361,6 +372,9 @@ export function createDefaultPlayerVehicleState(
         overspeedUndersteerSteerDemandRatio: 0,
         overspeedUndersteerLoadTransferScale: 1,
         overspeedUndersteerLateralVelocity: 0,
+        passiveGripYawRate: 0,
+        requiredRoadYawRate: 0,
+        residualRoadYawRate: 0,
         rpm,
         shiftCutRatio: 0,
         shiftDirection: 0,
@@ -373,6 +387,7 @@ export function createDefaultPlayerVehicleState(
         torqueScale,
         traction: 1,
         throttleWasPressed: false,
+        vehicleHeadingError: 0,
     };
 }
 
@@ -446,6 +461,7 @@ export function updatePlayerVehicle(
         player.cornerDemand.downhillCarryRatio *
             config.downhillCornerLateralScale *
             downhillGradeResponse;
+    const longitudinalScale = Math.max(0.1, context.longitudinalScale ?? 1);
     const roadDirection = getDirection(context.currentCurve);
     const outwardRoadRatio = roadDirection === 0
         ? 0
@@ -485,6 +501,81 @@ export function updatePlayerVehicle(
         ? speedHandling.gripAngleCap * overspeedSteerScale
         : 1;
     const gripSteerAxis = input.steerAxis * player.gripSteerAngleLimit;
+    // The preview defines how quickly the road tangent is rotating ahead.
+    // Normal tire grip consumes part of that demand without changing lateral
+    // position. Only the unmet yaw becomes persistent road-relative debt.
+    const previewRoadCurve = context.previewRoadCurve ?? context.currentCurve;
+    const requiredRoadYawRate = -previewRoadCurve *
+        VEHICLE_HEADING_ROAD_RESPONSE *
+        longitudinalScale *
+        speedRatio;
+    const gradeGripAuthority = player.cornerDemand.grade === 'sharp'
+        ? 0.58
+        : player.cornerDemand.grade === 'medium'
+            ? 0.76
+            : player.cornerDemand.grade === 'easy'
+                ? 0.93
+                : 1;
+    const overspeedGripLoss = smoothstep(clamp(
+        player.cornerDemand.overspeedRatio / 0.65,
+        0,
+        1,
+    ));
+    const preparedGripBonus = input.brakePressed
+        ? 0.2 * player.brakePressure
+        : input.accelPressed
+            ? 0
+            : 0.12;
+    const driftGripScale = player.driftState === 'grip'
+        ? 1
+        : player.driftState === 'setup'
+            ? 0.72
+            : 0.3;
+    const gripFollowAuthority = clamp(
+        (gradeGripAuthority * (1 - overspeedGripLoss * 0.48) + preparedGripBonus) *
+            driftGripScale,
+        0.12,
+        0.98,
+    );
+    const passiveGripYawRate = requiredRoadYawRate * gripFollowAuthority;
+    const steeringHeadingRate = gripSteerAxis *
+        VEHICLE_HEADING_STEER_RESPONSE *
+        lowSpeedLateralAuthority *
+        speedRatio;
+    const residualRoadYawRate = requiredRoadYawRate - passiveGripYawRate;
+    player.requiredRoadYawRate = requiredRoadYawRate;
+    player.passiveGripYawRate = passiveGripYawRate;
+    player.residualRoadYawRate = residualRoadYawRate;
+    player.gripFollowAuthority = gripFollowAuthority;
+    const headingSoftAlignRate = getDirection(player.vehicleHeadingError) *
+        Math.max(
+            0,
+            Math.abs(player.vehicleHeadingError) - VEHICLE_HEADING_SOFT_ALIGN_START,
+        ) *
+        VEHICLE_HEADING_SOFT_ALIGN_RATE;
+    player.vehicleHeadingError += (
+        residualRoadYawRate +
+        steeringHeadingRate -
+        headingSoftAlignRate
+    ) * seconds;
+    const headingDebtRatio = Math.tanh(
+        player.vehicleHeadingError / VEHICLE_HEADING_SOFT_RESPONSE,
+    );
+    const cornerInertiaTarget = headingDebtRatio *
+        config.cornerInertiaMaxLateralSpeed *
+        longitudinalScale *
+        speedRatio *
+        downhillLateralScale;
+    player.cornerInertiaLateralVelocity = approach(
+        player.cornerInertiaLateralVelocity,
+        cornerInertiaTarget,
+        (Math.abs(cornerInertiaTarget) >
+            Math.abs(player.cornerInertiaLateralVelocity)
+            ? config.cornerInertiaBuildRate
+            : config.cornerInertiaRecoveryRate) *
+            longitudinalScale,
+        seconds,
+    );
     const inputSteerDirection = getDirection(input.steerAxis);
     const roadSteerDirection = getDirection(context.currentCurve);
     const gripCounterRoadActive = player.driftState === 'grip' &&
@@ -545,14 +636,12 @@ export function updatePlayerVehicle(
     const centeringTargetScale = gripCounterRoadActive
         ? config.gripCounterRoadCenteringScale
         : neutralRelease
-        ? player.centeringReleaseTimer < config.centeringReleaseDelay
-            ? player.centeringReleaseStartScale
-            : config.centeringReleaseScale
-        : inputSteerDirection === lateralOffsetDirection
-            ? config.centeringInputHoldScale
-            : counterHasCommitted
-                ? 1
-                : config.centeringCounterStartScale;
+            ? 0
+            : inputSteerDirection === lateralOffsetDirection
+                ? config.centeringInputHoldScale
+                : counterHasCommitted
+                    ? 1
+                    : config.centeringCounterStartScale;
     player.lateralCenteringTargetScale = centeringTargetScale;
     player.lateralCenteringScale = approach(
         player.lateralCenteringScale,
@@ -562,26 +651,24 @@ export function updatePlayerVehicle(
             : config.centeringScaleResponse,
         seconds,
     );
-    const centeringForce = -player.lateralOffset * config.centeringResponse *
-        player.lateralCenteringScale * (1 - player.driftRatio * 0.34) *
-        lowSpeedLateralAuthority * speedHandling.centeringScale;
+    // Releasing the wheel damps steering velocity, but it must not use lateral
+    // position as a hidden command to drive the car back to road center.
+    const centeringForce = neutralRelease
+        ? 0
+        : -player.lateralOffset * config.centeringResponse *
+            player.lateralCenteringScale * (1 - player.driftRatio * 0.34) *
+            lowSpeedLateralAuthority * speedHandling.centeringScale;
     player.centeringForce = centeringForce;
     const steeringForce = gripSteerAxis *
         config.steerAcceleration *
         speedHandling.steeringForceScale *
         counterSteerScale *
         lowSpeedLateralAuthority;
-    const curveForce = -context.currentCurve *
-        speedRatio *
-        config.curveDriftAcceleration *
-        (1 + player.driftRatio * 0.28) *
-        lowSpeedLateralAuthority;
     const dampingForce = -player.steeringVelocity * config.steerDamping * (1 - player.driftRatio * 0.2);
 
     player.steeringVelocity += (
         steeringForce +
         centeringForce +
-        curveForce +
         dampingForce
     ) * seconds;
     const baseLateralVelocityLimit = speedHandling.lateralVelocityCap;
@@ -600,17 +687,12 @@ export function updatePlayerVehicle(
         -lateralVelocityLimit,
         lateralVelocityLimit,
     );
-    if (
-        neutralRelease &&
-        lateralOffsetDirection !== 0 &&
-        player.steeringVelocity * lateralOffsetDirection < -speedHandling.neutralReturnVelocityCap
-    ) {
-        player.steeringVelocity = -lateralOffsetDirection * speedHandling.neutralReturnVelocityCap;
-    }
     player.counterSteerLateralVelocity = counterSteering ? player.steeringVelocity : 0;
     if (lowSpeedLateralAuthority <= 0) {
         player.steeringVelocity = 0;
         player.counterSteerLateralVelocity = 0;
+        player.cornerInertiaLateralVelocity = 0;
+        player.vehicleHeadingError = 0;
         player.gripCounterRoadLateralVelocity = 0;
         player.overspeedUndersteerLateralVelocity = 0;
         player.driftLateralVelocity = approach(
@@ -622,6 +704,7 @@ export function updatePlayerVehicle(
     }
     player.lateralOffset += (
         player.steeringVelocity +
+        player.cornerInertiaLateralVelocity +
         player.driftLateralVelocity +
         player.gripCounterRoadLateralVelocity +
         player.overspeedUndersteerLateralVelocity
@@ -1241,7 +1324,21 @@ function updatePlayerSpeed(
         : 0;
     const driftOverspeedScale = 1 +
         config.driftOutsideLineOverspeedPull * cornerIntensity * outsideLineRatio;
-    const cornerLimitForce = cornerDemand.speedOverBudget > 0
+    const roadDirection = getDirection(context.currentCurve);
+    const outwardRoadRatio = roadDirection === 0
+        ? 0
+        : Math.max(0, -roadDirection * player.lateralOffset / config.maxRoadOffset);
+    const trajectoryScrubRatio = smoothstep(clamp(
+        (outwardRoadRatio - config.overspeedSafetyMarginStartRatio) /
+            Math.max(
+                0.01,
+                config.overspeedSafetyMarginFullRatio -
+                    config.overspeedSafetyMarginStartRatio,
+            ),
+        0,
+        1,
+    ));
+    const rawCornerLimitForce = cornerDemand.speedOverBudget > 0
         ? Math.min(
             config.cornerSpeedPull *
                 cornerIntensity *
@@ -1251,6 +1348,7 @@ function updatePlayerSpeed(
             cornerDemand.speedOverBudget,
         )
         : 0;
+    const cornerLimitForce = rawCornerLimitForce * trajectoryScrubRatio;
     const steeringScrubRatio = smoothstep(
         clamp(
             (Math.abs(player.steering) - config.steeringSpeedScrubThreshold) /
@@ -1283,7 +1381,8 @@ function updatePlayerSpeed(
     const overspeedUndersteerScrubForce = config.overspeedUndersteerSpeedScrub *
         cornerIntensity *
         cornerDemand.overspeedRatio *
-        overspeedScrubGradeScale;
+        overspeedScrubGradeScale *
+        trajectoryScrubRatio;
     const severeLineMissRatio = smoothstep(clamp(
         (0.5 - cornerDemand.lineQuality) / 0.5,
         0,
@@ -1292,14 +1391,16 @@ function updatePlayerSpeed(
     const severeOverspeedScrubForce = config.cornerSevereOverspeedScrub *
         cornerIntensity *
         cornerDemand.severeOverspeedRatio *
-        (1 + config.cornerSevereLineScrubScale * severeLineMissRatio);
+        (1 + config.cornerSevereLineScrubScale * severeLineMissRatio) *
+        trajectoryScrubRatio;
     // A downhill does not reduce grip by itself: production keeps this optional
     // term at zero and lets the carried speed raise the shared corner demand.
     // If tuned for a variant, it can only act on an already-over-budget corner.
     const downhillCornerOverspeedScrubForce = config.downhillCornerOverspeedScrub *
         cornerDemand.downhillCarryRatio *
         cornerIntensity *
-        cornerDemand.overspeedRatio;
+        cornerDemand.overspeedRatio *
+        trajectoryScrubRatio;
     const overspeedSafetyMarginScrubForce = config.overspeedSafetyMarginScrub *
         cornerIntensity *
         cornerDemand.severeOverspeedRatio *
@@ -1324,6 +1425,7 @@ function updatePlayerSpeed(
         severeOverspeedScrubForce,
         steeringScrubForce: steeringSpeedScrubForce,
         totalForce: totalCornerSpeedLossForce,
+        trajectoryScrubRatio,
         zone: cornerDemand.speedLossZone,
     };
     const acceleration =
@@ -1446,6 +1548,7 @@ function createDefaultCornerSpeedLossSample(): PlayerCornerSpeedLossSample {
         severeOverspeedScrubForce: 0,
         steeringScrubForce: 0,
         totalForce: 0,
+        trajectoryScrubRatio: 0,
         zone: 'within-budget',
     };
 }

@@ -186,22 +186,22 @@
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "easy",
-          "levelCornerLossPercent": 6.501,
-          "levelMinusDownhillPercentagePoints": 6.501
+          "levelCornerLossPercent": 6.506,
+          "levelMinusDownhillPercentagePoints": 6.506
         },
         {
-          "downhillCornerLossPercent": 21.44,
-          "downhillRawLossPercent": 21.257,
+          "downhillCornerLossPercent": 21.45,
+          "downhillRawLossPercent": 21.268,
           "grade": "medium",
-          "levelCornerLossPercent": 28.242,
-          "levelMinusDownhillPercentagePoints": 6.802
+          "levelCornerLossPercent": 28.4,
+          "levelMinusDownhillPercentagePoints": 6.95
         },
         {
-          "downhillCornerLossPercent": 42.714,
-          "downhillRawLossPercent": 42.296,
+          "downhillCornerLossPercent": 42.716,
+          "downhillRawLossPercent": 42.299,
           "grade": "sharp",
-          "levelCornerLossPercent": 47.956,
-          "levelMinusDownhillPercentagePoints": 5.242
+          "levelCornerLossPercent": 48.131,
+          "levelMinusDownhillPercentagePoints": 5.415
         }
       ]
     }
@@ -211,22 +211,22 @@
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "easy",
-      "levelCornerLossPercent": 6.501,
-      "levelMinusDownhillPercentagePoints": 6.501
+      "levelCornerLossPercent": 6.506,
+      "levelMinusDownhillPercentagePoints": 6.506
     },
     {
-      "downhillCornerLossPercent": 21.44,
-      "downhillRawLossPercent": 21.257,
+      "downhillCornerLossPercent": 21.45,
+      "downhillRawLossPercent": 21.268,
       "grade": "medium",
-      "levelCornerLossPercent": 28.242,
-      "levelMinusDownhillPercentagePoints": 6.802
+      "levelCornerLossPercent": 28.4,
+      "levelMinusDownhillPercentagePoints": 6.95
     },
     {
-      "downhillCornerLossPercent": 42.714,
-      "downhillRawLossPercent": 42.296,
+      "downhillCornerLossPercent": 42.716,
+      "downhillRawLossPercent": 42.299,
       "grade": "sharp",
-      "levelCornerLossPercent": 47.956,
-      "levelMinusDownhillPercentagePoints": 5.242
+      "levelCornerLossPercent": 48.131,
+      "levelMinusDownhillPercentagePoints": 5.415
     }
   ],
   "forceAt225": {
@@ -248,7 +248,7 @@
     "physicalFourthShiftSpeedKmh": 175.339513,
     "shiftRpm": 7400
   },
-  "generatedAt": "2026-07-22T11:37:09.818Z",
+  "generatedAt": "2026-07-23T05:16:52.362Z",
   "pass": true,
   "slopeRows": [
     {

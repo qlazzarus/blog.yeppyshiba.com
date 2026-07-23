@@ -20,10 +20,10 @@
 2. grip이 기본값이고 drift는 특정 코너를 위한 선택지다.
 3. 표시 속도, world progression, 코너 판정과 충돌은 하나의 좌표 관계를 공유한다.
 4. 효과를 추가하기 전에 그것이 플레이 판단이나 게임 loop에 어떤 역할을 하는지 정의한다.
-5. 완료된 handling·drift·속도감은 새 기능에서 지켜야 할 회귀 기준이지 계속 tuning할 기본 작업이 아니다.
+5. 승인된 handling·drift·속도감은 회귀 기준으로 유지하되, 사용자 실주행에서 핵심 gameplay 계약이 깨지면 다음 milestone보다 먼저 재검증한다.
 6. 후순위 세부 아이디어는 독립 단계로 늘리지 않고 상위 기능에 병합한다.
 
-## M0 — 주행 기반 확립 — 완료
+## M0 — 주행 기반 확립 — 코너 계약 재검증 중
 
 ### 구현된 기반
 
@@ -38,9 +38,20 @@
 
 ### 현재 판단
 
-핸들링·드리프트·속도감은 다음 기능 개발을 시작할 수 있는 수준의 기준선으로 본다. 새 사용자 회귀가 없다면 이 영역을 독립 tuning milestone으로 다시 열지 않는다.
+속도대별 grip, drift 상태 머신, 구동계와 화면 속도감은 유지한다. CH-0~CH-3 뒤 runtime 로그에서 relative outward와 absolute shoulder 위협이 다르다는 사실을 확인해 기존 gameplay 승인을 다시 열었다. HR-0은 absolute road threat 계약을 교체했고 HR-1은 persistent `vehicleHeadingError`를 구현했으며 HR-2는 무입력 위치 중앙 복귀를 제거했다. HR-3은 near/far preview demand, passive grip yaw와 residual soft-slip을 구현해 production `14/14 + 6/6`, 36-case matrix `6/6`으로 승인했다. 다음 변경은 실제 플레이에서 판단 window가 부족할 때만 HR-4 코스 apex 조정을 연다.
 
-## M1 — 완결된 time attack loop — 다음 milestone
+현재 M0의 남은 gate는 다음과 같다.
+
+- 실제 Bugak/U2 S-curve에서 무입력 heading debt가 코너 전환을 통해 보존된다.
+- HR-1 production S-window에서 무입력 주행이 paved ratio `1.379`, shoulder `1`, impact `3`에 도달한다.
+- HR-2 production neutral sample에서 centering force가 모두 `0`이고 S-window impact는 `7`이다.
+- 과속 무입력은 absolute shoulder/rail 위협에 도달하고 이전 코너가 다음 코너의 자동 셋업이 되지 않는다.
+- prepared grip과 drift가 서로 다른 조작과 기록 결과를 만든다.
+- 선택한 sharp 코너는 조향이 필수이고 straight/easy의 고속 안정성은 유지된다.
+
+상세 실행 순서는 [다음 구현 우선순위 P0](./apex-seoul-next-priority-plan.md#p0--코너-조향-필수-계약-복구), 진단과 QA는 [속도대별 핸들링 재검증](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)을 따른다.
+
+## M1 — 완결된 time attack loop — M0 재승인 뒤 시작
 
 ### 사용자 경험
 

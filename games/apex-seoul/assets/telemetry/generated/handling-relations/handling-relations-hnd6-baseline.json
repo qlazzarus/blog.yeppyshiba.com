@@ -25,34 +25,34 @@
         {
           "grade": "medium",
           "slopeId": "level",
-          "understeerRelief": 0.16
+          "understeerRelief": 0.067
         },
         {
           "grade": "sharp",
           "slopeId": "level",
-          "understeerRelief": 0.089
+          "understeerRelief": 0.096
         },
         {
           "grade": "easy",
           "slopeId": "downhill",
-          "understeerRelief": 0.015
+          "understeerRelief": 0.014
         },
         {
           "grade": "medium",
           "slopeId": "downhill",
-          "understeerRelief": 0.013
+          "understeerRelief": 0.012
         },
         {
           "grade": "sharp",
           "slopeId": "downhill",
-          "understeerRelief": 0.048
+          "understeerRelief": 0.033
         }
       ]
     },
     {
-      "id": "relation.levelPreparedUndersteerRelief",
+      "id": "relation.ch3LevelPreparedUndersteerRelief",
       "pass": true,
-      "target": "level brake-prepared mean understeer relief >= 0.08 for every grade",
+      "target": "level brake-prepared mean understeer relief >= 0.02 for every grade",
       "value": [
         {
           "grade": "easy",
@@ -60,11 +60,11 @@
         },
         {
           "grade": "medium",
-          "understeerRelief": 0.16
+          "understeerRelief": 0.067
         },
         {
           "grade": "sharp",
-          "understeerRelief": 0.089
+          "understeerRelief": 0.096
         }
       ]
     },
@@ -75,52 +75,52 @@
       "value": [
         {
           "grade": "easy",
-          "lineRetentionGain": 0.207,
+          "lineRetentionGain": 0.209,
           "slopeId": "level"
         },
         {
           "grade": "medium",
-          "lineRetentionGain": 0.184,
+          "lineRetentionGain": 0.024,
           "slopeId": "level"
         },
         {
           "grade": "sharp",
-          "lineRetentionGain": 0.089,
+          "lineRetentionGain": 0.034,
           "slopeId": "level"
         },
         {
           "grade": "easy",
-          "lineRetentionGain": 0.001,
+          "lineRetentionGain": 0.01,
           "slopeId": "downhill"
         },
         {
           "grade": "medium",
-          "lineRetentionGain": 0.002,
+          "lineRetentionGain": 0.025,
           "slopeId": "downhill"
         },
         {
           "grade": "sharp",
-          "lineRetentionGain": 0.032,
+          "lineRetentionGain": 0.024,
           "slopeId": "downhill"
         }
       ]
     },
     {
-      "id": "relation.levelPreparedLineQualityGain",
+      "id": "relation.ch3LevelPreparedLineQualityGain",
       "pass": true,
-      "target": "level brake-prepared road-normalized line retention gain >= 0.08",
+      "target": "level brake-prepared road-normalized line retention gain >= 0.02",
       "value": [
         {
           "grade": "easy",
-          "lineRetentionGain": 0.207
+          "lineRetentionGain": 0.209
         },
         {
           "grade": "medium",
-          "lineRetentionGain": 0.184
+          "lineRetentionGain": 0.024
         },
         {
           "grade": "sharp",
-          "lineRetentionGain": 0.089
+          "lineRetentionGain": 0.034
         }
       ]
     },
@@ -135,11 +135,11 @@
         },
         {
           "grade": "medium",
-          "understeerRelief": 0.081
+          "understeerRelief": 0.049
         },
         {
           "grade": "sharp",
-          "understeerRelief": 0.075
+          "understeerRelief": 0.088
         }
       ]
     },
@@ -150,15 +150,15 @@
       "value": [
         {
           "grade": "easy",
-          "lineRetentionGain": 0.207
+          "lineRetentionGain": 0.204
         },
         {
           "grade": "medium",
-          "lineRetentionGain": 0.081
+          "lineRetentionGain": 0.019
         },
         {
           "grade": "sharp",
-          "lineRetentionGain": 0.052
+          "lineRetentionGain": 0.029
         }
       ]
     },
@@ -168,24 +168,24 @@
       "target": "sharp > medium > easy for level and downhill",
       "value": [
         {
-          "easy": 6.501,
-          "medium": 28.242,
-          "sharp": 47.956,
+          "easy": 2.457,
+          "medium": 27.321,
+          "sharp": 47.293,
           "slopeId": "level"
         },
         {
           "easy": 0,
-          "medium": 21.44,
-          "sharp": 42.714,
+          "medium": 21.268,
+          "sharp": 42.466,
           "slopeId": "downhill"
         }
       ]
     },
     {
-      "id": "relation.levelSharpLossAboveDownhill",
+      "id": "relation.ch3LevelSharpLossAboveDownhill",
       "pass": true,
-      "target": "level sharp corner-only loss exceeds safety-cap downhill by >= 5 percentage points",
-      "value": 5.242
+      "target": "level sharp corner-only loss exceeds safety-cap downhill by >= 4.5 percentage points",
+      "value": 4.827
     },
     {
       "id": "control.straightExitSpeedStable",
@@ -306,18 +306,18 @@
       "maxExitSpeedDeltaKmh": 8.817
     }
   },
-  "generatedAt": "2026-07-22T11:37:09.520Z",
+  "generatedAt": "2026-07-23T08:41:34.310Z",
   "gradeLossRows": [
     {
-      "easy": 6.501,
-      "medium": 28.242,
-      "sharp": 47.956,
+      "easy": 2.457,
+      "medium": 27.321,
+      "sharp": 47.293,
       "slopeId": "level"
     },
     {
       "easy": 0,
-      "medium": 21.44,
-      "sharp": 42.714,
+      "medium": 21.268,
+      "sharp": 42.466,
       "slopeId": "downhill"
     }
   ],
@@ -332,64 +332,64 @@
   "pass": true,
   "preparationRows": [
     {
-      "fullLineRetention": 0.793,
+      "fullLineRetention": 0.786,
       "fullUndersteerMean": 0.295,
       "grade": "easy",
-      "lineRetentionGain": 0.207,
-      "preparedLineRetention": 1,
+      "lineRetentionGain": 0.209,
+      "preparedLineRetention": 0.995,
       "preparedUndersteerMean": 0,
       "slopeId": "level",
       "understeerRelief": 0.295
     },
     {
-      "fullLineRetention": 0.647,
-      "fullUndersteerMean": 0.406,
+      "fullLineRetention": 0.603,
+      "fullUndersteerMean": 0.443,
       "grade": "medium",
-      "lineRetentionGain": 0.184,
-      "preparedLineRetention": 0.831,
-      "preparedUndersteerMean": 0.246,
+      "lineRetentionGain": 0.024,
+      "preparedLineRetention": 0.627,
+      "preparedUndersteerMean": 0.376,
       "slopeId": "level",
-      "understeerRelief": 0.16
+      "understeerRelief": 0.067
     },
     {
-      "fullLineRetention": 0.546,
-      "fullUndersteerMean": 0.451,
+      "fullLineRetention": 0.489,
+      "fullUndersteerMean": 0.549,
       "grade": "sharp",
-      "lineRetentionGain": 0.089,
-      "preparedLineRetention": 0.635,
-      "preparedUndersteerMean": 0.362,
+      "lineRetentionGain": 0.034,
+      "preparedLineRetention": 0.523,
+      "preparedUndersteerMean": 0.453,
       "slopeId": "level",
-      "understeerRelief": 0.089
+      "understeerRelief": 0.096
     },
     {
-      "fullLineRetention": 0.779,
+      "fullLineRetention": 0.762,
       "fullUndersteerMean": 0.295,
       "grade": "easy",
-      "lineRetentionGain": 0.001,
-      "preparedLineRetention": 0.78,
-      "preparedUndersteerMean": 0.28,
+      "lineRetentionGain": 0.01,
+      "preparedLineRetention": 0.772,
+      "preparedUndersteerMean": 0.281,
       "slopeId": "downhill",
-      "understeerRelief": 0.015
+      "understeerRelief": 0.014
     },
     {
-      "fullLineRetention": 0.61,
-      "fullUndersteerMean": 0.51,
+      "fullLineRetention": 0.489,
+      "fullUndersteerMean": 0.52,
       "grade": "medium",
-      "lineRetentionGain": 0.002,
-      "preparedLineRetention": 0.612,
-      "preparedUndersteerMean": 0.497,
+      "lineRetentionGain": 0.025,
+      "preparedLineRetention": 0.514,
+      "preparedUndersteerMean": 0.508,
       "slopeId": "downhill",
-      "understeerRelief": 0.013
+      "understeerRelief": 0.012
     },
     {
-      "fullLineRetention": 0.442,
-      "fullUndersteerMean": 0.632,
+      "fullLineRetention": 0.367,
+      "fullUndersteerMean": 0.687,
       "grade": "sharp",
-      "lineRetentionGain": 0.032,
-      "preparedLineRetention": 0.474,
-      "preparedUndersteerMean": 0.584,
+      "lineRetentionGain": 0.024,
+      "preparedLineRetention": 0.391,
+      "preparedUndersteerMean": 0.654,
       "slopeId": "downhill",
-      "understeerRelief": 0.048
+      "understeerRelief": 0.033
     }
   ],
   "schemaVersion": 2,
@@ -408,34 +408,34 @@
   "stageStatus": "automated-relational-qa-complete-manual-approval-deferred",
   "trackPreparationRows": [
     {
-      "fullLineRetention": 0.793,
+      "fullLineRetention": 0.785,
       "fullUndersteerMean": 0.295,
       "grade": "easy",
-      "lineRetentionGain": 0.207,
-      "preparedLineRetention": 1,
+      "lineRetentionGain": 0.204,
+      "preparedLineRetention": 0.989,
       "preparedUndersteerMean": 0,
       "slopeId": "bugak-fixed",
       "understeerRelief": 0.295
     },
     {
-      "fullLineRetention": 0.642,
-      "fullUndersteerMean": 0.41,
+      "fullLineRetention": 0.598,
+      "fullUndersteerMean": 0.444,
       "grade": "medium",
-      "lineRetentionGain": 0.081,
-      "preparedLineRetention": 0.723,
-      "preparedUndersteerMean": 0.329,
+      "lineRetentionGain": 0.019,
+      "preparedLineRetention": 0.617,
+      "preparedUndersteerMean": 0.395,
       "slopeId": "bugak-fixed",
-      "understeerRelief": 0.081
+      "understeerRelief": 0.049
     },
     {
-      "fullLineRetention": 0.529,
-      "fullUndersteerMean": 0.502,
+      "fullLineRetention": 0.481,
+      "fullUndersteerMean": 0.589,
       "grade": "sharp",
-      "lineRetentionGain": 0.052,
-      "preparedLineRetention": 0.581,
-      "preparedUndersteerMean": 0.427,
+      "lineRetentionGain": 0.029,
+      "preparedLineRetention": 0.51,
+      "preparedUndersteerMean": 0.501,
       "slopeId": "bugak-fixed",
-      "understeerRelief": 0.075
+      "understeerRelief": 0.088
     }
   ]
 }

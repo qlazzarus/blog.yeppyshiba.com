@@ -44,7 +44,9 @@ const baseConfig = {
     downhillCornerBudgetSlopeAcceleration: 65,
     downhillCornerLateralScale: 1.3,
     downhillCornerOverspeedScrub: 0,
-    curveDriftAcceleration: 160,
+    cornerInertiaBuildRate: 240,
+    cornerInertiaMaxLateralSpeed: 115,
+    cornerInertiaRecoveryRate: 320,
     curveSteeringHighSpeedDrop: 0.42,
     curveSteeringCue: 0.06,
     driftBuildRate: 2.8,
@@ -141,7 +143,7 @@ const candidates = [
         id: 'previous-baseline',
         patch: {
             cornerSpeedPull: 190,
-            curveDriftAcceleration: 260,
+            cornerInertiaMaxLateralSpeed: 150,
             curveSteeringHighSpeedDrop: 0,
             curveSteeringCue: 0.1,
             engineAcceleration: 128,
@@ -220,7 +222,7 @@ const candidates = [
     {
         id: 'even-less-curve-force',
         patch: {
-            curveDriftAcceleration: 130,
+            cornerInertiaMaxLateralSpeed: 90,
             curveSteeringCue: 0.05,
         },
     },
@@ -264,7 +266,7 @@ const candidates = [
         id: 'combined-second-pass',
         patch: {
             cornerSpeedPull: 100,
-            curveDriftAcceleration: 130,
+            cornerInertiaMaxLateralSpeed: 90,
             curveSteeringHighSpeedDrop: 0.38,
             curveSteeringCue: 0.05,
             engineAcceleration: 190,

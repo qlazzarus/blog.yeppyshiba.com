@@ -15,6 +15,7 @@ const NARROW_GEOMETRY = getGuardrailCollisionGeometry(NARROW_CONTEXT);
 const mild = runContact(1, 34, 620);
 const hard = runContact(1, 220, 720);
 const left = runContact(-1, 220, 720);
+const cornerInertiaOnly = runCornerInertiaContact(1, 220, 720);
 const sustained = runSustainedContact();
 const recovery = runRecovery();
 const falseVisualBoundary = runFalseVisualBoundary();
@@ -22,6 +23,10 @@ const shoulder = runShoulderSample();
 const metrics = {
     hardImpactCue: hard.impactCue,
     hardSpeedLoss: hard.speedLoss,
+    cornerInertiaBounceVelocity: cornerInertiaOnly.bounceVelocity,
+    cornerInertiaDampedVelocity: cornerInertiaOnly.cornerInertiaVelocity,
+    cornerInertiaDampedHeadingError: cornerInertiaOnly.vehicleHeadingError,
+    cornerInertiaImpactCue: cornerInertiaOnly.impactCue,
     leftDirection: left.direction,
     mildSpeedLoss: mild.speedLoss,
     sustainedImpactCount: sustained.impactCount,
@@ -41,6 +46,10 @@ const metrics = {
 const checks = [
     atLeast('hardImpactCue', metrics.hardImpactCue, 0.7),
     atLeast('hardSpeedLoss', metrics.hardSpeedLoss, 50),
+    atLeast('cornerInertiaImpactCue', metrics.cornerInertiaImpactCue, 0.7),
+    atLeast('cornerInertiaBounceVelocity', metrics.cornerInertiaBounceVelocity, 100),
+    between('cornerInertiaDampedVelocity', metrics.cornerInertiaDampedVelocity, 48.3, 48.5),
+    between('cornerInertiaDampedHeadingError', metrics.cornerInertiaDampedHeadingError, 0.109, 0.111),
     equals('leftDirection', metrics.leftDirection, -1),
     between('mildSpeedLoss', metrics.mildSpeedLoss, 1, 30),
     equals('sustainedImpactCount', metrics.sustainedImpactCount, 1),
@@ -73,6 +82,22 @@ function runContact(side, outwardVelocity, speed) {
         direction: player.guardrailContactDirection,
         impactCue: player.guardrailImpactCue,
         speedLoss: speed - player.speed,
+    };
+}
+
+function runCornerInertiaContact(side, outwardVelocity, speed) {
+    const player = createPlayer(speed);
+
+    player.lateralOffset = side * GEOMETRY.railCenterLimit;
+    player.cornerInertiaLateralVelocity = side * outwardVelocity;
+    player.vehicleHeadingError = side * 0.5;
+    applyGuardrailCollision(player, CONTEXT, FRAME_SECONDS);
+
+    return {
+        bounceVelocity: player.guardrailBounceVelocity,
+        cornerInertiaVelocity: player.cornerInertiaLateralVelocity,
+        impactCue: player.guardrailImpactCue,
+        vehicleHeadingError: player.vehicleHeadingError,
     };
 }
 

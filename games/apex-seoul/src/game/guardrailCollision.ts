@@ -84,6 +84,7 @@ export function applyGuardrailCollision(
 
     const outwardVelocity = side * (
         player.steeringVelocity +
+        player.cornerInertiaLateralVelocity +
         player.driftLateralVelocity +
         player.gripCounterRoadLateralVelocity +
         player.overspeedUndersteerLateralVelocity
@@ -105,6 +106,8 @@ export function applyGuardrailCollision(
     player.guardrailBounceVelocity = bounceVelocity;
     player.steeringVelocity = -side * bounceVelocity;
     player.driftLateralVelocity *= -GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+    player.cornerInertiaLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+    player.vehicleHeadingError *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
     player.gripCounterRoadLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
     player.overspeedUndersteerLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
     player.speed = Math.max(

@@ -32,7 +32,6 @@ import {
 } from './game/engineProfile';
 import {
     createDefaultPlayerVehicleState,
-    getCornerIntensity,
     updatePlayerVehicle,
     type PlayerVehicleControllerConfig,
 } from './game/playerVehicleController';
@@ -55,8 +54,10 @@ import {
 import {
     createRoadTrack,
     DEFAULT_ROAD_HALF_WIDTH,
+    getRoadCurveAt,
     getRoadElevationAt,
     getRoadHalfWidthAt,
+    getRoadHeadingPreview,
     parseRoadTrackId,
     wrapDistance,
     type RoadTrack,
@@ -275,7 +276,9 @@ const PLAYER_CONTACT_TERRAIN_CUE_THRESHOLD = 8;
 const PLAYER_MAX_TERRAIN_SCREEN_Y_SHIFT = 18;
 const PLAYER_TERRAIN_SCALE_INTENSITY = 0.045;
 const PLAYER_CURVE_SCREEN_BIAS = 8;
-const PLAYER_CURVE_DRIFT_ACCELERATION = 160;
+const PLAYER_CORNER_INERTIA_BUILD_RATE = 240;
+const PLAYER_CORNER_INERTIA_MAX_LATERAL_SPEED = 265;
+const PLAYER_CORNER_INERTIA_RECOVERY_RATE = 320;
 const PLAYER_CURVE_STEERING_CUE = 0.06;
 const PLAYER_DRIFT_BUILD_RATE = 2.8;
 const PLAYER_DRIFT_DECAY_RATE = 2.6;
@@ -303,7 +306,7 @@ const PLAYER_DRIFT_COUNTER_TRIM_DURATION = 0.65;
 const PLAYER_DRIFT_COUNTER_TRIM_MAX_RATIO = 0.62;
 const PLAYER_DRIFT_COUNTER_TRIM_RESPONSE = 7;
 const PLAYER_DRIFT_COUNTER_TRIM_RELEASE_RESPONSE = 4;
-const PLAYER_DRIFT_SUSTAIN_ACCELERATION = 70;
+const PLAYER_DRIFT_SUSTAIN_ACCELERATION = 300;
 const PLAYER_DRIFT_TRANSITION_ARM_DURATION = 0.12;
 const PLAYER_DRIFT_TRANSITION_INPUT_WINDOW = 0.42;
 const PLAYER_DRIFT_TRANSITION_KICK = 120;
@@ -455,11 +458,13 @@ const PLAYER_CONTROLLER_CONFIG: PlayerVehicleControllerConfig = createRuntimePla
     cornerSharpLineRewardScale: PLAYER_CORNER_SHARP_LINE_REWARD_SCALE,
     cornerSharpSpeedLossScale: PLAYER_CORNER_SHARP_SPEED_LOSS_SCALE,
     cornerSpeedPull: PLAYER_CORNER_SPEED_PULL,
+    cornerInertiaBuildRate: PLAYER_CORNER_INERTIA_BUILD_RATE,
+    cornerInertiaMaxLateralSpeed: PLAYER_CORNER_INERTIA_MAX_LATERAL_SPEED,
+    cornerInertiaRecoveryRate: PLAYER_CORNER_INERTIA_RECOVERY_RATE,
     downhillCornerBudgetMaxReduction: PLAYER_DOWNHILL_CORNER_BUDGET_MAX_REDUCTION,
     downhillCornerBudgetSlopeAcceleration: PLAYER_DOWNHILL_CORNER_BUDGET_SLOPE_ACCELERATION,
     downhillCornerLateralScale: PLAYER_DOWNHILL_CORNER_LATERAL_SCALE,
     downhillCornerOverspeedScrub: PLAYER_DOWNHILL_CORNER_OVERSPEED_SCRUB,
-    curveDriftAcceleration: PLAYER_CURVE_DRIFT_ACCELERATION,
     curveSteeringHighSpeedDrop: PLAYER_CURVE_STEERING_HIGH_SPEED_DROP,
     curveSteeringCue: PLAYER_CURVE_STEERING_CUE,
     driftBuildRate: PLAYER_DRIFT_BUILD_RATE,
@@ -592,6 +597,17 @@ type PlayerVehiclePoseRenderState = {
     visualSteering: PlayerVehicleVisualSteeringState;
 };
 
+type PlayerPhysicsRoadSample = {
+    cameraZ: number;
+    contactZ: number;
+    currentCurve: number;
+    farTangentChange: number;
+    nearTangentChange: number;
+    pavedHalfWidth: number;
+    previewRoadCurve: number;
+    railCenterLimit: number;
+};
+
 class ApexSeoulScene extends Phaser.Scene {
     private backgroundGraphics!: Phaser.GameObjects.Graphics;
     private cameraResource: Pseudo3dCamera = createRuntimeQaCamera();
@@ -649,6 +665,19 @@ class ApexSeoulScene extends Phaser.Scene {
     private headlightOpticalState: VehicleHeadlightOpticalState =
         getVehicleHeadlightOpticalState(PLAYER_VEHICLE_ATLAS, 0);
     private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
+    private playerPhysicsRoadSample: PlayerPhysicsRoadSample = {
+        cameraZ: 0,
+        contactZ: PLAYER_ROAD_CONTACT_DISTANCE,
+        currentCurve: 0,
+        farTangentChange: 0,
+        nearTangentChange: 0,
+        pavedHalfWidth: DEFAULT_ROAD_HALF_WIDTH,
+        previewRoadCurve: 0,
+        railCenterLimit:
+            DEFAULT_ROAD_HALF_WIDTH +
+            GUARDRAIL_COLLISION_CONFIG.contactClearance -
+            GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,
+    };
     private wallForestSprites = new Map<string, Phaser.GameObjects.Image>();
     private speedEffectIntensity = 0;
     private speedEffectCue = {
@@ -692,6 +721,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.roadObjects = createRoadObjects(this.roadTrack);
         this.applyRuntimeQaOverrides();
+        this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
         this.cameras.main.setBackgroundColor('#050812');
         this.backgroundGraphics = this.add.graphics().setDepth(RenderDepth.Background);
         this.moon = this.createSkyLayer(MOON_COOL_BLUE_KEY, RenderDepth.Moon);
@@ -778,6 +808,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.updateTelemetryHotkey();
         this.updateLongitudinalAbHotkey();
         this.updateRestartHotkey();
+        this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
 
         if (RUNTIME_QA.freeze) {
             camera.pitch = this.updateCameraPitch(seconds);
@@ -1235,8 +1266,10 @@ class ApexSeoulScene extends Phaser.Scene {
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
                 ? 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
                 : 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | debug camera locked',
-            cornerIntensity: getCornerIntensity(stats?.currentCurve ?? 0),
+            cornerIntensity: player.cornerDemand.cornerIntensity,
             longitudinalProgression: LONGITUDINAL_PROGRESSION,
+            physicsRoadContactZ: this.playerPhysicsRoadSample.contactZ,
+            physicsRoadCurve: this.playerPhysicsRoadSample.currentCurve,
             player,
             qa: RUNTIME_QA,
             roadStats: stats,
@@ -1260,9 +1293,10 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private updatePlayerVehicle(seconds: number) {
+        const physicsRoad = this.playerPhysicsRoadSample;
         const controllerConfig = {
             ...PLAYER_CONTROLLER_CONFIG,
-            maxRoadOffset: this.getCurrentRoadOffsetLimit(),
+            maxRoadOffset: physicsRoad.railCenterLimit,
         };
 
         updatePlayerVehicle(
@@ -1273,13 +1307,15 @@ class ApexSeoulScene extends Phaser.Scene {
                 steerAxis: getAxis(this.cursors.right.isDown, this.cursors.left.isDown),
             },
             {
-                currentCurve: this.roadStats?.currentCurve ?? 0,
+                currentCurve: physicsRoad.currentCurve,
+                longitudinalScale: LONGITUDINAL_PROGRESSION.scale,
+                previewRoadCurve: physicsRoad.previewRoadCurve,
                 slopeAcceleration: this.getSlopeAcceleration(),
             },
             controllerConfig,
             seconds,
         );
-        const guardrailContext = this.getGuardrailCollisionContext();
+        const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
 
         applyGuardrailCollision(this.playerVehicle, guardrailContext, seconds);
         this.vehicleRenderState = null;
@@ -1306,7 +1342,7 @@ class ApexSeoulScene extends Phaser.Scene {
             );
         const roadHalfWidthAtVehicle = getRoadHalfWidthAt(
             this.roadTrack,
-            this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance,
+            this.getPlayerRoadContactZ(),
         );
         // R3 intentionally keeps the car's scale independent of local road
         // narrowing. Reconstruct the equivalent full-width screen span for
@@ -1349,7 +1385,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 getGuardrailCollisionGeometry(this.getGuardrailCollisionContext()),
                 this.playerVehicle.lateralOffset,
                 displaySize * centerContactProfile.chassis.w,
-                -(this.roadStats?.currentCurve ?? 0) * RUNTIME_TUNING.curveScreenBias,
+                -this.playerPhysicsRoadSample.currentCurve * RUNTIME_TUNING.curveScreenBias,
             )
             : null;
 
@@ -1527,7 +1563,7 @@ class ApexSeoulScene extends Phaser.Scene {
         poseState: PlayerVehiclePoseRenderState,
     ) {
         const cue = poseState.visualSteering.understeerCueIntensity;
-        const curveDirection = Math.sign(this.roadStats?.currentCurve ?? 0);
+        const curveDirection = Math.sign(this.playerPhysicsRoadSample.currentCurve);
 
         if (this.playerVehicle.driftState !== 'grip' || cue < 0.02 || curveDirection === 0) {
             return;
@@ -1574,7 +1610,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private getVehicleAnchor(viewport: Viewport): VehicleAnchor {
         const player = this.playerVehicle;
         const anchorZ = this.cameraResource.z + RUNTIME_TUNING.playerRoadAnchorDistance;
-        const contactZ = this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance;
+        const contactZ = this.getPlayerRoadContactZ();
         const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
         const anchorElevation = getRoadElevationAt(this.roadTrack, anchorZ);
         const contactElevation = getRoadElevationAt(this.roadTrack, contactZ);
@@ -1600,7 +1636,8 @@ class ApexSeoulScene extends Phaser.Scene {
         const fixedAnchorY = viewport.height * RUNTIME_TUNING.playerScreenAnchorRatio;
         const fallbackY = fixedAnchorY;
         const fallbackX = viewport.width / 2;
-        const curveScreenBias = -(this.roadStats?.currentCurve ?? 0) * RUNTIME_TUNING.curveScreenBias;
+        const curveScreenBias =
+            -this.playerPhysicsRoadSample.currentCurve * RUNTIME_TUNING.curveScreenBias;
         const anchorX = contactRoadAnchor.visible
             ? contactRoadAnchor.x + curveScreenBias
             : fallbackX;
@@ -1646,18 +1683,40 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private getCurrentRoadOffsetLimit() {
-        return getGuardrailCollisionGeometry(this.getGuardrailCollisionContext()).railCenterLimit;
+        return this.playerPhysicsRoadSample.railCenterLimit;
     }
 
-    private getCurrentPavedHalfWidth() {
-        return getRoadHalfWidthAt(
-            this.roadTrack,
-            this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance,
-        );
+    private getPlayerRoadContactZ() {
+        return this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance;
     }
 
-    private getGuardrailCollisionContext() {
-        const pavedHalfWidth = this.getCurrentPavedHalfWidth();
+    private samplePlayerPhysicsRoad(): PlayerPhysicsRoadSample {
+        const cameraZ = this.cameraResource.z;
+        const contactZ = this.getPlayerRoadContactZ();
+        const headingPreview = getRoadHeadingPreview(this.roadTrack, contactZ);
+        const pavedHalfWidth = getRoadHalfWidthAt(this.roadTrack, contactZ);
+        const guardrailContext = {
+            pavedHalfWidth,
+            railContactLimit: pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
+            vehicleHalfWidth: GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,
+        };
+
+        return {
+            cameraZ,
+            contactZ,
+            currentCurve: getRoadCurveAt(this.roadTrack, contactZ),
+            farTangentChange: headingPreview.farTangentChange,
+            nearTangentChange: headingPreview.nearTangentChange,
+            pavedHalfWidth,
+            previewRoadCurve: headingPreview.demandCurve,
+            railCenterLimit: getGuardrailCollisionGeometry(guardrailContext).railCenterLimit,
+        };
+    }
+
+    private getGuardrailCollisionContext(
+        physicsRoad: PlayerPhysicsRoadSample = this.samplePlayerPhysicsRoad(),
+    ) {
+        const pavedHalfWidth = physicsRoad.pavedHalfWidth;
         return {
             pavedHalfWidth,
             railContactLimit: pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
@@ -2143,7 +2202,8 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private getRuntimeQaState(viewport: Viewport, horizonY: number) {
-        const guardrailContext = this.getGuardrailCollisionContext();
+        const physicsRoad = this.playerPhysicsRoadSample;
+        const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
         const guardrailGeometry = getGuardrailCollisionGeometry(guardrailContext);
         const activeRailContactLimit = guardrailGeometry.railCenterLimit;
         const guardrailScreenProjection = this.getPlayerVehicleRenderState(viewport)
@@ -2219,6 +2279,14 @@ class ApexSeoulScene extends Phaser.Scene {
                 ).toFixed(4)),
                 worldTravelSpeed: Number(this.getWorldTravelSpeed().toFixed(4)),
             },
+            physicsRoad: {
+                baseRenderCurve: Number((this.roadStats?.currentCurve ?? 0).toFixed(4)),
+                cameraZ: Number(physicsRoad.cameraZ.toFixed(3)),
+                contactZ: Number(physicsRoad.contactZ.toFixed(3)),
+                currentCurve: Number(physicsRoad.currentCurve.toFixed(4)),
+                pavedHalfWidth: Number(physicsRoad.pavedHalfWidth.toFixed(3)),
+                railCenterLimit: Number(physicsRoad.railCenterLimit.toFixed(3)),
+            },
             player: {
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
                 brakePressure: Number(this.playerVehicle.brakePressure.toFixed(4)),
@@ -2251,6 +2319,9 @@ class ApexSeoulScene extends Phaser.Scene {
                     severeOverspeedScrubForce: Number(this.playerVehicle.cornerSpeedLoss.severeOverspeedScrubForce.toFixed(3)),
                     steeringScrubForce: Number(this.playerVehicle.cornerSpeedLoss.steeringScrubForce.toFixed(3)),
                     totalForce: Number(this.playerVehicle.cornerSpeedLoss.totalForce.toFixed(3)),
+                    trajectoryScrubRatio: Number(
+                        this.playerVehicle.cornerSpeedLoss.trajectoryScrubRatio.toFixed(4),
+                    ),
                     zone: this.playerVehicle.cornerSpeedLoss.zone,
                 },
                 counterSteerTimer: Number(this.playerVehicle.counterSteerTimer.toFixed(3)),
@@ -2291,6 +2362,21 @@ class ApexSeoulScene extends Phaser.Scene {
                 guardrailActiveContactRatio: Number((
                     Math.abs(this.playerVehicle.lateralOffset) / activeRailContactLimit
                 ).toFixed(4)),
+                cornerInertiaLateralVelocity: Number(
+                    this.playerVehicle.cornerInertiaLateralVelocity.toFixed(3),
+                ),
+                vehicleHeadingError: Number(this.playerVehicle.vehicleHeadingError.toFixed(4)),
+                requiredRoadYawRate: Number(this.playerVehicle.requiredRoadYawRate.toFixed(4)),
+                passiveGripYawRate: Number(this.playerVehicle.passiveGripYawRate.toFixed(4)),
+                residualRoadYawRate: Number(this.playerVehicle.residualRoadYawRate.toFixed(4)),
+                gripFollowAuthority: Number(this.playerVehicle.gripFollowAuthority.toFixed(4)),
+                previewRoadCurve: Number(this.playerPhysicsRoadSample.previewRoadCurve.toFixed(4)),
+                nearRoadTangentChange: Number(
+                    this.playerPhysicsRoadSample.nearTangentChange.toFixed(4),
+                ),
+                farRoadTangentChange: Number(
+                    this.playerPhysicsRoadSample.farTangentChange.toFixed(4),
+                ),
                 gripCounterRoadLateralVelocity: Number(this.playerVehicle.gripCounterRoadLateralVelocity.toFixed(3)),
                 gripCounterRoadRatio: Number(this.playerVehicle.gripCounterRoadRatio.toFixed(4)),
                 gripSteerAngleLimit: Number(this.playerVehicle.gripSteerAngleLimit.toFixed(4)),
