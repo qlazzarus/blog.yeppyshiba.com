@@ -91,6 +91,7 @@ const scenarios = {
             { atSec: 6.1, key: 'ArrowLeft', type: 'up' },
             { atSec: 9, key: 'ArrowUp', type: 'up' },
         ],
+        query: { longitudinalScale: '1' },
     },
     'sh7-drift-mixed': {
         durationSec: 8,
@@ -112,6 +113,7 @@ const scenarios = {
             { atSec: 1.45, key: 'ArrowUp', type: 'down' },
             { atSec: 8, key: 'ArrowUp', type: 'up' },
         ],
+        query: { longitudinalScale: '1' },
     },
     'sh7-straight-accel': {
         durationSec: 14,
@@ -119,6 +121,7 @@ const scenarios = {
             { atSec: 0, key: 'ArrowUp', type: 'down' },
             { atSec: 14, key: 'ArrowUp', type: 'up' },
         ],
+        query: { longitudinalScale: '1' },
     },
     'sh7-straight-tse5-1x': {
         durationSec: 70,
@@ -126,6 +129,7 @@ const scenarios = {
             { atSec: 0, key: 'ArrowUp', type: 'down' },
             { atSec: 70, key: 'ArrowUp', type: 'up' },
         ],
+        query: { longitudinalScale: '1' },
     },
 };
 
@@ -330,6 +334,10 @@ function buildTelemetryUrl() {
         url.searchParams.set('track', config.track);
     }
 
+    for (const [key, value] of Object.entries(scenario.query ?? {})) {
+        url.searchParams.set(key, value);
+    }
+
     if (config.query) {
         const query = new URLSearchParams(config.query);
 
@@ -347,6 +355,8 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
     const ranges = {
         cameraFovDegrees: createRange(),
         cameraPitch: createRange(),
+        cameraZ: createRange(),
+        guardrailActiveContactRatio: createRange(),
         horizonGapY: createRange(),
         horizonY: createRange(),
         lateralOffset: createRange(),
@@ -358,8 +368,10 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
         speedKmh: createRange(),
         slopeAcceleration: createRange(),
         speed: createRange(),
+        segmentsPerSec: createRange(),
         steering: createRange(),
         vehicleY: createRange(),
+        worldTravelSpeed: createRange(),
     };
     let maxVehicleYDelta = 0;
     let previousVehicleY = null;
@@ -374,6 +386,8 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
         increment(frameCounts, frame);
         addRangeValue(ranges.cameraFovDegrees, state.camera?.fovDegrees);
         addRangeValue(ranges.cameraPitch, state.camera?.pitch);
+        addRangeValue(ranges.cameraZ, state.camera?.z);
+        addRangeValue(ranges.guardrailActiveContactRatio, state.player?.guardrailActiveContactRatio);
         addRangeValue(ranges.horizonGapY, state.road?.horizonGapY);
         addRangeValue(ranges.horizonY, state.horizonY);
         addRangeValue(ranges.lateralOffset, state.player?.lateralOffset);
@@ -385,8 +399,10 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
         addRangeValue(ranges.speedKmh, state.player?.speedKmh);
         addRangeValue(ranges.slopeAcceleration, state.player?.slopeAcceleration);
         addRangeValue(ranges.speed, state.player?.speed);
+        addRangeValue(ranges.segmentsPerSec, state.longitudinalProgression?.segmentsPerSec);
         addRangeValue(ranges.steering, state.player?.steering);
         addRangeValue(ranges.vehicleY, vehicleY);
+        addRangeValue(ranges.worldTravelSpeed, state.longitudinalProgression?.worldTravelSpeed);
 
         if (typeof vehicleY === 'number' && previousVehicleY !== null) {
             maxVehicleYDelta = Math.max(maxVehicleYDelta, Math.abs(vehicleY - previousVehicleY));
@@ -418,6 +434,7 @@ function buildSummary({ config, durationSec, finishedAt, jsonlPath, samples, sce
             durationSec,
             events: scenario.events,
             id: config.scenario,
+            query: scenario.query ?? {},
         },
         sessionId,
         startedAt: startedAt.toISOString(),
