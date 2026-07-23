@@ -25,6 +25,24 @@
       "value": 4.8e-7
     },
     {
+      "id": "cssCornerLaneCadenceAt150Kmh",
+      "pass": true,
+      "target": [
+        4,
+        6
+      ],
+      "value": 4.222222
+    },
+    {
+      "id": "cssCornerReflectorCadenceAt185Kmh",
+      "pass": true,
+      "target": [
+        4,
+        6
+      ],
+      "value": 5.207407
+    },
+    {
       "id": "fovIdentityErrorMax",
       "pass": true,
       "target": [
@@ -287,6 +305,12 @@
       "throttleFovImpulse": 0.8
     },
     "cadence": {
+      "cornerLaneDashLengthRatio": 0.18,
+      "cornerLaneDashMinCurve": 0.18,
+      "cornerLaneDashStartRatio": 0.08,
+      "cornerLaneDashSubdivisions": 2,
+      "cornerReflectorStartRatio": 0.28,
+      "cornerReflectorSubdivisions": 2,
       "laneDashLengthRatio": 0.34,
       "laneDashSegmentInterval": 1,
       "laneDashStartRatio": 0.16,
@@ -384,11 +408,15 @@
       "status": "observed"
     }
   ],
-  "generatedAt": "2026-07-22T05:08:29.532Z",
+  "generatedAt": "2026-07-22T11:37:09.775Z",
   "pass": true,
   "rows": [
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 0,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 0,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 0,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0,
@@ -465,6 +493,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 0.844444,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 0.844444,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 0.422222,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.105556,
@@ -541,6 +573,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 1.688889,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 1.688889,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 0.844444,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.211111,
@@ -617,6 +653,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 2.533333,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 2.533333,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 1.266667,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.316667,
@@ -693,6 +733,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 3.096296,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 3.096296,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 1.548148,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.387037,
@@ -769,6 +813,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 3.659259,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 3.659259,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 1.82963,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.457407,
@@ -845,6 +893,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 4.222222,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 4.222222,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 2.111111,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.527778,
@@ -921,6 +973,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 4.785185,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 4.785185,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 2.392593,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.598148,
@@ -997,6 +1053,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 5.207407,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 5.207407,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 2.603704,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.650926,
@@ -1073,6 +1133,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 5.62963,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 5.62963,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 2.814815,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.703704,
@@ -1149,6 +1213,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 5.911111,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 5.911111,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 2.955556,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.738889,
@@ -1225,6 +1293,10 @@
     },
     {
       "cadence": {
+        "cornerLaneDashPassesPerSec": 6.333333,
+        "cornerLaneDashSpacingUnits": 120,
+        "cornerReflectorPassesPerSec": 6.333333,
+        "cornerReflectorSpacingUnits": 120,
         "laneDashPassesPerSec": 3.166667,
         "laneDashSpacingUnits": 240,
         "leftPostPassesPerSec": 0.791667,

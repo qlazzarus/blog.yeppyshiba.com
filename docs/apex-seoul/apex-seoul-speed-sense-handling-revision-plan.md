@@ -2,7 +2,9 @@
 
 갱신일: 2026-07-22
 
-상태: HND-6, SH-1~SH-4, TSE-1~TSE-6 완료. Visual rail 수정과 grip/drift 재측정 전까지 통합 실주행 승인을 보류한다.
+상태: HND-1~HND-6, SH-1~SH-7, TSE-1~TSE-6와 Visual Rail RAIL-1~RAIL-2 완료. 현재 handling·drift·속도감 기준선으로 마감하며 추가 체감 tuning은 [후순위 보류 백로그 D-13/D-15](./apex-seoul-deferred-backlog.md)에서 조건부 관리한다.
+
+> 이 문서 안의 단계별 “보류” 표기는 당시 진행 기록이다. 현재 작업 순서는 [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)를 따른다.
 
 ## 목적
 
@@ -383,9 +385,9 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 - [HND-5 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.md)
 - [HND-5 sharp runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/hnd5-sharp-understeer.png)
 
-### HND-6 — 관계형 QA와 실주행 승인
+### HND-6 — 관계형 QA와 조건부 실주행 회귀
 
-상태: **자동 관계형 QA 완료 (2026-07-22) / 실주행 최종 승인 보류**
+상태: **자동 관계형 QA 완료 (2026-07-22) / 현재 기준선 승인 / 추가 수동 매트릭스 D-13 이동**
 
 자동 QA는 절대 상수뿐 아니라 다음 관계를 검증한다.
 
@@ -396,7 +398,7 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 - straight acceleration과 0-100은 handling 변경 전후 오차 범위 안에 있음
 - grip understeer 중 accidental drift ratio는 0에 가까움
 
-마지막으로 같은 build에서 level/left, downhill/right, sharp S-bend를 실주행하고 telemetry와 캡처를 남긴다. HND-6 승인 또는 사용자 별도 진행 결정 후 `SH-1~SH-4` 속도감 작업을 재개한다.
+level/left, downhill/right, sharp S-bend 수동 매트릭스는 새 회귀가 보고될 때만 telemetry와 캡처를 다시 남긴다. 현재 결과는 이후 game-loop 기능이 지켜야 할 handling 기준선으로 사용한다.
 
 #### 자동 관계형 QA 결과
 
@@ -415,7 +417,7 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 - [HND-6 관계형 QA JSON](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.json)
 - [HND-6 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.md)
 
-실주행 최종 승인은 자동 QA 통과와 분리한다. `level/left`, `downhill/right`, `sharp S-bend` 체크박스와 캡처는 사용자 체감 검토가 끝날 때까지 미완료로 유지하며, 현재 결과만으로 `SH-1~SH-4` 재개를 자동 승인하지 않는다. 다만 사용자가 별도로 진행을 지시한 SH-1~SH-4는 이 승인과 분리해 완료했다.
+자동 QA와 사용자 주행 리뷰를 거쳐 현재 handling·drift는 기준선으로 마감했다. `level/left`, `downhill/right`, `sharp S-bend` 추가 캡처는 완료 gate가 아니라 [후순위 보류 백로그 D-13](./apex-seoul-deferred-backlog.md)의 조건부 회귀 매트릭스로 관리한다.
 
 ## 2026-07-22 속도→world unit 역산 진단
 
@@ -710,7 +712,7 @@ roadside flow가 안정된 뒤 진행한다.
 - [225km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/apex-seoul-drive-2026-07-22T01-56-56-113Z_curve-no-input.summary.json)
 - [225km/h runtime capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/sh4-225.png)
 
-SH-1~SH-4의 자동 gate는 모두 완료됐다. 후속 SH-7 통합 telemetry는 캡처를 마쳤지만 blocking gate 때문에 사용자 체감 승인을 보류했으며, FOV/shader 추가 tuning은 실제 비교 주행 리뷰가 있을 때만 진행한다.
+SH-1~SH-4와 후속 SH-7 자동 gate는 모두 완료됐다. TSE/Visual Rail 수정과 U2 속도감 선택 뒤 현재 결과를 production 기준선으로 마감했으며, FOV/shader 추가 tuning은 새 회귀가 확인될 때만 [D-15](./apex-seoul-deferred-backlog.md)로 재개한다.
 
 ### SH-5 — handling profile을 225km/h까지 확장
 

@@ -49,6 +49,8 @@ const rows = sampleSpeedsKmh.map(buildRow);
 const inverseIdentityErrorMax = Math.max(...rows.map((row) => row.inverseIdentityErrorKmh));
 const cadenceIdentityErrorMax = Math.max(...rows.flatMap((row) => [
     Math.abs(row.cadence.laneDashPassesPerSec - row.worldUnitsPerSec / row.cadence.laneDashSpacingUnits),
+    Math.abs(row.cadence.cornerLaneDashPassesPerSec - row.worldUnitsPerSec / row.cadence.cornerLaneDashSpacingUnits),
+    Math.abs(row.cadence.cornerReflectorPassesPerSec - row.worldUnitsPerSec / row.cadence.cornerReflectorSpacingUnits),
     Math.abs(row.cadence.reflectorMaxPassesPerSec - row.worldUnitsPerSec / row.cadence.reflectorSpacingUnits),
     Math.abs(row.cadence.leftPostPassesPerSec - row.worldUnitsPerSec / row.cadence.leftPostSpacingUnits),
     Math.abs(row.cadence.rightPostPassesPerSec - row.worldUnitsPerSec / row.cadence.rightPostSpacingUnits),
@@ -67,6 +69,8 @@ const checks = [
     check('sampleCount', rows.length === sampleSpeedsKmh.length, sampleSpeedsKmh.length, rows.length),
     checkBetween('inverseIdentityErrorKmhMax', inverseIdentityErrorMax, 0, 0.000001),
     checkBetween('cadenceIdentityErrorMax', cadenceIdentityErrorMax, 0, 0.000001),
+    checkBetween('cssCornerLaneCadenceAt150Kmh', row150.cadence.cornerLaneDashPassesPerSec, 4, 6),
+    checkBetween('cssCornerReflectorCadenceAt185Kmh', row185.cadence.cornerReflectorPassesPerSec, 4, 6),
     // Rows are serialized to six decimals before cross-channel identities are
     // checked, so allow the corresponding rounding envelope here.
     checkBetween('fovIdentityErrorMax', fovIdentityErrorMax, 0, 0.00001),
@@ -291,6 +295,14 @@ function buildRow(speedKmh) {
 
     return roundObject({
         cadence: {
+            cornerLaneDashPassesPerSec: worldUnitsPerSec *
+                SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashSubdivisions / SEGMENT_LENGTH,
+            cornerLaneDashSpacingUnits: SEGMENT_LENGTH /
+                SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashSubdivisions,
+            cornerReflectorPassesPerSec: worldUnitsPerSec *
+                SPEED_PRESENTATION_WORLD_CONFIG.cornerReflectorSubdivisions / SEGMENT_LENGTH,
+            cornerReflectorSpacingUnits: SEGMENT_LENGTH /
+                SPEED_PRESENTATION_WORLD_CONFIG.cornerReflectorSubdivisions,
             laneDashPassesPerSec: passRate(worldUnitsPerSec, SPEED_PRESENTATION_WORLD_CONFIG.laneDashSegmentInterval),
             laneDashSpacingUnits: SEGMENT_LENGTH * SPEED_PRESENTATION_WORLD_CONFIG.laneDashSegmentInterval,
             leftPostPassesPerSec: passRate(worldUnitsPerSec, SPEED_PRESENTATION_WORLD_CONFIG.leftGuardrailPostSegmentInterval),
@@ -521,12 +533,13 @@ function buildMarkdown(result) {
         '',
         '## Presentation sweep',
         '',
-        '| km/h | unit/s | segment/s | lane/s | reflector max/s | right post/s | FOV bonus | base cue | downhill cue | throttle peak | time scale |',
-        '| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+        '| km/h | unit/s | segment/s | straight lane/s | corner lane/s | corner reflector/s | right post/s | FOV bonus | base cue | downhill cue | throttle peak | time scale |',
+        '| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
         ...result.rows.map((row) => (
             `| ${row.speedKmh} | ${format(row.worldUnitsPerSec)} | ` +
             `${format(row.cadence.segmentPassesPerSec)} | ${format(row.cadence.laneDashPassesPerSec)} | ` +
-            `${format(row.cadence.reflectorMaxPassesPerSec)} | ${format(row.cadence.rightPostPassesPerSec)} | ` +
+            `${format(row.cadence.cornerLaneDashPassesPerSec)} | ` +
+            `${format(row.cadence.cornerReflectorPassesPerSec)} | ${format(row.cadence.rightPostPassesPerSec)} | ` +
             `${format(row.camera.speedFovBonusDegrees)}° | ${format(row.speedCue.base)} | ` +
             `${format(row.speedCue.downhill)} | ${format(row.speedCue.throttleBurstPeak)} | ` +
             `${format(row.shader.speedEffectTimeScale)} |`

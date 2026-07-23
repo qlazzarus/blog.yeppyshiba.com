@@ -1,0 +1,1062 @@
+{
+  "candidates": [
+    {
+      "diagnosticUpperBound": false,
+      "handling": {
+        "185": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 5.377,
+          "medianCommitmentSec": 4.4168,
+          "minimumControlSamples60Hz": 253.5,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.4753,
+          "shortestCommitmentSec": 4.2248,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 1.7283,
+              "controlSamples60Hz": 322.6,
+              "endSegment": 33,
+              "entryToApexSec": 3.6486,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.6049,
+              "startSegment": 20,
+              "totalSec": 5.377
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 2.1124,
+              "controlSamples60Hz": 253.5,
+              "endSegment": 73,
+              "entryToApexSec": 2.1124,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.4753,
+              "startSegment": 63,
+              "totalSec": 4.2248
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 2.1124,
+              "controlSamples60Hz": 253.5,
+              "endSegment": 115,
+              "entryToApexSec": 2.1124,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.4753,
+              "startSegment": 105,
+              "totalSec": 4.2248
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 2.1124,
+              "controlSamples60Hz": 253.5,
+              "endSegment": 155,
+              "entryToApexSec": 2.1124,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.4753,
+              "startSegment": 145,
+              "totalSec": 4.2248
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 2.4964,
+              "controlSamples60Hz": 276.5,
+              "endSegment": 219,
+              "entryToApexSec": 2.1124,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.5185,
+              "startSegment": 208,
+              "totalSec": 4.6088
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 2.4964,
+              "controlSamples60Hz": 276.5,
+              "endSegment": 265,
+              "entryToApexSec": 2.1124,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.5185,
+              "startSegment": 254,
+              "totalSec": 4.6088
+            }
+          ]
+        },
+        "225": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 4.4211,
+          "medianCommitmentSec": 3.6316,
+          "minimumControlSamples60Hz": 208.4,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.3908,
+          "shortestCommitmentSec": 3.4737,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 1.4211,
+              "controlSamples60Hz": 265.3,
+              "endSegment": 33,
+              "entryToApexSec": 3,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.4974,
+              "startSegment": 20,
+              "totalSec": 4.4211
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 1.7368,
+              "controlSamples60Hz": 208.4,
+              "endSegment": 73,
+              "entryToApexSec": 1.7368,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.3908,
+              "startSegment": 63,
+              "totalSec": 3.4737
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 1.7368,
+              "controlSamples60Hz": 208.4,
+              "endSegment": 115,
+              "entryToApexSec": 1.7368,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.3908,
+              "startSegment": 105,
+              "totalSec": 3.4737
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 1.7368,
+              "controlSamples60Hz": 208.4,
+              "endSegment": 155,
+              "entryToApexSec": 1.7368,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.3908,
+              "startSegment": 145,
+              "totalSec": 3.4737
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 2.0526,
+              "controlSamples60Hz": 227.4,
+              "endSegment": 219,
+              "entryToApexSec": 1.7368,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.4263,
+              "startSegment": 208,
+              "totalSec": 3.7895
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 2.0526,
+              "controlSamples60Hz": 227.4,
+              "endSegment": 265,
+              "entryToApexSec": 1.7368,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.4263,
+              "startSegment": 254,
+              "totalSec": 3.7895
+            }
+          ]
+        }
+      },
+      "id": "U0",
+      "longitudinalCourseResampleToRestoreBaselineTiming": 1,
+      "scale": 1,
+      "speeds": {
+        "150": {
+          "courseDurationSec": 164.8421,
+          "defaultRoadWidthsPerSec": 0.2639,
+          "displaySpeedKmh": 150,
+          "nearPass60To85Sec": 3.2174,
+          "nearPass60To95Sec": 3.7141,
+          "physicalSpeed": 506.6667,
+          "roadAnchorPreviewSec": 1.2632,
+          "segmentsPerRuntimeSafetyStep": 0.0704,
+          "segmentsPerSec": 2.1111,
+          "worldTravelSpeed": 506.6667
+        },
+        "185": {
+          "courseDurationSec": 133.6558,
+          "defaultRoadWidthsPerSec": 0.3255,
+          "displaySpeedKmh": 185,
+          "nearPass60To85Sec": 2.5668,
+          "nearPass60To95Sec": 2.9631,
+          "physicalSpeed": 624.8889,
+          "roadAnchorPreviewSec": 1.0242,
+          "segmentsPerRuntimeSafetyStep": 0.0868,
+          "segmentsPerSec": 2.6037,
+          "worldTravelSpeed": 624.8889
+        },
+        "225": {
+          "courseDurationSec": 109.8947,
+          "defaultRoadWidthsPerSec": 0.3958,
+          "displaySpeedKmh": 225,
+          "nearPass60To85Sec": 2.0612,
+          "nearPass60To95Sec": 2.3794,
+          "physicalSpeed": 760,
+          "roadAnchorPreviewSec": 0.8421,
+          "segmentsPerRuntimeSafetyStep": 0.1056,
+          "segmentsPerSec": 3.1667,
+          "worldTravelSpeed": 760
+        }
+      }
+    },
+    {
+      "diagnosticUpperBound": false,
+      "handling": {
+        "185": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 3.5846,
+          "medianCommitmentSec": 2.9445,
+          "minimumControlSamples60Hz": 169,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.3169,
+          "shortestCommitmentSec": 2.8165,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 1.1522,
+              "controlSamples60Hz": 215.1,
+              "endSegment": 33,
+              "entryToApexSec": 2.4324,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.4033,
+              "startSegment": 20,
+              "totalSec": 3.5846
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 1.4083,
+              "controlSamples60Hz": 169,
+              "endSegment": 73,
+              "entryToApexSec": 1.4083,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.3169,
+              "startSegment": 63,
+              "totalSec": 2.8165
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 1.4083,
+              "controlSamples60Hz": 169,
+              "endSegment": 115,
+              "entryToApexSec": 1.4083,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.3169,
+              "startSegment": 105,
+              "totalSec": 2.8165
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 1.4083,
+              "controlSamples60Hz": 169,
+              "endSegment": 155,
+              "entryToApexSec": 1.4083,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.3169,
+              "startSegment": 145,
+              "totalSec": 2.8165
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 1.6643,
+              "controlSamples60Hz": 184.4,
+              "endSegment": 219,
+              "entryToApexSec": 1.4083,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.3457,
+              "startSegment": 208,
+              "totalSec": 3.0725
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 1.6643,
+              "controlSamples60Hz": 184.4,
+              "endSegment": 265,
+              "entryToApexSec": 1.4083,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.3457,
+              "startSegment": 254,
+              "totalSec": 3.0725
+            }
+          ]
+        },
+        "225": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 2.9474,
+          "medianCommitmentSec": 2.4211,
+          "minimumControlSamples60Hz": 138.9,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.2605,
+          "shortestCommitmentSec": 2.3158,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 0.9474,
+              "controlSamples60Hz": 176.8,
+              "endSegment": 33,
+              "entryToApexSec": 2,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.3316,
+              "startSegment": 20,
+              "totalSec": 2.9474
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 1.1579,
+              "controlSamples60Hz": 138.9,
+              "endSegment": 73,
+              "entryToApexSec": 1.1579,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.2605,
+              "startSegment": 63,
+              "totalSec": 2.3158
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 1.1579,
+              "controlSamples60Hz": 138.9,
+              "endSegment": 115,
+              "entryToApexSec": 1.1579,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.2605,
+              "startSegment": 105,
+              "totalSec": 2.3158
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 1.1579,
+              "controlSamples60Hz": 138.9,
+              "endSegment": 155,
+              "entryToApexSec": 1.1579,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.2605,
+              "startSegment": 145,
+              "totalSec": 2.3158
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 1.3684,
+              "controlSamples60Hz": 151.6,
+              "endSegment": 219,
+              "entryToApexSec": 1.1579,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2842,
+              "startSegment": 208,
+              "totalSec": 2.5263
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 1.3684,
+              "controlSamples60Hz": 151.6,
+              "endSegment": 265,
+              "entryToApexSec": 1.1579,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2842,
+              "startSegment": 254,
+              "totalSec": 2.5263
+            }
+          ]
+        }
+      },
+      "id": "U1",
+      "longitudinalCourseResampleToRestoreBaselineTiming": 1.5,
+      "scale": 1.5,
+      "speeds": {
+        "150": {
+          "courseDurationSec": 109.8947,
+          "defaultRoadWidthsPerSec": 0.3958,
+          "displaySpeedKmh": 150,
+          "nearPass60To85Sec": 2.1449,
+          "nearPass60To95Sec": 2.4761,
+          "physicalSpeed": 506.6667,
+          "roadAnchorPreviewSec": 0.8421,
+          "segmentsPerRuntimeSafetyStep": 0.1056,
+          "segmentsPerSec": 3.1667,
+          "worldTravelSpeed": 760
+        },
+        "185": {
+          "courseDurationSec": 89.1038,
+          "defaultRoadWidthsPerSec": 0.4882,
+          "displaySpeedKmh": 185,
+          "nearPass60To85Sec": 1.7112,
+          "nearPass60To95Sec": 1.9754,
+          "physicalSpeed": 624.8889,
+          "roadAnchorPreviewSec": 0.6828,
+          "segmentsPerRuntimeSafetyStep": 0.1302,
+          "segmentsPerSec": 3.9056,
+          "worldTravelSpeed": 937.3333
+        },
+        "225": {
+          "courseDurationSec": 73.2632,
+          "defaultRoadWidthsPerSec": 0.5938,
+          "displaySpeedKmh": 225,
+          "nearPass60To85Sec": 1.3741,
+          "nearPass60To95Sec": 1.5862,
+          "physicalSpeed": 760,
+          "roadAnchorPreviewSec": 0.5614,
+          "segmentsPerRuntimeSafetyStep": 0.1583,
+          "segmentsPerSec": 4.75,
+          "worldTravelSpeed": 1140
+        }
+      }
+    },
+    {
+      "diagnosticUpperBound": false,
+      "handling": {
+        "185": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 2.6885,
+          "medianCommitmentSec": 2.2084,
+          "minimumControlSamples60Hz": 126.7,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.2376,
+          "shortestCommitmentSec": 2.1124,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 0.8642,
+              "controlSamples60Hz": 161.3,
+              "endSegment": 33,
+              "entryToApexSec": 1.8243,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.3025,
+              "startSegment": 20,
+              "totalSec": 2.6885
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 1.0562,
+              "controlSamples60Hz": 126.7,
+              "endSegment": 73,
+              "entryToApexSec": 1.0562,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.2376,
+              "startSegment": 63,
+              "totalSec": 2.1124
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 1.0562,
+              "controlSamples60Hz": 126.7,
+              "endSegment": 115,
+              "entryToApexSec": 1.0562,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.2376,
+              "startSegment": 105,
+              "totalSec": 2.1124
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 1.0562,
+              "controlSamples60Hz": 126.7,
+              "endSegment": 155,
+              "entryToApexSec": 1.0562,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.2376,
+              "startSegment": 145,
+              "totalSec": 2.1124
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 1.2482,
+              "controlSamples60Hz": 138.3,
+              "endSegment": 219,
+              "entryToApexSec": 1.0562,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2592,
+              "startSegment": 208,
+              "totalSec": 2.3044
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 1.2482,
+              "controlSamples60Hz": 138.3,
+              "endSegment": 265,
+              "entryToApexSec": 1.0562,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2592,
+              "startSegment": 254,
+              "totalSec": 2.3044
+            }
+          ]
+        },
+        "225": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 2.2105,
+          "medianCommitmentSec": 1.8157,
+          "minimumControlSamples60Hz": 104.2,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.1954,
+          "shortestCommitmentSec": 1.7368,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 0.7105,
+              "controlSamples60Hz": 132.6,
+              "endSegment": 33,
+              "entryToApexSec": 1.5,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.2487,
+              "startSegment": 20,
+              "totalSec": 2.2105
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 0.8684,
+              "controlSamples60Hz": 104.2,
+              "endSegment": 73,
+              "entryToApexSec": 0.8684,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.1954,
+              "startSegment": 63,
+              "totalSec": 1.7368
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 0.8684,
+              "controlSamples60Hz": 104.2,
+              "endSegment": 115,
+              "entryToApexSec": 0.8684,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.1954,
+              "startSegment": 105,
+              "totalSec": 1.7368
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 0.8684,
+              "controlSamples60Hz": 104.2,
+              "endSegment": 155,
+              "entryToApexSec": 0.8684,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.1954,
+              "startSegment": 145,
+              "totalSec": 1.7368
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 1.0263,
+              "controlSamples60Hz": 113.7,
+              "endSegment": 219,
+              "entryToApexSec": 0.8684,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2132,
+              "startSegment": 208,
+              "totalSec": 1.8947
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 1.0263,
+              "controlSamples60Hz": 113.7,
+              "endSegment": 265,
+              "entryToApexSec": 0.8684,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.2132,
+              "startSegment": 254,
+              "totalSec": 1.8947
+            }
+          ]
+        }
+      },
+      "id": "U2",
+      "longitudinalCourseResampleToRestoreBaselineTiming": 2,
+      "scale": 2,
+      "speeds": {
+        "150": {
+          "courseDurationSec": 82.4211,
+          "defaultRoadWidthsPerSec": 0.5278,
+          "displaySpeedKmh": 150,
+          "nearPass60To85Sec": 1.6087,
+          "nearPass60To95Sec": 1.8571,
+          "physicalSpeed": 506.6667,
+          "roadAnchorPreviewSec": 0.6316,
+          "segmentsPerRuntimeSafetyStep": 0.1407,
+          "segmentsPerSec": 4.2222,
+          "worldTravelSpeed": 1013.3333
+        },
+        "185": {
+          "courseDurationSec": 66.8279,
+          "defaultRoadWidthsPerSec": 0.6509,
+          "displaySpeedKmh": 185,
+          "nearPass60To85Sec": 1.2834,
+          "nearPass60To95Sec": 1.4816,
+          "physicalSpeed": 624.8889,
+          "roadAnchorPreviewSec": 0.5121,
+          "segmentsPerRuntimeSafetyStep": 0.1736,
+          "segmentsPerSec": 5.2074,
+          "worldTravelSpeed": 1249.7778
+        },
+        "225": {
+          "courseDurationSec": 54.9474,
+          "defaultRoadWidthsPerSec": 0.7917,
+          "displaySpeedKmh": 225,
+          "nearPass60To85Sec": 1.0306,
+          "nearPass60To95Sec": 1.1897,
+          "physicalSpeed": 760,
+          "roadAnchorPreviewSec": 0.4211,
+          "segmentsPerRuntimeSafetyStep": 0.2111,
+          "segmentsPerSec": 6.3333,
+          "worldTravelSpeed": 1520
+        }
+      }
+    },
+    {
+      "diagnosticUpperBound": true,
+      "handling": {
+        "185": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 1.7923,
+          "medianCommitmentSec": 1.4723,
+          "minimumControlSamples60Hz": 84.5,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.1584,
+          "shortestCommitmentSec": 1.4083,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 0.5761,
+              "controlSamples60Hz": 107.5,
+              "endSegment": 33,
+              "entryToApexSec": 1.2162,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.2016,
+              "startSegment": 20,
+              "totalSec": 1.7923
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 0.7041,
+              "controlSamples60Hz": 84.5,
+              "endSegment": 73,
+              "entryToApexSec": 0.7041,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.1584,
+              "startSegment": 63,
+              "totalSec": 1.4083
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 0.7041,
+              "controlSamples60Hz": 84.5,
+              "endSegment": 115,
+              "entryToApexSec": 0.7041,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.1584,
+              "startSegment": 105,
+              "totalSec": 1.4083
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 0.7041,
+              "controlSamples60Hz": 84.5,
+              "endSegment": 155,
+              "entryToApexSec": 0.7041,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.1584,
+              "startSegment": 145,
+              "totalSec": 1.4083
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 0.8321,
+              "controlSamples60Hz": 92.2,
+              "endSegment": 219,
+              "entryToApexSec": 0.7041,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.1728,
+              "startSegment": 208,
+              "totalSec": 1.5363
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 0.8321,
+              "controlSamples60Hz": 92.2,
+              "endSegment": 265,
+              "entryToApexSec": 0.7041,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.1728,
+              "startSegment": 254,
+              "totalSec": 1.5363
+            }
+          ]
+        },
+        "225": {
+          "lateralVelocityCap": 90,
+          "longestCommitmentSec": 1.4737,
+          "medianCommitmentSec": 1.2106,
+          "minimumControlSamples60Hz": 69.5,
+          "railTravelTimeAtLateralCapSec": 8.8889,
+          "shortestCommitmentRailExposureRatio": 0.1303,
+          "shortestCommitmentSec": 1.1579,
+          "windows": [
+            {
+              "apexSegment": 29,
+              "apexToExitSec": 0.4737,
+              "controlSamples60Hz": 88.4,
+              "endSegment": 33,
+              "entryToApexSec": 1,
+              "kind": "right",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.1658,
+              "startSegment": 20,
+              "totalSec": 1.4737
+            },
+            {
+              "apexSegment": 68,
+              "apexToExitSec": 0.5789,
+              "controlSamples60Hz": 69.5,
+              "endSegment": 73,
+              "entryToApexSec": 0.5789,
+              "kind": "left",
+              "peakCurve": 0.62,
+              "railExposureUpperBoundRatio": 0.1303,
+              "startSegment": 63,
+              "totalSec": 1.1579
+            },
+            {
+              "apexSegment": 110,
+              "apexToExitSec": 0.5789,
+              "controlSamples60Hz": 69.5,
+              "endSegment": 115,
+              "entryToApexSec": 0.5789,
+              "kind": "right",
+              "peakCurve": 0.64,
+              "railExposureUpperBoundRatio": 0.1303,
+              "startSegment": 105,
+              "totalSec": 1.1579
+            },
+            {
+              "apexSegment": 150,
+              "apexToExitSec": 0.5789,
+              "controlSamples60Hz": 69.5,
+              "endSegment": 155,
+              "entryToApexSec": 0.5789,
+              "kind": "left",
+              "peakCurve": 0.66,
+              "railExposureUpperBoundRatio": 0.1303,
+              "startSegment": 145,
+              "totalSec": 1.1579
+            },
+            {
+              "apexSegment": 213,
+              "apexToExitSec": 0.6842,
+              "controlSamples60Hz": 75.8,
+              "endSegment": 219,
+              "entryToApexSec": 0.5789,
+              "kind": "left",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.1421,
+              "startSegment": 208,
+              "totalSec": 1.2632
+            },
+            {
+              "apexSegment": 259,
+              "apexToExitSec": 0.6842,
+              "controlSamples60Hz": 75.8,
+              "endSegment": 265,
+              "entryToApexSec": 0.5789,
+              "kind": "right",
+              "peakCurve": 0.56,
+              "railExposureUpperBoundRatio": 0.1421,
+              "startSegment": 254,
+              "totalSec": 1.2632
+            }
+          ]
+        }
+      },
+      "id": "U3",
+      "longitudinalCourseResampleToRestoreBaselineTiming": 3,
+      "scale": 3,
+      "speeds": {
+        "150": {
+          "courseDurationSec": 54.9474,
+          "defaultRoadWidthsPerSec": 0.7917,
+          "displaySpeedKmh": 150,
+          "nearPass60To85Sec": 1.0725,
+          "nearPass60To95Sec": 1.238,
+          "physicalSpeed": 506.6667,
+          "roadAnchorPreviewSec": 0.4211,
+          "segmentsPerRuntimeSafetyStep": 0.2111,
+          "segmentsPerSec": 6.3333,
+          "worldTravelSpeed": 1520
+        },
+        "185": {
+          "courseDurationSec": 44.5519,
+          "defaultRoadWidthsPerSec": 0.9764,
+          "displaySpeedKmh": 185,
+          "nearPass60To85Sec": 0.8556,
+          "nearPass60To95Sec": 0.9877,
+          "physicalSpeed": 624.8889,
+          "roadAnchorPreviewSec": 0.3414,
+          "segmentsPerRuntimeSafetyStep": 0.2604,
+          "segmentsPerSec": 7.8111,
+          "worldTravelSpeed": 1874.6667
+        },
+        "225": {
+          "courseDurationSec": 36.6316,
+          "defaultRoadWidthsPerSec": 1.1875,
+          "displaySpeedKmh": 225,
+          "nearPass60To85Sec": 0.6871,
+          "nearPass60To95Sec": 0.7931,
+          "physicalSpeed": 760,
+          "roadAnchorPreviewSec": 0.2807,
+          "segmentsPerRuntimeSafetyStep": 0.3167,
+          "segmentsPerSec": 9.5,
+          "worldTravelSpeed": 2280
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "candidateMatrix",
+      "pass": true,
+      "target": "= 1,1.5,2,3",
+      "value": "1,1.5,2,3"
+    },
+    {
+      "id": "defaultCandidate",
+      "pass": true,
+      "target": "= 2",
+      "value": 2
+    },
+    {
+      "id": "candidateCycle",
+      "pass": true,
+      "target": "= 1.5,2,3,1",
+      "value": "1.5,2,3,1"
+    },
+    {
+      "id": "candidateParsing",
+      "pass": true,
+      "target": "= true",
+      "value": true
+    },
+    {
+      "id": "canonicalCameraProgression",
+      "pass": true,
+      "target": "= true",
+      "value": true
+    },
+    {
+      "id": "noLegacyDirectPhysicalProgression",
+      "pass": true,
+      "target": "= false",
+      "value": false
+    },
+    {
+      "id": "powertrainHasNoLongitudinalScaleDependency",
+      "pass": true,
+      "target": "= false",
+      "value": false
+    },
+    {
+      "id": "historicalSh7ScenariosPinnedToU0",
+      "pass": true,
+      "target": "= 4",
+      "value": 4
+    },
+    {
+      "id": "displaySpeedIdentityErrorKmh",
+      "pass": true,
+      "target": "<= 0.000001",
+      "value": 0
+    },
+    {
+      "id": "maximumSegmentsPer30HzStep",
+      "pass": true,
+      "target": "<= 0.5",
+      "value": 0.3167
+    },
+    {
+      "id": "commitmentRunCount",
+      "pass": true,
+      "target": ">= 6",
+      "value": 6
+    }
+  ],
+  "config": {
+    "commitmentThreshold": 0.16,
+    "controlSampleHz": 60,
+    "defaultFullRoadWidth": 1920,
+    "peakThreshold": 0.55,
+    "playerAccelSpeed": 760,
+    "playerRoadAnchorDistance": 640,
+    "runtimeSafetySampleHz": 30,
+    "segmentLength": 240,
+    "viewport": {
+      "height": 760,
+      "width": 1200
+    }
+  },
+  "generatedAt": "2026-07-23T02:28:39.515Z",
+  "methodology": {
+    "handlingBoundary": "Physical speed, engine, gear, steering and lateral constants stay unchanged. Only canonical world Z progression uses physicalSpeed * scale.",
+    "railExposure": "Rail exposure is an upper-bound ratio: shortest commitment duration divided by time from center to the narrowest rail at the physical-speed lateral velocity cap. Runtime/user review still decides handling acceptance.",
+    "screenFlow": "Flat-ground screenY 60->85% at the actual steady FOV; identical to ORS-1 with only worldTravelSpeed changed."
+  },
+  "parsingCases": [
+    {
+      "expected": 2,
+      "pass": true,
+      "raw": null,
+      "resolved": 2,
+      "usedFallback": false
+    },
+    {
+      "expected": 1,
+      "pass": true,
+      "raw": "1",
+      "resolved": 1,
+      "usedFallback": false
+    },
+    {
+      "expected": 1.5,
+      "pass": true,
+      "raw": "1.5",
+      "resolved": 1.5,
+      "usedFallback": false
+    },
+    {
+      "expected": 2,
+      "pass": true,
+      "raw": "2",
+      "resolved": 2,
+      "usedFallback": false
+    },
+    {
+      "expected": 3,
+      "pass": true,
+      "raw": "3",
+      "resolved": 3,
+      "usedFallback": false
+    },
+    {
+      "expected": 2,
+      "pass": true,
+      "raw": "1.75",
+      "resolved": 2,
+      "usedFallback": true
+    },
+    {
+      "expected": 2,
+      "pass": true,
+      "raw": "not-a-number",
+      "resolved": 2,
+      "usedFallback": true
+    }
+  ],
+  "pass": true,
+  "recommendation": {
+    "productionSelection": {
+      "approvedAt": "2026-07-23",
+      "id": "U2",
+      "scale": 2,
+      "source": "user A/B review"
+    },
+    "rules": [
+      "Use U2 / 2.00 as the production default after user A/B review.",
+      "Keep U0/U1 URL overrides for regression comparison and U3 as a diagnostic upper bound.",
+      "If 2.00 or 3.00 fixes flow but makes the grip window too short, resample the course longitudinally by the selected scale before changing handling."
+    ]
+  },
+  "schemaVersion": 1,
+  "track": {
+    "commitments": [
+      {
+        "apexSegment": 29,
+        "endSegment": 33,
+        "kind": "right",
+        "length": 14,
+        "peakCurve": 0.66,
+        "startSegment": 20
+      },
+      {
+        "apexSegment": 68,
+        "endSegment": 73,
+        "kind": "left",
+        "length": 11,
+        "peakCurve": 0.62,
+        "startSegment": 63
+      },
+      {
+        "apexSegment": 110,
+        "endSegment": 115,
+        "kind": "right",
+        "length": 11,
+        "peakCurve": 0.64,
+        "startSegment": 105
+      },
+      {
+        "apexSegment": 150,
+        "endSegment": 155,
+        "kind": "left",
+        "length": 11,
+        "peakCurve": 0.66,
+        "startSegment": 145
+      },
+      {
+        "apexSegment": 213,
+        "endSegment": 219,
+        "kind": "left",
+        "length": 12,
+        "peakCurve": 0.56,
+        "startSegment": 208
+      },
+      {
+        "apexSegment": 259,
+        "endSegment": 265,
+        "kind": "right",
+        "length": 12,
+        "peakCurve": 0.56,
+        "startSegment": 254
+      }
+    ],
+    "id": "bugak-ridge-downhill",
+    "length": 83520,
+    "minRailCenterLimit": 800,
+    "segments": 348
+  }
+}

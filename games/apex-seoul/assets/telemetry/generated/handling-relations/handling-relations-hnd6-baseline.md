@@ -1,6 +1,6 @@
 # Apex Seoul HND-6 Handling Relationship QA
 
-Generated: 2026-07-22T05:08:29.295Z
+Generated: 2026-07-22T11:37:09.520Z
 
 Automated relationship status: **PASS**
 
@@ -18,8 +18,8 @@ Manual driving approval: **deferred-by-user**
 | relation.levelPreparedUndersteerRelief | yes | level brake-prepared mean understeer relief >= 0.08 for every grade | {"grade":"easy","understeerRelief":0.295}, {"grade":"medium","understeerRelief":0.16}, {"grade":"sharp","understeerRelief":0.089} |
 | relation.preparedLineQualityAboveFull | yes | brake-prepared road-normalized line retention gain > 0 for every grade/slope | {"grade":"easy","lineRetentionGain":0.207,"slopeId":"level"}, {"grade":"medium","lineRetentionGain":0.184,"slopeId":"level"}, {"grade":"sharp","lineRetentionGain":0.089,"slopeId":"level"}, {"grade":"easy","lineRetentionGain":0.001,"slopeId":"downhill"}, {"grade":"medium","lineRetentionGain":0.002,"slopeId":"downhill"}, {"grade":"sharp","lineRetentionGain":0.032,"slopeId":"downhill"} |
 | relation.levelPreparedLineQualityGain | yes | level brake-prepared road-normalized line retention gain >= 0.08 | {"grade":"easy","lineRetentionGain":0.207}, {"grade":"medium","lineRetentionGain":0.184}, {"grade":"sharp","lineRetentionGain":0.089} |
-| relation.fixedBugakPreparedUndersteerBelowFull | yes | fixed Bugak segments mean understeer relief >= 0.02 | {"grade":"easy","understeerRelief":0.295}, {"grade":"medium","understeerRelief":0.064}, {"grade":"sharp","understeerRelief":0.078} |
-| relation.fixedBugakPreparedLineQualityAboveFull | yes | fixed Bugak segments road-normalized line retention gain >= 0.005 | {"grade":"easy","lineRetentionGain":0.207}, {"grade":"medium","lineRetentionGain":0.019}, {"grade":"sharp","lineRetentionGain":0.036} |
+| relation.fixedBugakPreparedUndersteerBelowFull | yes | fixed Bugak segments mean understeer relief >= 0.02 | {"grade":"easy","understeerRelief":0.295}, {"grade":"medium","understeerRelief":0.081}, {"grade":"sharp","understeerRelief":0.075} |
+| relation.fixedBugakPreparedLineQualityAboveFull | yes | fixed Bugak segments road-normalized line retention gain >= 0.005 | {"grade":"easy","lineRetentionGain":0.207}, {"grade":"medium","lineRetentionGain":0.081}, {"grade":"sharp","lineRetentionGain":0.052} |
 | relation.cornerLossGradeOrdering | yes | sharp > medium > easy for level and downhill | {"easy":6.501,"medium":28.242,"sharp":47.956,"slopeId":"level"}, {"easy":0,"medium":21.44,"sharp":42.714,"slopeId":"downhill"} |
 | relation.levelSharpLossAboveDownhill | yes | level sharp corner-only loss exceeds safety-cap downhill by >= 5 percentage points | 5.242 |
 | control.straightExitSpeedStable | yes | <= 0.05km/h versus TSE-6 calibrated straight controls | {"comparedRows":24,"maxExitSpeedDeltaKmh":0} |
@@ -53,8 +53,8 @@ Line retention is `1 - outward excursion / available road width`. Higher is bett
 | grade | full US mean | prepared US mean | US relief | full line retention | prepared line retention | line gain |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | easy | 0.295 | 0 | 0.295 | 0.793 | 1 | 0.207 |
-| medium | 0.456 | 0.392 | 0.064 | 0.625 | 0.644 | 0.019 |
-| sharp | 0.533 | 0.455 | 0.078 | 0.519 | 0.555 | 0.036 |
+| medium | 0.41 | 0.329 | 0.081 | 0.642 | 0.723 | 0.081 |
+| sharp | 0.502 | 0.427 | 0.075 | 0.529 | 0.581 | 0.052 |
 
 ## Deferred manual approval
 

@@ -134,6 +134,11 @@ import {
     SPEED_PRESENTATION_WORLD_CONFIG,
 } from './game/speedPresentationConfig';
 import {
+    createLongitudinalProgressionConfig,
+    getLongitudinalWorldTravelSpeed,
+    getNextLongitudinalUnitScale,
+} from './game/longitudinalProgression';
+import {
     drawShadowContactPatch,
     getContactTerrainCueIntensity,
     getContactTerrainRatio,
@@ -369,6 +374,7 @@ const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
 };
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
+const LONGITUDINAL_PROGRESSION = createLongitudinalProgressionConfig(URL_PARAMS);
 const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS);
 const PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
 const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
@@ -609,7 +615,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
-    private keys!: Record<'a' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
+    private keys!: Record<'a' | 'b' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
     private lastVehicleQaState: RuntimeVehicleQaState | null = null;
     private moon!: Phaser.GameObjects.Image;
@@ -740,6 +746,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.cursors = this.input.keyboard!.createCursorKeys();
         this.keys = {
             a: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            b: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B),
             d: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
             e: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E),
             l: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.L),
@@ -769,6 +776,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.elapsedSec += seconds;
         this.applyRuntimeQaOverrides();
         this.updateTelemetryHotkey();
+        this.updateLongitudinalAbHotkey();
         this.updateRestartHotkey();
 
         if (RUNTIME_QA.freeze) {
@@ -826,7 +834,7 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.updatePlayerVehicle(seconds);
         camera.z = Math.min(
-            camera.z + this.playerVehicle.speed * seconds,
+            camera.z + this.getWorldTravelSpeed() * seconds,
             this.roadTrack.length,
         );
         this.updateRunState(seconds);
@@ -1225,9 +1233,10 @@ class ApexSeoulScene extends Phaser.Scene {
         renderHudText(this.hudText, {
             camera: this.cameraResource,
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
-                ? 'Up: accel | Space: brake | Left/Right: steer | R: restart | WASD: camera | Q/E: pitch'
-                : 'Up: accel | Space: brake | Left/Right: steer | R: restart | debug camera locked',
+                ? 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
+                : 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | debug camera locked',
             cornerIntensity: getCornerIntensity(stats?.currentCurve ?? 0),
+            longitudinalProgression: LONGITUDINAL_PROGRESSION,
             player,
             qa: RUNTIME_QA,
             roadStats: stats,
@@ -1245,6 +1254,7 @@ class ApexSeoulScene extends Phaser.Scene {
                 poseAuthority: this.vehicleUndersteerVisualState.poseAuthority,
             },
             vehicleTerrainCue: this.getVehicleTerrainCue(),
+            worldTravelSpeed: this.getWorldTravelSpeed(),
             run: this.runState,
         });
     }
@@ -1369,6 +1379,10 @@ class ApexSeoulScene extends Phaser.Scene {
             visualSteering.value,
             anchor.terrainCue,
             visualSteering.threshold,
+            // A large grip input is still a planted turn. Reserve the fully
+            // yawed atlas pose for setup/drift/recovery, where it represents
+            // actual body slip rather than steering lock.
+            this.playerVehicle.driftState !== 'grip',
         );
 
         return {
@@ -1621,6 +1635,13 @@ class ApexSeoulScene extends Phaser.Scene {
             this.playerVehicle.speed,
             PLAYER_ACCEL_SPEED,
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
+        );
+    }
+
+    private getWorldTravelSpeed() {
+        return getLongitudinalWorldTravelSpeed(
+            this.playerVehicle.speed,
+            LONGITUDINAL_PROGRESSION.scale,
         );
     }
 
@@ -2009,6 +2030,16 @@ class ApexSeoulScene extends Phaser.Scene {
         this.telemetry?.downloadJsonl('hotkey');
     }
 
+    private updateLongitudinalAbHotkey() {
+        if (!Phaser.Input.Keyboard.JustDown(this.keys.b)) return;
+
+        const nextScale = getNextLongitudinalUnitScale(LONGITUDINAL_PROGRESSION.scale);
+        const url = new URL(window.location.href);
+
+        url.searchParams.set('longitudinalScale', String(nextScale));
+        window.location.assign(url);
+    }
+
     private updateRestartHotkey() {
         if (!Phaser.Input.Keyboard.JustDown(this.keys.r)) return;
 
@@ -2176,6 +2207,17 @@ class ApexSeoulScene extends Phaser.Scene {
                 accelPressed: this.cursors.up.isDown,
                 brakePressed: this.keys.space.isDown,
                 steerAxis: getAxis(this.cursors.right.isDown, this.cursors.left.isDown),
+            },
+            longitudinalProgression: {
+                ...LONGITUDINAL_PROGRESSION,
+                defaultRoadWidthsPerSec: Number((
+                    this.getWorldTravelSpeed() / (DEFAULT_ROAD_HALF_WIDTH * 2)
+                ).toFixed(4)),
+                physicalSpeed: Number(this.playerVehicle.speed.toFixed(4)),
+                segmentsPerSec: Number((
+                    this.getWorldTravelSpeed() / this.roadTrack.segmentLength
+                ).toFixed(4)),
+                worldTravelSpeed: Number(this.getWorldTravelSpeed().toFixed(4)),
             },
             player: {
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),

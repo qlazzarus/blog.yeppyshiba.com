@@ -44,9 +44,9 @@ const GRADE_FIXTURES = [
     { curve: 0.62, id: 'sharp', pavedHalfWidth: 820, steerAxis: 0.58 },
 ];
 const TRACK_SEGMENT_FIXTURES = [
-    { expectedGrade: 'easy', id: 'bugak-easy-25', segmentIndex: 25 },
-    { expectedGrade: 'medium', id: 'bugak-medium-31', segmentIndex: 31 },
-    { expectedGrade: 'sharp', id: 'bugak-sharp-64', segmentIndex: 64 },
+    { expectedGrade: 'easy', id: 'bugak-easy-21', segmentIndex: 21 },
+    { expectedGrade: 'medium', id: 'bugak-medium-26', segmentIndex: 26 },
+    { expectedGrade: 'sharp', id: 'bugak-sharp-31', segmentIndex: 31 },
 ];
 const RECOVERY_SPEEDS_KMH = [195, 225];
 const RECOVERY_MODES = ['lift-recovery', 'brake-recovery'];

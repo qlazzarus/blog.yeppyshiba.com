@@ -2,6 +2,8 @@
 
 갱신일: 2026-07-21
 
+상태: production 구현과 시각 QA 완료. 아래의 road geometry mask와 추가 브라우저 matrix는 활성 우선순위가 아니며 각각 [D-10, D-11](./apex-seoul-deferred-backlog.md)로 이동했다.
+
 ## 목표
 
 야간 다운힐에서 차량 앞 asphalt에 짧은 low-beam 주광을 만들고, 조향 시에는 주광 전체를 크게 회전시키지 않은 채 코너 안쪽 조사 영역만 제한적으로 확장한다. 최종 형상은 원·타원·링이 아니라 서로 연결된 soft trapezoid 계열의 footprint이며, 빛은 차량 뒤 바닥, 숲, 옹벽, 하늘 또는 crest 뒤 도로에 나타나면 안 된다.
@@ -1161,7 +1163,7 @@ center reach는 level/downhill/uphill 순서로 다음과 같이 변경한다.
 ## 구현 상태
 
 - [x] 잘못된 camera-near-plane Graphics cone 롤백
-- [ ] road geometry mask — RenderTexture capture가 출력을 막아 보류
+- [ ] road geometry mask — 실제 asphalt 외부 누출이 재현될 때만 [D-10](./apex-seoul-deferred-backlog.md)으로 재개
 - [x] additive headlight shader
 - [x] 직선·다운힐 커브·crest 고정 장면 시각 QA
 - [x] 차체 pose + road tangent 기반 방향 목표값
@@ -1175,4 +1177,4 @@ center reach는 level/downhill/uphill 순서로 다음과 같이 변경한다.
 - [x] road assist의 차체 pose 부호 반전 방지
 - [x] 좌우 독립 lamp origin shader
 - [x] FT86·G70 headlight profile 수치 QA
-- [ ] 좌·우 grip·drift·countersteer 브라우저 시각 QA — 현재 WSL에서 Windows Edge CDP 연결이 열리지 않아 실제 입력 캡처는 보류
+- [ ] 추가 좌·우 grip·drift·countersteer 브라우저 matrix — release 시각 회귀나 관련 asset/shader 변경이 있을 때만 [D-11](./apex-seoul-deferred-backlog.md)로 재개

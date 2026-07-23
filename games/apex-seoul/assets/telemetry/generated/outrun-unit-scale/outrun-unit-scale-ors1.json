@@ -1,0 +1,548 @@
+{
+  "apex": {
+    "config": {
+      "blueReflectorWorldHeight": 151.79999999999998,
+      "commitmentFullRoadWidth": 1640,
+      "defaultFullRoadWidth": 1920,
+      "objectDrawDistance": 9800,
+      "playerAccelSpeed": 760,
+      "segmentLength": 240,
+      "topSpeedKmh": 225,
+      "viewport": {
+        "height": 760,
+        "width": 1200
+      }
+    },
+    "distinctiveEvents": {
+      "byKind": {
+        "blue-reflector": 158,
+        "chevron-left": 1,
+        "chevron-right": 1,
+        "left-cliff-forest": 1380,
+        "left-cliff-guardrail-post": 86,
+        "left-cliff-guardrail-span": 345,
+        "right-guardrail-post": 115,
+        "right-guardrail-span": 345,
+        "right-retaining-wall-span": 345,
+        "right-wall-tree": 1380,
+        "sign-speed": 1
+      },
+      "eventCount": 3,
+      "maxGapSecAt150Kmh": 92.3211,
+      "maxGapSecAt185Kmh": 74.8549,
+      "maxGapSecAt225Kmh": 61.5474,
+      "maxGapUnits": 46776,
+      "repeatingForestSprites": 2760
+    },
+    "speeds": [
+      {
+        "microCadence": {
+          "cornerLanePassesPerSec": 3.0963,
+          "cornerReflectorPassesPerSec": 3.0963,
+          "straightLanePassesPerSec": 1.5481
+        },
+        "nominalVisibleDepthSec": 26.3756,
+        "normalizedFlow": {
+          "commitmentRoadWidthsPerSec": 0.2266,
+          "defaultRoadWidthsPerSec": 0.1935,
+          "segmentsPerSec": 1.5481
+        },
+        "projection": {
+          "flatGroundDistanceAt60Percent": 3123.9049,
+          "flatGroundDistanceAt85Percent": 1462.2534,
+          "flatGroundDistanceAt95Percent": 1205.7177,
+          "focalLength": 532.9764,
+          "fovDegrees": 70.976,
+          "nearPass60To85Sec": 4.4721,
+          "nearPass60To95Sec": 5.1626,
+          "reflectorScale16To32Sec": 6.8047,
+          "reflectorScale32To64Sec": 3.4023
+        },
+        "speedKmh": 110,
+        "worldSpeed": 371.5556
+      },
+      {
+        "microCadence": {
+          "cornerLanePassesPerSec": 4.2222,
+          "cornerReflectorPassesPerSec": 4.2222,
+          "straightLanePassesPerSec": 2.1111
+        },
+        "nominalVisibleDepthSec": 19.3421,
+        "normalizedFlow": {
+          "commitmentRoadWidthsPerSec": 0.3089,
+          "defaultRoadWidthsPerSec": 0.2639,
+          "segmentsPerSec": 2.1111
+        },
+        "projection": {
+          "flatGroundDistanceAt60Percent": 3064.678,
+          "flatGroundDistanceAt85Percent": 1434.5301,
+          "flatGroundDistanceAt95Percent": 1182.8582,
+          "focalLength": 522.8716,
+          "fovDegrees": 72.016,
+          "nearPass60To85Sec": 3.2174,
+          "nearPass60To95Sec": 3.7141,
+          "reflectorScale16To32Sec": 4.8955,
+          "reflectorScale32To64Sec": 2.4477
+        },
+        "speedKmh": 150,
+        "worldSpeed": 506.6667
+      },
+      {
+        "microCadence": {
+          "cornerLanePassesPerSec": 5.2074,
+          "cornerReflectorPassesPerSec": 5.2074,
+          "straightLanePassesPerSec": 2.6037
+        },
+        "nominalVisibleDepthSec": 15.6828,
+        "normalizedFlow": {
+          "commitmentRoadWidthsPerSec": 0.381,
+          "defaultRoadWidthsPerSec": 0.3255,
+          "segmentsPerSec": 2.6037
+        },
+        "projection": {
+          "flatGroundDistanceAt60Percent": 3015.4863,
+          "flatGroundDistanceAt85Percent": 1411.5042,
+          "flatGroundDistanceAt95Percent": 1163.8719,
+          "focalLength": 514.4789,
+          "fovDegrees": 72.9,
+          "nearPass60To85Sec": 2.5668,
+          "nearPass60To95Sec": 2.9631,
+          "reflectorScale16To32Sec": 3.9056,
+          "reflectorScale32To64Sec": 1.9528
+        },
+        "speedKmh": 185,
+        "worldSpeed": 624.8889
+      },
+      {
+        "microCadence": {
+          "cornerLanePassesPerSec": 6.3333,
+          "cornerReflectorPassesPerSec": 6.3333,
+          "straightLanePassesPerSec": 3.1667
+        },
+        "nominalVisibleDepthSec": 12.8947,
+        "normalizedFlow": {
+          "commitmentRoadWidthsPerSec": 0.4634,
+          "defaultRoadWidthsPerSec": 0.3958,
+          "segmentsPerSec": 3.1667
+        },
+        "projection": {
+          "flatGroundDistanceAt60Percent": 2944.9824,
+          "flatGroundDistanceAt85Percent": 1378.5024,
+          "flatGroundDistanceAt95Percent": 1136.6599,
+          "focalLength": 502.4501,
+          "fovDegrees": 74.2,
+          "nearPass60To85Sec": 2.0612,
+          "nearPass60To95Sec": 2.3794,
+          "reflectorScale16To32Sec": 3.1362,
+          "reflectorScale32To64Sec": 1.5681
+        },
+        "speedKmh": 225,
+        "worldSpeed": 760
+      }
+    ],
+    "track": {
+      "id": "bugak-ridge-downhill",
+      "length": 83520,
+      "segments": 348
+    }
+  },
+  "checks": [
+    {
+      "id": "segmentLength",
+      "pass": true,
+      "target": "= 240",
+      "value": 240
+    },
+    {
+      "id": "defaultFullRoadWidth",
+      "pass": true,
+      "target": "= 1920",
+      "value": 1920
+    },
+    {
+      "id": "objectDrawDistance",
+      "pass": true,
+      "target": "= 9800",
+      "value": 9800
+    },
+    {
+      "id": "playerAccelSpeed",
+      "pass": true,
+      "target": "= 760",
+      "value": 760
+    },
+    {
+      "id": "displaySpeedIdentityErrorKmh",
+      "pass": true,
+      "target": "<= 0.000001",
+      "value": 0
+    },
+    {
+      "id": "commercial60FpsReferenceCount",
+      "pass": true,
+      "target": ">= 2",
+      "value": 2
+    },
+    {
+      "id": "ors2aDiagnosticScaleCeiling",
+      "pass": true,
+      "target": ">= 3",
+      "value": 3
+    }
+  ],
+  "commercialReferences": [
+    {
+      "id": "horizon-chase-turbo",
+      "title": "Horizon Chase Turbo",
+      "source": {
+        "label": "Horizon Chase Turbo Demo Version Trailer",
+        "url": "https://store.steampowered.com/app/389140/Horizon_Chase_Turbo/",
+        "steamMovieId": 256732291,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "durationSec": 50.325
+      },
+      "sample": {
+        "startSec": 11,
+        "durationSec": 0.5,
+        "scene": "California easy sweep",
+        "hudSpeedKmh": null,
+        "qualifiers": [
+          "official trailer",
+          "continuous 60 fps shot",
+          "no visible drift during the probe",
+          "traffic remains outside the selected road-mark probe",
+          "acceleration debris makes this a medium-confidence reference"
+        ]
+      },
+      "measurements": {
+        "roadMarkNearPass60To85Sec": {
+          "range": [
+            0.27,
+            0.33
+          ],
+          "representative": 0.3,
+          "representativeFrames": 18
+        },
+        "roadMarkNearPass60To95Sec": {
+          "range": [
+            0.35,
+            0.42
+          ],
+          "representative": 0.383,
+          "representativeFrames": 22.98
+        },
+        "roadsideScale16To32Sec": {
+          "range": [
+            0.15,
+            0.23
+          ],
+          "representative": 0.19,
+          "representativeFrames": 11.4
+        },
+        "roadsideScale32To64Sec": {
+          "range": [
+            0.12,
+            0.18
+          ],
+          "representative": 0.15,
+          "representativeFrames": 9
+        }
+      }
+    },
+    {
+      "id": "slipstream",
+      "title": "Slipstream",
+      "source": {
+        "label": "Slipstream Release Trailer",
+        "url": "https://store.steampowered.com/app/732810/Slipstream/",
+        "steamMovieId": 256716707,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "durationSec": 90.603
+      },
+      "sample": {
+        "startSec": 58.25,
+        "durationSec": 0.75,
+        "scene": "Resort Islands easy sweep",
+        "hudSpeedKmh": 250,
+        "qualifiers": [
+          "official trailer",
+          "continuous 60 fps shot",
+          "approximately straight player pose during the road-mark probe",
+          "traffic enters after the selected pass begins",
+          "dialog overlay does not cover the road probe"
+        ]
+      },
+      "measurements": {
+        "roadMarkNearPass60To85Sec": {
+          "range": [
+            0.075,
+            0.1
+          ],
+          "representative": 0.0875,
+          "representativeFrames": 5.25
+        },
+        "roadMarkNearPass60To95Sec": {
+          "range": [
+            0.095,
+            0.125
+          ],
+          "representative": 0.11,
+          "representativeFrames": 6.6
+        },
+        "roadsideScale16To32Sec": {
+          "range": [
+            0.1,
+            0.17
+          ],
+          "representative": 0.135,
+          "representativeFrames": 8.1
+        },
+        "roadsideScale32To64Sec": {
+          "range": [
+            0.08,
+            0.14
+          ],
+          "representative": 0.11,
+          "representativeFrames": 6.6
+        }
+      }
+    }
+  ],
+  "diagnosis": {
+    "cameraProjection": {
+      "classification": "secondary",
+      "evidence": [
+        "Steady FOV changes from 70.976 to 74.2 degrees across the audit speeds.",
+        "Even with the speed FOV applied, the 225km/h 60->85% pass remains 2.0612s."
+      ]
+    },
+    "contentGap": {
+      "classification": "secondary",
+      "evidence": [
+        "3 distinctive sign/chevron placements exist across 83520u, while no gate, traffic or sector-transition event kind exists.",
+        "The longest sign/chevron-free interval is 46776u (74.8549s at 185km/h).",
+        "Forest clusters are geometrically large but repeat every segment, so raw sprite count is not treated as event variety."
+      ]
+    },
+    "longitudinalUnitScale": {
+      "classification": "primary",
+      "evidence": [
+        "Apex reaches 3.1667 segment/s and 0.3958 road-width/s at 225km/h.",
+        "Javascript Racer reaches 60 segment/s and 3 road-width/s at its configured maximum.",
+        "Apex 225km/h needs 8.25x the Javascript Racer 60->85% ground-pass time.",
+        "Apex 225km/h needs 6.87x to 23.56x the manually annotated commercial-reference time."
+      ]
+    },
+    "markerDensity": {
+      "classification": "not-primary",
+      "evidence": [
+        "Corner lane and reflector cadence is already 5.2074/s at 185km/h.",
+        "Increasing the same marker count would raise frequency without shortening a single anchor's approach time."
+      ]
+    }
+  },
+  "generatedAt": "2026-07-23T01:54:08.824Z",
+  "methodology": {
+    "comparisonRule": "Raw units are never compared across engines without segment, road width and projection normalization.",
+    "commercialMeasurement": {
+      "description": "Manual frame annotation on official 60 fps trailer samples. Values are ranges because trailer compression, player occlusion and lateral exit make a single-pixel crossing falsely precise.",
+      "nearPassPrimaryGate": "screenY 60% -> 85%",
+      "nearPassCompatibilityGate": "screenY 60% -> 95%",
+      "scaleGatesPx": [
+        [
+          16,
+          32
+        ],
+        [
+          32,
+          64
+        ]
+      ]
+    },
+    "screenGateNote": "60->95% remains for compatibility with the plan. 60->85% is the primary A/B gate because third-person cars and lateral roadside exits often occlude 95%."
+  },
+  "openSourceReferences": {
+    "cannonBall": {
+      "carBaseIncrement": 303,
+      "displayedSpeedAtMax": 294,
+      "maxSpeedFixed": 19267584,
+      "source": {
+        "note": "CannonBall multiplies the HUD-facing car_increment high word by CAR_BASE_INC before adding to fixed-point road_pos. Road width and segment normalization are intentionally omitted because the coordinate spaces are ROM-driven and not interchangeable with Apex units.",
+        "url": "https://github.com/djyt/cannonball/blob/master/src/main/engine/oferrari.cpp#L1527-L1549"
+      },
+      "straightRoadPosition": {
+        "fixedPerTick": 89082,
+        "integerPer30HzSecond": 40.7785,
+        "integerPerTick": 1.3593
+      }
+    },
+    "javascriptRacer": {
+      "config": {
+        "cameraHeight": 1000,
+        "drawDistanceSegments": 300,
+        "fieldOfViewDegrees": 100,
+        "fps": 60,
+        "fullRoadWidth": 4000,
+        "logicalViewport": {
+          "height": 768,
+          "width": 1024
+        },
+        "segmentLength": 200
+      },
+      "maxSpeed": 12000,
+      "normalizedFlow": {
+        "roadWidthsPerSec": 3,
+        "segmentsPerSec": 60,
+        "visibleDepthSec": 5
+      },
+      "projection": {
+        "nearPass60To85Sec": 0.2497,
+        "nearPass60To95Sec": 0.2719
+      },
+      "source": {
+        "note": "Configured maximum is one segment per 60 Hz frame so collision checks do not skip a segment; it is a reference, not an Apex target.",
+        "url": "https://github.com/jakesgordon/javascript-racer/blob/master/v4.final.html"
+      }
+    }
+  },
+  "ors2aRecommendation": {
+    "candidates": [
+      {
+        "scale": 1,
+        "speeds": {
+          "150": {
+            "nearPass60To85Sec": 3.2174,
+            "nearPass60To95Sec": 3.7141,
+            "roadWidthsPerSec": 0.2639,
+            "segmentsPerSec": 2.1111,
+            "worldSpeed": 506.6667
+          },
+          "185": {
+            "nearPass60To85Sec": 2.5668,
+            "nearPass60To95Sec": 2.9631,
+            "roadWidthsPerSec": 0.3255,
+            "segmentsPerSec": 2.6037,
+            "worldSpeed": 624.8889
+          },
+          "225": {
+            "nearPass60To85Sec": 2.0612,
+            "nearPass60To95Sec": 2.3794,
+            "roadWidthsPerSec": 0.3958,
+            "segmentsPerSec": 3.1667,
+            "worldSpeed": 760
+          }
+        }
+      },
+      {
+        "scale": 1.5,
+        "speeds": {
+          "150": {
+            "nearPass60To85Sec": 2.1449,
+            "nearPass60To95Sec": 2.4761,
+            "roadWidthsPerSec": 0.3959,
+            "segmentsPerSec": 3.1666,
+            "worldSpeed": 760
+          },
+          "185": {
+            "nearPass60To85Sec": 1.7112,
+            "nearPass60To95Sec": 1.9754,
+            "roadWidthsPerSec": 0.4883,
+            "segmentsPerSec": 3.9055,
+            "worldSpeed": 937.3334
+          },
+          "225": {
+            "nearPass60To85Sec": 1.3741,
+            "nearPass60To95Sec": 1.5863,
+            "roadWidthsPerSec": 0.5937,
+            "segmentsPerSec": 4.75,
+            "worldSpeed": 1140
+          }
+        }
+      },
+      {
+        "scale": 2,
+        "speeds": {
+          "150": {
+            "nearPass60To85Sec": 1.6087,
+            "nearPass60To95Sec": 1.8571,
+            "roadWidthsPerSec": 0.5278,
+            "segmentsPerSec": 4.2222,
+            "worldSpeed": 1013.3334
+          },
+          "185": {
+            "nearPass60To85Sec": 1.2834,
+            "nearPass60To95Sec": 1.4815,
+            "roadWidthsPerSec": 0.651,
+            "segmentsPerSec": 5.2074,
+            "worldSpeed": 1249.7778
+          },
+          "225": {
+            "nearPass60To85Sec": 1.0306,
+            "nearPass60To95Sec": 1.1897,
+            "roadWidthsPerSec": 0.7916,
+            "segmentsPerSec": 6.3334,
+            "worldSpeed": 1520
+          }
+        }
+      },
+      {
+        "scale": 3,
+        "speeds": {
+          "150": {
+            "nearPass60To85Sec": 1.0725,
+            "nearPass60To95Sec": 1.238,
+            "roadWidthsPerSec": 0.7917,
+            "segmentsPerSec": 6.3333,
+            "worldSpeed": 1520.0001
+          },
+          "185": {
+            "nearPass60To85Sec": 0.8556,
+            "nearPass60To95Sec": 0.9877,
+            "roadWidthsPerSec": 0.9765,
+            "segmentsPerSec": 7.8111,
+            "worldSpeed": 1874.6667
+          },
+          "225": {
+            "nearPass60To85Sec": 0.6871,
+            "nearPass60To95Sec": 0.7931,
+            "roadWidthsPerSec": 1.1874,
+            "segmentsPerSec": 9.5001,
+            "worldSpeed": 2280
+          }
+        }
+      }
+    ],
+    "matrix": [
+      1,
+      1.5,
+      2,
+      3
+    ],
+    "rationale": [
+      "The former 1.00/1.25/1.50/1.75 matrix is too narrow to falsify the longitudinal-scale hypothesis.",
+      "Use 1.00/1.50/2.00/3.00 as the diagnostic sweep; 3.00 is an upper probe, not a production target.",
+      "Keep displayed km/h, drivetrain, FOV, marker density and audio fixed.",
+      "If scale 2.00+ reads correctly but shortens grip-corner control below the existing gate, pair the chosen flow scale with longitudinal course resampling instead of hiding the issue with camera shake."
+    ]
+  },
+  "pass": true,
+  "schemaVersion": 1,
+  "screenReferenceOnly": [
+    {
+      "id": "sega-ages-outrun",
+      "title": "SEGA AGES Out Run",
+      "source": {
+        "label": "SEGA AGES Out Run official introduction video",
+        "url": "https://www.youtube.com/watch?v=RQk2dy6Zw1M",
+        "publisher": "SEGA",
+        "advertisedFps": 60
+      },
+      "measurementStatus": "excluded-from-numeric-screen-table",
+      "reason": "The official trailer is useful for qualitative review, but its cut and UI-heavy presentation did not provide a reproducible clean straight probe in this audit. CannonBall source conversion is used for the OutRun lineage instead of inventing a raw-unit estimate."
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "measurementMethod": {
+    "description": "Manual frame annotation on official 60 fps trailer samples. Values are ranges because trailer compression, player occlusion and lateral exit make a single-pixel crossing falsely precise.",
+    "nearPassPrimaryGate": "screenY 60% -> 85%",
+    "nearPassCompatibilityGate": "screenY 60% -> 95%",
+    "scaleGatesPx": [
+      [16, 32],
+      [32, 64]
+    ]
+  },
+  "commercialFootage": [
+    {
+      "id": "horizon-chase-turbo",
+      "title": "Horizon Chase Turbo",
+      "source": {
+        "label": "Horizon Chase Turbo Demo Version Trailer",
+        "url": "https://store.steampowered.com/app/389140/Horizon_Chase_Turbo/",
+        "steamMovieId": 256732291,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "durationSec": 50.325
+      },
+      "sample": {
+        "startSec": 11,
+        "durationSec": 0.5,
+        "scene": "California easy sweep",
+        "hudSpeedKmh": null,
+        "qualifiers": [
+          "official trailer",
+          "continuous 60 fps shot",
+          "no visible drift during the probe",
+          "traffic remains outside the selected road-mark probe",
+          "acceleration debris makes this a medium-confidence reference"
+        ]
+      },
+      "measurements": {
+        "roadMarkNearPass60To85Sec": {
+          "range": [0.27, 0.33],
+          "representative": 0.3
+        },
+        "roadMarkNearPass60To95Sec": {
+          "range": [0.35, 0.42],
+          "representative": 0.383
+        },
+        "roadsideScale16To32Sec": {
+          "range": [0.15, 0.23],
+          "representative": 0.19
+        },
+        "roadsideScale32To64Sec": {
+          "range": [0.12, 0.18],
+          "representative": 0.15
+        }
+      }
+    },
+    {
+      "id": "slipstream",
+      "title": "Slipstream",
+      "source": {
+        "label": "Slipstream Release Trailer",
+        "url": "https://store.steampowered.com/app/732810/Slipstream/",
+        "steamMovieId": 256716707,
+        "width": 1920,
+        "height": 1080,
+        "fps": 60,
+        "durationSec": 90.603
+      },
+      "sample": {
+        "startSec": 58.25,
+        "durationSec": 0.75,
+        "scene": "Resort Islands easy sweep",
+        "hudSpeedKmh": 250,
+        "qualifiers": [
+          "official trailer",
+          "continuous 60 fps shot",
+          "approximately straight player pose during the road-mark probe",
+          "traffic enters after the selected pass begins",
+          "dialog overlay does not cover the road probe"
+        ]
+      },
+      "measurements": {
+        "roadMarkNearPass60To85Sec": {
+          "range": [0.075, 0.1],
+          "representative": 0.0875
+        },
+        "roadMarkNearPass60To95Sec": {
+          "range": [0.095, 0.125],
+          "representative": 0.11
+        },
+        "roadsideScale16To32Sec": {
+          "range": [0.1, 0.17],
+          "representative": 0.135
+        },
+        "roadsideScale32To64Sec": {
+          "range": [0.08, 0.14],
+          "representative": 0.11
+        }
+      }
+    }
+  ],
+  "screenReferenceOnly": [
+    {
+      "id": "sega-ages-outrun",
+      "title": "SEGA AGES Out Run",
+      "source": {
+        "label": "SEGA AGES Out Run official introduction video",
+        "url": "https://www.youtube.com/watch?v=RQk2dy6Zw1M",
+        "publisher": "SEGA",
+        "advertisedFps": 60
+      },
+      "measurementStatus": "excluded-from-numeric-screen-table",
+      "reason": "The official trailer is useful for qualitative review, but its cut and UI-heavy presentation did not provide a reproducible clean straight probe in this audit. CannonBall source conversion is used for the OutRun lineage instead of inventing a raw-unit estimate."
+    }
+  ]
+}

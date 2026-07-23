@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-21
 
-상태: P0~P4 구현 완료. P5 실주행 확인과 최종 체감 보정이 남아 있다.
+상태: P0~P4 구현 완료. 현재 handling 기준선으로 마감하며 추가 실주행·체감 보정은 [후순위 보류 백로그 D-13](./apex-seoul-deferred-backlog.md)에서 조건부 관리한다.
 
 > 2026-07-21 이후 225km/h envelope의 속도 연출과 185~225km/h handling 확장은 [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)에서 관리한다. 이 문서는 기존 0~185km/h 승인값과 구현 근거를 보존한다.
 
@@ -429,9 +429,9 @@ driftState / driftRatio
 - 저속, handling matrix, standing start, guardrail 회귀가 모두 통과한다.
 - 3종 실주행 로그와 수동 체크에서 같은 문제를 재현하지 않는다.
 
-## 다음 확인
+## 조건부 회귀 확인
 
-자동 기준은 P0~P4까지 충족했다. 다음 단계는 P5 실주행이다. `grip only / prepared grip / drift mixed` 세 run에서 다음 항목만 확인한다.
+자동 기준은 P0~P4까지 충족했고 현재 handling 기준선으로 사용한다. 아래 `grip only / prepared grip / drift mixed` 확인은 상시 다음 단계가 아니라, 새 코스·차량·입력 장치에서 회귀가 보고될 때 [D-13](./apex-seoul-deferred-backlog.md)으로 재개한다.
 
 - 30→60km/h에서 steering이 너무 빨리 강해지지 않는가?
 - 60~110km/h full input pose가 과장되지 않는가?
@@ -439,4 +439,4 @@ driftState / driftRatio
 - sharp overspeed의 outward motion이 벌점이 아니라 진입 속도의 결과로 읽히는가?
 - downhill sharp의 추가 outward motion이 과도한 shoulder 강제가 되지 않는가?
 
-실주행에서 문제가 확인되면 speed knot 또는 overspeed overlay 중 한 축만 조정한다. 두 축을 같은 반복에서 동시에 바꾸지 않는다.
+재개한 실주행에서 문제가 확인되면 speed knot 또는 overspeed overlay 중 한 축만 조정한다. 두 축을 같은 반복에서 동시에 바꾸지 않는다.

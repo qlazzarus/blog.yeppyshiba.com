@@ -1,113 +1,144 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-07-13
+갱신일: 2026-07-23
 
-## 프로젝트
+## 프로젝트 목표
 
-| 항목 | 내용 |
+| 항목 | 방향 |
 | --- | --- |
-| 게임 | Apex Seoul |
-| 장르 | Phaser 4 기반 pseudo-3D arcade downhill drift racing |
-| 코스 | Bugak Ridge Downhill — 서울 산길을 참고한 fictional 야간 다운힐 |
-| 목표 | 모바일 브라우저에서도 읽히는 고속 grip/drift 주행과 time attack 기반 게임 루프 |
-| 시각 방향 | black/blue dreamlike Seoul, 푸른 반사광과 먼 도시 불빛 |
+| 장르 | Phaser 4 기반 pseudo-3D arcade downhill racing |
+| 핵심 주행 | 고속 grip을 기본으로 하고 sharp/S 구간에서 drift를 선택하는 구조 |
+| 기본 모드 | 짧게 반복할 수 있는 Bugak Ridge Downhill time attack |
+| 플랫폼 | 데스크톱과 모바일 브라우저 |
+| 시각 방향 | black/blue 야간 서울, 푸른 반사광과 먼 도시 불빛 |
 
-## 설계 원칙
+목표는 자동차 물리 시뮬레이터가 아니라, 읽기 쉬운 화면과 일관된 규칙으로 기록을 줄여 가는 아케이드 다운힐 게임이다.
+
+## 제품 원칙
 
 1. 차량은 화면 하단의 안정적인 조작 기준점이다.
-2. 속도는 숫자보다 도로 원근, roadside flow, 엔진 리듬, FOV의 작은 변화로 느껴진다.
-3. grip은 기본값이고 drift는 sharp bend와 S 구간을 위한 선택지다.
-4. counter-steer는 먼저 angle/line 조절이며, 반대 drift는 명시적인 전환 동작이다.
-5. 실제 북악 도로를 그대로 재현하지 않고, 게임에 필요한 리듬으로 재구성한다.
+2. grip이 기본값이고 drift는 특정 코너를 위한 선택지다.
+3. 표시 속도, world progression, 코너 판정과 충돌은 하나의 좌표 관계를 공유한다.
+4. 효과를 추가하기 전에 그것이 플레이 판단이나 게임 loop에 어떤 역할을 하는지 정의한다.
+5. 완료된 handling·drift·속도감은 새 기능에서 지켜야 할 회귀 기준이지 계속 tuning할 기본 작업이 아니다.
+6. 후순위 세부 아이디어는 독립 단계로 늘리지 않고 상위 기능에 병합한다.
 
-## 주행 상태의 역할
+## M0 — 주행 기반 확립 — 완료
 
-| 상태 | 역할 |
-| --- | --- |
-| Grip | 기본 고속 주행과 easy bend |
-| Setup | brake 또는 throttle lift 뒤의 drift 준비 |
-| Drift | sharp bend와 S 구간의 바깥 momentum 선택지 |
-| Counter trim | drift 방향을 유지하면서 angle과 line을 줄이는 입력 |
-| Counter transition | 명시적인 lift/re-accel 뒤 반대 drift로 전환 |
-| Recovery | 입력 해제, 저속, 코너 종료 뒤 grip으로 정렬 |
+### 구현된 기반
 
-counter만으로 drift 방향을 반전하지 않는다. drift는 모든 코너의 정답이 아니며, easy bend에서는 grip이 더 빠르고 sharp/S 구간에서만 line 선택지가 되어야 한다.
+- curve/elevation/roadside를 가진 pseudo-3D road와 Bugak Ridge Downhill
+- accelerator, brake, slope, drag, RPM, gear와 Raven Coupe powertrain
+- speed-dependent grip, corner demand, understeer와 speed loss
+- setup, drift, counter trim/transition과 recovery
+- U2 `longitudinalScale=2` 기반 속도감과 `225km/h` 표시 envelope
+- 차량 pose, shadow, headlight, speed cue와 guardrail collision/projection
+- checkpoint, finish progress와 runtime telemetry
+- handling, drivetrain, speed presentation, road와 collision 자동 QA
 
-## 구현 완료 기반
+### 현재 판단
 
-### Pseudo-3D / 코스
+핸들링·드리프트·속도감은 다음 기능 개발을 시작할 수 있는 수준의 기준선으로 본다. 새 사용자 회귀가 없다면 이 영역을 독립 tuning milestone으로 다시 열지 않는다.
 
-- camera horizon, FOV, height, pitch, ground projection
-- curve, lane, elevation을 가진 road segment와 loop track
-- 고저차 road polygon, terrain anchor, downhill slope/pitch
-- `Bugak Ridge Downhill` 진행률, checkpoint, finish run 상태
-- road object: guard post, chevron, pine, speed sign
+## M1 — 완결된 time attack loop — 다음 milestone
 
-### 차량 / 주행
-
-- accelerator, Space brake, cruise/engine brake, slope/drag
-- RPM, gear, torque, boost, fuel cut과 vehicle engine profile
-- speed-dependent grip steering과 steering scrub
-- `GRIP → SETUP → DRIFT → RECOVERY` 상태
-- breakaway drift momentum, counter trim, lift/re-accel counter transition
-- grip 3way와 drift strong pose, terrain/shadow 처리
-
-### 검증 / 자산
-
-- frozen runtime QA, 60초 telemetry, controller handling simulation
-- GT86/G70/Stinger POC와 fictional Raven Coupe runtime 방향
-- Three.js pose sheet, pixel pass, atlas/shadow QA pipeline
-
-## 현재 단계
-
-주행 기반과 속도별 handling profile은 갖춰졌다. 현재 최우선은 자동 QA를 통과한 grip/understeer/drift를 실제 주행에서 검증하는 것이다. 이후 완성 목표는 “더 빠른 숫자”가 아니라 **속도 상태의 대비**와 **라인 선택이 있는 코너링**이다.
-
-| 현재 강점 | 현재 공백 |
-| --- | --- |
-| 안정된 화면 하단 차량, elevation, 고속 grip, 의도적 drift/counter | 최고속 cue의 상시화, 약한 corner/line economy, roadside flow 밀도 |
-
-## 우선순위
-
-### 1. Speed cue / roadside flow
-
-- 저속·순항·최고속의 시각 밀도를 분리한다.
-- shader/FOV는 상시 연출이 아니라 throttle, downhill, drift exit burst로 쓴다.
-- reflector, chevron, guardrail, city light를 가까운 거리에서 빠르게 흐르게 한다.
-
-### 2. Corner/line economy
-
-- easy bend는 grip으로 빠르게 통과한다.
-- sharp bend는 entry line, steering scrub, drift, exit alignment가 속도를 결정하게 한다.
-- curve만으로 동일하게 감속시키는 모델을 줄이고, 라인과 입력에 따른 손실/보상을 만든다.
-
-### 3. 코스 리듬과 피드백
-
-- grip → drift → S transition → recovery straight 반복을 track section에 명시한다.
-- tail light, shadow, smoke/glow, RPM cue로 brake/drift/exit를 읽게 한다.
-
-### 4. 게임 루프
-
-- time attack, sector/checkpoint, best record, result screen
-- 이후 AI/traffic/collision, 차량 선택과 차량별 성격 확장
-
-## 검증 기준
+### 사용자 경험
 
 ```text
-straight/corner speed contrast
-corner lateral offset usage
-roadside object pass rate
-brake-to-drift entry success
-counter trim / transition correctness
-drift exit acceleration recovery
-vehicle anchor and frame stability
+ready/countdown
+  → 주행과 checkpoint split
+  → finish
+  → 결과와 best 비교
+  → 즉시 재도전
 ```
 
-## 관련 문서
+### 핵심 결과물
 
-- `apex-seoul/README.md`: 내부 문서 진입점과 역할 구분
-- `apex-seoul-next-priority-plan.md`: 바로 실행할 작업 순서
-- `apex-seoul-speed-band-handling-plan.md`: 현재 handling model과 QA
-- `apex-seoul-speed-sense-handling-revision-plan.md`: 225km/h 속도 연출과 고속 handling 후속 작업
-- `apex-seoul-visual-direction.md`: black/blue visual direction
-- `apex-seoul-render-layer-tracker.md`: 렌더 depth와 occlusion 규칙
-- `apex-seoul-resource-management.md`: 리소스 확보·생성·보관·승인 단일 기준
+- 명확한 start/finish 상태와 restart
+- 현재 기록, best 기록과 split 차이
+- 결과 화면과 최소 저장 정책
+- telemetry와 실제 UI가 같은 run timing source 사용
+
+### gate
+
+- 같은 조건의 반복 주행이 가능하다.
+- 기록 갱신과 restart가 예측 가능하다.
+- U2 속도와 기존 handling/collision 회귀가 없다.
+
+## M2 — 코스 gameplay와 학습 가능한 구간
+
+### 사용자 경험
+
+플레이어가 “어디서 시간을 잃었는가”와 “다음 run에서 무엇을 바꿀 것인가”를 알 수 있어야 한다.
+
+### 핵심 결과물
+
+- recovery/easy/commitment/S-transition section 정의
+- checkpoint 또는 section split
+- entry 준비, line 유지와 exit speed를 읽는 최소 결과 피드백
+- deterministic track/start 조건
+
+### gate
+
+- section 데이터가 렌더 장식이 아니라 기록 분석에 사용된다.
+- 코스의 line 선택이 결과 시간과 연결된다.
+- 환경 콘텐츠 없이도 주행 리듬을 구분할 수 있다.
+
+## M3 — 입력·플랫폼 완성도
+
+### 핵심 결과물
+
+- keyboard와 touch가 공유하는 input abstraction
+- 모바일 landscape controls와 HUD 안전 영역
+- pause/focus/visibility에 안전한 run timer
+- 브라우저별 성능·해상도 기준
+
+### gate
+
+- 입력 장치가 달라도 핵심 controller 결과가 같은 방향으로 나온다.
+- 모바일에서도 차량, 도로와 기록 UI가 동시에 읽힌다.
+- 포커스 전환과 프레임 저하가 기록을 부당하게 바꾸지 않는다.
+
+## M4 — presentation/content integration
+
+이 milestone부터 필요한 경우에만 코스·환경·오디오 보류 항목을 합친다.
+
+### 후보 결과물
+
+- 새 sector 미술 작업과 함께 만드는 roadside landmark
+- 실제 elevation 구간에 붙는 crest/camera cue
+- gameplay 사건에 붙는 audio feedback
+- 차량 상태 가독성이 부족할 때의 제한적 VFX 보강
+
+ORS-2B, ORS-4, ORS-5와 ORS-6을 번호 순서대로 구현하지 않는다. M1~M3에서 확인된 제품 요구에 맞는 항목만 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)에서 가져온다.
+
+## M5 — replayability 확장
+
+### 후보 결과물
+
+- 실제 주행 성격이 다른 차량 선택
+- traffic/opponent와 추월 또는 경쟁 규칙
+- 추가 목표, 점수 또는 난이도 변형
+- 충분히 다른 새 코스/sector/route
+
+기본 time attack이 반복 플레이의 기준을 만든 뒤에만 진행한다. 단순 차량 수, 장식 traffic이나 시각만 다른 route는 milestone 완료로 보지 않는다.
+
+## M6 — release readiness
+
+### 핵심 결과물
+
+- production performance budget과 브라우저 호환 범위
+- 저장 데이터 migration/reset 정책
+- keyboard/touch, viewport와 lifecycle 통합 QA
+- 공개 가능한 asset/source 정리와 배포 빌드
+
+## 로드맵 운영
+
+| 문서 | 역할 |
+| --- | --- |
+| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md) | 현재와 바로 다음 milestone의 실행 범위 |
+| [후순위 보류 백로그](./apex-seoul-deferred-backlog.md) | 다른 기능에 병합할 때만 다시 여는 세부 항목 |
+| 개별 handling/visual/ORS 문서 | 완료된 설계 근거와 회귀 기준 |
+| generated telemetry reports | 자동 측정 결과와 수치 기준 |
+
+milestone이 끝나면 결과를 해당 설계 문서에 남기고, 이 로드맵에는 상태와 다음 gate만 갱신한다.
