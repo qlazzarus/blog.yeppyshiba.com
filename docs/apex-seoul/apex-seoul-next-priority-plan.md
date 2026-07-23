@@ -1,8 +1,8 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-07-22
+갱신일: 2026-07-23
 
-상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2 자동 검증 완료. 사용자 리뷰에서 코너 통과 속도감이 새 최우선 과제로 확인됐다.
+상태: HND-6, SH-1~SH-7, 최고속 평형 TSE-1~TSE-6, Visual Rail RAIL-1~RAIL-2, CSS-1~CSS-4 자동 검증 완료. 다음 최우선 과제는 content 추가가 아니라 현재 `225km/h = 760u/s = 3.167 segment/s` 종방향 환산을 타 OutRun식 게임과 정규화 비교하는 것이다.
 
 이 문서는 **앞으로 할 일만** 관리한다. 완료된 구현 과정과 발행용 글감은 누적하지 않는다. 세부 설계와 수치는 각 단일 기준 문서 및 자동 QA 결과를 따른다.
 
@@ -32,7 +32,7 @@
 - 현재 물리 중심 한계 기준 HND-4 level 225 outward/road는 easy/medium/sharp 각각 `0.207 / 0.353 / 0.454`다.
 - HND-4 understeer max는 같은 조건에서 `0.265 / 0.579 / 1.000`으로 단계적으로 증가한다.
 - downhill 225 outward/road는 grade 상한에 의해 `0.223 / 0.389 / 0.547` 안에서 멈춘다.
-- 실제 Bugak sharp segment 64는 `maxRoadOffset ≈ 810.1`, outward/road가 약 `0.481`까지 읽힌다.
+- 현재 CSS 코스의 sharp 고정 표본은 segment 31이며 `maxRoadOffset ≈ 808.3`, outward/road가 약 `0.471`까지 읽힌다.
 - 400ms lift 회복량은 `0.626~0.914`, brake 회복량은 `0.977~1.000`이며 강제 guardrail 충돌은 `0`이다.
 - HND-5 body yaw authority는 easy/medium/sharp `0.953 / 0.689 / 0.460`, frame pose authority는 `0.973 / 0.820 / 0.687`이다.
 - tire-scrub cue는 같은 순서로 `0.086 / 0.631 / 1.000`이며 grip understeer에서만 짧게 보인다.
@@ -47,16 +47,19 @@ SH-7 blocker의 진단 근거와 실행 단위는 [최고속 평형·Visual Rail
 
 코너 통과 속도감의 진단, 목표 cadence와 코스 연장 조건은 [코너 통과 속도감 개선 계획](./apex-seoul-corner-speed-sense-improvement-plan.md)을 단일 기준으로 사용한다.
 
-## P0 — 코너 통과 속도감 CSS-1~CSS-5
+아웃런 계열 레퍼런스에서 가져올 traffic, roadside hero pass, 고저차·카메라·오디오의 후속 순서는 [아웃런 스타일 참고 속도감 후속 계획](./apex-seoul-outrun-speed-sense-reference-plan.md)을 단일 기준으로 사용한다.
 
-- 현재 15~27 segment인 강한 commitment run을 시간 단위로 다시 측정한다. 가장 긴 27 segment는 130km/h에서 약 14.8초, 150km/h에서도 약 12.8초다.
-- CSS-1에서 entry/apex/exit duration, 코너 near marker pass rate와 screen velocity를 고정한다.
-- CSS-2에서 첫 27-segment 코너만 `10~14 segment` prototype으로 압축해 동일 replay A/B를 만든다.
-- CSS-3에서 코너 lane dash와 바깥쪽 reflector를 fractional Z로 보강해 130~185km/h에서 `4~6 pass/s`를 목표로 한다.
-- prototype 승인 후 CSS-4에서 전체 commitment를 `8~14 segment` 중심으로 재편한다.
-- 코스가 짧아질 경우 느린 코너를 늘리는 대신 fast recovery/easy sweep을 추가한다. 전체 후보는 `340~380 segment`다.
-- 표시 km/h, `camera.z` 물리 진행량, 구동계, handling과 corner demand는 변경하지 않는다.
-- 카메라와 shader 추가 조정은 코스 시간 구조와 near-field flow를 검증한 뒤 CSS-5에서만 검토한다.
+## P0 — 아웃런 참고 속도감 ORS-1~ORS-6
+
+- 현재 CSS 기준선의 코너 marker `4~6 pass/s`, 표시 km/h, handling과 코스 geometry를 고정한다.
+- ORS-1에서 Apex, Javascript Racer와 CannonBall의 speed→road-position 구조를 `segment/s`, `road-width/s`, visible-depth time으로 비교한다.
+- OutRun/Horizon Chase/Slipstream 영상과 Apex HUD-off replay는 `screenY 60→95%` 통과 시간과 object scale doubling time으로 비교한다.
+- ORS-2A에서 표시 km/h와 powertrain을 고정하고 longitudinal scale `1.00 / 1.25 / 1.50 / 1.75`를 A/B한다.
+- ORS-2A 사용자 리뷰와 handling gate 통과 뒤 ORS-2B에서 큰 roadside object를 `3~5초` 간격으로 배치한다.
+- ORS-4는 crest reveal과 `0.35~0.75°`의 짧은 camera bank만 후보로 두며 steady FOV와 상시 shake는 변경하지 않는다.
+- ORS-6 sector transition까지 기본 도로 흐름을 먼저 승인한다.
+- ORS-3 traffic은 ORS-6 뒤, ORS-5 audio는 전체 시각 흐름과 traffic 승인 뒤의 마지막 단계로 보류한다.
+- 실제 route fork, traffic collision, slipstream boost와 경쟁 AI는 첫 구현 범위에 넣지 않는다.
 
 ## P1 — 최고속 평형 TSE-1~TSE-6
 
@@ -117,7 +120,7 @@ SH-7 blocker의 진단 근거와 실행 단위는 [최고속 평형·Visual Rail
 - launch traction과 실차 대비 0-60 가속 보정
 - time attack 결과 화면과 기록 피드백 보강
 - 차량 선택과 차량별 handling 성격
-- traffic/AI/collision 확장
+- ORS prototype 승인 뒤 traffic collision과 경쟁 AI 확장
 - 선택적 line target과 sector별 위험·보상
 
 ## 현재 하지 않을 것
@@ -127,6 +130,10 @@ SH-7 blocker의 진단 근거와 실행 단위는 [최고속 평형·Visual Rail
 - 코너 진입 즉시 target speed로 내리는 hard clamp/auto brake
 - 최고속 숫자만 상향
 - 상시 camera shake/FOV 확대
+- 타 게임의 raw unit나 segment/s를 근거 없이 그대로 적용
+- `camera.z`만 빠르게 하고 spatial system을 분리
+- lane dash와 reflector의 추가 증량
+- 장면 전환 없이 코스 길이만 추가
 - understeer와 drift authority를 하나의 계수로 통합
 - 실제 북악 도로의 1:1 복제
 - 핸들링 P5 확인 전 대규모 track geometry 변경
@@ -142,6 +149,7 @@ npm run qa:top-speed-equilibrium --workspace @games/apex-seoul
 npm run qa:top-speed-force-budget --workspace @games/apex-seoul
 npm run qa:top-speed-regression --workspace @games/apex-seoul
 npm run qa:speed-handling-sweep --workspace @games/apex-seoul
+npm run qa:corner-speed-sense --workspace @games/apex-seoul
 npm run qa:corner-demand-sweep --workspace @games/apex-seoul
 npm run qa:understeer-visual --workspace @games/apex-seoul
 npm run qa:handling-relations --workspace @games/apex-seoul
@@ -159,6 +167,8 @@ npm run build --workspace @games/apex-seoul
 ## 완료 조건
 
 - 60/100/150/185/210/225km/h가 HUD 없이 단계적으로 구분된다.
+- 150/185/225km/h의 segment/s, near-pass time과 scale doubling time이 기록되고 타 게임 영상과 같은 기준으로 비교된다.
+- 150~185km/h에서 큰 roadside pass의 최대 공백이 5초 이하이고 traffic/crest/gate 같은 macro event가 평균 6~10초마다 발생한다.
 - 185~225km/h에서 조향 pose와 trajectory가 모두 남고 연속적으로 제한된다.
 - 0-100km/h가 `7.8~8.3초`를 유지한다.
 - 세 종류의 실주행 run에서 speed cue와 understeer가 의도대로 재현된다.

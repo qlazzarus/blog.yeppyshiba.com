@@ -1,0 +1,281 @@
+{
+  "cadence": {
+    "110": {
+      "cornerLaneDashPassesPerSec": 3.0963,
+      "cornerReflectorPassesPerSec": 3.0963,
+      "straightLaneDashPassesPerSec": 1.5481
+    },
+    "130": {
+      "cornerLaneDashPassesPerSec": 3.6593,
+      "cornerReflectorPassesPerSec": 3.6593,
+      "straightLaneDashPassesPerSec": 1.8296
+    },
+    "150": {
+      "cornerLaneDashPassesPerSec": 4.2222,
+      "cornerReflectorPassesPerSec": 4.2222,
+      "straightLaneDashPassesPerSec": 2.1111
+    },
+    "185": {
+      "cornerLaneDashPassesPerSec": 5.2074,
+      "cornerReflectorPassesPerSec": 5.2074,
+      "straightLaneDashPassesPerSec": 2.6037
+    }
+  },
+  "checks": [
+    {
+      "id": "trackSegments",
+      "pass": true,
+      "target": "340..380",
+      "value": 348
+    },
+    {
+      "id": "commitmentRunCount",
+      "pass": true,
+      "target": "6..8",
+      "value": 6
+    },
+    {
+      "id": "longestCommitmentSegments",
+      "pass": true,
+      "target": "<= 14",
+      "value": 14
+    },
+    {
+      "id": "shortestCommitmentSegments",
+      "pass": true,
+      "target": ">= 8",
+      "value": 11
+    },
+    {
+      "id": "longestCommitmentDurationAt130Kmh",
+      "pass": true,
+      "target": "<= 8",
+      "value": 7.6518
+    },
+    {
+      "id": "cornerLaneCadenceAt150Kmh",
+      "pass": true,
+      "target": "4..6",
+      "value": 4.2222
+    },
+    {
+      "id": "cornerReflectorCadenceAt185Kmh",
+      "pass": true,
+      "target": "4..6",
+      "value": 5.2074
+    },
+    {
+      "id": "recoveryRunsAtLeastEightSegments",
+      "pass": true,
+      "target": ">= 7",
+      "value": 8
+    },
+    {
+      "id": "displaySpeedIdentityError",
+      "pass": true,
+      "target": "<= 0.000001",
+      "value": 0
+    }
+  ],
+  "commitments": [
+    {
+      "endSegment": 33,
+      "kind": "right",
+      "length": 14,
+      "peakCurve": 0.66,
+      "startSegment": 20,
+      "durationSec": {
+        "110": 9.0431,
+        "130": 7.6518,
+        "150": 6.6316,
+        "185": 5.377
+      },
+      "lengthUnits": 3360
+    },
+    {
+      "endSegment": 73,
+      "kind": "left",
+      "length": 11,
+      "peakCurve": 0.62,
+      "startSegment": 63,
+      "durationSec": {
+        "110": 7.1053,
+        "130": 6.0121,
+        "150": 5.2105,
+        "185": 4.2248
+      },
+      "lengthUnits": 2640
+    },
+    {
+      "endSegment": 115,
+      "kind": "right",
+      "length": 11,
+      "peakCurve": 0.64,
+      "startSegment": 105,
+      "durationSec": {
+        "110": 7.1053,
+        "130": 6.0121,
+        "150": 5.2105,
+        "185": 4.2248
+      },
+      "lengthUnits": 2640
+    },
+    {
+      "endSegment": 155,
+      "kind": "left",
+      "length": 11,
+      "peakCurve": 0.66,
+      "startSegment": 145,
+      "durationSec": {
+        "110": 7.1053,
+        "130": 6.0121,
+        "150": 5.2105,
+        "185": 4.2248
+      },
+      "lengthUnits": 2640
+    },
+    {
+      "endSegment": 219,
+      "kind": "left",
+      "length": 12,
+      "peakCurve": 0.56,
+      "startSegment": 208,
+      "durationSec": {
+        "110": 7.7512,
+        "130": 6.5587,
+        "150": 5.6842,
+        "185": 4.6088
+      },
+      "lengthUnits": 2880
+    },
+    {
+      "endSegment": 265,
+      "kind": "right",
+      "length": 12,
+      "peakCurve": 0.56,
+      "startSegment": 254,
+      "durationSec": {
+        "110": 7.7512,
+        "130": 6.5587,
+        "150": 5.6842,
+        "185": 4.6088
+      },
+      "lengthUnits": 2880
+    }
+  ],
+  "config": {
+    "commitmentThreshold": 0.16,
+    "peakThreshold": 0.55,
+    "presentation": {
+      "cornerLaneDashLengthRatio": 0.18,
+      "cornerLaneDashMinCurve": 0.18,
+      "cornerLaneDashStartRatio": 0.08,
+      "cornerLaneDashSubdivisions": 2,
+      "cornerReflectorStartRatio": 0.28,
+      "cornerReflectorSubdivisions": 2,
+      "laneDashLengthRatio": 0.34,
+      "laneDashSegmentInterval": 1,
+      "laneDashStartRatio": 0.16,
+      "leftGuardrailPostSegmentInterval": 4,
+      "reflectorSegmentInterval": 1,
+      "rightGuardrailPostSegmentInterval": 3,
+      "speedEffectMaxIntensity": 0.38,
+      "speedEffectTimeScaleMax": 2.2,
+      "speedEffectTimeScaleMin": 0.4
+    },
+    "sampleSpeedsKmh": [
+      110,
+      130,
+      150,
+      185
+    ]
+  },
+  "generatedAt": "2026-07-22T11:25:36.750Z",
+  "pass": true,
+  "recoveries": [
+    {
+      "endSegment": 19,
+      "kind": "recovery",
+      "length": 20,
+      "peakCurve": 0.11,
+      "startSegment": 0
+    },
+    {
+      "endSegment": 62,
+      "kind": "recovery",
+      "length": 29,
+      "peakCurve": 0.1045,
+      "startSegment": 34
+    },
+    {
+      "endSegment": 104,
+      "kind": "recovery",
+      "length": 31,
+      "peakCurve": 0.1385,
+      "startSegment": 74
+    },
+    {
+      "endSegment": 144,
+      "kind": "recovery",
+      "length": 29,
+      "peakCurve": 0.14,
+      "startSegment": 116
+    },
+    {
+      "endSegment": 189,
+      "kind": "recovery",
+      "length": 34,
+      "peakCurve": 0.1519,
+      "startSegment": 156
+    },
+    {
+      "endSegment": 207,
+      "kind": "recovery",
+      "length": 6,
+      "peakCurve": 0.1033,
+      "startSegment": 202
+    },
+    {
+      "endSegment": 253,
+      "kind": "recovery",
+      "length": 34,
+      "peakCurve": 0.1452,
+      "startSegment": 220
+    },
+    {
+      "endSegment": 272,
+      "kind": "recovery",
+      "length": 7,
+      "peakCurve": 0.1444,
+      "startSegment": 266
+    },
+    {
+      "endSegment": 291,
+      "kind": "recovery",
+      "length": 8,
+      "peakCurve": 0.1299,
+      "startSegment": 284
+    },
+    {
+      "endSegment": 302,
+      "kind": "recovery",
+      "length": 4,
+      "peakCurve": 0.1452,
+      "startSegment": 299
+    },
+    {
+      "endSegment": 347,
+      "kind": "recovery",
+      "length": 38,
+      "peakCurve": 0.1399,
+      "startSegment": 310
+    }
+  ],
+  "schemaVersion": 1,
+  "track": {
+    "id": "bugak-ridge-downhill",
+    "length": 83520,
+    "segmentLength": 240,
+    "segments": 348
+  }
+}

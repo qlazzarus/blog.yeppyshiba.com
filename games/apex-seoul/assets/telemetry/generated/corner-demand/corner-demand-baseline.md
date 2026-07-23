@@ -1,6 +1,6 @@
 # Apex Seoul TSE-6 Corner Demand Regression
 
-Generated: 2026-07-22T05:08:29.098Z
+Generated: 2026-07-22T11:37:09.315Z
 
 Status: **PASS**
 
@@ -22,7 +22,7 @@ Status: **PASS**
 - medium 225 full-throttle raw loss 27.94% / corner-only 28.242% / severe 0.991
 - sharp 225 full-throttle raw loss 47.418% / corner-only 47.956% / severe 1
 - HND-4 outward/road easy 0.207 / medium 0.353 / sharp 0.454
-- Bugak sharp segment 64 uses maxRoadOffset 810.096 and reaches outward road ratio 0.481
+- Bugak sharp segment 31 uses maxRoadOffset 808.32 and reaches outward road ratio 0.471
 - single target alignment error: demand 0 / understeer 0
 
 ## Synthetic matrix
@@ -127,15 +127,15 @@ Status: **PASS**
 
 | segment | grade | curve | slope accel | road half | max offset | preparation | entry | exit | loss % | US max | outward/road |
 | ---: | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 25 | easy | 0.22 | 5.47 | 960 | 940 | full-throttle | 224.874 | 211.916 | 5.762 | 0.3 | 0.207 |
-| 25 | easy | 0.22 | 5.47 | 960 | 940 | lift | 218.105 | 209.355 | 4.012 | 0.3 | 0.206 |
-| 25 | easy | 0.22 | 5.47 | 960 | 940 | brake-prepared | 189.094 | 192.123 | -1.602 | 0 | 0 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | full-throttle | 224.423 | 169.211 | 24.602 | 0.58 | 0.375 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | lift | 220.125 | 169.009 | 23.221 | 0.58 | 0.373 |
-| 31 | medium | 0.365 | 18.475 | 913.801 | 893.801 | brake-prepared | 191.362 | 167.363 | 12.541 | 0.495 | 0.356 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | full-throttle | 223.925 | 124.054 | 44.6 | 1 | 0.481 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | lift | 218.989 | 123.937 | 43.405 | 1 | 0.477 |
-| 64 | sharp | -0.567 | 15.247 | 830.096 | 810.096 | brake-prepared | 189.884 | 123.265 | 35.084 | 1 | 0.445 |
+| 21 | easy | 0.204 | 5.741 | 960 | 940 | full-throttle | 224.886 | 212.92 | 5.321 | 0.3 | 0.207 |
+| 21 | easy | 0.204 | 5.741 | 960 | 940 | lift | 218.166 | 210.205 | 3.649 | 0.3 | 0.206 |
+| 21 | easy | 0.204 | 5.741 | 960 | 940 | brake-prepared | 189.148 | 192.491 | -1.767 | 0 | 0 |
+| 26 | medium | 0.44 | 11.389 | 890 | 870 | full-throttle | 224.252 | 162.055 | 27.735 | 0.58 | 0.358 |
+| 26 | medium | 0.44 | 11.389 | 890 | 870 | lift | 218.612 | 161.862 | 25.959 | 0.58 | 0.355 |
+| 26 | medium | 0.44 | 11.389 | 890 | 870 | brake-prepared | 189.926 | 161.783 | 14.818 | 0.465 | 0.277 |
+| 31 | sharp | 0.596 | 10.8 | 828.32 | 808.32 | full-throttle | 223.846 | 121.335 | 45.795 | 1 | 0.471 |
+| 31 | sharp | 0.596 | 10.8 | 828.32 | 808.32 | lift | 218.057 | 121.198 | 44.419 | 1 | 0.465 |
+| 31 | sharp | 0.596 | 10.8 | 828.32 | 808.32 | brake-prepared | 188.954 | 120.571 | 36.191 | 0.999 | 0.419 |
 
 ## Invariant checks
 

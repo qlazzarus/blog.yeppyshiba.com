@@ -25,6 +25,7 @@
         "qa:handling-matrix": "node scripts/run-handling-matrix.mjs",
         "qa:handling-sim": "node scripts/simulate-handling-matrix.mjs",
         "qa:camera-effects": "node scripts/simulate-camera-effects.mjs",
+        "qa:corner-speed-sense": "node scripts/audit-corner-speed-sense.mjs",
         "qa:corner-demand-sweep": "node scripts/simulate-corner-demand-sweep.mjs",
         "qa:guardrail-collision": "node scripts/simulate-guardrail-collision.mjs",
         "qa:guardrail-projection": "node scripts/simulate-guardrail-screen-projection.mjs",

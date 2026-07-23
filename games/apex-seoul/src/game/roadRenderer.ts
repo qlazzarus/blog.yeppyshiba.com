@@ -158,6 +158,7 @@ export function renderRoad(
             projected.road,
             projected.absoluteIndex,
             projected.segment.laneCount,
+            projected.segment.curve,
             camera,
             viewport,
         );
@@ -594,55 +595,91 @@ function drawLaneMarks(
     road: ProjectedRoadSlice,
     absoluteIndex: number,
     laneCount: number,
+    curve: number,
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ) {
     if (absoluteIndex % SPEED_PRESENTATION_WORLD_CONFIG.laneDashSegmentInterval !== 0) return;
 
-    const laneMarkRoad = getLaneMarkRoadSlice(road, absoluteIndex, camera, viewport);
+    const laneMarkRoads = getLaneMarkRoadSlices(
+        road,
+        absoluteIndex,
+        curve,
+        camera,
+        viewport,
+    );
 
-    if (!laneMarkRoad) return;
+    for (const laneMarkRoad of laneMarkRoads) {
+        const distanceFade = getRoadDistanceFade(laneMarkRoad, camera.z);
 
-    const distanceFade = getRoadDistanceFade(laneMarkRoad, camera.z);
+        for (let lane = 1; lane < laneCount; lane += 1) {
+            const laneCenterRatio = lane / laneCount;
+            const nearLaneCenterX = Phaser.Math.Linear(
+                laneMarkRoad.nearCenterX - laneMarkRoad.nearRoadHalfWidth,
+                laneMarkRoad.nearCenterX + laneMarkRoad.nearRoadHalfWidth,
+                laneCenterRatio,
+            );
+            const farLaneCenterX = Phaser.Math.Linear(
+                laneMarkRoad.farCenterX - laneMarkRoad.farRoadHalfWidth,
+                laneMarkRoad.farCenterX + laneMarkRoad.farRoadHalfWidth,
+                laneCenterRatio,
+            );
 
-    for (let lane = 1; lane < laneCount; lane += 1) {
-        const laneCenterRatio = lane / laneCount;
-        const nearLaneCenterX = Phaser.Math.Linear(
-            laneMarkRoad.nearCenterX - laneMarkRoad.nearRoadHalfWidth,
-            laneMarkRoad.nearCenterX + laneMarkRoad.nearRoadHalfWidth,
-            laneCenterRatio,
-        );
-        const farLaneCenterX = Phaser.Math.Linear(
-            laneMarkRoad.farCenterX - laneMarkRoad.farRoadHalfWidth,
-            laneMarkRoad.farCenterX + laneMarkRoad.farRoadHalfWidth,
-            laneCenterRatio,
-        );
-
-        fillProjectedRoadBand(
-            graphics,
-            laneMarkRoad,
-            nearLaneCenterX - LANE_MARK_WIDTH,
-            nearLaneCenterX + LANE_MARK_WIDTH,
-            farLaneCenterX - LANE_MARK_WIDTH,
-            farLaneCenterX + LANE_MARK_WIDTH,
-            camera,
-            viewport,
-            getFoggedRoadColor(LANE_MARK_NEAR_COLOR, LANE_MARK_FAR_COLOR, distanceFade, 0.42),
-        );
+            fillProjectedRoadBand(
+                graphics,
+                laneMarkRoad,
+                nearLaneCenterX - LANE_MARK_WIDTH,
+                nearLaneCenterX + LANE_MARK_WIDTH,
+                farLaneCenterX - LANE_MARK_WIDTH,
+                farLaneCenterX + LANE_MARK_WIDTH,
+                camera,
+                viewport,
+                getFoggedRoadColor(LANE_MARK_NEAR_COLOR, LANE_MARK_FAR_COLOR, distanceFade, 0.42),
+            );
+        }
     }
+}
+
+function getLaneMarkRoadSlices(
+    road: ProjectedRoadSlice,
+    absoluteIndex: number,
+    curve: number,
+    camera: Pseudo3dCamera,
+    viewport: Viewport,
+) {
+    const cornerCadence = Math.abs(curve) >=
+        SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashMinCurve;
+    const subdivisions = cornerCadence
+        ? SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashSubdivisions
+        : 1;
+    const startRatio = cornerCadence
+        ? SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashStartRatio
+        : SPEED_PRESENTATION_WORLD_CONFIG.laneDashStartRatio;
+    const lengthRatio = cornerCadence
+        ? SPEED_PRESENTATION_WORLD_CONFIG.cornerLaneDashLengthRatio
+        : SPEED_PRESENTATION_WORLD_CONFIG.laneDashLengthRatio;
+
+    return Array.from({ length: subdivisions }, (_, subdivision) => getLaneMarkRoadSlice(
+        road,
+        absoluteIndex,
+        startRatio + subdivision / subdivisions,
+        lengthRatio,
+        camera,
+        viewport,
+    )).filter((slice): slice is ProjectedRoadSlice => slice !== null);
 }
 
 function getLaneMarkRoadSlice(
     road: ProjectedRoadSlice,
     absoluteIndex: number,
+    dashStartRatio: number,
+    dashLengthRatio: number,
     camera: Pseudo3dCamera,
     viewport: Viewport,
 ) {
     const segmentStartZ = absoluteIndex * SEGMENT_LENGTH;
-    const dashStartZ = segmentStartZ +
-        SEGMENT_LENGTH * SPEED_PRESENTATION_WORLD_CONFIG.laneDashStartRatio;
-    const dashEndZ = dashStartZ +
-        SEGMENT_LENGTH * SPEED_PRESENTATION_WORLD_CONFIG.laneDashLengthRatio;
+    const dashStartZ = segmentStartZ + SEGMENT_LENGTH * dashStartRatio;
+    const dashEndZ = dashStartZ + SEGMENT_LENGTH * dashLengthRatio;
     const clippedStartZ = Math.max(road.nearWorldZ, dashStartZ);
     const clippedEndZ = Math.min(road.farWorldZ, dashEndZ);
 

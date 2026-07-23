@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-22
 
-상태: 계획 수립 완료. CSS-1 기준선 측정부터 진행한다.
+상태: CSS-1~CSS-4 구현 및 자동 검증 완료. CSS-5는 현재 불필요해 보류한다.
 
 ## 목표
 
@@ -213,6 +213,36 @@ CSS-1 corner baseline
 
 코스 전체 수정은 CSS-2와 CSS-3의 어느 쪽이 체감 개선에 더 크게 기여하는지 확인한 다음 진행한다.
 
+## 2026-07-22 구현 결과
+
+### 코스 시간 구조
+
+- Bugak Ridge Downhill을 `284 segment / 68,160 unit`에서 `348 segment / 83,520 unit`으로 확장했다.
+- 기존 6개 commitment run `27 / 20 / 20 / 20 / 15 / 18 segment`를 `14 / 11 / 11 / 11 / 12 / 12 segment`로 압축했다.
+- 가장 긴 commitment의 130km/h 체류 시간은 약 `14.8초 → 7.65초`, 150km/h에서는 약 `12.8초 → 6.63초`로 줄었다.
+- 늘어난 길이는 24~32 segment recovery, fast easy sweep과 후반 low-demand S 구간에 배치했다.
+- peak curve `0.62~0.66`, narrow road half-width `820`, 전체 고저차 `560 → -500`은 유지했다.
+
+### 코너 near-field flow
+
+- 직선 lane dash는 기존 한 segment 주기를 유지한다.
+- `abs(curve) >= 0.18`에서는 한 segment 안에 짧은 lane dash 2개를 배치한다.
+- commitment/wall-run 바깥쪽 reflector도 fractional Z 두 지점에 배치한다.
+- 이론 cadence는 150km/h `4.222/s`, 185km/h `5.207/s`다.
+- 첫 코너에서 시작한 120-sample Edge runtime에서는 motion anchor rolling pass rate 최대 `6/s`, 보이는 anchor `6~22개`, screen velocity 최대 `142.409px/s`를 기록했다.
+- 실제 캡처에서 가까운 dash와 reflector가 분리되어 보였고 continuous guardrail, 차량, HUD를 가리지 않았다.
+
+### 물리 보존
+
+- 표시 km/h와 `camera.z` 진행 식은 변경하지 않았다.
+- controller, engine, corner demand, understeer, drift와 collision 상수는 변경하지 않았다.
+- 첫 코너의 새 easy/medium/sharp 고정 표본은 segment `21 / 26 / 31`이다.
+- `qa:corner-demand-sweep`, `qa:handling-relations`, `qa:top-speed-regression`, guardrail QA와 production build가 통과했다.
+
+### CSS-5 판단
+
+목표한 코너 길이와 `4~6 pass/s`를 geometry/marker만으로 달성했다. turn-in FOV impulse, 추가 streak, grip-exit shader는 현 단계에서 적용하지 않는다. 사용자 실주행에서 여전히 부족할 때만 별도 A/B로 재개한다.
+
 ## 자동 QA
 
 새 QA:
@@ -251,3 +281,9 @@ npm run build --workspace @games/apex-seoul
 - grip과 drift의 조작 감각, 표시 속도와 물리 corner cost가 현재 기준을 유지한다.
 - 코스를 늘리더라도 느린 코너를 더 길게 복제하지 않는다.
 - 최종 1× 실주행 A/B에서 사용자가 코너 통과 속도감 개선을 승인한다.
+
+자동 기준선과 runtime 자료:
+
+- [CSS 코너 속도감 표](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/corner-speed-sense-baseline.md)
+- [CSS 코너 runtime summary](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/apex-seoul-drive-2026-07-22T11-30-39-386Z_curve-no-input.summary.json)
+- [CSS 코너 runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/corner-flow-runtime.png)

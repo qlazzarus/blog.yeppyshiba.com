@@ -270,14 +270,23 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             GUARDRAIL_COLLISION_CONFIG.contactClearance;
         const outsideSide = segment.curve >= 0 ? 1 : -1;
 
-        objects.push({
-            collisionRadius: 50,
-            id: `motion-anchor-reflector-${z}`,
-            kind: 'blue-reflector',
-            lateralOffset: outsideSide * (roadEdgeOffset + 95),
-            profile,
-            z: z + track.segmentLength * 0.6,
-        });
+        for (
+            let subdivision = 0;
+            subdivision < SPEED_PRESENTATION_WORLD_CONFIG.cornerReflectorSubdivisions;
+            subdivision += 1
+        ) {
+            const offsetRatio = SPEED_PRESENTATION_WORLD_CONFIG.cornerReflectorStartRatio +
+                subdivision / SPEED_PRESENTATION_WORLD_CONFIG.cornerReflectorSubdivisions;
+
+            objects.push({
+                collisionRadius: 50,
+                id: `motion-anchor-reflector-${z}-${subdivision}`,
+                kind: 'blue-reflector',
+                lateralOffset: outsideSide * (roadEdgeOffset + 95),
+                profile,
+                z: z + track.segmentLength * offsetRatio,
+            });
+        }
     }
 
     const speedSignZ = track.segmentLength * 7;

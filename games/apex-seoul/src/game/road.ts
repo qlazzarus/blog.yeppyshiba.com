@@ -33,32 +33,45 @@ type TrackSection = {
 };
 
 const BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS: TrackSection[] = [
-    { endCurve: 0, endElevation: 540, segments: 8, startCurve: 0, startElevation: 560 },
-    // R2: alternate short commitments with recoveries. The total length and
-    // downhill elevation budget are retained, while long one-direction runs
-    // are removed so the next corner can be read before it arrives.
-    { endCurve: 0.22, endElevation: 410, segments: 18, startCurve: 0, startElevation: 540 },
-    { endCurve: 0.66, endElevation: 300, endRoadHalfWidth: 820, segments: 14, startCurve: 0.22, startElevation: 410, startRoadHalfWidth: 960 },
-    { endCurve: 0.04, endElevation: 250, endRoadHalfWidth: 900, segments: 10, startCurve: 0.66, startElevation: 300, startRoadHalfWidth: 820 },
-    { endCurve: -0.62, endElevation: 160, endRoadHalfWidth: 820, segments: 12, startCurve: 0.04, startElevation: 250, startRoadHalfWidth: 900 },
-    { endCurve: -0.2, endElevation: 95, endRoadHalfWidth: 900, segments: 10, startCurve: -0.62, startElevation: 160, startRoadHalfWidth: 820 },
-    { endCurve: 0, endElevation: 60, endRoadHalfWidth: 960, segments: 10, startCurve: -0.2, startElevation: 95, startRoadHalfWidth: 900 },
-    { endCurve: 0.64, endElevation: -20, endRoadHalfWidth: 820, segments: 14, startCurve: 0, startElevation: 60, startRoadHalfWidth: 960 },
-    { endCurve: 0.16, endElevation: -75, endRoadHalfWidth: 900, segments: 10, startCurve: 0.64, startElevation: -20, startRoadHalfWidth: 820 },
-    { endCurve: 0, endElevation: -110, endRoadHalfWidth: 960, segments: 10, startCurve: 0.16, startElevation: -75, startRoadHalfWidth: 900 },
-    { endCurve: -0.66, endElevation: -185, endRoadHalfWidth: 820, segments: 14, startCurve: 0, startElevation: -110, startRoadHalfWidth: 960 },
-    { endCurve: -0.16, endElevation: -245, endRoadHalfWidth: 900, segments: 10, startCurve: -0.66, startElevation: -185, startRoadHalfWidth: 820 },
-    { endCurve: 0.03, endElevation: -300, endRoadHalfWidth: 960, segments: 12, startCurve: -0.16, startElevation: -245, startRoadHalfWidth: 900 },
-    { endCurve: 0.5, endElevation: -355, endRoadHalfWidth: 870, segments: 16, startCurve: 0.03, startElevation: -300, startRoadHalfWidth: 960 },
-    { endCurve: 0.08, endElevation: -390, endRoadHalfWidth: 920, segments: 12, startCurve: 0.5, startElevation: -355, startRoadHalfWidth: 870 },
-    { endCurve: -0.56, endElevation: -435, endRoadHalfWidth: 820, segments: 14, startCurve: 0.08, startElevation: -390, startRoadHalfWidth: 920 },
-    { endCurve: -0.1, endElevation: -465, endRoadHalfWidth: 960, segments: 10, startCurve: -0.56, startElevation: -435, startRoadHalfWidth: 820 },
-    { endCurve: 0, endElevation: -475, segments: 18, startCurve: -0.1, startElevation: -465 },
-    { endCurve: 0.56, endElevation: -485, endRoadHalfWidth: 820, segments: 16, startCurve: 0, startElevation: -475, startRoadHalfWidth: 960 },
-    { endCurve: 0.12, endElevation: -492, endRoadHalfWidth: 900, segments: 10, startCurve: 0.56, startElevation: -485, startRoadHalfWidth: 820 },
-    { endCurve: -0.5, endElevation: -498, endRoadHalfWidth: 870, segments: 12, startCurve: 0.12, startElevation: -492, startRoadHalfWidth: 900 },
-    { endCurve: -0.08, endElevation: -500, endRoadHalfWidth: 960, segments: 10, startCurve: -0.5, startElevation: -498, startRoadHalfWidth: 870 },
-    { endCurve: 0, endElevation: -500, segments: 14, startCurve: -0.08, startElevation: -500 },
+    { endCurve: 0, endElevation: 540, segments: 16, startCurve: 0, startElevation: 560 },
+
+    // CSS-2/4: short commitments separated by long fast recoveries. Peak
+    // grades and the total downhill budget stay intact, but no single turn
+    // holds the player in one visual state for ten seconds.
+    { endCurve: 0.22, endElevation: 500, segments: 7, startCurve: 0, startElevation: 540 },
+    { endCurve: 0.66, endElevation: 440, endRoadHalfWidth: 820, segments: 7, startCurve: 0.22, startElevation: 500, startRoadHalfWidth: 960 },
+    { endCurve: 0.04, endElevation: 410, endRoadHalfWidth: 900, segments: 6, startCurve: 0.66, startElevation: 440, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: 350, endRoadHalfWidth: 960, segments: 24, startCurve: 0.04, startElevation: 410, startRoadHalfWidth: 900 },
+
+    { endCurve: -0.62, endElevation: 290, endRoadHalfWidth: 820, segments: 9, startCurve: 0, startElevation: 350, startRoadHalfWidth: 960 },
+    { endCurve: -0.1, endElevation: 255, endRoadHalfWidth: 900, segments: 7, startCurve: -0.62, startElevation: 290, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: 200, endRoadHalfWidth: 960, segments: 26, startCurve: -0.1, startElevation: 255, startRoadHalfWidth: 900 },
+
+    { endCurve: 0.64, endElevation: 140, endRoadHalfWidth: 820, segments: 9, startCurve: 0, startElevation: 200, startRoadHalfWidth: 960 },
+    { endCurve: 0.1, endElevation: 105, endRoadHalfWidth: 900, segments: 7, startCurve: 0.64, startElevation: 140, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: 50, endRoadHalfWidth: 960, segments: 24, startCurve: 0.1, startElevation: 105, startRoadHalfWidth: 900 },
+
+    { endCurve: -0.66, endElevation: -20, endRoadHalfWidth: 820, segments: 9, startCurve: 0, startElevation: 50, startRoadHalfWidth: 960 },
+    { endCurve: -0.1, endElevation: -60, endRoadHalfWidth: 900, segments: 7, startCurve: -0.66, startElevation: -20, startRoadHalfWidth: 820 },
+    { endCurve: 0.03, endElevation: -115, endRoadHalfWidth: 960, segments: 28, startCurve: -0.1, startElevation: -60, startRoadHalfWidth: 900 },
+
+    { endCurve: 0.5, endElevation: -165, endRoadHalfWidth: 870, segments: 10, startCurve: 0.03, startElevation: -115, startRoadHalfWidth: 960 },
+    { endCurve: 0.08, endElevation: -195, endRoadHalfWidth: 920, segments: 8, startCurve: 0.5, startElevation: -165, startRoadHalfWidth: 870 },
+    { endCurve: -0.56, endElevation: -240, endRoadHalfWidth: 820, segments: 10, startCurve: 0.08, startElevation: -195, startRoadHalfWidth: 920 },
+    { endCurve: -0.1, endElevation: -270, endRoadHalfWidth: 960, segments: 8, startCurve: -0.56, startElevation: -240, startRoadHalfWidth: 820 },
+    { endCurve: 0, endElevation: -325, segments: 28, startCurve: -0.1, startElevation: -270 },
+
+    { endCurve: 0.56, endElevation: -370, endRoadHalfWidth: 820, segments: 10, startCurve: 0, startElevation: -325, startRoadHalfWidth: 960 },
+    { endCurve: 0.12, endElevation: -395, endRoadHalfWidth: 900, segments: 8, startCurve: 0.56, startElevation: -370, startRoadHalfWidth: 820 },
+    { endCurve: -0.5, endElevation: -430, endRoadHalfWidth: 870, segments: 10, startCurve: 0.12, startElevation: -395, startRoadHalfWidth: 900 },
+    { endCurve: -0.08, endElevation: -450, endRoadHalfWidth: 960, segments: 8, startCurve: -0.5, startElevation: -430, startRoadHalfWidth: 870 },
+
+    // A fast, low-demand S sector adds course length and direction changes
+    // without extending another sharp commitment.
+    { endCurve: 0.28, endElevation: -465, segments: 10, startCurve: -0.08, startElevation: -450 },
+    { endCurve: -0.24, endElevation: -480, segments: 10, startCurve: 0.28, startElevation: -465 },
+    { endCurve: 0, endElevation: -490, segments: 10, startCurve: -0.24, startElevation: -480 },
+    { endCurve: 0, endElevation: -500, segments: 32, startCurve: 0, startElevation: -490 },
 ];
 
 const BUGAK_RIDGE_DOWNHILL_SECTIONS = BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS;

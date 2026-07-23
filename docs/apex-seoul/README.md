@@ -1,6 +1,6 @@
 # Apex Seoul 내부 문서 안내
 
-갱신일: 2026-07-22
+갱신일: 2026-07-23
 
 이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다.
 
@@ -14,6 +14,7 @@
 | [Raven/FT86 파워밴드](./apex-seoul-raven-ft86-powerband-plan.md) | Raven Coupe의 FT86 기반 기어비·RPM·가속 개선 |
 | [225km/h 속도감·핸들링](./apex-seoul-speed-sense-handling-revision-plan.md) | 속도 연출, 185~225km/h 조향, 통합 QA 후속 계획 |
 | [코너 통과 속도감](./apex-seoul-corner-speed-sense-improvement-plan.md) | 코너 시간 길이, near-field flow, 코스 리듬·연장 계획 |
+| [아웃런 참고 속도감 후속](./apex-seoul-outrun-speed-sense-reference-plan.md) | longitudinal unit-scale 비교, 도로 흐름, 카메라·고저차와 후순위 traffic/audio 계획 |
 | [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |
