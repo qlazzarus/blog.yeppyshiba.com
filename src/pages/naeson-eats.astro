@@ -1,0 +1,1647 @@
+---
+import NaesonRestaurantMap from '@/components/NaesonRestaurantMap.astro';
+import { naesonRestaurants } from '@/config/naesonRestaurants';
+import '@/styles/global.css';
+
+const title = '내손동 이웃 맛지도';
+const description =
+    '내손동 아파트 이웃들이 직접 추천한 동네 맛집을 메뉴와 카테고리별로 모아 둔 내부 공유 페이지입니다.';
+const canonicalUrl = new URL('/naeson-eats/', Astro.site);
+const categories = ['전체', '한식', '고기', '중식', '일식', '양식', '카페'];
+const categoryCounts = Object.fromEntries(
+    categories.map((category) => [
+        category,
+        category === '전체'
+            ? naesonRestaurants.length
+            : naesonRestaurants.filter((restaurant) => restaurant.category === category)
+                  .length,
+    ]),
+);
+const participatingBuildings = new Set(
+    naesonRestaurants.flatMap((restaurant) => restaurant.sources),
+).size;
+
+const kakaoMapUrl = (query: string) =>
+    `https://map.kakao.com/?q=${encodeURIComponent(query)}`;
+---
+
+<!doctype html>
+<html lang='ko'>
+    <head>
+        <meta charset='utf-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <meta name='robots' content='noindex,nofollow' />
+        <meta name='theme-color' content='#f6f2e8' />
+        <meta name='description' content={description} />
+        <link rel='canonical' href={canonicalUrl} />
+        <link rel='icon' href='/images/site/akita-inu.png' />
+        <title>{title}</title>
+        <meta property='og:type' content='website' />
+        <meta property='og:locale' content='ko_KR' />
+        <meta property='og:url' content={canonicalUrl} />
+        <meta property='og:site_name' content={title} />
+        <meta property='og:title' content={title} />
+        <meta property='og:description' content={description} />
+        <meta name='twitter:card' content='summary' />
+        <meta name='twitter:title' content={title} />
+        <meta name='twitter:description' content={description} />
+    </head>
+    <body>
+        <div class='site-shell'>
+            <header class='topbar'>
+                <a class='brand' href='#top' aria-label='맛지도 맨 위로'>
+                    <span class='brand-mark' aria-hidden='true'>ㅇ</span>
+                    <span>
+                        <strong>우리 동네 맛지도</strong>
+                        <small>내손동 이웃 공유용</small>
+                    </span>
+                </a>
+                <button class='share-button' id='share-button' type='button'>
+                    <svg viewBox='0 0 24 24' aria-hidden='true'>
+                        <path
+                            d='M12 16V3m0 0L7 8m5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6'
+                        ></path>
+                    </svg>
+                    <span>공유하기</span>
+                </button>
+            </header>
+
+            <main id='top'>
+                <section class='hero'>
+                    <div class='hero-copy'>
+                        <p class='eyebrow'>
+                            <span aria-hidden='true'>✦</span> 이웃들의 진짜 추천만 모았어요
+                        </p>
+                        <h1>
+                            오늘 뭐 먹지?<br />
+                            <em>내손동 이웃 맛지도</em>
+                        </h1>
+                        <p class='hero-description'>
+                            단톡방에 흩어져 있던 맛집을 한곳에 모았습니다.<br
+                                class='desktop-break'
+                            />
+                            광고 없이, 우리 이웃이 직접 알려준 곳들이에요.
+                        </p>
+                        <dl class='stats' aria-label='맛지도 현황'>
+                            <div>
+                                <dt>등록 맛집</dt>
+                                <dd>{naesonRestaurants.length}<span>곳</span></dd>
+                            </div>
+                            <div>
+                                <dt>참여 동</dt>
+                                <dd>{participatingBuildings}<span>개 동</span></dd>
+                            </div>
+                            <div>
+                                <dt>최근 업데이트</dt>
+                                <dd class='date-stat'>2026. 07. 24</dd>
+                            </div>
+                        </dl>
+                    </div>
+                    <div class='hero-visual' aria-hidden='true'>
+                        <div class='map-grid'></div>
+                        <span class='road road-one'></span>
+                        <span class='road road-two'></span>
+                        <span class='park'>백운호수</span>
+                        <span class='map-label label-one'>내손동</span>
+                        <span class='map-label label-two'>평촌</span>
+                        <span class='map-label label-three'>인덕원</span>
+                        <span class='map-pin pin-one'><i>🍕</i></span>
+                        <span class='map-pin pin-two'><i>🍜</i></span>
+                        <span class='map-pin pin-three'><i>☕</i></span>
+                        <span class='map-pin pin-four'><i>🥩</i></span>
+                        <span class='map-pin pin-five'><i>🍲</i></span>
+                        <div class='hero-sticker'>
+                            <strong>18</strong>
+                            <span>이웃 맛집</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class='directory' aria-labelledby='directory-title'>
+                    <div class='directory-heading'>
+                        <div>
+                            <p class='section-kicker'>NEIGHBOR PICKS</p>
+                            <h2 id='directory-title'>이웃 추천 맛집</h2>
+                        </div>
+                        <button class='random-button' id='random-button' type='button'>
+                            <span aria-hidden='true'>↻</span>
+                            오늘의 메뉴 뽑기
+                        </button>
+                    </div>
+
+                    <div class='controls'>
+                        <label class='search-box'>
+                            <svg viewBox='0 0 24 24' aria-hidden='true'>
+                                <circle cx='11' cy='11' r='7'></circle>
+                                <path d='m20 20-4-4'></path>
+                            </svg>
+                            <span class='sr-only'>맛집 또는 메뉴 검색</span>
+                            <input
+                                id='restaurant-search'
+                                type='search'
+                                placeholder='가게 이름이나 메뉴를 검색해 보세요'
+                                autocomplete='off'
+                            />
+                            <kbd>⌘ K</kbd>
+                        </label>
+
+                        <div class='category-tabs' aria-label='음식 종류 필터'>
+                            {
+                                categories.map((category, index) => (
+                                    <button
+                                        type='button'
+                                        class:list={[
+                                            'category-tab',
+                                            { active: index === 0 },
+                                        ]}
+                                        data-category={category}
+                                        aria-pressed={index === 0 ? 'true' : 'false'}
+                                    >
+                                        <span>{category}</span>
+                                        <small>{categoryCounts[category]}</small>
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    <NaesonRestaurantMap restaurants={naesonRestaurants} />
+
+                    <div class='results-bar'>
+                        <p id='results-count' aria-live='polite'>
+                            <strong>{naesonRestaurants.length}</strong>곳을 보여드리고
+                            있어요
+                        </p>
+                        <p><span class='new-dot'></span> 최근 추가된 이웃 제보</p>
+                    </div>
+
+                    <div class='restaurant-grid' id='restaurant-grid'>
+                        {
+                            naesonRestaurants.map((restaurant, index) => {
+                                const query =
+                                    restaurant.searchQuery ??
+                                    `${restaurant.name} ${restaurant.location}`;
+                                const searchable = [
+                                    restaurant.name,
+                                    restaurant.category,
+                                    restaurant.location,
+                                    restaurant.note,
+                                    ...restaurant.menus,
+                                ]
+                                    .join(' ')
+                                    .toLocaleLowerCase('ko');
+
+                                return (
+                                    <article
+                                        class='restaurant-card'
+                                        data-category={restaurant.category}
+                                        data-search={searchable}
+                                        data-name={restaurant.name}
+                                        style={`--card-index:${index}`}
+                                    >
+                                        <div class='card-topline'>
+                                            <span class={`food-icon tone-${index % 6}`}>
+                                                {restaurant.emoji}
+                                            </span>
+                                            <div class='card-badges'>
+                                                {restaurant.isNew && (
+                                                    <span class='new-badge'>NEW</span>
+                                                )}
+                                                <span class='category-badge'>
+                                                    {restaurant.category}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class='card-copy'>
+                                            <h3>{restaurant.name}</h3>
+                                            <p class='location'>
+                                                <svg
+                                                    viewBox='0 0 24 24'
+                                                    aria-hidden='true'
+                                                >
+                                                    <path d='M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z' />
+                                                    <circle cx='12' cy='10' r='2.5' />
+                                                </svg>
+                                                <span>{restaurant.location}</span>
+                                            </p>
+                                            <div
+                                                class='menu-list'
+                                                aria-label='추천 메뉴'
+                                            >
+                                                {restaurant.menus.map((menu) => (
+                                                    <span>#{menu}</span>
+                                                ))}
+                                            </div>
+                                            <p class='recommendation'>
+                                                {restaurant.note}
+                                            </p>
+                                        </div>
+                                        <div class='card-footer'>
+                                            <span class='sources'>
+                                                <i aria-hidden='true'>♥</i>
+                                                {restaurant.sources.join(' · ')} 제보
+                                            </span>
+                                            <span class='card-map-actions'>
+                                                <button
+                                                    type='button'
+                                                    data-map-place={restaurant.name}
+                                                >
+                                                    지도에서
+                                                </button>
+                                                <a
+                                                    href={kakaoMapUrl(query)}
+                                                    target='_blank'
+                                                    rel='noopener noreferrer'
+                                                    aria-label={`${restaurant.name} 카카오맵에서 보기`}
+                                                >
+                                                    카카오맵
+                                                    <svg
+                                                        viewBox='0 0 24 24'
+                                                        aria-hidden='true'
+                                                    >
+                                                        <path d='M7 17 17 7M8 7h9v9' />
+                                                    </svg>
+                                                </a>
+                                            </span>
+                                        </div>
+                                        {restaurant.needsLocationCheck && (
+                                            <span
+                                                class='check-dot'
+                                                title='방문 전 위치 확인 권장'
+                                            />
+                                        )}
+                                    </article>
+                                );
+                            })
+                        }
+                    </div>
+
+                    <div class='empty-state' id='empty-state' hidden>
+                        <span aria-hidden='true'>🥄</span>
+                        <h3>찾는 맛집이 아직 없어요</h3>
+                        <p>다른 가게 이름이나 메뉴로 검색해 보세요.</p>
+                        <button type='button' id='reset-button'>전체 목록 보기</button>
+                    </div>
+                </section>
+
+                <aside class='notice'>
+                    <div class='notice-icon' aria-hidden='true'>i</div>
+                    <div>
+                        <strong>방문하기 전에 확인해 주세요</strong>
+                        <p>
+                            이 페이지는 이웃 제보를 보기 좋게 모은 목록입니다. 상호,
+                            위치, 메뉴와 영업시간은 바뀔 수 있으니 카드의 카카오맵
+                            버튼으로 최신 정보를 확인해 주세요. 카드 모서리의 <span
+                                class='inline-check-dot'></span> 표시는 위치를 한 번 더 확인하면
+                            좋은 곳입니다.
+                        </p>
+                    </div>
+                </aside>
+            </main>
+
+            <footer>
+                <p>우리 동네의 맛있는 발견을 함께 나눠요.</p>
+                <span>내손동 이웃 맛지도 · 링크를 아는 이웃끼리 공유</span>
+            </footer>
+        </div>
+
+        <div class='toast' id='toast' role='status' aria-live='polite'></div>
+
+        <script>
+            const searchInput = document.querySelector('#restaurant-search');
+            const cards = Array.from(document.querySelectorAll('.restaurant-card'));
+            const categoryButtons = Array.from(
+                document.querySelectorAll('.category-tab'),
+            );
+            const resultsCount = document.querySelector('#results-count');
+            const emptyState = document.querySelector('#empty-state');
+            const resetButton = document.querySelector('#reset-button');
+            const randomButton = document.querySelector('#random-button');
+            const shareButton = document.querySelector('#share-button');
+            const toast = document.querySelector('#toast');
+
+            let selectedCategory = '전체';
+            let toastTimer;
+
+            const normalize = (value) =>
+                String(value ?? '')
+                    .toLocaleLowerCase('ko')
+                    .replace(/\s+/g, '');
+
+            function applyFilters() {
+                const query = normalize(searchInput?.value);
+                let visibleCount = 0;
+
+                cards.forEach((card) => {
+                    const matchesCategory =
+                        selectedCategory === '전체' ||
+                        card.dataset.category === selectedCategory;
+                    const matchesSearch = normalize(card.dataset.search).includes(
+                        query,
+                    );
+                    const visible = matchesCategory && matchesSearch;
+
+                    card.hidden = !visible;
+                    if (visible) visibleCount += 1;
+                });
+
+                if (resultsCount) {
+                    resultsCount.innerHTML = `<strong>${visibleCount}</strong>곳을 보여드리고 있어요`;
+                }
+                if (emptyState) emptyState.hidden = visibleCount !== 0;
+                window.dispatchEvent(
+                    new CustomEvent('naeson:filter', {
+                        detail: {
+                            names: cards
+                                .filter((card) => !card.hidden)
+                                .map((card) => card.dataset.name),
+                        },
+                    }),
+                );
+            }
+
+            function selectCategory(category) {
+                selectedCategory = category;
+                categoryButtons.forEach((button) => {
+                    const active = button.dataset.category === category;
+                    button.classList.toggle('active', active);
+                    button.setAttribute('aria-pressed', String(active));
+                });
+                applyFilters();
+            }
+
+            categoryButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    selectCategory(button.dataset.category ?? '전체');
+                });
+            });
+
+            searchInput?.addEventListener('input', applyFilters);
+
+            document.querySelectorAll('[data-map-place]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    window.dispatchEvent(
+                        new CustomEvent('naeson:focus-place', {
+                            detail: {
+                                name: button.getAttribute('data-map-place'),
+                            },
+                        }),
+                    );
+                    document
+                        .querySelector('[data-naeson-map]')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+
+            resetButton?.addEventListener('click', () => {
+                if (searchInput) searchInput.value = '';
+                selectCategory('전체');
+                searchInput?.focus();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key.toLowerCase() === 'k'
+                ) {
+                    event.preventDefault();
+                    searchInput?.focus();
+                }
+            });
+
+            randomButton?.addEventListener('click', () => {
+                const visibleCards = cards.filter((card) => !card.hidden);
+                if (!visibleCards.length) return;
+
+                cards.forEach((card) => card.classList.remove('picked'));
+                const picked =
+                    visibleCards[Math.floor(Math.random() * visibleCards.length)];
+                picked.classList.add('picked');
+                picked.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast(`오늘은 ${picked.dataset.name} 어때요?`);
+                window.setTimeout(() => picked.classList.remove('picked'), 2600);
+            });
+
+            shareButton?.addEventListener('click', async () => {
+                const shareData = {
+                    title: document.title,
+                    text: '내손동 이웃들이 추천한 맛집 목록이에요.',
+                    url: window.location.href,
+                };
+
+                try {
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        await navigator.clipboard.writeText(window.location.href);
+                        showToast('링크를 복사했어요');
+                    }
+                } catch (error) {
+                    if (error instanceof DOMException && error.name === 'AbortError')
+                        return;
+                    showToast('주소창의 링크를 복사해 공유해 주세요');
+                }
+            });
+
+            function showToast(message) {
+                if (!toast) return;
+                toast.textContent = message;
+                toast.classList.add('show');
+                window.clearTimeout(toastTimer);
+                toastTimer = window.setTimeout(
+                    () => toast.classList.remove('show'),
+                    2200,
+                );
+            }
+        </script>
+    </body>
+</html>
+
+<style>
+    :global(*) {
+        box-sizing: border-box;
+    }
+
+    :global(html) {
+        scroll-behavior: smooth;
+        background: #f6f2e8;
+    }
+
+    :global(body) {
+        margin: 0;
+        min-width: 320px;
+        background:
+            radial-gradient(
+                circle at 7% 4%,
+                rgba(234, 90, 57, 0.07),
+                transparent 28rem
+            ),
+            #f6f2e8;
+        color: #243125;
+        font-family:
+            Pretendard,
+            'Noto Sans KR',
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            sans-serif;
+    }
+
+    :global(button),
+    :global(input) {
+        font: inherit;
+    }
+
+    :global(button),
+    :global(a) {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :global([hidden]) {
+        display: none !important;
+    }
+
+    .site-shell {
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .topbar {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        width: min(1180px, calc(100% - 48px));
+        height: 82px;
+        margin: 0 auto;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(36, 49, 37, 0.12);
+    }
+
+    .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .brand-mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border-radius: 50% 50% 46% 54% / 54% 45% 55% 46%;
+        background: #284d38;
+        color: #f9e784;
+        font-family: Georgia, serif;
+        font-size: 21px;
+        font-style: italic;
+        font-weight: 800;
+        transform: rotate(-7deg);
+    }
+
+    .brand strong,
+    .brand small {
+        display: block;
+    }
+
+    .brand strong {
+        font-size: 15px;
+        letter-spacing: -0.025em;
+    }
+
+    .brand small {
+        margin-top: 1px;
+        color: #7a8279;
+        font-size: 10px;
+        letter-spacing: 0.07em;
+    }
+
+    .share-button,
+    .random-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        cursor: pointer;
+        transition:
+            transform 160ms ease,
+            box-shadow 160ms ease,
+            background 160ms ease;
+    }
+
+    .share-button {
+        gap: 7px;
+        min-height: 40px;
+        padding: 0 17px;
+        border: 1px solid rgba(36, 49, 37, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.48);
+        color: #344036;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .share-button svg {
+        width: 15px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+    }
+
+    .share-button:hover,
+    .random-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(38, 55, 41, 0.12);
+    }
+
+    main {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+    }
+
+    .hero {
+        display: grid;
+        min-height: 465px;
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: center;
+        gap: 6.5%;
+        padding: 56px 0 64px;
+    }
+
+    .eyebrow,
+    .section-kicker {
+        margin: 0;
+        color: #e05c3e;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.09em;
+    }
+
+    .eyebrow span {
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    h1 {
+        margin: 18px 0 20px;
+        color: #203329;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: clamp(42px, 5vw, 66px);
+        font-weight: 800;
+        letter-spacing: -0.065em;
+        line-height: 1.1;
+    }
+
+    h1 em {
+        color: #dd5b3d;
+        font-style: normal;
+    }
+
+    .hero-description {
+        margin: 0;
+        color: #657068;
+        font-size: 15px;
+        line-height: 1.75;
+    }
+
+    .stats {
+        display: flex;
+        gap: 0;
+        margin: 30px 0 0;
+    }
+
+    .stats div {
+        min-width: 112px;
+        padding: 0 22px;
+        border-left: 1px solid rgba(36, 49, 37, 0.14);
+    }
+
+    .stats div:first-child {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .stats dt {
+        margin-bottom: 5px;
+        color: #8a918b;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .stats dd {
+        margin: 0;
+        color: #2a4535;
+        font-family: Georgia, serif;
+        font-size: 29px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
+    .stats dd span {
+        margin-left: 3px;
+        font-family: inherit;
+        font-size: 11px;
+        letter-spacing: -0.02em;
+    }
+
+    .stats .date-stat {
+        padding-top: 9px;
+        font-family: inherit;
+        font-size: 13px;
+        letter-spacing: 0;
+    }
+
+    .hero-visual {
+        position: relative;
+        isolation: isolate;
+        width: 100%;
+        aspect-ratio: 1.32;
+        overflow: hidden;
+        border: 1px solid rgba(56, 75, 60, 0.11);
+        border-radius: 48% 52% 43% 57% / 52% 38% 62% 48%;
+        background: #e3dfc6;
+        box-shadow:
+            inset 0 0 80px rgba(60, 85, 61, 0.07),
+            0 30px 60px rgba(65, 73, 56, 0.08);
+        transform: rotate(1.5deg);
+    }
+
+    .map-grid {
+        position: absolute;
+        inset: -20%;
+        z-index: -3;
+        background-image:
+            linear-gradient(rgba(91, 111, 86, 0.13) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(91, 111, 86, 0.13) 1px, transparent 1px);
+        background-size: 42px 42px;
+        transform: rotate(-11deg);
+    }
+
+    .hero-visual::before,
+    .hero-visual::after {
+        position: absolute;
+        z-index: -2;
+        border-radius: 50%;
+        content: '';
+    }
+
+    .hero-visual::before {
+        top: -28%;
+        right: -8%;
+        width: 68%;
+        height: 78%;
+        border: 28px solid rgba(244, 239, 209, 0.9);
+        background: rgba(172, 195, 148, 0.42);
+    }
+
+    .hero-visual::after {
+        bottom: -23%;
+        left: -12%;
+        width: 58%;
+        height: 61%;
+        border: 22px solid rgba(244, 239, 209, 0.85);
+        background: rgba(169, 188, 132, 0.38);
+    }
+
+    .road {
+        position: absolute;
+        z-index: -1;
+        display: block;
+        border-radius: 999px;
+        background: #f5efd7;
+        box-shadow:
+            0 0 0 1px rgba(85, 102, 75, 0.09),
+            inset 0 0 0 6px #e6b75b;
+    }
+
+    .road-one {
+        top: 42%;
+        left: -18%;
+        width: 135%;
+        height: 24px;
+        transform: rotate(-18deg);
+    }
+
+    .road-two {
+        top: -10%;
+        left: 45%;
+        width: 20px;
+        height: 125%;
+        transform: rotate(28deg);
+    }
+
+    .park {
+        position: absolute;
+        right: 13%;
+        bottom: 14%;
+        display: grid;
+        width: 104px;
+        height: 62px;
+        place-items: center;
+        border-radius: 60% 40% 55% 45%;
+        background: #8db7b5;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        transform: rotate(-8deg);
+    }
+
+    .map-label {
+        position: absolute;
+        color: rgba(50, 75, 55, 0.55);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.07em;
+    }
+
+    .label-one {
+        top: 46%;
+        left: 45%;
+    }
+
+    .label-two {
+        top: 17%;
+        left: 19%;
+    }
+
+    .label-three {
+        right: 16%;
+        top: 35%;
+    }
+
+    .map-pin {
+        position: absolute;
+        display: grid;
+        width: 43px;
+        height: 43px;
+        place-items: center;
+        border: 3px solid #fffaf0;
+        border-radius: 50% 50% 50% 12%;
+        background: #e35f41;
+        box-shadow: 0 8px 17px rgba(58, 65, 51, 0.22);
+        transform: rotate(-45deg);
+    }
+
+    .map-pin i {
+        font-size: 20px;
+        font-style: normal;
+        transform: rotate(45deg);
+    }
+
+    .pin-one {
+        top: 20%;
+        left: 31%;
+    }
+
+    .pin-two {
+        top: 35%;
+        right: 22%;
+        background: #315540;
+    }
+
+    .pin-three {
+        bottom: 20%;
+        left: 25%;
+        background: #df9e43;
+    }
+
+    .pin-four {
+        right: 38%;
+        bottom: 15%;
+    }
+
+    .pin-five {
+        top: 51%;
+        left: 43%;
+        background: #315540;
+    }
+
+    .hero-sticker {
+        position: absolute;
+        top: 7%;
+        right: 5%;
+        display: grid;
+        width: 86px;
+        height: 86px;
+        place-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        background: #274d38;
+        color: white;
+        text-align: center;
+        transform: rotate(8deg);
+    }
+
+    .hero-sticker strong,
+    .hero-sticker span {
+        display: block;
+    }
+
+    .hero-sticker strong {
+        color: #f6dc6b;
+        font-family: Georgia, serif;
+        font-size: 30px;
+        line-height: 1;
+    }
+
+    .hero-sticker span {
+        margin-top: 3px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+    }
+
+    .directory {
+        padding: 70px 0 74px;
+        border-top: 1px solid rgba(36, 49, 37, 0.12);
+    }
+
+    .directory-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .directory-heading h2 {
+        margin: 6px 0 0;
+        color: #203329;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: clamp(30px, 4vw, 43px);
+        letter-spacing: -0.055em;
+    }
+
+    .random-button {
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 19px;
+        border-radius: 999px;
+        background: #284d38;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .random-button span {
+        color: #f7dc67;
+        font-size: 19px;
+        line-height: 1;
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(500px, 1.15fr);
+        gap: 22px;
+        margin-top: 32px;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        height: 52px;
+        align-items: center;
+        border: 1px solid rgba(44, 62, 48, 0.16);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow: 0 5px 15px rgba(46, 59, 47, 0.04);
+    }
+
+    .search-box:focus-within {
+        border-color: #315a42;
+        box-shadow: 0 0 0 3px rgba(49, 90, 66, 0.1);
+    }
+
+    .search-box svg {
+        width: 18px;
+        margin-left: 17px;
+        fill: none;
+        stroke: #758077;
+        stroke-linecap: round;
+        stroke-width: 1.7;
+    }
+
+    .search-box input {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        padding: 0 8px 0 10px;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #243125;
+        font-size: 13px;
+    }
+
+    .search-box input::placeholder {
+        color: #929991;
+    }
+
+    .search-box kbd {
+        margin-right: 12px;
+        padding: 3px 6px;
+        border: 1px solid rgba(44, 62, 48, 0.13);
+        border-radius: 5px;
+        background: #f4f1e8;
+        color: #8a918b;
+        font-family: inherit;
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+    .category-tabs {
+        display: flex;
+        min-width: 0;
+        gap: 5px;
+        overflow-x: auto;
+        padding: 4px;
+        border-radius: 14px;
+        background: rgba(229, 224, 207, 0.8);
+        scrollbar-width: none;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-tab {
+        display: inline-flex;
+        flex: 1 0 auto;
+        min-width: 62px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #677169;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 750;
+        transition:
+            background 150ms ease,
+            color 150ms ease,
+            box-shadow 150ms ease;
+    }
+
+    .category-tab small {
+        display: grid;
+        min-width: 17px;
+        height: 17px;
+        place-items: center;
+        border-radius: 99px;
+        background: rgba(53, 72, 57, 0.08);
+        font-size: 8px;
+    }
+
+    .category-tab.active {
+        background: #fffdf8;
+        box-shadow: 0 3px 9px rgba(42, 55, 44, 0.09);
+        color: #244331;
+    }
+
+    .category-tab.active small {
+        background: #eb6546;
+        color: white;
+    }
+
+    .results-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 24px 2px 14px;
+        color: #7c857e;
+        font-size: 11px;
+    }
+
+    .results-bar p {
+        margin: 0;
+    }
+
+    .results-bar strong {
+        color: #e35f41;
+        font-size: 13px;
+    }
+
+    .new-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin: 0 5px 1px 0;
+        border-radius: 50%;
+        background: #e35f41;
+    }
+
+    .restaurant-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .restaurant-card {
+        position: relative;
+        display: flex;
+        min-height: 290px;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 20px 20px 0;
+        border: 1px solid rgba(44, 62, 48, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 253, 248, 0.82);
+        box-shadow: 0 5px 18px rgba(46, 59, 47, 0.045);
+        transition:
+            transform 180ms ease,
+            border-color 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .restaurant-card:hover {
+        z-index: 1;
+        border-color: rgba(44, 83, 59, 0.28);
+        box-shadow: 0 16px 34px rgba(45, 60, 48, 0.1);
+        transform: translateY(-4px);
+    }
+
+    .restaurant-card.picked {
+        border-color: #e35f41;
+        box-shadow:
+            0 0 0 4px rgba(227, 95, 65, 0.13),
+            0 18px 40px rgba(45, 60, 48, 0.13);
+        animation: picked 600ms ease;
+    }
+
+    @keyframes picked {
+        0%,
+        100% {
+            transform: rotate(0);
+        }
+        35% {
+            transform: rotate(-1.2deg) scale(1.02);
+        }
+        70% {
+            transform: rotate(1deg) scale(1.02);
+        }
+    }
+
+    .card-topline {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .food-icon {
+        display: grid;
+        width: 47px;
+        height: 47px;
+        place-items: center;
+        border-radius: 14px 14px 14px 5px;
+        background: #e8ddc1;
+        font-size: 24px;
+    }
+
+    .tone-1 {
+        background: #e8cfba;
+    }
+
+    .tone-2 {
+        background: #d7e2c8;
+    }
+
+    .tone-3 {
+        background: #e2d5bc;
+    }
+
+    .tone-4 {
+        background: #cfe2d6;
+    }
+
+    .tone-5 {
+        background: #ded5e6;
+    }
+
+    .card-badges {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .category-badge,
+    .new-badge {
+        display: inline-flex;
+        min-height: 23px;
+        align-items: center;
+        border-radius: 99px;
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .category-badge {
+        padding: 0 10px;
+        background: #efede4;
+        color: #657068;
+    }
+
+    .new-badge {
+        padding: 0 8px;
+        background: #e35f41;
+        color: white;
+        letter-spacing: 0.08em;
+    }
+
+    .card-copy {
+        flex: 1;
+    }
+
+    .card-copy h3 {
+        margin: 15px 0 7px;
+        color: #26362c;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 19px;
+        letter-spacing: -0.04em;
+    }
+
+    .location {
+        display: flex;
+        min-height: 31px;
+        align-items: start;
+        gap: 5px;
+        margin: 0;
+        color: #7e867f;
+        font-size: 10px;
+        line-height: 1.45;
+    }
+
+    .location svg {
+        width: 12px;
+        flex: 0 0 auto;
+        margin-top: 1px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+    }
+
+    .menu-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 9px;
+        margin-top: 10px;
+    }
+
+    .menu-list span {
+        color: #d1583d;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .recommendation {
+        margin: 12px 0 16px;
+        color: #566158;
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .card-footer {
+        display: flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border-top: 1px solid rgba(44, 62, 48, 0.09);
+    }
+
+    .sources {
+        color: #808881;
+        font-size: 9px;
+    }
+
+    .sources i {
+        margin-right: 3px;
+        color: #e46246;
+        font-size: 10px;
+        font-style: normal;
+    }
+
+    .card-footer a {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: #315a42;
+        font-size: 10px;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .card-footer a:hover {
+        color: #dd5b3d;
+    }
+
+    .card-map-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-map-actions button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #7a847c;
+        cursor: pointer;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .card-map-actions button:hover {
+        color: #dd5b3d;
+    }
+
+    .card-footer svg {
+        width: 13px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+    }
+
+    .check-dot {
+        position: absolute;
+        right: 7px;
+        bottom: 7px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #d6a541;
+    }
+
+    .empty-state {
+        padding: 70px 20px;
+        border: 1px dashed rgba(44, 62, 48, 0.22);
+        border-radius: 18px;
+        background: rgba(255, 253, 248, 0.55);
+        text-align: center;
+    }
+
+    .empty-state > span {
+        font-size: 35px;
+    }
+
+    .empty-state h3 {
+        margin: 12px 0 5px;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 20px;
+    }
+
+    .empty-state p {
+        margin: 0;
+        color: #7e867f;
+        font-size: 12px;
+    }
+
+    .empty-state button {
+        margin-top: 18px;
+        padding: 9px 15px;
+        border: 0;
+        border-radius: 99px;
+        background: #284d38;
+        color: white;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .notice {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 76px;
+        padding: 18px 20px;
+        border: 1px solid rgba(177, 139, 55, 0.2);
+        border-radius: 14px;
+        background: rgba(241, 223, 171, 0.23);
+    }
+
+    .notice-icon {
+        display: grid;
+        width: 25px;
+        height: 25px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: #deb85a;
+        color: #fffdf6;
+        font-family: Georgia, serif;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .notice strong {
+        display: block;
+        margin: 1px 0 4px;
+        color: #554b31;
+        font-size: 11px;
+    }
+
+    .notice p {
+        margin: 0;
+        color: #796f57;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .inline-check-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin: 0 2px 1px;
+        border-radius: 50%;
+        background: #d6a541;
+    }
+
+    footer {
+        display: flex;
+        min-height: 110px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 0 max(24px, calc((100vw - 1180px) / 2));
+        background: #284d38;
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    footer p,
+    footer span {
+        margin: 0;
+    }
+
+    footer p {
+        color: white;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    footer span {
+        font-size: 10px;
+        letter-spacing: 0.02em;
+    }
+
+    .toast {
+        position: fixed;
+        z-index: 50;
+        bottom: 24px;
+        left: 50%;
+        padding: 11px 18px;
+        border-radius: 99px;
+        background: #21392b;
+        box-shadow: 0 12px 35px rgba(29, 42, 33, 0.26);
+        color: white;
+        font-size: 12px;
+        font-weight: 750;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 20px);
+        transition:
+            opacity 180ms ease,
+            transform 180ms ease;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+    }
+
+    @media (max-width: 940px) {
+        .hero {
+            min-height: auto;
+            grid-template-columns: 1fr 0.86fr;
+            gap: 32px;
+        }
+
+        .controls {
+            grid-template-columns: 1fr;
+        }
+
+        .restaurant-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hero-visual {
+            aspect-ratio: 1;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .topbar,
+        main {
+            width: min(100% - 32px, 1180px);
+        }
+
+        .topbar {
+            height: 70px;
+        }
+
+        .brand small {
+            display: none;
+        }
+
+        .share-button {
+            width: 40px;
+            padding: 0;
+        }
+
+        .share-button span {
+            display: none;
+        }
+
+        .hero {
+            display: block;
+            padding: 42px 0 50px;
+        }
+
+        h1 {
+            margin-top: 14px;
+            font-size: clamp(38px, 11vw, 48px);
+            letter-spacing: -0.075em;
+        }
+
+        h1 em {
+            font-size: 0.93em;
+            white-space: nowrap;
+        }
+
+        .hero-description {
+            font-size: 13px;
+        }
+
+        .desktop-break {
+            display: none;
+        }
+
+        .stats {
+            margin-top: 25px;
+        }
+
+        .stats div {
+            min-width: 0;
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .stats dd {
+            font-size: 24px;
+        }
+
+        .stats .date-stat {
+            white-space: nowrap;
+            font-size: 11px;
+            letter-spacing: -0.03em;
+        }
+
+        .stats dt {
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .stats dd span {
+            font-size: 9px;
+        }
+
+        .stats div:last-child {
+            flex: 1.15;
+            padding-right: 0;
+        }
+
+        .hero-visual {
+            width: 94%;
+            margin: 38px auto 0;
+            aspect-ratio: 1.28;
+        }
+
+        .directory {
+            padding: 54px 0 58px;
+        }
+
+        .directory-heading {
+            align-items: center;
+        }
+
+        .random-button {
+            width: 42px;
+            padding: 0;
+        }
+
+        .random-button span {
+            margin: 0;
+        }
+
+        .random-button {
+            font-size: 0;
+        }
+
+        .controls {
+            margin-top: 25px;
+        }
+
+        .category-tabs {
+            min-height: 48px;
+        }
+
+        .category-tab {
+            min-width: 68px;
+        }
+
+        .results-bar {
+            margin-top: 18px;
+        }
+
+        .restaurant-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .restaurant-card {
+            min-height: 274px;
+        }
+
+        .results-bar p:last-child {
+            display: none;
+        }
+
+        footer {
+            min-height: 125px;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 6px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :global(html) {
+            scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>
