@@ -15,10 +15,17 @@ export type RoadTrack = {
     segments: RoadSegment[];
 };
 
+export type RoadHeadingPreview = {
+    demandCurve: number;
+    farTangentChange: number;
+    nearTangentChange: number;
+};
+
 export const SEGMENT_LENGTH = 240;
 
 const DEFAULT_LANE_COUNT = 2;
 export const DEFAULT_ROAD_HALF_WIDTH = 960;
+const ROAD_HEADING_PREVIEW_NEAR_WEIGHT = 0.8;
 
 export type RoadTrackId = 'bugak-ridge-downhill' | 'elevation-test';
 
@@ -168,6 +175,62 @@ export function getRoadElevationAt(track: RoadTrack, worldZ: number) {
     const next = getRoadSegment(track, segmentIndex + 1);
 
     return current.elevation + (next.elevation - current.elevation) * progress;
+}
+
+export function getRoadCurveAt(track: RoadTrack, worldZ: number) {
+    const segmentIndex = Math.floor(worldZ / track.segmentLength);
+    const progress = getCameraSegmentProgress(track, worldZ);
+    const current = getRoadSegment(track, segmentIndex);
+    const next = getRoadSegment(track, segmentIndex + 1);
+
+    return current.curve + (next.curve - current.curve) * progress;
+}
+
+export function getRoadHeadingPreview(
+    track: RoadTrack,
+    worldZ: number,
+    nearDistance = SEGMENT_LENGTH * 2,
+    farDistance = SEGMENT_LENGTH * 6,
+): RoadHeadingPreview {
+    const safeNearDistance = Math.max(SEGMENT_LENGTH * 0.5, nearDistance);
+    const safeFarDistance = Math.max(safeNearDistance, farDistance);
+    const sampleStep = SEGMENT_LENGTH * 0.5;
+    let distance = 0;
+    let previousCurve = getRoadCurveAt(track, worldZ);
+    let nearIntegral = 0;
+    let farIntegral = 0;
+
+    while (distance < safeFarDistance) {
+        const nextDistance = Math.min(safeFarDistance, distance + sampleStep);
+        const nextCurve = getRoadCurveAt(track, worldZ + nextDistance);
+        const span = nextDistance - distance;
+        const integral = (previousCurve + nextCurve) * 0.5 * span;
+
+        farIntegral += integral;
+        if (distance < safeNearDistance) {
+            const nearSpan = Math.min(nextDistance, safeNearDistance) - distance;
+            const nearProgress = span <= 0 ? 0 : nearSpan / span;
+            const nearEndCurve = previousCurve +
+                (nextCurve - previousCurve) * nearProgress;
+            nearIntegral += (previousCurve + nearEndCurve) * 0.5 * nearSpan;
+        }
+
+        distance = nextDistance;
+        previousCurve = nextCurve;
+    }
+
+    const nearTangentChange = nearIntegral / SEGMENT_LENGTH;
+    const farTangentChange = farIntegral / SEGMENT_LENGTH;
+    const nearMeanCurve = nearIntegral / safeNearDistance;
+    const farMeanCurve = farIntegral / safeFarDistance;
+
+    return {
+        demandCurve:
+            nearMeanCurve * ROAD_HEADING_PREVIEW_NEAR_WEIGHT +
+            farMeanCurve * (1 - ROAD_HEADING_PREVIEW_NEAR_WEIGHT),
+        farTangentChange,
+        nearTangentChange,
+    };
 }
 
 export function getRoadHalfWidthAt(track: RoadTrack, worldZ: number) {

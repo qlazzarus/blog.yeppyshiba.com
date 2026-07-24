@@ -1,0 +1,1144 @@
+{
+  "checks": [
+    {
+      "evidence": {
+        "input": 1,
+        "physicalSteeringCommand": 0.1898
+      },
+      "id": "full-digital-input-does-not-hit-full-physics-on-first-frame",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "peakCommand": 0.9992
+      },
+      "id": "held-input-builds-useful-physics-command",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "commandHalfSecondAfterRelease": 0.0003
+      },
+      "id": "released-physics-command-returns-neutral",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "commandedSamples": 34,
+        "mismatches": 0
+      },
+      "id": "sprite-sign-follows-physical-command",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "maxAbsBodyPose": 0.0002,
+        "samples": 43
+      },
+      "id": "neutral-command-keeps-center-pose-after-release",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "headingAtCommandNeutral": 0.2765,
+        "headingAtEnd": 0.2781,
+        "headingRetentionRatio": 1.0058
+      },
+      "id": "release-does-not-auto-align-world-heading-to-road",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "maxAbsHeading": 0,
+        "maxAbsOffset": 0,
+        "maxAbsPhysicalCommand": 0
+      },
+      "id": "straight-neutral-remains-centered",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "bodyPose": 0,
+        "headingError": 0.7849,
+        "lateralOffset": 473.8472,
+        "physicalSteeringCommand": 0,
+        "speedKmh": 178.3344
+      },
+      "id": "left-corner-neutral-command-keeps-center-pose",
+      "pass": true
+    }
+  ],
+  "generatedAt": "2026-07-24T05:25:34.143Z",
+  "neutralLeftCorner": {
+    "bodyPose": 0,
+    "headingError": 0.7849,
+    "lateralOffset": 473.8472,
+    "physicalSteeringCommand": 0,
+    "speedKmh": 178.3344
+  },
+  "neutralStraight": {
+    "maxAbsHeading": 0,
+    "maxAbsOffset": 0,
+    "maxAbsPhysicalCommand": 0
+  },
+  "pass": true,
+  "purpose": "Keep grip sprite pose command-driven while world-line heading remains independent",
+  "schemaVersion": 2,
+  "tapRelease": {
+    "commandHalfSecondAfterRelease": 0.0003,
+    "firstFrameCommand": 0.1898,
+    "headingAtCommandNeutral": 0.2765,
+    "headingAtEnd": 0.2781,
+    "headingRetentionRatio": 1.0058,
+    "commandedSamples": [
+      {
+        "bodyPose": 0.1748,
+        "elapsedSec": 0.0167,
+        "headingError": 0.0021,
+        "physicalSteeringCommand": 0.1898,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.3492,
+        "elapsedSec": 0.0333,
+        "headingError": 0.0063,
+        "physicalSteeringCommand": 0.3794,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.4921,
+        "elapsedSec": 0.05,
+        "headingError": 0.0123,
+        "physicalSteeringCommand": 0.5347,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.5991,
+        "elapsedSec": 0.0667,
+        "headingError": 0.0195,
+        "physicalSteeringCommand": 0.6511,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.6792,
+        "elapsedSec": 0.0833,
+        "headingError": 0.0277,
+        "physicalSteeringCommand": 0.7384,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.7393,
+        "elapsedSec": 0.1,
+        "headingError": 0.0366,
+        "physicalSteeringCommand": 0.8039,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.7842,
+        "elapsedSec": 0.1167,
+        "headingError": 0.0461,
+        "physicalSteeringCommand": 0.8529,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.8179,
+        "elapsedSec": 0.1333,
+        "headingError": 0.056,
+        "physicalSteeringCommand": 0.8897,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.8431,
+        "elapsedSec": 0.15,
+        "headingError": 0.0662,
+        "physicalSteeringCommand": 0.9173,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.8619,
+        "elapsedSec": 0.1667,
+        "headingError": 0.0766,
+        "physicalSteeringCommand": 0.938,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.876,
+        "elapsedSec": 0.1833,
+        "headingError": 0.0872,
+        "physicalSteeringCommand": 0.9535,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.8865,
+        "elapsedSec": 0.2,
+        "headingError": 0.0979,
+        "physicalSteeringCommand": 0.9651,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.8944,
+        "elapsedSec": 0.2167,
+        "headingError": 0.1087,
+        "physicalSteeringCommand": 0.9738,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9002,
+        "elapsedSec": 0.2333,
+        "headingError": 0.1196,
+        "physicalSteeringCommand": 0.9804,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9046,
+        "elapsedSec": 0.25,
+        "headingError": 0.1305,
+        "physicalSteeringCommand": 0.9853,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9078,
+        "elapsedSec": 0.2667,
+        "headingError": 0.1415,
+        "physicalSteeringCommand": 0.989,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9102,
+        "elapsedSec": 0.2833,
+        "headingError": 0.1525,
+        "physicalSteeringCommand": 0.9917,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9119,
+        "elapsedSec": 0.3,
+        "headingError": 0.1636,
+        "physicalSteeringCommand": 0.9938,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9132,
+        "elapsedSec": 0.3167,
+        "headingError": 0.1746,
+        "physicalSteeringCommand": 0.9953,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9141,
+        "elapsedSec": 0.3333,
+        "headingError": 0.1857,
+        "physicalSteeringCommand": 0.9965,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9147,
+        "elapsedSec": 0.35,
+        "headingError": 0.1967,
+        "physicalSteeringCommand": 0.9974,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9152,
+        "elapsedSec": 0.3667,
+        "headingError": 0.2078,
+        "physicalSteeringCommand": 0.998,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9155,
+        "elapsedSec": 0.3833,
+        "headingError": 0.2189,
+        "physicalSteeringCommand": 0.9985,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9157,
+        "elapsedSec": 0.4,
+        "headingError": 0.23,
+        "physicalSteeringCommand": 0.9989,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.9158,
+        "elapsedSec": 0.4167,
+        "headingError": 0.2411,
+        "physicalSteeringCommand": 0.9992,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.7462,
+        "elapsedSec": 0.4333,
+        "headingError": 0.2501,
+        "physicalSteeringCommand": 0.8143,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.5769,
+        "elapsedSec": 0.45,
+        "headingError": 0.2571,
+        "physicalSteeringCommand": 0.6297,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.4327,
+        "elapsedSec": 0.4667,
+        "headingError": 0.2624,
+        "physicalSteeringCommand": 0.4724,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.3245,
+        "elapsedSec": 0.4833,
+        "headingError": 0.2663,
+        "physicalSteeringCommand": 0.3544,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.2434,
+        "elapsedSec": 0.5,
+        "headingError": 0.2692,
+        "physicalSteeringCommand": 0.2659,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.1826,
+        "elapsedSec": 0.5167,
+        "headingError": 0.2715,
+        "physicalSteeringCommand": 0.1995,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.137,
+        "elapsedSec": 0.5333,
+        "headingError": 0.2731,
+        "physicalSteeringCommand": 0.1497,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.1027,
+        "elapsedSec": 0.55,
+        "headingError": 0.2744,
+        "physicalSteeringCommand": 0.1123,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0771,
+        "elapsedSec": 0.5667,
+        "headingError": 0.2753,
+        "physicalSteeringCommand": 0.0843,
+        "steerAxis": 0
+      }
+    ],
+    "peakCommand": 0.9992,
+    "releaseSamples": [
+      {
+        "bodyPose": 0.9158,
+        "elapsedSec": 0.4167,
+        "headingError": 0.2411,
+        "physicalSteeringCommand": 0.9992,
+        "steerAxis": 1
+      },
+      {
+        "bodyPose": 0.7462,
+        "elapsedSec": 0.4333,
+        "headingError": 0.2501,
+        "physicalSteeringCommand": 0.8143,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.5769,
+        "elapsedSec": 0.45,
+        "headingError": 0.2571,
+        "physicalSteeringCommand": 0.6297,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.4327,
+        "elapsedSec": 0.4667,
+        "headingError": 0.2624,
+        "physicalSteeringCommand": 0.4724,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.3245,
+        "elapsedSec": 0.4833,
+        "headingError": 0.2663,
+        "physicalSteeringCommand": 0.3544,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.2434,
+        "elapsedSec": 0.5,
+        "headingError": 0.2692,
+        "physicalSteeringCommand": 0.2659,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.1826,
+        "elapsedSec": 0.5167,
+        "headingError": 0.2715,
+        "physicalSteeringCommand": 0.1995,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.137,
+        "elapsedSec": 0.5333,
+        "headingError": 0.2731,
+        "physicalSteeringCommand": 0.1497,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.1027,
+        "elapsedSec": 0.55,
+        "headingError": 0.2744,
+        "physicalSteeringCommand": 0.1123,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0771,
+        "elapsedSec": 0.5667,
+        "headingError": 0.2753,
+        "physicalSteeringCommand": 0.0843,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0578,
+        "elapsedSec": 0.5833,
+        "headingError": 0.276,
+        "physicalSteeringCommand": 0.0633,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0434,
+        "elapsedSec": 0.6,
+        "headingError": 0.2765,
+        "physicalSteeringCommand": 0.0475,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0325,
+        "elapsedSec": 0.6167,
+        "headingError": 0.2769,
+        "physicalSteeringCommand": 0.0356,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0244,
+        "elapsedSec": 0.6333,
+        "headingError": 0.2772,
+        "physicalSteeringCommand": 0.0267,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0183,
+        "elapsedSec": 0.65,
+        "headingError": 0.2774,
+        "physicalSteeringCommand": 0.0201,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0137,
+        "elapsedSec": 0.6667,
+        "headingError": 0.2776,
+        "physicalSteeringCommand": 0.0151,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0103,
+        "elapsedSec": 0.6833,
+        "headingError": 0.2777,
+        "physicalSteeringCommand": 0.0113,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0077,
+        "elapsedSec": 0.7,
+        "headingError": 0.2778,
+        "physicalSteeringCommand": 0.0085,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0058,
+        "elapsedSec": 0.7167,
+        "headingError": 0.2779,
+        "physicalSteeringCommand": 0.0064,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0044,
+        "elapsedSec": 0.7333,
+        "headingError": 0.278,
+        "physicalSteeringCommand": 0.0048,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0033,
+        "elapsedSec": 0.75,
+        "headingError": 0.278,
+        "physicalSteeringCommand": 0.0036,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0025,
+        "elapsedSec": 0.7667,
+        "headingError": 0.278,
+        "physicalSteeringCommand": 0.0027,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0018,
+        "elapsedSec": 0.7833,
+        "headingError": 0.278,
+        "physicalSteeringCommand": 0.002,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0014,
+        "elapsedSec": 0.8,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0015,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.001,
+        "elapsedSec": 0.8167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0011,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0008,
+        "elapsedSec": 0.8333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0009,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0006,
+        "elapsedSec": 0.85,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0006,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0004,
+        "elapsedSec": 0.8667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0005,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0003,
+        "elapsedSec": 0.8833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0004,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0002,
+        "elapsedSec": 0.9,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0003,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0002,
+        "elapsedSec": 0.9167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0002,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0002,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.95,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.05,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.15,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.25,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.35,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.45,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.55,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.6,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      }
+    ],
+    "settledNeutralSamples": [
+      {
+        "bodyPose": 0.0002,
+        "elapsedSec": 0.9,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0003,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0002,
+        "elapsedSec": 0.9167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0002,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0002,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.95,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0.0001,
+        "elapsedSec": 0.9833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0.0001,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.05,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.0833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.15,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.1833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.25,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.2833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.35,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.3833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.45,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.4833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5167,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5333,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.55,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5667,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.5833,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      },
+      {
+        "bodyPose": 0,
+        "elapsedSec": 1.6,
+        "headingError": 0.2781,
+        "physicalSteeringCommand": 0,
+        "steerAxis": 0
+      }
+    ]
+  }
+}

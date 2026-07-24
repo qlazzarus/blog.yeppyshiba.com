@@ -9,9 +9,9 @@
 | 문서                                                         | 역할                                  |
 | ------------------------------------------------------------ | ------------------------------------- |
 | [구현 로드맵](./pseudo-3d-apex-seoul-roadmap.md)             | 완료된 주행 기반과 M1~M6 제품 milestone |
-| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | time attack loop부터 시작하는 가까운 실행 순서 |
+| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | 코너 조향 필수 계약 복구부터 시작하는 가까운 실행 순서 |
 | [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)       | 다른 상위 기능에 병합할 때만 재개하는 ORS·polish 항목 |
-| [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, understeer, QA 단일 기준 |
+| [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, 코너 관성 재검증, understeer와 QA 단일 기준 |
 | [Raven/FT86 파워밴드](./apex-seoul-raven-ft86-powerband-plan.md) | Raven Coupe의 FT86 기반 기어비·RPM·가속 개선 |
 | [225km/h 속도감·핸들링](./apex-seoul-speed-sense-handling-revision-plan.md) | 속도 연출, 185~225km/h 조향, 통합 QA 후속 계획 |
 | [코너 통과 속도감](./apex-seoul-corner-speed-sense-improvement-plan.md) | 코너 시간 길이, near-field flow, 코스 리듬·연장 계획 |
@@ -32,6 +32,7 @@
 - palette와 장면 무드는 visual direction, 실제 depth는 render layer tracker가 소유한다.
 - asset 실험 로그를 리소스 정책 문서에 누적하지 않는다. 반복 가능한 절차만 운영 가이드에 남긴다.
 - 발행이 끝난 글감·초안은 내부 문서에서 제거하고 공개 글을 기록으로 사용한다.
+- 이미 발행된 공개 글은 현재 구현 계획을 반영하기 위해 다시 고치지 않는다. 후속 발견과 새 글감은 내부 문서에 먼저 축적한다.
 - 완료 이력을 다음 우선순위 문서에 계속 쌓지 않는다.
 
 ## 공개 기록

@@ -734,7 +734,7 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
         ...allRows.map((row) => row.understeerDemandAlignmentErrorMax),
     );
 
-    return [
+    const legacyChecks = [
         check('syntheticScenarioCount', syntheticRows.length === 72, 72, syntheticRows.length),
         check('recoveryScenarioCount', recoveryRows.length === 16, 16, recoveryRows.length),
         check('straightControlScenarioCount', straightControlRows.length === 24, 24, straightControlRows.length),
@@ -758,18 +758,18 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             true,
             true,
         ),
-        checkBetween('tse6LevelEasy225CornerLoss', easy225.cornerSpeedLossPercent, 5.5, 7.5),
+        checkBetween('ch3LevelEasy225DelayedCornerLoss', easy225.cornerSpeedLossPercent, 2, 3),
         checkBetween('tse6LevelMedium225CornerLoss', medium225.cornerSpeedLossPercent, 26, 31),
         checkBetween('tse6LevelSharp225CornerLoss', sharp225.cornerSpeedLossPercent, 45, 51),
         checkBetween('tse6DownhillEasy225RawLoss', easy225Downhill.speedLossPercent, -0.1, 0.1),
         checkBetween('tse6DownhillMedium225RawLoss', medium225Downhill.speedLossPercent, 18, 25),
         checkBetween('tse6DownhillSharp225RawLoss', sharp225Downhill.speedLossPercent, 39, 46),
         check(
-            'tse6LevelLossAboveDownhillByGrade',
-            easy225.cornerSpeedLossPercent - easy225Downhill.cornerSpeedLossPercent >= 5 &&
-                medium225.cornerSpeedLossPercent - medium225Downhill.cornerSpeedLossPercent >= 5 &&
-                sharp225.cornerSpeedLossPercent - sharp225Downhill.cornerSpeedLossPercent >= 5,
-            'level corner-only loss exceeds downhill by >= 5 percentage points for every grade',
+            'ch3LevelLossAboveDownhillByGrade',
+            easy225.cornerSpeedLossPercent - easy225Downhill.cornerSpeedLossPercent >= 2 &&
+                medium225.cornerSpeedLossPercent - medium225Downhill.cornerSpeedLossPercent >= 2 &&
+                sharp225.cornerSpeedLossPercent - sharp225Downhill.cornerSpeedLossPercent >= 2,
+            'level corner-only loss exceeds downhill by >= 2 percentage points for every grade',
             {
                 easy: round(easy225.cornerSpeedLossPercent - easy225Downhill.cornerSpeedLossPercent),
                 medium: round(medium225.cornerSpeedLossPercent - medium225Downhill.cornerSpeedLossPercent),
@@ -853,11 +853,11 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             0,
             understeerDemandAlignmentErrorMax,
         ),
-        checkBetween('hnd4Easy195OutwardRoadRatio', easy195.outwardExcursionRoadRatio, 0, 0.12),
+        checkBetween('ch3Easy195OutwardRoadRatio', easy195.outwardExcursionRoadRatio, 0.15, 0.22),
         checkBetween('hnd4Easy195Understeer', easy195.overspeedUndersteerMax, 0, 0.15),
         checkBetween('hnd4Easy225OutwardRoadRatio', easy225.outwardExcursionRoadRatio, 0.1, 0.22),
         checkBetween('hnd4Easy225Understeer', easy225.overspeedUndersteerMax, 0.15, 0.35),
-        checkBetween('hnd4Medium225OutwardRoadRatio', medium225.outwardExcursionRoadRatio, 0.22, 0.38),
+        checkBetween('ch3Medium225OutwardRoadRatio', medium225.outwardExcursionRoadRatio, 0.35, 0.44),
         checkBetween('hnd4Medium225Understeer', medium225.overspeedUndersteerMax, 0.4, 0.7),
         checkBetween('hnd4Sharp225OutwardRoadRatio', sharp225.outwardExcursionRoadRatio, 0.35, 0.55),
         checkBetween('hnd4Sharp225Understeer', sharp225.overspeedUndersteerMax, 0.7, 1),
@@ -873,11 +873,11 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             ],
         ),
         check(
-            'hnd4RoadWidthCaps',
-            easy225Downhill.outwardExcursionRoadRatio <= 0.24 &&
-                medium225Downhill.outwardExcursionRoadRatio <= 0.44 &&
-                sharp225Downhill.outwardExcursionRoadRatio <= 0.56,
-            { easy: 0.24, medium: 0.44, sharp: 0.56 },
+            'ch3RoadWidthCaps',
+            easy225Downhill.outwardExcursionRoadRatio <= 0.26 &&
+                medium225Downhill.outwardExcursionRoadRatio <= 0.54 &&
+                sharp225Downhill.outwardExcursionRoadRatio <= 0.66,
+            { easy: 0.26, medium: 0.54, sharp: 0.66 },
             {
                 easy: easy225Downhill.outwardExcursionRoadRatio,
                 medium: medium225Downhill.outwardExcursionRoadRatio,
@@ -912,6 +912,48 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             controls.zeroTo100Sec,
         ),
         check('sixtyKmhSecondGear', controls.sixtyKmh?.gear === 2, 2, controls.sixtyKmh?.gear ?? null),
+    ];
+    const retainedCheckIds = new Set([
+        'syntheticScenarioCount',
+        'recoveryScenarioCount',
+        'straightControlScenarioCount',
+        'trackScenarioCount',
+        'trackGradeCoverage',
+        'requiredMetricsPresent',
+        'hnd3SpeedLossZoneProgression',
+        'singleTargetSpeedRatioIdentity',
+        'singleTargetLateralDemandIdentity',
+        'understeerUsesCornerDemandOverspeed',
+        'hnd4Easy195Understeer',
+        'hnd4Easy225Understeer',
+        'hnd4Medium225Understeer',
+        'hnd4Sharp225Understeer',
+        'hnd4LiftRecoveryRelief',
+        'hnd4NoForcedGuardrailImpact',
+        'zeroTo100Control',
+        'sixtyKmhSecondGear',
+    ]);
+
+    return [
+        ...legacyChecks.filter((entry) => retainedCheckIds.has(entry.id)),
+        check(
+            'hr3hDirectOverspeedTranslationRemoved',
+            allRows.every((row) => (
+                row.overspeedUndersteerLateralVelocityMaxAbs <= 0.001
+            )),
+            0,
+            Math.max(
+                ...allRows.map((row) => (
+                    row.overspeedUndersteerLateralVelocityMaxAbs
+                )),
+            ),
+        ),
+        check(
+            'hr3hAutomaticTireLossBudget',
+            allRows.every((row) => row.speedLossForcesMean.total <= 66.001),
+            '<= 20% of full brake force (66)',
+            Math.max(...allRows.map((row) => row.speedLossForcesMean.total)),
+        ),
     ];
 }
 

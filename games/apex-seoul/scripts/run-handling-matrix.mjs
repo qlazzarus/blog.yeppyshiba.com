@@ -17,8 +17,8 @@ const candidates = [
         query: '',
     },
     {
-        id: 'less-curve-force',
-        query: 'curveDrift=160&curveSteeringCue=0.06&curveCarBias=8',
+        id: 'less-corner-inertia',
+        query: 'cornerInertiaMax=90&curveSteeringCue=0.06&curveCarBias=8',
     },
     {
         id: 'less-corner-pull',
@@ -39,7 +39,7 @@ const candidates = [
     {
         id: 'combined-first-pass',
         query: [
-            'curveDrift=160',
+            'cornerInertiaMax=115',
             'curveCueDrop=0.38',
             'curveSteeringCue=0.06',
             'cornerPull=120',

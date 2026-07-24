@@ -1,6 +1,6 @@
 # Apex Seoul TSE-6 최고속 회귀 묶음
 
-생성: 2026-07-22T11:37:09.818Z
+생성: 2026-07-23T05:16:52.362Z
 
 상태: **PASS**
 
@@ -55,9 +55,9 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 
 | grade | level corner-only % | downhill corner-only % | downhill raw % | level - downhill pp |
 | --- | ---: | ---: | ---: | ---: |
-| easy | 6.501 | 0 | 0 | 6.501 |
-| medium | 28.242 | 21.44 | 21.257 | 6.802 |
-| sharp | 47.956 | 42.714 | 42.296 | 5.242 |
+| easy | 6.506 | 0 | 0 | 6.506 |
+| medium | 28.4 | 21.45 | 21.268 | 6.95 |
+| sharp | 48.131 | 42.716 | 42.299 | 5.415 |
 
 과거 HND-3 손실률은 225km/h 직선 자체가 감속하던 상태를 기준으로 했다. TSE-6은 같은 speed/slope/pedal의 calibrated straight control과 코너 출구를 비교한다.
 
@@ -82,7 +82,7 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 | runtimeStraightIsClean | yes | 0 | {"cornerLoss":0,"guardrailImpacts":0,"steering":0} |
 | slopeOrderingAndClassification | yes | uphill < level equilibrium < downhill safety-cap | {"downhill":[225,"safety-cap"],"level":[223.953313488908,"force-equilibrium"],"uphill":[168.710930168434,"observed-at-300s"]} |
 | forceBracketStillNatural | yes | positive / approximately zero / negative at 223 / 224 / 225km/h | 0.074416324, -0.000835742, -0.07755501 |
-| cornerLossUsesCalibratedStraightReference | yes | level loss exceeds safety-cap downhill by >= 5 percentage points for each grade | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":6.501,"levelMinusDownhillPercentagePoints":6.501}, {"downhillCornerLossPercent":21.44,"downhillRawLossPercent":21.257,"grade":"medium","levelCornerLossPercent":28.242,"levelMinusDownhillPercentagePoints":6.802}, {"downhillCornerLossPercent":42.714,"downhillRawLossPercent":42.296,"grade":"sharp","levelCornerLossPercent":47.956,"levelMinusDownhillPercentagePoints":5.242} |
+| cornerLossUsesCalibratedStraightReference | yes | level loss exceeds safety-cap downhill by >= 5 percentage points for each grade | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":6.506,"levelMinusDownhillPercentagePoints":6.506}, {"downhillCornerLossPercent":21.45,"downhillRawLossPercent":21.268,"grade":"medium","levelCornerLossPercent":28.4,"levelMinusDownhillPercentagePoints":6.95}, {"downhillCornerLossPercent":42.716,"downhillRawLossPercent":42.299,"grade":"sharp","levelCornerLossPercent":48.131,"levelMinusDownhillPercentagePoints":5.415} |
 
 이 PASS는 최고속 회귀가 고정됐다는 뜻이다. Visual rail과 drift cycle의 통합 실주행 승인은 별도 blocker로 남는다.
 

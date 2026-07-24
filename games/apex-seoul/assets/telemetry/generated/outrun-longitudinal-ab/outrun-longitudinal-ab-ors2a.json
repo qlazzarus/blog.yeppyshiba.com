@@ -931,7 +931,7 @@
       "width": 1200
     }
   },
-  "generatedAt": "2026-07-23T02:28:39.515Z",
+  "generatedAt": "2026-07-23T05:15:47.284Z",
   "methodology": {
     "handlingBoundary": "Physical speed, engine, gear, steering and lateral constants stay unchanged. Only canonical world Z progression uses physicalSpeed * scale.",
     "railExposure": "Rail exposure is an upper-bound ratio: shortest commitment duration divided by time from center to the narrowest rail at the physical-speed lateral velocity cap. Runtime/user review still decides handling acceptance.",

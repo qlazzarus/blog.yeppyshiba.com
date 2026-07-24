@@ -478,6 +478,27 @@ export function createRuntimePlayerVehicleConfig(
             0,
             360,
         ),
+        cornerInertiaBuildRate: readTuningNumber(
+            params,
+            'cornerInertiaBuild',
+            defaults.cornerInertiaBuildRate,
+            20,
+            800,
+        ),
+        cornerInertiaMaxLateralSpeed: readTuningNumber(
+            params,
+            'cornerInertiaMax',
+            defaults.cornerInertiaMaxLateralSpeed,
+            0,
+            300,
+        ),
+        cornerInertiaRecoveryRate: readTuningNumber(
+            params,
+            'cornerInertiaRecovery',
+            defaults.cornerInertiaRecoveryRate,
+            20,
+            1000,
+        ),
         downhillCornerBudgetMaxReduction: readTuningNumber(
             params,
             'downhillCornerBudgetReduction',
@@ -505,13 +526,6 @@ export function createRuntimePlayerVehicleConfig(
             defaults.downhillCornerOverspeedScrub,
             0,
             260,
-        ),
-        curveDriftAcceleration: readTuningNumber(
-            params,
-            'curveDrift',
-            defaults.curveDriftAcceleration,
-            0,
-            520,
         ),
         curveSteeringHighSpeedDrop: readTuningNumber(
             params,

@@ -9,9 +9,17 @@ import type { PlayerVehicleState, VehicleTerrainCue } from './vehicle';
 
 export type ApexHudState = {
     camera: Pseudo3dCamera;
+    collisionDebug: {
+        active: boolean;
+        bounceVelocity: number;
+        impactCount: number;
+        side: -1 | 0 | 1;
+    };
     controlsLabel: string;
     cornerIntensity: number;
     longitudinalProgression: LongitudinalProgressionConfig;
+    physicsRoadContactZ: number;
+    physicsRoadCurve: number;
     player: PlayerVehicleState;
     qa: RuntimeQaOverrides;
     roadStats: RoadRenderStats | null;
@@ -50,11 +58,46 @@ export function createHudText(scene: Phaser.Scene) {
         .setDepth(RenderDepth.Hud);
 }
 
+export function createCollisionDebugText(scene: Phaser.Scene) {
+    return scene.add
+        .text(0, 18, '', {
+            backgroundColor: '#5b1010',
+            color: '#ffe6cf',
+            fontFamily: 'system-ui, sans-serif',
+            fontSize: '18px',
+            fontStyle: 'bold',
+            padding: { x: 12, y: 7 },
+        })
+        .setDepth(RenderDepth.Hud)
+        .setOrigin(0.5, 0)
+        .setVisible(false);
+}
+
+export function renderCollisionDebugText(
+    text: Phaser.GameObjects.Text,
+    state: ApexHudState['collisionDebug'],
+    viewportWidth: number,
+) {
+    text
+        .setPosition(viewportWidth / 2, 18)
+        .setVisible(state.active);
+
+    if (!state.active) return;
+
+    text.setText(
+        `RAIL COLLISION ${formatRailSide(state.side)}  #${state.impactCount}  ` +
+        `BOUNCE ${state.bounceVelocity.toFixed(0)}u/s`,
+    );
+}
+
 export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudState) {
     const {
         camera,
+        collisionDebug,
         cornerIntensity,
         longitudinalProgression,
+        physicsRoadContactZ,
+        physicsRoadCurve,
         player,
         qa,
         roadStats,
@@ -77,14 +120,17 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
             `horizon ${(camera.horizonRatio * 100).toFixed(0)}% + pitch ${camera.pitch.toFixed(0)}px`,
             `height ${camera.height.toFixed(0)} | fov ${camera.fovDegrees.toFixed(1)} | z ${camera.z.toFixed(0)}`,
             roadStats
-                ? `segment ${roadStats.baseSegmentIndex} | curve ${roadStats.currentCurve.toFixed(2)} | elevation ${roadStats.currentElevation.toFixed(0)} | crest ${formatNullableNumber(roadStats.crestEnvelopeY)} | occlusion ${formatNullableNumber(roadStats.horizonOcclusionY)} | visible ${roadStats.visibleSegments} | hidden ${roadStats.occludedSegments}`
+                ? `segment ${roadStats.baseSegmentIndex} | render curve ${roadStats.currentCurve.toFixed(2)} | physics curve ${physicsRoadCurve.toFixed(2)} @ ${physicsRoadContactZ.toFixed(0)}z | elevation ${roadStats.currentElevation.toFixed(0)} | crest ${formatNullableNumber(roadStats.crestEnvelopeY)} | occlusion ${formatNullableNumber(roadStats.horizonOcclusionY)} | visible ${roadStats.visibleSegments} | hidden ${roadStats.occludedSegments}`
                 : 'segment -- | curve -- | visible --',
             run.finished
                 ? `run FINISH ${formatRunTime(run.finishTimeSec ?? run.elapsedSec)} | progress 100% | checkpoints ${run.passedCheckpoints}/3 | R restart`
                 : `run ${formatRunTime(run.elapsedSec)} | progress ${(run.progressRatio * 100).toFixed(1)}% | checkpoints ${run.passedCheckpoints}/3`,
+            collisionDebug.active
+                ? `!!! RAIL COLLISION ${formatRailSide(collisionDebug.side)} #${collisionDebug.impactCount} | bounce ${collisionDebug.bounceVelocity.toFixed(0)}u/s !!!`
+                : `rail clear | impacts ${collisionDebug.impactCount}`,
             `speed ${speedKmh.toFixed(0)} km/h (${player.speed.toFixed(0)}u) | gear ${player.gearIndex + 1} | rpm ${player.rpm.toFixed(0)} | torque ${player.torqueScale.toFixed(2)} | boost ${player.boostRatio.toFixed(2)} | fuel cut ${player.fuelCutActive ? 'on' : 'off'} | shift cut ${player.shiftCutRatio.toFixed(2)}`,
             `flow ${longitudinalProgression.candidateId} x${longitudinalProgression.scale.toFixed(2)} | world ${worldTravelSpeed.toFixed(0)}u/s${longitudinalProgression.diagnosticUpperBound ? ' | diagnostic upper bound' : ''}`,
-            `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | line ${player.cornerDemand.lineQuality.toFixed(2)} | demand ${player.cornerDemand.lateralDemand.toFixed(2)} | loss ${player.cornerSpeedLoss.zone} ${player.cornerSpeedLoss.totalForce.toFixed(0)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
+            `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | line ${player.cornerDemand.lineQuality.toFixed(2)} | demand ${player.cornerDemand.lateralDemand.toFixed(2)} | heading ${player.vehicleHeadingError.toFixed(2)}rad | inertia ${player.cornerInertiaLateralVelocity.toFixed(0)} | loss ${player.cornerSpeedLoss.zone} ${player.cornerSpeedLoss.totalForce.toFixed(0)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
             `understeer ${player.overspeedUndersteerRatio.toFixed(2)} | grip auth ${understeerVisual.gripAuthorityRatio.toFixed(2)} | body auth ${understeerVisual.bodyYawAuthority.toFixed(2)} | pose auth ${understeerVisual.poseAuthority.toFixed(2)} | scrub cue ${understeerVisual.cueIntensity.toFixed(2)}`,
             `sprite ${(tuning.vehicleViewportRatio * 100).toFixed(0)}vw | anchor ${tuning.playerRoadAnchorDistance.toFixed(0)}z | contact cue ${tuning.playerContactTerrainCueThreshold.toFixed(0)} | curve bias ${tuning.curveScreenBias.toFixed(0)}px`,
             `telemetry ${telemetry.enabled ? 'on' : 'off'} | log ${telemetryEventCount}`,
@@ -101,4 +147,8 @@ function formatRunTime(seconds: number) {
     const remainingSeconds = seconds - minutes * 60;
 
     return `${minutes}:${remainingSeconds.toFixed(2).padStart(5, '0')}`;
+}
+
+function formatRailSide(side: -1 | 0 | 1) {
+    return side < 0 ? 'LEFT' : side > 0 ? 'RIGHT' : 'UNKNOWN';
 }

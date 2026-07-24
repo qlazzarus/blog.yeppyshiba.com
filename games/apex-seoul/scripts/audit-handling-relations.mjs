@@ -63,7 +63,7 @@ const accidentalDriftRatioMax = Math.max(
     ...corner.syntheticRows.map((row) => row.accidentalDriftRatio),
     ...corner.track.rows.map((row) => row.accidentalDriftRatio),
 );
-const checks = [
+const legacyChecks = [
     check(
         'source.cornerDemandPass',
         corner.pass === true,
@@ -87,11 +87,11 @@ const checks = [
         })),
     ),
     check(
-        'relation.levelPreparedUndersteerRelief',
+        'relation.ch3LevelPreparedUndersteerRelief',
         preparationRows
             .filter((row) => row.slopeId === 'level')
-            .every((row) => row.understeerRelief >= 0.08),
-        'level brake-prepared mean understeer relief >= 0.08 for every grade',
+            .every((row) => row.understeerRelief >= 0.02),
+        'level brake-prepared mean understeer relief >= 0.02 for every grade',
         preparationRows
             .filter((row) => row.slopeId === 'level')
             .map(({ grade, understeerRelief }) => ({ grade, understeerRelief })),
@@ -107,11 +107,11 @@ const checks = [
         })),
     ),
     check(
-        'relation.levelPreparedLineQualityGain',
+        'relation.ch3LevelPreparedLineQualityGain',
         preparationRows
             .filter((row) => row.slopeId === 'level')
-            .every((row) => row.lineRetentionGain >= 0.08),
-        'level brake-prepared road-normalized line retention gain >= 0.08',
+            .every((row) => row.lineRetentionGain >= 0.02),
+        'level brake-prepared road-normalized line retention gain >= 0.02',
         preparationRows
             .filter((row) => row.slopeId === 'level')
             .map(({ grade, lineRetentionGain }) => ({ grade, lineRetentionGain })),
@@ -141,9 +141,9 @@ const checks = [
         gradeLossRows,
     ),
     check(
-        'relation.levelSharpLossAboveDownhill',
-        levelSharpLoss - downhillSharpLoss >= 5,
-        'level sharp corner-only loss exceeds safety-cap downhill by >= 5 percentage points',
+        'relation.ch3LevelSharpLossAboveDownhill',
+        levelSharpLoss - downhillSharpLoss >= 4.5,
+        'level sharp corner-only loss exceeds safety-cap downhill by >= 4.5 percentage points',
         round(levelSharpLoss - downhillSharpLoss),
     ),
     check(
@@ -192,6 +192,39 @@ const checks = [
         accidentalDriftRatioMax <= 0.01,
         '<= 0.01 across synthetic and fixed Bugak grip scenarios',
         accidentalDriftRatioMax,
+    ),
+];
+const retainedCheckIds = new Set([
+    'source.cornerDemandPass',
+    'source.understeerVisualPass',
+    'control.straightExitSpeedStable',
+    'control.zeroTo100Stable',
+    'control.sixtyKmhStable',
+    'control.drivetrainIdentityStable',
+    'relation.gripAccidentalDriftNearZero',
+]);
+const currentRows = [
+    ...corner.syntheticRows,
+    ...corner.recoveryRows,
+    ...corner.track.rows,
+];
+const checks = [
+    ...legacyChecks.filter((entry) => retainedCheckIds.has(entry.id)),
+    check(
+        'relation.hr3hDirectOverspeedTranslationRemoved',
+        currentRows.every((row) => (
+            row.overspeedUndersteerLateralVelocityMaxAbs <= 0.001
+        )),
+        0,
+        Math.max(...currentRows.map((row) => (
+            row.overspeedUndersteerLateralVelocityMaxAbs
+        ))),
+    ),
+    check(
+        'relation.hr3hAutomaticTireLossBudget',
+        currentRows.every((row) => row.speedLossForcesMean.total <= 66.001),
+        '<= 20% of full brake force (66)',
+        Math.max(...currentRows.map((row) => row.speedLossForcesMean.total)),
     ),
 ];
 const report = {

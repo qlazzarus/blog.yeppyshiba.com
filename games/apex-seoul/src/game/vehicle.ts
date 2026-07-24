@@ -116,6 +116,7 @@ export type PlayerCornerSpeedLossSample = {
     severeOverspeedScrubForce: number;
     steeringScrubForce: number;
     totalForce: number;
+    trajectoryScrubRatio: number;
     zone: PlayerCornerSpeedLossZone;
 };
 
@@ -149,10 +150,15 @@ export type PlayerLongitudinalForceSample = {
     speedRatio: number;
 };
 
+export type GuardrailContactPhase = 'clear' | 'enter' | 'stay' | 'exit';
+
 export type PlayerVehicleState = {
     brakePressure: number;
     boostRatio: number;
+    cornerInsideHeadingAllowance: number;
+    cornerInsideHeadingLimited: boolean;
     cornerDemand: PlayerCornerDemandSample;
+    cornerInertiaLateralVelocity: number;
     cornerSpeedLoss: PlayerCornerSpeedLossSample;
     counterSteerTimer: number;
     counterSteerLateralVelocity: number;
@@ -177,14 +183,20 @@ export type PlayerVehicleState = {
     fuelCutTimer: number;
     gearIndex: number;
     guardrailBounceVelocity: number;
+    guardrailContactActive: boolean;
+    guardrailContactAnchorOffset: number;
+    guardrailContactClearTimer: number;
     guardrailContactInset: number;
     guardrailContactDirection: -1 | 0 | 1;
+    guardrailContactPhase: GuardrailContactPhase;
     guardrailContactTimer: number;
     guardrailImpactCount: number;
     guardrailImpactCue: number;
     guardrailShoulderRatio: number;
     gripCounterRoadLateralVelocity: number;
     gripCounterRoadRatio: number;
+    gripFollowAuthority: number;
+    gripHeadingCommitTimer: number;
     gripSteerAngleLimit: number;
     lateralOffset: number;
     lowSpeedLateralAuthority: number;
@@ -201,7 +213,11 @@ export type PlayerVehicleState = {
     overspeedUndersteerSteerDemandRatio: number;
     overspeedUndersteerLoadTransferScale: number;
     overspeedUndersteerLateralVelocity: number;
+    physicalSteeringCommand: number;
     rpm: number;
+    passiveGripYawRate: number;
+    requiredRoadYawRate: number;
+    residualRoadYawRate: number;
     shiftCutRatio: number;
     shiftDirection: -1 | 0 | 1;
     shiftTimer: number;
@@ -213,6 +229,7 @@ export type PlayerVehicleState = {
     torqueScale: number;
     traction: number;
     throttleWasPressed: boolean;
+    vehicleHeadingError: number;
 };
 
 export type VehicleAnchor = {

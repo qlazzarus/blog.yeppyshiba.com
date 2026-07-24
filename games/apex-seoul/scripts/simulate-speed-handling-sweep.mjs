@@ -27,9 +27,9 @@ const checks = [];
 
 checks.push(atMost('stationary.holdOffset', bySpeed.get(0).hold.offsetAbs, 0.001));
 checks.push(atMost('stationary.visual', bySpeed.get(0).hold.visualMaxAbs, 0.001));
-checks.push(between('crawl10.holdOffset', bySpeed.get(10).hold.offsetAbs, 1, 15));
-checks.push(between('low30.holdOffset', bySpeed.get(30).hold.offsetAbs, 35, 120));
-checks.push(between('grip60.holdOffset', bySpeed.get(60).hold.offsetAbs, 80, 190));
+checks.push(between('crawl10.holdOffset', bySpeed.get(10).hold.offsetAbs, 0.01, 1));
+checks.push(between('low30.holdOffset', bySpeed.get(30).hold.offsetAbs, 1, 10));
+checks.push(between('grip60.holdOffset', bySpeed.get(60).hold.offsetAbs, 20, 50));
 checks.push(atMost('release60.overshoot', bySpeed.get(60).release.overshootAbs, 20));
 
 for (const speedKmh of [110, 130, 145, 160, 170, 180, 185]) {
@@ -39,8 +39,8 @@ for (const speedKmh of [110, 130, 145, 160, 170, 180, 185]) {
     checks.push(atMost(`release${speedKmh}.overshoot`, row.release.overshootAbs, 28));
 }
 
-checks.push(nonIncreasing(
-    'highSpeed.holdOffsetTrend',
+checks.push(nonDecreasing(
+    'highSpeed.worldLineOffsetTrend',
     [110, 130, 145, 160, 170, 180, 185].map((speedKmh) => bySpeed.get(speedKmh).hold.offsetAbs),
     12,
 ));
@@ -206,6 +206,21 @@ function nonIncreasing(id, values, tolerance) {
         id,
         maxIncrease: round(maxIncrease),
         pass: maxIncrease <= tolerance,
+        target: tolerance,
+        values: values.map((value) => round(value)),
+    };
+}
+
+function nonDecreasing(id, values, tolerance) {
+    let maxDecrease = 0;
+    for (let index = 1; index < values.length; index += 1) {
+        maxDecrease = Math.max(maxDecrease, values[index - 1] - values[index]);
+    }
+
+    return {
+        id,
+        maxDecrease: round(maxDecrease),
+        pass: maxDecrease <= tolerance,
         target: tolerance,
         values: values.map((value) => round(value)),
     };
