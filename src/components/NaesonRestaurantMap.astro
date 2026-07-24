@@ -1,0 +1,595 @@
+---
+import type { NaesonRestaurant } from '@/config/naesonRestaurants';
+
+interface Props {
+    restaurants: NaesonRestaurant[];
+}
+
+const { restaurants } = Astro.props;
+const kakaoKey =
+    import.meta.env.PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY ||
+    process.env.KAKAO_MAP_API_KEY ||
+    '';
+const mapId = `naeson-map-${Math.random().toString(36).slice(2)}`;
+const mapRestaurants = restaurants.map((restaurant) => ({
+    name: restaurant.name,
+    category: restaurant.category,
+    emoji: restaurant.emoji,
+    location: restaurant.location,
+    query: restaurant.searchQuery ?? `${restaurant.name} ${restaurant.location}`,
+}));
+---
+
+<section
+    id='neighbor-map'
+    class='map-section'
+    data-naeson-map
+    data-map-id={mapId}
+    data-kakao-key={kakaoKey}
+    data-restaurants={JSON.stringify(mapRestaurants)}
+>
+    <div class='map-heading'>
+        <div>
+            <p>NEIGHBOR MAP</p>
+            <h3>지도에서 한눈에 보기</h3>
+            <span id={`${mapId}-status`}>맛집 위치를 불러오는 중이에요</span>
+        </div>
+        <div class='map-actions'>
+            <button type='button' data-my-location>
+                <svg viewBox='0 0 24 24' aria-hidden='true'>
+                    <circle cx='12' cy='12' r='3'></circle>
+                    <path d='M12 2v3M12 19v3M2 12h3M19 12h3'></path>
+                </svg>
+                내 위치
+            </button>
+            <button type='button' data-toggle-map aria-expanded='true'>지도 접기</button
+            >
+        </div>
+    </div>
+
+    <div class='map-frame' data-map-frame>
+        <div id={mapId} class='map-canvas' aria-label='내손동 이웃 맛집 카카오 지도'>
+            {
+                !kakaoKey && (
+                    <div class='map-fallback'>
+                        <strong>카카오 지도 키를 확인해 주세요</strong>
+                        <p>
+                            배포 환경에 PUBLIC_KAKAO_MAP_API_KEY가 설정되면 이곳에
+                            지도가 표시됩니다.
+                        </p>
+                    </div>
+                )
+            }
+        </div>
+        <div class='map-place-card' id={`${mapId}-place`} hidden></div>
+    </div>
+</section>
+
+<script define:vars={{ mapId }} is:inline>
+    (() => {
+        const root = document.querySelector(`[data-map-id="${mapId}"]`);
+        const canvas = document.getElementById(mapId);
+        const statusEl = document.getElementById(`${mapId}-status`);
+        const placeEl = document.getElementById(`${mapId}-place`);
+        if (!root || !canvas) return;
+
+        const kakaoKey = root.dataset.kakaoKey || '';
+        if (!kakaoKey) {
+            if (statusEl) statusEl.textContent = '지도 API 키가 설정되지 않았어요';
+            return;
+        }
+
+        let restaurants = [];
+        try {
+            restaurants = JSON.parse(root.dataset.restaurants || '[]');
+        } catch {
+            if (statusEl) statusEl.textContent = '맛집 데이터를 읽지 못했어요';
+            return;
+        }
+
+        let map;
+        let places;
+        let myLocationMarker;
+        let activeName = '';
+        let resolvedPlaces = [];
+        let visibleNames = new Set(restaurants.map((restaurant) => restaurant.name));
+        const overlays = new Map();
+        const center = { lat: 37.3869, lng: 126.9812 };
+
+        loadKakaoMaps(async () => {
+            const kakao = window.kakao;
+            map = new kakao.maps.Map(canvas, {
+                center: new kakao.maps.LatLng(center.lat, center.lng),
+                level: 6,
+            });
+            places = new kakao.maps.services.Places();
+
+            const results = await Promise.all(restaurants.map(resolveRestaurant));
+            resolvedPlaces = results.filter(Boolean);
+            renderVisiblePlaces(true);
+        });
+
+        function loadKakaoMaps(callback) {
+            if (window.kakao?.maps?.services) {
+                window.kakao.maps.load(callback);
+                return;
+            }
+
+            const existing = document.querySelector('script[data-kakao-map-sdk]');
+            if (existing) {
+                existing.addEventListener('load', () => {
+                    if (window.kakao) window.kakao.maps.load(callback);
+                });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(
+                kakaoKey,
+            )}&libraries=services&autoload=false`;
+            script.async = true;
+            script.dataset.kakaoMapSdk = 'true';
+            script.onload = () => window.kakao?.maps?.load(callback);
+            script.onerror = () => {
+                if (statusEl) statusEl.textContent = '지도를 불러오지 못했어요';
+            };
+            document.head.appendChild(script);
+        }
+
+        function resolveRestaurant(restaurant) {
+            return new Promise((resolve) => {
+                const kakao = window.kakao;
+                const queries = [
+                    restaurant.query,
+                    `${restaurant.name} 의왕`,
+                    `${restaurant.name} 내손동`,
+                    restaurant.name,
+                ].filter((query, index, values) => values.indexOf(query) === index);
+
+                const search = (queryIndex) => {
+                    if (queryIndex >= queries.length) {
+                        resolve(null);
+                        return;
+                    }
+
+                    places.keywordSearch(
+                        queries[queryIndex],
+                        (items, status) => {
+                            if (
+                                status !== kakao.maps.services.Status.OK ||
+                                !Array.isArray(items) ||
+                                !items.length
+                            ) {
+                                search(queryIndex + 1);
+                                return;
+                            }
+
+                            const item = [...items].sort(
+                                (first, second) =>
+                                    distanceFromCenter(first) -
+                                    distanceFromCenter(second),
+                            )[0];
+                            resolve({
+                                ...restaurant,
+                                lat: Number(item.y),
+                                lng: Number(item.x),
+                                placeUrl: item.place_url,
+                                roadAddress:
+                                    item.road_address_name || item.address_name,
+                            });
+                        },
+                        {
+                            location: new kakao.maps.LatLng(center.lat, center.lng),
+                            radius: 9000,
+                            sort: kakao.maps.services.SortBy.ACCURACY,
+                        },
+                    );
+                };
+
+                search(0);
+            });
+        }
+
+        function distanceFromCenter(item) {
+            const lat = Number(item.y);
+            const lng = Number(item.x);
+            return (lat - center.lat) ** 2 + (lng - center.lng) ** 2;
+        }
+
+        function renderVisiblePlaces(fitBounds = false) {
+            if (!map || !window.kakao) return;
+            const kakao = window.kakao;
+            const bounds = new kakao.maps.LatLngBounds();
+            let visibleCount = 0;
+
+            resolvedPlaces.forEach((place) => {
+                let overlay = overlays.get(place.name);
+                if (!overlay) {
+                    overlay = createPlaceOverlay(place);
+                    overlays.set(place.name, overlay);
+                }
+
+                const visible = visibleNames.has(place.name);
+                overlay.setMap(visible ? map : null);
+                if (visible) {
+                    bounds.extend(new kakao.maps.LatLng(place.lat, place.lng));
+                    visibleCount += 1;
+                }
+            });
+
+            if (fitBounds && visibleCount > 1) {
+                map.setBounds(bounds, 42, 42, 42, 42);
+            } else if (fitBounds && visibleCount === 1) {
+                const place = resolvedPlaces.find((item) =>
+                    visibleNames.has(item.name),
+                );
+                if (place) focusPlace(place, false);
+            }
+
+            if (statusEl) {
+                statusEl.textContent = `${visibleCount}곳의 위치를 지도에 표시했어요`;
+            }
+        }
+
+        function createPlaceOverlay(place) {
+            const kakao = window.kakao;
+            const markerButton = document.createElement('button');
+            markerButton.type = 'button';
+            markerButton.className = 'neighbor-map-marker';
+            markerButton.title = place.name;
+            markerButton.setAttribute('aria-label', `${place.name} 지도 정보 보기`);
+            markerButton.innerHTML = `<span>${place.emoji}</span>`;
+            markerButton.addEventListener('click', () => focusPlace(place, true));
+
+            return new kakao.maps.CustomOverlay({
+                content: markerButton,
+                position: new kakao.maps.LatLng(place.lat, place.lng),
+                yAnchor: 1,
+                zIndex: 3,
+            });
+        }
+
+        function focusPlace(place, showCard = true) {
+            if (!map || !window.kakao) return;
+            activeName = place.name;
+            map.panTo(new window.kakao.maps.LatLng(place.lat, place.lng));
+            if (map.getLevel() > 4) map.setLevel(4);
+
+            document
+                .querySelectorAll('.neighbor-map-marker')
+                .forEach((marker) =>
+                    marker.classList.toggle(
+                        'active',
+                        marker.getAttribute('title') === place.name,
+                    ),
+                );
+
+            if (!showCard || !placeEl) return;
+            const mapUrl =
+                place.placeUrl ||
+                `https://map.kakao.com/?q=${encodeURIComponent(place.query)}`;
+            placeEl.innerHTML = `
+                <div class="map-place-summary">
+                    <span class="map-place-emoji">${place.emoji}</span>
+                    <p><strong>${escapeHtml(place.name)}</strong><small>${escapeHtml(
+                        place.roadAddress || place.location,
+                    )}</small></p>
+                </div>
+                <a href="${mapUrl}" target="_blank" rel="noopener noreferrer">상세보기 ↗</a>
+            `;
+            placeEl.hidden = false;
+        }
+
+        function escapeHtml(value) {
+            const element = document.createElement('span');
+            element.textContent = String(value || '');
+            return element.innerHTML;
+        }
+
+        window.addEventListener('naeson:filter', (event) => {
+            const names = event.detail?.names;
+            if (!Array.isArray(names)) return;
+            visibleNames = new Set(names);
+            if (activeName && !visibleNames.has(activeName) && placeEl) {
+                placeEl.hidden = true;
+                activeName = '';
+            }
+            renderVisiblePlaces(true);
+        });
+
+        window.addEventListener('naeson:focus-place', (event) => {
+            const place = resolvedPlaces.find(
+                (item) => item.name === event.detail?.name,
+            );
+            if (place) focusPlace(place, true);
+        });
+
+        root.querySelector('[data-my-location]')?.addEventListener('click', () => {
+            if (!navigator.geolocation || !map) {
+                if (statusEl) statusEl.textContent = '현재 위치를 사용할 수 없어요';
+                return;
+            }
+
+            if (statusEl) statusEl.textContent = '현재 위치를 찾고 있어요';
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const kakao = window.kakao;
+                    const location = new kakao.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                    );
+                    if (!myLocationMarker) {
+                        myLocationMarker = new kakao.maps.Marker({
+                            map,
+                            position: location,
+                        });
+                    } else {
+                        myLocationMarker.setPosition(location);
+                        myLocationMarker.setMap(map);
+                    }
+                    map.panTo(location);
+                    map.setLevel(4);
+                    if (statusEl) statusEl.textContent = '현재 위치를 표시했어요';
+                },
+                () => {
+                    if (statusEl) {
+                        statusEl.textContent =
+                            '위치 권한을 허용하면 현재 위치를 볼 수 있어요';
+                    }
+                },
+                { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 },
+            );
+        });
+
+        root.querySelector('[data-toggle-map]')?.addEventListener('click', (event) => {
+            const button = event.currentTarget;
+            const frame = root.querySelector('[data-map-frame]');
+            if (!frame) return;
+            const willOpen = frame.hidden;
+            frame.hidden = !willOpen;
+            button.setAttribute('aria-expanded', String(willOpen));
+            button.textContent = willOpen ? '지도 접기' : '지도 펼치기';
+            if (willOpen && map) {
+                window.setTimeout(
+                    () => window.kakao.maps.event.trigger(map, 'resize'),
+                    0,
+                );
+            }
+        });
+    })();
+</script>
+
+<style>
+    .map-section {
+        margin-top: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(44, 62, 48, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 253, 248, 0.8);
+        box-shadow: 0 8px 24px rgba(46, 59, 47, 0.055);
+    }
+
+    .map-heading {
+        display: flex;
+        min-height: 74px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 13px 17px 12px 20px;
+    }
+
+    .map-heading p,
+    .map-heading h3,
+    .map-heading span {
+        margin: 0;
+    }
+
+    .map-heading p {
+        color: #e05c3e;
+        font-size: 8px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+    }
+
+    .map-heading h3 {
+        display: inline;
+        margin-right: 8px;
+        color: #293c30;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 15px;
+        letter-spacing: -0.035em;
+    }
+
+    .map-heading span {
+        color: #899088;
+        font-size: 9px;
+    }
+
+    .map-actions {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 6px;
+    }
+
+    .map-actions button {
+        display: inline-flex;
+        min-height: 32px;
+        align-items: center;
+        gap: 5px;
+        padding: 0 11px;
+        border: 1px solid rgba(44, 62, 48, 0.13);
+        border-radius: 99px;
+        background: #f6f3e9;
+        color: #4f5e53;
+        cursor: pointer;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .map-actions svg {
+        width: 13px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-width: 1.7;
+    }
+
+    .map-frame {
+        position: relative;
+        border-top: 1px solid rgba(44, 62, 48, 0.1);
+    }
+
+    .map-canvas {
+        width: 100%;
+        height: 410px;
+        background: #e6e2d3;
+    }
+
+    .map-fallback {
+        display: grid;
+        height: 100%;
+        place-content: center;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .map-fallback strong {
+        color: #334b3b;
+        font-size: 13px;
+    }
+
+    .map-fallback p {
+        max-width: 390px;
+        margin: 6px 0 0;
+        color: #7d867f;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    :global(.neighbor-map-marker) {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 3px solid #fffdf8;
+        border-radius: 50% 50% 50% 14%;
+        background: #e35f41;
+        box-shadow: 0 5px 14px rgba(43, 55, 46, 0.25);
+        cursor: pointer;
+        transform: rotate(-45deg);
+        transition:
+            transform 150ms ease,
+            background 150ms ease;
+    }
+
+    :global(.neighbor-map-marker span) {
+        font-size: 18px;
+        transform: rotate(45deg);
+    }
+
+    :global(.neighbor-map-marker:hover),
+    :global(.neighbor-map-marker.active) {
+        background: #28513a;
+        transform: rotate(-45deg) scale(1.18);
+    }
+
+    .map-place-card {
+        position: absolute;
+        z-index: 5;
+        right: 14px;
+        bottom: 14px;
+        left: 14px;
+        display: flex;
+        min-height: 62px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 11px;
+        border: 1px solid rgba(44, 62, 48, 0.13);
+        border-radius: 13px;
+        background: rgba(255, 253, 248, 0.96);
+        box-shadow: 0 10px 30px rgba(36, 52, 40, 0.18);
+        backdrop-filter: blur(8px);
+    }
+
+    .map-place-card :global(.map-place-summary) {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .map-place-card :global(.map-place-emoji) {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 10px;
+        background: #e9e2cf;
+        font-size: 20px;
+    }
+
+    .map-place-card :global(p),
+    .map-place-card :global(strong),
+    .map-place-card :global(small) {
+        display: block;
+        margin: 0;
+    }
+
+    .map-place-card :global(strong) {
+        color: #293c30;
+        font-size: 12px;
+    }
+
+    .map-place-card :global(small) {
+        overflow: hidden;
+        margin-top: 2px;
+        color: #808881;
+        font-size: 9px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .map-place-card :global(a) {
+        flex: 0 0 auto;
+        padding: 8px 11px;
+        border-radius: 99px;
+        background: #284d38;
+        color: white;
+        font-size: 9px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    @media (max-width: 700px) {
+        .map-heading {
+            align-items: flex-start;
+            padding: 14px;
+        }
+
+        .map-heading h3,
+        .map-heading span {
+            display: block;
+            margin-top: 2px;
+        }
+
+        .map-actions button {
+            width: 34px;
+            justify-content: center;
+            padding: 0;
+            font-size: 0;
+        }
+
+        .map-actions button:last-child {
+            width: auto;
+            padding: 0 10px;
+            font-size: 9px;
+        }
+
+        .map-canvas {
+            height: 340px;
+        }
+    }
+</style>
