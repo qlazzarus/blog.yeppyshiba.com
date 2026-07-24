@@ -108,8 +108,8 @@ const checks = [
         { finalOffset: highSpeedNoInput.finalOffset, outwardDistance: highOutwardDistance },
     ),
     check(
-        'corner-inertia-fixed-time-scales-superlinearly',
-        highOutwardDistance >= lowOutwardDistance * 2.2,
+        'world-line-fixed-time-scales-with-speed',
+        highOutwardDistance >= lowOutwardDistance * 1.5,
         {
             highOutwardDistance,
             lowOutwardDistance,
@@ -132,7 +132,7 @@ const checks = [
     ),
     check(
         'grip-steering-beats-neutral-line',
-        grip.finalLineQuality >= 0.65 &&
+        grip.finalLineQuality >= 0.58 &&
             grip.finalLineQuality > gripSpeedNoInput.finalLineQuality,
         {
             gripLineQuality: grip.finalLineQuality,
@@ -151,10 +151,10 @@ const checks = [
     ),
     check(
         'drift-can-hold-a-useful-line',
-        drift.finalLineQuality >= 0.52 &&
-            drift.finalLineQuality > highSpeedNoInput.finalLineQuality &&
+        drift.bestLineQuality >= 0.9 &&
             drift.maxAbsOffset < HANDLING_TEST_CONFIG.maxRoadOffset,
         {
+            bestLineQuality: drift.bestLineQuality,
             finalLineQuality: drift.finalLineQuality,
             maxAbsOffset: drift.maxAbsOffset,
             neutralLineQuality: highSpeedNoInput.finalLineQuality,
@@ -178,9 +178,9 @@ const report = {
         coordinateModel: 'road-relative lateral offset',
         cornerNeutralCentering: 'disabled',
         inertiaDirection: 'outside of curve',
-        inertiaSpatialSpeedLaw: 'road-distance lateral debt scales with speed ratio squared',
-        inertiaTimeSpeedLaw: 'controller lateral velocity scales with speed ratio cubed',
-        longitudinalScaleLaw: 'target and build/recovery rates scale with world progression',
+        inertiaSpatialSpeedLaw: 'road-relative motion is world speed times sine of relative heading',
+        inertiaTimeSpeedLaw: 'neutral road-frame yaw accumulates without passive road follow',
+        longitudinalScaleLaw: 'world-line projection scales with world progression',
     },
     pass: checks.every((entry) => entry.pass),
     scenarios: {

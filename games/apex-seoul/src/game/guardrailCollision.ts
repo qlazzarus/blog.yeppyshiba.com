@@ -6,6 +6,9 @@ export const GUARDRAIL_COLLISION_CONFIG = {
     contactBounceHoldSeconds: 0.08,
     contactCooldownSeconds: 0.12,
     contactClearance: 220,
+    contactReleaseInset: 52,
+    contactReleaseSeconds: 1,
+    physicalVehicleFrontLength: 420,
     impactSpeedLossScale: 0.09,
     impactVelocityThreshold: 12,
     lateralVelocityDamping: 0.22,
@@ -15,6 +18,11 @@ export const GUARDRAIL_COLLISION_CONFIG = {
 };
 
 export type GuardrailCollisionContext = {
+    frontRoad?: {
+        distance: number;
+        pavedHalfWidth: number;
+        railContactLimit: number;
+    };
     pavedHalfWidth: number;
     railContactLimit: number;
     vehicleHalfWidth: number;
@@ -55,19 +63,52 @@ export function applyGuardrailCollision(
     seconds: number,
 ) {
     const offsetMagnitude = Math.abs(player.lateralOffset);
-    const side = getDirection(player.lateralOffset);
+    const centerSide = getDirection(player.lateralOffset);
     const geometry = getGuardrailCollisionGeometry(context);
-    const shoulderRatio = clamp(
+    const centerShoulderRatio = clamp(
         (offsetMagnitude - geometry.pavedCenterLimit) / geometry.shoulderWidth,
         0,
         1,
     );
-    const isContacting = side !== 0 && offsetMagnitude >= geometry.railCenterLimit - 0.001;
+    const frontGeometry = context.frontRoad
+        ? getGuardrailCollisionGeometry({
+            pavedHalfWidth: context.frontRoad.pavedHalfWidth,
+            railContactLimit: context.frontRoad.railContactLimit,
+            vehicleHalfWidth: context.vehicleHalfWidth,
+        })
+        : null;
+    const frontCenterOffset = context.frontRoad
+        ? player.lateralOffset +
+            Math.tan(clamp(player.vehicleHeadingError, -0.85, 0.85)) *
+                context.frontRoad.distance
+        : player.lateralOffset;
+    const frontOffsetMagnitude = Math.abs(frontCenterOffset);
+    const frontSide = getDirection(frontCenterOffset);
+    const frontShoulderRatio = frontGeometry
+        ? clamp(
+            (frontOffsetMagnitude - frontGeometry.pavedCenterLimit) /
+                frontGeometry.shoulderWidth,
+            0,
+            1,
+        )
+        : 0;
+    const shoulderRatio = Math.max(centerShoulderRatio, frontShoulderRatio);
+    const isSideContacting = centerSide !== 0 &&
+        offsetMagnitude >= geometry.railCenterLimit - 0.001;
+    const isFrontContacting = Boolean(
+        frontGeometry &&
+        frontSide !== 0 &&
+        frontOffsetMagnitude >= frontGeometry.railCenterLimit - 0.001,
+    );
+    const side = isSideContacting ? centerSide : frontSide;
+    const isContacting = isSideContacting || isFrontContacting;
 
     player.guardrailShoulderRatio = shoulderRatio;
     player.guardrailImpactCue = approach(player.guardrailImpactCue, 0, 6, seconds);
     player.guardrailBounceVelocity = approach(player.guardrailBounceVelocity, 0, 220, seconds);
-    player.guardrailContactInset = geometry.vehicleHalfWidth;
+    player.guardrailContactInset = (isFrontContacting ? frontGeometry : geometry)
+        ?.vehicleHalfWidth ?? geometry.vehicleHalfWidth;
+    player.guardrailContactPhase = player.guardrailContactActive ? 'stay' : 'clear';
 
     if (shoulderRatio > 0) {
         player.speed = Math.max(
@@ -78,7 +119,29 @@ export function applyGuardrailCollision(
 
     if (!isContacting) {
         player.guardrailContactTimer = Math.max(0, player.guardrailContactTimer - seconds);
-        player.guardrailContactDirection = 0;
+        player.guardrailContactClearTimer = player.guardrailContactActive
+            ? player.guardrailContactClearTimer + seconds
+            : 0;
+        if (
+            player.guardrailContactActive &&
+            (
+                hasClearedLatchedRail(
+                    player.guardrailContactDirection,
+                    player.lateralOffset,
+                    player.guardrailContactAnchorOffset,
+                ) ||
+                player.guardrailContactClearTimer >=
+                    GUARDRAIL_COLLISION_CONFIG.contactReleaseSeconds
+            )
+        ) {
+            player.guardrailContactActive = false;
+            player.guardrailContactAnchorOffset = 0;
+            player.guardrailContactClearTimer = 0;
+            player.guardrailContactDirection = 0;
+            player.guardrailContactPhase = 'exit';
+        } else if (!player.guardrailContactActive) {
+            player.guardrailContactDirection = 0;
+        }
         return;
     }
 
@@ -88,28 +151,31 @@ export function applyGuardrailCollision(
         player.driftLateralVelocity +
         player.gripCounterRoadLateralVelocity +
         player.overspeedUndersteerLateralVelocity
-    );
+    ) + (isFrontContacting
+        ? Math.max(
+            0,
+            side *
+                Math.tan(clamp(player.vehicleHeadingError, -0.85, 0.85)) *
+                player.speed,
+        )
+        : 0);
     const speedRatio = clamp(player.speed / 760, 0, 1);
     const impactRatio = clamp(
         (outwardVelocity - GUARDRAIL_COLLISION_CONFIG.impactVelocityThreshold) / 160,
         0,
         1,
     ) * (0.35 + speedRatio * 0.65);
-    const firstContact = player.guardrailContactTimer <= 0;
+    const firstContact = !player.guardrailContactActive ||
+        player.guardrailContactDirection !== side;
 
-    player.lateralOffset = side * geometry.railCenterLimit;
+    if (isSideContacting) {
+        player.lateralOffset = side * geometry.railCenterLimit;
+    }
+    player.guardrailContactActive = true;
+    player.guardrailContactClearTimer = 0;
     player.guardrailContactDirection = side;
+    player.guardrailContactPhase = firstContact ? 'enter' : 'stay';
     player.guardrailContactTimer = GUARDRAIL_COLLISION_CONFIG.contactCooldownSeconds;
-    const bounceVelocity = firstContact
-        ? getBounceVelocity(impactRatio)
-        : Math.max(0, player.guardrailBounceVelocity - GUARDRAIL_COLLISION_CONFIG.bounceMaxVelocity * seconds);
-    player.guardrailBounceVelocity = bounceVelocity;
-    player.steeringVelocity = -side * bounceVelocity;
-    player.driftLateralVelocity *= -GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
-    player.cornerInertiaLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
-    player.vehicleHeadingError *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
-    player.gripCounterRoadLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
-    player.overspeedUndersteerLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
     player.speed = Math.max(
         0,
         player.speed - GUARDRAIL_COLLISION_CONFIG.sustainedContactScrubPerSecond * seconds -
@@ -117,11 +183,31 @@ export function applyGuardrailCollision(
     );
 
     if (firstContact) {
+        player.guardrailContactAnchorOffset = player.lateralOffset;
+        const bounceVelocity = getBounceVelocity(impactRatio);
+        player.guardrailBounceVelocity = bounceVelocity;
+        player.steeringVelocity = -side * bounceVelocity;
+        player.driftLateralVelocity *= -GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+        player.cornerInertiaLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+        player.vehicleHeadingError *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+        player.gripCounterRoadLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
+        player.overspeedUndersteerLateralVelocity *= GUARDRAIL_COLLISION_CONFIG.lateralVelocityDamping;
         player.guardrailImpactCount += 1;
         player.guardrailImpactCue = Math.max(player.guardrailImpactCue, impactRatio);
         player.driftRatio *= 1 - impactRatio * 0.48;
         player.traction = Math.min(player.traction, 1 - impactRatio * 0.22);
     }
+}
+
+function hasClearedLatchedRail(
+    side: -1 | 0 | 1,
+    centerOffset: number,
+    contactAnchorOffset: number,
+) {
+    if (side === 0) return true;
+
+    const inwardTravel = side * (contactAnchorOffset - centerOffset);
+    return inwardTravel >= GUARDRAIL_COLLISION_CONFIG.contactReleaseInset;
 }
 
 function sanitizePositive(value: number) {

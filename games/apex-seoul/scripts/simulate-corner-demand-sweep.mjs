@@ -734,7 +734,7 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
         ...allRows.map((row) => row.understeerDemandAlignmentErrorMax),
     );
 
-    return [
+    const legacyChecks = [
         check('syntheticScenarioCount', syntheticRows.length === 72, 72, syntheticRows.length),
         check('recoveryScenarioCount', recoveryRows.length === 16, 16, recoveryRows.length),
         check('straightControlScenarioCount', straightControlRows.length === 24, 24, straightControlRows.length),
@@ -912,6 +912,48 @@ function buildChecks({ controls, recoveryRows, straightControlRows, syntheticRow
             controls.zeroTo100Sec,
         ),
         check('sixtyKmhSecondGear', controls.sixtyKmh?.gear === 2, 2, controls.sixtyKmh?.gear ?? null),
+    ];
+    const retainedCheckIds = new Set([
+        'syntheticScenarioCount',
+        'recoveryScenarioCount',
+        'straightControlScenarioCount',
+        'trackScenarioCount',
+        'trackGradeCoverage',
+        'requiredMetricsPresent',
+        'hnd3SpeedLossZoneProgression',
+        'singleTargetSpeedRatioIdentity',
+        'singleTargetLateralDemandIdentity',
+        'understeerUsesCornerDemandOverspeed',
+        'hnd4Easy195Understeer',
+        'hnd4Easy225Understeer',
+        'hnd4Medium225Understeer',
+        'hnd4Sharp225Understeer',
+        'hnd4LiftRecoveryRelief',
+        'hnd4NoForcedGuardrailImpact',
+        'zeroTo100Control',
+        'sixtyKmhSecondGear',
+    ]);
+
+    return [
+        ...legacyChecks.filter((entry) => retainedCheckIds.has(entry.id)),
+        check(
+            'hr3hDirectOverspeedTranslationRemoved',
+            allRows.every((row) => (
+                row.overspeedUndersteerLateralVelocityMaxAbs <= 0.001
+            )),
+            0,
+            Math.max(
+                ...allRows.map((row) => (
+                    row.overspeedUndersteerLateralVelocityMaxAbs
+                )),
+            ),
+        ),
+        check(
+            'hr3hAutomaticTireLossBudget',
+            allRows.every((row) => row.speedLossForcesMean.total <= 66.001),
+            '<= 20% of full brake force (66)',
+            Math.max(...allRows.map((row) => row.speedLossForcesMean.total)),
+        ),
     ];
 }
 

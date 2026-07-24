@@ -1,6 +1,6 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-07-23
+갱신일: 2026-07-24
 
 ## 프로젝트 목표
 
@@ -23,7 +23,7 @@
 5. 승인된 handling·drift·속도감은 회귀 기준으로 유지하되, 사용자 실주행에서 핵심 gameplay 계약이 깨지면 다음 milestone보다 먼저 재검증한다.
 6. 후순위 세부 아이디어는 독립 단계로 늘리지 않고 상위 기능에 병합한다.
 
-## M0 — 주행 기반 확립 — 코너 계약 재검증 중
+## M0 — 주행 기반 확립 — HR-3K 기준선 임시 동결
 
 ### 구현된 기반
 
@@ -38,20 +38,24 @@
 
 ### 현재 판단
 
-속도대별 grip, drift 상태 머신, 구동계와 화면 속도감은 유지한다. CH-0~CH-3 뒤 runtime 로그에서 relative outward와 absolute shoulder 위협이 다르다는 사실을 확인해 기존 gameplay 승인을 다시 열었다. HR-0은 absolute road threat 계약을 교체했고 HR-1은 persistent `vehicleHeadingError`를 구현했으며 HR-2는 무입력 위치 중앙 복귀를 제거했다. HR-3은 near/far preview demand, passive grip yaw와 residual soft-slip을 구현해 production `14/14 + 6/6`, 36-case matrix `6/6`으로 승인했다. 다음 변경은 실제 플레이에서 판단 window가 부족할 때만 HR-4 코스 apex 조정을 연다.
+속도대별 grip, drift 상태 머신, 구동계와 화면 속도감은 유지한다. CH-0~CH-3 뒤 runtime 로그에서 relative outward와 absolute shoulder 위협이 다르다는 사실을 확인해 기존 gameplay 승인을 다시 열었고, HR-3H에서 preview 기반 조기 yaw와 passive road-follow를 제거했다. 횡이동은 현재 접지점 road frame과 `worldTravelSpeed × sin(relativeHeading)`으로 계산한다.
 
-현재 M0의 남은 gate는 다음과 같다.
+HR-3I/HR-3I-R은 physical steering command와 sprite의 의미를 맞췄다. 무입력 차는 road-relative heading debt가 커져도 조향 sprite를 만들지 않는다. HR-3J는 guardrail contact를 `enter / stay / exit`로 나눠 같은 rail의 지속 접촉을 한 번의 충돌로 처리한다. HR-3K는 코너 출구에서 grip yaw와 drift slip이 같은 방향 회전을 중복 생성하는 경로를 제한한다.
 
-- 실제 Bugak/U2 S-curve에서 무입력 heading debt가 코너 전환을 통해 보존된다.
-- HR-1 production S-window에서 무입력 주행이 paved ratio `1.379`, shoulder `1`, impact `3`에 도달한다.
-- HR-2 production neutral sample에서 centering force가 모두 `0`이고 S-window impact는 `7`이다.
-- 과속 무입력은 absolute shoulder/rail 위협에 도달하고 이전 코너가 다음 코너의 자동 셋업이 되지 않는다.
-- prepared grip과 drift가 서로 다른 조작과 기록 결과를 만든다.
-- 선택한 sharp 코너는 조향이 필수이고 straight/easy의 고속 안정성은 유지된다.
+현재 자동 계약은 다음을 만족한다.
+
+- production 강코너 `8개 × 3속도`에서 무조향 첫 이동이 모두 바깥쪽이다.
+- `185km/h` 강코너 `8/8`이 `1.267~1.700초` 안에 예상 바깥 rail에 닿는다.
+- 동일 rail impact는 기존 코너당 `4~11회`에서 모두 `1회`로 줄었다.
+- 무입력 road-follow와 lateral centering force는 `0`이다.
+- grip sprite는 physical command를 따르며 유효 command와 방향 불일치는 `0건`이다.
+- drift exit inside heading은 좌우 최대 `0.179rad`로 대칭이며 직선 조향은 제한하지 않는다.
+
+사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했다. 이를 완료로 숨기지 않고 HR-3K를 임시 회귀 기준선으로 동결한다. CH-4 선택 코스 apex 재설계와 CH-5 grip/drift section time 승인은 time attack 기록 비교가 가능해진 뒤 다시 연다.
 
 상세 실행 순서는 [다음 구현 우선순위 P0](./apex-seoul-next-priority-plan.md#p0--코너-조향-필수-계약-복구), 진단과 QA는 [속도대별 핸들링 재검증](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)을 따른다.
 
-## M1 — 완결된 time attack loop — M0 재승인 뒤 시작
+## M1 — 완결된 time attack loop — 다음 구현
 
 ### 사용자 경험
 

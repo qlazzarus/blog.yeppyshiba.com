@@ -1,0 +1,182 @@
+{
+  "checks": [
+    {
+      "evidence": {
+        "endSpeedKmh": 185.0465,
+        "finalHeading": 0,
+        "finalOffset": 0,
+        "maxAbsHeading": 0,
+        "maxAbsOffset": 0,
+        "maxGripFollowAuthority": 0
+      },
+      "id": "preview-does-not-move-player-physics",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "left": 0,
+        "right": 0
+      },
+      "id": "neutral-wheel-has-zero-road-follow-authority",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "leftCornerOffset": 700,
+        "rightCornerOffset": -700
+      },
+      "id": "neutral-world-line-exits-opposite-curve-direction",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "left": {
+          "endSpeedKmh": 184.7209,
+          "finalHeading": 1.0489,
+          "finalOffset": 700,
+          "maxAbsHeading": 1.0489,
+          "maxAbsOffset": 700,
+          "maxGripFollowAuthority": 0
+        },
+        "right": {
+          "endSpeedKmh": 184.7209,
+          "finalHeading": -1.0489,
+          "finalOffset": -700,
+          "maxAbsHeading": 1.0489,
+          "maxAbsOffset": 700,
+          "maxGripFollowAuthority": 0
+        }
+      },
+      "id": "left-right-world-line-is-symmetric",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "leftError": 0,
+        "preparedError": 0,
+        "rightError": 0
+      },
+      "id": "lateral-motion-is-heading-projection",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "neutral": {
+          "endSpeedKmh": 184.7209,
+          "finalHeading": -1.0489,
+          "finalOffset": -700,
+          "maxAbsHeading": 1.0489,
+          "maxAbsOffset": 700,
+          "maxGripFollowAuthority": 0
+        },
+        "prepared": {
+          "endSpeedKmh": 118.9711,
+          "finalHeading": 0.0283,
+          "finalOffset": -0.2951,
+          "maxAbsHeading": 0.0283,
+          "maxAbsOffset": 20.5294,
+          "maxGripFollowAuthority": 1
+        }
+      },
+      "id": "prepared-grip-beats-neutral-without-rail",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "fullBrakeForce": 330,
+        "maxAutomaticCornerLossForce": 66
+      },
+      "id": "automatic-tire-loss-stays-below-brake-budget",
+      "pass": true
+    }
+  ],
+  "config": {
+    "frameSeconds": 0.016666666666666666,
+    "fullBrakeForce": 330,
+    "gripTireLossBudget": 66,
+    "longitudinalScale": 2,
+    "pavedCenterLimit": 580,
+    "railCenterLimit": 700
+  },
+  "generatedAt": "2026-07-24T05:25:33.670Z",
+  "pass": true,
+  "purpose": "HR-3H neutral world-line, contact-point yaw, steering grip, and tire-loss contract",
+  "scenarios": [
+    {
+      "endSpeedKmh": 185.0465,
+      "finalHeading": 0,
+      "finalOffset": 0,
+      "id": "preview-only-neutral",
+      "maxAbsHeading": 0,
+      "maxAbsInertia": 0,
+      "maxAbsOffset": 0,
+      "maxCornerLossForce": 0,
+      "maxGripFollowAuthority": 0,
+      "maxOffset": 0,
+      "maxProjectionError": 0,
+      "minOffset": 0,
+      "speedKmh": 185
+    },
+    {
+      "endSpeedKmh": 184.7209,
+      "finalHeading": -1.0489,
+      "finalOffset": -700,
+      "id": "sharp-right-neutral",
+      "maxAbsHeading": 1.0489,
+      "maxAbsInertia": 1081.7646,
+      "maxAbsOffset": 700,
+      "maxCornerLossForce": 66,
+      "maxGripFollowAuthority": 0,
+      "maxOffset": 0,
+      "maxProjectionError": 0,
+      "minOffset": -700,
+      "speedKmh": 185
+    },
+    {
+      "endSpeedKmh": 184.7209,
+      "finalHeading": 1.0489,
+      "finalOffset": 700,
+      "id": "sharp-left-neutral",
+      "maxAbsHeading": 1.0489,
+      "maxAbsInertia": 1081.7646,
+      "maxAbsOffset": 700,
+      "maxCornerLossForce": 66,
+      "maxGripFollowAuthority": 0,
+      "maxOffset": 700,
+      "maxProjectionError": 0,
+      "minOffset": 0,
+      "speedKmh": 185
+    },
+    {
+      "endSpeedKmh": 118.9711,
+      "finalHeading": 0.0283,
+      "finalOffset": -0.2951,
+      "id": "sharp-right-prepared-grip",
+      "maxAbsHeading": 0.0283,
+      "maxAbsInertia": 25.9969,
+      "maxAbsOffset": 20.5294,
+      "maxCornerLossForce": 34.3139,
+      "maxGripFollowAuthority": 1,
+      "maxOffset": 0,
+      "maxProjectionError": 0,
+      "minOffset": -20.5294,
+      "speedKmh": 185
+    },
+    {
+      "endSpeedKmh": 174.708,
+      "finalHeading": -0.9713,
+      "finalOffset": -700,
+      "id": "sharp-right-severe-overspeed",
+      "maxAbsHeading": 0.9713,
+      "maxAbsInertia": 974.4375,
+      "maxAbsOffset": 700,
+      "maxCornerLossForce": 66,
+      "maxGripFollowAuthority": 0,
+      "maxOffset": -300,
+      "maxProjectionError": 0,
+      "minOffset": -700,
+      "speedKmh": 200
+    }
+  ],
+  "schemaVersion": 1
+}

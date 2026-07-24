@@ -21,7 +21,9 @@ import ft86RetroShadowSpriteUrl from '../assets/vehicles/generated/pixel-candida
 import ft86RetroSilverVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png';
 import ft86RetroYellowVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png';
 import {
+    createCollisionDebugText,
     createHudText,
+    renderCollisionDebugText,
     renderHudText,
 } from './game/hud';
 import {
@@ -171,6 +173,7 @@ const CAMERA_DOWNHILL_EXTRA_PITCH = 42;
 const CAMERA_MAX_SLOPE_PITCH = 34;
 const CAMERA_SLOPE_PITCH_RESPONSE = 3.2;
 const DEBUG_PROJECTION_GUIDES = false;
+const DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS = 0.9;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
 const COURSE_CHECKPOINT_RATIOS = [0.25, 0.5, 0.75];
 const COURSE_FINISH_RATIO = 1;
@@ -619,6 +622,9 @@ class ApexSeoulScene extends Phaser.Scene {
         lateral: 0,
         pitch: 0,
     };
+    private debugGuardrailImpactBounceVelocity = 0;
+    private debugGuardrailImpactSide: -1 | 0 | 1 = 0;
+    private debugGuardrailImpactTimer = 0;
     private farCityParallax!: Phaser.GameObjects.Image;
     private farCityLights!: Phaser.GameObjects.Image;
     private farCloud!: Phaser.GameObjects.Image;
@@ -628,6 +634,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private headlightLampPose: VehicleHeadlightScreenPose | null = null;
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private collisionDebugText!: Phaser.GameObjects.Text;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
@@ -771,6 +778,7 @@ class ApexSeoulScene extends Phaser.Scene {
             this.getViewport(),
             () => this.getHeadlightShaderUniforms(),
         );
+        this.collisionDebugText = createCollisionDebugText(this);
         this.hudText = createHudText(this);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
@@ -1260,9 +1268,22 @@ class ApexSeoulScene extends Phaser.Scene {
     private renderHud() {
         const player = this.playerVehicle;
         const stats = this.roadStats;
+        const collisionDebug = {
+            active: this.debugGuardrailImpactTimer > 0,
+            bounceVelocity: this.debugGuardrailImpactBounceVelocity,
+            impactCount: this.playerVehicle.guardrailImpactCount,
+            side: this.debugGuardrailImpactSide,
+        };
+
+        renderCollisionDebugText(
+            this.collisionDebugText,
+            collisionDebug,
+            this.getViewport().width,
+        );
 
         renderHudText(this.hudText, {
             camera: this.cameraResource,
+            collisionDebug,
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
                 ? 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
                 : 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | debug camera locked',
@@ -1316,8 +1337,20 @@ class ApexSeoulScene extends Phaser.Scene {
             seconds,
         );
         const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
+        const impactCountBeforeCollision = this.playerVehicle.guardrailImpactCount;
 
         applyGuardrailCollision(this.playerVehicle, guardrailContext, seconds);
+        if (this.playerVehicle.guardrailImpactCount > impactCountBeforeCollision) {
+            this.debugGuardrailImpactTimer = DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS;
+            this.debugGuardrailImpactSide = this.playerVehicle.guardrailContactDirection;
+            this.debugGuardrailImpactBounceVelocity =
+                this.playerVehicle.guardrailBounceVelocity;
+        } else {
+            this.debugGuardrailImpactTimer = Math.max(
+                0,
+                this.debugGuardrailImpactTimer - seconds,
+            );
+        }
         this.vehicleRenderState = null;
     }
 
@@ -1717,7 +1750,18 @@ class ApexSeoulScene extends Phaser.Scene {
         physicsRoad: PlayerPhysicsRoadSample = this.samplePlayerPhysicsRoad(),
     ) {
         const pavedHalfWidth = physicsRoad.pavedHalfWidth;
+        const frontDistance = GUARDRAIL_COLLISION_CONFIG.physicalVehicleFrontLength;
+        const frontPavedHalfWidth = getRoadHalfWidthAt(
+            this.roadTrack,
+            physicsRoad.contactZ + frontDistance,
+        );
         return {
+            frontRoad: {
+                distance: frontDistance,
+                pavedHalfWidth: frontPavedHalfWidth,
+                railContactLimit:
+                    frontPavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
+            },
             pavedHalfWidth,
             railContactLimit: pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
             vehicleHalfWidth: GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,
@@ -1741,9 +1785,12 @@ class ApexSeoulScene extends Phaser.Scene {
         // Speed-dependent yaw is already sampled once in the controller.
         // The runtime multiplier defaults to 1 and remains only as an
         // explicit QA override instead of a second default attenuation.
-        const physicalValue = this.playerVehicle.steering * tuningVisualScale;
         const player = this.playerVehicle;
         const lowSpeedVisualSteeringAuthority = player.lowSpeedVisualSteeringAuthority;
+        const physicalValue = player.physicalSteeringCommand *
+            lowSpeedVisualSteeringAuthority *
+            player.speedHandling.visualYawScale *
+            tuningVisualScale;
         const isSliding = player.driftState !== 'grip' && player.driftDirection !== 0;
         this.vehicleUndersteerVisualState = updateVehicleUndersteerVisualState(
             this.vehicleUndersteerVisualState,
@@ -2129,6 +2176,9 @@ class ApexSeoulScene extends Phaser.Scene {
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.cameraTerrainPitch = 0;
         this.cameraManualPitch = 0;
+        this.debugGuardrailImpactBounceVelocity = 0;
+        this.debugGuardrailImpactSide = 0;
+        this.debugGuardrailImpactTimer = 0;
         this.playerVehicle = createDefaultPlayerVehicleState(
             RUNTIME_QA.initialSpeed ?? PLAYER_CRUISE_SPEED,
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
@@ -2346,8 +2396,16 @@ class ApexSeoulScene extends Phaser.Scene {
                 fuelCutActive: this.playerVehicle.fuelCutActive,
                 gear: this.playerVehicle.gearIndex + 1,
                 guardrailBounceVelocity: Number(this.playerVehicle.guardrailBounceVelocity.toFixed(3)),
+                guardrailContactActive: this.playerVehicle.guardrailContactActive,
+                guardrailContactAnchorOffset: Number(
+                    this.playerVehicle.guardrailContactAnchorOffset.toFixed(3),
+                ),
+                guardrailContactClearTimer: Number(
+                    this.playerVehicle.guardrailContactClearTimer.toFixed(3),
+                ),
                 guardrailContactInset: Number(this.playerVehicle.guardrailContactInset.toFixed(3)),
                 guardrailContactDirection: this.playerVehicle.guardrailContactDirection,
+                guardrailContactPhase: this.playerVehicle.guardrailContactPhase,
                 guardrailContactTimer: Number(this.playerVehicle.guardrailContactTimer.toFixed(3)),
                 guardrailImpactCount: this.playerVehicle.guardrailImpactCount,
                 guardrailImpactCue: Number(this.playerVehicle.guardrailImpactCue.toFixed(4)),
@@ -2362,6 +2420,10 @@ class ApexSeoulScene extends Phaser.Scene {
                 guardrailActiveContactRatio: Number((
                     Math.abs(this.playerVehicle.lateralOffset) / activeRailContactLimit
                 ).toFixed(4)),
+                cornerInsideHeadingAllowance: Number(
+                    this.playerVehicle.cornerInsideHeadingAllowance.toFixed(4),
+                ),
+                cornerInsideHeadingLimited: this.playerVehicle.cornerInsideHeadingLimited,
                 cornerInertiaLateralVelocity: Number(
                     this.playerVehicle.cornerInertiaLateralVelocity.toFixed(3),
                 ),
@@ -2370,6 +2432,9 @@ class ApexSeoulScene extends Phaser.Scene {
                 passiveGripYawRate: Number(this.playerVehicle.passiveGripYawRate.toFixed(4)),
                 residualRoadYawRate: Number(this.playerVehicle.residualRoadYawRate.toFixed(4)),
                 gripFollowAuthority: Number(this.playerVehicle.gripFollowAuthority.toFixed(4)),
+                gripHeadingCommitTimer: Number(
+                    this.playerVehicle.gripHeadingCommitTimer.toFixed(3),
+                ),
                 previewRoadCurve: Number(this.playerPhysicsRoadSample.previewRoadCurve.toFixed(4)),
                 nearRoadTangentChange: Number(
                     this.playerPhysicsRoadSample.nearTangentChange.toFixed(4),
@@ -2408,6 +2473,9 @@ class ApexSeoulScene extends Phaser.Scene {
                     this.playerVehicle.lateralOffset / this.getCurrentRoadOffsetLimit()
                 ).toFixed(4)),
                 overspeedUndersteerLateralVelocity: Number(this.playerVehicle.overspeedUndersteerLateralVelocity.toFixed(3)),
+                physicalSteeringCommand: Number(
+                    this.playerVehicle.physicalSteeringCommand.toFixed(4),
+                ),
                 overspeedUndersteerLoadTransferScale: Number(
                     this.playerVehicle.overspeedUndersteerLoadTransferScale.toFixed(4),
                 ),

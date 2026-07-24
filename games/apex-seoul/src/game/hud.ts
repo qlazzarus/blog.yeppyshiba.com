@@ -9,6 +9,12 @@ import type { PlayerVehicleState, VehicleTerrainCue } from './vehicle';
 
 export type ApexHudState = {
     camera: Pseudo3dCamera;
+    collisionDebug: {
+        active: boolean;
+        bounceVelocity: number;
+        impactCount: number;
+        side: -1 | 0 | 1;
+    };
     controlsLabel: string;
     cornerIntensity: number;
     longitudinalProgression: LongitudinalProgressionConfig;
@@ -52,9 +58,42 @@ export function createHudText(scene: Phaser.Scene) {
         .setDepth(RenderDepth.Hud);
 }
 
+export function createCollisionDebugText(scene: Phaser.Scene) {
+    return scene.add
+        .text(0, 18, '', {
+            backgroundColor: '#5b1010',
+            color: '#ffe6cf',
+            fontFamily: 'system-ui, sans-serif',
+            fontSize: '18px',
+            fontStyle: 'bold',
+            padding: { x: 12, y: 7 },
+        })
+        .setDepth(RenderDepth.Hud)
+        .setOrigin(0.5, 0)
+        .setVisible(false);
+}
+
+export function renderCollisionDebugText(
+    text: Phaser.GameObjects.Text,
+    state: ApexHudState['collisionDebug'],
+    viewportWidth: number,
+) {
+    text
+        .setPosition(viewportWidth / 2, 18)
+        .setVisible(state.active);
+
+    if (!state.active) return;
+
+    text.setText(
+        `RAIL COLLISION ${formatRailSide(state.side)}  #${state.impactCount}  ` +
+        `BOUNCE ${state.bounceVelocity.toFixed(0)}u/s`,
+    );
+}
+
 export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudState) {
     const {
         camera,
+        collisionDebug,
         cornerIntensity,
         longitudinalProgression,
         physicsRoadContactZ,
@@ -86,6 +125,9 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
             run.finished
                 ? `run FINISH ${formatRunTime(run.finishTimeSec ?? run.elapsedSec)} | progress 100% | checkpoints ${run.passedCheckpoints}/3 | R restart`
                 : `run ${formatRunTime(run.elapsedSec)} | progress ${(run.progressRatio * 100).toFixed(1)}% | checkpoints ${run.passedCheckpoints}/3`,
+            collisionDebug.active
+                ? `!!! RAIL COLLISION ${formatRailSide(collisionDebug.side)} #${collisionDebug.impactCount} | bounce ${collisionDebug.bounceVelocity.toFixed(0)}u/s !!!`
+                : `rail clear | impacts ${collisionDebug.impactCount}`,
             `speed ${speedKmh.toFixed(0)} km/h (${player.speed.toFixed(0)}u) | gear ${player.gearIndex + 1} | rpm ${player.rpm.toFixed(0)} | torque ${player.torqueScale.toFixed(2)} | boost ${player.boostRatio.toFixed(2)} | fuel cut ${player.fuelCutActive ? 'on' : 'off'} | shift cut ${player.shiftCutRatio.toFixed(2)}`,
             `flow ${longitudinalProgression.candidateId} x${longitudinalProgression.scale.toFixed(2)} | world ${worldTravelSpeed.toFixed(0)}u/s${longitudinalProgression.diagnosticUpperBound ? ' | diagnostic upper bound' : ''}`,
             `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | line ${player.cornerDemand.lineQuality.toFixed(2)} | demand ${player.cornerDemand.lateralDemand.toFixed(2)} | heading ${player.vehicleHeadingError.toFixed(2)}rad | inertia ${player.cornerInertiaLateralVelocity.toFixed(0)} | loss ${player.cornerSpeedLoss.zone} ${player.cornerSpeedLoss.totalForce.toFixed(0)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
@@ -105,4 +147,8 @@ function formatRunTime(seconds: number) {
     const remainingSeconds = seconds - minutes * 60;
 
     return `${minutes}:${remainingSeconds.toFixed(2).padStart(5, '0')}`;
+}
+
+function formatRailSide(side: -1 | 0 | 1) {
+    return side < 0 ? 'LEFT' : side > 0 ? 'RIGHT' : 'UNKNOWN';
 }

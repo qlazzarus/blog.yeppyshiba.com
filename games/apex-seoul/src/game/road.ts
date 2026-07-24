@@ -25,6 +25,7 @@ export const SEGMENT_LENGTH = 240;
 
 const DEFAULT_LANE_COUNT = 2;
 export const DEFAULT_ROAD_HALF_WIDTH = 960;
+const ROAD_HEADING_PREVIEW_NEAR_WEIGHT = 0.8;
 
 export type RoadTrackId = 'bugak-ridge-downhill' | 'elevation-test';
 
@@ -224,7 +225,9 @@ export function getRoadHeadingPreview(
     const farMeanCurve = farIntegral / safeFarDistance;
 
     return {
-        demandCurve: nearMeanCurve * 0.68 + farMeanCurve * 0.32,
+        demandCurve:
+            nearMeanCurve * ROAD_HEADING_PREVIEW_NEAR_WEIGHT +
+            farMeanCurve * (1 - ROAD_HEADING_PREVIEW_NEAR_WEIGHT),
         farTangentChange,
         nearTangentChange,
     };

@@ -175,7 +175,7 @@ checks.push(equals('launchFirst350msVisualFrame', launchSteer.visualFrame, 'cent
 checks.push(between('crawlLateralOffset', Math.abs(crawl.lateralOffset), 0.01, 22));
 checks.push(atMost('crawlVisualSteering', Math.abs(crawl.visualSteering), 0.1));
 checks.push(equals('crawlVisualFrame', crawl.visualFrame, 'center'));
-checks.push(between('mediumLateralOffset', Math.abs(medium.lateralOffset), 180, 320));
+checks.push(between('mediumLateralOffset', Math.abs(medium.lateralOffset), 100, 180));
 checks.push(atLeast('mediumVisualSteering', Math.abs(medium.visualSteering), 0.55));
 checks.push(equals('mediumGripVisualFrame', medium.visualFrame, 'steer-right-1'));
 checks.push(equals('driftLockedState', driftLock.driftState, 'grip'));

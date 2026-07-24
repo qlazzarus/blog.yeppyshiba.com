@@ -1,0 +1,69 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07121b"/>
+      <stop offset="1" stop-color="#102b3d"/>
+    </linearGradient>
+    <marker id="cyanArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#70ddff"/>
+    </marker>
+    <marker id="amberArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#ffc85a"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="720" rx="22" fill="url(#bg)"/>
+  <text x="60" y="72" fill="#f1f9fc" font-family="Arial, sans-serif" font-size="34" font-weight="700">A corner must require a steering decision</text>
+  <text x="60" y="108" fill="#a8c2ce" font-family="Arial, sans-serif" font-size="18">Apex Seoul · world-line cornering contract · HR-3H → HR-3K</text>
+
+  <g transform="translate(48 150)" font-family="Arial, sans-serif">
+    <rect width="344" height="420" rx="16" fill="#10212c" stroke="#285069"/>
+    <text x="24" y="42" fill="#70ddff" font-size="23" font-weight="700">1. No steering</text>
+    <text x="24" y="72" fill="#b8cbd3" font-size="16">Keep the car's world heading</text>
+    <path d="M52 360C108 334 128 278 142 218C156 158 190 114 294 96" fill="none" stroke="#506873" stroke-width="58"/>
+    <path d="M52 360C108 334 128 278 142 218C156 158 190 114 294 96" fill="none" stroke="#d7c45d" stroke-width="3" stroke-dasharray="12 12"/>
+    <path d="M125 350L125 112" fill="none" stroke="#70ddff" stroke-width="6" marker-end="url(#cyanArrow)"/>
+    <rect x="88" y="318" width="74" height="44" rx="9" fill="#8fbcd2" stroke="#061018" stroke-width="6"/>
+    <circle cx="295" cy="95" r="10" fill="#ff6f6f"/>
+    <text x="24" y="397" fill="#ffb1a8" font-size="16">Result: outside rail threat</text>
+
+    <g transform="translate(380 0)">
+      <rect width="344" height="420" rx="16" fill="#10212c" stroke="#285069"/>
+      <text x="24" y="42" fill="#ffc85a" font-size="23" font-weight="700">2. Grip or drift</text>
+      <text x="24" y="72" fill="#b8cbd3" font-size="16">Brake, turn in, manage the exit</text>
+      <path d="M52 360C108 334 128 278 142 218C156 158 190 114 294 96" fill="none" stroke="#506873" stroke-width="58"/>
+      <path d="M52 360C108 334 128 278 142 218C156 158 190 114 294 96" fill="none" stroke="#d7c45d" stroke-width="3" stroke-dasharray="12 12"/>
+      <path d="M123 347C127 281 135 226 160 177C183 133 223 108 280 98" fill="none" stroke="#ffc85a" stroke-width="6" marker-end="url(#amberArrow)"/>
+      <g transform="translate(124 332) rotate(-8)">
+        <rect x="-37" y="-22" width="74" height="44" rx="9" fill="#8fbcd2" stroke="#061018" stroke-width="6"/>
+      </g>
+      <text x="24" y="397" fill="#ffe0a0" font-size="16">Result: line and exit speed matter</text>
+    </g>
+
+    <g transform="translate(760 0)">
+      <rect width="344" height="420" rx="16" fill="#10212c" stroke="#285069"/>
+      <text x="24" y="42" fill="#8ce6c2" font-size="23" font-weight="700">3. One contact, one hit</text>
+      <text x="24" y="72" fill="#b8cbd3" font-size="16">enter → stay → exit lifecycle</text>
+      <line x1="46" y1="150" x2="298" y2="150" stroke="#d0e8f0" stroke-width="10"/>
+      <g transform="translate(88 150) rotate(18)">
+        <rect x="-34" y="-21" width="68" height="42" rx="8" fill="#8fbcd2" stroke="#061018" stroke-width="6"/>
+      </g>
+      <circle cx="123" cy="145" r="16" fill="#ff6f6f" opacity=".9"/>
+      <path d="M122 145L178 210" stroke="#8ce6c2" stroke-width="6" marker-end="url(#cyanArrow)"/>
+      <text x="24" y="264" fill="#a8c2ce" font-size="16">same-rail impacts</text>
+      <rect x="24" y="286" width="272" height="24" rx="5" fill="#263945"/>
+      <rect x="24" y="286" width="250" height="24" rx="5" fill="#ff776f"/>
+      <text x="24" y="336" fill="#ffaaa5" font-size="18">before  4–11</text>
+      <rect x="24" y="352" width="272" height="24" rx="5" fill="#263945"/>
+      <rect x="24" y="352" width="25" height="24" rx="5" fill="#8ce6c2"/>
+      <text x="178" y="373" fill="#baf5de" font-size="18">after  1</text>
+    </g>
+  </g>
+
+  <g transform="translate(60 616)" font-family="Arial, sans-serif">
+    <rect width="1080" height="58" rx="12" fill="#08131a" stroke="#25475a"/>
+    <text x="24" y="36" fill="#cfe5ed" font-size="18">Production audit</text>
+    <text x="204" y="36" fill="#70ddff" font-size="19" font-weight="700">24 / 24 outward</text>
+    <text x="422" y="36" fill="#8ce6c2" font-size="19" font-weight="700">8 / 8 rail hits at 185 km/h</text>
+    <text x="744" y="36" fill="#ffc85a" font-size="19" font-weight="700">drift exit ≤ 0.179 rad</text>
+  </g>
+</svg>

@@ -1,0 +1,1411 @@
+{
+  "checks": [
+    {
+      "evidence": {
+        "count": 8
+      },
+      "id": "production-strong-corners-discovered",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "cornerCount": 8,
+        "scenarioCount": 24
+      },
+      "id": "every-corner-has-all-speed-forks",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "maxAbsSteerAxis": 0
+      },
+      "id": "all-forks-keep-steering-neutral",
+      "pass": true
+    },
+    {
+      "evidence": [
+        {
+          "cornerId": "production-corner-1-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-1-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-1-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-2-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-2-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-2-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-3-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-3-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-3-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-4-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-4-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-4-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-5-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-5-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-5-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-6-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-6-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-6-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-7-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-7-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-7-right",
+          "direction": 1,
+          "firstMotionDirection": -1,
+          "speedKmh": 185
+        },
+        {
+          "cornerId": "production-corner-8-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 120
+        },
+        {
+          "cornerId": "production-corner-8-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 160
+        },
+        {
+          "cornerId": "production-corner-8-left",
+          "direction": -1,
+          "firstMotionDirection": 1,
+          "speedKmh": 185
+        }
+      ],
+      "id": "neutral-first-motion-is-outward",
+      "pass": true
+    },
+    {
+      "evidence": [
+        {
+          "cornerId": "production-corner-1-right",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 2.0167,
+          "timeToRailSec": 1.7
+        },
+        {
+          "cornerId": "production-corner-2-left",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.7667,
+          "timeToRailSec": 1.3167
+        },
+        {
+          "cornerId": "production-corner-3-right",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.75,
+          "timeToRailSec": 1.3
+        },
+        {
+          "cornerId": "production-corner-4-left",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.7333,
+          "timeToRailSec": 1.2667
+        },
+        {
+          "cornerId": "production-corner-5-right",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 2,
+          "timeToRailSec": 1.55
+        },
+        {
+          "cornerId": "production-corner-6-left",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.8333,
+          "timeToRailSec": 1.35
+        },
+        {
+          "cornerId": "production-corner-7-right",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.8333,
+          "timeToRailSec": 1.3833
+        },
+        {
+          "cornerId": "production-corner-8-left",
+          "impactCount": 1,
+          "maxShoulderRatio": 1,
+          "timeToPavedEdgeSec": 1.9667,
+          "timeToRailSec": 1.4333
+        }
+      ],
+      "id": "every-strong-corner-threatens-edge-at-185",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "cornerCount": 8,
+        "railImpactCornerCount": 8
+      },
+      "id": "selected-strong-corners-hit-rail-at-185",
+      "pass": true
+    },
+    {
+      "evidence": [
+        {
+          "cornerId": "production-corner-1-right",
+          "firstImpactSide": -1,
+          "injectedSteeringVelocity": 117.8998,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-2-left",
+          "firstImpactSide": 1,
+          "injectedSteeringVelocity": -117.5806,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-3-right",
+          "firstImpactSide": -1,
+          "injectedSteeringVelocity": 117.5904,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-4-left",
+          "firstImpactSide": 1,
+          "injectedSteeringVelocity": -117.8558,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-5-right",
+          "firstImpactSide": -1,
+          "injectedSteeringVelocity": 117.1849,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-6-left",
+          "firstImpactSide": 1,
+          "injectedSteeringVelocity": -117.0168,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-7-right",
+          "firstImpactSide": -1,
+          "injectedSteeringVelocity": 117.2572,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        },
+        {
+          "cornerId": "production-corner-8-left",
+          "firstImpactSide": 1,
+          "injectedSteeringVelocity": -116.7488,
+          "maxPostImpactInwardRailRatio": 0,
+          "oppositeRailImpactCount": 0,
+          "sameRailImpactCount": 1
+        }
+      ],
+      "id": "first-impact-stays-on-expected-outside-rail-at-185",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "limit": 0.25,
+        "scenarios": [
+          {
+            "cornerId": "production-corner-1-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.8998,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-2-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.5806,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-3-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.5904,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-4-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.8558,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-5-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.1849,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-6-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.0168,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-7-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.2572,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-8-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -116.7488,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          }
+        ]
+      },
+      "id": "post-impact-inward-travel-remains-local-at-185",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "limit": 2,
+        "scenarios": [
+          {
+            "cornerId": "production-corner-1-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.8998,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-2-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.5806,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-3-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.5904,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-4-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.8558,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-5-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.1849,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-6-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -117.0168,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-7-right",
+            "firstImpactSide": -1,
+            "injectedSteeringVelocity": 117.2572,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          },
+          {
+            "cornerId": "production-corner-8-left",
+            "firstImpactSide": 1,
+            "injectedSteeringVelocity": -116.7488,
+            "maxPostImpactInwardRailRatio": 0,
+            "oppositeRailImpactCount": 0,
+            "sameRailImpactCount": 1
+          }
+        ]
+      },
+      "id": "same-rail-contact-does-not-loop-as-new-impacts-at-185",
+      "pass": true
+    },
+    {
+      "evidence": {
+        "fullBrakeForce": 330,
+        "maxAutomaticCornerLossForce": 66
+      },
+      "id": "automatic-corner-loss-remains-below-brake",
+      "pass": true
+    }
+  ],
+  "config": {
+    "approachDistance": 0,
+    "contactDistance": 260,
+    "cornerThreshold": 0.08,
+    "discoveryStep": 60,
+    "exitDistance": 1200,
+    "longitudinalScale": 2,
+    "maxPostImpactInwardRailRatio": 0.25,
+    "maxSameRailImpacts": 2,
+    "speedsKmh": [
+      120,
+      160,
+      185
+    ],
+    "strongCurveThreshold": 0.4
+  },
+  "corners": [
+    {
+      "apexCameraZ": 6720,
+      "apexContactZ": 6980,
+      "direction": 1,
+      "endCameraZ": 7980,
+      "id": "production-corner-1-right",
+      "peakAbsCurve": 0.66,
+      "startCameraZ": 4200
+    },
+    {
+      "apexCameraZ": 16080,
+      "apexContactZ": 16340,
+      "direction": -1,
+      "endCameraZ": 19680,
+      "id": "production-corner-2-left",
+      "peakAbsCurve": 0.62,
+      "startCameraZ": 14580
+    },
+    {
+      "apexCameraZ": 26160,
+      "apexContactZ": 26420,
+      "direction": 1,
+      "endCameraZ": 29640,
+      "id": "production-corner-3-right",
+      "peakAbsCurve": 0.64,
+      "startCameraZ": 24660
+    },
+    {
+      "apexCameraZ": 35760,
+      "apexContactZ": 36020,
+      "direction": -1,
+      "endCameraZ": 39240,
+      "id": "production-corner-4-left",
+      "peakAbsCurve": 0.66,
+      "startCameraZ": 34260
+    },
+    {
+      "apexCameraZ": 46560,
+      "apexContactZ": 46820,
+      "direction": 1,
+      "endCameraZ": 48660,
+      "id": "production-corner-5-right",
+      "peakAbsCurve": 0.5,
+      "startCameraZ": 44820
+    },
+    {
+      "apexCameraZ": 50880,
+      "apexContactZ": 51140,
+      "direction": -1,
+      "endCameraZ": 54840,
+      "id": "production-corner-6-left",
+      "peakAbsCurve": 0.56,
+      "startCameraZ": 49440
+    },
+    {
+      "apexCameraZ": 61920,
+      "apexContactZ": 62180,
+      "direction": 1,
+      "endCameraZ": 64320,
+      "id": "production-corner-7-right",
+      "peakAbsCurve": 0.56,
+      "startCameraZ": 60300
+    },
+    {
+      "apexCameraZ": 66240,
+      "apexContactZ": 66500,
+      "direction": -1,
+      "endCameraZ": 68340,
+      "id": "production-corner-8-left",
+      "peakAbsCurve": 0.5,
+      "startCameraZ": 64920
+    }
+  ],
+  "generatedAt": "2026-07-24T05:25:34.752Z",
+  "pass": true,
+  "purpose": "Measure every production strong corner with throttle and zero steering input",
+  "scenarios": [
+    {
+      "cornerId": "production-corner-1-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 106.3101,
+          "headingAfter": -0.1395,
+          "headingBefore": -0.6341,
+          "lateralOffsetAfter": -500.95,
+          "lateralOffsetBefore": -500.95,
+          "progressRatio": 0.0762,
+          "railSide": -1,
+          "steeringVelocityAfter": 106.3101,
+          "steeringVelocityBefore": 0,
+          "timeSec": 2.4333
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 62.1579,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.187,
+      "speedAtCornerExitKmh": 95.5995,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.85,
+      "timeToRailSec": 2.4333
+    },
+    {
+      "cornerId": "production-corner-1-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 113.2571,
+          "headingAfter": -0.1403,
+          "headingBefore": -0.6378,
+          "lateralOffsetAfter": -505.7027,
+          "lateralOffsetBefore": -505.7027,
+          "progressRatio": 0.0763,
+          "railSide": -1,
+          "steeringVelocityAfter": 113.2571,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.9333
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 87.0447,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1451,
+      "speedAtCornerExitKmh": 115.9082,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.2667,
+      "timeToRailSec": 1.9333
+    },
+    {
+      "cornerId": "production-corner-1-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.8998,
+          "headingAfter": -0.1393,
+          "headingBefore": -0.6331,
+          "lateralOffsetAfter": -501.9774,
+          "lateralOffsetBefore": -501.9774,
+          "progressRatio": 0.0762,
+          "railSide": -1,
+          "steeringVelocityAfter": 117.8998,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.7
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 106.2489,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.1127,
+      "speedAtCornerExitKmh": 132.6955,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 2.0167,
+      "timeToRailSec": 1.7
+    },
+    {
+      "cornerId": "production-corner-2-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 104.0139,
+          "headingAfter": 0.1594,
+          "headingBefore": 0.7246,
+          "lateralOffsetAfter": 451.5554,
+          "lateralOffsetBefore": 451.5554,
+          "progressRatio": 0.1946,
+          "railSide": 1,
+          "steeringVelocityAfter": -104.0139,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.9167
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 30.6256,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.62,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1837,
+      "speedAtCornerExitKmh": 56.3382,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.55,
+      "timeToRailSec": 1.9167
+    },
+    {
+      "cornerId": "production-corner-2-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 112.0001,
+          "headingAfter": 0.159,
+          "headingBefore": 0.7228,
+          "lateralOffsetAfter": 450.9945,
+          "lateralOffsetBefore": 450.9945,
+          "progressRatio": 0.1946,
+          "railSide": 1,
+          "steeringVelocityAfter": -112.0001,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.5
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 44.8037,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.62,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1418,
+      "speedAtCornerExitKmh": 81.2535,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.0333,
+      "timeToRailSec": 1.5
+    },
+    {
+      "cornerId": "production-corner-2-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.5806,
+          "headingAfter": 0.1595,
+          "headingBefore": 0.7252,
+          "lateralOffsetAfter": 454.4703,
+          "lateralOffsetBefore": 454.4703,
+          "progressRatio": 0.1946,
+          "railSide": 1,
+          "steeringVelocityAfter": -117.5806,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.3167
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 72.7484,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.62,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.1093,
+      "speedAtCornerExitKmh": 103.3726,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.7667,
+      "timeToRailSec": 1.3167
+    },
+    {
+      "cornerId": "production-corner-3-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 104.0013,
+          "headingAfter": -0.1602,
+          "headingBefore": -0.728,
+          "lateralOffsetAfter": -444.2883,
+          "lateralOffsetBefore": -444.2883,
+          "progressRatio": 0.3149,
+          "railSide": -1,
+          "steeringVelocityAfter": 104.0013,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.8833
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 32.9595,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.64,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1837,
+      "speedAtCornerExitKmh": 57.5522,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.5167,
+      "timeToRailSec": 1.8833
+    },
+    {
+      "cornerId": "production-corner-3-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 111.9871,
+          "headingAfter": -0.1614,
+          "headingBefore": -0.7335,
+          "lateralOffsetAfter": -451.3834,
+          "lateralOffsetBefore": -451.3834,
+          "progressRatio": 0.315,
+          "railSide": -1,
+          "steeringVelocityAfter": 111.9871,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.4833
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 45.8275,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.64,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1418,
+      "speedAtCornerExitKmh": 81.3828,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2,
+      "timeToRailSec": 1.4833
+    },
+    {
+      "cornerId": "production-corner-3-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.5904,
+          "headingAfter": -0.1616,
+          "headingBefore": -0.7346,
+          "lateralOffsetAfter": -453.3626,
+          "lateralOffsetBefore": -453.3626,
+          "progressRatio": 0.315,
+          "railSide": -1,
+          "steeringVelocityAfter": 117.5904,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.3
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 74.3408,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.64,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.1093,
+      "speedAtCornerExitKmh": 104.2133,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.75,
+      "timeToRailSec": 1.3
+    },
+    {
+      "cornerId": "production-corner-4-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 104.1826,
+          "headingAfter": 0.1616,
+          "headingBefore": 0.7346,
+          "lateralOffsetAfter": 440.9618,
+          "lateralOffsetBefore": 440.9618,
+          "progressRatio": 0.4296,
+          "railSide": 1,
+          "steeringVelocityAfter": -104.1826,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.85
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 28.9033,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1941,
+      "speedAtCornerExitKmh": 55.7369,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.4833,
+      "timeToRailSec": 1.85
+    },
+    {
+      "cornerId": "production-corner-4-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 112.2371,
+          "headingAfter": 0.1616,
+          "headingBefore": 0.7344,
+          "lateralOffsetAfter": 442.0302,
+          "lateralOffsetBefore": 442.0302,
+          "progressRatio": 0.4296,
+          "railSide": 1,
+          "steeringVelocityAfter": -112.2371,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.45
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 42.8874,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1522,
+      "speedAtCornerExitKmh": 80.3318,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 1.9667,
+      "timeToRailSec": 1.45
+    },
+    {
+      "cornerId": "production-corner-4-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.8558,
+          "headingAfter": 0.1609,
+          "headingBefore": 0.7316,
+          "lateralOffsetAfter": 440.0798,
+          "lateralOffsetBefore": 440.0798,
+          "progressRatio": 0.4295,
+          "railSide": 1,
+          "steeringVelocityAfter": -117.8558,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.2667
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 72.7999,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.66,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.1197,
+      "speedAtCornerExitKmh": 103.7747,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.7333,
+      "timeToRailSec": 1.2667
+    },
+    {
+      "cornerId": "production-corner-5-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 106.5244,
+          "headingAfter": -0.1526,
+          "headingBefore": -0.6937,
+          "lateralOffsetAfter": -513.0353,
+          "lateralOffsetBefore": -513.0353,
+          "progressRatio": 0.5601,
+          "railSide": -1,
+          "steeringVelocityAfter": 106.5244,
+          "steeringVelocityBefore": 0,
+          "timeSec": 2.2167
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 0,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 78.4753,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1647,
+      "speedAtCornerExitKmh": 105.7546,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.8,
+      "timeToRailSec": 2.2167
+    },
+    {
+      "cornerId": "production-corner-5-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 112.7309,
+          "headingAfter": -0.1521,
+          "headingBefore": -0.6911,
+          "lateralOffsetAfter": -511.0463,
+          "lateralOffsetBefore": -511.0463,
+          "progressRatio": 0.56,
+          "railSide": -1,
+          "steeringVelocityAfter": 112.7309,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.75
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 52.3957,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 109.2256,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1227,
+      "speedAtCornerExitKmh": 131.6625,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.25,
+      "timeToRailSec": 1.75
+    },
+    {
+      "cornerId": "production-corner-5-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.1849,
+          "headingAfter": -0.1532,
+          "headingBefore": -0.6963,
+          "lateralOffsetAfter": -518.3183,
+          "lateralOffsetBefore": -518.3183,
+          "progressRatio": 0.5602,
+          "railSide": -1,
+          "steeringVelocityAfter": 117.1849,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.55
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 116.7463,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.0903,
+      "speedAtCornerExitKmh": 139.3402,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 2,
+      "timeToRailSec": 1.55
+    },
+    {
+      "cornerId": "production-corner-6-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 103.9663,
+          "headingAfter": 0.1567,
+          "headingBefore": 0.7121,
+          "lateralOffsetAfter": 470.9182,
+          "lateralOffsetBefore": 470.9182,
+          "progressRatio": 0.6124,
+          "railSide": 1,
+          "steeringVelocityAfter": -103.9663,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.9667
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 58.3553,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 26.4075,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.172,
+      "speedAtCornerExitKmh": 52.5435,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.6167,
+      "timeToRailSec": 1.9667
+    },
+    {
+      "cornerId": "production-corner-6-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 111.334,
+          "headingAfter": 0.1578,
+          "headingBefore": 0.7171,
+          "lateralOffsetAfter": 478.0292,
+          "lateralOffsetBefore": 478.0292,
+          "progressRatio": 0.6125,
+          "railSide": 1,
+          "steeringVelocityAfter": -111.334,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.55
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 41.3283,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1301,
+      "speedAtCornerExitKmh": 76.942,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.0833,
+      "timeToRailSec": 1.55
+    },
+    {
+      "cornerId": "production-corner-6-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.0168,
+          "headingAfter": 0.1569,
+          "headingBefore": 0.7133,
+          "lateralOffsetAfter": 474.5279,
+          "lateralOffsetBefore": 474.5279,
+          "progressRatio": 0.6124,
+          "railSide": 1,
+          "steeringVelocityAfter": -117.0168,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.35
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 66.0548,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.0976,
+      "speedAtCornerExitKmh": 97.5965,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.8333,
+      "timeToRailSec": 1.35
+    },
+    {
+      "cornerId": "production-corner-7-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 104.1242,
+          "headingAfter": -0.1527,
+          "headingBefore": -0.6939,
+          "lateralOffsetAfter": -462.625,
+          "lateralOffsetBefore": -462.625,
+          "progressRatio": 0.743,
+          "railSide": -1,
+          "steeringVelocityAfter": 104.1242,
+          "steeringVelocityBefore": 0,
+          "timeSec": 2.0167
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 60.4561,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 58.9159,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1658,
+      "speedAtCornerExitKmh": 89.4775,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.6167,
+      "timeToRailSec": 2.0167
+    },
+    {
+      "cornerId": "production-corner-7-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 111.6911,
+          "headingAfter": -0.153,
+          "headingBefore": -0.6955,
+          "lateralOffsetAfter": -465.7507,
+          "lateralOffsetBefore": -465.7507,
+          "progressRatio": 0.743,
+          "railSide": -1,
+          "steeringVelocityAfter": 111.6911,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.5833
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 80.4952,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1239,
+      "speedAtCornerExitKmh": 108.0153,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.0833,
+      "timeToRailSec": 1.5833
+    },
+    {
+      "cornerId": "production-corner-7-right",
+      "direction": 1,
+      "firstImpactSide": -1,
+      "firstMotionDirection": -1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 117.2572,
+          "headingAfter": -0.1525,
+          "headingBefore": -0.6933,
+          "lateralOffsetAfter": -464.1956,
+          "lateralOffsetBefore": -464.1956,
+          "progressRatio": 0.7429,
+          "railSide": -1,
+          "steeringVelocityAfter": 117.2572,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.3833
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 101.7773,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.56,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.0914,
+      "speedAtCornerExitKmh": 126.5308,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.8333,
+      "timeToRailSec": 1.3833
+    },
+    {
+      "cornerId": "production-corner-8-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 105.934,
+          "headingAfter": 0.1574,
+          "headingBefore": 0.7156,
+          "lateralOffsetAfter": 519.8955,
+          "lateralOffsetBefore": 519.8955,
+          "progressRatio": 0.7989,
+          "railSide": 1,
+          "steeringVelocityAfter": -105.934,
+          "steeringVelocityBefore": 0,
+          "timeSec": 2.0667
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 0,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 93.0572,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 120.1618,
+      "speedAtCornerExitKmh": 117.4767,
+      "speedKmh": 120,
+      "timeToPavedEdgeSec": 2.75,
+      "timeToRailSec": 2.0667
+    },
+    {
+      "cornerId": "production-corner-8-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 112.3456,
+          "headingAfter": 0.1582,
+          "headingBefore": 0.7191,
+          "lateralOffsetAfter": 526.0159,
+          "lateralOffsetBefore": 526.0159,
+          "progressRatio": 0.799,
+          "railSide": 1,
+          "steeringVelocityAfter": -112.3456,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.6333
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 48.3221,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 113.8974,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 160.1198,
+      "speedAtCornerExitKmh": 137.5965,
+      "speedKmh": 160,
+      "timeToPavedEdgeSec": 2.2,
+      "timeToRailSec": 1.6333
+    },
+    {
+      "cornerId": "production-corner-8-left",
+      "direction": -1,
+      "firstImpactSide": 1,
+      "firstMotionDirection": 1,
+      "impactCount": 1,
+      "impactEvents": [
+        {
+          "bounceVelocity": 116.7488,
+          "headingAfter": 0.1577,
+          "headingBefore": 0.7169,
+          "lateralOffsetAfter": 523.8336,
+          "lateralOffsetBefore": 523.8336,
+          "progressRatio": 0.7989,
+          "railSide": 1,
+          "steeringVelocityAfter": -116.7488,
+          "steeringVelocityBefore": 0,
+          "timeSec": 1.4333
+        }
+      ],
+      "maxAbsSteerAxis": 0,
+      "maxAutomaticCornerLossForce": 66,
+      "maxOutwardRoadRatio": 1,
+      "maxPostImpactInwardRailRatio": 0,
+      "maxShoulderRatio": 1,
+      "minSpeedKmh": 123.0095,
+      "oppositeRailImpactCount": 0,
+      "peakAbsCurve": 0.5,
+      "sameRailImpactCount": 1,
+      "speedAtCornerEntryKmh": 185.0874,
+      "speedAtCornerExitKmh": 147.0266,
+      "speedKmh": 185,
+      "timeToPavedEdgeSec": 1.9667,
+      "timeToRailSec": 1.4333
+    }
+  ],
+  "schemaVersion": 1,
+  "track": {
+    "id": "bugak-ridge-downhill",
+    "length": 83520,
+    "name": "Bugak Ridge Downhill"
+  }
+}

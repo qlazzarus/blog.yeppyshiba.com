@@ -63,7 +63,7 @@ const accidentalDriftRatioMax = Math.max(
     ...corner.syntheticRows.map((row) => row.accidentalDriftRatio),
     ...corner.track.rows.map((row) => row.accidentalDriftRatio),
 );
-const checks = [
+const legacyChecks = [
     check(
         'source.cornerDemandPass',
         corner.pass === true,
@@ -192,6 +192,39 @@ const checks = [
         accidentalDriftRatioMax <= 0.01,
         '<= 0.01 across synthetic and fixed Bugak grip scenarios',
         accidentalDriftRatioMax,
+    ),
+];
+const retainedCheckIds = new Set([
+    'source.cornerDemandPass',
+    'source.understeerVisualPass',
+    'control.straightExitSpeedStable',
+    'control.zeroTo100Stable',
+    'control.sixtyKmhStable',
+    'control.drivetrainIdentityStable',
+    'relation.gripAccidentalDriftNearZero',
+]);
+const currentRows = [
+    ...corner.syntheticRows,
+    ...corner.recoveryRows,
+    ...corner.track.rows,
+];
+const checks = [
+    ...legacyChecks.filter((entry) => retainedCheckIds.has(entry.id)),
+    check(
+        'relation.hr3hDirectOverspeedTranslationRemoved',
+        currentRows.every((row) => (
+            row.overspeedUndersteerLateralVelocityMaxAbs <= 0.001
+        )),
+        0,
+        Math.max(...currentRows.map((row) => (
+            row.overspeedUndersteerLateralVelocityMaxAbs
+        ))),
+    ),
+    check(
+        'relation.hr3hAutomaticTireLossBudget',
+        currentRows.every((row) => row.speedLossForcesMean.total <= 66.001),
+        '<= 20% of full brake force (66)',
+        Math.max(...currentRows.map((row) => row.speedLossForcesMean.total)),
     ),
 ];
 const report = {

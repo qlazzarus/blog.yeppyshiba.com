@@ -67,7 +67,8 @@ const checks = [
     check(
         'active-countersteer-can-correct-line',
         corrected.lateralOffset <= START_OFFSET - 80 &&
-            correctedRun.maxAbsCenteringForce > 0,
+            corrected.vehicleHeadingError < 0 &&
+            correctedRun.maxAbsCenteringForce === 0,
         correctedRun,
     ),
     check(

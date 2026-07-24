@@ -109,23 +109,25 @@ const scenarios = [
         id: 'bugak-first-corner-185-u2-prepared-grip',
         initialSpeedKmh: FIXED_SPEED_KMH,
         inputAt: ({ contactZ, physicsCurve, player }) => {
-            const liftPreparing = contactZ < 4_500;
-            const cornerActive = Math.abs(physicsCurve) >= CORNER_ACTIVE_CURVE;
-            const targetHeadingError = cornerActive
-                ? Math.sign(physicsCurve) * 0.15
-                : 0;
-            const headingCorrection = clamp(
-                (targetHeadingError - player.vehicleHeadingError) * 1.35,
-                -0.58,
-                0.58,
+            const displaySpeedKmh = getDisplaySpeedKmh(
+                player.speed,
+                760,
+                RAVEN_COUPE_ENGINE_PROFILE,
             );
-            const steerAxis = cornerActive || Math.abs(player.vehicleHeadingError) >= 0.02
-                ? headingCorrection
+            const brakingForEntry = contactZ < 6_000 && displaySpeedKmh > 122;
+            const cornerActive = Math.abs(physicsCurve) >= 0.035;
+            const steerAxis = cornerActive
+                ? clamp(
+                    physicsCurve * 1.5 -
+                        player.vehicleHeadingError * 1.8,
+                    -1,
+                    1,
+                )
                 : 0;
 
             return {
-                accelPressed: !liftPreparing,
-                brakePressed: false,
+                accelPressed: !brakingForEntry,
+                brakePressed: brakingForEntry,
                 steerAxis,
             };
         },
@@ -379,8 +381,8 @@ const report = {
         cornerInertiaMaxLateralSpeed:
             cli.cornerInertiaMax ?? createPlayerControllerBaselineConfig().cornerInertiaMaxLateralSpeed,
         launchEndZ: LAUNCH_END_Z,
-        lateralDebtContract: 'preview road-yaw demand minus passive grip yaw drives persistent soft-slip debt',
-        physicsCurveSource: 'near/far preview rooted at interpolated player road contact',
+        lateralDebtContract: 'contact road-frame yaw plus player steering yaw drives relative heading',
+        physicsCurveSource: 'interpolated player road contact; preview is telemetry only',
         sCurveEndZ: HR_S_CURVE_END_Z,
         sCurveStartZ: HR_S_CURVE_START_Z,
         strongCurveThreshold: STRONG_CURVE,
@@ -389,7 +391,7 @@ const report = {
     diagnosisChecks,
     diagnosisPass,
     generatedAt: new Date().toISOString(),
-    purpose: 'HR-3 production corner contract; verify preview demand, passive grip yaw, residual soft-slip debt, and prepared grip advantage.',
+    purpose: 'HR-3H production corner contract; verify neutral world-line risk, contact-point yaw, and prepared grip advantage.',
     scenarios,
     schemaVersion: 4,
     status: diagnosisPass
@@ -453,7 +455,18 @@ function runProductionScenario({
         const headingPreview = getRoadHeadingPreview(track, contactZ);
         const physicsCurve = contactCurve;
         const pavedHalfWidth = getRoadHalfWidthAt(track, contactZ);
+        const frontDistance = GUARDRAIL_COLLISION_CONFIG.physicalVehicleFrontLength;
+        const frontPavedHalfWidth = getRoadHalfWidthAt(
+            track,
+            contactZ + frontDistance,
+        );
         const guardrailContext = {
+            frontRoad: {
+                distance: frontDistance,
+                pavedHalfWidth: frontPavedHalfWidth,
+                railContactLimit:
+                    frontPavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
+            },
             pavedHalfWidth,
             railContactLimit: pavedHalfWidth + GUARDRAIL_COLLISION_CONFIG.contactClearance,
             vehicleHalfWidth: GUARDRAIL_COLLISION_CONFIG.physicalVehicleHalfWidth,

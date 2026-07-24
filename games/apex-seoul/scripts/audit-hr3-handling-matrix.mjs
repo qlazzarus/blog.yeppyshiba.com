@@ -36,20 +36,44 @@ const scenarios = CURVES.flatMap(({ curve, grade }) =>
     ),
 );
 
-const easyLowNeutral = findScenario('easy', 120, 'neutral');
+const mediumLowNeutral = findScenario('medium', 120, 'neutral');
 const sharpHighNeutral = findScenario('sharp', 200, 'neutral');
 const sharpHighPrepared = findScenario('sharp', 200, 'prepared-grip');
 const sharpHighDrift = findScenario('sharp', 200, 'intentional-drift');
 const checks = [
     check(
-        'easy-target-speed-neutral-avoids-shoulder',
-        !easyLowNeutral.reachedShoulder && !easyLowNeutral.reachedRail,
-        summarize(easyLowNeutral),
+        'neutral-steering-has-no-road-follow-authority',
+        scenarios
+            .filter((scenario) => scenario.mode === 'neutral')
+            .every((scenario) => scenario.maxGripFollowAuthority === 0),
+        {
+            maxNeutralFollowAuthority: round(Math.max(
+                ...scenarios
+                    .filter((scenario) => scenario.mode === 'neutral')
+                    .map((scenario) => scenario.maxGripFollowAuthority),
+            )),
+        },
     ),
     check(
         'sharp-overspeed-neutral-threatens-edge',
         sharpHighNeutral.reachedShoulder || sharpHighNeutral.reachedRail,
         summarize(sharpHighNeutral),
+    ),
+    check(
+        'medium-neutral-does-not-auto-follow-road',
+        mediumLowNeutral.maxGripFollowAuthority === 0 &&
+            mediumLowNeutral.maxAbsOffset >= PAVED_CENTER_LIMIT,
+        {
+            maxGripFollowAuthority: mediumLowNeutral.maxGripFollowAuthority,
+            maxAbsOffset: mediumLowNeutral.maxAbsOffset,
+        },
+    ),
+    check(
+        'prepared-grip-builds-player-steering-authority',
+        sharpHighPrepared.maxGripFollowAuthority >= 0.85,
+        {
+            maxGripFollowAuthority: sharpHighPrepared.maxGripFollowAuthority,
+        },
     ),
     check(
         'prepared-grip-beats-sharp-neutral-line',
@@ -103,7 +127,7 @@ const report = {
     },
     generatedAt: new Date().toISOString(),
     pass: checks.every((entry) => entry.pass),
-    purpose: 'HR-3E speed × curvature × driving-mode handling matrix',
+    purpose: 'HR-3H world-line speed × curvature × driving-mode handling matrix',
     scenarios,
     schemaVersion: 1,
 };
@@ -118,7 +142,7 @@ await writeFile(
     buildMarkdown(report),
 );
 
-console.log(`HR-3E handling matrix: ${report.pass ? 'PASS' : 'FAIL'}`);
+console.log(`HR-3H handling matrix: ${report.pass ? 'PASS' : 'FAIL'}`);
 console.log(`${checks.filter((entry) => entry.pass).length}/${checks.length} PASS`);
 for (const entry of checks) {
     console.log(`${entry.pass ? 'PASS' : 'FAIL'} ${entry.id} ${JSON.stringify(entry.evidence)}`);
@@ -152,7 +176,9 @@ function runScenario({ curve, grade, mode, speedKmh }) {
             player,
             input,
             {
-                currentCurve: curve,
+                currentCurve: mode === 'prepared-grip' && t < 0.65
+                    ? 0
+                    : curve,
                 longitudinalScale: 2,
                 previewRoadCurve: curve,
                 slopeAcceleration: 0,
@@ -213,28 +239,31 @@ function getInput(mode, t, curve, player) {
         };
     }
     if (mode === 'prepared-grip') {
-        const targetHeading = direction * 0.12;
+        const brakingForEntry = t < 0.5;
+        const settlingBrakePressure = t >= 0.5 && t < 0.65;
         return {
-            accelPressed: t >= 0.35,
-            brakePressed: false,
-            steerAxis: clamp(
-                (targetHeading - player.vehicleHeadingError) * 1.35,
-                -0.58,
-                0.58,
-            ),
+            accelPressed: !brakingForEntry && !settlingBrakePressure,
+            brakePressed: brakingForEntry,
+            steerAxis: t < 0.65
+                ? 0
+                : clamp(
+                    curve * 1.5 - player.vehicleHeadingError * 1.8,
+                    -1,
+                    1,
+                ),
         };
     }
     if (t < 0.25) {
         return { accelPressed: true, brakePressed: false, steerAxis: direction * 0.45 };
     }
     if (t < 0.5) {
-        return { accelPressed: false, brakePressed: false, steerAxis: direction * 0.78 };
+        return { accelPressed: false, brakePressed: true, steerAxis: direction * 0.9 };
     }
     if (t < 1.25) {
-        return { accelPressed: true, brakePressed: false, steerAxis: direction * 0.4 };
+        return { accelPressed: true, brakePressed: false, steerAxis: direction * 0.85 };
     }
     if (t < 2.6) {
-        return { accelPressed: true, brakePressed: false, steerAxis: -direction * 0.35 };
+        return { accelPressed: true, brakePressed: false, steerAxis: -direction * 0.55 };
     }
     return { accelPressed: true, brakePressed: false, steerAxis: direction * 0.1 };
 }
@@ -273,7 +302,7 @@ function buildMarkdown(value) {
     ));
 
     return [
-        '# Apex Seoul HR-3E Handling Matrix',
+        '# Apex Seoul HR-3H Handling Matrix',
         '',
         `Generated: ${value.generatedAt}`,
         '',

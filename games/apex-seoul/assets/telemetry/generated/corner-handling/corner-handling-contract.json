@@ -9,42 +9,42 @@
     },
     {
       "evidence": {
-        "finalOffset": -416.066,
-        "outwardDistance": 416.066
+        "finalOffset": -700,
+        "outwardDistance": 700
       },
       "id": "corner-neutral-moves-outward",
       "pass": true
     },
     {
       "evidence": {
-        "highOutwardDistance": 416.066,
-        "lowOutwardDistance": 121.25,
-        "ratio": 3.431
+        "highOutwardDistance": 700,
+        "lowOutwardDistance": 358.825,
+        "ratio": 1.951
       },
-      "id": "corner-inertia-fixed-time-scales-superlinearly",
+      "id": "world-line-fixed-time-scales-with-speed",
       "pass": true
     },
     {
       "evidence": {
-        "leftFinalInertiaSpeed": 204.122,
-        "leftFinalOffset": 416.066,
-        "rightFinalInertiaSpeed": -204.122,
-        "rightFinalOffset": -416.066
+        "leftFinalInertiaSpeed": 473.565,
+        "leftFinalOffset": 700,
+        "rightFinalInertiaSpeed": -473.565,
+        "rightFinalOffset": -700
       },
       "id": "corner-inertia-left-right-symmetric",
       "pass": true
     },
     {
       "evidence": {
-        "gripLineQuality": 1,
-        "neutralLineQuality": 0.185
+        "gripLineQuality": 0.6,
+        "neutralLineQuality": 0
       },
       "id": "grip-steering-beats-neutral-line",
       "pass": true
     },
     {
       "evidence": {
-        "maxAbsOffset": 403.963
+        "maxAbsOffset": 51.992
       },
       "id": "grip-remains-on-road",
       "pass": true
@@ -59,8 +59,9 @@
     },
     {
       "evidence": {
-        "finalLineQuality": 0.604,
-        "maxAbsOffset": 213.967,
+        "bestLineQuality": 1,
+        "finalLineQuality": 0.953,
+        "maxAbsOffset": 272.066,
         "neutralLineQuality": 0
       },
       "id": "drift-can-hold-a-useful-line",
@@ -81,112 +82,112 @@
     "coordinateModel": "road-relative lateral offset",
     "cornerNeutralCentering": "disabled",
     "inertiaDirection": "outside of curve",
-    "inertiaSpatialSpeedLaw": "road-distance lateral debt scales with speed ratio squared",
-    "inertiaTimeSpeedLaw": "controller lateral velocity scales with speed ratio cubed",
-    "longitudinalScaleLaw": "target and build/recovery rates scale with world progression"
+    "inertiaSpatialSpeedLaw": "road-relative motion is world speed times sine of relative heading",
+    "inertiaTimeSpeedLaw": "neutral road-frame yaw accumulates without passive road follow",
+    "longitudinalScaleLaw": "world-line projection scales with world progression"
   },
   "pass": true,
   "scenarios": {
     "drift": {
-      "bestLineQuality": 0.911,
+      "bestLineQuality": 1,
       "enteredDrift": true,
-      "finalInertiaSpeed": -207.723,
-      "finalLineQuality": 0.604,
-      "finalOffset": 52.343,
-      "finalSteeringVelocity": 2.917,
+      "finalInertiaSpeed": -167.32,
+      "finalLineQuality": 0.953,
+      "finalOffset": 234.622,
+      "finalSteeringVelocity": 10.682,
       "finalUndersteerVelocity": 0,
       "finalState": "drift",
       "id": "corner-drift-185",
-      "maxAbsOffset": 213.967,
+      "maxAbsOffset": 272.066,
       "maxDriftRatio": 0.82,
-      "maxInertiaSpeed": 207.723,
-      "maxOffset": 213.967,
-      "minOffset": -62.099,
+      "maxInertiaSpeed": 167.32,
+      "maxOffset": 272.066,
+      "minOffset": -4.304,
       "speedKmh": 185
     },
     "grip": {
-      "bestLineQuality": 1,
+      "bestLineQuality": 0.6,
       "enteredDrift": false,
-      "finalInertiaSpeed": 139.998,
-      "finalLineQuality": 1,
-      "finalOffset": 403.963,
-      "finalSteeringVelocity": -47.781,
+      "finalInertiaSpeed": 3.322,
+      "finalLineQuality": 0.6,
+      "finalOffset": 51.992,
+      "finalSteeringVelocity": 0,
       "finalUndersteerVelocity": 0,
       "finalState": "grip",
       "id": "corner-grip-130",
-      "maxAbsOffset": 403.963,
+      "maxAbsOffset": 51.992,
       "maxDriftRatio": 0,
-      "maxInertiaSpeed": 139.998,
-      "maxOffset": 403.963,
-      "minOffset": 0.124,
+      "maxInertiaSpeed": 26.332,
+      "maxOffset": 51.992,
+      "minOffset": -2.753,
       "speedKmh": 130
     },
     "gripSpeedNoInput": {
       "bestLineQuality": 0.5,
       "enteredDrift": false,
-      "finalInertiaSpeed": -101.11,
-      "finalLineQuality": 0.185,
-      "finalOffset": -165.36,
+      "finalInertiaSpeed": -304.86,
+      "finalLineQuality": 0,
+      "finalOffset": -492.343,
       "finalSteeringVelocity": 0,
       "finalUndersteerVelocity": 0,
       "finalState": "grip",
       "id": "corner-no-input-130",
-      "maxAbsOffset": 165.36,
+      "maxAbsOffset": 492.343,
       "maxDriftRatio": 0,
-      "maxInertiaSpeed": 101.11,
-      "maxOffset": -0.011,
-      "minOffset": -165.36,
+      "maxInertiaSpeed": 304.86,
+      "maxOffset": -0.032,
+      "minOffset": -492.343,
       "speedKmh": 130
     },
     "highSpeedNoInput": {
       "bestLineQuality": 0.5,
       "enteredDrift": false,
-      "finalInertiaSpeed": -204.122,
+      "finalInertiaSpeed": -473.565,
       "finalLineQuality": 0,
-      "finalOffset": -416.066,
+      "finalOffset": -700,
       "finalSteeringVelocity": 0,
       "finalUndersteerVelocity": 0,
       "finalState": "grip",
       "id": "corner-no-input-185",
-      "maxAbsOffset": 416.066,
+      "maxAbsOffset": 700,
       "maxDriftRatio": 0,
-      "maxInertiaSpeed": 204.122,
-      "maxOffset": -0.037,
-      "minOffset": -416.066,
+      "maxInertiaSpeed": 473.565,
+      "maxOffset": -0.064,
+      "minOffset": -700,
       "speedKmh": 185
     },
     "highSpeedNoInputLeft": {
       "bestLineQuality": 0.5,
       "enteredDrift": false,
-      "finalInertiaSpeed": 204.122,
+      "finalInertiaSpeed": 473.565,
       "finalLineQuality": 0,
-      "finalOffset": 416.066,
+      "finalOffset": 700,
       "finalSteeringVelocity": 0,
       "finalUndersteerVelocity": 0,
       "finalState": "grip",
       "id": "corner-left-no-input-185",
-      "maxAbsOffset": 416.066,
+      "maxAbsOffset": 700,
       "maxDriftRatio": 0,
-      "maxInertiaSpeed": 204.122,
-      "maxOffset": 416.066,
-      "minOffset": 0.037,
+      "maxInertiaSpeed": 473.565,
+      "maxOffset": 700,
+      "minOffset": 0.064,
       "speedKmh": 185
     },
     "lowSpeedNoInput": {
       "bestLineQuality": 0.5,
       "enteredDrift": false,
-      "finalInertiaSpeed": -75.326,
-      "finalLineQuality": 0.269,
-      "finalOffset": -121.25,
+      "finalInertiaSpeed": -229.137,
+      "finalLineQuality": 0,
+      "finalOffset": -358.825,
       "finalSteeringVelocity": 0,
       "finalUndersteerVelocity": 0,
       "finalState": "grip",
       "id": "corner-no-input-110",
-      "maxAbsOffset": 121.25,
+      "maxAbsOffset": 358.825,
       "maxDriftRatio": 0,
-      "maxInertiaSpeed": 75.326,
-      "maxOffset": -0.008,
-      "minOffset": -121.25,
+      "maxInertiaSpeed": 229.137,
+      "maxOffset": -0.023,
+      "minOffset": -358.825,
       "speedKmh": 110
     },
     "straightNoInput": {
