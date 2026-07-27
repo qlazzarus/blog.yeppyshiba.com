@@ -293,6 +293,7 @@ export type PlayerVehicleInput = {
 
 export type PlayerVehicleUpdateContext = {
     currentCurve: number;
+    launchForceMultiplier?: number;
     longitudinalScale?: number;
     previewRoadCurve?: number;
     slopeAcceleration: number;
@@ -1345,6 +1346,7 @@ function updatePlayerSpeed(
         launchThrottleRatio *
         exitThrottleRatio *
         player.engineTorqueScale *
+        (context.launchForceMultiplier ?? 1) *
         (1 - speedRatio * 0.45);
     const brakeForce = brake * config.braking;
     const engineBrakeForce = throttle > 0 || brake > 0 ? 0 : config.engineBrakeDeceleration;
