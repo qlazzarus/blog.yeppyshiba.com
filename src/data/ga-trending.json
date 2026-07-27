@@ -1,16 +1,28 @@
 {
-  "generatedAt": "2026-07-20T06:14:17.421Z",
+  "generatedAt": "2026-07-27T06:26:09.893Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-roadside-collision-powerband",
-      "views": 46,
+      "path": "/article/phaser4-apex-seoul-headlight-dual-emitter",
+      "views": 17,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/phaser4-apex-seoul-handling-log-tuning",
-      "views": 3,
-      "avgSec": 190.77,
+      "path": "/article/phaser4-apex-seoul-steering-required-corner-physics",
+      "views": 4,
+      "avgSec": 168.78,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/20260606-evening-ride",
+      "views": 1,
+      "avgSec": 69.64,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/ansan-sonaro-coffee-bakery-review",
+      "views": 1,
+      "avgSec": 812.5,
       "reason": "amplify"
     }
   ]

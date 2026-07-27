@@ -1,61 +1,46 @@
 {
-  "topPost": "/article/phaser4-apex-seoul-roadside-collision-powerband",
-  "topPostViews": 46,
+  "topPost": "/article/phaser4-apex-seoul-headlight-dual-emitter",
+  "topPostViews": 17,
   "relatedSuggestions": [
-    "/phaser4-apex-seoul-roadside-collision-powerband/",
+    "/phaser4-apex-seoul-headlight-dual-emitter/",
     "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
+    "/phaser4-apex-seoul-corner-flow-longitudinal-scale/",
     "/phaser4-apex-seoul-downhill-elevation-rendering/",
     "/phaser4-apex-seoul-downhill-grip-cost/",
-    "/phaser4-apex-seoul-downhill-rpm-fuelcut/",
-    "/phaser4-apex-seoul-drift-state-telemetry/"
+    "/phaser4-apex-seoul-downhill-rpm-fuelcut/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/phaser4-apex-seoul-handling-log-tuning",
-      "views": 3,
-      "avgSec": 190.77
+      "path": "/article/phaser4-apex-seoul-steering-required-corner-physics",
+      "views": 4,
+      "avgSec": 168.78
+    },
+    {
+      "path": "/article/20260606-evening-ride",
+      "views": 1,
+      "avgSec": 69.64
+    },
+    {
+      "path": "/article/ansan-sonaro-coffee-bakery-review",
+      "views": 1,
+      "avgSec": 812.5
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/phaser4-apex-seoul-drift-state-telemetry",
-      "views": 11,
-      "avgSec": 6.65
-    },
-    {
-      "path": "/article/20260510-morning-ride",
-      "views": 2,
-      "avgSec": 9.46
-    },
-    {
-      "path": "/article/apptech-income-june-2026",
-      "views": 2,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/20260525-dahon-dash-d16-evening-ride",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser3-to-4-ecs-code-conversion",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-downhill-grip-cost",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-downhill-grip-cost",
+      "path": "/article/migration-to-nextjs",
       "views": 1,
       "avgSec": 0
     },
     {
       "path": "/article/phaser4-apex-seoul-downhill-rpm-fuelcut",
       "views": 1,
-      "avgSec": 0.09
+      "avgSec": 0.04
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-headlight-dual-emitter",
+      "views": 1,
+      "avgSec": 0
     },
     {
       "path": "/article/phaser4-apex-seoul-night-forest-headlights-ft86",
@@ -63,19 +48,9 @@
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-roadside-collision-powerband",
+      "path": "/article/thinking-math-inequality",
       "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-migration-checklist",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/suwon-pino-bakery",
-      "views": 1,
-      "avgSec": 0
+      "avgSec": 4.26
     }
   ]
 }
