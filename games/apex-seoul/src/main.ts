@@ -335,6 +335,11 @@ type PlayerVehicleVisualSteeringState = {
     value: number;
 };
 
+// The strong drift sprite already supplies most of the pose yaw. Retaining a
+// small dynamic body roll keeps road-flow readable across the frame switch
+// without visually double-rotating the car.
+const DRIFT_BODY_ROLL_SCALE = 0.34;
+
 type PlayerVehiclePoseRenderState = {
     flipX: boolean;
     frameId: string;
@@ -435,6 +440,7 @@ class ApexSeoulScene extends Phaser.Scene {
         base: 0,
         downhill: 0,
         driftExitBurst: 0,
+        driftFlow: 0,
         throttleBurst: 0,
     };
     private speedCueState = createSpeedCueState();
@@ -1579,7 +1585,7 @@ class ApexSeoulScene extends Phaser.Scene {
             lowSpeedVisualSteeringAuthority,
             physicalValue,
             poseAuthority: 1,
-            rotationValue: 0,
+            rotationValue: driftPoseValue * DRIFT_BODY_ROLL_SCALE,
             threshold,
             understeerCueIntensity: 0,
             value: driftPoseValue,
@@ -1591,6 +1597,7 @@ class ApexSeoulScene extends Phaser.Scene {
         const cue = updateSpeedCue(this.speedCueState, {
             accelPressed: this.getDriveCommand().accelPressed,
             downhillRatio: Math.max(0, this.getSlopeRatio()),
+            driftRatio: this.playerVehicle.driftRatio,
             driftState: this.playerVehicle.driftState,
             seconds,
             speedKmh: this.getPlayerSpeedKmh(),
@@ -1621,7 +1628,9 @@ class ApexSeoulScene extends Phaser.Scene {
 
         return {
             downhillIntensity: this.speedEffectCue.downhill,
-            eventIntensity: this.speedEffectCue.throttleBurst + this.speedEffectCue.driftExitBurst,
+            eventIntensity: this.speedEffectCue.throttleBurst +
+                this.speedEffectCue.driftExitBurst +
+                this.speedEffectCue.driftFlow,
             horizonY: getHorizonY(this.cameraResource, viewport),
             intensity: this.speedEffectIntensity,
             time: this.speedEffectTime,
@@ -2208,9 +2217,12 @@ class ApexSeoulScene extends Phaser.Scene {
                 base: this.speedEffectCue.base,
                 downhill: this.speedEffectCue.downhill,
                 driftExitBurst: this.speedEffectCue.driftExitBurst,
+                driftFlow: this.speedEffectCue.driftFlow,
                 expectedPeakAlpha: getSpeedEffectExpectedPeakAlpha({
                     downhillIntensity: this.speedEffectCue.downhill,
-                    eventIntensity: this.speedEffectCue.throttleBurst + this.speedEffectCue.driftExitBurst,
+                    eventIntensity: this.speedEffectCue.throttleBurst +
+                        this.speedEffectCue.driftExitBurst +
+                        this.speedEffectCue.driftFlow,
                     intensity: this.speedEffectIntensity,
                 }),
                 intensity: this.speedEffectIntensity,

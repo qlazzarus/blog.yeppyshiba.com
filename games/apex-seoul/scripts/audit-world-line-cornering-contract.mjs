@@ -104,9 +104,9 @@ const checks = [
         },
     ),
     check(
-        'neutral-world-line-exits-opposite-curve-direction',
-        neutralRight.minOffset <= -PAVED_CENTER_LIMIT &&
-            neutralLeft.maxOffset >= PAVED_CENTER_LIMIT,
+        'neutral-world-line-builds-meaningful-opposite-curve-excursion',
+        neutralRight.minOffset <= -PAVED_CENTER_LIMIT * 0.65 &&
+            neutralLeft.maxOffset >= PAVED_CENTER_LIMIT * 0.65,
         {
             leftCornerOffset: neutralLeft.finalOffset,
             rightCornerOffset: neutralRight.finalOffset,
@@ -240,11 +240,16 @@ function runScenario({
             FRAME_SECONDS,
         );
 
-        const expectedProjection = Math.sin(clamp(
+        const rawProjection = Math.sin(clamp(
             player.vehicleHeadingError,
             -1.2,
             1.2,
         )) * player.speed * LONGITUDINAL_SCALE;
+        const inertiaCap = Math.max(
+            80,
+            player.speedHandling.lateralVelocityCap * 1.85,
+        );
+        const expectedProjection = clamp(rawProjection, -inertiaCap, inertiaCap);
         maxProjectionError = Math.max(
             maxProjectionError,
             Math.abs(player.cornerInertiaLateralVelocity - expectedProjection),

@@ -241,7 +241,7 @@ export function getLaunchBurnoutPresentation(input: {
             alpha: dustAlpha * lerp(0.75, 1, index / (offsets.length - 1)),
             radius: dustRadius * lerp(0.72, 1.12, index / (offsets.length - 1)),
             x: centerX + offset * input.displaySize * lerp(0.35, 0.9, elapsedRatio),
-            y: y + dustDistance + Math.sin(elapsedRatio * 5.5 + index * 1.7) * input.displaySize * 0.008,
+            y: y - dustDistance + Math.sin(elapsedRatio * 5.5 + index * 1.7) * input.displaySize * 0.008,
         })),
         flash: elapsedRatio < 0.2 ? {
             alpha: clamp(1 - elapsedRatio * 5, 0, 1) * 0.22,

@@ -1,0 +1,27 @@
+---
+const target = '/article/jeju-tour-review-%EB%B3%84%EB%8F%84%EB%B4%89/';
+const canonical = new URL(target, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang='ko'>
+    <head>
+        <meta charset='utf-8' />
+        <meta name='robots' content='noindex,follow' />
+        <meta http-equiv='refresh' content={`0; url=${target}`} />
+        <link rel='canonical' href={canonical} />
+        <title>Redirecting...</title>
+    </head>
+    <body>
+        <main>
+            <h1>Redirecting...</h1>
+            <p>
+                This article has moved.
+                <a href={target}>Continue to the current article</a>.
+            </p>
+        </main>
+        <script define:vars={{ target }}>
+            window.location.replace(target);
+        </script>
+    </body>
+</html>

@@ -5,17 +5,17 @@
         {
           "finalOutwardHeading": 0.5745,
           "fixture": "runtime-progress-008",
-          "outwardOffsetDelta": 526.2
+          "outwardOffsetDelta": 440.4844
         },
         {
           "finalOutwardHeading": 0.7886,
           "fixture": "runtime-progress-020",
-          "outwardOffsetDelta": 584.6
+          "outwardOffsetDelta": 370.0059
         },
         {
-          "finalOutwardHeading": 0.7652,
+          "finalOutwardHeading": 0.7653,
           "fixture": "runtime-progress-030",
-          "outwardOffsetDelta": 750.3
+          "outwardOffsetDelta": 274.5508
         }
       ],
       "id": "neutral-forks-keep-moving-outward",
@@ -43,7 +43,7 @@
       "evidence": [
         {
           "fixture": "runtime-progress-008",
-          "maxOppositeInertia": 19.9252
+          "maxOppositeInertia": 19.8595
         },
         {
           "fixture": "runtime-progress-020",
@@ -76,12 +76,12 @@
           "neutralFinalAbsHeading": 0.7886
         },
         {
-          "finalAbsHeading": 0.5909,
+          "finalAbsHeading": 0.5823,
           "fixture": "runtime-progress-030",
           "initialAbsHeading": 0.312,
           "maxOppositeHeading": 0,
           "maxOppositeInertia": 0,
-          "neutralFinalAbsHeading": 0.7652
+          "neutralFinalAbsHeading": 0.7653
         }
       ],
       "id": "short-correction-reduces-debt-without-opposite-launch",
@@ -115,7 +115,7 @@
         "initialHeading": 0.55,
         "lateralOffset": 600,
         "railCenterLimit": 800,
-        "vehicleHeadingError": 0.121
+        "vehicleHeadingError": 0.198
       },
       "id": "front-corner-can-hit-before-center-reaches-side-rail",
       "pass": true
@@ -168,9 +168,9 @@
     "initialHeading": 0.55,
     "lateralOffset": 600,
     "railCenterLimit": 800,
-    "vehicleHeadingError": 0.121
+    "vehicleHeadingError": 0.198
   },
-  "generatedAt": "2026-07-24T05:25:35.205Z",
+  "generatedAt": "2026-07-28T01:21:43.802Z",
   "pass": true,
   "purpose": "HR-3G corner-exit debt cancellation and front swept rail contact contract",
   "replays": [
@@ -178,41 +178,41 @@
       "correction": {
         "finalAbsHeading": 0.0088,
         "finalHeading": 0.0088,
-        "finalInertia": 8.5535,
-        "finalOffset": -449.7795,
+        "finalInertia": 8.5538,
+        "finalOffset": -367.5536,
         "finalOutwardHeading": -0.0088,
         "initialAbsHeading": 0.34,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0.0205,
-        "maxOppositeInertia": 19.9252,
-        "outwardOffsetDelta": 175.9795,
+        "maxOppositeInertia": 19.8595,
+        "outwardOffsetDelta": 93.7536,
         "steerDuration": 0.9
       },
       "fixture": "runtime-progress-008",
       "neutral": {
         "finalAbsHeading": 0.5745,
         "finalHeading": -0.5745,
-        "finalInertia": -528.9345,
-        "finalOffset": -800,
+        "finalInertia": -314.6317,
+        "finalOffset": -714.2844,
         "finalOutwardHeading": 0.5745,
         "initialAbsHeading": 0.34,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 526.2,
+        "outwardOffsetDelta": 440.4844,
         "steerDuration": 0
       },
       "shortCorrection": {
         "finalAbsHeading": 0.2829,
         "finalHeading": -0.2829,
-        "finalInertia": -271.6624,
-        "finalOffset": -641.2673,
+        "finalInertia": -271.662,
+        "finalOffset": -589.7676,
         "finalOutwardHeading": 0.2829,
         "initialAbsHeading": 0.34,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 367.4673,
+        "outwardOffsetDelta": 315.9676,
         "steerDuration": 0.45
       }
     },
@@ -220,83 +220,83 @@
       "correction": {
         "finalAbsHeading": 0.3092,
         "finalHeading": 0.3092,
-        "finalInertia": 349.5914,
-        "finalOffset": 800,
+        "finalInertia": 231.246,
+        "finalOffset": 555.1677,
         "finalOutwardHeading": 0.3092,
         "initialAbsHeading": 0.375,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 584.6,
+        "outwardOffsetDelta": 339.7677,
         "steerDuration": 1.1
       },
       "fixture": "runtime-progress-020",
       "neutral": {
         "finalAbsHeading": 0.7886,
         "finalHeading": 0.7886,
-        "finalInertia": 814.9867,
-        "finalOffset": 800,
+        "finalInertia": 231.246,
+        "finalOffset": 585.4059,
         "finalOutwardHeading": 0.7886,
         "initialAbsHeading": 0.375,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 584.6,
+        "outwardOffsetDelta": 370.0059,
         "steerDuration": 0
       },
       "shortCorrection": {
         "finalAbsHeading": 0.7004,
         "finalHeading": 0.7004,
-        "finalInertia": 740.4718,
-        "finalOffset": 800,
+        "finalInertia": 231.246,
+        "finalOffset": 574.0145,
         "finalOutwardHeading": 0.7004,
         "initialAbsHeading": 0.375,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 584.6,
+        "outwardOffsetDelta": 358.6145,
         "steerDuration": 0.45
       }
     },
     {
       "correction": {
-        "finalAbsHeading": 0.2724,
-        "finalHeading": -0.2724,
-        "finalInertia": -327.2251,
-        "finalOffset": -632.7457,
-        "finalOutwardHeading": 0.2724,
+        "finalAbsHeading": 0.2568,
+        "finalHeading": -0.2568,
+        "finalInertia": -183.0095,
+        "finalOffset": -301.3976,
+        "finalOutwardHeading": 0.2568,
         "initialAbsHeading": 0.312,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 583.0457,
+        "outwardOffsetDelta": 251.6976,
         "steerDuration": 1
       },
       "fixture": "runtime-progress-030",
       "neutral": {
-        "finalAbsHeading": 0.7652,
-        "finalHeading": -0.7652,
-        "finalInertia": -842.5398,
-        "finalOffset": -800,
-        "finalOutwardHeading": 0.7652,
+        "finalAbsHeading": 0.7653,
+        "finalHeading": -0.7653,
+        "finalInertia": -183.0095,
+        "finalOffset": -324.2508,
+        "finalOutwardHeading": 0.7653,
         "initialAbsHeading": 0.312,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 750.3,
+        "outwardOffsetDelta": 274.5508,
         "steerDuration": 0
       },
       "shortCorrection": {
-        "finalAbsHeading": 0.5909,
-        "finalHeading": -0.5909,
-        "finalInertia": -677.5972,
-        "finalOffset": -800,
-        "finalOutwardHeading": 0.5909,
+        "finalAbsHeading": 0.5823,
+        "finalHeading": -0.5823,
+        "finalInertia": -183.0095,
+        "finalOffset": -314.6449,
+        "finalOutwardHeading": 0.5823,
         "initialAbsHeading": 0.312,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 750.3,
+        "outwardOffsetDelta": 264.9449,
         "steerDuration": 0.45
       }
     }

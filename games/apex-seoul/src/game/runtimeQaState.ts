@@ -138,6 +138,7 @@ export function serializeRuntimeQaSpeedEffect(input: {
     base: number;
     downhill: number;
     driftExitBurst: number;
+    driftFlow: number;
     expectedPeakAlpha: number;
     intensity: number;
     throttleBurst: number;
@@ -147,6 +148,7 @@ export function serializeRuntimeQaSpeedEffect(input: {
         base: roundRuntimeQaValue(input.base, 4),
         downhill: roundRuntimeQaValue(input.downhill, 4),
         driftExitBurst: roundRuntimeQaValue(input.driftExitBurst, 4),
+        driftFlow: roundRuntimeQaValue(input.driftFlow, 4),
         expectedPeakAlpha: roundRuntimeQaValue(input.expectedPeakAlpha, 4),
         intensity: roundRuntimeQaValue(input.intensity, 4),
         throttleBurst: roundRuntimeQaValue(input.throttleBurst, 4),

@@ -15,6 +15,9 @@ const site = 'https://blog.yeppyshiba.com';
 const legacyTagRedirectUrls = new Set(
     legacyTagRedirects.map((redirect) => new URL(redirect.from, site).toString()),
 );
+const legacyArticleRedirectPaths = new Set([
+    '/article/jeju-tour-review-byeoldobong/',
+]);
 const articleLastmodByPath = await getArticleLastmodByPath();
 const indexableTagUrls = await getIndexableTagUrls();
 
@@ -224,6 +227,7 @@ export default defineConfig({
 
                 return (
                     !legacyTagRedirectUrls.has(page) &&
+                    !legacyArticleRedirectPaths.has(pathname) &&
                     pathname !== '/tag/' &&
                     !pathname.startsWith('/page/') &&
                     !/^\/category\/[^/]+\/\d+\/$/u.test(pathname) &&

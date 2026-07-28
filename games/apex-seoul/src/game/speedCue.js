@@ -11,6 +11,9 @@ export const SPEED_CUE_CONFIG = {
         { intensityRatio: 1, speedKmh: 225 },
     ],
     downhillMaxIntensity: 0.16,
+    driftFlowMaxIntensity: 0.18,
+    driftFlowMinSpeedKmh: 90,
+    driftFlowFullSpeedKmh: 150,
     driftExitBurstDuration: 0.34,
     driftExitBurstMaxIntensity: 0.26,
     driftExitReapplyWindow: 0.28,
@@ -53,6 +56,17 @@ export function updateSpeedCue(state, input) {
 
     const base = smoothSpeedCue * SPEED_CUE_CONFIG.baseMaxIntensity;
     const downhill = smoothSpeedCue * clamp(input.downhillRatio, 0, 1) * SPEED_CUE_CONFIG.downhillMaxIntensity;
+    // A sliding car still needs a readable near-road flow at the moment its
+    // strong pose replaces the neutral sprite. This is a presentation floor,
+    // not extra speed or a drift-exit burst, and fades with actual km/h.
+    const driftFlow = input.driftState === 'grip'
+        ? 0
+        : smoothStep(clamp(
+            (input.speedKmh - SPEED_CUE_CONFIG.driftFlowMinSpeedKmh) /
+                (SPEED_CUE_CONFIG.driftFlowFullSpeedKmh - SPEED_CUE_CONFIG.driftFlowMinSpeedKmh),
+            0,
+            1,
+        )) * SPEED_CUE_CONFIG.driftFlowMaxIntensity;
     const throttleBurst = smoothSpeedCue
         * clamp(state.throttleBurstTimer / SPEED_CUE_CONFIG.throttleBurstDuration, 0, 1)
         * SPEED_CUE_CONFIG.throttleBurstMaxIntensity;
@@ -67,7 +81,8 @@ export function updateSpeedCue(state, input) {
         base,
         downhill,
         driftExitBurst,
-        intensity: clamp(base + downhill + throttleBurst + driftExitBurst, 0, 1),
+        driftFlow,
+        intensity: clamp(base + downhill + driftFlow + throttleBurst + driftExitBurst, 0, 1),
         throttleBurst,
     };
 }

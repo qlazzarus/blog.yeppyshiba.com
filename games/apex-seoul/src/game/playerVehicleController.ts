@@ -31,6 +31,20 @@ const GRIP_HEADING_COMMIT_DURATION = 0.32;
 const GRIP_HEADING_INSIDE_ALLOWANCE = 0.06;
 const DRIFT_HEADING_INSIDE_ALLOWANCE = 0.18;
 const CORNER_HEADING_LIMIT_MIN_CURVE = 0.08;
+// Heading debt is projected into road-relative movement. Keep its high-speed
+// ceiling coupled to the same handling band that limits available steering;
+// otherwise a reduced steering command can still create an uncapped lateral
+// launch when the driver starts a counter correction.
+const CORNER_INERTIA_LATERAL_CAP_SCALE = 1.85;
+const CORNER_INERTIA_MIN_LATERAL_CAP = 80;
+// Grip needs a small tire-response channel in addition to its world-heading
+// trajectory. Keep this deliberately below drift authority: it makes turn-in
+// readable immediately, while heading debt remains the cost of late input.
+const GRIP_DIRECT_STEER_FORCE_SCALE = 0.30;
+// During an active grip input, direct tire response now supplies part of the
+// turn-in. Fade down only that input-coupled share of heading projection so
+// the two channels do not feel like a doubled lateral impulse.
+const GRIP_INPUT_HEADING_INERTIA_MIN_SCALE = 0.72;
 const GRIP_TIRE_LOSS_BRAKE_RATIO = 0.2;
 const DRIFT_TIRE_LOSS_BRAKE_RATIO = 0.32;
 
@@ -586,12 +600,27 @@ export function updatePlayerVehicle(
     }
     // Road-relative movement is the geometric projection of world travel.
     // It is not a second curve force layered on top of heading.
+    const gripInputInertiaScale = player.driftState === 'grip'
+        ? lerp(
+            1,
+            GRIP_INPUT_HEADING_INERTIA_MIN_SCALE,
+            smoothstep(clamp(Math.abs(gripSteerAxis), 0, 1)),
+        )
+        : 1;
     const cornerInertiaTarget = Math.sin(clamp(
         player.vehicleHeadingError,
         -1.2,
         1.2,
-    )) * player.speed * longitudinalScale;
-    player.cornerInertiaLateralVelocity = cornerInertiaTarget;
+    )) * player.speed * longitudinalScale * gripInputInertiaScale;
+    const cornerInertiaLateralCap = Math.max(
+        CORNER_INERTIA_MIN_LATERAL_CAP,
+        speedHandling.lateralVelocityCap * CORNER_INERTIA_LATERAL_CAP_SCALE,
+    );
+    player.cornerInertiaLateralVelocity = clamp(
+        cornerInertiaTarget,
+        -cornerInertiaLateralCap,
+        cornerInertiaLateralCap,
+    );
     const gripCounterRoadActive = player.driftState === 'grip' &&
         roadSteerDirection !== 0 &&
         inputSteerDirection !== 0 &&
@@ -663,13 +692,18 @@ export function updatePlayerVehicle(
     // position as a hidden command to drive the car back to road center.
     const centeringForce = 0;
     player.centeringForce = centeringForce;
-    const steeringForce = player.driftState === 'grip'
-        ? 0
-        : gripSteerAxis *
-            config.steerAcceleration *
-            speedHandling.steeringForceScale *
-            counterSteerScale *
-            lowSpeedLateralAuthority;
+    const steeringForceScale = player.driftState === 'grip'
+        ? GRIP_DIRECT_STEER_FORCE_SCALE
+        : 1;
+    // Stage 1: restore a modest direct tire response during grip. This is an
+    // input-only lateral force, never a curve-follow term, so neutral travel
+    // still accumulates heading debt and drifts keep their separate authority.
+    const steeringForce = gripSteerAxis *
+        config.steerAcceleration *
+        speedHandling.steeringForceScale *
+        counterSteerScale *
+        lowSpeedLateralAuthority *
+        steeringForceScale;
     const dampingForce = -player.steeringVelocity * config.steerDamping * (1 - player.driftRatio * 0.2);
 
     player.steeringVelocity += (
@@ -1454,10 +1488,15 @@ function updatePlayerSpeed(
         ? GRIP_TIRE_LOSS_BRAKE_RATIO
         : DRIFT_TIRE_LOSS_BRAKE_RATIO;
     const tireLossBudget = config.braking * tireLossBrakeRatio;
+    // A hard brake-budget clamp made the transition into severe overspeed read
+    // as an on/off handling state. tanh keeps the same asymptotic budget while
+    // making the approach continuous through the threshold.
+    const totalCornerSpeedLossForce = tireLossBudget > 0
+        ? tireLossBudget * Math.tanh(rawTotalCornerSpeedLossForce / tireLossBudget)
+        : 0;
     const tireLossScale = rawTotalCornerSpeedLossForce > 0
-        ? Math.min(1, tireLossBudget / rawTotalCornerSpeedLossForce)
+        ? totalCornerSpeedLossForce / rawTotalCornerSpeedLossForce
         : 1;
-    const totalCornerSpeedLossForce = rawTotalCornerSpeedLossForce * tireLossScale;
     player.cornerSpeedLoss = {
         counterRoadScrubForce: gripCounterRoadScrubForce * tireLossScale,
         downhillScrubForce: downhillCornerOverspeedScrubForce * tireLossScale,

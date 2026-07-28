@@ -26,6 +26,7 @@
         "qa:handling-sim": "node scripts/simulate-handling-matrix.mjs",
         "qa:hr3-handling-matrix": "node scripts/audit-hr3-handling-matrix.mjs",
         "qa:grip-trajectory": "node scripts/audit-grip-trajectory-coherence.mjs",
+        "qa:grip-turn-in": "node scripts/audit-grip-turn-in-response.mjs",
         "qa:world-line-cornering": "node scripts/audit-world-line-cornering-contract.mjs",
         "qa:neutral-production-corners": "node scripts/audit-neutral-production-corners.mjs",
         "qa:corner-exit-recovery": "node scripts/audit-corner-exit-recovery-contract.mjs",

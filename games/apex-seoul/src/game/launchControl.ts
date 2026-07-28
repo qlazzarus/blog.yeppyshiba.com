@@ -8,10 +8,13 @@ export type LaunchControlConfig = {
     forceDurationSec: number;
     forceMaxSpeedKmh: number;
     hookedForceBonus: number;
+    hookedTractionReleaseSec: number;
     hookedRpm: readonly [number, number];
     idleRpm: number;
     limiterRpm: number;
+    limiterRecoveryRpm: number;
     overrevForceBonus: number;
+    overrevTractionReleaseSec: number;
     overrevRpm: number;
     revReleaseResponse: number;
     revResponse: number;
@@ -22,6 +25,7 @@ export type LaunchControlState = {
     clutchEngagement: number;
     elapsedSec: number;
     forceRatio: number;
+    preLaunchFuelCutActive: boolean;
     phase: 'active' | 'complete' | 'idle' | 'revving';
     quality: LaunchQuality;
     startRpm: number | null;
@@ -33,6 +37,7 @@ export function createLaunchControlState(): LaunchControlState {
         clutchEngagement: 1,
         elapsedSec: 0,
         forceRatio: 0,
+        preLaunchFuelCutActive: false,
         phase: 'idle',
         quality: 'none',
         startRpm: null,
@@ -49,9 +54,17 @@ export function updatePreLaunchRev(
 
     state.phase = accelPressed ? 'revving' : 'idle';
     state.clutchEngagement = 0;
-    const targetRpm = accelPressed ? config.limiterRpm : config.idleRpm;
-    const response = accelPressed ? config.revResponse : config.revReleaseResponse;
     const previousRpm = state.startRpm ?? config.idleRpm;
+    if (!accelPressed) state.preLaunchFuelCutActive = false;
+    if (accelPressed && previousRpm >= config.limiterRpm - 8) {
+        state.preLaunchFuelCutActive = true;
+    } else if (state.preLaunchFuelCutActive && previousRpm <= config.limiterRecoveryRpm + 8) {
+        state.preLaunchFuelCutActive = false;
+    }
+    const targetRpm = accelPressed
+        ? state.preLaunchFuelCutActive ? config.limiterRecoveryRpm : config.limiterRpm
+        : config.idleRpm;
+    const response = accelPressed ? config.revResponse : config.revReleaseResponse;
     const blend = 1 - Math.exp(-response * seconds);
     const rpm = previousRpm + (targetRpm - previousRpm) * blend;
 
@@ -74,6 +87,7 @@ export function beginLaunch(
             ? config.burnoutDurationSec.overrev
             : 0;
     state.clutchEngagement = 0;
+    state.preLaunchFuelCutActive = false;
     state.elapsedSec = 0;
     state.forceRatio = quality === 'hooked'
         ? config.hookedForceBonus
@@ -96,7 +110,10 @@ export function updateLaunchControl(
 
     state.elapsedSec += seconds;
     state.burnoutRemainingSec = Math.max(0, state.burnoutRemainingSec - seconds);
-    state.clutchEngagement = Math.min(1, state.elapsedSec / 0.16);
+    const tractionReleaseSec = state.quality === 'hooked'
+        ? config.hookedTractionReleaseSec
+        : config.overrevTractionReleaseSec;
+    state.clutchEngagement = Math.min(1, state.elapsedSec / tractionReleaseSec);
 
     const durationRatio = 1 - clamp(state.elapsedSec / config.forceDurationSec, 0, 1);
     const speedRatio = 1 - clamp(speedKmh / config.forceMaxSpeedKmh, 0, 1);
@@ -107,7 +124,9 @@ export function updateLaunchControl(
         state.phase = 'complete';
     }
 
-    return 1 + forceRatio;
+    // The rear tires spin briefly before fully biting. This is a force gate,
+    // not direct speed injection, so the controller still owns acceleration.
+    return state.clutchEngagement * (1 + forceRatio);
 }
 
 function getLaunchQuality(rpm: number, config: LaunchControlConfig): LaunchQuality {

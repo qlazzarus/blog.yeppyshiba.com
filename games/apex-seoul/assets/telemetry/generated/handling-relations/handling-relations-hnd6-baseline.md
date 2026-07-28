@@ -1,6 +1,6 @@
 # Apex Seoul HND-6 Handling Relationship QA
 
-Generated: 2026-07-24T05:03:47.122Z
+Generated: 2026-07-27T08:47:01.851Z
 
 Automated relationship status: **PASS**
 
@@ -20,7 +20,7 @@ Manual driving approval: **deferred-by-user**
 | control.drivetrainIdentityStable | yes | gear ratios/final drive/tire circumference unchanged from HND-1 | {"finalDrive":4.1,"gearRatios":[3.626,2.188,1.541,1.213,1,0.767],"tireCircumferenceM":1.964} |
 | relation.gripAccidentalDriftNearZero | yes | <= 0.01 across synthetic and fixed Bugak grip scenarios | 0 |
 | relation.hr3hDirectOverspeedTranslationRemoved | yes | 0 | 0 |
-| relation.hr3hAutomaticTireLossBudget | yes | <= 20% of full brake force (66) | 35.023 |
+| relation.hr3hAutomaticTireLossBudget | yes | <= 20% of full brake force (66) | 31.811 |
 
 ## Prepared versus full-throttle
 
@@ -28,10 +28,10 @@ Manual driving approval: **deferred-by-user**
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | level | easy | 0.295 | 0 | 0.295 | 1 | 1 | 0 |
 | level | medium | 0.558 | 0.428 | 0.13 | 0.973 | 0.999 | 0.026 |
-| level | sharp | 0.932 | 0.932 | 0 | 0.248 | 0.463 | 0.215 |
+| level | sharp | 0.932 | 0.932 | 0 | 0.57 | 0.565 | -0.005 |
 | downhill | easy | 0.295 | 0.279 | 0.016 | 1 | 1 | 0 |
 | downhill | medium | 0.558 | 0.558 | 0 | 0.973 | 0.976 | 0.003 |
-| downhill | sharp | 0.932 | 0.932 | 0 | 0.199 | 0.242 | 0.043 |
+| downhill | sharp | 0.932 | 0.932 | 0 | 0.57 | 0.582 | 0.012 |
 
 Line retention is `1 - outward excursion / available road width`. Higher is better.
 
@@ -39,8 +39,8 @@ Line retention is `1 - outward excursion / available road width`. Higher is bett
 
 | slope | easy | medium | sharp |
 | --- | ---: | ---: | ---: |
-| level | 0.733% | 0.662% | 11.358% |
-| downhill | 0% | 0% | 0.244% |
+| level | 0.733% | 0.661% | 10.323% |
+| downhill | 0% | 0% | 0.132% |
 
 ## Fixed Bugak segment relationships
 
@@ -48,7 +48,7 @@ Line retention is `1 - outward excursion / available road width`. Higher is bett
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | easy | 0.295 | 0 | 0.295 | 1 | 1 | 0 |
 | medium | 0.558 | 0.526 | 0.032 | 0.888 | 0.942 | 0.054 |
-| sharp | 0.932 | 0.932 | 0 | 0.288 | 0.467 | 0.179 |
+| sharp | 0.932 | 0.932 | 0 | 0.581 | 0.608 | 0.027 |
 
 ## Deferred manual approval
 

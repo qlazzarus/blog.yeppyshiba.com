@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-27
 
-상태: LCH-1~LCH-4 구현 완료. P1 time attack loop의 countdown 후속으로만 구현한다. 오디오 작업은 범위에서 제외한다.
+상태: LCH-1~LCH-4 구현 완료. 후속 traction-release tuning을 적용했다. P1 time attack loop의 countdown 후속으로만 구현한다. 오디오 작업은 범위에서 제외한다.
 
 ## 문서 목적
 
@@ -72,7 +72,7 @@ type LaunchState = {
 ### pre-launch rev
 
 1. 첫 기어를 유지하고 camera/vehicle speed는 0으로 잠근다.
-2. Up 입력이 있으면 RPM target을 launch limiter까지 올린다.
+2. Up 입력이 있으면 RPM target을 launch limiter까지 올리고, limiter 도달 뒤에는 fuel cut band 안에서 반복한다.
 3. Up을 놓으면 idle RPM으로 감쇠한다.
 4. countdown 중에는 fuel-cut, 자동 변속, boost 및 run timer를 실행하지 않는다.
 
@@ -84,7 +84,7 @@ type LaunchState = {
 | hooked | `5,800–6,600` | 짧은 burnout과 launch force |
 | overrev | `> 6,800` | 더 긴 burnout, 접지 손실로 force 보정 없음 또는 감소 |
 
-키보드 기본 limiter는 `6,400rpm`으로 둔다. 따라서 Up을 유지한 접근 가능한 출발은 hooked 영역에 들어가며, 이후 아날로그 입력/수동 clutch가 생겼을 때만 overrev risk를 확장한다.
+키보드 기본 limiter는 `6,400rpm`, fuel-cut recovery는 `5,800rpm`으로 둔다. 따라서 Up을 유지하면 고정 RPM 대신 해당 band를 반복하며 hooked 영역에 머문다. 실제 idle까지 떨어뜨리지는 않아 GO 판정과 키보드 반응을 안정적으로 유지한다.
 
 ### GO 판정과 힘
 
@@ -117,10 +117,18 @@ rear tire contact
 | 층 | 구현 | 제한 |
 | --- | --- | --- |
 | twin skid | 두 rear tire X 좌표에서 아래쪽으로 짧은 선을 그리고 alpha를 빠르게 감쇠한다. | road 방향으로만, 횡방향 skew 없음 |
-| dust puff | 매 프레임 새 emitter를 만들지 않는다. fixed-size burst state 4~6개를 재사용하고, radius/alpha/offset만 갱신한다. | 차량 높이의 35%를 넘지 않고 0.35초 안에 소멸 |
+| dust puff | 매 프레임 새 emitter를 만들지 않는다. fixed-size burst state 4~6개를 재사용하고, rear contact에서 위로 피어오르게 radius/alpha/offset만 갱신한다. | 차량 높이의 35%를 넘지 않고 0.35초 안에 소멸 |
 | launch accent | 기존 speed effect의 event channel에 작은 launch burst를 추가한다. | FOV, 상시 shake, full-screen white flash는 사용하지 않음 |
 
 모든 cue는 `PlayerTireCue` depth에서 player sprite 뒤에 렌더한다. road object depth, headlight와 독립이고 HUD 아래에 남는다.
+
+### 후속 — 짧은 traction release
+
+hooked launch는 GO 직후 바로 최대 force를 전달하지 않는다. `0.14초` 동안 clutch engagement가 `0 → 1`로 올라가며, rear tire cue가 먼저 읽힌 뒤 접지가 붙는다. overrev는 `0.18초`으로 더 길고, 기존의 더 낮은 force bonus를 유지한다. cold는 active launch state에 들어가지 않아 즉시 출발한다.
+
+- force는 `clutchEngagement × (1 + launchForceBonus)`로만 전달하며 speed/camera 위치를 직접 바꾸지 않는다.
+- `qa:launch-control`은 hooked 첫 frame multiplier가 `0 < x < 1`, bite 이후 `x > 1`인 것을 확인한다.
+- standing-start regression은 Raven 0–60 `4.05초`, 0–100 `8.10초`으로 기존 gate 안에 남았다.
 
 ### 후보 비교
 
