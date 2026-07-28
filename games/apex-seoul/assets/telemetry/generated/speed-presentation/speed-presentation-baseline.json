@@ -260,6 +260,7 @@
     "camera": {
       "baseFov": 69,
       "downhillFovImpulse": 0.45,
+      "driftFlowFovImpulse": 0.38,
       "driftExitFovImpulse": 1.2,
       "fovCueResponse": 11,
       "fovResponse": 1.25,
@@ -366,6 +367,9 @@
         }
       ],
       "downhillMaxIntensity": 0.16,
+      "driftFlowMaxIntensity": 0.18,
+      "driftFlowMinSpeedKmh": 90,
+      "driftFlowFullSpeedKmh": 150,
       "driftExitBurstDuration": 0.34,
       "driftExitBurstMaxIntensity": 0.26,
       "driftExitReapplyWindow": 0.28,
@@ -408,7 +412,7 @@
       "status": "observed"
     }
   ],
-  "generatedAt": "2026-07-23T05:16:52.296Z",
+  "generatedAt": "2026-07-28T01:21:42.941Z",
   "pass": true,
   "rows": [
     {
@@ -516,11 +520,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 53.328304,
-          "offsetMaxAbs": 53.328304,
-          "poseMaxAbs": 0.55707,
-          "velocityAbs": 56.505089,
-          "velocityMaxAbs": 58.667221
+          "offsetAbs": 17.466569,
+          "offsetMaxAbs": 17.466569,
+          "poseMaxAbs": 0.552206,
+          "velocityAbs": 18.205534,
+          "velocityMaxAbs": 18.205534
         },
         "profile": {
           "centeringScale": 1.08,
@@ -536,17 +540,17 @@
           "visualYawScale": 1
         },
         "release": {
-          "offsetAfterOneSecAbs": 53.063977,
-          "poseAfterOneSecAbs": 0.000747,
-          "releaseStartOffsetAbs": 53.328304,
-          "velocityAfterOneSecAbs": 6.127827
+          "offsetAfterOneSecAbs": 25.576975,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 17.466569,
+          "velocityAfterOneSecAbs": 0.001857
         },
         "tap": {
-          "offsetAbs": 8.410109,
-          "offsetMaxAbs": 8.771313,
-          "poseMaxAbs": 0.512082,
-          "velocityAbs": 0.960641,
-          "velocityMaxAbs": 46.973293
+          "offsetAbs": 3.453938,
+          "offsetMaxAbs": 3.453938,
+          "poseMaxAbs": 0.508601,
+          "velocityAbs": 0.006442,
+          "velocityMaxAbs": 11.153061
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -596,11 +600,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 149.706367,
-          "offsetMaxAbs": 149.706367,
+          "offsetAbs": 66.871229,
+          "offsetMaxAbs": 66.871229,
           "poseMaxAbs": 1,
-          "velocityAbs": 148.942097,
-          "velocityMaxAbs": 167.574509
+          "velocityAbs": 53.799218,
+          "velocityMaxAbs": 53.799218
         },
         "profile": {
           "centeringScale": 1,
@@ -616,17 +620,17 @@
           "visualYawScale": 1
         },
         "release": {
-          "offsetAfterOneSecAbs": 141.363329,
-          "poseAfterOneSecAbs": 0.002424,
-          "releaseStartOffsetAbs": 149.706367,
-          "velocityAfterOneSecAbs": 20
+          "offsetAfterOneSecAbs": 134.797005,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 66.871229,
+          "velocityAfterOneSecAbs": 0.00513
         },
         "tap": {
-          "offsetAbs": 21.886025,
-          "offsetMaxAbs": 25.025025,
+          "offsetAbs": 16.12991,
+          "offsetMaxAbs": 16.12991,
           "poseMaxAbs": 0.932794,
-          "velocityAbs": 6.599823,
-          "velocityMaxAbs": 138.118106
+          "velocityAbs": 0.017807,
+          "velocityMaxAbs": 33.426642
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -676,11 +680,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 145.825986,
-          "offsetMaxAbs": 145.825986,
+          "offsetAbs": 90.981649,
+          "offsetMaxAbs": 90.981649,
           "poseMaxAbs": 1,
-          "velocityAbs": 145.081525,
-          "velocityMaxAbs": 163.230987
+          "velocityAbs": 52.404745,
+          "velocityMaxAbs": 52.404745
         },
         "profile": {
           "centeringScale": 1,
@@ -696,17 +700,17 @@
           "visualYawScale": 1
         },
         "release": {
-          "offsetAfterOneSecAbs": 137.30176,
-          "poseAfterOneSecAbs": 0.002424,
-          "releaseStartOffsetAbs": 145.825986,
-          "velocityAfterOneSecAbs": 20
+          "offsetAfterOneSecAbs": 231.573945,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 90.981649,
+          "velocityAfterOneSecAbs": 0.004997
         },
         "tap": {
-          "offsetAbs": 21.31874,
-          "offsetMaxAbs": 24.376378,
+          "offsetAbs": 25.989336,
+          "offsetMaxAbs": 25.989336,
           "poseMaxAbs": 0.932794,
-          "velocityAbs": 6.428756,
-          "velocityMaxAbs": 134.538092
+          "velocityAbs": 0.017345,
+          "velocityMaxAbs": 32.560225
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -756,11 +760,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 143.718112,
-          "offsetMaxAbs": 143.718112,
+          "offsetAbs": 112.443495,
+          "offsetMaxAbs": 112.443495,
           "poseMaxAbs": 1,
-          "velocityAbs": 142.984413,
-          "velocityMaxAbs": 160.871529
+          "velocityAbs": 51.647249,
+          "velocityMaxAbs": 51.647249
         },
         "profile": {
           "centeringScale": 1,
@@ -776,17 +780,17 @@
           "visualYawScale": 1
         },
         "release": {
-          "offsetAfterOneSecAbs": 135.095463,
-          "poseAfterOneSecAbs": 0.002424,
-          "releaseStartOffsetAbs": 143.718112,
-          "velocityAfterOneSecAbs": 20
+          "offsetAfterOneSecAbs": 315.259197,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 112.443495,
+          "velocityAfterOneSecAbs": 0.004925
         },
         "tap": {
-          "offsetAbs": 21.010584,
-          "offsetMaxAbs": 24.024024,
+          "offsetAbs": 34.818529,
+          "offsetMaxAbs": 34.818529,
           "poseMaxAbs": 0.932794,
-          "velocityAbs": 6.335831,
-          "velocityMaxAbs": 132.593382
+          "velocityAbs": 0.017095,
+          "velocityMaxAbs": 32.089576
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -836,11 +840,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 127.169679,
-          "offsetMaxAbs": 127.169679,
-          "poseMaxAbs": 0.921739,
-          "velocityAbs": 127.329808,
-          "velocityMaxAbs": 142.054408
+          "offsetAbs": 127.170709,
+          "offsetMaxAbs": 127.170709,
+          "poseMaxAbs": 0.910249,
+          "velocityAbs": 45.468768,
+          "velocityMaxAbs": 45.468768
         },
         "profile": {
           "centeringScale": 0.939358,
@@ -856,17 +860,17 @@
           "visualYawScale": 0.975743
         },
         "release": {
-          "offsetAfterOneSecAbs": 119.061448,
-          "poseAfterOneSecAbs": 0.002277,
-          "releaseStartOffsetAbs": 127.169679,
-          "velocityAfterOneSecAbs": 18.787168
+          "offsetAfterOneSecAbs": 384.371719,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 127.170709,
+          "velocityAfterOneSecAbs": 0.004402
         },
         "tap": {
-          "offsetAbs": 18.73478,
-          "offsetMaxAbs": 21.212482,
-          "poseMaxAbs": 0.852987,
-          "velocityAbs": 5.294748,
-          "velocityMaxAbs": 116.789548
+          "offsetAbs": 41.909856,
+          "offsetMaxAbs": 41.909856,
+          "poseMaxAbs": 0.844252,
+          "velocityAbs": 0.015281,
+          "velocityMaxAbs": 28.158656
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -916,11 +920,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 114.26025,
-          "offsetMaxAbs": 114.26025,
-          "poseMaxAbs": 0.844642,
-          "velocityAbs": 115.001817,
-          "velocityMaxAbs": 127.417385
+          "offsetAbs": 145.135365,
+          "offsetMaxAbs": 145.135365,
+          "poseMaxAbs": 0.83432,
+          "velocityAbs": 40.682975,
+          "velocityMaxAbs": 40.682975
         },
         "profile": {
           "centeringScale": 0.8896,
@@ -936,17 +940,17 @@
           "visualYawScale": 0.95376
         },
         "release": {
-          "offsetAfterOneSecAbs": 106.655366,
-          "poseAfterOneSecAbs": 0.002144,
-          "releaseStartOffsetAbs": 114.26025,
-          "velocityAfterOneSecAbs": 17.687993
+          "offsetAfterOneSecAbs": 454.223136,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 145.135365,
+          "velocityAfterOneSecAbs": 0.004075
         },
         "tap": {
-          "offsetAbs": 16.938981,
-          "offsetMaxAbs": 19.029346,
-          "poseMaxAbs": 0.779934,
-          "velocityAbs": 4.525014,
-          "velocityMaxAbs": 104.539818
+          "offsetAbs": 49.487864,
+          "offsetMaxAbs": 49.487864,
+          "poseMaxAbs": 0.7721,
+          "velocityAbs": 0.013902,
+          "velocityMaxAbs": 24.940441
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -996,11 +1000,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 92.620713,
-          "offsetMaxAbs": 92.620713,
-          "poseMaxAbs": 0.714328,
-          "velocityAbs": 94.096109,
-          "velocityMaxAbs": 102.982602
+          "offsetAbs": 154.712463,
+          "offsetMaxAbs": 154.712463,
+          "poseMaxAbs": 0.705967,
+          "velocityAbs": 32.730913,
+          "velocityMaxAbs": 32.730913
         },
         "profile": {
           "centeringScale": 0.8,
@@ -1016,17 +1020,17 @@
           "visualYawScale": 0.9
         },
         "release": {
-          "offsetAfterOneSecAbs": 86.436417,
-          "poseAfterOneSecAbs": 0.001818,
-          "releaseStartOffsetAbs": 92.620713,
-          "velocityAfterOneSecAbs": 15
+          "offsetAfterOneSecAbs": 390.895652,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 154.712463,
+          "velocityAfterOneSecAbs": 0.003652
         },
         "tap": {
-          "offsetAbs": 13.886199,
-          "offsetMaxAbs": 15.382164,
-          "poseMaxAbs": 0.655063,
-          "velocityAbs": 3.324297,
-          "velocityMaxAbs": 84.168656
+          "offsetAbs": 54.01385,
+          "offsetMaxAbs": 54.01385,
+          "poseMaxAbs": 0.64875,
+          "velocityAbs": 0.012134,
+          "velocityMaxAbs": 19.469284
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -1076,11 +1080,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 75.16314,
-          "offsetMaxAbs": 75.16314,
-          "poseMaxAbs": 0.629172,
-          "velocityAbs": 77.154539,
-          "velocityMaxAbs": 83.313854
+          "offsetAbs": 136.309759,
+          "offsetMaxAbs": 136.309759,
+          "poseMaxAbs": 0.622392,
+          "velocityAbs": 26.33908,
+          "velocityMaxAbs": 26.33908
         },
         "profile": {
           "centeringScale": 0.7,
@@ -1096,17 +1100,17 @@
           "visualYawScale": 0.86
         },
         "release": {
-          "offsetAfterOneSecAbs": 70.745629,
-          "poseAfterOneSecAbs": 0.001454,
-          "releaseStartOffsetAbs": 75.16314,
-          "velocityAfterOneSecAbs": 12
+          "offsetAfterOneSecAbs": 307.131412,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 136.309759,
+          "velocityAfterOneSecAbs": 0.003528
         },
         "tap": {
-          "offsetAbs": 11.410086,
-          "offsetMaxAbs": 12.447119,
-          "poseMaxAbs": 0.571098,
-          "velocityAbs": 2.380555,
-          "velocityMaxAbs": 67.788762
+          "offsetAbs": 55.228552,
+          "offsetMaxAbs": 55.228552,
+          "poseMaxAbs": 0.565922,
+          "velocityAbs": 0.010807,
+          "velocityMaxAbs": 14.808003
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -1156,11 +1160,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 75.16314,
-          "offsetMaxAbs": 75.16314,
-          "poseMaxAbs": 0.629172,
-          "velocityAbs": 77.154539,
-          "velocityMaxAbs": 83.313854
+          "offsetAbs": 142.668656,
+          "offsetMaxAbs": 142.668656,
+          "poseMaxAbs": 0.622392,
+          "velocityAbs": 26.33908,
+          "velocityMaxAbs": 26.33908
         },
         "profile": {
           "centeringScale": 0.7,
@@ -1176,17 +1180,17 @@
           "visualYawScale": 0.86
         },
         "release": {
-          "offsetAfterOneSecAbs": 70.745629,
-          "poseAfterOneSecAbs": 0.001454,
-          "releaseStartOffsetAbs": 75.16314,
-          "velocityAfterOneSecAbs": 12
+          "offsetAfterOneSecAbs": 313.490309,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 142.668656,
+          "velocityAfterOneSecAbs": 0.003528
         },
         "tap": {
-          "offsetAbs": 11.410086,
-          "offsetMaxAbs": 12.447119,
-          "poseMaxAbs": 0.571098,
-          "velocityAbs": 2.380555,
-          "velocityMaxAbs": 67.788762
+          "offsetAbs": 63.902152,
+          "offsetMaxAbs": 63.902152,
+          "poseMaxAbs": 0.565922,
+          "velocityAbs": 0.010807,
+          "velocityMaxAbs": 14.808003
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -1236,11 +1240,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 75.16314,
-          "offsetMaxAbs": 75.16314,
-          "poseMaxAbs": 0.629172,
-          "velocityAbs": 77.154539,
-          "velocityMaxAbs": 83.313854
+          "offsetAbs": 146.187712,
+          "offsetMaxAbs": 146.187712,
+          "poseMaxAbs": 0.622392,
+          "velocityAbs": 26.33908,
+          "velocityMaxAbs": 26.33908
         },
         "profile": {
           "centeringScale": 0.7,
@@ -1256,17 +1260,17 @@
           "visualYawScale": 0.86
         },
         "release": {
-          "offsetAfterOneSecAbs": 70.745629,
-          "poseAfterOneSecAbs": 0.001454,
-          "releaseStartOffsetAbs": 75.16314,
-          "velocityAfterOneSecAbs": 12
+          "offsetAfterOneSecAbs": 317.009366,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 146.187712,
+          "velocityAfterOneSecAbs": 0.003528
         },
         "tap": {
-          "offsetAbs": 11.410086,
-          "offsetMaxAbs": 12.447119,
-          "poseMaxAbs": 0.571098,
-          "velocityAbs": 2.380555,
-          "velocityMaxAbs": 67.788762
+          "offsetAbs": 70.057448,
+          "offsetMaxAbs": 70.057448,
+          "poseMaxAbs": 0.565922,
+          "velocityAbs": 0.010807,
+          "velocityMaxAbs": 14.808003
         }
       },
       "inverseIdentityErrorKmh": 0,
@@ -1316,11 +1320,11 @@
       },
       "handling": {
         "hold": {
-          "offsetAbs": 75.16314,
-          "offsetMaxAbs": 75.16314,
-          "poseMaxAbs": 0.629172,
-          "velocityAbs": 77.154539,
-          "velocityMaxAbs": 83.313854
+          "offsetAbs": 150.645718,
+          "offsetMaxAbs": 150.645718,
+          "poseMaxAbs": 0.622392,
+          "velocityAbs": 26.33908,
+          "velocityMaxAbs": 26.33908
         },
         "profile": {
           "centeringScale": 0.7,
@@ -1336,17 +1340,17 @@
           "visualYawScale": 0.86
         },
         "release": {
-          "offsetAfterOneSecAbs": 70.745629,
-          "poseAfterOneSecAbs": 0.001454,
-          "releaseStartOffsetAbs": 75.16314,
-          "velocityAfterOneSecAbs": 12
+          "offsetAfterOneSecAbs": 321.467371,
+          "poseAfterOneSecAbs": 0.000001,
+          "releaseStartOffsetAbs": 150.645718,
+          "velocityAfterOneSecAbs": 0.003528
         },
         "tap": {
-          "offsetAbs": 11.410086,
-          "offsetMaxAbs": 12.447119,
-          "poseMaxAbs": 0.571098,
-          "velocityAbs": 2.380555,
-          "velocityMaxAbs": 67.788762
+          "offsetAbs": 79.848954,
+          "offsetMaxAbs": 79.848954,
+          "poseMaxAbs": 0.565922,
+          "velocityAbs": 0.010807,
+          "velocityMaxAbs": 14.808003
         }
       },
       "inverseIdentityErrorKmh": 0,

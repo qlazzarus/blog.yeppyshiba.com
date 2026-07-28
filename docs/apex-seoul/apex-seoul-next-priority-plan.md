@@ -6,6 +6,12 @@
 
 이 문서는 가까운 실행 순서만 관리한다. 구현 근거와 완료 이력은 각 설계 문서에, 당장 실행하지 않을 항목은 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)에 둔다.
 
+`main.ts`의 config·run·presentation 책임 분리 순서와 ECS 보류 판단은 [구조 정리 계획](./apex-seoul-architecture-refactor-plan.md)에서 관리한다.
+
+## 구조·콘텐츠 백로그
+
+- **Stinger vehicle catalog 추가:** 다음 vehicle 확장 시 Stinger asset URL, atlas, shadow, engine profile, 선택 URL과 catalog fixture를 함께 추가한다. 현재 5순위의 FT86/Genesis 계약은 변경하지 않는다.
+
 ## 현재 승인 기준선
 
 | 영역 | 현재 기준 |
@@ -114,13 +120,15 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 
 ### 구현 범위
 
-1. 시작 전 짧은 ready/countdown 상태
+1. ~~시작 전 짧은 ready/countdown 상태~~ — 일반 플레이는 3초간 정지 후 출발, QA URL은 즉시 시작
 2. 주행 중 현재 시간과 checkpoint/sector split 피드백
 3. finish 뒤 결과 화면
 4. 이번 기록, best 기록과 차이 표시
 5. 즉시 restart와 기록 유지
 
 현재 존재하는 progress/checkpoint/finish state를 사용하고 별도의 복잡한 메뉴 시스템부터 만들지 않는다.
+
+출발 countdown의 rev·launch control·burnout 후속은 [출발 rev·launch control·burnout 설계](./apex-seoul-launch-control-burnout-plan.md)에서 상태, 힘 보정, 시각 cue와 블로그 기록 기준을 함께 관리한다.
 
 ### 완료 조건
 

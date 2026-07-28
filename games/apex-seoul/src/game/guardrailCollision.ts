@@ -1,17 +1,17 @@
 import type { PlayerVehicleState } from './vehicle';
 
 export const GUARDRAIL_COLLISION_CONFIG = {
-    bounceMaxVelocity: 128,
-    bounceMinVelocity: 42,
+    bounceMaxVelocity: 96,
+    bounceMinVelocity: 28,
     contactBounceHoldSeconds: 0.08,
     contactCooldownSeconds: 0.12,
     contactClearance: 220,
     contactReleaseInset: 52,
     contactReleaseSeconds: 1,
     physicalVehicleFrontLength: 420,
-    impactSpeedLossScale: 0.09,
-    impactVelocityThreshold: 12,
-    lateralVelocityDamping: 0.22,
+    impactSpeedLossScale: 0.06,
+    impactVelocityThreshold: 24,
+    lateralVelocityDamping: 0.36,
     physicalVehicleHalfWidth: 240,
     shoulderScrubPerSecond: 28,
     sustainedContactScrubPerSecond: 46,

@@ -1,6 +1,7 @@
 ---
 title: 2.5D 구현하기 - 쿼터뷰
 date: 2022-03-27T09:00:00.000Z
+updated: 2026-07-28T00:00:00.000Z
 category: coding
 summary:
     여러번 2D 게임을 만들기도 하고 즐기기도 하면서 여러가지 게임 그래픽에 대한 테크닉에 대해서 공부를 해보았습니다.
@@ -84,6 +85,80 @@ const isoY = (cartX + cartY) / 2;
 isometric 의 x 좌표는 기존 좌표계에서 x - y 를 뺀 값이며
 (게임내 구현은 첨부된 이미지의 너비만큼 곱해야 합니다.)
 y 좌표는 기존 좌표의 x + y 를 더한 값을 나눠야 합니다.
+
+## 타일 크기를 반영한 좌표 변환
+
+위 식은 원리를 설명하기 위한 단순한 형태다. 실제 화면에서는 타일의 너비와 높이를
+반영해야 한다. 예를 들어 다이아몬드 타일의 너비가 `tileWidth`, 높이가 `tileHeight`일
+때, 타일 좌표 `(gridX, gridY)`를 화면에 놓는 계산은 다음처럼 작성할 수 있다.
+
+```javascript
+function gridToScreen(gridX, gridY, tileWidth, tileHeight) {
+  return {
+    x: (gridX - gridY) * (tileWidth / 2),
+    y: (gridX + gridY) * (tileHeight / 2),
+  };
+}
+```
+
+맵의 왼쪽 위가 화면 중앙에서 시작하도록 하려면, 계산한 `x`, `y`에 맵의 원점
+`originX`, `originY`를 더하면 된다. 높이가 있는 블록이라면 블록 높이만큼 `y`에서
+빼서 위로 쌓이는 모양을 만들 수 있다.
+
+```javascript
+const point = gridToScreen(gridX, gridY, 64, 32);
+sprite.x = originX + point.x;
+sprite.y = originY + point.y - elevation * 16;
+```
+
+## 화면 좌표에서 타일 찾기
+
+마우스 클릭이나 터치로 선택한 위치가 어느 타일인지 알아내려면 역변환도 필요하다.
+화면 원점을 뺀 값을 `localX`, `localY`라고 할 때, 대략적인 타일 좌표는 아래처럼
+구할 수 있다.
+
+```javascript
+function screenToGrid(localX, localY, tileWidth, tileHeight) {
+  const halfWidth = tileWidth / 2;
+  const halfHeight = tileHeight / 2;
+
+  return {
+    x: Math.floor((localX / halfWidth + localY / halfHeight) / 2),
+    y: Math.floor((localY / halfHeight - localX / halfWidth) / 2),
+  };
+}
+```
+
+경계에 걸친 클릭은 반올림만으로 정확하지 않을 수 있다. 실제 게임에서는 후보 타일의
+다이아몬드 영역 안에 클릭 지점이 있는지 한 번 더 검사하면 선택감을 더 자연스럽게
+만들 수 있다.
+
+## 겹침 순서가 핵심이다
+
+쿼터뷰에서 오브젝트가 어색하게 겹치는 문제는 좌표보다 그리기 순서에서 자주 생긴다.
+바닥 타일과 캐릭터를 단순히 생성 순서대로 그리면 뒤에 있어야 할 캐릭터가 앞에 보일 수
+있다. 기본 규칙은 화면의 아래쪽에 있는 오브젝트를 더 나중에 그리는 것이다.
+
+```javascript
+sprite.depth = gridX + gridY;
+```
+
+캐릭터처럼 키가 큰 스프라이트는 발이 닿는 지점을 기준으로 depth를 계산한다. 건물이나
+나무는 높이·폭이 커서 하나의 숫자로 해결되지 않을 수 있으므로, 타일 단위로 쪼개거나
+별도의 정렬 규칙을 두는 편이 낫다.
+
+## 구현할 때 확인할 체크리스트
+
+1. 타일 원점이 화면의 어디인지 정한다.
+2. 모든 스프라이트가 같은 타일 크기와 앵커 기준을 쓰는지 확인한다.
+3. 클릭 좌표를 역변환한 뒤 실제 타일 영역까지 검사한다.
+4. 캐릭터와 오브젝트의 depth가 발 위치를 기준으로 정렬되는지 확인한다.
+5. 높이가 있는 블록은 화면 위치와 depth 규칙을 함께 테스트한다.
+
+이 원리만 이해하면 쿼터뷰는 복잡한 3D 엔진 없이도 충분히 설득력 있는 공간감을 만들 수
+있다. 이후에는 타일맵 편집기, 충돌 처리, 카메라 이동을 더해 작은 등축 투영 게임으로
+확장할 수 있다. 레이캐스팅 방식의 의사 3D와 비교하고 싶다면
+[울펜슈타인 3D의 레이캐스팅 기록](/article/raycasting-pseudo-3d/)도 함께 참고해볼 만하다.
 
 ## 결과!
 

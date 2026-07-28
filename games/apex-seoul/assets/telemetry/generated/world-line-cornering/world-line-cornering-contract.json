@@ -22,10 +22,10 @@
     },
     {
       "evidence": {
-        "leftCornerOffset": 700,
-        "rightCornerOffset": -700
+        "leftCornerOffset": 487.055,
+        "rightCornerOffset": -487.055
       },
-      "id": "neutral-world-line-exits-opposite-curve-direction",
+      "id": "neutral-world-line-builds-meaningful-opposite-curve-excursion",
       "pass": true
     },
     {
@@ -33,17 +33,17 @@
         "left": {
           "endSpeedKmh": 184.7209,
           "finalHeading": 1.0489,
-          "finalOffset": 700,
+          "finalOffset": 487.055,
           "maxAbsHeading": 1.0489,
-          "maxAbsOffset": 700,
+          "maxAbsOffset": 487.055,
           "maxGripFollowAuthority": 0
         },
         "right": {
           "endSpeedKmh": 184.7209,
           "finalHeading": -1.0489,
-          "finalOffset": -700,
+          "finalOffset": -487.055,
           "maxAbsHeading": 1.0489,
-          "maxAbsOffset": 700,
+          "maxAbsOffset": 487.055,
           "maxGripFollowAuthority": 0
         }
       },
@@ -64,17 +64,17 @@
         "neutral": {
           "endSpeedKmh": 184.7209,
           "finalHeading": -1.0489,
-          "finalOffset": -700,
+          "finalOffset": -487.055,
           "maxAbsHeading": 1.0489,
-          "maxAbsOffset": 700,
+          "maxAbsOffset": 487.055,
           "maxGripFollowAuthority": 0
         },
         "prepared": {
-          "endSpeedKmh": 118.9711,
-          "finalHeading": 0.0283,
-          "finalOffset": -0.2951,
-          "maxAbsHeading": 0.0283,
-          "maxAbsOffset": 20.5294,
+          "endSpeedKmh": 120.7379,
+          "finalHeading": 0.0253,
+          "finalOffset": -3.9375,
+          "maxAbsHeading": 0.0281,
+          "maxAbsOffset": 21.4738,
           "maxGripFollowAuthority": 1
         }
       },
@@ -84,7 +84,7 @@
     {
       "evidence": {
         "fullBrakeForce": 330,
-        "maxAutomaticCornerLossForce": 66
+        "maxAutomaticCornerLossForce": 65.9999
       },
       "id": "automatic-tire-loss-stays-below-brake-budget",
       "pass": true
@@ -98,7 +98,7 @@
     "pavedCenterLimit": 580,
     "railCenterLimit": 700
   },
-  "generatedAt": "2026-07-24T05:25:33.670Z",
+  "generatedAt": "2026-07-27T08:46:59.835Z",
   "pass": true,
   "purpose": "HR-3H neutral world-line, contact-point yaw, steering grip, and tire-loss contract",
   "scenarios": [
@@ -120,61 +120,61 @@
     {
       "endSpeedKmh": 184.7209,
       "finalHeading": -1.0489,
-      "finalOffset": -700,
+      "finalOffset": -487.055,
       "id": "sharp-right-neutral",
       "maxAbsHeading": 1.0489,
-      "maxAbsInertia": 1081.7646,
-      "maxAbsOffset": 700,
-      "maxCornerLossForce": 66,
+      "maxAbsInertia": 166.5664,
+      "maxAbsOffset": 487.055,
+      "maxCornerLossForce": 65.9999,
       "maxGripFollowAuthority": 0,
       "maxOffset": 0,
       "maxProjectionError": 0,
-      "minOffset": -700,
+      "minOffset": -487.055,
       "speedKmh": 185
     },
     {
       "endSpeedKmh": 184.7209,
       "finalHeading": 1.0489,
-      "finalOffset": 700,
+      "finalOffset": 487.055,
       "id": "sharp-left-neutral",
       "maxAbsHeading": 1.0489,
-      "maxAbsInertia": 1081.7646,
-      "maxAbsOffset": 700,
-      "maxCornerLossForce": 66,
+      "maxAbsInertia": 166.5664,
+      "maxAbsOffset": 487.055,
+      "maxCornerLossForce": 65.9999,
       "maxGripFollowAuthority": 0,
-      "maxOffset": 700,
+      "maxOffset": 487.055,
       "maxProjectionError": 0,
       "minOffset": 0,
       "speedKmh": 185
     },
     {
-      "endSpeedKmh": 118.9711,
-      "finalHeading": 0.0283,
-      "finalOffset": -0.2951,
+      "endSpeedKmh": 120.7379,
+      "finalHeading": 0.0253,
+      "finalOffset": -3.9375,
       "id": "sharp-right-prepared-grip",
-      "maxAbsHeading": 0.0283,
-      "maxAbsInertia": 25.9969,
-      "maxAbsOffset": 20.5294,
-      "maxCornerLossForce": 34.3139,
+      "maxAbsHeading": 0.0281,
+      "maxAbsInertia": 26.0255,
+      "maxAbsOffset": 21.4738,
+      "maxCornerLossForce": 31.5359,
       "maxGripFollowAuthority": 1,
       "maxOffset": 0,
       "maxProjectionError": 0,
-      "minOffset": -20.5294,
+      "minOffset": -21.4738,
       "speedKmh": 185
     },
     {
       "endSpeedKmh": 174.708,
       "finalHeading": -0.9713,
-      "finalOffset": -700,
+      "finalOffset": -551.8287,
       "id": "sharp-right-severe-overspeed",
       "maxAbsHeading": 0.9713,
-      "maxAbsInertia": 974.4375,
-      "maxAbsOffset": 700,
-      "maxCornerLossForce": 66,
+      "maxAbsInertia": 216.1182,
+      "maxAbsOffset": 551.8287,
+      "maxCornerLossForce": 65.9999,
       "maxGripFollowAuthority": 0,
       "maxOffset": -300,
       "maxProjectionError": 0,
-      "minOffset": -700,
+      "minOffset": -551.8287,
       "speedKmh": 200
     }
   ],

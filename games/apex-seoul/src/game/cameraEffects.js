@@ -3,6 +3,7 @@
 export const DEFAULT_CAMERA_EFFECTS_CONFIG = {
     baseFov: 69,
     downhillFovImpulse: 0.45,
+    driftFlowFovImpulse: 0.38,
     driftExitFovImpulse: 1.2,
     fovCueResponse: 11,
     fovResponse: 1.25,
@@ -54,10 +55,16 @@ export function updateCameraEffects(state, input, config) {
     const speedFovBonusDegrees = getSpeedFovBonus(input.speedKmh, config);
     const throttleRatio = clamp(input.cue.throttleBurst / input.cueLimits.throttleBurstMaxIntensity, 0, 1);
     const downhillRatio = clamp(input.cue.downhill / input.cueLimits.downhillMaxIntensity, 0, 1);
+    const driftFlowRatio = clamp(
+        (input.cue.driftFlow ?? 0) / input.cueLimits.driftFlowMaxIntensity,
+        0,
+        1,
+    );
     const driftExitRatio = clamp(input.cue.driftExitBurst / input.cueLimits.driftExitBurstMaxIntensity, 0, 1);
     const railImpactRatio = clamp(input.railImpact ?? 0, 0, 1);
     const targetCueDegrees = throttleRatio * config.throttleFovImpulse
         + downhillRatio * config.downhillFovImpulse
+        + driftFlowRatio * config.driftFlowFovImpulse
         + driftExitRatio * config.driftExitFovImpulse
         + railImpactRatio * 0.45;
     const cueBlend = 1 - Math.exp(-config.fovCueResponse * input.seconds);

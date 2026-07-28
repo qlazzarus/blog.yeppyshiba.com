@@ -4,6 +4,65 @@
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 코너링 기준선을 임시 동결했다. 무입력 road-follow 제거, production 강코너 바깥 rail 위협, physical command 기반 sprite, 단일 충돌 impulse와 코너 출구 inside heading 제한은 승인됐다. 사용자 실주행에서 남은 약 `20%`의 감각 차이와 CH-4/CH-5는 time attack 기록 비교가 가능해질 때 다시 연다.
 
+## 2026-07-27 실주행 counter-steer 임계 전환 보정
+
+상태: **CST-1~CST-3 구현·회귀 검증 완료, CST-4 실주행 재측정 대기**
+
+### 사용자 리뷰와 telemetry 판정
+
+한 방향으로 코너를 돈 뒤 반대 조향으로 복귀할 때, 차량을 되돌리는 힘보다 바깥으로 계속 밀어내는 힘이 더 크게 느껴졌다. 특히 특정 지점 이후 조향 감각이 급격히 달라졌다.
+
+첨부 run `apex-seoul-drive-2026-07-27T08-26-30-925Z_jjidc9.jsonl`의 49.39~51.15초를 기준 fixture로 삼는다.
+
+| 시각 | 입력/상태 | 관측 |
+| ---: | --- | --- |
+| 49.389초 | 우측 조향으로 복귀 시작, 약 135.5km/h | heading `-0.261`, inertia `-235.9u/s` |
+| 50.605초 | 같은 조향 유지, 약 136.4km/h | heading `+0.806`, inertia `+664.5u/s` |
+| 50.705초 | 반대 조향 시작 | inertia `+689.5u/s`, offset이 계속 바깥으로 진행 |
+| 51.039초 | severe overspeed | corner loss가 hard cap `66`에 도달 |
+| 51.155초 | 첫 rail contact | bounce `97.4u/s`, heading `0.818 → 0.184`, 속도 `133 → 121.9km/h` |
+
+`centeringForce`는 `0`이고 grip counter-road 횡속도 target도 `0`이므로, 이 현상은 hidden auto-centering이 아니다. 고속 heading debt의 무상한 횡속도 투영, hard tire-loss cap, 첫 rail-contact impulse가 연속해서 발생한 결과다.
+
+### 수정 우선순위
+
+#### CST-1 — 고속 heading-debt 횡속도 상한
+
+상태: **구현**
+
+- `sin(headingError) × speed × longitudinalScale`로 계산한 관성 횡속도를 속도대 `lateralVelocityCap`의 `1.85×`로 제한한다. 단, 저속 gameplay를 보존하는 최소값은 `80u/s`다.
+- 조향 authority가 낮아지는 고속 구간에서 heading debt만 무제한으로 커지는 비대칭을 제거한다.
+- 기존 road-relative projection 계약은 cap을 포함한 식으로 갱신한다.
+
+완료 기준: 약 135~185km/h에서 counter-steer 중 inertia가 해당 속도대 cap을 넘지 않고, 헤딩 debt는 즉시 반전하지 않는다.
+
+#### CST-2 — 첫 rail-contact impulse 연속화
+
+상태: **구현**
+
+- bounce `42~128 → 28~96u/s`, impact 속도 손실 `9% → 6%`, impact threshold `12 → 24u/s`로 조정한다.
+- 충돌 시 heading/inertia 감쇠를 `0.22 → 0.36`으로 완화해 한 frame 안에 상태가 꺾이는 정도를 줄인다.
+- 충돌은 여전히 실패 cue와 감속을 주되, counter-steer 중 rail 경계를 넘었을 때 별도 handling mode처럼 읽히지 않게 한다.
+
+완료 기준: 관성-only rail impact가 남고, bounce는 `96u/s` 이하여야 하며 충돌 후 heading/inertia가 최소 36% 보존된다.
+
+#### CST-3 — severe overspeed 손실의 soft saturation
+
+상태: **구현**
+
+- 기존 `min(rawLoss, 66)` hard cap을 `66 × tanh(rawLoss / 66)`으로 교체한다.
+- 최대 자동 tire-loss budget `66`은 보존하지만 severe-overspeed 진입 전후의 힘 변화가 연속적이게 만든다.
+
+완료 기준: 모든 scenario의 자동 tire loss는 `66` 이하이며, raw force가 증가할 때 applied loss가 단조 증가하고 hard plateau에 즉시 붙지 않는다.
+
+#### CST-4 — 실주행 replay 재측정
+
+상태: **대기**
+
+- 같은 방향 코너 후 반대 조향 fixture를 browser telemetry로 다시 수집한다.
+- 49.39~51.15초와 동등한 속도/곡률 구간에서 peak inertia, rail impact, loss 곡선, 반대 조향 뒤 outward offset을 이전 값과 비교한다.
+- replay 결과가 사용자 체감과 맞지 않으면 상한 비율 `1.85×`만 먼저 조절하며, 코스 geometry나 엔진 출력은 변경하지 않는다.
+
 > 2026-07-21 이후 225km/h envelope의 속도 연출과 185~225km/h handling 확장은 [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)에서 관리한다. 이 문서는 기존 0~185km/h 승인값과 구현 근거를 보존한다.
 
 ## 2026-07-23 무입력 코너 관성 재검증

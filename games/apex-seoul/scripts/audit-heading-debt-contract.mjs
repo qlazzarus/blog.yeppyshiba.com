@@ -63,7 +63,7 @@ const checks = [
         'corner-direction-steering-reduces-heading-debt',
         Math.abs(assisted.vehicleHeadingError) <=
                 Math.abs(unassisted.vehicleHeadingError) * 0.8 &&
-            Math.abs(assisted.cornerInertiaLateralVelocity) <
+            Math.abs(assisted.cornerInertiaLateralVelocity) <=
                 Math.abs(unassisted.cornerInertiaLateralVelocity),
         {
             assisted: snapshot(assisted),

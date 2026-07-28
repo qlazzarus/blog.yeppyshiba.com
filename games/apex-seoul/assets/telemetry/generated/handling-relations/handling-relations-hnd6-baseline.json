@@ -82,7 +82,7 @@
       "id": "relation.hr3hAutomaticTireLossBudget",
       "pass": true,
       "target": "<= 20% of full brake force (66)",
-      "value": 35.023
+      "value": 31.811
     }
   ],
   "controls": {
@@ -143,18 +143,18 @@
       "maxExitSpeedDeltaKmh": 8.817
     }
   },
-  "generatedAt": "2026-07-24T05:03:47.122Z",
+  "generatedAt": "2026-07-27T08:47:01.851Z",
   "gradeLossRows": [
     {
       "easy": 0.733,
-      "medium": 0.662,
-      "sharp": 11.358,
+      "medium": 0.661,
+      "sharp": 10.323,
       "slopeId": "level"
     },
     {
       "easy": 0,
       "medium": 0,
-      "sharp": 0.244,
+      "sharp": 0.132,
       "slopeId": "downhill"
     }
   ],
@@ -189,11 +189,11 @@
       "understeerRelief": 0.13
     },
     {
-      "fullLineRetention": 0.248,
+      "fullLineRetention": 0.57,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.215,
-      "preparedLineRetention": 0.463,
+      "lineRetentionGain": -0.005,
+      "preparedLineRetention": 0.565,
       "preparedUndersteerMean": 0.932,
       "slopeId": "level",
       "understeerRelief": 0
@@ -219,11 +219,11 @@
       "understeerRelief": 0
     },
     {
-      "fullLineRetention": 0.199,
+      "fullLineRetention": 0.57,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.043,
-      "preparedLineRetention": 0.242,
+      "lineRetentionGain": 0.012,
+      "preparedLineRetention": 0.582,
       "preparedUndersteerMean": 0.932,
       "slopeId": "downhill",
       "understeerRelief": 0
@@ -265,11 +265,11 @@
       "understeerRelief": 0.032
     },
     {
-      "fullLineRetention": 0.288,
+      "fullLineRetention": 0.581,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.179,
-      "preparedLineRetention": 0.467,
+      "lineRetentionGain": 0.027,
+      "preparedLineRetention": 0.608,
       "preparedUndersteerMean": 0.932,
       "slopeId": "bugak-fixed",
       "understeerRelief": 0
