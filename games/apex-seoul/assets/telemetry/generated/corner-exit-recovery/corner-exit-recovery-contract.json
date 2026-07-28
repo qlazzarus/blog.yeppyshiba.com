@@ -25,7 +25,7 @@
       "evidence": [
         {
           "fixture": "runtime-progress-008",
-          "maxOppositeHeading": 0.0205
+          "maxOppositeHeading": 0.0204
         },
         {
           "fixture": "runtime-progress-020",
@@ -43,7 +43,7 @@
       "evidence": [
         {
           "fixture": "runtime-progress-008",
-          "maxOppositeInertia": 19.8595
+          "maxOppositeInertia": 19.8059
         },
         {
           "fixture": "runtime-progress-020",
@@ -76,7 +76,7 @@
           "neutralFinalAbsHeading": 0.7886
         },
         {
-          "finalAbsHeading": 0.5823,
+          "finalAbsHeading": 0.582,
           "fixture": "runtime-progress-030",
           "initialAbsHeading": 0.312,
           "maxOppositeHeading": 0,
@@ -170,22 +170,22 @@
     "railCenterLimit": 800,
     "vehicleHeadingError": 0.198
   },
-  "generatedAt": "2026-07-28T01:21:43.802Z",
+  "generatedAt": "2026-07-28T04:28:29.962Z",
   "pass": true,
   "purpose": "HR-3G corner-exit debt cancellation and front swept rail contact contract",
   "replays": [
     {
       "correction": {
-        "finalAbsHeading": 0.0088,
-        "finalHeading": 0.0088,
-        "finalInertia": 8.5538,
-        "finalOffset": -367.5536,
-        "finalOutwardHeading": -0.0088,
+        "finalAbsHeading": 0.0087,
+        "finalHeading": 0.0087,
+        "finalInertia": 8.5,
+        "finalOffset": -367.5415,
+        "finalOutwardHeading": -0.0087,
         "initialAbsHeading": 0.34,
         "maxAbsOverspeedLateralVelocity": 0,
-        "maxOppositeHeading": 0.0205,
-        "maxOppositeInertia": 19.8595,
-        "outwardOffsetDelta": 93.7536,
+        "maxOppositeHeading": 0.0204,
+        "maxOppositeInertia": 19.8059,
+        "outwardOffsetDelta": 93.7415,
         "steerDuration": 0.9
       },
       "fixture": "runtime-progress-008",
@@ -205,14 +205,14 @@
       "shortCorrection": {
         "finalAbsHeading": 0.2829,
         "finalHeading": -0.2829,
-        "finalInertia": -271.662,
-        "finalOffset": -589.7676,
+        "finalInertia": -271.6957,
+        "finalOffset": -589.751,
         "finalOutwardHeading": 0.2829,
         "initialAbsHeading": 0.34,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 315.9676,
+        "outwardOffsetDelta": 315.951,
         "steerDuration": 0.45
       }
     },
@@ -221,13 +221,13 @@
         "finalAbsHeading": 0.3092,
         "finalHeading": 0.3092,
         "finalInertia": 231.246,
-        "finalOffset": 555.1677,
+        "finalOffset": 555.1709,
         "finalOutwardHeading": 0.3092,
         "initialAbsHeading": 0.375,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 339.7677,
+        "outwardOffsetDelta": 339.7709,
         "steerDuration": 1.1
       },
       "fixture": "runtime-progress-020",
@@ -248,28 +248,28 @@
         "finalAbsHeading": 0.7004,
         "finalHeading": 0.7004,
         "finalInertia": 231.246,
-        "finalOffset": 574.0145,
+        "finalOffset": 574.0158,
         "finalOutwardHeading": 0.7004,
         "initialAbsHeading": 0.375,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 358.6145,
+        "outwardOffsetDelta": 358.6158,
         "steerDuration": 0.45
       }
     },
     {
       "correction": {
-        "finalAbsHeading": 0.2568,
-        "finalHeading": -0.2568,
+        "finalAbsHeading": 0.2565,
+        "finalHeading": -0.2565,
         "finalInertia": -183.0095,
-        "finalOffset": -301.3976,
-        "finalOutwardHeading": 0.2568,
+        "finalOffset": -301.8388,
+        "finalOutwardHeading": 0.2565,
         "initialAbsHeading": 0.312,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 251.6976,
+        "outwardOffsetDelta": 252.1388,
         "steerDuration": 1
       },
       "fixture": "runtime-progress-030",
@@ -287,16 +287,16 @@
         "steerDuration": 0
       },
       "shortCorrection": {
-        "finalAbsHeading": 0.5823,
-        "finalHeading": -0.5823,
+        "finalAbsHeading": 0.582,
+        "finalHeading": -0.582,
         "finalInertia": -183.0095,
-        "finalOffset": -314.6449,
-        "finalOutwardHeading": 0.5823,
+        "finalOffset": -314.9692,
+        "finalOutwardHeading": 0.582,
         "initialAbsHeading": 0.312,
         "maxAbsOverspeedLateralVelocity": 0,
         "maxOppositeHeading": 0,
         "maxOppositeInertia": 0,
-        "outwardOffsetDelta": 264.9449,
+        "outwardOffsetDelta": 265.2692,
         "steerDuration": 0.45
       }
     }

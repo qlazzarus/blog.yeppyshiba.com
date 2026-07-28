@@ -19,6 +19,7 @@
 | [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md) | 현재 unit/projection과 공식 60fps 영상 표본 비교, ORS-2A 진단 범위 |
 | [ORS-2A Longitudinal A/B](../../games/apex-seoul/assets/telemetry/generated/outrun-longitudinal-ab/outrun-longitudinal-ab-ors2a.md) | runtime 후보 비교와 production U2 2.00 선택, 화면 흐름·코너 제어 window |
 | [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
+| [차량 7way pose·Three.js sprite 생성](./apex-seoul-vehicle-pose-density-plan.md) | 5way→7way 조향 pose와 offline Three.js renderer 경계 |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |
 | [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |

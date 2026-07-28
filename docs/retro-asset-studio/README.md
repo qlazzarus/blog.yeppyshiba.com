@@ -21,6 +21,10 @@ ComfyUI is a style filter, not a vehicle generator. Vehicle identity, pose order
 
 The visual target is defined in `../apex-seoul-visual-direction.md`: **black/blue dreamlike Seoul downhill**.
 
+## Steering Pose Density
+
+The next vehicle-art pass expands normal steering from five runtime states to seven by adding a slight left/right frame between `center` and the current mild steer frame. The Three.js pose renderer, not ComfyUI, owns the new camera angle, contact baseline, and source alpha. See [the 7way pose and Three.js plan](../apex-seoul/apex-seoul-vehicle-pose-density-plan.md) for the source-angle contract, Codex/Three.js scope, and atlas QA gates.
+
 ## Current Baseline
 
 FT86 is the current pipeline stabilization vehicle.

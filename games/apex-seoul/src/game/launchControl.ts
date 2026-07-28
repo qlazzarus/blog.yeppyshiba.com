@@ -106,10 +106,12 @@ export function updateLaunchControl(
     seconds: number,
     config: LaunchControlConfig,
 ) {
+    // Smoke presentation may intentionally outlive the force window. Keep its
+    // timer advancing after the clutch/force phase has completed.
+    state.burnoutRemainingSec = Math.max(0, state.burnoutRemainingSec - seconds);
     if (state.phase !== 'active') return 1;
 
     state.elapsedSec += seconds;
-    state.burnoutRemainingSec = Math.max(0, state.burnoutRemainingSec - seconds);
     const tractionReleaseSec = state.quality === 'hooked'
         ? config.hookedTractionReleaseSec
         : config.overrevTractionReleaseSec;

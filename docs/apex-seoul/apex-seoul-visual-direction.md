@@ -40,6 +40,10 @@ tail light accent: restrained red only
 3. silver/red/yellow는 QA 비교용 또는 블로그 설명용 보조 산출물이다.
 4. base sprite에는 glow, bloom, ground shadow를 넣지 않는다. 빛 효과는 런타임 레이어에서 따로 붙인다.
 
+### Steering pose density
+
+현재 5way steering(`left-2 / left-1 / center / right-1 / right-2`)은 center에서 첫 steer frame으로 넘어갈 때 rear-quarter 변화가 크다. 다음 차량 art pass는 center와 `left-1`·`right-1` 사이에 slight steer 두 장을 넣은 7way를 목표로 한다. 이는 black/blue palette 변경이 아니라 조향의 연속성과 road-contact 기준을 보강하는 작업이다. pose 각도, Three.js renderer 활용 범위, atlas/QA gate는 [차량 7way pose·Three.js sprite 생성 계획](apex-seoul-vehicle-pose-density-plan.md)을 따른다.
+
 ### Environment Assets
 
 다음 에셋이 우선 필요하다.

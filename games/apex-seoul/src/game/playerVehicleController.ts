@@ -28,7 +28,10 @@ const VEHICLE_HEADING_SOFT_ALIGN_RATE = 2.4;
 const VEHICLE_HEADING_ROAD_RESPONSE = 0.78;
 const VEHICLE_HEADING_STEER_RESPONSE = 1.15;
 const GRIP_HEADING_COMMIT_DURATION = 0.32;
-const GRIP_HEADING_INSIDE_ALLOWANCE = 0.06;
+// GDS-2B ends an outward-debt correction close to the road frame instead of
+// letting the faster recovery build a fresh opposite heading on the same
+// held input. Drift keeps its separate, wider allowance.
+const GRIP_HEADING_INSIDE_ALLOWANCE = 0.02;
 const DRIFT_HEADING_INSIDE_ALLOWANCE = 0.18;
 const CORNER_HEADING_LIMIT_MIN_CURVE = 0.08;
 // Heading debt is projected into road-relative movement. Keep its high-speed
@@ -45,6 +48,11 @@ const GRIP_DIRECT_STEER_FORCE_SCALE = 0.30;
 // turn-in. Fade down only that input-coupled share of heading projection so
 // the two channels do not feel like a doubled lateral impulse.
 const GRIP_INPUT_HEADING_INERTIA_MIN_SCALE = 0.72;
+// A full corner-direction correction must first retire the heading debt that
+// is carrying the car outwards. This is deliberately not a lateral centering
+// force: it only accelerates the driver's own steering yaw while grip input
+// and the current road curve agree.
+const GRIP_OUTWARD_HEADING_RECOVERY_SCALE = 1.4;
 const GRIP_TIRE_LOSS_BRAKE_RATIO = 0.2;
 const DRIFT_TIRE_LOSS_BRAKE_RATIO = 0.32;
 
@@ -506,15 +514,21 @@ export function updatePlayerVehicle(
     const headingSteerAxis = driftCounterHeadingRecovery
         ? player.driftDirection * Math.abs(gripSteerAxis) * 0.75
         : gripSteerAxis;
-    const steeringHeadingRate = headingSteerAxis *
+    const inputSteerDirection = getDirection(input.steerAxis);
+    // `currentCurve` is a render-space bend. Vehicle yaw follows the inverse
+    // road-frame rate, so every steering comparison must use the actual yaw
+    // direction; otherwise an outside steer can be mistaken for an inside
+    // correction on a visually mirrored corner.
+    const roadSteerDirection = getDirection(requiredRoadYawRate);
+    const baseSteeringHeadingRate = headingSteerAxis *
         VEHICLE_HEADING_STEER_RESPONSE *
         lowSpeedLateralAuthority *
         speedRatio;
     const steeringOpposesRoadYaw = requiredRoadYawRate !== 0 &&
-        getDirection(steeringHeadingRate) === -getDirection(requiredRoadYawRate);
+        getDirection(baseSteeringHeadingRate) === -getDirection(requiredRoadYawRate);
     const gripFollowAuthority = steeringOpposesRoadYaw
         ? clamp(
-            Math.abs(steeringHeadingRate) / Math.abs(requiredRoadYawRate),
+            Math.abs(baseSteeringHeadingRate) / Math.abs(requiredRoadYawRate),
             0,
             1,
         )
@@ -534,17 +548,18 @@ export function updatePlayerVehicle(
         ) *
         VEHICLE_HEADING_SOFT_ALIGN_RATE;
     const headingBeforeSteering = player.vehicleHeadingError;
+    const correctingOutwardHeading = player.driftState === 'grip' &&
+        roadSteerDirection !== 0 &&
+        inputSteerDirection === roadSteerDirection &&
+        getDirection(gripSteerAxis) === roadSteerDirection &&
+        getDirection(headingBeforeSteering) === -roadSteerDirection;
+    const steeringHeadingRate = baseSteeringHeadingRate *
+        (correctingOutwardHeading ? GRIP_OUTWARD_HEADING_RECOVERY_SCALE : 1);
     player.vehicleHeadingError += (
         residualRoadYawRate +
         steeringHeadingRate -
         headingSoftAlignRate
     ) * seconds;
-    const inputSteerDirection = getDirection(input.steerAxis);
-    const roadSteerDirection = getDirection(context.currentCurve);
-    const correctingOutwardHeading = player.driftState === 'grip' &&
-        roadSteerDirection !== 0 &&
-        inputSteerDirection === roadSteerDirection &&
-        getDirection(headingBeforeSteering) === -roadSteerDirection;
     const sameDirectionGripCommit = player.driftState === 'grip' &&
         roadSteerDirection !== 0 &&
         inputSteerDirection === roadSteerDirection;

@@ -5,6 +5,9 @@ import farCityLightsUrl from '../assets/environment/approved/parallax-v1/city-fa
 import cloudDarkBlueUrl from '../assets/environment/approved/parallax-v1/cloud-dark-blue.png';
 import moonCoolBlueUrl from '../assets/environment/approved/parallax-v1/moon-cool-blue.png';
 import nearRidgeParallaxUrl from '../assets/environment/approved/parallax-v1/ridge-near-blueblack.png';
+import burnoutPuffAUrl from '../assets/effects/approved/kenney-smoke-particle-assets/burnout-puff-a.png';
+import burnoutPuffBUrl from '../assets/effects/approved/kenney-smoke-particle-assets/burnout-puff-b.png';
+import burnoutPuffCUrl from '../assets/effects/approved/kenney-smoke-particle-assets/burnout-puff-c.png';
 import wallForestTree01Url from '../assets/environment/approved/wall-forest-svg/tree-01-tall-pine.svg?no-inline';
 import wallForestTree02Url from '../assets/environment/approved/wall-forest-svg/tree-02-wide-pine.svg?no-inline';
 import wallForestTree03Url from '../assets/environment/approved/wall-forest-svg/tree-03-cypress.svg?no-inline';
@@ -256,6 +259,11 @@ const CITY_FAR_LIGHTS_KEY = 'city-far-lights';
 const CITY_RIDGE_PARALLAX_KEY = 'city-ridge-parallax';
 const CLOUD_DARK_BLUE_KEY = 'cloud-dark-blue';
 const MOON_COOL_BLUE_KEY = 'moon-cool-blue';
+const BURNOUT_PUFF_KEYS = [
+    'burnout-puff-a',
+    'burnout-puff-b',
+    'burnout-puff-c',
+] as const;
 const WALL_FOREST_TREE_KEYS = [
     'wall-forest-tree-01',
     'wall-forest-tree-02',
@@ -347,6 +355,15 @@ type PlayerVehiclePoseRenderState = {
     visualSteering: PlayerVehicleVisualSteeringState;
 };
 
+type BurnoutSkidMark = {
+    ageSec: number;
+    alpha: number;
+    lateralOffset: number;
+    lengthPixels: number;
+    widthPixels: number;
+    z: number;
+};
+
 type PlayerPhysicsRoadSample = {
     cameraZ: number;
     contactZ: number;
@@ -376,6 +393,8 @@ class ApexSeoulScene extends Phaser.Scene {
     private farCityLights!: Phaser.GameObjects.Image;
     private farCloud!: Phaser.GameObjects.Image;
     private foregroundOcclusionGraphics!: Phaser.GameObjects.Graphics;
+    private burnoutSmokePuffs: Phaser.GameObjects.Image[] = [];
+    private burnoutSkidMarks: BurnoutSkidMark[] = [];
     private tireScrubGraphics!: Phaser.GameObjects.Graphics;
     private headlightShader!: Phaser.GameObjects.Shader;
     private headlightLampPose: VehicleHeadlightScreenPose | null = null;
@@ -459,6 +478,9 @@ class ApexSeoulScene extends Phaser.Scene {
         this.load.image(CLOUD_DARK_BLUE_KEY, cloudDarkBlueUrl);
         this.load.image(MOON_COOL_BLUE_KEY, moonCoolBlueUrl);
         this.load.image(CITY_RIDGE_PARALLAX_KEY, nearRidgeParallaxUrl);
+        this.load.image(BURNOUT_PUFF_KEYS[0], burnoutPuffAUrl);
+        this.load.image(BURNOUT_PUFF_KEYS[1], burnoutPuffBUrl);
+        this.load.image(BURNOUT_PUFF_KEYS[2], burnoutPuffCUrl);
         this.load.svg(WALL_FOREST_TREE_KEYS[0], wallForestTree01Url);
         this.load.svg(WALL_FOREST_TREE_KEYS[1], wallForestTree02Url);
         this.load.svg(WALL_FOREST_TREE_KEYS[2], wallForestTree03Url);
@@ -491,6 +513,12 @@ class ApexSeoulScene extends Phaser.Scene {
         this.graphics = this.add.graphics().setDepth(RenderDepth.World);
         this.foregroundOcclusionGraphics = this.add.graphics().setDepth(RenderDepth.ForegroundMatte);
         this.tireScrubGraphics = this.add.graphics().setDepth(RenderDepth.PlayerTireCue);
+        this.burnoutSmokePuffs = Array.from({ length: 4 }, (_, index) => this.add
+            .image(0, 0, BURNOUT_PUFF_KEYS[index % BURNOUT_PUFF_KEYS.length])
+            .setDepth(RenderDepth.PlayerTireCue)
+            .setOrigin(0.5)
+            .setTint(0x8da4ad)
+            .setVisible(false));
         this.uiGraphics = this.add.graphics().setDepth(RenderDepth.Ui);
         this.playerSoftShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
@@ -564,6 +592,7 @@ class ApexSeoulScene extends Phaser.Scene {
         const camera = this.cameraResource;
 
         this.elapsedSec += seconds;
+        this.updateBurnoutSkidMarks(seconds);
         this.applyRuntimeQaOverrides();
         this.updateTelemetryHotkey();
         this.updateLongitudinalAbHotkey();
@@ -715,6 +744,7 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.updateHeadlightState(seconds, vehicleRenderState, vehiclePoseState);
         this.renderPlayerShadow(viewport, vehicleRenderState, vehiclePoseState);
+        this.renderBurnoutSkidMarks();
         this.renderUndersteerTireCue(vehicleRenderState, vehiclePoseState);
         this.renderLaunchBurnoutCue(vehicleRenderState);
         this.renderPlayerVehicle(vehicleRenderState, vehiclePoseState);
@@ -1356,6 +1386,7 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private renderLaunchBurnoutCue(renderState: PlayerVehicleRenderState) {
+        for (const puff of this.burnoutSmokePuffs) puff.setVisible(false);
         const { anchor, displaySize } = renderState;
         const presentation = getLaunchBurnoutPresentation({
             anchor,
@@ -1367,40 +1398,95 @@ class ApexSeoulScene extends Phaser.Scene {
         });
         if (!presentation) return;
 
-        for (const tireX of presentation.tireXs) {
-
-            this.tireScrubGraphics.lineStyle(
-                Math.max(1.5, displaySize * 0.007),
-                0x253640,
-                presentation.skidAlpha,
-            );
-            this.tireScrubGraphics.lineBetween(
-                tireX,
-                presentation.y,
-                tireX + Math.sign(tireX - anchor.x) * displaySize * 0.012,
-                presentation.y + presentation.skidLength,
-            );
-        }
+        this.spawnInitialBurnoutSkidMarks(presentation, displaySize);
         for (const [index, dust] of presentation.dust.entries()) {
-            this.tireScrubGraphics.fillStyle(
-                index % 2 === 0 ? 0x91a8ae : 0x6f8993,
-                dust.alpha,
-            );
-            this.tireScrubGraphics.fillCircle(
-                dust.x,
-                dust.y,
-                dust.radius,
-            );
+            const puff = this.burnoutSmokePuffs[index];
+            puff
+                .setPosition(dust.x, dust.y)
+                .setDisplaySize(dust.radius * 6, dust.radius * 6)
+                .setAlpha(dust.alpha)
+                .setRotation(index * 0.82 + this.elapsedSec * (index % 2 === 0 ? 1.4 : -1.1))
+                .setTint(index % 2 === 0 ? 0x91a8ae : 0x718a94)
+                .setVisible(true);
         }
-        if (presentation.flash) {
-            this.tireScrubGraphics.fillStyle(0xc7dce0, presentation.flash.alpha);
-            this.tireScrubGraphics.fillEllipse(
-                presentation.flash.x,
-                presentation.flash.y,
-                presentation.flash.width,
-                presentation.flash.height,
-            );
+    }
+
+    private spawnInitialBurnoutSkidMarks(
+        presentation: NonNullable<ReturnType<typeof getLaunchBurnoutPresentation>>,
+        displaySize: number,
+    ) {
+        // One initial wheelspin imprint is enough. After the clutch bites the
+        // launch is grip-driven, so it must not keep drawing a moving trail.
+        if (this.burnoutSkidMarks.length > 0) return;
+        const z = this.getPlayerRoadContactZ();
+        const cameraElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
+        const roadCenterOffset = getRoadCenterOffsetAhead(
+            this.roadTrack,
+            this.cameraResource.z,
+            z - this.cameraResource.z,
+        );
+        const contactProjection = projectGroundPoint({
+            x: roadCenterOffset + this.playerVehicle.lateralOffset,
+            y: (getRoadElevationAt(this.roadTrack, z) - cameraElevation) * ELEVATION_VISUAL_SCALE,
+            z,
+        }, this.cameraResource, this.getViewport());
+        const tireOffsetWorld = contactProjection.visible
+            ? displaySize * 0.18 / contactProjection.scale
+            : displaySize * 0.06;
+        const widthPixels = Math.max(1.5, displaySize * 0.007);
+        const lengthPixels = Math.max(6, presentation.skidLength * 1.15);
+
+        for (const side of [-1, 1] as const) {
+            this.burnoutSkidMarks.push({
+                ageSec: 0,
+                alpha: presentation.skidAlpha * 0.78,
+                lateralOffset: this.playerVehicle.lateralOffset + side * tireOffsetWorld,
+                lengthPixels,
+                widthPixels,
+                z,
+            });
         }
+    }
+
+    private updateBurnoutSkidMarks(seconds: number) {
+        const markDurationSec = 1.1;
+
+        this.burnoutSkidMarks = this.burnoutSkidMarks.filter((mark) => {
+            mark.ageSec += seconds;
+            return mark.ageSec < markDurationSec;
+        });
+    }
+
+    private renderBurnoutSkidMarks() {
+        const markDurationSec = 1.1;
+        const viewport = this.getViewport();
+
+        for (const mark of this.burnoutSkidMarks) {
+            const elapsedRatio = mark.ageSec / markDurationSec;
+            const fade = 1 - Phaser.Math.Clamp((elapsedRatio - 0.48) / 0.52, 0, 1);
+            const start = this.projectBurnoutSkidMarkPoint(mark.z, mark.lateralOffset);
+
+            if (!start.visible || start.y > viewport.height + mark.lengthPixels) continue;
+
+            this.tireScrubGraphics.lineStyle(mark.widthPixels, 0x1d2d35, mark.alpha * fade);
+            this.tireScrubGraphics.lineBetween(start.x, start.y, start.x, start.y + mark.lengthPixels);
+        }
+    }
+
+    private projectBurnoutSkidMarkPoint(z: number, lateralOffset: number) {
+        const distanceAhead = z - this.cameraResource.z;
+        const cameraElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
+        const roadCenterOffset = getRoadCenterOffsetAhead(
+            this.roadTrack,
+            this.cameraResource.z,
+            distanceAhead,
+        );
+
+        return projectGroundPoint({
+            x: roadCenterOffset + lateralOffset,
+            y: (getRoadElevationAt(this.roadTrack, z) - cameraElevation) * ELEVATION_VISUAL_SCALE,
+            z,
+        }, this.cameraResource, this.getViewport());
     }
 
     private getVehicleAnchor(viewport: Viewport): VehicleAnchor {
@@ -1962,6 +2048,7 @@ class ApexSeoulScene extends Phaser.Scene {
         );
         this.runState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
         this.launchState = createLaunchControlState();
+        this.burnoutSkidMarks = [];
         this.render();
     }
 

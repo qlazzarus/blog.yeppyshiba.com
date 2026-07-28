@@ -51,7 +51,6 @@ export function getPlayerPosePresentation(input: {
 
 export type LaunchBurnoutPresentation = {
     dust: Array<{ alpha: number; radius: number; x: number; y: number }>;
-    flash: { alpha: number; height: number; width: number; x: number; y: number } | null;
     skidAlpha: number;
     skidLength: number;
     tireXs: [number, number];
@@ -231,7 +230,10 @@ export function getLaunchBurnoutPresentation(input: {
     const fadeRatio = 1 - elapsedRatio;
     const centerX = input.anchor.x + input.shake.x;
     const y = input.anchor.y + input.shake.y + input.displaySize * 0.105;
-    const dustAlpha = fadeRatio * (launch.quality === 'overrev' ? 0.42 : 0.34);
+    // Keep the smoke readable after the tire has bitten, then clear it in the
+    // final 35% rather than fading from the first frame.
+    const dustFadeRatio = 1 - clamp((elapsedRatio - 0.65) / 0.35, 0, 1);
+    const dustAlpha = dustFadeRatio * (launch.quality === 'overrev' ? 0.42 : 0.34);
     const dustDistance = input.displaySize * lerp(0.04, 0.28, elapsedRatio);
     const dustRadius = input.displaySize * lerp(0.022, 0.052, elapsedRatio);
     const offsets = [-0.3, -0.13, 0.12, 0.29];
@@ -243,13 +245,6 @@ export function getLaunchBurnoutPresentation(input: {
             x: centerX + offset * input.displaySize * lerp(0.35, 0.9, elapsedRatio),
             y: y - dustDistance + Math.sin(elapsedRatio * 5.5 + index * 1.7) * input.displaySize * 0.008,
         })),
-        flash: elapsedRatio < 0.2 ? {
-            alpha: clamp(1 - elapsedRatio * 5, 0, 1) * 0.22,
-            height: input.displaySize * 0.065,
-            width: input.displaySize * 0.52,
-            x: centerX,
-            y: y + input.displaySize * 0.025,
-        } : null,
         skidAlpha: fadeRatio * (launch.quality === 'overrev' ? 0.7 : 0.58),
         skidLength: input.displaySize * lerp(0.045, 0.115, elapsedRatio),
         tireXs: [centerX - input.displaySize * 0.18, centerX + input.displaySize * 0.18],

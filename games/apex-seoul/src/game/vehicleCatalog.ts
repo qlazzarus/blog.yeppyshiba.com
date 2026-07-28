@@ -34,6 +34,7 @@ export function selectRuntimeVehicleAsset(
     if ((params.get('vehicle') ?? 'ft86-retro') === 'ft86-retro') {
         const requestedColor = params.get('vehicleColor') ?? 'blue';
         const color = assets.ft86.colors[requestedColor] ? requestedColor : 'blue';
+
         return {
             atlas: assets.ft86.atlas, color, engineProfile: assets.ft86.engineProfile,
             id: 'ft86-retro', shadowSpriteUrl: assets.ft86.shadowSpriteUrl,

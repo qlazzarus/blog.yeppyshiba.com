@@ -11,6 +11,7 @@
 ## 구조·콘텐츠 백로그
 
 - **Stinger vehicle catalog 추가:** 다음 vehicle 확장 시 Stinger asset URL, atlas, shadow, engine profile, 선택 URL과 catalog fixture를 함께 추가한다. 현재 5순위의 FT86/Genesis 계약은 변경하지 않는다.
+- **Vehicle art pass — 5way→7way steering pose:** center와 mild steer 사이의 slight pose 두 장을 추가할 때 atlas, shadow/headlight profile, frame selection QA를 한 pass로 확장한다. Three.js raw intermediate pose는 현재 FT86 style-filter 승인본과 튀므로, ComfyUI 환경 복구 뒤에만 재개한다. 상세 계약은 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md)에서 관리한다.
 
 ## 현재 승인 기준선
 
