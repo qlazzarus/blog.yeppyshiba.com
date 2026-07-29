@@ -49,6 +49,7 @@ import {
 } from './game/guardrailScreenProjection';
 import {
     createDefaultCamera,
+    getFocalLength,
     getHorizonY,
     projectGroundPoint,
     type Pseudo3dCamera,
@@ -95,6 +96,7 @@ import {
     type CourseRunConfig,
     type CourseRunState,
 } from './game/courseRun';
+import { loadBestRunTime, saveBestRunTime } from './game/runRecord';
 import {
     beginLaunch,
     createLaunchControlState,
@@ -245,6 +247,8 @@ const {
     },
 } = APEX_SEOUL_DEFAULTS;
 const ENABLE_DEBUG_CAMERA_CONTROLS = false;
+const FINISH_COAST_DURATION_SEC = 5;
+const FINISH_COAST_VEHICLE_TRAVEL_SEGMENTS = 18;
 const COURSE_RUN_CONFIG: CourseRunConfig = {
     checkpointRatios: COURSE_CHECKPOINT_RATIOS,
     countdownSeconds: RUN_COUNTDOWN_SECONDS,
@@ -327,6 +331,12 @@ type PlayerVehicleRenderState = {
     roadRelativeScale: number;
     roadRelativeTargetSize: number;
     roadWidthAtVehicleY: number | null;
+};
+
+type FinishCoastPresentation = {
+    size: number;
+    x: number;
+    y: number;
 };
 
 type PlayerVehicleVisualSteeringState = {
@@ -466,7 +476,20 @@ class ApexSeoulScene extends Phaser.Scene {
     private speedEffectShader!: Phaser.GameObjects.Shader;
     private speedEffectTime = 0;
     private telemetry: RuntimeTelemetryRecorder | null = null;
+    private courseRunConfig: CourseRunConfig = COURSE_RUN_CONFIG;
     private runState: CourseRunState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
+    private bestRunTimeSec: number | null = null;
+    private checkpointNoticeRemainingSec = 0;
+    private checkpointNoticeText = '';
+    private lastFinishDeltaSec: number | null = null;
+    private runFinishedWithBest = false;
+    private finishCoastRemainingSec = 0;
+    private finishCoastProgress = 0;
+    private finishCoastStartProjectionScale = 0;
+    private finishCoastLateralOffset = 0;
+    private finishCoastVehicleZ = 0;
+    private finishPresentationPhase: 'racing' | 'capture' | 'coast' | 'results' = 'racing';
+    private finishCoastPresentation: FinishCoastPresentation | null = null;
 
     constructor() {
         super('apex-seoul');
@@ -498,7 +521,13 @@ class ApexSeoulScene extends Phaser.Scene {
 
     create() {
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
-        this.roadObjects = createRoadObjects(this.roadTrack);
+        this.courseRunConfig = {
+            ...COURSE_RUN_CONFIG,
+            finishRatio: 1,
+        };
+        this.runState = createCourseRunState(this.courseRunConfig, RUNTIME_QA.enabled);
+        this.roadObjects = createRoadObjects(this.roadTrack, COURSE_CHECKPOINT_RATIOS);
+        this.bestRunTimeSec = loadBestRunTime(this.roadTrack.id);
         this.applyRuntimeQaOverrides();
         this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
         this.cameras.main.setBackgroundColor('#050812');
@@ -620,6 +649,20 @@ class ApexSeoulScene extends Phaser.Scene {
 
         if (this.runState.finished) {
             this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
+            if (this.finishPresentationPhase === 'capture') {
+                this.beginFinishCoast();
+            } else if (this.finishPresentationPhase === 'coast') {
+                this.finishCoastRemainingSec = Math.max(0, this.finishCoastRemainingSec - seconds);
+                this.finishCoastProgress = 1 - this.finishCoastRemainingSec / FINISH_COAST_DURATION_SEC;
+                const coastEndZ = this.roadTrack.finishZ +
+                    this.roadTrack.segmentLength * FINISH_COAST_VEHICLE_TRAVEL_SEGMENTS;
+                this.finishCoastVehicleZ = Math.min(
+                    coastEndZ,
+                    this.finishCoastVehicleZ + (coastEndZ - this.finishCoastVehicleZ) /
+                        Math.max(0.001, this.finishCoastRemainingSec + seconds) * seconds,
+                );
+                if (this.finishCoastRemainingSec === 0) this.finishPresentationPhase = 'results';
+            }
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
             camera.fovDegrees = this.cameraEffects.fovDegrees;
@@ -1190,9 +1233,21 @@ class ApexSeoulScene extends Phaser.Scene {
         const roadRelativeSize = roadRelativePresentation.size;
         const roadRelativeTargetSize = roadRelativePresentation.targetSize;
 
-        const displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, RUNTIME_TUNING);
+        let displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, RUNTIME_TUNING);
+        const finishStart = this.finishCoastPresentation;
+        if (this.finishPresentationPhase === 'coast' && finishStart) {
+            // The car begins at the captured rear-sprite transform, then its
+            // scale follows the same fixed-camera projection as the road.
+            displaySize = finishStart.size * Phaser.Math.Clamp(
+                anchor.scale / Math.max(0.0001, this.finishCoastStartProjectionScale),
+                0.1,
+                1,
+            );
+        }
         const centerContactProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, 'center');
-        const guardrailScreenProjection = roadSpanAtVehicleY
+        const guardrailScreenProjection = this.finishPresentationPhase === 'coast'
+            ? null
+            : roadSpanAtVehicleY
             ? projectGuardrailCollisionToScreen(
                 roadSpanAtVehicleY,
                 getGuardrailCollisionGeometry(this.getGuardrailCollisionContext()),
@@ -1230,6 +1285,23 @@ class ApexSeoulScene extends Phaser.Scene {
             visualSteering,
         });
 
+        if (this.finishPresentationPhase !== 'racing') {
+            return {
+                flipX: false,
+                frameId: 'center',
+                rotationRadians: 0,
+                visualSteering: {
+                    ...visualSteering,
+                    bodyYawValue: 0,
+                    inputPoseValue: 0,
+                    physicalValue: 0,
+                    rotationValue: 0,
+                    understeerCueIntensity: 0,
+                    value: 0,
+                },
+            };
+        }
+
         return {
             ...presentation,
             visualSteering,
@@ -1249,6 +1321,7 @@ class ApexSeoulScene extends Phaser.Scene {
             ? (displaySize - previousSizeSample.size) / elapsedSinceLastSizeSample
             : 0;
         const vehicleBodyWidth = displaySize;
+        const finishCoastFade = this.getFinishCoastVehicleFade();
         const visualSteering = poseState.visualSteering;
         const frame = PLAYER_VEHICLE_ATLAS.frames[poseState.frameId];
 
@@ -1258,7 +1331,16 @@ class ApexSeoulScene extends Phaser.Scene {
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x + this.cameraEffects.shake.x, anchor.y + this.cameraEffects.shake.y)
             .setDisplaySize(displaySize, displaySize)
-            .setRotation(poseState.rotationRadians);
+            .setRotation(poseState.rotationRadians)
+            .setAlpha(finishCoastFade)
+            .setTint(this.getFinishCoastVehicleTint());
+
+        // `capture` has already forced the central rear frame. Recording this
+        // rendered transform makes the first coast projection continuous even
+        // when the player crossed the line while steering left or right.
+        if (this.finishPresentationPhase === 'capture' && !this.finishCoastPresentation) {
+            this.finishCoastPresentation = { size: displaySize, x: anchor.x, y: anchor.y };
+        }
 
         this.lastVehicleQaState = {
             anchor,
@@ -1295,6 +1377,7 @@ class ApexSeoulScene extends Phaser.Scene {
         poseState: PlayerVehiclePoseRenderState,
     ) {
         const { anchor, displaySize } = renderState;
+        const finishCoastFade = this.getFinishCoastVehicleFade();
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, 0, 1);
         const terrainIntensity = getContactTerrainCueIntensity(anchor.contactTerrainRatio);
         const visualSteering = poseState.visualSteering;
@@ -1329,7 +1412,7 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.playerSoftShadowCar
             .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
-            .setAlpha(shadowPresentation.soft.alpha)
+            .setAlpha(shadowPresentation.soft.alpha * finishCoastFade)
             .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
@@ -1342,7 +1425,7 @@ class ApexSeoulScene extends Phaser.Scene {
 
         this.playerShadowCar
             .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
-            .setAlpha(shadowPresentation.silhouette.alpha)
+            .setAlpha(shadowPresentation.silhouette.alpha * finishCoastFade)
             .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(
@@ -1353,7 +1436,7 @@ class ApexSeoulScene extends Phaser.Scene {
             )
             .setRotation(shadowPresentation.silhouette.rotationRadians);
 
-        this.graphics.fillStyle(0x010303, shadowPresentation.contactPatch.alpha);
+        this.graphics.fillStyle(0x010303, shadowPresentation.contactPatch.alpha * finishCoastFade);
         drawShadowContactPatch(
             this.graphics,
             shadowPresentation.contactPatch.x,
@@ -1361,6 +1444,32 @@ class ApexSeoulScene extends Phaser.Scene {
             shadowPresentation.contactPatch.width * shadowProfile.chassis.w,
             shadowPresentation.contactPatch.height * shadowProfile.chassis.h,
         );
+    }
+
+    private getFinishCoastVehicleFade() {
+        if (this.finishPresentationPhase === 'results') return 0;
+        if (this.finishPresentationPhase !== 'coast') return 1;
+
+        return 1 - Phaser.Math.Clamp((this.finishCoastProgress - 0.66) / 0.34, 0, 1);
+    }
+
+    private getFinishCoastVehicleTint() {
+        const darkness = this.finishPresentationPhase === 'coast'
+            ? Phaser.Math.Clamp((this.finishCoastProgress - 0.55) / 0.45, 0, 1) * 0.76
+            : this.finishPresentationPhase === 'results' ? 0.76 : 0;
+        const channel = Math.round(255 * (1 - darkness));
+
+        return (channel << 16) | (channel << 8) | channel;
+    }
+
+    private getFinishCoastHeadlightFade() {
+        if (this.finishPresentationPhase === 'results') return 0;
+        if (this.finishPresentationPhase !== 'coast') return 1;
+
+        // Let the beam die slightly before the body disappears, so the final
+        // shot reads as the car receding into darkness rather than leaving a
+        // fixed light source behind.
+        return 1 - Phaser.Math.Clamp((this.finishCoastProgress - 0.45) / 0.55, 0, 1);
     }
 
     private renderUndersteerTireCue(
@@ -1514,7 +1623,7 @@ class ApexSeoulScene extends Phaser.Scene {
         );
         const curveScreenBias =
             -this.playerPhysicsRoadSample.currentCurve * RUNTIME_TUNING.curveScreenBias;
-        return getPlayerAnchorPresentation({
+        const anchor = getPlayerAnchorPresentation({
             contactElevationDelta,
             contactRoadCenterOffset,
             curveScreenBias,
@@ -1524,6 +1633,71 @@ class ApexSeoulScene extends Phaser.Scene {
             tuning: RUNTIME_TUNING,
             viewport,
         });
+        if (this.finishPresentationPhase === 'coast') {
+            const coastZ = this.finishCoastVehicleZ;
+            const coastDistanceAhead = coastZ - this.cameraResource.z;
+            const coastCenterOffset = getRoadCenterOffsetAhead(
+                this.roadTrack,
+                this.cameraResource.z,
+                coastDistanceAhead,
+            );
+            const coastProjection = projectGroundPoint({
+                x: coastCenterOffset + this.finishCoastLateralOffset * (1 - this.finishCoastProgress),
+                y: (getRoadElevationAt(this.roadTrack, coastZ) - currentRoadElevation) * ELEVATION_VISUAL_SCALE,
+                z: coastZ,
+            }, this.cameraResource, viewport);
+
+            // The first coast frame is a perspective projection which exactly
+            // matches the captured rear-sprite transform. From there the car
+            // moves only by advancing along the post-finish road.
+            if (coastProjection.visible) {
+                anchor.x = coastProjection.x;
+                anchor.y = coastProjection.y;
+                anchor.scale = coastProjection.scale;
+            }
+        }
+
+        return anchor;
+    }
+
+    private beginFinishCoast() {
+        const finishStart = this.finishCoastPresentation;
+        if (!finishStart) return;
+
+        const viewport = this.getViewport();
+        const camera = this.cameraResource;
+        const focalLength = getFocalLength(camera, viewport);
+        const horizonY = getHorizonY(camera, viewport);
+        // Reverse the ground projection so the vehicle's first world-space
+        // position lands exactly at the transform captured after forcing the
+        // rear sprite. The post-finish road is level, so this is stable.
+        const startDepth = Phaser.Math.Clamp(
+            focalLength * camera.height / Math.max(24, finishStart.y - horizonY),
+            this.roadTrack.segmentLength * 2,
+            this.roadTrack.segmentLength * (FINISH_COAST_VEHICLE_TRAVEL_SEGMENTS - 1),
+        );
+        const coastEndZ = this.roadTrack.finishZ +
+            this.roadTrack.segmentLength * FINISH_COAST_VEHICLE_TRAVEL_SEGMENTS;
+        this.finishCoastVehicleZ = Math.min(coastEndZ - this.roadTrack.segmentLength, camera.z + startDepth);
+
+        const coastDistanceAhead = this.finishCoastVehicleZ - camera.z;
+        const coastCenterOffset = getRoadCenterOffsetAhead(
+            this.roadTrack,
+            camera.z,
+            coastDistanceAhead,
+        );
+        const cameraElevation = getRoadElevationAt(this.roadTrack, camera.z);
+        const baseProjection = projectGroundPoint({
+            x: coastCenterOffset,
+            y: (getRoadElevationAt(this.roadTrack, this.finishCoastVehicleZ) - cameraElevation) * ELEVATION_VISUAL_SCALE,
+            z: this.finishCoastVehicleZ,
+        }, camera, viewport);
+
+        if (!baseProjection.visible) return;
+        this.finishCoastStartProjectionScale = baseProjection.scale;
+        this.finishCoastLateralOffset = (finishStart.x - viewport.width / 2) /
+            Math.max(0.0001, baseProjection.scale) + camera.lateralOffset - coastCenterOffset;
+        this.finishPresentationPhase = 'coast';
     }
 
     private getPlayerSpeedKmh() {
@@ -1679,19 +1853,26 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private updateSpeedEffect(seconds: number) {
-        const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, 0, 1);
+        const isFinishCoasting = this.finishPresentationPhase === 'coast';
+        const coastFade = isFinishCoasting ? 1 - this.finishCoastProgress : 1;
+        const effectiveSpeedKmh = isFinishCoasting
+            ? Phaser.Math.Linear(185, 0, this.finishCoastProgress)
+            : this.getPlayerSpeedKmh();
+        const speedRatio = isFinishCoasting
+            ? Phaser.Math.Clamp(effectiveSpeedKmh / 225, 0, 1)
+            : Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, 0, 1);
         const cue = updateSpeedCue(this.speedCueState, {
-            accelPressed: this.getDriveCommand().accelPressed,
+            accelPressed: isFinishCoasting ? false : this.getDriveCommand().accelPressed,
             downhillRatio: Math.max(0, this.getSlopeRatio()),
             driftRatio: this.playerVehicle.driftRatio,
             driftState: this.playerVehicle.driftState,
             seconds,
-            speedKmh: this.getPlayerSpeedKmh(),
+            speedKmh: effectiveSpeedKmh,
         });
 
         this.speedEffectIntensity = Phaser.Math.Linear(
             this.speedEffectIntensity,
-            getSpeedEffectIntensity(cue.intensity),
+            getSpeedEffectIntensity(cue.intensity) * coastFade,
             1 - Math.exp(-8 * seconds),
         );
         this.speedEffectTime += seconds * Phaser.Math.Linear(
@@ -1700,6 +1881,8 @@ class ApexSeoulScene extends Phaser.Scene {
             speedRatio,
         );
         this.speedEffectCue = cue;
+        if (isFinishCoasting) return;
+
         this.cameraEffects = updateCameraEffects(this.cameraEffects, {
             cue,
             cueLimits: SPEED_CUE_CONFIG,
@@ -1727,6 +1910,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private getHeadlightShaderUniforms(): HeadlightShaderUniforms {
         const viewport = this.getViewport();
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, 0, 1);
+        const finishHeadlightFade = this.getFinishCoastHeadlightFade();
         const fallbackY = this.playerCar.y - this.playerCar.displayHeight * 0.22;
         const fallbackSpacing = this.playerCar.displayWidth * 0.045;
         const lampPose = this.headlightLampPose;
@@ -1757,7 +1941,7 @@ class ApexSeoulScene extends Phaser.Scene {
             cornerFillWeight: this.headlightOpticalState.cornerFillWeight,
             cornerFillYawDeg: this.headlightOpticalState.cornerFillYawDeg,
             farHalfWidthRatio: footprint.farHalfWidthRatio,
-            intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio),
+            intensity: Phaser.Math.Linear(0.72, 0.9, speedRatio) * finishHeadlightFade,
             lampHalfSpan: lampPose?.lampHalfSpan ?? fallbackSpacing,
             lampLeftIntensity: emitter.leftIntensity,
             lampLeftOrigin: lampPose?.lampLeft ?? {
@@ -2006,15 +2190,39 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private updateRunState(seconds: number) {
+        const passedCheckpointsBefore = this.runState.passedCheckpoints;
         const finishedNow = updateCourseRunProgress(
             this.runState,
-            this.cameraResource.z / this.roadTrack.length,
+            this.cameraResource.z / this.roadTrack.finishZ,
             seconds,
-            COURSE_RUN_CONFIG,
+            this.courseRunConfig,
         );
+
+        if (this.runState.passedCheckpoints > passedCheckpointsBefore) {
+            const checkpointIndex = this.runState.passedCheckpoints - 1;
+            const checkpointTime = this.runState.checkpointTimesSec[checkpointIndex] ?? this.runState.elapsedSec;
+            this.checkpointNoticeText = `CHECKPOINT ${checkpointIndex + 1}/${COURSE_CHECKPOINT_RATIOS.length}\n${formatRunTime(checkpointTime)}`;
+            this.checkpointNoticeRemainingSec = 1.25;
+        }
+
+        this.checkpointNoticeRemainingSec = Math.max(0, this.checkpointNoticeRemainingSec - seconds);
 
         if (finishedNow) {
             this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
+            this.finishCoastRemainingSec = FINISH_COAST_DURATION_SEC;
+            this.finishCoastProgress = 0;
+            this.finishCoastStartProjectionScale = 0;
+            this.finishCoastLateralOffset = 0;
+            this.finishCoastVehicleZ = 0;
+            // The following render forces `center`, captures that exact
+            // rear-sprite transform, then the next update begins the coast.
+            this.finishPresentationPhase = 'capture';
+            this.finishCoastPresentation = null;
+            const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
+            const previousBest = this.bestRunTimeSec;
+            this.lastFinishDeltaSec = previousBest === null ? null : finishTimeSec - previousBest;
+            this.bestRunTimeSec = saveBestRunTime(this.roadTrack.id, previousBest, finishTimeSec);
+            this.runFinishedWithBest = this.bestRunTimeSec === finishTimeSec && previousBest !== finishTimeSec;
         }
     }
 
@@ -2046,7 +2254,18 @@ class ApexSeoulScene extends Phaser.Scene {
             PLAYER_VEHICLE_ATLAS,
             0,
         );
-        this.runState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
+        this.runState = createCourseRunState(this.courseRunConfig, RUNTIME_QA.enabled);
+        this.runFinishedWithBest = false;
+        this.lastFinishDeltaSec = null;
+        this.finishCoastRemainingSec = 0;
+        this.finishCoastProgress = 0;
+        this.finishCoastStartProjectionScale = 0;
+        this.finishCoastLateralOffset = 0;
+        this.finishCoastVehicleZ = 0;
+        this.finishPresentationPhase = 'racing';
+        this.finishCoastPresentation = null;
+        this.checkpointNoticeRemainingSec = 0;
+        this.checkpointNoticeText = '';
         this.launchState = createLaunchControlState();
         this.burnoutSkidMarks = [];
         this.render();
@@ -2095,8 +2314,19 @@ class ApexSeoulScene extends Phaser.Scene {
         this.runStatusText.setPosition(viewport.width / 2, viewport.height * 0.35);
 
         if (this.runState.finished) {
+            if (this.finishPresentationPhase === 'capture' || this.finishPresentationPhase === 'coast') {
+                this.runStatusText.setVisible(false);
+                return;
+            }
+            const finishTime = this.runState.finishTimeSec ?? this.runState.elapsedSec;
+            const bestText = this.bestRunTimeSec === null
+                ? 'BEST --'
+                : `BEST ${formatRunTime(this.bestRunTimeSec)}${this.runFinishedWithBest ? '  NEW BEST' : ''}`;
+            const deltaText = this.lastFinishDeltaSec === null
+                ? ''
+                : `\nDELTA ${this.lastFinishDeltaSec >= 0 ? '+' : '-'}${formatRunTime(Math.abs(this.lastFinishDeltaSec))}`;
             this.runStatusText
-                .setText(`FINISH\n${formatRunTime(this.runState.finishTimeSec ?? this.runState.elapsedSec)}\nR TO RESTART`)
+                .setText(`FINISH\n${formatRunTime(finishTime)}\n${bestText}${deltaText}\nR TO RESTART`)
                 .setFontSize(34)
                 .setVisible(true);
             return;
@@ -2110,7 +2340,16 @@ class ApexSeoulScene extends Phaser.Scene {
             return;
         }
 
-        this.runStatusText.setVisible(false);
+        if (this.checkpointNoticeRemainingSec > 0) {
+            this.runStatusText
+                .setText(this.checkpointNoticeText)
+                .setFontSize(32)
+                .setAlpha(Math.min(1, this.checkpointNoticeRemainingSec / 0.18))
+                .setVisible(true);
+            return;
+        }
+
+        this.runStatusText.setAlpha(1).setVisible(false);
     }
 
     private publishRuntimeQaState(viewport: Viewport, horizonY: number) {

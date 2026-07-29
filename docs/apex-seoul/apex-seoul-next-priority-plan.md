@@ -1,6 +1,6 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-07-24
+갱신일: 2026-07-29
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
 
@@ -122,12 +122,30 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 ### 구현 범위
 
 1. ~~시작 전 짧은 ready/countdown 상태~~ — 일반 플레이는 3초간 정지 후 출발, QA URL은 즉시 시작
-2. 주행 중 현재 시간과 checkpoint/sector split 피드백
+2. 주행 중 현재 시간과 checkpoint split 피드백, checkpoint 상공 통과 gate
 3. finish 뒤 결과 화면
 4. 이번 기록, best 기록과 차이 표시
 5. 즉시 restart와 기록 유지
+6. 80km/h부터 시작해 속도에 따라 밀도·길이·발광이 커지는 소실점 기준 만화식 speed line
+7. 왼쪽 가드레일의 연속 가로등과 기존 `>> / <<` chevron의 코너 진입 재배치
+8. 가로등의 제한적인 lamp glow/road pool과, timed finish 뒤 약 5초 coast에 놓인 별도 finishing gantry
 
 현재 존재하는 progress/checkpoint/finish state를 사용하고 별도의 복잡한 메뉴 시스템부터 만들지 않는다.
+
+checkpoint gate는 차량이 통과할 충분한 폭과 높이를 가진 `Π`형 상공 구조물이다. 도로 양쪽의 두 기둥과 이를 잇는 상단 빔만 렌더하며, 차량·가드레일과는 충돌하지 않는다.
+
+```text
++-----+
+|     |
+```
+
+통과 순간의 split UI와 같은 checkpoint source를 공유하며, gate 자체가 진행 지점을 읽게 한다. gate 전후에는 chevron을 과밀하게 두지 않는다.
+
+speed line은 `80km/h`에서 거의 보이지 않게 시작해 `120~160km/h`에서 명확해지고, `185~225km/h`에서 가장 강한 만화식 속도감을 만든다. 가속 중에는 짧게 증폭하고 제동에서는 빠르게 감쇠한다. 소실점 주변에서 화면 바깥으로 퍼지되 road, chevron과 checkpoint gate의 판독성을 가리지 않는다.
+
+가로등은 왼쪽 가드레일을 따라 야간 도로의 cadence를 만든다. 기존 chevron은 모든 curve segment에 반복하지 않고 commitment corner 진입 전의 바깥 rail에 `2~4개` 묶음으로 둬 위험 방향을 미리 읽게 한다.
+
+가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 약 5초(`48 segment`)의 untimed coast를 두고, checkpoint gate를 재사용하지 않는 넓은 finishing gantry와 상단의 세 light를 coast 34 segment 지점에 배치한다. gantry 뒤에도 약 1.5초의 도로를 남겨 terminal road block처럼 보이지 않게 한다. finish 직후 카메라는 finish 지점에 고정하고 차량만 연속된 road projection 위로 진행한 뒤 결과 UI를 보인다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
 
 출발 countdown의 rev·launch control·burnout 후속은 [출발 rev·launch control·burnout 설계](./apex-seoul-launch-control-burnout-plan.md)에서 상태, 힘 보정, 시각 cue와 블로그 기록 기준을 함께 관리한다.
 
@@ -138,6 +156,7 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 - best record는 새 기록일 때만 갱신되며 새로고침 정책이 명확하다.
 - 키보드와 향후 모바일 입력이 같은 run command를 사용한다.
 - U2 속도, powertrain, grip/drift, collision과 기존 telemetry가 유지된다.
+- checkpoint gate, chevron, 가로등과 speed line이 crest visibility/fog와 같은 road projection 규칙을 따르며 gameplay 시야를 가리지 않는다.
 
 ## P2 — 코스 gameplay 구조
 
@@ -149,8 +168,10 @@ time attack loop가 완성된 뒤 코스를 단순 배경이 아니라 판단 �
 - checkpoint별 split과 구간 특성 표시
 - 코너 진입 준비, line 유지와 exit speed를 결과에서 읽을 수 있는 최소 피드백
 - 같은 입력으로 반복 주행할 수 있는 deterministic start/track 조건
+- checkpoint/split과 같은 이름을 쓰는 짧은 section name 표지
+- 실제 section 전환이 필요한 한 곳에만 쓰는 짧은 rock-cut/overhang landmark
 
-환경 랜드마크, sector 전환, route fork를 먼저 구현하지 않는다. 필요해질 경우 D-01/D-02/D-05를 이 작업에 병합한다.
+rock-cut/overhang은 터널이나 새 코스의 대체물이 아니다. 기존 road projection, crest visibility, headlight/fog 규칙 안에서 짧은 시야·조명 변화로 section 전환만 읽게 한다. 환경 랜드마크, sector 전환, route fork를 먼저 구현하지 않는다. 필요해질 경우 D-01/D-02/D-05를 이 작업에 병합한다.
 
 ### 완료 조건
 
@@ -180,7 +201,7 @@ time attack loop가 완성된 뒤 코스를 단순 배경이 아니라 판단 �
 
 | 순서 | milestone | 핵심 결과 | 보류 항목 병합 가능성 |
 | ---: | --- | --- | --- |
-| 4 | presentation/content integration | 코스별 환경 정체성과 필요한 시청각 피드백 | D-01, D-03, D-09~D-12 |
+| 4 | presentation/content integration | 코스별 환경 정체성과 필요한 시청각 피드백, 제한적인 tail-light glow | D-01, D-03, D-09~D-12 |
 | 5 | replayability | 차량 선택, traffic/opponent, 점수 또는 다른 도전 조건 | D-06~D-08 |
 | 6 | track expansion | 새 sector, 충분히 다른 추가 코스 또는 선택 경로 | D-02, D-04, D-05 |
 | 7 | release readiness | 성능 budget, 저장 데이터, 통합 QA와 공개 빌드 | 남은 release blocker만 선별 |
@@ -195,6 +216,8 @@ time attack loop가 완성된 뒤 코스를 단순 배경이 아니라 판단 �
 - 장면 변화 없는 코스 연장
 - 차량 수만 늘리고 차량별 gameplay 차이를 만들지 않는 확장
 - 자동 QA 통과 수치만을 위한 플레이 감각 변경
+
+테일라이트는 M4 vehicle-feedback pass에서 먼저 제한적인 red glow만 검토한다. 차량이 화면 anchor에 머무르는 구조상 이동 잔상은 속도보다 조향·drift로 오인될 수 있으므로, glow 가독성 검증 뒤에만 조건부로 추가한다.
 
 ## 다음 결정
 

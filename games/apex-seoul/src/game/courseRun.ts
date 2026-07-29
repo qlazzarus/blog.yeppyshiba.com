@@ -5,6 +5,7 @@ export type CourseRunConfig = {
 };
 
 export type CourseRunState = {
+    checkpointTimesSec: Array<number | null>;
     countdownRemainingSec: number;
     elapsedSec: number;
     finishTimeSec: number | null;
@@ -19,6 +20,7 @@ export function createCourseRunState(
     skipCountdown = false,
 ): CourseRunState {
     return {
+        checkpointTimesSec: config.checkpointRatios.map(() => null),
         countdownRemainingSec: skipCountdown ? 0 : config.countdownSeconds,
         elapsedSec: 0,
         finishTimeSec: null,
@@ -46,9 +48,12 @@ export function updateCourseRunProgress(
 
     state.elapsedSec += seconds;
     state.progressRatio = clamp(progressRatio, 0, config.finishRatio);
-    state.passedCheckpoints = config.checkpointRatios.filter(
-        (checkpointRatio) => state.progressRatio >= checkpointRatio,
-    ).length;
+    for (const [index, checkpointRatio] of config.checkpointRatios.entries()) {
+        if (state.progressRatio >= checkpointRatio && state.checkpointTimesSec[index] === null) {
+            state.checkpointTimesSec[index] = state.elapsedSec;
+        }
+    }
+    state.passedCheckpoints = state.checkpointTimesSec.filter((time) => time !== null).length;
 
     if (state.progressRatio < config.finishRatio) return false;
 

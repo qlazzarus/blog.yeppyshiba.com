@@ -1,6 +1,6 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-07-24
+갱신일: 2026-07-29
 
 ## 프로젝트 목표
 
@@ -70,9 +70,12 @@ ready/countdown
 ### 핵심 결과물
 
 - 명확한 start/finish 상태와 restart
-- 현재 기록, best 기록과 split 차이
+- 차량이 통과하는 `Π`형 비충돌 checkpoint gate와 현재 기록, best 기록, split 차이
 - 결과 화면과 최소 저장 정책
 - telemetry와 실제 UI가 같은 run timing source 사용
+- 80km/h부터 속도에 따라 강해지는 소실점 기준 만화식 speed line
+- 왼쪽 가드레일 가로등과 corner-entry에 재배치한 기존 `>> / <<` chevron
+- fog/crest 규칙을 공유하는 가로등 glow·road pool과, timed finish 뒤 약 5초 coast의 별도 finishing gantry·고정 카메라 완주 숏
 
 ### gate
 
@@ -92,6 +95,7 @@ ready/countdown
 - checkpoint 또는 section split
 - entry 준비, line 유지와 exit speed를 읽는 최소 결과 피드백
 - deterministic track/start 조건
+- checkpoint/split과 이름을 공유하는 section 표지와, 필요한 한 곳의 짧은 rock-cut/overhang landmark
 
 ### gate
 
@@ -124,6 +128,7 @@ ready/countdown
 - 실제 elevation 구간에 붙는 crest/camera cue
 - gameplay 사건에 붙는 audio feedback
 - 차량 상태 가독성이 부족할 때의 제한적 VFX 보강
+- 차량 상태가 실제로 부족할 때의 tail-light glow. 이동 잔상은 speed cue가 아닌 steering/drift cue로 읽히지 않는다는 검증 뒤에만 추가
 
 ORS-2B, ORS-4, ORS-5와 ORS-6을 번호 순서대로 구현하지 않는다. M1~M3에서 확인된 제품 요구에 맞는 항목만 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)에서 가져온다.
 
