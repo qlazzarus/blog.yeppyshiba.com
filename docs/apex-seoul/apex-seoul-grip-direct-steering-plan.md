@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-28
 
-상태: **GDS-2A 구현·자동 회귀 검증 대기, browser replay 대기**
+상태: **GDS-2A·GDS-2B 구현·자동 회귀 검증 완료, browser replay 대기**
 
 ## 문제 정의
 
@@ -117,6 +117,29 @@ drift
 | `qa:heading-debt` | `5/5 PASS` |
 | `qa:corner-exit-recovery` | `6/6 PASS` |
 | production build | PASS |
+
+### GDS-2B — 바깥 heading debt 회복
+
+상태: **구현**
+
+2026-07-28 실주행 로그에서 full steer가 이미 반대 부호인 heading debt를 먼저 해소하는 동안 lateral offset이 계속 바깥으로 진행했다. GDS-2B는 다음의 제한된 보정만 추가한다.
+
+- `grip`, `requiredRoadYawRate` 기준 corner 방향 input, **같은 방향으로 교차한 physical steering**, 반대 heading debt가 동시에 있을 때 steering heading rate `1.4×`.
+- neutral, 반대 방향 steer, 이미 안쪽 heading, drift/recovery에는 보정 `1×`.
+- grip inside heading allowance를 `0.06 → 0.02`로 줄여 빠른 debt 해소가 반대 inertia launch로 바뀌지 않게 한다.
+- GDS-2B-2: raw input 반전 직후 physical steering이 아직 이전 부호면 보정을 기다린다. 130km/h rapid-reversal fixture에서 교차 전 physical steering은 `-0.0815`, 교차 뒤 `+0.1778`이며, 이때부터 heading은 `-0.3511 → -0.1552`로 회복한다.
+- GDS-2B-3: `currentCurve`는 render-space bend이고 실제 road yaw는 반대 부호다. 모든 same/counter steer 비교를 `requiredRoadYawRate` 기준으로 전환했다. left-curve/right-steer fixture는 오른쪽 front rail에 `1회` 접촉한다(`lateralOffset 333.3222`, contact direction `+1`).
+
+검증 fixture(130km/h, curve `0.45`, heading `-0.34`)의 0.4초 full steer 결과는 heading `-0.204 → -0.1178`, outward inertia `-64.6 → -37.3694u/s`, 최대 추가 outward offset 약 `25 → 20.0426u`다.
+
+| 검사 | 결과 |
+| --- | --- |
+| `qa:grip-outward-recovery` | `5/5 PASS` — 좌우 대칭·neutral 비개입·rapid reversal 보류·opposite-steer rail impact |
+| `qa:gds2b3-runtime` | `3/3 PASS` — 실제 browser track replay의 left-curve/right-steer가 right guardrail contact |
+
+`qa:gds2b3-runtime`은 Playwright/Windows Edge로 `qaStartZ=6200`, `qaStartSpeed=435`에서 시작하고 우조향을 유지한다. 실행 결과는 `assets/telemetry/generated/gds-2b3-runtime/`에 기록되며, fixture 시작 curve `0.5504`, full-right physical command 50 sample, progress `0.0878`의 right rail contact를 계약으로 검사한다.
+| `qa:grip-turn-in` | `3/3 PASS` |
+| `qa:corner-exit-recovery` | `6/6 PASS` |
 
 무입력 110/185km/h corner inertia와 offset은 각각 동일하게 유지됐다. `qa:corner-handling`의 실패는 GDS-1에서 기록한 CST-1 high-speed neutral gate 하나뿐이며, GDS-2의 active-input scaling과는 독립적이다.
 

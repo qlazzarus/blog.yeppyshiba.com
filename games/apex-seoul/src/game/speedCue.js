@@ -1,7 +1,7 @@
 export const SPEED_CUE_CONFIG = {
-    baseMaxIntensity: 0.1,
+    baseMaxIntensity: 0.16,
     baseSpeedBands: [
-        { intensityRatio: 0, speedKmh: 70 },
+        { intensityRatio: 0, speedKmh: 80 },
         { intensityRatio: 0.12, speedKmh: 110 },
         { intensityRatio: 0.42, speedKmh: 150 },
         { intensityRatio: 0.72, speedKmh: 185 },

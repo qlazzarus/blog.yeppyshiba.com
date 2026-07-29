@@ -26,10 +26,13 @@ import { GUARDRAIL_COLLISION_CONFIG } from './guardrailCollision';
 
 export type RoadObjectKind =
     | 'blue-reflector'
+    | 'checkpoint-gate'
+    | 'finish-gantry'
     | 'chevron-left'
     | 'chevron-right'
     | 'left-cliff-guardrail-post'
     | 'left-cliff-guardrail-span'
+    | 'left-streetlamp'
     | 'left-cliff-forest'
     | 'right-guardrail-post'
     | 'right-guardrail-span'
@@ -136,7 +139,10 @@ const LEFT_CLIFF_FOREST_CLUSTER_SLOTS = [
     zOffsetRatio: number;
 }>;
 
-export function createRoadObjects(track: RoadTrack): RoadObject[] {
+export function createRoadObjects(
+    track: RoadTrack,
+    checkpointRatios: readonly number[] = [0.25, 0.5, 0.75],
+) {
     const objects: RoadObject[] = [];
 
     for (let z = track.segmentLength * 3; z < track.length; z += track.segmentLength) {
@@ -242,15 +248,33 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             });
         }
 
-        if (profile === 'commitment' && segmentIndex % 8 === 0) {
+        if (segmentIndex % 4 === 0) {
             objects.push({
-                collisionRadius: 90,
-                id: `chevron-${z}`,
-                kind: outsideSide > 0 ? 'chevron-right' : 'chevron-left',
-                lateralOffset: outsideSide * (roadEdgeOffset + 220),
+                collisionRadius: 40,
+                id: `left-streetlamp-${z}`,
+                kind: 'left-streetlamp',
+                lateralOffset: -(roadEdgeOffset + 145),
                 profile,
-                z: z + track.segmentLength * 1.1,
+                z,
             });
+        }
+
+        // Chevron groups signal a commitment-corner entry rather than filling
+        // every curved segment with repeated signs.
+        if (profile === 'commitment' && segmentIndex % 16 === 0) {
+            for (let signIndex = 0; signIndex < 3; signIndex += 1) {
+                const signZ = z + track.segmentLength * (1.05 + signIndex * 1.15);
+                if (signZ >= track.length) continue;
+
+                objects.push({
+                    collisionRadius: 90,
+                    id: `chevron-${z}-${signIndex}`,
+                    kind: outsideSide > 0 ? 'chevron-right' : 'chevron-left',
+                    lateralOffset: outsideSide * (roadEdgeOffset + 220),
+                    profile,
+                    z: signZ,
+                });
+            }
         }
     }
 
@@ -304,6 +328,30 @@ export function createRoadObjects(track: RoadTrack): RoadObject[] {
             z: speedSignZ,
         },
     );
+
+    for (const [index, ratio] of checkpointRatios.entries()) {
+        const z = track.finishZ * ratio;
+        objects.push({
+            collisionRadius: 0,
+            id: `checkpoint-gate-${index + 1}`,
+            kind: 'checkpoint-gate',
+            lateralOffset: 0,
+            profile: 'open-view',
+            z,
+        });
+    }
+
+    // A finish marker uses the same open Π profile as checkpoints and sits
+    // immediately beyond the timed line, where the fixed finish camera can
+    // still hold it in view.
+    objects.push({
+        collisionRadius: 0,
+        id: 'finish-gate',
+        kind: 'checkpoint-gate',
+        lateralOffset: 0,
+        profile: 'open-view',
+        z: track.finishZ + track.segmentLength * 2,
+    });
 
     return objects.sort((a, b) => a.z - b.z);
 }
@@ -566,6 +614,11 @@ function projectRoadObjectScreen(
 }
 
 function getRoadRelativeObjectOffset(baseOffset: number, roadHalfWidth: number) {
+    // `0` is the road centre. Most roadside objects use DEFAULT_ROAD_HALF_WIDTH
+    // as their reference edge, but centre-spanning checkpoint gates must stay
+    // on the projected road centre through curves and width changes.
+    if (baseOffset === 0) return 0;
+
     const side = Math.sign(baseOffset) || 1;
     const outsideRoadOffset = Math.max(0, Math.abs(baseOffset) - DEFAULT_ROAD_HALF_WIDTH);
 
@@ -582,6 +635,12 @@ function drawRoadObject(
         case 'blue-reflector':
             drawBlueReflector(graphics, projected.screen, fog);
             return;
+        case 'checkpoint-gate':
+            drawCheckpointGate(graphics, projected.screen, fog);
+            return;
+        case 'finish-gantry':
+            drawFinishGantry(graphics, projected.screen, fog);
+            return;
         case 'chevron-left':
             drawChevron(graphics, projected.screen, -1, fog);
             return;
@@ -590,6 +649,9 @@ function drawRoadObject(
             return;
         case 'left-cliff-guardrail-span':
             drawGuardrailSpan(graphics, projected, 'left', fog);
+            return;
+        case 'left-streetlamp':
+            drawLeftStreetlamp(graphics, projected.screen, fog);
             return;
         case 'right-guardrail-span':
             drawGuardrailSpan(graphics, projected, 'right', fog);
@@ -712,6 +774,94 @@ function drawChevron(
     graphics.lineTo(x + direction * width * 0.22, y);
     graphics.lineTo(x - direction * width * 0.28, y + height * 0.32);
     graphics.strokePath();
+}
+
+function drawCheckpointGate(
+    graphics: Phaser.GameObjects.Graphics,
+    screen: ScreenPoint,
+    fog: number,
+) {
+    const width = scaleValue(screen, 1740, 70, 920);
+    const height = scaleValue(screen, 780, 36, 390);
+    const pillarThickness = Math.max(2, width * 0.035);
+    const topY = screen.y - height;
+    const color = mixWithWorldFog(0x67b7ff, fog);
+    const dark = mixWithWorldFog(0x07101f, fog);
+
+    graphics.lineStyle(Math.max(2, pillarThickness * 1.8), dark, 0.78);
+    graphics.lineBetween(screen.x - width * 0.5, screen.y, screen.x - width * 0.5, topY);
+    graphics.lineBetween(screen.x + width * 0.5, screen.y, screen.x + width * 0.5, topY);
+    graphics.lineBetween(screen.x - width * 0.5, topY, screen.x + width * 0.5, topY);
+    graphics.lineStyle(pillarThickness, color, 0.95);
+    graphics.lineBetween(screen.x - width * 0.5, screen.y, screen.x - width * 0.5, topY);
+    graphics.lineBetween(screen.x + width * 0.5, screen.y, screen.x + width * 0.5, topY);
+    graphics.lineBetween(screen.x - width * 0.5, topY, screen.x + width * 0.5, topY);
+}
+
+function drawFinishGantry(
+    graphics: Phaser.GameObjects.Graphics,
+    screen: ScreenPoint,
+    fog: number,
+) {
+    const width = scaleValue(screen, 2100, 90, 1080);
+    const height = scaleValue(screen, 920, 46, 470);
+    const pillarThickness = Math.max(2, width * 0.042);
+    const topY = screen.y - height;
+    const outerColor = mixWithWorldFog(0x0a1626, fog);
+    const frameColor = mixWithWorldFog(0x7cc8ff, fog);
+    const accentColor = mixWithWorldFog(0xe8f6ff, fog);
+    const visibleAlpha = 0.96 * (1 - fog * 0.65);
+
+    graphics.lineStyle(Math.max(3, pillarThickness * 2.4), outerColor, visibleAlpha);
+    graphics.lineBetween(screen.x - width * 0.5, screen.y, screen.x - width * 0.5, topY);
+    graphics.lineBetween(screen.x + width * 0.5, screen.y, screen.x + width * 0.5, topY);
+    graphics.lineBetween(screen.x - width * 0.5, topY, screen.x + width * 0.5, topY);
+    graphics.lineStyle(pillarThickness, frameColor, visibleAlpha);
+    graphics.lineBetween(screen.x - width * 0.5, screen.y, screen.x - width * 0.5, topY);
+    graphics.lineBetween(screen.x + width * 0.5, screen.y, screen.x + width * 0.5, topY);
+    graphics.lineBetween(screen.x - width * 0.5, topY, screen.x + width * 0.5, topY);
+
+    const panelHeight = Math.max(5, height * 0.16);
+    graphics.fillStyle(outerColor, visibleAlpha * 0.88);
+    graphics.fillRect(screen.x - width * 0.31, topY - panelHeight * 0.22, width * 0.62, panelHeight);
+    const lightRadius = Math.max(2, panelHeight * 0.22);
+    for (const ratio of [-0.18, 0, 0.18]) {
+        graphics.fillStyle(accentColor, visibleAlpha);
+        graphics.fillCircle(screen.x + width * ratio, topY + panelHeight * 0.28, lightRadius);
+    }
+}
+
+function drawLeftStreetlamp(
+    graphics: Phaser.GameObjects.Graphics,
+    screen: ScreenPoint,
+    fog: number,
+) {
+    const height = scaleValue(screen, 560, 20, 280);
+    const poleWidth = Math.max(1, scaleValue(screen, 22, 1, 9));
+    const armLength = scaleValue(screen, 120, 5, 56);
+    const topY = screen.y - height;
+    const poleColor = mixWithWorldFog(0x193c57, fog);
+    const lampColor = mixWithWorldFog(0xa7d9ff, fog);
+    const visibleAlpha = 1 - fog * 0.78;
+
+    graphics.lineStyle(poleWidth, poleColor, 0.94 * visibleAlpha);
+    graphics.lineBetween(screen.x, screen.y, screen.x, topY);
+    graphics.lineBetween(screen.x, topY, screen.x + armLength, topY);
+    const lampX = screen.x + armLength;
+    const lampY = topY + poleWidth * 1.5;
+    const lampRadius = Math.max(2, poleWidth * 1.8);
+    const glowRadius = Math.max(6, scaleValue(screen, 135, 5, 66));
+    const poolWidth = Math.max(10, scaleValue(screen, 260, 12, 130));
+    const poolHeight = Math.max(3, scaleValue(screen, 58, 3, 28));
+
+    // The glow and pool are deliberately modest: streetlights establish left
+    // roadside cadence while the player headlights continue to own road aim.
+    graphics.fillStyle(lampColor, 0.08 * visibleAlpha);
+    graphics.fillCircle(lampX, lampY, glowRadius);
+    graphics.fillStyle(lampColor, 0.18 * visibleAlpha);
+    graphics.fillEllipse(screen.x + armLength * 0.3, screen.y - poolHeight * 0.45, poolWidth, poolHeight);
+    graphics.fillStyle(lampColor, 0.9 * visibleAlpha);
+    graphics.fillCircle(lampX, lampY, lampRadius);
 }
 
 function drawGuardrailSpan(

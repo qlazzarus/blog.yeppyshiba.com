@@ -60,7 +60,7 @@ const downhill = runScenario(2, () => ({
 results['level-vs-downhill'] = { downhill, level };
 
 const metrics = {
-    baseAt69Kmh: getSpeedCueRatio(69) * SPEED_CUE_CONFIG.baseMaxIntensity,
+    baseAt79Kmh: getSpeedCueRatio(79) * SPEED_CUE_CONFIG.baseMaxIntensity,
     baseAt110Kmh: getSpeedCueRatio(110) * SPEED_CUE_CONFIG.baseMaxIntensity,
     baseAt150Kmh: getSpeedCueRatio(150) * SPEED_CUE_CONFIG.baseMaxIntensity,
     baseAt185Kmh: getSpeedCueRatio(185) * SPEED_CUE_CONFIG.baseMaxIntensity,
@@ -78,16 +78,16 @@ const metrics = {
 };
 
 const checks = [
-    checkAtMost('belowStartBase', metrics.baseAt69Kmh, 0.000001),
+    checkAtMost('belowStartBase', metrics.baseAt79Kmh, 0.000001),
     {
         id: 'kmhEnvelopeMonotonic',
         pass: envelopeIsMonotonic,
         target: 'non-decreasing from 0 to 225km/h',
         value: envelopeIsMonotonic,
     },
-    checkBetween('cruiseBandBase', metrics.baseAt110Kmh, 0.0119, 0.0121),
-    checkBetween('highSpeedBandBase', metrics.baseAt150Kmh, 0.0419, 0.0421),
-    checkBetween('fastBandBase', metrics.baseAt185Kmh, 0.0719, 0.0721),
+    checkBetween('cruiseBandBase', metrics.baseAt110Kmh, 0.0191, 0.0193),
+    checkBetween('highSpeedBandBase', metrics.baseAt150Kmh, 0.0671, 0.0673),
+    checkBetween('fastBandBase', metrics.baseAt185Kmh, 0.1151, 0.1153),
     checkAtMost('topSpeedHoldDelta', Math.abs(metrics.baseAt225Kmh - metrics.baseAt210Kmh), 0.000001),
     checkAtLeast('downhillDelta', metrics.downhillDelta, 0.1),
     checkBetween('driftExitBurstDuration', metrics.driftExitBurstDuration, 0.15, 0.34),
@@ -95,7 +95,7 @@ const checks = [
     checkAtLeast('delayedDriftExitBurstPeak', metrics.delayedDriftExitBurstPeak, 0.18),
     checkAtMost('initialHoldBurstPeak', metrics.initialHoldBurstPeak, 0.001),
     checkAtMost('liftBurstPeakAfterRelease', metrics.liftBurstPeakAfterRelease, 0.001),
-    checkAtMost('steadyCruisePeakAfterWarmup', metrics.steadyCruisePeakAfterWarmup, 0.11),
+    checkAtMost('steadyCruisePeakAfterWarmup', metrics.steadyCruisePeakAfterWarmup, 0.17),
     checkBetween('throttleBurstDuration', metrics.throttleBurstDuration, 0.12, 0.26),
     checkAtLeast('throttleBurstPeak', metrics.throttleBurstPeak, 0.14),
 ];

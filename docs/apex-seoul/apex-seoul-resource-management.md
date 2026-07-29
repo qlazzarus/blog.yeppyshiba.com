@@ -115,6 +115,12 @@ source model
 
 ComfyUI는 차량을 새로 그리는 generator가 아니라 style filter다. 실루엣, pose grid, material 역할은 deterministic 입력과 후처리가 보장한다.
 
+### 7way steering pose 확장
+
+차량 steering pose를 늘릴 때는 source model을 새로 생성하지 않는다. 동일한 Three.js offline render rig에서 `center`, slight steer, mild steer, strong steer의 source pose를 고정 camera/light 조건으로 렌더하고, 좌측은 `flipX`로 파생한다. 5way→7way의 naming, source angle, atlas·headlight·shadow QA 조건은 [차량 7way pose·Three.js sprite 생성 계획](apex-seoul-vehicle-pose-density-plan.md)이 소유한다.
+
+Three.js는 GLB scene transform·camera·light·material·procedural mesh를 결정적으로 수정/렌더하는 authoring 도구다. source mesh의 topology/UV/sculpt 같은 DCC 작업을 대체한다고 취급하지 않는다.
+
 ## 승인 체크리스트
 
 리소스를 `approved` 또는 런타임 import로 올리기 전에 모두 확인한다.

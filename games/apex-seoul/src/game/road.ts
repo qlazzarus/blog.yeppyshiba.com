@@ -8,6 +8,7 @@ export type RoadSegment = {
 };
 
 export type RoadTrack = {
+    finishZ: number;
     id: RoadTrackId;
     length: number;
     name: string;
@@ -22,6 +23,7 @@ export type RoadHeadingPreview = {
 };
 
 export const SEGMENT_LENGTH = 240;
+export const POST_FINISH_COAST_SEGMENTS = 48;
 
 const DEFAULT_LANE_COUNT = 2;
 export const DEFAULT_ROAD_HALF_WIDTH = 960;
@@ -79,6 +81,8 @@ const BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS: TrackSection[] = [
     { endCurve: -0.24, endElevation: -480, segments: 10, startCurve: 0.28, startElevation: -465 },
     { endCurve: 0, endElevation: -490, segments: 10, startCurve: -0.24, startElevation: -480 },
     { endCurve: 0, endElevation: -500, segments: 32, startCurve: 0, startElevation: -490 },
+    // Five-second post-finish coast: outside the timed course, reserved for the fixed-camera finish shot.
+    { endCurve: 0, endElevation: -500, segments: POST_FINISH_COAST_SEGMENTS, startCurve: 0, startElevation: -500 },
 ];
 
 const BUGAK_RIDGE_DOWNHILL_SECTIONS = BUGAK_RIDGE_DOWNHILL_BASELINE_SECTIONS;
@@ -142,6 +146,7 @@ function createTrackFromSections(id: RoadTrackId, name: string, sections: TrackS
     }));
 
     return {
+        finishZ: (segments.length - (id === 'bugak-ridge-downhill' ? POST_FINISH_COAST_SEGMENTS : 0)) * SEGMENT_LENGTH,
         id,
         length: segments.length * SEGMENT_LENGTH,
         name,
@@ -153,7 +158,10 @@ function createTrackFromSections(id: RoadTrackId, name: string, sections: TrackS
 export const createTestTrack = createBugakRidgeDownhillTrack;
 
 export function getRoadSegment(track: RoadTrack, absoluteIndex: number) {
-    const index = wrapIndex(absoluteIndex, track.segments.length);
+    // A finished course is finite. Clamping its terminal segment keeps the
+    // renderer's long look-ahead from wrapping back to the high-elevation
+    // start and turning the finish horizon into a wall.
+    const index = Math.min(track.segments.length - 1, Math.max(0, absoluteIndex));
 
     return track.segments[index];
 }

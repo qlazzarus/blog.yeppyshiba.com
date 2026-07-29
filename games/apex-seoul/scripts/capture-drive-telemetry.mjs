@@ -8,6 +8,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 
 const scenarios = {
+    'gds2b3-left-curve-outside-hold': {
+        durationSec: 3.5,
+        events: [
+            { atSec: 0, key: 'ArrowUp', type: 'down' },
+            // At z≈6200 the rendered road is the left-hand curve used by the
+            // GDS-2B-3 regression. Right steer is deliberately outside.
+            { atSec: 0, key: 'ArrowRight', type: 'down' },
+            { atSec: 3.5, key: 'ArrowRight', type: 'up' },
+            { atSec: 3.5, key: 'ArrowUp', type: 'up' },
+        ],
+        query: {
+            longitudinalScale: '1',
+            qaStartSpeed: '435',
+            qaStartZ: '6200',
+        },
+    },
     'brake-on-curve': {
         durationSec: 18,
         events: [

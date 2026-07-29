@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-27
 
-상태: LCH-1~LCH-4 구현 완료. 후속 traction-release tuning을 적용했다. P1 time attack loop의 countdown 후속으로만 구현한다. 오디오 작업은 범위에서 제외한다.
+상태: LCH-1~LCH-5 구현 완료. 후속 traction-release tuning과 CC0 smoke-sprite pass를 적용했다. P1 time attack loop의 countdown 후속으로만 구현한다. 오디오 작업은 범위에서 제외한다.
 
 ## 문서 목적
 
@@ -103,22 +103,20 @@ type LaunchState = {
 
 화면상 차량 뒤쪽 접지점에서만 “후륜이 잠깐 헛돈 뒤 노면을 문다”는 감각을 만든다. 지속 smoke로 차체·코스를 가리거나, grip 상황을 drift처럼 보이게 하지 않는다.
 
-### 채택: runtime Graphics 기반의 3층 cue
+### 채택: Graphics skid + CC0 smoke-sprite 기반의 2층 cue
 
-새 bitmap asset이나 particle texture 없이 `tireScrubGraphics`의 일회성 primitive로 시작한다.
+skid는 `tireScrubGraphics` primitive로, 연기는 짧은 CC0 PNG puff pool로 그린다. Phaser emitter를 매번 생성하지 않고 장면 시작 시 image 4개를 만든 뒤 launch timer 동안만 재사용한다. 넓은 rear-contact flash는 smoke 뒤에서 충격파로 읽혀 제거했다.
 
 ```text
 rear tire contact
   ├─ 1. dark twin skid: 짧은 두 줄, 0.20~0.35초
-  ├─ 2. pale dust puffs: 뒤·바깥 방향의 작은 반투명 원 4~6개
-  └─ 3. launch accent: 0.08초의 차체 접지 flash + speed shader event
+  └─ 2. pale dust puffs: 뒤·바깥 방향의 작은 반투명 원 4~6개
 ```
 
 | 층 | 구현 | 제한 |
 | --- | --- | --- |
 | twin skid | 두 rear tire X 좌표에서 아래쪽으로 짧은 선을 그리고 alpha를 빠르게 감쇠한다. | road 방향으로만, 횡방향 skew 없음 |
-| dust puff | 매 프레임 새 emitter를 만들지 않는다. fixed-size burst state 4~6개를 재사용하고, rear contact에서 위로 피어오르게 radius/alpha/offset만 갱신한다. | 차량 높이의 35%를 넘지 않고 0.35초 안에 소멸 |
-| launch accent | 기존 speed effect의 event channel에 작은 launch burst를 추가한다. | FOV, 상시 shake, full-screen white flash는 사용하지 않음 |
+| dust puff | fixed-size burst state 4개에 Kenney CC0 white-puff PNG를 풀링하고, runtime에서 저채도 tint·downscale·rotation·alpha만 갱신한다. | 차량 높이의 35%를 넘지 않고 0.35초 안에 소멸 |
 
 모든 cue는 `PlayerTireCue` depth에서 player sprite 뒤에 렌더한다. road object depth, headlight와 독립이고 HUD 아래에 남는다.
 
@@ -134,10 +132,10 @@ hooked launch는 GO 직후 바로 최대 force를 전달하지 않는다. `0.14�
 
 | 후보 | 판단 | 이유 |
 | --- | --- | --- |
-| Phaser particle emitter + smoke texture | 보류 | 새 asset·풀·모바일 성능·alpha 질감 검증이 필요한데 첫 pass의 정보량 대비 과하다. |
+| Phaser particle emitter + smoke texture | 보류 | launch마다 emitter를 만들 필요가 없고, 4개의 재사용 image가 현재 사건 길이에는 더 예측 가능하다. |
 | shader smoke | 보류 | pseudo-3D road mask와 차량 anchor 정합 문제가 먼저 생긴다. |
 | drift smoke 재사용 | 제외 | 출발에 drift state와 횡슬립을 암시해 gameplay 의미가 틀어진다. |
-| Graphics skid + dust burst | 채택 | 현재 tire cue 레이어·차량 anchor를 그대로 쓰며 asset 없이 짧은 사건을 읽게 할 수 있다. |
+| Graphics skid + pooled smoke sprite burst | 채택 | 현재 tire cue 레이어·차량 anchor를 그대로 쓰고, CC0 puff 4개만 재사용해 짧은 사건을 읽게 할 수 있다. |
 
 ### 실패 방지 규칙
 
@@ -187,9 +185,24 @@ hooked launch는 GO 직후 바로 최대 force를 전달하지 않는다. `0.14�
 
 구현 결과:
 
-- 기존 `PlayerTireCue` Graphics layer에 rear twin skid, 반투명 dust puff 4개, 첫 약 `0.08초`의 rear contact flash를 추가했다.
+- 기존 `PlayerTireCue` Graphics layer에 rear twin skid와 반투명 dust puff 4개를 추가했다. rear contact flash는 smoke 뒤의 충격파로 읽혀 제거했다.
 - hooked는 `0.28초`, overrev는 `0.35초` 동안 cue를 유지한다. dust는 매 프레임 emitter를 만들지 않고 launch timer와 고정된 offset에서 직접 도형을 그린다.
 - effect는 player sprite 뒤에만 남고 drift/understeer/controller/camera state를 변경하지 않는다.
+
+### LCH-5 — smoke sprite 질감 pass
+
+- [Kenney Smoke particle assets](https://opengameart.org/content/smoke-particle-assets)의 CC0 `White puff` 원본 3종을 `assets/effects/approved/kenney-smoke-particle-assets/`에 추가했다. 원본 파일은 rename만 했고 라이선스·원본명은 같은 폴더의 `README.md`에 보존한다.
+- `burnout-puff-a/b/c`는 `PlayerTireCue` depth에서 4개만 pool로 유지한다. launch cue가 없으면 즉시 숨기므로 일반 주행 draw를 늘리지 않는다.
+- 기존 원형 Graphics dust를 PNG puff로 교체했다. 움직임은 기존 anchor·launch timer의 순수 presentation 값을 그대로 쓰며, runtime에서만 크기(기존 radius의 6배), tint, rotation, alpha를 적용한다.
+- smoke 전용 timer는 hooked `0.78초`, overrev `0.95초`다. force/clutch timer와 독립이라 접지는 기존처럼 빠르게 붙고, puff는 앞 65% 동안 읽힌 뒤 마지막 35%에서 사라진다.
+- `burnoutRemainingSec`은 force phase가 complete가 된 뒤에도 계속 감소한다. 따라서 smoke duration이 force window보다 길어도 마지막 puff가 고정된 채 남지 않는다.
+- twin skid는 launch 첫 순간에만 양쪽 rear contact의 **월드 좌표**(road Z·lateral offset)에 짧은 두 줄을 남긴다. clutch가 붙은 뒤에는 burnout visual timer가 남아도 추가 자국을 만들지 않는다. 위치만 매 프레임 현재 camera로 다시 투영하고, 선 길이·두께는 생성 시의 screen size로 고정해 camera에 가까워질 때 원근상 팽창하는 충격파가 생기지 않게 한다. 일반 주행에는 생성되지 않는다.
+
+완료 조건:
+
+- smoke는 rear contact에서만 나오고 차량 sprite 앞이나 HUD 위로 올라가지 않는다.
+- 흰 원본을 그대로 쓰지 않고 야간 팔레트의 저채도 청회색 tint로 제한한다.
+- 일반 grip/understeer/drift에는 pool image가 모두 hidden 상태다.
 
 완료 조건:
 

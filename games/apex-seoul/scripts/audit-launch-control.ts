@@ -30,6 +30,7 @@ const results = [
     auditHeldLimiter(),
     auditReleaseBeforeGo(),
     auditOverrev(),
+    auditSmokeExpiresAfterForcePhase(),
 ];
 const failures = results.filter((result) => !result.pass);
 
@@ -93,6 +94,23 @@ function auditOverrev() {
         state.burnoutRemainingSec > CONFIG.burnoutDurationSec.hooked &&
         multiplier > 0 && multiplier < 1,
     { multiplier, snapshot: getLaunchRuntimeQaState(state) });
+}
+
+function auditSmokeExpiresAfterForcePhase() {
+    const state = createLaunchControlState();
+    const config: LaunchControlConfig = {
+        ...CONFIG,
+        burnoutDurationSec: { hooked: 0.78, overrev: 0.95 },
+    };
+
+    state.startRpm = 6400;
+    beginLaunch(state, true, config);
+    for (let frame = 0; frame < 72; frame += 1) {
+        updateLaunchControl(state, true, 0, FRAME_SECONDS, config);
+    }
+
+    return check('smoke-expires-after-force-phase', state.phase === 'complete' &&
+        state.burnoutRemainingSec === 0, getLaunchRuntimeQaState(state));
 }
 
 function check(id: string, pass: boolean, detail: unknown) {

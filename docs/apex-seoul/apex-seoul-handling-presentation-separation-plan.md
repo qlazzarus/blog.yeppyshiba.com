@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-28
 
-상태: **GDS-2A 자동 검증 완료, VSD-2 자동 검증 완료·runtime replay 대기**
+상태: **GDS-2B·VSD-2 자동 검증 완료, runtime replay 대기**
 
 ## 배경
 
@@ -28,7 +28,7 @@ presentation
 | --- | --- | --- | --- |
 | GDS-2A | handling | 구현 | grip direct steering `0.14 → 0.30` |
 | VSD-1 | presentation | 구현 | strong drift pose의 body roll을 0이 아닌 작은 값으로 유지 |
-| GDS-2B | handling | 대기 | 새 runtime log에서 turn-in net lateral response·drift entry를 재측정 |
+| GDS-2B | handling | 구현 | 바깥 heading debt를 full corner steer로 먼저 회복 |
 | VSD-2 | presentation | 구현 | drift speed loss에 맞춘 FOV/speed-effect floor |
 | VSD-3 | presentation | 대기 | strong input pose와 drift pose를 asset/state 차원에서 분리할지 결정 |
 | GDS-3 | handling | 대기 | drift entry·counter-steer·exit 재검증 |
@@ -61,6 +61,43 @@ presentation
 - [grip 직접 조향 전환 계획](./apex-seoul-grip-direct-steering-plan.md)의 GDS-2A를 이 병행 계획의 handling 기준선으로 사용한다.
 - 130km/h, 0.18초 full steer에서 직접 steering velocity는 `9.2667 → 19.8572u/s`, grip line quality는 `0.648 → 0.720`으로 개선됐다.
 - VSD-1은 이 값과 무관해야 한다.
+
+## GDS-2B — Outward heading-debt recovery
+
+상태: **구현**
+
+### 실주행 관측
+
+첨부 `apex-seoul-drive-2026-07-28T03-58-21-632Z_8zwy5l.jsonl`에서 `steer-right-*`는 좌·우 공용 asset 이름이며 왼쪽은 `flipX=true`로 표현된다. 따라서 sprite 이름 자체가 한쪽 물리를 만드는 원인은 아니다. 다만 full steering이 이미 반대 방향 heading/횡이동 debt를 해소하는 동안 화면상 lane offset이 계속 바깥으로 진행했다.
+
+| 구간 | 입력/조향 | heading·offset 변화 | 판정 |
+| --- | --- | --- | --- |
+| 15.44→17.66초 | full-right, physical `0.70→1.00` | heading `-0.315→0.002`, offset `-187→-381` | 입력은 즉시 도달했지만 debt를 갚는 동안 바깥 진행이 지속 |
+| 27.67→29.24초 | full-left, physical `-1.00` | heading `0.536→0.269`, offset `432→601` | grip recovery에서도 같은 지연 인상이 발생 |
+
+### 변경
+
+- `grip` 상태에서 render-space `currentCurve`가 아니라 실제 `requiredRoadYawRate` 방향으로 입력하고, **실제 physical steering도 그 방향으로 교차한 뒤**, 현재 heading이 그 반대 방향일 때만 steering heading rate를 `1.4×`로 높인다.
+- 이는 lateral centering이나 road auto-follow가 아니다. neutral, 이미 코너 안쪽을 향한 입력, drift/recovery에는 적용하지 않는다.
+- 빠른 회복이 새 반대 heading을 만들지 않게 grip inside-heading allowance를 `0.06 → 0.02`로 제한한다. drift allowance는 유지한다.
+- GDS-2B-2는 raw input만 먼저 반전되고 physical steering이 아직 이전 방향인 경우에는 보정을 보류한다. 따라서 rapid reversal에서 반대 yaw를 증폭하지 않는다.
+- GDS-2B-3는 render curve와 vehicle yaw의 부호가 반대라는 점을 반영한다. 좌코너의 우조향처럼 실제 road yaw와 반대인 입력은 recovery로 오인하지 않으며, 바깥 rail 위험을 보존한다.
+
+### 완료 gate 및 결과
+
+130km/h, curve `0.45`, outward heading `-0.34`, offset `-180` fixture에서 0.4초 full corner steer를 검사한다.
+
+| 항목 | GDS-2A 기준 | GDS-2B | 결과 |
+| --- | ---: | ---: | --- |
+| outward heading | `-0.204` | `-0.1178` | 회복 가속 |
+| outward corner inertia | `-64.6u/s` | `-37.3694u/s` | 42% 감소 |
+| 최대 추가 outward offset | 약 `25u` | `20.0426u` | 감소 |
+| neutral fixture | 직접 횡조향 없음 | steering velocity `0` | 유지 |
+
+- `qa:grip-outward-recovery`: `5/5 PASS` — 좌우 대칭, outward debt 회복, neutral 비개입, physical steering 교차 전 보류, 좌코너 우조향의 오른쪽 rail contact.
+- `qa:gds2b3-runtime`: `3/3 PASS` — browser replay가 `qaStartZ=6200`(progress `0.0747`), speed `435`에서 시작해 full-right physical command 50개 sample 뒤 progress `0.0878`에 오른쪽 rail을 접촉한다.
+- `qa:grip-turn-in`: `3/3 PASS`.
+- `qa:corner-exit-recovery`: `6/6 PASS` — 반대 heading/inertia launch 없음.
 
 ## VSD-2 — Drift road-flow floor
 
@@ -112,4 +149,4 @@ presentation
 3. frame 전환 전후 `rotationDeg`, FOV cue, speed effect intensity
 4. strong pose에서 실제 감속을 충분히 읽을 수 있는지에 대한 사용자 리뷰
 
-VSD-2는 구현했으며, 다음 비교에서 실제 감속을 유지하면서 strong pose의 road-flow가 충분히 읽히는지 확인한다. GDS-2B는 turn-in이 여전히 늦다고 확인될 때만 direct force 범위를 다시 조정한다.
+VSD-2와 GDS-2B는 구현했으며, 다음 비교에서 실제 감속을 유지하면서 road-flow가 충분히 읽히는지와, full corner steer의 바깥 heading debt가 더 빨리 해소되는지를 확인한다.

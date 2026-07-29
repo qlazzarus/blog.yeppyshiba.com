@@ -39,8 +39,8 @@ export const APEX_SEOUL_DEFAULTS = {
     },
     launch: {
         burnoutDurationSec: {
-            hooked: 0.28,
-            overrev: 0.35,
+            hooked: 0.78,
+            overrev: 0.95,
         },
         forceDurationSec: 0.55,
         forceMaxSpeedKmh: 45,
