@@ -6,7 +6,7 @@
 
 이 문서는 가까운 실행 순서만 관리한다. 구현 근거와 완료 이력은 각 설계 문서에, 당장 실행하지 않을 항목은 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)에 둔다.
 
-`main.ts`의 config·run·presentation 책임 분리 순서와 ECS 보류 판단은 [구조 정리 계획](./apex-seoul-architecture-refactor-plan.md)에서 관리한다.
+`main.ts`의 config·run·presentation 책임 분리 순서와 ECS 보류 판단은 [구조 정리 계획](./archive/apex-seoul-architecture-refactor-plan.md)에 보관한다.
 
 ## 구조·콘텐츠 백로그
 
@@ -147,7 +147,7 @@ speed line은 `80km/h`에서 거의 보이지 않게 시작해 `120~160km/h`에�
 
 가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 약 5초(`48 segment`)의 untimed coast를 두고, checkpoint gate를 재사용하지 않는 넓은 finishing gantry와 상단의 세 light를 coast 34 segment 지점에 배치한다. gantry 뒤에도 약 1.5초의 도로를 남겨 terminal road block처럼 보이지 않게 한다. finish 직후 카메라는 finish 지점에 고정하고 차량만 연속된 road projection 위로 진행한 뒤 결과 UI를 보인다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
 
-출발 countdown의 rev·launch control·burnout 후속은 [출발 rev·launch control·burnout 설계](./apex-seoul-launch-control-burnout-plan.md)에서 상태, 힘 보정, 시각 cue와 블로그 기록 기준을 함께 관리한다.
+출발 countdown의 rev·launch control·burnout 구현 근거는 [archive 기록](./archive/apex-seoul-launch-control-burnout-plan.md)에 보관한다. 새 후속은 P1 time attack 작업에서만 다시 정의한다.
 
 ### 완료 조건
 

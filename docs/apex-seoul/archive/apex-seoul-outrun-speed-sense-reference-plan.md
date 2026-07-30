@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-23
 
-상태: ORS-1 unit/reference audit와 ORS-2A longitudinal A/B 완료. 사용자 리뷰로 U2 `longitudinalScale=2`를 production 기본값으로 승인했으며 속도감 개선 트랙은 종료한다. ORS-2B와 ORS-6을 포함한 잔여 항목은 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)로 이동했다.
+상태: ORS-1 unit/reference audit와 ORS-2A longitudinal A/B 완료. 사용자 리뷰로 U2 `longitudinalScale=2`를 production 기본값으로 승인했으며 속도감 개선 트랙은 종료한다. ORS-2B와 ORS-6을 포함한 잔여 항목은 [후순위 보류 백로그](../apex-seoul-deferred-backlog.md)로 이동했다.
 
 이 문서는 더 이상 active 실행 계획이 아니다. 타 게임 비교 방법, U2 선택 근거와 회귀 기준을 보존한다.
 
@@ -36,7 +36,7 @@ worldTravelSpeed = physicalSpeed × longitudinalUnitScale
 - 185km/h corner marker cadence는 이미 약 `5.21/s`라 marker density는 1차 원인이 아니었다.
 - 타 게임의 `segment/s`를 목표값으로 직접 복사하지 않고 진단 방향으로만 사용했다.
 
-상세 측정은 [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md)에 고정한다.
+상세 측정은 [ORS-1 Unit / Screen-flow Audit](../../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md)에 고정한다.
 
 ## ORS-2A — longitudinal A/B — 완료
 
@@ -57,7 +57,7 @@ worldTravelSpeed = physicalSpeed × longitudinalUnitScale
 - URL `?longitudinalScale=1|1.5|2|3`와 게임 내 `B` 전환은 유지한다.
 - 과거 SH-7/TSE-5 named scenario는 입력 시각과 코스 위치를 재현하도록 U0를 고정한다.
 
-상세 entry/apex/exit window와 검사 결과는 [ORS-2A Longitudinal A/B](../../games/apex-seoul/assets/telemetry/generated/outrun-longitudinal-ab/outrun-longitudinal-ab-ors2a.md)에 고정한다.
+상세 entry/apex/exit window와 검사 결과는 [ORS-2A Longitudinal A/B](../../../games/apex-seoul/assets/telemetry/generated/outrun-longitudinal-ab/outrun-longitudinal-ab-ors2a.md)에 고정한다.
 
 ## production 회귀 기준
 
@@ -103,7 +103,7 @@ ORS 번호는 여기서 종료한다. 다음 항목은 독립 ORS 단계가 아�
 
 ## 관련 문서
 
-- [구현 로드맵](./pseudo-3d-apex-seoul-roadmap.md)
-- [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)
-- [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)
+- [구현 로드맵](../pseudo-3d-apex-seoul-roadmap.md)
+- [다음 구현 우선순위](../apex-seoul-next-priority-plan.md)
+- [후순위 보류 백로그](../apex-seoul-deferred-backlog.md)
 - [코너 통과 속도감 개선 기록](./apex-seoul-corner-speed-sense-improvement-plan.md)

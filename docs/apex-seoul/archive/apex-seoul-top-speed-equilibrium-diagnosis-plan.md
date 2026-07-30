@@ -17,7 +17,7 @@ SH-7 통합 주행에서 드러난 두 blocking issue를 같은 근거 위에서
 
 - [Raven Coupe(FT86 참조) 파워밴드·구동계 계획](./apex-seoul-raven-ft86-powerband-plan.md)
 - [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)
-- [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)
+- [다음 구현 우선순위](../apex-seoul-next-priority-plan.md)
 
 ## 진단 요약
 
@@ -52,7 +52,7 @@ SH-7 straight run은 중앙 고정, 조향 없음, 코너 감속 없음, guardra
 | corner loss | `0` |
 | guardrail impact | `0` |
 
-근거: [SH-7 straight JSONL](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T02-16-36-870Z_sh7-straight-accel.jsonl)
+근거: [SH-7 straight JSONL](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T02-16-36-870Z_sh7-straight-accel.jsonl)
 
 현재 가속식에 마지막 sample을 대입하면 다음과 같다.
 
@@ -145,8 +145,8 @@ aeroDrag = physicsSpeed² × 0.00012
 
 근거:
 
-- [SH-7 grip JSONL](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/apex-seoul-drive-2026-07-22T02-23-30-865Z_sh7-grip-corners.jsonl)
-- [SH-7 drift JSONL](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/apex-seoul-drive-2026-07-22T02-24-08-688Z_sh7-drift-mixed.jsonl)
+- [SH-7 grip JSONL](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/apex-seoul-drive-2026-07-22T02-23-30-865Z_sh7-grip-corners.jsonl)
+- [SH-7 drift JSONL](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/apex-seoul-drive-2026-07-22T02-24-08-688Z_sh7-drift-mixed.jsonl)
 
 ### 원인
 
@@ -220,8 +220,8 @@ SH-7 runtime `140.7km/h`와 deterministic terminal `140.835km/h`가 일치해 �
 
 자동 생성물:
 
-- [TSE-1 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.json)
-- [TSE-1 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.md)
+- [TSE-1 JSON baseline](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.json)
+- [TSE-1 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.md)
 
 ### TSE-2 — 물리 프로필의 변속 기준 단일화
 
@@ -266,10 +266,10 @@ HND 회귀에서는 과거 synthetic straight control이 잘못된 초기 기어
 
 자동 생성물:
 
-- [TSE-2 변속·평형 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.json)
-- [TSE-2 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.md)
-- [TSE-2 corner control JSON](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse2-baseline.json)
-- [TSE-2 corner control 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse2-baseline.md)
+- [TSE-2 변속·평형 JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.json)
+- [TSE-2 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.md)
+- [TSE-2 corner control JSON](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse2-baseline.json)
+- [TSE-2 corner control 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse2-baseline.md)
 
 ### TSE-3 — 225km/h level force budget 설계
 
@@ -340,8 +340,8 @@ TSE-4 입력으로 **224km/h 평형 후보 `aeroDrag = 0.000007661283`**을 선�
 
 자동 생성물:
 
-- [TSE-3 force budget JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.json)
-- [TSE-3 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.md)
+- [TSE-3 force budget JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.json)
+- [TSE-3 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.md)
 
 ### TSE-4 — 가속 곡선과 경사 관계 calibration
 
@@ -383,8 +383,8 @@ Production에는 TSE-3에서 선택한 `aeroDrag = 0.000007661283025835461`을 �
 
 자동 생성물:
 
-- [TSE-4 calibration JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.json)
-- [TSE-4 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.md)
+- [TSE-4 calibration JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.json)
+- [TSE-4 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.md)
 
 검증 중 기존 HND-3의 225km/h 절대 corner-loss percentage gate는 실패했다. 이전 baseline은 225km/h에서 직선 차량 자체가 강하게 감속하던 force budget을 분모로 사용했지만, TSE-4 이후 직선 225km/h가 평형점이 되면서 같은 코너 힘도 `easy / medium / sharp = 6.557% / 28.414% / 48.133%`로 계산된다. 이는 handling 상수를 TSE-4에서 다시 조정할 근거가 아니라 비교 기준의 의미가 바뀐 결과다. TSE-4에서는 gate를 임의 완화하지 않고, TSE-6에서 새 직선 평형을 기준으로 corner-only metric과 관계형 gate를 다시 정의한다. Speed presentation 동일 입력 sweep과 production build는 그대로 통과했다.
 
@@ -430,10 +430,10 @@ TSE-4 level은 `223.953km/h`의 clamp 없는 힘 평형이고, TSE-5 SH-7 mild d
 
 산출물:
 
-- [TSE-5 1× telemetry](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T04-07-58-110Z_sh7-straight-tse5-1x.jsonl)
-- [TSE-5 1× summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T04-07-58-110Z_sh7-straight-tse5-1x.summary.json)
-- [TSE-5 225km/h 화면](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/sh7-straight-tse5-1x.png)
-- [SH-7 통합 runtime 보고서](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [TSE-5 1× telemetry](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T04-07-58-110Z_sh7-straight-tse5-1x.jsonl)
+- [TSE-5 1× summary](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/apex-seoul-drive-2026-07-22T04-07-58-110Z_sh7-straight-tse5-1x.summary.json)
+- [TSE-5 225km/h 화면](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/sh7-straight-tse5-1x.png)
+- [SH-7 통합 runtime 보고서](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
 
 RAIL-1 재측정에서 grip/drift rail impact는 모두 `0회`가 되어 visual rail impact blocker는 해소됐다. 이후 SH-7 입력 시나리오와 drift-exit 재가속 허용 창을 교정해 counter/exit 관측도 완료했다.
 
@@ -464,12 +464,12 @@ RAIL-1 재측정에서 grip/drift rail impact는 모두 `0회`가 되어 visual 
 
 자동 생성물:
 
-- [TSE-6 통합 회귀 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.json)
-- [TSE-6 통합 회귀 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.md)
-- [TSE-6 corner baseline JSON](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse6-baseline.json)
-- [TSE-6 corner baseline 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse6-baseline.md)
+- [TSE-6 통합 회귀 JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.json)
+- [TSE-6 통합 회귀 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.md)
+- [TSE-6 corner baseline JSON](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse6-baseline.json)
+- [TSE-6 corner baseline 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-tse6-baseline.md)
 
-내부 블로그 글 [가드레일, 저속 조향, 0-100km/h를 다시 잡기](../../contents/phaser4-apex-seoul-roadside-collision-powerband.md)에는 초기 13초 목표를 당시 시행착오로 보존하고, 실제 FT86 기준 `7.8~8.3초` 재설정부터 최고속 평형 복구까지 후속 교정 섹션을 추가했다.
+내부 블로그 글 [가드레일, 저속 조향, 0-100km/h를 다시 잡기](../../../contents/phaser4-apex-seoul-roadside-collision-powerband.md)에는 초기 13초 목표를 당시 시행착오로 보존하고, 실제 FT86 기준 `7.8~8.3초` 재설정부터 최고속 평형 복구까지 후속 교정 섹션을 추가했다.
 
 TSE-1~TSE-6 최고속 체인과 visual rail `RAIL-1~RAIL-2`를 완료했다. 충돌 없는 grip/drift cycle과 counter/recovery/exit도 재측정했으며 SH-7 자동 gate는 모두 통과했다. 사용자 실주행 승인은 자동 승인과 별도로 남긴다.
 
@@ -507,9 +507,9 @@ RAIL-1 런타임에서 grip의 최대 물리 rail ratio는 `0.6263`, drift는 `0
 
 산출물:
 
-- [SH-7 RAIL-1 통합 보고서](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
-- [RAIL-1 grip 캡처](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip-rail1.png)
-- [RAIL-1 drift 캡처](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-rail1.png)
+- [SH-7 RAIL-1 통합 보고서](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [RAIL-1 grip 캡처](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip-rail1.png)
+- [RAIL-1 drift 캡처](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-rail1.png)
 
 ### RAIL-2 — 물리 contact point의 화면 투영 검증
 
@@ -551,11 +551,11 @@ contact invariant = vehicle contact edge x == rail x at normalized ±1
 
 산출물:
 
-- [RAIL-2 runtime audit](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-projection-runtime.md)
-- [RAIL-2 left contact](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-left-contact.png)
-- [RAIL-2 right contact](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-right-contact.png)
-- [RAIL-2 grip 주행](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip-rail2.png)
-- [RAIL-2 drift 주행](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-rail2.png)
+- [RAIL-2 runtime audit](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-projection-runtime.md)
+- [RAIL-2 left contact](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-left-contact.png)
+- [RAIL-2 right contact](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/rail-projection/rail2-right-contact.png)
+- [RAIL-2 grip 주행](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip-rail2.png)
+- [RAIL-2 drift 주행](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-rail2.png)
 
 `qa:guardrail-projection`은 화면 폭과 접촉 폭 변화에 대한 수학적 불변식을 검사한다. `qa:guardrail-projection-runtime`은 실제 WebGL 고정 캡처에서 world limit, rail pixel, vehicle contact edge를 대조한다. SH-7 통합 audit에도 projection coverage, ratio identity, 음수 gap 방지 gate를 추가했다.
 
@@ -578,8 +578,8 @@ contact invariant = vehicle contact edge x == rail x at normalized ±1
 | shader max straight/grip/drift | `0.1056 / 0.1089 / 0.1339` |
 | blocking gate | `none` |
 
-- [SH-7 최종 통합 보고서](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
-- [SH-7 drift exit 캡처](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-exit-approved.png)
+- [SH-7 최종 통합 보고서](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [SH-7 drift exit 캡처](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift-exit-approved.png)
 
 ## 블로그 글감
 
