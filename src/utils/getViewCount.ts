@@ -36,6 +36,7 @@ async function readLocalMock() {
 export const getViewCount = async (
     articlePrefix: string,
     pathAliases: Record<string, string> = DEFAULT_PATH_ALIASES,
+    endDate = 'today',
 ): Promise<GAViewResult[]> => {
     // 로컬에서 credentials 없으면 mock 읽기
     if (
@@ -60,7 +61,7 @@ export const getViewCount = async (
 
     const [response] = await analyticsDataClient.runReport({
         property: `properties/${process.env.ANALYTICS_PROPERTY_ID || ''}`,
-        dateRanges: [{ startDate: '2022-05-30', endDate: 'today' }],
+        dateRanges: [{ startDate: '2022-05-30', endDate }],
         dimensions: [{ name: 'pagePathPlusQueryString' }],
         metrics: [{ name: 'screenPageViews' }],
         dimensionFilter: {

@@ -24,6 +24,7 @@
         "astro": "astro",
         "ga:fetch": "tsx scripts/fetch-ga-views.ts",
         "ga:fetch:weekly": "tsx scripts/fetch-ga-last7days.ts",
+        "views:fetch-ga-baseline": "tsx scripts/fetch-ga-view-baseline.ts",
         "views:import-ga-baseline": "tsx scripts/import-ga-view-baseline.ts"
     },
     "dependencies": {

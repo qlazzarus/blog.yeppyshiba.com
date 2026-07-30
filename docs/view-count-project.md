@@ -3,9 +3,10 @@
 ## 상태
 
 GitHub Pages와 분리된 Worker/D1의 Custom Domain 및 `/healthz` 연결을 확인했고, `0002` 집계
-trigger migration, HMAC secret, Worker 배포, GA4 baseline 65개 import까지 완료했다. Astro 글
-상세의 2초·visible 조회 이벤트와 카드의 bulk stats 조회 코드도 구현·빌드 검증했다. 이 변경을
-배포한 뒤 실제 브라우저에서 일별 중복과 fallback을 확인하면 된다.
+trigger migration, HMAC secret, Worker 배포, GA4 baseline 65개 import까지 완료했다. 이후 첫
+snapshot에 누락된 기존 글을 발견해, 전환일 이전 GA4 값으로 누락 경로만 추가하는 baseline
+catch-up 절차를 준비했다. Astro 글 상세의 2초·visible 조회 이벤트와 카드의 bulk stats 조회
+코드도 구현·빌드 검증했다.
 
 ### 결정 사항
 

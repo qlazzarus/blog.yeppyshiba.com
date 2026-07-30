@@ -29,7 +29,14 @@ function sqlString(value: string) {
 
 async function main() {
     const apply = process.argv.includes('--apply');
-    const inputPath = path.resolve('src/data/ga-views.json');
+    const missingOnly = process.argv.includes('--missing-only');
+    const inputOptionIndex = process.argv.indexOf('--input');
+    const inputOption =
+        inputOptionIndex === -1 ? undefined : process.argv[inputOptionIndex + 1];
+    if (inputOptionIndex !== -1 && (!inputOption || inputOption.startsWith('--'))) {
+        throw new Error('--input requires a JSON file path.');
+    }
+    const inputPath = path.resolve(inputOption ?? 'src/data/ga-views.json');
     const input = JSON.parse(await fs.readFile(inputPath, 'utf8')) as GaView[];
     const totals = new Map<string, number>();
 
@@ -41,19 +48,26 @@ async function main() {
     }
 
     const now = new Date().toISOString();
-    const statements = [...totals.entries()].map(
-        ([canonicalPath, viewCount]) => `
+    const statements = [...totals.entries()].map(([canonicalPath, viewCount]) => {
+        const conflictClause = missingOnly
+            ? 'ON CONFLICT(source, canonical_path) DO NOTHING;'
+            : `ON CONFLICT(source, canonical_path) DO UPDATE SET
+  view_count = excluded.view_count,
+  imported_at = excluded.imported_at;`;
+        return `
 INSERT INTO article_view_baselines (source, canonical_path, view_count, imported_at)
 VALUES (${sqlString(SOURCE)}, ${sqlString(canonicalPath)}, ${viewCount}, ${sqlString(now)})
-ON CONFLICT(source, canonical_path) DO UPDATE SET
-  view_count = excluded.view_count,
-  imported_at = excluded.imported_at;`,
-    );
+${conflictClause}`;
+    });
     // `wrangler d1 execute --file --remote` rejects SQL BEGIN/COMMIT blocks.
     // Every statement is idempotent, so a failed import can safely be retried.
     const sql = `${statements.join('\n')}\n`;
 
-    console.log(`Prepared ${totals.size} GA4 baseline rows from ${inputPath}.`);
+    console.log(
+        `Prepared ${totals.size} GA4 baseline rows from ${inputPath}${
+            missingOnly ? ' (new paths only)' : ''
+        }.`,
+    );
     if (!apply) {
         console.log('Dry run only. Re-run with --apply to write to the remote D1 database.');
         return;
