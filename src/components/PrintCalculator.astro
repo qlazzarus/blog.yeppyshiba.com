@@ -1,0 +1,50 @@
+<div id='print-calculator' class='print-calculator space-y-5'>
+    <div class='rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm leading-6'>
+        <strong>로컬 분석 안내</strong><br />선택한 STL 파일은 서버로 전송되지 않습니다. 분석과 계산은 이 브라우저에서만 처리되며, 분석 중 CPU 또는 GPU 사용량이 일시적으로 증가할 수 있습니다.
+    </div>
+    <section class='rounded-2xl border bg-card p-5'>
+        <label id='drop-zone' class='flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary/40 bg-muted/40 p-8 text-center transition hover:bg-muted'>
+            <span class='text-lg font-semibold'>STL 파일을 여기에 놓으세요</span><span class='mt-1 text-sm text-muted-foreground'>또는 눌러서 파일 선택 · 최대 100MB</span><input id='stl-input' type='file' accept='.stl,model/stl,application/sla' class='sr-only' />
+        </label>
+        <div id='file-details' class='mt-4 hidden items-center justify-between rounded-lg bg-muted p-3 text-sm'></div>
+        <p id='status' class='mt-3 text-sm text-muted-foreground' aria-live='polite'>파일을 선택하면 분석을 시작합니다.</p>
+        <div id='analysis-progress-wrap' class='mt-3 hidden' aria-label='STL 분석 진행률'><div class='h-2 overflow-hidden rounded-full bg-muted'><div id='analysis-progress' class='h-full w-0 rounded-full bg-primary transition-[width] duration-200'></div></div><p id='analysis-progress-label' class='mt-1 text-xs text-muted-foreground'></p></div>
+        <p id='error' class='mt-3 hidden text-sm text-destructive' role='alert'></p>
+    </section>
+    <section id='preview-section' class='hidden rounded-2xl border bg-card p-5'>
+        <div class='mb-3 flex flex-wrap items-center justify-between gap-3'><div><h2 class='font-semibold'>3D 미리보기</h2><p id='model-size' class='text-sm text-muted-foreground'></p></div><button id='reset-camera' class='rounded-md border px-3 py-2 text-sm'>카메라 초기화</button></div>
+        <div id='three-preview' class='h-80 overflow-hidden rounded-xl bg-slate-950'></div><p id='bed-warning' class='mt-3 hidden text-sm text-destructive'></p>
+        <div id='orientation-recommendation' class='mt-3 hidden rounded-lg border border-primary/25 bg-primary/5 p-3 text-sm'></div>
+    </section>
+    <section class='rounded-2xl border bg-card p-5'><h2 class='mb-4 text-lg font-semibold'>계산 조건</h2>
+        <div class='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            <label>프린터<select id='printer'></select></label><label>재료<select id='material'></select></label><label>출력 목적<select id='intent'></select></label>
+            <label id='h2d-mode-field' class='hidden'>H2D 출력 모드<select id='h2d-mode'><option value='single'>단일 노즐</option><option value='dual'>듀얼 노즐</option></select></label>
+            <label>노즐 직경 (mm)<select id='nozzle'><option>0.4</option><option>0.6</option><option>0.8</option></select></label><label>필라멘트 1kg 가격 (원)<input id='filament-price' type='number' min='1000' step='1000' /></label><label>전기요금 (원/kWh)<input id='electricity-price' type='number' min='0' step='1' value='160' /></label>
+        </div>
+        <div id='multi-material-fields' class='mt-4 hidden rounded-xl border border-primary/25 bg-primary/5 p-4'>
+            <p class='text-sm font-semibold'>H2D 듀얼 노즐 추정</p>
+            <p class='mt-1 text-xs leading-5 text-muted-foreground'>서포트가 있는 레이어의 툴 전환과 퍼지 타워를 근사 계산에 포함합니다. 실제 슬라이서의 전환 횟수와 퍼지량을 우선하세요.</p>
+            <div class='mt-3 grid gap-4 sm:grid-cols-2'><label>서포트 재료<select id='support-material'></select></label><label class='inline-flex items-center gap-2 self-end'><input id='purge-tower' type='checkbox' checked />퍼지 타워 사용</label></div>
+        </div>
+        <div class='mt-4 flex flex-wrap gap-5 text-sm'><label class='inline-flex items-center gap-2'><input id='support' type='checkbox' checked />서포트 사용</label><label class='inline-flex items-center gap-2'><input id='brim' type='checkbox' />브림 사용</label></div>
+        <button id='calculate' disabled class='mt-5 rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50'>예상치 계산</button>
+    </section>
+    <section id='results' class='hidden rounded-2xl border bg-card p-5'><div class='flex items-center justify-between gap-3'><h2 class='text-lg font-semibold'>계산 결과</h2><span class='rounded-full bg-primary/15 px-3 py-1 text-xs text-primary'>근사 계산</span></div><p class='mt-2 text-sm text-muted-foreground'>현재 결과는 모델 형상과 선택한 설정을 기반으로 한 추정치입니다. 실제 슬라이서 결과와 차이가 날 수 있습니다.</p><div id='result-grid' class='mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3'></div><div id='recommendations' class='mt-6 grid gap-3 lg:grid-cols-2'></div></section>
+</div>
+
+<style>
+    .print-calculator label:not(.hidden) { display: grid; gap: .4rem; font-size: .875rem; font-weight: 600; }
+    .print-calculator label.hidden { display: none; }
+    .print-calculator select, .print-calculator input[type='number'] { width: 100%; border: 1px solid var(--border); border-radius: .5rem; background: var(--background); padding: .65rem .7rem; font-weight: 400; color: var(--foreground); }
+    .print-calculator input[type='checkbox'] { accent-color: var(--primary); }
+    .print-calculator :global(#result-grid > div) { min-width: 0; }
+    .print-calculator :global(#result-grid .text-lg) { line-height: 1.45; overflow-wrap: anywhere; }
+    .print-calculator :global(#result-grid small) { display: block; margin-top: .3rem; font-size: .8rem; font-weight: 500; line-height: 1.5; color: var(--muted-foreground); overflow-wrap: anywhere; }
+</style>
+
+<script>
+    import { initPrintCalculator } from '../features/print-calculator';
+
+    initPrintCalculator(document.getElementById('print-calculator')!);
+</script>
