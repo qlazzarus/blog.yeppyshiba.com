@@ -7,15 +7,14 @@ import type { GridPathRect } from './pathing';
 import type { AttackableEnemyTarget, Point } from './playerCommandTypes';
 import { resolveBuildingProductionExit } from './buildingProductionExit';
 import type { VisionSource } from './visibilitySystem';
+import {
+    canAffordWalletCost,
+    refundWalletCost,
+    spendWalletCost,
+    type PlayerWallet,
+} from './playerWallet';
 
-export type PlayerEconomyState = {
-    coins: number;
-    eggs: number;
-    gold: number;
-    lumber: number;
-    supplyCap: number;
-    supplyUsed: number;
-};
+export type PlayerEconomyState = PlayerWallet;
 
 export type PlayerBuilding = {
     activeWorkerUnitId?: string;
@@ -138,15 +137,9 @@ export class BuildingSystem {
 
     constructor(config: BuildingSystemConfig) {
         this.economy = config.economy ?? {
-            coins:
-                CHICKEN_FARM_BALANCE.economy.startingGold ??
-                CHICKEN_FARM_BALANCE.economy.startingCoins,
-            eggs: 0,
-            gold:
-                CHICKEN_FARM_BALANCE.economy.startingGold ??
-                CHICKEN_FARM_BALANCE.economy.startingCoins,
-            lumber: CHICKEN_FARM_BALANCE.economy.startingLumber ?? 0,
-            supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap ?? 0,
+            gold: CHICKEN_FARM_BALANCE.economy.startingGold,
+            lumber: CHICKEN_FARM_BALANCE.economy.startingLumber,
+            supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
             supplyUsed: 0,
         };
         this.damageEnemyTarget = config.damageEnemyTarget ?? (() => false);
@@ -263,10 +256,10 @@ export class BuildingSystem {
     }
 
     canAfford(template: BuildingTemplateConfig) {
-        return (
-            this.economy.gold >= template.costCoins &&
-            this.economy.lumber >= (template.costLumber ?? 0)
-        );
+        return canAffordWalletCost(this.economy, {
+            gold: template.costGold,
+            lumber: template.costLumber,
+        });
     }
 
     createBuilding(request: BuildRequest) {
@@ -274,9 +267,10 @@ export class BuildingSystem {
         if (!request.skipCost && !this.canAfford(template)) return null;
 
         if (!request.skipCost) {
-            this.economy.coins -= template.costCoins;
-            this.economy.gold = this.economy.coins;
-            this.economy.lumber -= template.costLumber ?? 0;
+            spendWalletCost(this.economy, {
+                gold: template.costGold,
+                lumber: template.costLumber,
+            });
         }
 
         const footprint = getBuildingFootprint(request.templateId, request.x, request.y);
@@ -381,21 +375,19 @@ export class BuildingSystem {
 
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
         const refund = {
-            coins: Math.floor(template.costCoins * CONSTRUCTION_CANCEL_REFUND_RATIO),
+            gold: Math.floor(template.costGold * CONSTRUCTION_CANCEL_REFUND_RATIO),
             lumber: Math.floor(
                 (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
             ),
         };
-        this.economy.coins += refund.coins;
-        this.economy.gold = this.economy.coins;
-        this.economy.lumber += refund.lumber;
+        refundWalletCost(this.economy, refund);
         this.destroyView(building.id);
         this.buildings.splice(buildingIndex, 1);
         this.onBuildingRemoved?.(building, reason);
         this.recordTelemetry?.('building_construction_cancelled', {
             buildingId,
             reason,
-            refundCoins: refund.coins,
+            refundGold: refund.gold,
             refundLumber: refund.lumber,
             templateId: building.templateId,
         });

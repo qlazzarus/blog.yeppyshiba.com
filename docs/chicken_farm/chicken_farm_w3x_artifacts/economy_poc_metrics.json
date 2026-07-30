@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T08:45:41.428Z",
+  "generatedAt": "2026-07-30T11:07:47.986Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -26,8 +26,20 @@
       "farmerOccupiedSlotsBeforeDeposit": 1
     },
     "walletValidation": {
-      "coins": 156,
+      "constructionPaid": true,
+      "constructionWallet": {
+        "gold": 90,
+        "lumber": 39,
+        "supplyCap": 0,
+        "supplyUsed": 0
+      },
       "gold": 156,
+      "lumber": 52,
+      "rejectedSaleEggs": 3,
+      "rejectedSaleGoldAfter": 120,
+      "rejectedSaleGold": 120,
+      "rejectedSaleLumberAfter": 52,
+      "rejectedSaleLumber": 52,
       "remainingFarmerEggs": 0,
       "saleWithoutMarket": false,
       "soldEggs": 3
@@ -236,20 +248,57 @@
     },
     {
       "actual": {
-        "coins": 156,
+        "goldAfterHatch": 120,
+        "goldBeforeHatch": 120,
+        "lumberAfterHatch": 0,
+        "lumberBeforeHatch": 0
+      },
+      "expected": "hatching only consumes one coop inventory egg",
+      "id": "hatch_does_not_change_player_wallet",
+      "pass": true
+    },
+    {
+      "actual": {
         "gold": 156,
+        "lumber": 52,
+        "rejectedSaleEggs": 3,
+        "rejectedSaleGoldAfter": 120,
+        "rejectedSaleGold": 120,
+        "rejectedSaleLumberAfter": 52,
+        "rejectedSaleLumber": 52,
         "remainingFarmerEggs": 0,
         "saleWithoutMarket": false,
         "soldEggs": 3
       },
       "expected": {
-        "coins": 156,
         "gold": 156,
+        "lumber": 52,
         "remainingFarmerEggs": 0,
+        "rejectedSaleEggs": 3,
+        "rejectedSaleGoldAfter": 120,
+        "rejectedSaleGold": 120,
+        "rejectedSaleLumberAfter": 52,
+        "rejectedSaleLumber": 52,
         "saleWithoutMarket": false,
         "soldEggs": 3
       },
       "id": "market_required_for_egg_sale_and_shared_wallet_updates_once",
+      "pass": true
+    },
+    {
+      "actual": {
+        "gold": 90,
+        "lumber": 39,
+        "supplyCap": 0,
+        "supplyUsed": 0
+      },
+      "expected": {
+        "gold": 90,
+        "lumber": 39,
+        "supplyCap": 0,
+        "supplyUsed": 0
+      },
+      "id": "construction_cost_and_cancel_refund_use_gold_and_lumber_wallet",
       "pass": true
     },
     {

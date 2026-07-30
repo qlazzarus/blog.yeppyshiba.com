@@ -1,0 +1,11 @@
+---
+import PrintCalculator from '@/components/PrintCalculator.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const title = 'STL 3D 프린팅 시간·재료량 계산기';
+const description = 'STL 파일을 브라우저에서만 분석해 3D 프린팅 예상 시간, 필라멘트 사용량, 비용과 권장 설정을 계산합니다.';
+const pageUrl = new URL('/tools/3d-printing-calculator/', Astro.site).toString();
+const breadcrumbs = [{ name: 'Home', item: new URL('/', Astro.site).toString() }, { name: 'Tools', item: new URL('/tools/', Astro.site).toString() }, { name: title, item: pageUrl }];
+---
+<BaseLayout title={title} description={description} breadcrumbs={breadcrumbs}>
+    <section class='mx-auto max-w-6xl space-y-8'><div class='space-y-3'><p class='text-primary text-sm font-semibold'>3D Printing Tool</p><h1 class='text-3xl font-bold tracking-tight md:text-4xl'>{title}</h1><p class='text-muted-foreground max-w-3xl text-base leading-7'>STL 파일을 올리고 프린터와 재료를 선택하면 예상 출력 시간, 필라멘트 사용량, 비용과 추천 설정을 계산합니다. 파일은 서버로 전송되지 않고 브라우저에서만 처리됩니다.</p></div><PrintCalculator /><article class='prose prose-neutral dark:prose-invert max-w-none'><h2>계산 결과를 읽는 법</h2><p>이 도구는 빠른 견적을 위한 근사 계산기이며 웹 슬라이서는 아닙니다. 실제 시간과 재료량은 모델 방향, 실제 벽·인필 설정, 서포트 형태, 장비 상태에 따라 달라집니다. 출력 전에는 사용하는 슬라이서에서 반드시 최종 G-code 미리보기와 재료량을 확인하세요.</p><h2>STL 단위 확인</h2><p>STL 파일에는 단위 정보가 없습니다. 미리보기 크기가 비정상적으로 작거나 크다면 모델링 프로그램의 단위가 mm인지 확인하고 다시 내보내세요.</p></article></section>
+</BaseLayout>

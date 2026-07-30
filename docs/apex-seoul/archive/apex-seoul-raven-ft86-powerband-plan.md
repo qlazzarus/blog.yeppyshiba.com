@@ -250,16 +250,16 @@ TSE-6은 위 결과를 `qa:top-speed-regression` 한 명령으로 고정했다. 
 
 자동 생성물:
 
-- [TSE-1 최고속 평형 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.json)
-- [TSE-1 최고속 평형 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.md)
-- [TSE-2 물리 변속·평형 JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.json)
-- [TSE-2 물리 변속·평형 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.md)
-- [TSE-3 force budget JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.json)
-- [TSE-3 force budget 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.md)
-- [TSE-4 calibration JSON](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.json)
-- [TSE-4 calibration 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.md)
-- [TSE-5 SH-7 runtime 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
-- [TSE-6 통합 회귀 표](../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.md)
+- [TSE-1 최고속 평형 JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.json)
+- [TSE-1 최고속 평형 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse1-baseline.md)
+- [TSE-2 물리 변속·평형 JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.json)
+- [TSE-2 물리 변속·평형 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-equilibrium-tse2-baseline.md)
+- [TSE-3 force budget JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.json)
+- [TSE-3 force budget 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-force-budget-tse3.md)
+- [TSE-4 calibration JSON](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.json)
+- [TSE-4 calibration 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-calibration-tse4.md)
+- [TSE-5 SH-7 runtime 표](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [TSE-6 통합 회귀 표](../../../games/apex-seoul/assets/telemetry/generated/top-speed-equilibrium/top-speed-regression-tse6.md)
 
 ## 블로그 글감 / 시행착오 로그
 

@@ -1,6 +1,8 @@
 # Chicken Farm Web MVP: Wave and Shop Spec
 
 > 목적: `닭농장1.3a.w3x` 분석에서 확인한 웨이브/상점 흐름을 Phaser + P2P 웹 MVP 구현 단위로 좁혀 정리한다.
+
+> **2026-07-30 결정 갱신:** 아래의 과거 `coins` wallet 표기는 더 이상 구현 기준이 아니다. 현재 기준은 `gold/lumber/supply` 단일 player wallet이며, 알은 stackable inventory item으로 보관하다 완성 시장에서 판매할 때만 gold가 된다. 구현 순서와 세부 계약은 `chicken_farm_implementation_backlog.md`를 우선한다.
 > 질병은 원본에 존재하는 선택형 압박 요소로 문서 하단에 보관하지만, 현재 구현/MVP 범위에서는 제외한다.
 
 원본 JASS 함수명은 난독화되어 있으므로 구현 이름으로 사용하지 않는다. 아래 함수명과 라인은 추적 근거이며, 실제 구현은 새 데이터/상태/이벤트 이름을 사용한다.

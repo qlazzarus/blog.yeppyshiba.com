@@ -29,6 +29,7 @@ type BrowserDebugState = {
         readonly wells: number;
     } | null;
     readonly elapsedSec: number;
+    readonly farmerEggs: number;
     readonly primaryUnit: {
         readonly id: string;
         readonly x: number;
@@ -36,7 +37,7 @@ type BrowserDebugState = {
     } | null;
     readonly selectedUnitCount: number;
     readonly wallet: {
-        readonly coins: number;
+        readonly gold: number;
         readonly lumber: number;
     } | null;
     readonly worldSize: { readonly x: number; readonly y: number };
@@ -218,16 +219,36 @@ async function runBrowserScenario() {
         );
         await collect('completed_market_sale_fixture');
         const economyAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
-        const expectedCoins = economyBefore.wallet.coins - 120 - 30 - 18;
+        const expectedGold = economyBefore.wallet.gold - 120 - 30 - 18;
         const expectedLumber = economyBefore.wallet.lumber - 52;
         if (
-            economyAfter.wallet?.coins !== expectedCoins ||
+            economyAfter.wallet?.gold !== expectedGold ||
             economyAfter.wallet.lumber !== expectedLumber
         ) {
             throw new Error(
-                `Shared wallet did not pay coop cost once: expected ${expectedCoins}/${expectedLumber}, got ${economyAfter.wallet?.coins}/${economyAfter.wallet?.lumber}`,
+                `Shared wallet did not pay coop cost once: expected ${expectedGold}/${expectedLumber}, got ${economyAfter.wallet?.gold}/${economyAfter.wallet?.lumber}`,
             );
         }
+        const saleBefore = await page.evaluate(() => window.__chickenFarmDebug!.getState());
+        const eggSlot = await page.evaluate(() =>
+            window.__chickenFarmDebug!.grantFarmerEggStack(3),
+        );
+        if (eggSlot === null) throw new Error('Could not grant farmer egg stack');
+        const saleOrdered = await page.evaluate((marketId) =>
+            window.__chickenFarmDebug!.orderFarmerMarketSale(marketId),
+            marketFixtureId,
+        );
+        if (!saleOrdered) throw new Error('Could not order farmer market sale');
+        await page.waitForFunction(
+            (expectedGold) => {
+                const state = window.__chickenFarmDebug!.getState();
+                return state.wallet?.gold === expectedGold && state.farmerEggs === 0;
+            },
+            saleBefore.wallet!.gold + 36,
+            { timeout: 20_000 },
+        );
+        const saleAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
+        await collect('farmer_egg_stack_market_sale');
 
         return {
             generatedAt: new Date().toISOString(),
@@ -243,9 +264,21 @@ async function runBrowserScenario() {
                 before: economyBefore,
                 after: economyAfter,
                 sharedWalletCostCheck: {
-                    expectedCoins,
+                    expectedGold,
                     expectedLumber,
                     pass: true,
+                },
+                marketSaleCheck: {
+                    farmerEggsAfter: saleAfter.farmerEggs,
+                    farmerEggsBefore: saleBefore.farmerEggs,
+                    goldAfter: saleAfter.wallet?.gold ?? null,
+                    goldBefore: saleBefore.wallet?.gold ?? null,
+                    lumberAfter: saleAfter.wallet?.lumber ?? null,
+                    lumberBefore: saleBefore.wallet?.lumber ?? null,
+                    pass:
+                        saleAfter.wallet?.gold === saleBefore.wallet!.gold + 36 &&
+                        saleAfter.wallet?.lumber === saleBefore.wallet!.lumber &&
+                        saleAfter.farmerEggs === 0,
                 },
             },
             consoleMessages,

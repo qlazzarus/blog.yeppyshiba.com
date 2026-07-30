@@ -35,7 +35,7 @@ Chicken Farm은 `닭농장1.3a.w3x`의 에셋·코드 복제가 아니라, 원�
 이를 위해 먼저 아래 1~3을 순서대로 완료한다.
 
 1. **경제·건설 월드 통합:** 건설 완료한 `coop_basic`/`well_basic`이 같은 ID·소유자·footprint의 economy entity가 되며, 취소·파괴 시 함께 정리된다.
-2. **공용 지갑·기준 밸런스:** `BuildingSystem`의 임시 gold/coins와 `ChickenFarmEconomyState.players[].coins`를 하나의 player wallet으로 합친다. coop 가격, 시작 자원, 판매·부화 비용도 canonical balance 하나에서 파생한다.
+2. **공용 지갑·기준 밸런스:** `coins`와 숫자형 `carriedEggs`는 폐기됐다. player slot별 단일 `gold/lumber/supply` wallet이 건설·취소 환불·시장 판매를 처리하며, 알은 농부/닭장 inventory의 stackable `I006` item으로만 관리된다. egg stack 판매는 완성 시장에서만 `gold`를 만들고 부화는 wallet을 바꾸지 않는다. 순수 측정은 통과했고 browser smoke artifact만 남았다.
 3. **경제 조작 루프 완성:** 농부가 알을 줍고 닭장에 입고해 부화하며, 알을 든 농부가 완성 시장을 우클릭했을 때만 판매한다.
 
 이 통합 smoke가 통과한 뒤 다음 순서로 진행한다.

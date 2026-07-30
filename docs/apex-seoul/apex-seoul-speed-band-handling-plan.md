@@ -63,7 +63,7 @@
 - 49.39~51.15초와 동등한 속도/곡률 구간에서 peak inertia, rail impact, loss 곡선, 반대 조향 뒤 outward offset을 이전 값과 비교한다.
 - replay 결과가 사용자 체감과 맞지 않으면 상한 비율 `1.85×`만 먼저 조절하며, 코스 geometry나 엔진 출력은 변경하지 않는다.
 
-> 2026-07-21 이후 225km/h envelope의 속도 연출과 185~225km/h handling 확장은 [225km/h 속도감·핸들링 후속 계획](./apex-seoul-speed-sense-handling-revision-plan.md)에서 관리한다. 이 문서는 기존 0~185km/h 승인값과 구현 근거를 보존한다.
+> 2026-07-21 이후 225km/h envelope의 속도 연출과 185~225km/h handling의 완료 기록은 [archive](./archive/apex-seoul-speed-sense-handling-revision-plan.md)에 보관한다. 이 문서는 기존 0~185km/h 승인값과 구현 근거를 보존한다.
 
 ## 2026-07-23 무입력 코너 관성 재검증
 
@@ -1126,7 +1126,7 @@ CH-0에서 production track replay 명령을 별도 script로 추가한다. 기�
 
 이번 반복에서 직접 바꾸지 않는 것:
 
-- 엔진 출력, 기어비, `0–100km/h`, 표시 최고속. Raven Coupe의 FT86 기반 구동계 개선은 [별도 파워밴드 계획](./apex-seoul-raven-ft86-powerband-plan.md)에서 관리한다.
+- 엔진 출력, 기어비, `0–100km/h`, 표시 최고속. Raven Coupe의 FT86 기반 구동계 개선 완료 기록은 [archive](./archive/apex-seoul-raven-ft86-powerband-plan.md)에 보관한다.
 - 코스 geometry와 curve grade 경계
 - 카메라 FOV, speed shader, roadside object 밀도
 - 차량별 별도 grip 성격
@@ -1134,7 +1134,7 @@ CH-0에서 production track replay 명령을 별도 script로 추가한다. 기�
 
 ## 현재 기준선
 
-2026-07-21 현재 Raven Coupe의 FT86 기반 물리 속도 envelope는 `225km/h`로 갱신됐다. 이 문서의 기존 `0~185km/h` 조향 sweep은 핸들링 회귀 기준으로 유지하고, 구동계·속도계·0-100 기준은 [Raven/FT86 파워밴드 계획](./apex-seoul-raven-ft86-powerband-plan.md)을 따른다.
+2026-07-21 현재 Raven Coupe의 FT86 기반 물리 속도 envelope는 `225km/h`로 갱신됐다. 이 문서의 기존 `0~185km/h` 조향 sweep은 핸들링 회귀 기준으로 유지하고, 구동계·속도계·0-100의 완료 기준은 [Raven/FT86 archive 기록](./archive/apex-seoul-raven-ft86-powerband-plan.md)을 따른다.
 
 자동 기준선:
 

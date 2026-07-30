@@ -77,5 +77,6 @@ touching Cloudflare:
 npx wrangler@latest d1 migrations apply yeppyshiba-view-counter --config workers/view-counter/wrangler.jsonc --local
 ```
 
-The `GET /healthz` Worker route is only a binding check. It is not intended to
-be deployed or exposed until origin validation and the view API are implemented.
+The `GET /healthz` Worker route is a binding check. It remains available after
+deployment; see `../../docs/view-count-todo.md` for the remaining operational
+validation and cutover tasks.

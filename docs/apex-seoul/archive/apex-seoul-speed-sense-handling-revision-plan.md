@@ -2,9 +2,9 @@
 
 갱신일: 2026-07-22
 
-상태: HND-1~HND-6, SH-1~SH-7, TSE-1~TSE-6와 Visual Rail RAIL-1~RAIL-2 완료. 현재 handling·drift·속도감 기준선으로 마감하며 추가 체감 tuning은 [후순위 보류 백로그 D-13/D-15](./apex-seoul-deferred-backlog.md)에서 조건부 관리한다.
+상태: HND-1~HND-6, SH-1~SH-7, TSE-1~TSE-6와 Visual Rail RAIL-1~RAIL-2 완료. 현재 handling·drift·속도감 기준선으로 마감하며 추가 체감 tuning은 [후순위 보류 백로그 D-13/D-15](../apex-seoul-deferred-backlog.md)에서 조건부 관리한다.
 
-> 이 문서 안의 단계별 “보류” 표기는 당시 진행 기록이다. 현재 작업 순서는 [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)를 따른다.
+> 이 문서 안의 단계별 “보류” 표기는 당시 진행 기록이다. 현재 작업 순서는 [다음 구현 우선순위](../apex-seoul-next-priority-plan.md)를 따른다.
 
 ## 목적
 
@@ -149,8 +149,8 @@ Raven Coupe의 FT86 기반 구동계와 0-100km/h는 정리됐지만, 화면 연
 
 자동 생성물:
 
-- [HND-1 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd1-baseline.json)
-- [HND-1 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd1-baseline.md)
+- [HND-1 JSON baseline](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd1-baseline.json)
+- [HND-1 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd1-baseline.md)
 
 대표 결과:
 
@@ -203,8 +203,8 @@ overspeedRatio / lineQuality / downhillCarry
 
 자동 생성물:
 
-- [HND-2 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd2-baseline.json)
-- [HND-2 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd2-baseline.md)
+- [HND-2 JSON baseline](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd2-baseline.json)
+- [HND-2 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd2-baseline.md)
 - `corner-demand-baseline.*`은 항상 가장 최근 runtime 결과를 가리키고, 단계별 비교는 `hnd1`/`hnd2` 파일로 고정한다.
 
 HND-1 대비 대표 변화:
@@ -296,8 +296,8 @@ HND-3 구현 중 level 225km/h synthetic scenario는 코너가 없는 full-throt
 
 자동 생성물:
 
-- [HND-3 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd3-baseline.json)
-- [HND-3 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd3-baseline.md)
+- [HND-3 JSON baseline](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd3-baseline.json)
+- [HND-3 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd3-baseline.md)
 
 ### HND-4 — understeer를 실제 궤적 실패로 연결
 
@@ -354,8 +354,8 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 
 자동 생성물:
 
-- [HND-4 JSON baseline](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.json)
-- [HND-4 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.md)
+- [HND-4 JSON baseline](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.json)
+- [HND-4 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/corner-demand/corner-demand-hnd4-baseline.md)
 
 ### HND-5 — trajectory와 차량 pose의 차이를 읽히게 하기
 
@@ -381,9 +381,9 @@ wall collision을 강제하는 값은 아니다. 최적 line을 놓치고 다음
 
 자동 생성물:
 
-- [HND-5 visual authority JSON](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.json)
-- [HND-5 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.md)
-- [HND-5 sharp runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/understeer-visual/hnd5-sharp-understeer.png)
+- [HND-5 visual authority JSON](../../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.json)
+- [HND-5 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/understeer-visual/understeer-visual-hnd5-baseline.md)
+- [HND-5 sharp runtime 캡처](../../../games/apex-seoul/assets/telemetry/generated/understeer-visual/hnd5-sharp-understeer.png)
 
 ### HND-6 — 관계형 QA와 조건부 실주행 회귀
 
@@ -414,10 +414,10 @@ level/left, downhill/right, sharp S-bend 수동 매트릭스는 새 회귀가 �
 
 자동 생성물:
 
-- [HND-6 관계형 QA JSON](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.json)
-- [HND-6 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.md)
+- [HND-6 관계형 QA JSON](../../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.json)
+- [HND-6 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/handling-relations/handling-relations-hnd6-baseline.md)
 
-자동 QA와 사용자 주행 리뷰를 거쳐 현재 handling·drift는 기준선으로 마감했다. `level/left`, `downhill/right`, `sharp S-bend` 추가 캡처는 완료 gate가 아니라 [후순위 보류 백로그 D-13](./apex-seoul-deferred-backlog.md)의 조건부 회귀 매트릭스로 관리한다.
+자동 QA와 사용자 주행 리뷰를 거쳐 현재 handling·drift는 기준선으로 마감했다. `level/left`, `downhill/right`, `sharp S-bend` 추가 캡처는 완료 gate가 아니라 [후순위 보류 백로그 D-13](../apex-seoul-deferred-backlog.md)의 조건부 회귀 매트릭스로 관리한다.
 
 ## 2026-07-22 속도→world unit 역산 진단
 
@@ -551,8 +551,8 @@ SH-1 inverse presentation baseline
 
 자동 생성물:
 
-- [SH-1 inverse presentation JSON](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.json)
-- [SH-1 사람이 읽는 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
+- [SH-1 inverse presentation JSON](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.json)
+- [SH-1 사람이 읽는 표](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
 
 SH-1에서는 상수 tuning을 하지 않았고, 측정 결과에서 가장 큰 병목으로 확인된 roadside cadence를 SH-3에서 먼저 개선한 뒤 SH-2 km/h cue와 SH-4 FOV/shader를 완료했다. 후속 SH-7 통합 캡처에서는 presentation 회귀 통과와 별개인 physics/collision blocker를 발견했다.
 
@@ -602,7 +602,7 @@ top-speed hold : 210~225km/h에서 추가 포화 금지
 
 자동 생성물:
 
-- [SH-2 km/h cue snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh2-baseline.md)
+- [SH-2 km/h cue snapshot](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh2-baseline.md)
 
 SH-2로 raw ratio cue와 최고속 상시 증가 문제는 해소됐다. 당시 남아 있던 185→225km/h FOV 압축은 SH-4에서 처리했다.
 
@@ -650,10 +650,10 @@ SH-1 대비 theoretical cadence:
 
 자동 생성물:
 
-- [SH-1 변경 전 표](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
-- [SH-3 cadence snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh3-baseline.md)
-- [SH-3 225km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/apex-seoul-drive-2026-07-22T01-36-44-958Z_curve-no-input.summary.json)
-- [SH-3 225km/h runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/sh3-225-cadence.png)
+- [SH-1 변경 전 표](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh1-baseline.md)
+- [SH-3 cadence snapshot](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh3-baseline.md)
+- [SH-3 225km/h runtime summary](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/apex-seoul-drive-2026-07-22T01-36-44-958Z_curve-no-input.summary.json)
+- [SH-3 225km/h runtime 캡처](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh3-runtime/sh3-225-cadence.png)
 
 SH-3으로 near-field cadence 병목은 자동 기준상 해소됐다. km/h cue는 SH-2, top-band FOV 압축은 SH-4에서 완료했다.
 
@@ -706,13 +706,13 @@ roadside flow가 안정된 뒤 진행한다.
 
 자동 생성물:
 
-- [SH-4 FOV/shader snapshot](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh4-baseline.md)
-- [185km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/apex-seoul-drive-2026-07-22T01-56-23-567Z_curve-no-input.summary.json)
-- [185km/h runtime capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/sh4-185.png)
-- [225km/h runtime summary](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/apex-seoul-drive-2026-07-22T01-56-56-113Z_curve-no-input.summary.json)
-- [225km/h runtime capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/sh4-225.png)
+- [SH-4 FOV/shader snapshot](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/speed-presentation-sh4-baseline.md)
+- [185km/h runtime summary](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/apex-seoul-drive-2026-07-22T01-56-23-567Z_curve-no-input.summary.json)
+- [185km/h runtime capture](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/185/sh4-185.png)
+- [225km/h runtime summary](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/apex-seoul-drive-2026-07-22T01-56-56-113Z_curve-no-input.summary.json)
+- [225km/h runtime capture](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh4-runtime/225/sh4-225.png)
 
-SH-1~SH-4와 후속 SH-7 자동 gate는 모두 완료됐다. TSE/Visual Rail 수정과 U2 속도감 선택 뒤 현재 결과를 production 기준선으로 마감했으며, FOV/shader 추가 tuning은 새 회귀가 확인될 때만 [D-15](./apex-seoul-deferred-backlog.md)로 재개한다.
+SH-1~SH-4와 후속 SH-7 자동 gate는 모두 완료됐다. TSE/Visual Rail 수정과 U2 속도감 선택 뒤 현재 결과를 production 기준선으로 마감했으며, FOV/shader 추가 tuning은 새 회귀가 확인될 때만 [D-15](../apex-seoul-deferred-backlog.md)로 재개한다.
 
 ### SH-5 — handling profile을 225km/h까지 확장
 
@@ -807,10 +807,10 @@ corner budget / understeer / drift state
 
 자동 생성물:
 
-- [SH-7 통합 보고서](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
-- [straight capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/sh7-straight.png)
-- [grip capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip.png)
-- [drift capture](../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift.png)
+- [SH-7 통합 보고서](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/sh7-integrated-telemetry.md)
+- [straight capture](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/straight/sh7-straight.png)
+- [grip capture](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/grip/sh7-grip.png)
+- [drift capture](../../../games/apex-seoul/assets/telemetry/generated/speed-presentation/sh7-runtime/drift/sh7-drift.png)
 
 후속 진단에서 flat 최고속은 `4단 변속 도달 불가 + 6단 force budget 부족`, visual rail은 `화면 합성 좌표와 물리 lateral 좌표 혼합`이 원인으로 확정됐다. 수치와 실행 단계는 [최고속 평형·Visual Rail Boundary 진단 및 개선 계획](./apex-seoul-top-speed-equilibrium-diagnosis-plan.md)에 기록한다.
 

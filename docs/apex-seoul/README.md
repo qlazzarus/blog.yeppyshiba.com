@@ -2,7 +2,7 @@
 
 갱신일: 2026-07-23
 
-이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다.
+이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다. 완료된 설계·검증 기록은 [archive](./archive/README.md)에 둔다.
 
 ## 먼저 볼 문서
 
@@ -12,16 +12,11 @@
 | [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | 코너 조향 필수 계약 복구부터 시작하는 가까운 실행 순서 |
 | [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)       | 다른 상위 기능에 병합할 때만 재개하는 ORS·polish 항목 |
 | [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, 코너 관성 재검증, understeer와 QA 단일 기준 |
-| [Raven/FT86 파워밴드](./apex-seoul-raven-ft86-powerband-plan.md) | Raven Coupe의 FT86 기반 기어비·RPM·가속 개선 |
-| [225km/h 속도감·핸들링](./apex-seoul-speed-sense-handling-revision-plan.md) | 속도 연출, 185~225km/h 조향, 통합 QA 후속 계획 |
-| [코너 통과 속도감](./apex-seoul-corner-speed-sense-improvement-plan.md) | 코너 시간 길이, near-field flow, 코스 리듬·연장 계획 |
-| [아웃런 참고 속도감 기록](./apex-seoul-outrun-speed-sense-reference-plan.md) | ORS-1/2A 근거와 production U2 선택 기록 |
 | [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md) | 현재 unit/projection과 공식 60fps 영상 표본 비교, ORS-2A 진단 범위 |
 | [ORS-2A Longitudinal A/B](../../games/apex-seoul/assets/telemetry/generated/outrun-longitudinal-ab/outrun-longitudinal-ab-ors2a.md) | runtime 후보 비교와 production U2 2.00 선택, 화면 흐름·코너 제어 window |
 | [Visual Direction](./apex-seoul-visual-direction.md)         | black/blue 야간 화면과 원근 규칙      |
 | [차량 7way pose·Three.js sprite 생성](./apex-seoul-vehicle-pose-density-plan.md) | 5way→7way 조향 pose와 offline Three.js renderer 경계 |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
-| [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |
 | [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |
 | [HUD 설계](./apex-seoul-hud-plan.md)                         | debug overlay 분리와 speed/RPM/boost gameplay HUD |
 | [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |

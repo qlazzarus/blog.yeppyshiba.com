@@ -1,4 +1,5 @@
 import type { MvpBuildingId } from '../balanceTypes';
+import type { PlayerWallet } from './playerWallet';
 
 export type EconomyPoint = {
     x: number;
@@ -45,7 +46,7 @@ export type ChickenFarmEconomyConfig = {
             >;
         }
     >;
-    readonly eggSellValueCoins: number;
+    readonly eggSellValueGold: number;
     readonly inventorySlotCount: number;
     readonly chickenVitality: {
         readonly hpByKind: Record<ChickenKind, number>;
@@ -65,20 +66,8 @@ export type ChickenFarmEconomyConfig = {
     >;
 };
 
-export type EconomyPlayerState = {
-    carriedEggs: number;
-    coins: number;
-    /**
-     * Construction and economy deliberately share this player record.  The
-     * pure economy system only needs coins, while construction also consumes
-     * the RTS resources below.
-     */
-    gold?: number;
-    eggs?: number;
+export type EconomyPlayerState = PlayerWallet & {
     readonly id: number;
-    lumber?: number;
-    supplyCap?: number;
-    supplyUsed?: number;
 };
 
 export type EconomyChickenState = {
@@ -195,7 +184,7 @@ export type EconomyEvent =
     | {
           readonly playerId: number;
           readonly soldEggs: number;
-          readonly totalCoins: number;
+          readonly totalGold: number;
           readonly type: 'eggs_sold';
       };
 

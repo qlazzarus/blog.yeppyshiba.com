@@ -27,6 +27,11 @@ import {
 } from '../games/chicken-farm/src/game/systems/buildingEconomyAdapter';
 import type { PlayerBuilding } from '../games/chicken-farm/src/game/systems/buildingSystem';
 import type { EconomyEvent } from '../games/chicken-farm/src/game/systems/economyTypes';
+import { CHICKEN_FARM_BALANCE } from '../games/chicken-farm/src/game/balance';
+import {
+    refundWalletCost,
+    spendWalletCost,
+} from '../games/chicken-farm/src/game/systems/playerWallet';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -38,7 +43,7 @@ const outputPath = path.join(outputDir, 'economy_poc_metrics.json');
 
 async function main() {
     const state = createChickenFarmEconomyState({
-        players: [{ carriedEggs: 0, coins: 120, id: 3 }],
+        players: [{ gold: 120, id: 3, lumber: 0, supplyCap: 0, supplyUsed: 0 }],
     });
     const lifecycleState = createChickenFarmEconomyState();
     const lifecycleBuilding = (
@@ -199,7 +204,7 @@ async function main() {
     });
 
     const stackState = createChickenFarmEconomyState({
-        players: [{ carriedEggs: 0, coins: 120, id: 3 }],
+        players: [{ gold: 120, id: 3, lumber: 0, supplyCap: 0, supplyUsed: 0 }],
     });
     const stackCoop = addEconomyCoop(stackState, {
         kind: 'basic',
@@ -242,6 +247,8 @@ async function main() {
         stackState.inventories
             .find((inventory) => inventory.id === stackCoop.id)
             ?.slots.filter(Boolean).length ?? 0;
+    const stackWalletGoldBeforeHatch = stackState.players[0]?.gold ?? 0;
+    const stackWalletLumberBeforeHatch = stackState.players[0]?.lumber ?? 0;
     const explicitStackHatch = startCoopHatch(stackState, {
         coopId: stackCoop.id,
         elapsedSec: 10,
@@ -252,9 +259,6 @@ async function main() {
         'I006',
     );
     const sharedWallet = {
-        carriedEggs: 0,
-        coins: 120,
-        eggs: 0,
         gold: 120,
         id: 3,
         lumber: 52,
@@ -267,18 +271,39 @@ async function main() {
         ownerPlayerId: 3,
     });
     walletInventory.slots[0] = { itemRawcode: 'I006', quantity: 3 };
+    const walletGoldBeforeRejectedSale = sharedWallet.gold;
+    const walletLumberBeforeRejectedSale = sharedWallet.lumber;
     const saleWithoutMarket = sellEconomyInventoryEggStack(walletState, {
         inventoryId: walletInventory.id,
         marketId: '',
         ownerPlayerId: 3,
         slotIndex: 0,
     });
+    const eggsAfterRejectedSale = countInventoryItem(walletState, walletInventory.id, 'I006');
+    const walletGoldAfterRejectedSale = sharedWallet.gold;
+    const walletLumberAfterRejectedSale = sharedWallet.lumber;
     const walletSale = sellEconomyInventoryEggStack(walletState, {
         inventoryId: walletInventory.id,
         marketId: 'player-building-market',
         ownerPlayerId: 3,
         slotIndex: 0,
     });
+    const constructionCost = {
+        gold: CHICKEN_FARM_BALANCE.buildingTemplates.coop_basic.costGold,
+        lumber: CHICKEN_FARM_BALANCE.buildingTemplates.coop_basic.costLumber,
+    };
+    const constructionWallet = {
+        gold: constructionCost.gold,
+        lumber: constructionCost.lumber ?? 0,
+        supplyCap: 0,
+        supplyUsed: 0,
+    };
+    const constructionPaid = spendWalletCost(constructionWallet, constructionCost);
+    const constructionRefund = {
+        gold: Math.floor(constructionCost.gold * 0.75),
+        lumber: Math.floor((constructionCost.lumber ?? 0) * 0.75),
+    };
+    refundWalletCost(constructionWallet, constructionRefund);
 
     const vitalityState = createChickenFarmEconomyState();
     addEconomyWell(vitalityState, {
@@ -411,8 +436,15 @@ async function main() {
                 farmerOccupiedSlotsBeforeDeposit: stackedFarmerSlots,
             },
             walletValidation: {
-                coins: sharedWallet.coins,
+                constructionPaid,
+                constructionWallet,
                 gold: sharedWallet.gold,
+                lumber: sharedWallet.lumber,
+                rejectedSaleEggs: eggsAfterRejectedSale,
+                rejectedSaleGoldAfter: walletGoldAfterRejectedSale,
+                rejectedSaleGold: walletGoldBeforeRejectedSale,
+                rejectedSaleLumberAfter: walletLumberAfterRejectedSale,
+                rejectedSaleLumber: walletLumberBeforeRejectedSale,
                 remainingFarmerEggs: countInventoryItem(walletState, walletInventory.id, 'I006'),
                 saleWithoutMarket: saleWithoutMarket !== null,
                 soldEggs: walletSale?.soldEggs ?? 0,
@@ -646,16 +678,39 @@ async function main() {
             },
             {
                 actual: {
-                    coins: sharedWallet.coins,
+                    goldAfterHatch: stackState.players[0]?.gold ?? 0,
+                    goldBeforeHatch: stackWalletGoldBeforeHatch,
+                    lumberAfterHatch: stackState.players[0]?.lumber ?? 0,
+                    lumberBeforeHatch: stackWalletLumberBeforeHatch,
+                },
+                expected: 'hatching only consumes one coop inventory egg',
+                id: 'hatch_does_not_change_player_wallet',
+                pass:
+                    (stackState.players[0]?.gold ?? 0) === stackWalletGoldBeforeHatch &&
+                    (stackState.players[0]?.lumber ?? 0) === stackWalletLumberBeforeHatch,
+            },
+            {
+                actual: {
                     gold: sharedWallet.gold,
+                    lumber: sharedWallet.lumber,
+                    rejectedSaleEggs: eggsAfterRejectedSale,
+                    rejectedSaleGoldAfter: walletGoldAfterRejectedSale,
+                    rejectedSaleGold: walletGoldBeforeRejectedSale,
+                    rejectedSaleLumberAfter: walletLumberAfterRejectedSale,
+                    rejectedSaleLumber: walletLumberBeforeRejectedSale,
                     remainingFarmerEggs: countInventoryItem(walletState, walletInventory.id, 'I006'),
                     saleWithoutMarket: saleWithoutMarket !== null,
                     soldEggs: walletSale?.soldEggs ?? 0,
                 },
                 expected: {
-                    coins: 156,
                     gold: 156,
+                    lumber: 52,
                     remainingFarmerEggs: 0,
+                    rejectedSaleEggs: 3,
+                    rejectedSaleGoldAfter: 120,
+                    rejectedSaleGold: 120,
+                    rejectedSaleLumberAfter: 52,
+                    rejectedSaleLumber: 52,
                     saleWithoutMarket: false,
                     soldEggs: 3,
                 },
@@ -663,9 +718,29 @@ async function main() {
                 pass:
                     saleWithoutMarket === null &&
                     walletSale?.soldEggs === 3 &&
-                    sharedWallet.coins === 156 &&
                     sharedWallet.gold === 156 &&
+                    sharedWallet.lumber === 52 &&
+                    eggsAfterRejectedSale === 3 &&
+                    walletGoldAfterRejectedSale === 120 &&
+                    walletGoldBeforeRejectedSale === 120 &&
+                    walletLumberAfterRejectedSale === 52 &&
+                    walletLumberBeforeRejectedSale === 52 &&
                     countInventoryItem(walletState, walletInventory.id, 'I006') === 0,
+            },
+            {
+                actual: constructionWallet,
+                expected: {
+                    gold: Math.floor(constructionCost.gold * 0.75),
+                    lumber: Math.floor((constructionCost.lumber ?? 0) * 0.75),
+                    supplyCap: 0,
+                    supplyUsed: 0,
+                },
+                id: 'construction_cost_and_cancel_refund_use_gold_and_lumber_wallet',
+                pass:
+                    constructionPaid &&
+                    constructionWallet.gold === Math.floor(constructionCost.gold * 0.75) &&
+                    constructionWallet.lumber ===
+                        Math.floor((constructionCost.lumber ?? 0) * 0.75),
             },
             {
                 actual: {

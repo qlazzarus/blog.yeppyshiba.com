@@ -2,9 +2,9 @@
 
 갱신일: 2026-07-22
 
-상태: CSS-1~CSS-4 구현 및 자동 검증 완료. 현재 코너 속도감 기준선으로 마감하며 CSS-5 추가 연장은 [후순위 보류 백로그 D-04](./apex-seoul-deferred-backlog.md)로 이동했다.
+상태: CSS-1~CSS-4 구현 및 자동 검증 완료. 현재 코너 속도감 기준선으로 마감하며 CSS-5 추가 연장은 [후순위 보류 백로그 D-04](../apex-seoul-deferred-backlog.md)로 이동했다.
 
-> 2026-07-23 후속 실주행에서 CSS 코너 압축과 U2 `2.00` 조합이 횡관성 작용 시간을 줄이는 사실을 확인했다. CSS의 화면 흐름 성과는 유지하지만, 코너 gameplay 계약은 [속도대별 핸들링 CH-0~CH-5](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)에서 다시 검증한다. 물리·단위 계약을 먼저 고치며 CSS 코너 길이를 즉시 원복하지 않는다.
+> 2026-07-23 후속 실주행에서 CSS 코너 압축과 U2 `2.00` 조합이 횡관성 작용 시간을 줄이는 사실을 확인했다. CSS의 화면 흐름 성과는 유지하지만, 코너 gameplay 계약은 [속도대별 핸들링 CH-0~CH-5](../apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)에서 다시 검증한다. 물리·단위 계약을 먼저 고치며 CSS 코너 길이를 즉시 원복하지 않는다.
 
 ## 목표
 
@@ -286,6 +286,6 @@ npm run build --workspace @games/apex-seoul
 
 자동 기준선과 runtime 자료:
 
-- [CSS 코너 속도감 표](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/corner-speed-sense-baseline.md)
-- [CSS 코너 runtime summary](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/apex-seoul-drive-2026-07-22T11-30-39-386Z_curve-no-input.summary.json)
-- [CSS 코너 runtime 캡처](../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/corner-flow-runtime.png)
+- [CSS 코너 속도감 표](../../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/corner-speed-sense-baseline.md)
+- [CSS 코너 runtime summary](../../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/apex-seoul-drive-2026-07-22T11-30-39-386Z_curve-no-input.summary.json)
+- [CSS 코너 runtime 캡처](../../../games/apex-seoul/assets/telemetry/generated/corner-speed-sense/runtime/corner-flow-runtime.png)
