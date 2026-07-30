@@ -173,6 +173,25 @@ import는 `source = 'ga4'` 기준으로 UPSERT하므로, 중간 실패 후 같�
 있다. 이후에 GA4 JSON을 다시 생성했다면 기준값을 의도치 않게 바꾸지 않도록 `--apply`를
 실행하지 않는다.
 
+### 누락된 기존 글 baseline 보완
+
+초기 snapshot에 빠진 기존 글은 전환일 **이전** GA4 값만 새로 가져와 보완한다. 기존 baseline을
+바꾸거나 오늘 이후 GA4 값을 합치면 Worker가 이미 센 조회와 중복될 수 있다. 이 프로젝트의
+전환일이 2026-07-30이므로, 안전한 보완 기준일은 `2026-07-29`다.
+
+```bash
+npm run views:fetch-ga-baseline -- --end-date 2026-07-29
+npm run views:import-ga-baseline -- \
+  --input src/data/ga-views-baseline-through-2026-07-29.json \
+  --missing-only
+npm run views:import-ga-baseline -- \
+  --input src/data/ga-views-baseline-through-2026-07-29.json \
+  --missing-only --apply
+```
+
+첫 두 명령은 GA4 결과와 대상 행 수만 확인한다. 마지막 명령만 원격 D1에 쓴다.
+`--missing-only`는 이미 저장된 baseline 행은 변경하지 않고, 없는 경로만 추가한다.
+
 이 작업은 2026-07-30에 완료됐다. 이후의 Astro 연결 코드도 준비됐다. 글 상세는
 `POST /v1/views { "id": "글-id" }`를 보내고, 카드 목록은 한 번의
 `GET /v1/stats?ids=글-id-1,글-id-2` 요청으로 숫자를 갱신한다. Worker는 각 ID를
