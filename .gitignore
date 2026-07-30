@@ -27,6 +27,10 @@ workers/view-counter/.wrangler
 .idea/
 
 src/data
+src/data/*
+!src/data/
+!src/data/print-calculator/
+!src/data/print-calculator/profiles.ts
 public/play/
 public/game-assets/
 
