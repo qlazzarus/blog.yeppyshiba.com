@@ -7,6 +7,7 @@ import FormattedDate from '@/components/FormattedDate.astro';
 import EntryGrid from '@/components/EntryGrid.astro';
 import GpxRouteViewer from '@/components/GpxRouteViewer.astro';
 import MapClient from '@/components/MapClient.astro';
+import ViewTracker from '@/components/ViewTracker.astro';
 import { sortDisplayTags } from '@/utils/tags';
 import { ADSENSE_SLOTS } from '@/config/adsense';
 
@@ -113,6 +114,7 @@ const breadcrumbs = [
     category={category}
     adsEnabled={adsEligible && Boolean(ADSENSE_SLOTS.articleBottom)}
 >
+    {currentPostSlug && <ViewTracker articleId={currentPostSlug} />}
     <div>
         <header>
             <h1 class='mb-2 text-3xl font-bold tracking-tight'>{title}</h1>

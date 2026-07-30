@@ -24,20 +24,33 @@ Astro 정적 사이트와 콘텐츠 배포는 GitHub Pages에 그대로 둔다. 
 5. 목록 API는 `GA4 baseline + 자체 총계`를 반환한다. UI 문구는 처음에는
    `누적 조회`를 사용하고, 개인정보처리방침도 익명 쿠키 기반 집계를 반영한다.
 
+## 2026-07-30 완료 기록
+
+- 원격 D1에 `0002_increment_total_on_new_daily_view.sql` migration을 적용했다.
+- `VIEW_COUNTER_HMAC_SECRET`을 Worker secret으로 등록했다.
+- `yeppyshiba-view-counter` Worker를 배포했다. 배포 버전 ID는
+  `99e4fd96-1f24-4a65-bb6a-be139900cb0e`이다.
+- `src/data/ga-views.json`에서 정규화한 GA4 baseline 65개를 import했다.
+  D1 실행 결과는 65개 쿼리, 130개 행 쓰기, DB 크기 0.06MB였다.
+
+첫 import는 SQL transaction 문을 포함해 실패했지만, D1이 전체 작업을 원상 복구했다.
+transaction 문을 제거한 idempotent UPSERT import를 재실행해 성공했다. 따라서 중복 baseline은
+생기지 않았다.
+
 ## 배포 경계
 
 ```text
 GitHub Actions → Astro build → GitHub Pages (blog.yeppyshiba.com)
-Worker 배포       → Cloudflare Worker + D1 (api.blog.yeppyshiba.com)
+Worker 배포       → Cloudflare Worker + D1 (api.yeppyshiba.com)
 ```
 
-브라우저는 정적 페이지에서 `api.blog.yeppyshiba.com`의 API만 호출한다. API는
+브라우저는 정적 페이지에서 `api.yeppyshiba.com`의 API만 호출한다. API는
 `Origin: https://blog.yeppyshiba.com`을 정확히 허용하고, D1은 Worker binding을 통해서만 접근한다.
 
 ## Cloudflare 콘솔에서 따라 하는 생성 순서
 
 이 절차는 GitHub Pages의 `blog.yeppyshiba.com`을 건드리지 않고,
-`api.blog.yeppyshiba.com`만 Worker의 전용 hostname으로 추가하는 순서다.
+`api.yeppyshiba.com`만 Worker의 전용 hostname으로 추가하는 순서다.
 
 ### 0. 시작 전 확인
 
@@ -105,25 +118,66 @@ npx wrangler@latest deploy --config workers/view-counter/wrangler.jsonc
 
 1. Worker 화면에서 **Settings** > **Domains & Routes** (UI에 따라 **Domains**)로 이동한다.
 2. **Add** > **Custom Domain**을 선택한다.
-3. `api.blog.yeppyshiba.com`을 입력하고 **Add Custom Domain**을 선택한다.
+3. `api.yeppyshiba.com`을 입력하고 **Add Custom Domain**을 선택한다.
 4. 인증서 발급과 상태가 Active가 될 때까지 기다린다.
-5. `https://api.blog.yeppyshiba.com/healthz`를 열어 `{ "ok": true }`를 확인한다.
+5. `https://api.yeppyshiba.com/healthz`를 열어 `{ "ok": true }`를 확인한다.
 
 여기서는 DNS Records 화면에서 `api` CNAME을 직접 만들지 않는다. Worker가 해당 hostname의
 origin이므로 Custom Domain이 DNS 레코드와 인증서를 자동으로 만든다. 기존 `api` CNAME이
-있으면 Custom Domain 생성이 거부되므로, 용도를 확인한 뒤에만 정리한다. `blog` hostname에
-Route를 걸거나 GitHub Pages의 DNS를 Worker로 바꾸면 안 된다.
+있으면 Custom Domain 생성이 거부되므로, 용도를 확인한 뒤에만 정리한다. `api.yeppyshiba.com`은
+기존 Universal 인증서의 `*.yeppyshiba.com` 범위에 들어가므로, `api.blog.yeppyshiba.com`처럼
+별도 Advanced Certificate가 필요하지 않다. `blog` hostname에 Route를 걸거나 GitHub Pages의
+DNS를 Worker로 바꾸면 안 된다.
 
 ### 5. 다음 구현 전에 기록할 값
 
 - Cloudflare account 이름과 D1 database ID (ID는 비밀값은 아니지만 저장소에서 관리한다)
 - Worker 이름: `yeppyshiba-view-counter`
-- API origin: `https://api.blog.yeppyshiba.com`
+- API origin: `https://api.yeppyshiba.com`
 - 정적 사이트 origin: `https://blog.yeppyshiba.com`
 
-다음 단계의 Worker API는 위 정적 사이트 origin 하나만 CORS allowlist에 넣는다. 아직
-`/v1/views` endpoint나 쿠키 발급 코드는 구현하지 않았으므로, 이 단계에서는 `/healthz` 외
-공개 API가 없다는 상태가 정상이다.
+Worker API는 운영 origin `https://blog.yeppyshiba.com`과 개발 검증용
+`http://localhost:4321`, `http://127.0.0.1:4321`만 CORS allowlist에 넣었다.
+`/v1/views`는 서명된 HttpOnly 쿠키를 발급하고, `/v1/stats`는 GA4 baseline과 자체 총계를
+합쳐 반환한다. 아직 Astro 클라이언트가 이 API를 호출하지 않으므로 `/healthz` 확인만으로 실제
+조회가 쌓이지는 않는다.
+
+### 기존 `api.blog` 설정 정리
+
+`api.yeppyshiba.com/healthz`가 정상 응답하는 것을 확인한 뒤에만 기존
+`api.blog.yeppyshiba.com` Custom Domain을 Worker에서 제거한다. 그 hostname만을 위해
+만든 Pending Advanced Certificate가 남아 있다면, SAN 목록에 다른 사용 중인 hostname이 없는지
+확인한 뒤 정리한다. Cloudflare가 Universal 인증서용 CAA 레코드를 관리한다고 안내하면 수동
+CAA 레코드를 추가하지 않는다. 인증서 화면에 `CAA records block issuance` 오류가 실제로
+나타날 때만, 해당 화면과 Cloudflare 문서가 요구하는 CA 허용값을 검토한다.
+
+## Worker 배포와 GA4 기준값 import
+
+`0002` migration까지 적용한 뒤, Worker 비밀값을 interactive prompt로 설정하고 배포한다.
+비밀값은 `wrangler.jsonc`, Git, 명령줄 인자에 넣지 않는다.
+
+```bash
+npx wrangler secret put VIEW_COUNTER_HMAC_SECRET --config workers/view-counter/wrangler.jsonc
+npx wrangler deploy --config workers/view-counter/wrangler.jsonc
+```
+
+그 다음 현재 `src/data/ga-views.json`의 GA4 누적값을 한번만 D1 baseline으로 import한다.
+먼저 dry run으로 대상 행 수를 확인하고, 전환 시점의 JSON이 맞을 때만 `--apply`를 붙인다.
+
+```bash
+npm run views:import-ga-baseline
+npm run views:import-ga-baseline -- --apply
+```
+
+import는 `source = 'ga4'` 기준으로 UPSERT하므로, 중간 실패 후 같은 스냅샷으로 재실행할 수
+있다. 이후에 GA4 JSON을 다시 생성했다면 기준값을 의도치 않게 바꾸지 않도록 `--apply`를
+실행하지 않는다.
+
+이 작업은 2026-07-30에 완료됐다. 이후의 Astro 연결 코드도 준비됐다. 글 상세는
+`POST /v1/views { "id": "글-id" }`를 보내고, 카드 목록은 한 번의
+`GET /v1/stats?ids=글-id-1,글-id-2` 요청으로 숫자를 갱신한다. Worker는 각 ID를
+`/article/{id}`로 정규화하므로, 브라우저가 canonical path를 직접 조합할 필요가 없다.
+정적 사이트와 Worker를 배포한 뒤 실제 브라우저 검증만 남아 있다.
 
 ## 데이터 경계
 

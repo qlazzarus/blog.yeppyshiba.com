@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS article_view_daily (
     CHECK (canonical_path LIKE '/article/%')
 );
 
--- This is the post-cutover counter. It increases only after a newly inserted
--- daily visitor row, so repeated reloads cannot inflate the total.
+-- This is the post-cutover counter. Migration 0002 adds the trigger that
+-- increases it only after a newly inserted daily visitor row.
 CREATE TABLE IF NOT EXISTS article_view_totals (
     canonical_path TEXT PRIMARY KEY,
     total_views INTEGER NOT NULL DEFAULT 0 CHECK (total_views >= 0),

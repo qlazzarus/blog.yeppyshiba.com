@@ -3,6 +3,11 @@
     "name": "yeppyshiba-view-counter",
     "main": "src/index.ts",
     "compatibility_date": "2026-07-29",
+    "compatibility_flags": ["nodejs_compat"],
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+    },
     "d1_databases": [
         {
             "binding": "VIEW_COUNTER_DB",

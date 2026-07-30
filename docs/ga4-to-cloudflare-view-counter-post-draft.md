@@ -1,6 +1,8 @@
 # 블로그 초안 — GA4 조회수 표시의 한계와 Cloudflare 자체 집계로 바꾼 이유
 
-> 게시 전 상태: 구현 전 초안. Cloudflare Worker/D1 배포와 실제 동작 검증이 끝난 뒤에만 본문의 과거형 표현을 유지한다. 구현 범위가 달라지면 제목·구성·보존 기간을 함께 수정한다.
+> 게시 전 상태: Worker/D1 배포와 GA4 baseline import는 완료됐다. Astro 클라이언트 수집과
+> 카드 UI 전환 코드는 구현·검증됐지만, 정적 사이트의 운영 배포와 실제 브라우저 검증 전이다.
+> 본문에서 이미 공개 조회수가 실시간으로 바뀐다는 식의 표현은 사용하지 않는다.
 
 ## 제목 후보
 
@@ -59,6 +61,21 @@ Cloudflare Worker
 
 배포도 분리한다. 기존 GitHub Actions는 Astro 정적 결과물을 GitHub Pages에 배포하고, Worker 변경이 있을 때만 Wrangler가 Cloudflare Worker를 배포한다. 둘은 같은 저장소에 있을 수 있지만, 서로의 런타임이나 배포 결과를 바꾸지 않는다.
 
+## 먼저 백엔드와 과거 기준값을 준비했다
+
+2026년 7월 30일에 D1의 일별 조회·누적 조회·GA4 baseline 스키마를 적용하고, 새 일별 행이
+추가될 때만 누적값을 증가시키는 trigger도 배포했다. Worker에는 익명 쿠키 해시에 쓰는 비밀값을
+환경 secret으로 등록해 배포했다.
+
+전환 직전 GA4 JSON은 65개 글 경로로 정규화해 baseline에 import했다. import 결과는 65개 쿼리,
+130개 행 쓰기였고 D1 크기는 약 0.06MB였다. 이 값은 이후 Worker가 직접 센 조회와 읽기 API에서
+합산하지만, 원본 데이터는 별도 테이블에 남아 있어 두 집계의 출처를 구분할 수 있다.
+
+브라우저 코드는 글의 content ID만 API에 보낸다. Worker가 이를 `/article/{id}`로 정규화하고,
+목록 페이지는 여러 ID를 한 번의 bulk 요청으로 받아 갱신한다. API가 잠시 실패해도 카드에는
+빌드 시점 GA4 숫자가 남아 글 목록이 비거나 깨지지 않는다. 다만 이 글을 쓰는 시점에는 정적
+사이트의 운영 배포와 실제 브라우저 검증이 남아 있다.
+
 ## Cloudflare에서 추가하는 것은 API 주소 하나다
 
 설정은 [Cloudflare dashboard](https://dash.cloudflare.com/)에 로그인해 이 블로그를 관리할 계정을 선택하는 것부터 시작한다. 처음 쓰는 계정이라면 가입과 이메일 인증을 마친 뒤 진행한다.
@@ -67,11 +84,15 @@ Cloudflare Worker
 
 Cloudflare가 아직 DNS를 관리하지 않는다면 domain을 추가한 뒤, 현재 DNS 레코드를 확인하고 도메인 등록기관에서 Cloudflare가 안내한 nameserver로 변경한다. 변경이 끝난 뒤에도 먼저 `https://blog.yeppyshiba.com`이 정상적으로 열리는지 확인한 다음 다음 단계로 넘어간다.
 
-그 다음 D1 데이터베이스를 만들고 Worker에 연결한다. 마지막으로 Worker에 `api.blog.yeppyshiba.com`이라는 Custom Domain을 붙인다. 이 hostname은 Worker가 직접 origin이 되는 주소다. Cloudflare가 DNS 레코드와 TLS 인증서를 만들기 때문에, 같은 이름의 CNAME을 따로 만들 필요가 없다.
+그 다음 D1 데이터베이스를 만들고 Worker에 연결한다. 마지막으로 Worker에 `api.yeppyshiba.com`이라는 Custom Domain을 붙인다. 이 hostname은 Worker가 직접 origin이 되는 주소다. Cloudflare가 DNS 레코드와 TLS 인증서를 만들기 때문에, 같은 이름의 CNAME을 따로 만들 필요가 없다.
+
+`api.yeppyshiba.com`을 고른 이유는 기존 Universal 인증서의 `*.yeppyshiba.com` 범위에 포함되기 때문이다. `api.blog.yeppyshiba.com`처럼 두 단계 아래 hostname을 쓰면 별도 Advanced Certificate가 필요할 수 있다.
+
+인증서의 CAA 설정은 Cloudflare가 관리한다고 안내하면 따로 추가하지 않는다. 실제로 발급 차단 오류가 날 때만 Cloudflare가 요구하는 인증기관을 CAA 정책에 허용한다.
 
 ```text
 blog.yeppyshiba.com → GitHub Pages의 정적 Astro 사이트
-api.blog.yeppyshiba.com → Cloudflare Worker → D1
+api.yeppyshiba.com → Cloudflare Worker → D1
 ```
 
 이 구분 덕분에 조회수 API에 문제가 생겨도 정적 글 본문을 제공하는 GitHub Pages 배포에는 영향을 주지 않는다. 반대로 GitHub Pages를 새로 배포해도 Worker와 D1의 조회수는 유지된다.

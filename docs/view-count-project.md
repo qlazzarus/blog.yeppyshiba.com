@@ -2,7 +2,10 @@
 
 ## 상태
 
-조회수 이전 설계와 D1 migration 초안까지 준비됐다. 블로그 호스팅·배포는 변경하지 않으며, Cloudflare 계정에서 D1과 Worker를 실제로 배포하기 전 상태다.
+GitHub Pages와 분리된 Worker/D1의 Custom Domain 및 `/healthz` 연결을 확인했고, `0002` 집계
+trigger migration, HMAC secret, Worker 배포, GA4 baseline 65개 import까지 완료했다. Astro 글
+상세의 2초·visible 조회 이벤트와 카드의 bulk stats 조회 코드도 구현·빌드 검증했다. 이 변경을
+배포한 뒤 실제 브라우저에서 일별 중복과 fallback을 확인하면 된다.
 
 ### 결정 사항
 
@@ -61,8 +64,8 @@ GitHub Pages는 서버 함수를 제공하지 않으므로, API는 별도 서버
 
 ```text
 GitHub Pages / Astro
-  ├─ POST https://api.blog.yeppyshiba.com/v1/views
-  └─ GET https://api.blog.yeppyshiba.com/v1/stats?paths=...
+  ├─ POST https://api.yeppyshiba.com/v1/views { id }
+  └─ GET https://api.yeppyshiba.com/v1/stats?ids=...
                  │
                  ▼
 Cloudflare Worker
@@ -119,7 +122,9 @@ Supabase는 사용자 인증·관리 페이지·DB UI까지 곧바로 만들 계
 
 ### API 보호
 
-- `Origin: https://blog.yeppyshiba.com`만 허용하고, credentials 요청용 CORS를 정확한 origin으로 제한한다. 와일드카드(`*`)는 사용하지 않는다.
+- 운영에서는 `Origin: https://blog.yeppyshiba.com`만 허용한다. 개발 검증용으로는
+  `http://localhost:4321`과 `http://127.0.0.1:4321`만 추가 허용한다. credentials
+  요청용 CORS는 요청한 허용 origin을 정확히 반환하며, 와일드카드(`*`)는 사용하지 않는다.
 - `/article/` allowlist 및 최대 경로 길이를 검증한다.
 - IP/토큰 기준 rate limit을 KV 등에 짧게 보관한다.
 - User-Agent 기반 차단은 보조 수단으로만 사용한다. 비정상 요청은 204로 조용히 버린다.
@@ -155,7 +160,7 @@ create table article_view_baselines (
 );
 ```
 
-실제 migration은 `workers/view-counter/migrations/0001_create_view_counter.sql`에 둔다. `article_view_daily` 삽입이 실제로 새 행을 만들었을 때에만 `article_view_totals`를 1 증가시키는 D1 batch/트랜잭션이 필요하다. `article_view_baselines`에는 전환 직전의 GA4 스냅샷만 import하며, 자체 총계에 직접 섞지 않는다. 원본 쿠키 ID, IP, referrer 전문, 브라우저 지문은 저장하지 않는다.
+실제 migration은 `workers/view-counter/migrations/`에 둔다. `article_view_daily` 삽입이 실제로 새 행을 만들었을 때에만 D1 trigger가 `article_view_totals`를 1 증가시킨다. `article_view_baselines`에는 전환 직전의 GA4 스냅샷만 import하며, 자체 총계에 직접 섞지 않는다. 원본 쿠키 ID, IP, referrer 전문, 브라우저 지문은 저장하지 않는다.
 
 데이터가 늘면 일별 중복 방지 테이블은 보존 기간(예: 90일)을 두고 삭제할 수 있다. 총계와 일별 집계는 유지한다.
 
@@ -163,7 +168,9 @@ create table article_view_baselines (
 
 1. 전환 직전 GA4 JSON을 baseline으로 import한다.
 2. 글 상세에서 이벤트 수집을 시작한다.
-3. 카드 목록은 API의 bulk endpoint에서 `baseline + 자체 총계`를 받아 표시한다. 목록 전체가 실패해도 레이아웃은 유지하고 `—`를 표시한다.
+3. 카드 목록은 API의 bulk endpoint에서 `baseline + 자체 총계`를 받아 표시한다. Astro의
+   content collection `post.id` 목록을 `ids` query로 보내고, Worker가 `/article/{id}`로
+   정규화한다. API가 실패하면 빌드 시점 GA4 숫자를 그대로 남긴다.
 
 초기에는 표시 API 응답을 CDN에서 5~15분 캐시한다. 집계 POST는 캐시하지 않는다.
 
@@ -171,22 +178,25 @@ create table article_view_baselines (
 
 ### Phase 0 — 이전 기준선과 D1 생성
 
-- [ ] 전환 직전 `src/data/ga-views.json`을 고정한다.
+- [x] 전환 시점 `src/data/ga-views.json`의 GA4 baseline 65개를 import한다.
 - [ ] URL 변경 이력을 alias 목록으로 정리한다.
-- [ ] `yeppyshiba-view-counter` D1 DB를 만들고 `0001` migration을 적용한다.
+- [x] `yeppyshiba-view-counter` D1 DB를 만들고 `0001`·`0002` migration을 적용한다.
 
 완료 기준: GA4 baseline·정규 경로가 문서화되고, Worker가 사용할 D1 schema가 배포되어 있다.
 
 ### Phase 1 — 수집 PoC
 
+- [x] Astro 글 상세에 2초·visible 조건의 `POST /v1/views { id }` 수집 코드를 추가했다.
 - [ ] 단일 테스트 글에서 익명 쿠키가 발급되고, 일별 조회 중복이 올바르게 동작하는지 확인한다.
-- [ ] Origin 검증, 경로 검증, rate limit, 비밀 환경 변수를 적용한다.
+- [x] Origin 검증, 경로 검증, 비밀 환경 변수를 적용한다.
+- [ ] IP/토큰 기준 rate limit은 실제 트래픽 관측 뒤 별도 binding 또는 Cloudflare 규칙으로 추가한다.
 
 완료 기준: 새로고침을 반복해도 같은 브라우저·같은 날에는 조회 총계가 한 번만 증가한다.
 
 ### Phase 2 — 읽기 API와 관측
 
-- [ ] 단일/복수 경로 조회 endpoint와 CDN 캐시를 추가한다.
+- [x] 단일/복수 글 ID(`ids`) 및 호환용 경로(`paths`) 조회 endpoint와 5분 Cache-Control 응답을 추가했다.
+- [x] 카드 목록에서 `post.id` 목록을 한 번의 `/v1/stats?ids=...` 요청으로 갱신하고, API 실패 시 빌드 시점 GA4 값을 fallback으로 사용한다.
 - [ ] 실패율, 차단 수, DB 오류만 운영 로그로 관측한다. 개인 데이터는 남기지 않는다.
 - [ ] GA4와 2~4주 병행 비교한다.
 
@@ -195,14 +205,17 @@ create table article_view_baselines (
 ### Phase 3 — 운영 전환
 
 - [ ] UI 라벨과 개인정보처리방침을 실제 수집 방식에 맞게 갱신한다.
-- [ ] GA4 fallback/병기 여부를 결정한다.
+- [ ] **GA4 빌드 fallback 제거**: Worker/브라우저 실운영 검증 뒤 `EntryGrid`의
+  `ga-views.json` 초기 표시와 GitHub Actions의 `npm run ga:fetch` 단계를 제거한다.
+  조회수 UI는 `/v1/stats`의 `baseline + 자체 집계`만 표시하고, API 실패 시에는 이전
+  GA4 수치가 아닌 `—`를 표시한다. GA4는 분석 수집과 주간 콘텐츠 분석에만 유지한다.
 - [ ] DB 백업·보존 기간·월 비용 알림을 설정한다.
 
 완료 기준: 독립 지표의 의미와 한계가 사용자와 운영자 모두에게 명확하다.
 
 ## 결정이 필요한 항목
 
-- API 호스트명: `api.blog.yeppyshiba.com` 사용 여부와 DNS/CORS 설정
+- API 호스트명: `api.yeppyshiba.com`과 DNS/CORS 설정
 - 익명 쿠키 보존 기간: 초기안 180일
 - UI: `누적 조회`로 표시할지, GA4 기준값과 자체 집계를 병기할지
 - 개인정보정책과 동의 배너의 적용 범위
@@ -210,4 +223,6 @@ create table article_view_baselines (
 
 ## 다음 작업
 
-Cloudflare 계정에서 D1 생성과 `0001` migration 적용이 끝나면, 다음 작업은 GA4 JSON baseline import 스크립트와 조회 API 계약 구현이다. 콘솔에서의 정확한 생성 순서는 `docs/view-count-migration.md`를 따른다.
+다음 작업은 이 Worker와 정적 사이트 변경을 각각 배포하고, 실제 브라우저에서 일별 중복·CORS·
+오류 fallback을 검증하는 것이다. 검증이 끝나면 UI 라벨과 개인정보처리방침을 실제 수집 방식에
+맞게 갱신한다.
