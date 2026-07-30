@@ -66,7 +66,7 @@ export type DifficultyConfig = {
     readonly enemyHpMultiplier: number;
     readonly id: DifficultyId;
     readonly label: string;
-    readonly startingCoinsBonus: number;
+    readonly startingGoldBonus: number;
 };
 
 export type SessionBalance = {
@@ -117,21 +117,21 @@ export type IncomeBuildingConfig = {
     readonly incomeIntervalSec: number;
     readonly sellValueCoins: number;
     readonly source: SourceTrace;
-    readonly upgradeCostCoins?: number;
+    readonly upgradeCostGold?: number;
     readonly upgradeTo?: IncomeBuildingId;
 };
 
 export type DefenseBuildingConfig = {
     readonly armor: number;
     readonly buildTimeSec: number;
-    readonly costCoins: number;
+    readonly costGold: number;
     readonly hp: number;
     readonly id: DefenseBuildingId;
     readonly blocksPath: boolean;
     readonly requires?: IncomeBuildingId | 'family_temple' | 'workshop';
     readonly targetableByWolves: boolean;
     readonly source: SourceTrace;
-    readonly upgradeCostCoins?: number;
+    readonly upgradeCostGold?: number;
     readonly upgradeTo?: DefenseBuildingId;
     readonly attack?: {
         readonly cooldownSec: number;
@@ -159,7 +159,7 @@ export type BuildingTemplateConfig = {
         | 'support'
         | 'tower'
         | 'wall';
-    readonly costCoins: number;
+    readonly costGold: number;
     readonly costLumber?: number;
     readonly displayName: string;
     readonly footprintCells: {
@@ -197,21 +197,20 @@ export type BuildingTemplateConfig = {
 };
 
 export type ShopItemConfig = {
-    readonly costCoins: number;
+    readonly costGold: number;
     readonly id: ShopItemId;
     readonly kind: 'income_building' | 'defender';
     readonly produces: IncomeBuildingId | DefenderId;
 };
 
 export type EconomyBalance = {
-    readonly easyBonusCoins: number;
-    readonly eggUnitValueCoins: number;
+    readonly easyBonusGold: number;
+    readonly eggSellValueGold: number;
     readonly exchangeEnabled: boolean;
     readonly reviveResourceLossPct: number;
-    readonly startingCoins: number;
-    readonly startingGold?: number;
-    readonly startingLumber?: number;
-    readonly startingSupplyCap?: number;
+    readonly startingGold: number;
+    readonly startingLumber: number;
+    readonly startingSupplyCap: number;
 };
 
 export type WaveEvent = {

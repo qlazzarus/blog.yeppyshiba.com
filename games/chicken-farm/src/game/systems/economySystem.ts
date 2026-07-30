@@ -16,6 +16,7 @@ import type {
     FieldEggItemState,
     HatchJobState,
 } from './economyTypes';
+import { CHICKEN_FARM_BALANCE } from '../balance';
 import { resolveBuildingProductionExit } from './buildingProductionExit';
 
 const CHICKEN_COLLISION_RADIUS_PX = 20;
@@ -67,7 +68,7 @@ export const DEFAULT_CHICKEN_FARM_ECONOMY_CONFIG: ChickenFarmEconomyConfig = {
             templateId: 'coop_mid',
         },
     },
-    eggSellValueCoins: 12,
+    eggSellValueGold: CHICKEN_FARM_BALANCE.economy.eggSellValueGold,
     inventorySlotCount: 6,
     wellRules: {
         basic: {
@@ -99,7 +100,17 @@ export function createChickenFarmEconomyState(config?: {
         nextChickenId: 1,
         nextEggId: 1,
         nextHatchJobId: 1,
-        players: [...(config?.players ?? [{ carriedEggs: 0, coins: 120, id: 3 }])],
+        players: [
+            ...(config?.players ?? [
+                {
+                    gold: CHICKEN_FARM_BALANCE.economy.startingGold,
+                    id: 3,
+                    lumber: CHICKEN_FARM_BALANCE.economy.startingLumber,
+                    supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
+                    supplyUsed: 0,
+                },
+            ]),
+        ],
         wells: [],
     };
 }
@@ -573,27 +584,6 @@ export function consumeEconomyInventoryItem(
     });
 }
 
-export function sellCarriedEggs(
-    state: ChickenFarmEconomyState,
-    playerId: number,
-) {
-    const player = state.players.find((candidate) => candidate.id === playerId);
-    if (!player || player.carriedEggs <= 0) return null;
-
-    const soldEggs = player.carriedEggs;
-    player.carriedEggs = 0;
-    player.coins += soldEggs * state.config.eggSellValueCoins;
-    // `gold` remains a legacy HUD alias during the construction PoC.  Keep it
-    // synchronized when this player record is also used by BuildingSystem.
-    if (typeof player.gold === 'number') player.gold = player.coins;
-    return {
-        playerId,
-        soldEggs,
-        totalCoins: player.coins,
-        type: 'eggs_sold',
-    } satisfies EconomyEvent;
-}
-
 /** Sell one egg stack directly from a farmer or coop inventory. */
 export function sellEconomyInventoryEggStack(
     state: ChickenFarmEconomyState,
@@ -619,13 +609,12 @@ export function sellEconomyInventoryEggStack(
     });
     if (soldEggs <= 0) return null;
 
-    player.coins += soldEggs * state.config.eggSellValueCoins;
-    if (typeof player.gold === 'number') player.gold = player.coins;
+    player.gold += soldEggs * state.config.eggSellValueGold;
     syncCoopStoredEggs(state, config.inventoryId);
     return {
         playerId: player.id,
         soldEggs,
-        totalCoins: player.coins,
+        totalGold: player.gold,
         type: 'eggs_sold',
     } satisfies EconomyEvent;
 }

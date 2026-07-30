@@ -92,6 +92,7 @@ declare global {
                 x: number,
                 y: number,
             ) => string | null;
+            grantFarmerEggStack: (quantity: number) => number | null;
             getState: () => {
                 readonly buildingCount: number;
                 readonly commandPage: string;
@@ -105,6 +106,7 @@ declare global {
                       }
                     | null;
                 readonly elapsedSec: number;
+                readonly farmerEggs: number;
                 readonly placingBuildingId: string | null;
                 readonly selectedBuildingId: string | null;
                 readonly primaryUnit:
@@ -116,7 +118,7 @@ declare global {
                     | null;
                 readonly selectedUnitCount: number;
                 readonly wallet: {
-                    readonly coins: number;
+                    readonly gold: number;
                     readonly lumber: number;
                 } | null;
                 readonly worldSize: { readonly x: number; readonly y: number };
@@ -126,6 +128,7 @@ declare global {
                 y: number,
                 targetEntityId?: string,
             ) => { readonly action: string; readonly affectedUnitCount: number };
+            orderFarmerMarketSale: (marketId: string) => boolean;
             selectAllUnits: () => number;
         };
     }
@@ -398,7 +401,7 @@ class FarmScene extends Phaser.Scene {
             this.debugToggleText.setText(this.debugOverlayVisible ? 'DBG' : 'DBG');
         });
         // Create this before construction so both systems receive the exact
-        // same player wallet object, not mirrored gold/coin counters.
+        // same gold/lumber/supply wallet object.
         this.createEconomyPoc();
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
@@ -636,13 +639,10 @@ class FarmScene extends Phaser.Scene {
         this.economyState = createChickenFarmEconomyState({
             players: [
                 {
-                    carriedEggs: 0,
-                    coins: CHICKEN_FARM_BALANCE.economy.startingCoins,
-                    eggs: 0,
-                    gold: CHICKEN_FARM_BALANCE.economy.startingCoins,
+                    gold: CHICKEN_FARM_BALANCE.economy.startingGold,
                     id: 3,
-                    lumber: CHICKEN_FARM_BALANCE.economy.startingLumber ?? 0,
-                    supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap ?? 0,
+                    lumber: CHICKEN_FARM_BALANCE.economy.startingLumber,
+                    supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
                     supplyUsed: 0,
                 },
             ],
@@ -684,14 +684,7 @@ class FarmScene extends Phaser.Scene {
             throw new Error('Economy player 3 must exist before construction starts');
         }
 
-        // `player` is the shared wallet object.  Main runtime initialization
-        // above supplies every construction field; the assignments preserve
-        // safe behavior for lightweight test fixtures.
-        player.eggs ??= 0;
-        player.gold ??= player.coins;
-        player.lumber ??= 0;
-        player.supplyCap ??= 0;
-        player.supplyUsed ??= 0;
+        // `player` is the shared canonical gold/lumber/supply wallet.
         return player as PlayerEconomyState;
     }
 
@@ -2540,6 +2533,18 @@ class FarmScene extends Phaser.Scene {
                 });
                 return building?.id ?? null;
             },
+            grantFarmerEggStack: (quantity) => {
+                const state = this.economyState;
+                const farmer = this.controllableUnits
+                    .getUnits()
+                    .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                if (!state || !farmer) return null;
+                return grantEconomyInventoryItem(state, {
+                    inventoryId: farmer.id,
+                    itemRawcode: 'I006',
+                    quantity,
+                });
+            },
             getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
             getState: () => {
                 const primaryUnit = this.controllableUnits.getPrimaryUnit();
@@ -2556,6 +2561,14 @@ class FarmScene extends Phaser.Scene {
                           }
                         : null,
                     elapsedSec: this.elapsedSec,
+                    farmerEggs: this.controllableUnits
+                        .getUnits()
+                        .filter((unit) => unit.templateId === 'farmer' && unit.hp > 0)
+                        .reduce(
+                            (total, farmer) =>
+                                total + this.getFarmerEggInventory(farmer.id),
+                            0,
+                        ),
                     placingBuildingId:
                         this.constructionPlacement?.getActiveBuildingId() ?? null,
                     primaryUnit: primaryUnit
@@ -2569,7 +2582,7 @@ class FarmScene extends Phaser.Scene {
                     selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
                     wallet: this.economyState
                         ? {
-                              coins: this.economyState.players[0]?.coins ?? 0,
+                              gold: this.economyState.players[0]?.gold ?? 0,
                               lumber: this.economyState.players[0]?.lumber ?? 0,
                           }
                         : null,
@@ -2586,6 +2599,16 @@ class FarmScene extends Phaser.Scene {
                         targetEntityId,
                     ),
                 ),
+            orderFarmerMarketSale: (marketId) => {
+                const market = this.buildingSystem?.getBuilding(marketId);
+                if (!market) return false;
+                return this.issueEconomySmartCommand(
+                    new Phaser.Math.Vector2(
+                        market.footprint.x + market.footprint.width / 2,
+                        market.footprint.y + market.footprint.height / 2,
+                    ),
+                );
+            },
             selectAllUnits: () =>
                 this.controllableUnits.selectInRect(
                     new Phaser.Geom.Rectangle(
@@ -2634,7 +2657,7 @@ class FarmScene extends Phaser.Scene {
                 selectedUnits.map((unit) => unit.templateId).join(',') || 'none'
             } | buildings ${this.buildingSystem?.getBuildingCount() ?? 0} | ${
                 economy
-                    ? `gold ${economy.gold} lumber ${economy.lumber} supply ${economy.supplyUsed}/${economy.supplyCap} eggs ${economy.eggs}`
+                    ? `gold ${economy.gold} lumber ${economy.lumber} supply ${economy.supplyUsed}/${economy.supplyCap}`
                     : 'economy off'
             } | card ${this.commandCard?.getPage() ?? 'off'} | placing ${
                 this.constructionPlacement?.getActiveBuildingId() ?? 'none'
@@ -2657,7 +2680,7 @@ class FarmScene extends Phaser.Scene {
         }
 
         this.resourceText.setText(
-            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}  Eggs ${economy.eggs}${economyPoc}`,
+            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}${economyPoc}`,
         );
     }
 
@@ -2711,7 +2734,7 @@ class FarmScene extends Phaser.Scene {
                     (selectedBuilding.templateId === 'market' ||
                         selectedBuilding.templateId === 'grand_market')
                     ? '농부가 알을 들고 시장을 우클릭하면 판매합니다.'
-                    : `${workerText} | Cost ${template.originalCost?.gold ?? template.costCoins}g${
+                    : `${workerText} | Cost ${template.originalCost?.gold ?? template.costGold}g${
                           template.originalCost?.lumber
                               ? ` ${template.originalCost.lumber}l`
                               : ''
@@ -2726,7 +2749,7 @@ class FarmScene extends Phaser.Scene {
         if (primaryUnit) {
             const stats = CHICKEN_FARM_BALANCE.defenders[primaryUnit.templateId];
             const command = primaryUnit.currentCommand?.type ?? 'idle';
-            const carriedEggs =
+            const eggStackCount =
                 primaryUnit.templateId === 'farmer'
                     ? this.getFarmerEggInventory(primaryUnit.id)
                     : 0;
@@ -2755,7 +2778,7 @@ class FarmScene extends Phaser.Scene {
                 selectedUnits.length > 1
                     ? `${selectedUnits.length} units selected`
                     : primaryUnit.templateId === 'farmer'
-                      ? `Inventory: egg x${carriedEggs} | Task: ${task?.type ?? 'none'}`
+                      ? `Inventory: egg x${eggStackCount} | Task: ${task?.type ?? 'none'}`
                       : 'Combat helper unit.',
             );
             this.renderInventorySlots(
