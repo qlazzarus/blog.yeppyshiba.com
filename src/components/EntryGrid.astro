@@ -45,9 +45,8 @@ const getEntryType = (post: CollectionEntry<'blog'>) =>
 const getTypeHref = (post: CollectionEntry<'blog'>) =>
     isRide(post) ? '/rides/' : `/category/${post.data.category}/`;
 const getViewCount = (post: CollectionEntry<'blog'>) =>
-    viewMap.get(`${basePath}/${post.id}`) ??
-    viewMap.get(`${basePath}/${post.id}/`) ??
-    0;
+    viewMap.get(`${basePath}/${post.id}`) ?? viewMap.get(`${basePath}/${post.id}/`) ?? 0;
+const canLoadViewStats = showViews && basePath === '/article';
 ---
 
 <div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -108,7 +107,10 @@ const getViewCount = (post: CollectionEntry<'blog'>) =>
 
                         <div class='text-muted-foreground flex items-center justify-between text-xs'>
                             {showViews ? (
-                                <span aria-label='views'>
+                                <span
+                                    aria-label='views'
+                                    data-view-count={canLoadViewStats ? post.id : undefined}
+                                >
                                     👀 {getViewCount(post).toLocaleString()}
                                 </span>
                             ) : (
@@ -124,3 +126,35 @@ const getViewCount = (post: CollectionEntry<'blog'>) =>
         ))
     }
 </div>
+
+{
+    canLoadViewStats && (
+        <script is:inline>
+            (() => {
+                if (!['blog.yeppyshiba.com', 'localhost', '127.0.0.1'].includes(window.location.hostname)) return;
+
+                const nodes = [...document.querySelectorAll('[data-view-count]')];
+                const ids = [...new Set(nodes.map((node) => node.dataset.viewCount).filter(Boolean))];
+                if (ids.length === 0) return;
+
+                const query = new URLSearchParams({ ids: ids.join(',') });
+                void fetch(`https://api.yeppyshiba.com/v1/stats?${query}`, {
+                    credentials: 'include',
+                })
+                    .then((response) => (response.ok ? response.json() : Promise.reject()))
+                    .then((payload) => {
+                        if (!payload || typeof payload !== 'object' || !payload.stats) return;
+                        for (const node of nodes) {
+                            const count = payload.stats[node.dataset.viewCount];
+                            if (typeof count === 'number' && Number.isFinite(count)) {
+                                node.textContent = `👀 ${count.toLocaleString()}`;
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        // Keep the build-time GA4 value if the API is unavailable.
+                    });
+            })();
+        </script>
+    )
+}

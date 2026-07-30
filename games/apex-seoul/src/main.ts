@@ -411,6 +411,7 @@ class ApexSeoulScene extends Phaser.Scene {
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionDebugText!: Phaser.GameObjects.Text;
+    private debugHudVisible = true;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
@@ -624,6 +625,7 @@ class ApexSeoulScene extends Phaser.Scene {
         this.updateBurnoutSkidMarks(seconds);
         this.applyRuntimeQaOverrides();
         this.updateTelemetryHotkey();
+        this.updateDebugHudHotkey();
         this.updateLongitudinalAbHotkey();
         this.updateRestartHotkey();
         this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
@@ -1092,6 +1094,13 @@ class ApexSeoulScene extends Phaser.Scene {
     }
 
     private renderHud() {
+        if (!this.debugHudVisible) {
+            this.hudText.setVisible(false);
+            this.collisionDebugText.setVisible(false);
+            return;
+        }
+
+        this.hudText.setVisible(true);
         const player = this.playerVehicle;
         const stats = this.roadStats;
         const collisionDebug = {
@@ -1111,8 +1120,8 @@ class ApexSeoulScene extends Phaser.Scene {
             camera: this.cameraResource,
             collisionDebug,
             controlsLabel: ENABLE_DEBUG_CAMERA_CONTROLS
-                ? 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
-                : 'Up: accel | Space: brake | Left/Right: steer | B: flow A/B | R: restart | debug camera locked',
+                ? 'Up: accel | Space: brake | Left/Right: steer | D: debug HUD | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
+                : 'Up: accel | Space: brake | Left/Right: steer | D: debug HUD | B: flow A/B | R: restart | debug camera locked',
             cornerIntensity: player.cornerDemand.cornerIntensity,
             longitudinalProgression: LONGITUDINAL_PROGRESSION,
             physicsRoadContactZ: this.playerPhysicsRoadSample.contactZ,
@@ -2137,6 +2146,12 @@ class ApexSeoulScene extends Phaser.Scene {
         this.telemetry?.downloadJsonl('hotkey');
     }
 
+    private updateDebugHudHotkey() {
+        if (!this.getSceneHotkeys().toggleDebugHud) return;
+
+        this.debugHudVisible = !this.debugHudVisible;
+    }
+
     private getDriveCommand() {
         const keyboardCommand = readDriveCommand({
             accel: this.cursors.up,
@@ -2151,6 +2166,7 @@ class ApexSeoulScene extends Phaser.Scene {
         return readSceneHotkeys({
             exportTelemetry: Phaser.Input.Keyboard.JustDown(this.keys.l),
             restart: Phaser.Input.Keyboard.JustDown(this.keys.r),
+            toggleDebugHud: Phaser.Input.Keyboard.JustDown(this.keys.d),
             toggleLongitudinalAb: Phaser.Input.Keyboard.JustDown(this.keys.b),
         });
     }

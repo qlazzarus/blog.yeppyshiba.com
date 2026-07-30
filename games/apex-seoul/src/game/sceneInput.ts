@@ -7,6 +7,7 @@ export type DriveCommand = {
 export type SceneHotkeys = {
     exportTelemetry: boolean;
     restart: boolean;
+    toggleDebugHud: boolean;
     toggleLongitudinalAb: boolean;
 };
 
@@ -66,6 +67,7 @@ export function mergeDriveCommands(commands: readonly DriveCommand[]): DriveComm
 export function readSceneHotkeys(input: {
     exportTelemetry: boolean;
     restart: boolean;
+    toggleDebugHud: boolean;
     toggleLongitudinalAb: boolean;
 }): SceneHotkeys {
     return input;

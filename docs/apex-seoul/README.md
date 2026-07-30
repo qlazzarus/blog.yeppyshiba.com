@@ -23,6 +23,7 @@
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [헤드라이트 설계](./apex-seoul-headlight-rendering-plan.md)  | 전방 light pool 구조와 시각 QA        |
 | [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |
+| [HUD 설계](./apex-seoul-hud-plan.md)                         | debug overlay 분리와 speed/RPM/boost gameplay HUD |
 | [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |
 
 ## 문서 운영 규칙

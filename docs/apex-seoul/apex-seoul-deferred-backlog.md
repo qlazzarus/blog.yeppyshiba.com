@@ -1,6 +1,6 @@
 # Apex Seoul 후순위 보류 백로그
 
-갱신일: 2026-07-23
+갱신일: 2026-07-29
 
 상태: active roadmap에서 제외된 세부 항목을 한 곳에서 관리한다. 이 문서의 항목은 단독 작업으로 시작하지 않고, 연결된 상위 기능을 구현할 때 함께 재검토한다.
 
@@ -28,6 +28,35 @@
 - D-02는 장면 변화 없이 코스 길이만 늘리는 작업으로 대체하지 않는다.
 - D-03은 steady FOV, 상시 shake 또는 코너 전체 roll로 확장하지 않는다.
 - D-04는 handling 상수를 먼저 바꾸지 않고 코스 시간·entry/apex/exit window를 함께 재측정한다.
+
+## 콘텐츠 확장 구조에 합칠 항목
+
+| ID | 보류 항목 | 기존 출처 | 합칠 상위 작업 | 재활성화 조건 |
+| --- | --- | --- | --- | --- |
+| D-16 | track/vehicle typed registry | 2026-07-29 확장성 점검 | 두 번째 정식 코스 또는 세 번째 플레이어 차량 제작 | 새 콘텐츠를 추가할 때 `road.ts`의 ID 분기, `main.ts`의 asset import·checkpoint·launch 분기를 함께 수정해야 하는 상태가 실제 작업 비용이나 회귀 위험이 될 때 |
+
+### 보존 규칙
+
+- D-16은 ECS 전환이 아니다. Phaser Scene의 lifecycle과 현행 단일 player/camera/road 실행 순서는 유지한다.
+- track 정의는 geometry, finish coast, run checkpoint/countdown, scenery profile을 함께 소유한다. Scene과 HUD는 선택된 track 정의를 읽고 전역 checkpoint 상수를 읽지 않는다.
+- vehicle 정의는 atlas/sprite/shadow asset, engine profile, 선택 가능한 color, capability(예: launch control)를 함께 소유한다. 차량 ID 조건문으로 기능을 분기하지 않는다.
+- 새 registry에는 ID fallback, atlas contract, checkpoint 수 가변 HUD, 코스별 best-run key를 고정하는 fixture를 추가한다. 기존 handling·runtime QA와 production build도 회귀 기준으로 유지한다.
+
+## 기록·고스트 주행에 합칠 항목
+
+| ID | 보류 항목 | 기존 출처 | 합칠 상위 작업 | 재활성화 조건 |
+| --- | --- | --- | --- | --- |
+| D-17 | 버전 호환 개인 기록, 구간 PB, PB ghost replay | 2026-07-29 기록/고스트 구조 점검 | time attack records·ghost vehicle | 개인 기록을 전체 완주 시간 이상으로 비교할 필요가 생기거나, 같은 코스에서 이전 최고 주행과 동시에 달릴 UX를 만들 때 |
+
+### 보존 규칙
+
+- 기록은 `trackId`, `vehicleId`와 함께 `trackGeometryRevision`, `vehiclePhysicsRevision`, `longitudinalScaleRevision`, `recordSchemaVersion`을 metadata로 저장한다. key에는 stable ID를 사용하고 호환성 판단은 metadata로 한다.
+- `trackGeometryRevision`은 section 순서·curve/elevation/road width·segment length·finish/checkpoint 위치를 바꿀 때만 올린다. 환경 sprite·색상·HUD 문구만 바꾸는 경우에는 올리지 않는다.
+- `vehiclePhysicsRevision`은 engine profile, controller/guardrail/launch force처럼 주행 궤적이나 시간에 영향을 주는 값을 바꿀 때 올린다. atlas·색상·shadow 변경은 올리지 않는다.
+- `longitudinalScaleRevision`은 world travel scale 또는 그 의미를 바꿀 때 올린다. 같은 숫자의 runtime QA override는 정식 기록을 만들지 않는다.
+- 기록 화면은 동일한 호환 버전의 전체 PB와 checkpoint별 sector PB만 기본 비교 대상으로 삼는다. 버전이 다른 기록은 보관하되 현재 PB·delta·ghost 후보에서 제외하거나 명확히 "이전 버전"으로 표시한다.
+- ghost는 input 재시뮬레이션이 아니라 시간 기준으로 보간하는 비충돌 trajectory replay로 시작한다. PB 갱신 때만 경량 sample(`t`, world `z`, lateral offset, steering/pose, speed, drift state)을 저장하며, player와 ghost 사이의 물리·충돌·기록 판정은 만들지 않는다.
+- QA는 동일 호환 버전의 저장/로드·sector PB 갱신·trajectory 보간, 버전 불일치 시 ghost 비활성화, schema migration/무효 데이터 fallback을 고정한다.
 
 ## 교통·경쟁·리플레이성에 합칠 항목
 

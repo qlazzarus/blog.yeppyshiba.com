@@ -1,0 +1,19 @@
+{
+    "$schema": "../../node_modules/wrangler/config-schema.json",
+    "name": "yeppyshiba-view-counter",
+    "main": "src/index.ts",
+    "compatibility_date": "2026-07-29",
+    "compatibility_flags": ["nodejs_compat"],
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+    },
+    "d1_databases": [
+        {
+            "binding": "VIEW_COUNTER_DB",
+            "database_name": "yeppyshiba-view-counter",
+            "database_id": "ab3de079-8fa7-409d-bd77-174f5ec5304b",
+            "migrations_dir": "migrations",
+        },
+    ],
+}

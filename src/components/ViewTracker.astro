@@ -1,0 +1,42 @@
+---
+interface Props {
+    articleId: string;
+}
+
+const { articleId } = Astro.props;
+const apiOrigin = 'https://api.yeppyshiba.com';
+---
+
+<script define:vars={{ apiOrigin, articleId }}>
+    const isSupportedHost = ['blog.yeppyshiba.com', 'localhost', '127.0.0.1'].includes(
+        window.location.hostname,
+    );
+
+    if (isSupportedHost) {
+        let timerId;
+        let sent = false;
+
+        const sendView = () => {
+            if (sent || document.visibilityState !== 'visible') return;
+            sent = true;
+            void fetch(`${apiOrigin}/v1/views`, {
+                body: JSON.stringify({ id: articleId }),
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                keepalive: true,
+                method: 'POST',
+            }).catch(() => {
+                // View collection must never affect reading an article.
+            });
+        };
+
+        const schedule = () => {
+            if (sent || document.visibilityState !== 'visible') return;
+            window.clearTimeout(timerId);
+            timerId = window.setTimeout(sendView, 2000);
+        };
+
+        document.addEventListener('visibilitychange', schedule, { passive: true });
+        schedule();
+    }
+</script>
