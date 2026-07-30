@@ -47,6 +47,7 @@ const getTypeHref = (post: CollectionEntry<'blog'>) =>
 const getViewCount = (post: CollectionEntry<'blog'>) =>
     viewMap.get(`${basePath}/${post.id}`) ?? viewMap.get(`${basePath}/${post.id}/`) ?? 0;
 const canLoadViewStats = showViews && basePath === '/article';
+const formatViewCount = (count: number) => count.toLocaleString('ko-KR');
 ---
 
 <div class='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -107,12 +108,25 @@ const canLoadViewStats = showViews && basePath === '/article';
 
                         <div class='text-muted-foreground flex items-center justify-between text-xs'>
                             {showViews ? (
-                                <span
-                                    aria-label='views'
-                                    data-view-count={canLoadViewStats ? post.id : undefined}
-                                >
-                                    👀 {getViewCount(post).toLocaleString()}
-                                </span>
+                                (() => {
+                                    const viewCount = getViewCount(post);
+                                    return (
+                                        <span
+                                            aria-label='views'
+                                            data-view-count={
+                                                canLoadViewStats ? post.id : undefined
+                                            }
+                                            data-view-count-value={
+                                                canLoadViewStats ? viewCount : undefined
+                                            }
+                                        >
+                                            👀{' '}
+                                            <span data-view-count-number>
+                                                {viewCount === 0 ? '—' : formatViewCount(viewCount)}
+                                            </span>
+                                        </span>
+                                    );
+                                })()
                             ) : (
                                 <span />
                             )}
@@ -137,6 +151,87 @@ const canLoadViewStats = showViews && basePath === '/article';
                 const ids = [...new Set(nodes.map((node) => node.dataset.viewCount).filter(Boolean))];
                 if (ids.length === 0) return;
 
+                const numberFormatter = new Intl.NumberFormat('ko-KR');
+                const prefersReducedMotion = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)',
+                ).matches;
+
+                const setViewCount = (node, nextCount) => {
+                    const numberNode = node.querySelector('[data-view-count-number]');
+                    if (!numberNode) return;
+
+                    const previousCount = Number(node.dataset.viewCountValue);
+                    const formattedCount = numberFormatter.format(nextCount);
+                    node.dataset.viewCountValue = String(nextCount);
+
+                    if (prefersReducedMotion || previousCount === nextCount) {
+                        numberNode.textContent = formattedCount;
+                        return;
+                    }
+
+                    const digits = [...formattedCount].filter((character) => /\d/.test(character));
+                    const previousDigits = Number.isFinite(previousCount)
+                        ? numberFormatter
+                              .format(Math.max(0, previousCount))
+                              .replace(/\D/g, '')
+                              .padStart(digits.length, '0')
+                        : '';
+                    const startsFromPlaceholder = previousCount === 0;
+                    let digitIndex = 0;
+                    const roller = document.createDocumentFragment();
+
+                    for (const character of formattedCount) {
+                        if (!/\d/.test(character)) {
+                            roller.append(character);
+                            continue;
+                        }
+
+                        const target = Number(character);
+                        const previous = Number(previousDigits[digitIndex] ?? 0);
+                        const start = startsFromPlaceholder ? (target + 4) % 10 : previous;
+                        const turns = startsFromPlaceholder ? 10 : 0;
+                        const steps = turns + ((target - start + 10) % 10);
+                        const digit = document.createElement('span');
+                        const strip = document.createElement('span');
+                        digit.className = 'view-count-digit';
+                        strip.className = 'view-count-digit-strip';
+
+                        for (let step = 0; step <= steps; step += 1) {
+                            const value = (start + step) % 10;
+                            const frame = document.createElement('span');
+                            frame.textContent = String(value);
+                            strip.append(frame);
+                        }
+
+                        digit.append(strip);
+                        roller.append(digit);
+                        digitIndex += 1;
+                    }
+
+                    numberNode.replaceChildren(roller);
+                    const strips = numberNode.querySelectorAll('.view-count-digit-strip');
+                    const duration = startsFromPlaceholder ? 560 : 420;
+                    strips.forEach((strip, index) => {
+                        const distance = strip.children.length - 1;
+                        strip.animate(
+                            [
+                                { transform: 'translateY(0)' },
+                                { transform: `translateY(-${distance}em)` },
+                            ],
+                            {
+                                delay: index * 28,
+                                duration,
+                                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                                fill: 'forwards',
+                            },
+                        );
+                    });
+
+                    window.setTimeout(() => {
+                        numberNode.textContent = formattedCount;
+                    }, duration + strips.length * 28);
+                };
+
                 const query = new URLSearchParams({ ids: ids.join(',') });
                 void fetch(`https://api.yeppyshiba.com/v1/stats?${query}`, {
                     credentials: 'include',
@@ -147,7 +242,7 @@ const canLoadViewStats = showViews && basePath === '/article';
                         for (const node of nodes) {
                             const count = payload.stats[node.dataset.viewCount];
                             if (typeof count === 'number' && Number.isFinite(count)) {
-                                node.textContent = `👀 ${count.toLocaleString()}`;
+                                setViewCount(node, count);
                             }
                         }
                     })
@@ -158,3 +253,26 @@ const canLoadViewStats = showViews && basePath === '/article';
         </script>
     )
 }
+
+<style is:global>
+    [data-view-count-number] {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .view-count-digit {
+        display: inline-block;
+        height: 1em;
+        overflow: hidden;
+        vertical-align: -0.12em;
+        width: 1ch;
+    }
+
+    .view-count-digit-strip {
+        display: block;
+    }
+
+    .view-count-digit-strip > span {
+        display: block;
+        height: 1em;
+    }
+</style>
