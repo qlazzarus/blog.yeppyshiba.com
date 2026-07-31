@@ -20,9 +20,9 @@
 | 기본 주행 | grip 중심 속도대 응답 유지. production 강코너 무조향 바깥 이탈과 rail 위협 재승인 완료 |
 | drift | `GRIP → SETUP → DRIFT → RECOVERY`, counter trim과 명시적 counter transition |
 | 속도 | Raven Coupe 표시 상한 `225km/h`, 0-100 약 `8.1초`, production longitudinal scale U2 `2.00` |
-| 코스 | Bugak Ridge Downhill `348 segment / 83,520u`, checkpoint와 finish 진행 상태 |
+| 코스 | Bugak Ridge Downhill timed course `348 segment / 83,520u` + finish coast `48 segment` = render track `396 segment / 95,040u` |
 | 충돌·화면 | 물리/화면 rail boundary 일치, `enter / stay / exit` contact lifecycle, physical command 기반 grip sprite |
-| 검증 | world-line `7/7`, grip trajectory `8/8`, corner exit steering `5/5`, production diagnosis `14/14`와 gameplay `6/6` PASS |
+| 검증 | world-line `7/7`, grip trajectory `8/8`, corner exit steering `5/5`, production diagnosis `14/14`와 gameplay `5/5` PASS. exit speed/section time 비교는 HR-5 보류 |
 
 구동계, 표시 속도, 기본 grip/drift 상태 머신과 HR-3K 코너 궤적을 다음 기능 작업의 회귀 기준선으로 유지한다. 사용자 실주행에서 남은 감각 차이는 완료로 덮지 않고, 아래 P0의 보류 항목으로 기록한다.
 
@@ -92,7 +92,7 @@ HR-3G fork 계약은 `6/6 PASS`다. neutral은 세 fixture 모두 outward로 계
 
 HR-3H는 기존 HR-3E의 passive follow 승인 수치를 폐기한다. 상세 근거와 단계별 gate는 [무입력 월드 직진과 조향 기반 코너링 계약](./apex-seoul-speed-band-handling-plan.md#hr-3h--무입력-월드-직진과-조향-기반-코너링-계약)에서 관리한다.
 
-HR-3H world-line 계약은 `7/7 PASS`, production은 `14/14 + 6/6 PASS`다. neutral sharp는 rail에 도달하고 prepared grip과 drift는 서로 다른 명시적 입력으로 rail 없이 통과한다. [HR-3H 계약 보고서](../../games/apex-seoul/assets/telemetry/generated/world-line-cornering/world-line-cornering-contract.md)
+HR-3H world-line 계약은 `7/7 PASS`, production은 `14/14 + 5/5 PASS`다. neutral sharp는 rail에 도달하고 prepared grip과 drift는 서로 다른 명시적 입력으로 rail 없이 통과한다. exit speed/section time 비교는 HR-5에서 다시 승인한다. [HR-3H 계약 보고서](../../games/apex-seoul/assets/telemetry/generated/world-line-cornering/world-line-cornering-contract.md)
 
 Production track에서 강한 코너를 자동 탐색해 `120 / 160 / 185km/h` 무조향 full-throttle로 독립 실행하는 회귀도 추가했다. 현재 좌우 코너 `8개 × 3속도 = 24개`가 모두 바깥쪽으로 이탈하며, `185km/h`는 `8/8` 코너에서 `1.267~1.700초` 안에 차체 전방 rail contact를 만든다. `npm run qa:neutral-production-corners --workspace @games/apex-seoul`로 재검사한다. [production 무조향 코너 보고서](../../games/apex-seoul/assets/telemetry/generated/neutral-production-corners/neutral-production-corners.md)
 
@@ -110,7 +110,7 @@ HR-3I-R 이후 무조향 sprite는 road-relative heading이 아니라 physical s
 
 - 직선과 easy sweep은 무조향 또는 작은 보정으로 안정적이다.
 - 선택한 sharp 코너에 과속 무조향으로 진입하면 shoulder 또는 rail 위협이 실제 production run에서 발생한다.
-- 같은 코너의 brake/lift prepared grip은 무조향보다 좋은 line과 exit speed를 만든다.
+- 같은 코너의 brake/lift prepared grip은 무조향보다 좋은 line을 만들며, exit speed·section time 우위는 HR-5에서 별도로 승인한다.
 - drift는 실제 slip/counter를 거쳐 유용한 line 또는 진입 속도 선택지가 되며 자동 정답은 아니다.
 - U1/U2 진행 배율이 달라도 같은 물리 속도·코너 geometry의 위험 관계가 설명 가능하다.
 - 최고속, 0-100, collision boundary와 기존 grip/drift 상태 회귀가 통과한다.

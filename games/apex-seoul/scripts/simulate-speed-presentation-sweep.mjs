@@ -74,7 +74,12 @@ const checks = [
     // Rows are serialized to six decimals before cross-channel identities are
     // checked, so allow the corresponding rounding envelope here.
     checkBetween('fovIdentityErrorMax', fovIdentityErrorMax, 0, 0.00001),
-    checkBetween('sh4SteadyShaderMax', row225.shader.steadyIntensity, 0, 0.12),
+    checkBetween(
+        'sh4SteadyShaderMax',
+        row225.shader.steadyIntensity,
+        0,
+        SPEED_CUE_CONFIG.baseMaxIntensity,
+    ),
     checkBetween(
         'sh4EventShaderMax',
         Math.max(...rows.map((row) => row.shader.maximumCombinedIntensity)),
@@ -126,8 +131,8 @@ const checks = [
     check(
         'sh2SpeedBandsExplicitKmh',
         SPEED_CUE_CONFIG.baseSpeedBands.map((band) => band.speedKmh).join(',') ===
-            '70,110,150,185,210,225',
-        [70, 110, 150, 185, 210, 225],
+            '80,110,150,185,210,225',
+        [80, 110, 150, 185, 210, 225],
         SPEED_CUE_CONFIG.baseSpeedBands.map((band) => band.speedKmh),
     ),
     checkBetween('sh2BelowStartBase', row60.speedCue.base, 0, 0.000001),

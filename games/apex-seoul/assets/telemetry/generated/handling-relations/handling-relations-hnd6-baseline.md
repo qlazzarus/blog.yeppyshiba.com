@@ -1,6 +1,6 @@
 # Apex Seoul HND-6 Handling Relationship QA
 
-Generated: 2026-07-27T08:47:01.851Z
+Generated: 2026-07-31T08:48:15.158Z
 
 Automated relationship status: **PASS**
 
@@ -20,18 +20,18 @@ Manual driving approval: **deferred-by-user**
 | control.drivetrainIdentityStable | yes | gear ratios/final drive/tire circumference unchanged from HND-1 | {"finalDrive":4.1,"gearRatios":[3.626,2.188,1.541,1.213,1,0.767],"tireCircumferenceM":1.964} |
 | relation.gripAccidentalDriftNearZero | yes | <= 0.01 across synthetic and fixed Bugak grip scenarios | 0 |
 | relation.hr3hDirectOverspeedTranslationRemoved | yes | 0 | 0 |
-| relation.hr3hAutomaticTireLossBudget | yes | <= 20% of full brake force (66) | 31.811 |
+| relation.hr3hAutomaticTireLossBudget | yes | <= 20% of full brake force (66) | 47.213 |
 
 ## Prepared versus full-throttle
 
 | slope | grade | full US mean | prepared US mean | US relief | full line retention | prepared line retention | line gain |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | level | easy | 0.295 | 0 | 0.295 | 1 | 1 | 0 |
-| level | medium | 0.558 | 0.428 | 0.13 | 0.973 | 0.999 | 0.026 |
-| level | sharp | 0.932 | 0.932 | 0 | 0.57 | 0.565 | -0.005 |
-| downhill | easy | 0.295 | 0.279 | 0.016 | 1 | 1 | 0 |
-| downhill | medium | 0.558 | 0.558 | 0 | 0.973 | 0.976 | 0.003 |
-| downhill | sharp | 0.932 | 0.932 | 0 | 0.57 | 0.582 | 0.012 |
+| level | medium | 0.558 | 0.321 | 0.237 | 1 | 1 | 0 |
+| level | sharp | 0.932 | 0.932 | 0 | 0.594 | 0.552 | -0.042 |
+| downhill | easy | 0.295 | 0.278 | 0.017 | 1 | 1 | 0 |
+| downhill | medium | 0.558 | 0.558 | 0 | 1 | 1 | 0 |
+| downhill | sharp | 0.932 | 0.932 | 0 | 0.59 | 0.606 | 0.016 |
 
 Line retention is `1 - outward excursion / available road width`. Higher is better.
 
@@ -39,16 +39,16 @@ Line retention is `1 - outward excursion / available road width`. Higher is bett
 
 | slope | easy | medium | sharp |
 | --- | ---: | ---: | ---: |
-| level | 0.733% | 0.661% | 10.323% |
-| downhill | 0% | 0% | 0.132% |
+| level | 1.478% | 4.946% | 15.163% |
+| downhill | 0% | 0% | 0.128% |
 
 ## Fixed Bugak segment relationships
 
 | grade | full US mean | prepared US mean | US relief | full line retention | prepared line retention | line gain |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | easy | 0.295 | 0 | 0.295 | 1 | 1 | 0 |
-| medium | 0.558 | 0.526 | 0.032 | 0.888 | 0.942 | 0.054 |
-| sharp | 0.932 | 0.932 | 0 | 0.581 | 0.608 | 0.027 |
+| medium | 0.558 | 0.438 | 0.12 | 0.923 | 1 | 0.077 |
+| sharp | 0.932 | 0.932 | 0 | 0.603 | 0.585 | -0.018 |
 
 ## Deferred manual approval
 
