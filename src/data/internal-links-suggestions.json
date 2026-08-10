@@ -1,40 +1,46 @@
 {
-  "topPost": "/article/ga4-to-cloudflare-view-counter",
-  "topPostViews": 13,
+  "topPost": "/article/aviation-si-onboarding-01",
+  "topPostViews": 2,
   "relatedSuggestions": [
-    "/ga4-to-cloudflare-view-counter/",
-    "/adding-view-count-in-gatsby/",
-    "/migration-to-astro/",
-    "/migration-to-gatsby/",
-    "/migration-to-nextjs/",
-    "/phaser3-to-4-ecs-code-conversion/"
+    "/aviation-si-onboarding-01/",
+    "/allowance-300k-01/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/bicycle-commute-transportation-savings",
+      "path": "/article/apptech-income-june-2026",
       "views": 1,
-      "avgSec": 354.49
+      "avgSec": 86.4
+    },
+    {
+      "path": "/article/migration-to-astro",
+      "views": 1,
+      "avgSec": 81.87
+    },
+    {
+      "path": "/article/php8-attributes",
+      "views": 1,
+      "avgSec": 68.03
+    },
+    {
+      "path": "/article/uiwang-myeongga-mandu",
+      "views": 1,
+      "avgSec": 71.89
     }
   ],
   "fixCandidates": [
-    {
-      "path": "/article/stl-3d-printing-calculator-local-browser",
-      "views": 3,
-      "avgSec": 6.7
-    },
-    {
-      "path": "/article/20260525-dahon-dash-d16-evening-ride",
-      "views": 2,
-      "avgSec": 5.04
-    },
     {
       "path": "/article/aviation-si-onboarding-01",
       "views": 2,
       "avgSec": 0
     },
     {
-      "path": "/article/why-swim",
-      "views": 2,
+      "path": "/article/20260510-morning-ride",
+      "views": 1,
+      "avgSec": 5.73
+    },
+    {
+      "path": "/article/20260525-dahon-dash-d16-evening-ride",
+      "views": 1,
       "avgSec": 0
     },
     {
@@ -43,17 +49,7 @@
       "avgSec": 0
     },
     {
-      "path": "/article/allowance-300k-01",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/ansan-bono-dong-gukbapjip-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/ansan-sonaro-coffee-bakery-review",
+      "path": "/article/anyang-imidon",
       "views": 1,
       "avgSec": 0
     },
@@ -68,11 +64,6 @@
       "avgSec": 0
     },
     {
-      "path": "/article/ganghwa-cafe-in-bunjae-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
       "path": "/article/gpx-risk-analyzer",
       "views": 1,
       "avgSec": 0
@@ -83,17 +74,12 @@
       "avgSec": 0
     },
     {
+      "path": "/article/gwanggyo-mochiga",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
       "path": "/article/hwaseong-byulboim-cafe-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/newborn-loan-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-comfyui-retro-palette-compiler",
       "views": 1,
       "avgSec": 0
     },
@@ -108,42 +94,7 @@
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-handling-log-tuning",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-headlight-dual-emitter",
-      "views": 1,
-      "avgSec": 8.46
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-pseudo-3d-camera",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
       "path": "/article/phaser4-apex-seoul-real-car-source-model-poc",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-steering-required-corner-physics",
-      "views": 1,
-      "avgSec": 0.15
-    },
-    {
-      "path": "/article/phaser4-isometric-minesweeper-difficulty-timer-render-polish",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-isometric-minesweeper-ecs-scaffold",
       "views": 1,
       "avgSec": 0
     },
@@ -163,17 +114,7 @@
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-overview",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/suwon-jinmi-chicken-review",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-math-coordinates",
+      "path": "/article/rethink-blog-meaning-while-continuing-development",
       "views": 1,
       "avgSec": 0
     },
@@ -183,12 +124,17 @@
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-negative-numbers",
+      "path": "/article/thinking-math-function-graph-shape",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-piecewise-function",
+      "path": "/article/thinking-math-function-machine",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/thinking-math-inequality",
       "views": 1,
       "avgSec": 0
     },
@@ -198,22 +144,12 @@
       "avgSec": 0
     },
     {
+      "path": "/article/thinking-math-remainder",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
       "path": "/article/thinking-math-straight-line",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/thinking-math-variables",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/uiwang-myeongga-mandu",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/uiwang-the-gardener",
       "views": 1,
       "avgSec": 0
     },
@@ -223,7 +159,7 @@
       "avgSec": 0
     },
     {
-      "path": "/article/when-i-started-thinking-in-10-years-not-now",
+      "path": "/article/why-swim",
       "views": 1,
       "avgSec": 0
     },

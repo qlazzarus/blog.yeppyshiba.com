@@ -1,28 +1,34 @@
 {
-  "generatedAt": "2026-07-27T06:26:09.893Z",
+  "generatedAt": "2026-08-10T04:26:59.784Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-headlight-dual-emitter",
-      "views": 17,
+      "path": "/article/aviation-si-onboarding-01",
+      "views": 2,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/phaser4-apex-seoul-steering-required-corner-physics",
-      "views": 4,
-      "avgSec": 168.78,
+      "path": "/article/apptech-income-june-2026",
+      "views": 1,
+      "avgSec": 86.4,
       "reason": "amplify"
     },
     {
-      "path": "/article/20260606-evening-ride",
+      "path": "/article/migration-to-astro",
       "views": 1,
-      "avgSec": 69.64,
+      "avgSec": 81.87,
       "reason": "amplify"
     },
     {
-      "path": "/article/ansan-sonaro-coffee-bakery-review",
+      "path": "/article/php8-attributes",
       "views": 1,
-      "avgSec": 812.5,
+      "avgSec": 68.03,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/uiwang-myeongga-mandu",
+      "views": 1,
+      "avgSec": 71.89,
       "reason": "amplify"
     }
   ]
