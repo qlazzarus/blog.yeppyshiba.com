@@ -1,6 +1,6 @@
 # Apex Seoul HND-5 Understeer Visual Authority
 
-Generated: 2026-07-27T08:47:01.800Z
+Generated: 2026-07-31T08:48:15.108Z
 
 Status: **PASS**
 

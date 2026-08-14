@@ -1,6 +1,6 @@
 # Apex Seoul ORS-2A Longitudinal A/B
 
-Generated: 2026-07-23T05:15:47.284Z
+Generated: 2026-07-31T08:48:10.283Z
 
 Status: **PASS**
 
@@ -71,7 +71,7 @@ The rail exposure value is an upper-bound timing ratio, not a simulated racing l
 | candidateParsing | yes | = true | true |
 | canonicalCameraProgression | yes | = true | true |
 | noLegacyDirectPhysicalProgression | yes | = false | false |
-| powertrainHasNoLongitudinalScaleDependency | yes | = false | false |
+| roadFrameYawTracksLongitudinalScale | yes | = true | true |
 | historicalSh7ScenariosPinnedToU0 | yes | = 4 | 4 |
 | displaySpeedIdentityErrorKmh | yes | <= 0.000001 | 0 |
 | maximumSegmentsPer30HzStep | yes | <= 0.5 | 0.3167 |

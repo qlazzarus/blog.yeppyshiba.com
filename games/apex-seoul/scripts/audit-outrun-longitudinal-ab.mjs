@@ -36,6 +36,7 @@ const outputDir = path.join(
     'assets/telemetry/generated/outrun-longitudinal-ab',
 );
 const mainSourcePath = path.join(projectRoot, 'src/main.ts');
+const playerDefaultsSourcePath = path.join(projectRoot, 'src/game/playerVehicleDefaults.ts');
 const captureSourcePath = path.join(projectRoot, 'scripts/capture-drive-telemetry.mjs');
 const controllerSourcePath = path.join(
     projectRoot,
@@ -48,14 +49,15 @@ const PEAK_THRESHOLD = 0.55;
 const RUNTIME_SAFETY_SAMPLE_HZ = 30;
 const CONTROL_SAMPLE_HZ = 60;
 
-const [mainSource, controllerSource, captureSource] = await Promise.all([
+const [mainSource, playerDefaultsSource, controllerSource, captureSource] = await Promise.all([
     readFile(mainSourcePath, 'utf8'),
+    readFile(playerDefaultsSourcePath, 'utf8'),
     readFile(controllerSourcePath, 'utf8'),
     readFile(captureSourcePath, 'utf8'),
 ]);
-const playerAccelSpeed = readNumericConstant(mainSource, 'PLAYER_ACCEL_SPEED');
+const playerAccelSpeed = readNumericConstant(playerDefaultsSource, 'PLAYER_ACCEL_SPEED');
 const playerRoadAnchorDistance = readNumericConstant(
-    mainSource,
+    playerDefaultsSource,
     'PLAYER_ROAD_ANCHOR_DISTANCE',
 );
 const track = createBugakRidgeDownhillTrack();
@@ -121,9 +123,9 @@ const checks = [
         false,
     ),
     checkEqual(
-        'powertrainHasNoLongitudinalScaleDependency',
+        'roadFrameYawTracksLongitudinalScale',
         controllerSource.includes('longitudinalScale'),
-        false,
+        true,
     ),
     checkEqual(
         'historicalSh7ScenariosPinnedToU0',

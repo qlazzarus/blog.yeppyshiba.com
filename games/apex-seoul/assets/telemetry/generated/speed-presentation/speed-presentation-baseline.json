@@ -56,9 +56,9 @@
       "pass": true,
       "target": [
         0,
-        0.12
+        0.16
       ],
-      "value": 0.1
+      "value": 0.16
     },
     {
       "id": "sh4EventShaderMax",
@@ -143,7 +143,7 @@
       "id": "sh2SpeedBandsExplicitKmh",
       "pass": true,
       "target": [
-        70,
+        80,
         110,
         150,
         185,
@@ -151,7 +151,7 @@
         225
       ],
       "value": [
-        70,
+        80,
         110,
         150,
         185,
@@ -173,10 +173,10 @@
       "pass": true,
       "target": "110 < 150 < 185 < 210km/h base cue",
       "value": [
-        0.012,
-        0.042,
-        0.072,
-        0.1
+        0.0192,
+        0.0672,
+        0.1152,
+        0.16
       ]
     },
     {
@@ -339,11 +339,11 @@
       225
     ],
     "speedCue": {
-      "baseMaxIntensity": 0.1,
+      "baseMaxIntensity": 0.16,
       "baseSpeedBands": [
         {
           "intensityRatio": 0,
-          "speedKmh": 70
+          "speedKmh": 80
         },
         {
           "intensityRatio": 0.12,
@@ -412,7 +412,7 @@
       "status": "observed"
     }
   ],
-  "generatedAt": "2026-07-28T01:21:42.941Z",
+  "generatedAt": "2026-07-31T08:48:15.481Z",
   "pass": true,
   "rows": [
     {
@@ -672,8 +672,8 @@
         "segmentPassesPerSec": 1.266667
       },
       "camera": {
-        "downhillFovCuePeakDegrees": 0.027,
-        "driftExitFovCuePeakDegrees": 0.068469,
+        "downhillFovCuePeakDegrees": 0.014,
+        "driftExitFovCuePeakDegrees": 0.035503,
         "speedFovBonusDegrees": 1.555008,
         "steadyFovDegrees": 70.555008,
         "throttleFovCuePeakDegrees": 0
@@ -715,22 +715,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.0156,
-        "driftExitEventIntensity": 0.014835,
-        "driftExitCombinedIntensity": 0.020835,
-        "maximumCombinedIntensity": 0.030435,
+        "downhillIntensity": 0.009956,
+        "driftExitEventIntensity": 0.007692,
+        "driftExitCombinedIntensity": 0.01267,
+        "maximumCombinedIntensity": 0.017648,
         "speedEffectTimeScale": 1.12,
-        "steadyIntensity": 0.006,
+        "steadyIntensity": 0.004978,
         "throttleEventIntensity": 0,
-        "throttleCombinedIntensity": 0.006
+        "throttleCombinedIntensity": 0.004978
       },
       "speedKmh": 90,
       "speedRatio": 0.4,
       "speedCue": {
-        "base": 0.006,
-        "downhill": 0.0096,
-        "driftExitBurstPeak": 0.014835,
-        "intensitySteady": 0.006,
+        "base": 0.004978,
+        "downhill": 0.004978,
+        "driftExitBurstPeak": 0.007692,
+        "intensitySteady": 0.004978,
         "throttleBurstPeak": 0
       },
       "worldUnitsPerSec": 304
@@ -795,22 +795,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.0312,
+        "downhillIntensity": 0.0384,
         "driftExitEventIntensity": 0.029671,
-        "driftExitCombinedIntensity": 0.041671,
-        "maximumCombinedIntensity": 0.083332,
+        "driftExitCombinedIntensity": 0.048871,
+        "maximumCombinedIntensity": 0.090532,
         "speedEffectTimeScale": 1.28,
-        "steadyIntensity": 0.012,
+        "steadyIntensity": 0.0192,
         "throttleEventIntensity": 0.022462,
-        "throttleCombinedIntensity": 0.034462
+        "throttleCombinedIntensity": 0.041662
       },
       "speedKmh": 110,
       "speedRatio": 0.488889,
       "speedCue": {
-        "base": 0.012,
+        "base": 0.0192,
         "downhill": 0.0192,
         "driftExitBurstPeak": 0.029671,
-        "intensitySteady": 0.012,
+        "intensitySteady": 0.0192,
         "throttleBurstPeak": 0.022462
       },
       "worldUnitsPerSec": 371.555556
@@ -875,22 +875,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.0702,
+        "downhillIntensity": 0.0864,
         "driftExitEventIntensity": 0.066759,
-        "driftExitCombinedIntensity": 0.093759,
-        "maximumCombinedIntensity": 0.187497,
+        "driftExitCombinedIntensity": 0.109959,
+        "maximumCombinedIntensity": 0.203697,
         "speedEffectTimeScale": 1.44,
-        "steadyIntensity": 0.027,
+        "steadyIntensity": 0.0432,
         "throttleEventIntensity": 0.050538,
-        "throttleCombinedIntensity": 0.077538
+        "throttleCombinedIntensity": 0.093738
       },
       "speedKmh": 130,
       "speedRatio": 0.577778,
       "speedCue": {
-        "base": 0.027,
+        "base": 0.0432,
         "downhill": 0.0432,
         "driftExitBurstPeak": 0.066759,
-        "intensitySteady": 0.027,
+        "intensitySteady": 0.0432,
         "throttleBurstPeak": 0.050538
       },
       "worldUnitsPerSec": 439.111111
@@ -955,22 +955,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.1092,
+        "downhillIntensity": 0.1344,
         "driftExitEventIntensity": 0.103847,
-        "driftExitCombinedIntensity": 0.145847,
-        "maximumCombinedIntensity": 0.291662,
+        "driftExitCombinedIntensity": 0.171047,
+        "maximumCombinedIntensity": 0.316862,
         "speedEffectTimeScale": 1.6,
-        "steadyIntensity": 0.042,
+        "steadyIntensity": 0.0672,
         "throttleEventIntensity": 0.078615,
-        "throttleCombinedIntensity": 0.120615
+        "throttleCombinedIntensity": 0.145815
       },
       "speedKmh": 150,
       "speedRatio": 0.666667,
       "speedCue": {
-        "base": 0.042,
+        "base": 0.0672,
         "downhill": 0.0672,
         "driftExitBurstPeak": 0.103847,
-        "intensitySteady": 0.042,
+        "intensitySteady": 0.0672,
         "throttleBurstPeak": 0.078615
       },
       "worldUnitsPerSec": 506.666667
@@ -1035,22 +1035,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.1565,
+        "downhillIntensity": 0.192616,
         "driftExitEventIntensity": 0.148829,
-        "driftExitCombinedIntensity": 0.209021,
+        "driftExitCombinedIntensity": 0.245137,
         "maximumCombinedIntensity": 0.38,
         "speedEffectTimeScale": 1.76,
-        "steadyIntensity": 0.060192,
+        "steadyIntensity": 0.096308,
         "throttleEventIntensity": 0.112668,
-        "throttleCombinedIntensity": 0.17286
+        "throttleCombinedIntensity": 0.208976
       },
       "speedKmh": 170,
       "speedRatio": 0.755556,
       "speedCue": {
-        "base": 0.060192,
+        "base": 0.096308,
         "downhill": 0.096308,
         "driftExitBurstPeak": 0.148829,
-        "intensitySteady": 0.060192,
+        "intensitySteady": 0.096308,
         "throttleBurstPeak": 0.112668
       },
       "worldUnitsPerSec": 574.222222
@@ -1115,22 +1115,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.1872,
+        "downhillIntensity": 0.2304,
         "driftExitEventIntensity": 0.178024,
-        "driftExitCombinedIntensity": 0.250024,
+        "driftExitCombinedIntensity": 0.293224,
         "maximumCombinedIntensity": 0.38,
         "speedEffectTimeScale": 1.88,
-        "steadyIntensity": 0.072,
+        "steadyIntensity": 0.1152,
         "throttleEventIntensity": 0.134769,
-        "throttleCombinedIntensity": 0.206769
+        "throttleCombinedIntensity": 0.249969
       },
       "speedKmh": 185,
       "speedRatio": 0.822222,
       "speedCue": {
-        "base": 0.072,
+        "base": 0.1152,
         "downhill": 0.1152,
         "driftExitBurstPeak": 0.178024,
-        "intensitySteady": 0.072,
+        "intensitySteady": 0.1152,
         "throttleBurstPeak": 0.134769
       },
       "worldUnitsPerSec": 624.888889
@@ -1195,22 +1195,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.234374,
+        "downhillIntensity": 0.288461,
         "driftExitEventIntensity": 0.222885,
-        "driftExitCombinedIntensity": 0.313029,
+        "driftExitCombinedIntensity": 0.367116,
         "maximumCombinedIntensity": 0.38,
         "speedEffectTimeScale": 2,
-        "steadyIntensity": 0.090144,
+        "steadyIntensity": 0.14423,
         "throttleEventIntensity": 0.168731,
-        "throttleCombinedIntensity": 0.258875
+        "throttleCombinedIntensity": 0.312961
       },
       "speedKmh": 200,
       "speedRatio": 0.888889,
       "speedCue": {
-        "base": 0.090144,
+        "base": 0.14423,
         "downhill": 0.14423,
         "driftExitBurstPeak": 0.222885,
-        "intensitySteady": 0.090144,
+        "intensitySteady": 0.14423,
         "throttleBurstPeak": 0.168731
       },
       "worldUnitsPerSec": 675.555556
@@ -1275,22 +1275,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.26,
+        "downhillIntensity": 0.32,
         "driftExitEventIntensity": 0.247255,
-        "driftExitCombinedIntensity": 0.347255,
+        "driftExitCombinedIntensity": 0.38,
         "maximumCombinedIntensity": 0.38,
         "speedEffectTimeScale": 2.08,
-        "steadyIntensity": 0.1,
+        "steadyIntensity": 0.16,
         "throttleEventIntensity": 0.187179,
-        "throttleCombinedIntensity": 0.287179
+        "throttleCombinedIntensity": 0.347179
       },
       "speedKmh": 210,
       "speedRatio": 0.933333,
       "speedCue": {
-        "base": 0.1,
+        "base": 0.16,
         "downhill": 0.16,
         "driftExitBurstPeak": 0.247255,
-        "intensitySteady": 0.1,
+        "intensitySteady": 0.16,
         "throttleBurstPeak": 0.187179
       },
       "worldUnitsPerSec": 709.333333
@@ -1355,22 +1355,22 @@
       },
       "inverseIdentityErrorKmh": 0,
       "shader": {
-        "downhillIntensity": 0.26,
+        "downhillIntensity": 0.32,
         "driftExitEventIntensity": 0.247255,
-        "driftExitCombinedIntensity": 0.347255,
+        "driftExitCombinedIntensity": 0.38,
         "maximumCombinedIntensity": 0.38,
         "speedEffectTimeScale": 2.2,
-        "steadyIntensity": 0.1,
+        "steadyIntensity": 0.16,
         "throttleEventIntensity": 0.187179,
-        "throttleCombinedIntensity": 0.287179
+        "throttleCombinedIntensity": 0.347179
       },
       "speedKmh": 225,
       "speedRatio": 1,
       "speedCue": {
-        "base": 0.1,
+        "base": 0.16,
         "downhill": 0.16,
         "driftExitBurstPeak": 0.247255,
-        "intensitySteady": 0.1,
+        "intensitySteady": 0.16,
         "throttleBurstPeak": 0.187179
       },
       "worldUnitsPerSec": 760

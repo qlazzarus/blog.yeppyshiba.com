@@ -21,19 +21,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const outputDir = path.join(projectRoot, 'assets/telemetry/generated/outrun-unit-scale');
 const referenceDataPath = path.join(__dirname, 'reference-data/outrun-speed-sense-ors1.json');
-const mainSourcePath = path.join(projectRoot, 'src/main.ts');
+const playerDefaultsSourcePath = path.join(projectRoot, 'src/game/playerVehicleDefaults.ts');
 const roadObjectSourcePath = path.join(projectRoot, 'src/game/roadObjectRenderer.ts');
 const VIEWPORT = Object.freeze({ height: 760, width: 1200 });
 const SAMPLE_SPEEDS_KMH = Object.freeze([110, 150, 185, 225]);
 const ORS2A_SCALES = Object.freeze([1, 1.5, 2, 3]);
 const BLUE_REFLECTOR_WORLD_HEIGHT = 66 * 2.3;
 
-const [referenceData, mainSource, roadObjectSource] = await Promise.all([
+const [referenceData, playerDefaultsSource, roadObjectSource] = await Promise.all([
     loadJson(referenceDataPath),
-    readFile(mainSourcePath, 'utf8'),
+    readFile(playerDefaultsSourcePath, 'utf8'),
     readFile(roadObjectSourcePath, 'utf8'),
 ]);
-const playerAccelSpeed = readNumericConstant(mainSource, 'PLAYER_ACCEL_SPEED');
+const playerAccelSpeed = readNumericConstant(playerDefaultsSource, 'PLAYER_ACCEL_SPEED');
 const objectDrawDistance = readNumericConstant(roadObjectSource, 'OBJECT_DRAW_DISTANCE');
 const track = createBugakRidgeDownhillTrack();
 const roadObjects = collectRoadObjectBaseline(track);

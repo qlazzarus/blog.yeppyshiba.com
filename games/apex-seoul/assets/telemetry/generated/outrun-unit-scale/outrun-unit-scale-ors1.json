@@ -15,24 +15,24 @@
     },
     "distinctiveEvents": {
       "byKind": {
-        "blue-reflector": 158,
+        "blue-reflector": 134,
         "chevron-left": 1,
         "chevron-right": 1,
-        "left-cliff-forest": 1380,
-        "left-cliff-guardrail-post": 86,
-        "left-cliff-guardrail-span": 345,
-        "right-guardrail-post": 115,
-        "right-guardrail-span": 345,
-        "right-retaining-wall-span": 345,
-        "right-wall-tree": 1380,
+        "left-cliff-forest": 1572,
+        "left-cliff-guardrail-post": 98,
+        "left-cliff-guardrail-span": 393,
+        "right-guardrail-post": 131,
+        "right-guardrail-span": 393,
+        "right-retaining-wall-span": 393,
+        "right-wall-tree": 1572,
         "sign-speed": 1
       },
       "eventCount": 3,
-      "maxGapSecAt150Kmh": 92.3211,
-      "maxGapSecAt185Kmh": 74.8549,
-      "maxGapSecAt225Kmh": 61.5474,
-      "maxGapUnits": 46776,
-      "repeatingForestSprites": 2760
+      "maxGapSecAt150Kmh": 115.0579,
+      "maxGapSecAt185Kmh": 93.2902,
+      "maxGapSecAt225Kmh": 76.7053,
+      "maxGapUnits": 58296,
+      "repeatingForestSprites": 3144
     },
     "speeds": [
       {
@@ -142,8 +142,8 @@
     ],
     "track": {
       "id": "bugak-ridge-downhill",
-      "length": 83520,
-      "segments": 348
+      "length": 95040,
+      "segments": 396
     }
   },
   "checks": [
@@ -323,8 +323,8 @@
     "contentGap": {
       "classification": "secondary",
       "evidence": [
-        "3 distinctive sign/chevron placements exist across 83520u, while no gate, traffic or sector-transition event kind exists.",
-        "The longest sign/chevron-free interval is 46776u (74.8549s at 185km/h).",
+        "3 distinctive sign/chevron placements exist across 95040u, while no gate, traffic or sector-transition event kind exists.",
+        "The longest sign/chevron-free interval is 58296u (93.2902s at 185km/h).",
         "Forest clusters are geometrically large but repeat every segment, so raw sprite count is not treated as event variety."
       ]
     },
@@ -345,7 +345,7 @@
       ]
     }
   },
-  "generatedAt": "2026-07-23T01:54:08.824Z",
+  "generatedAt": "2026-07-31T08:48:10.734Z",
   "methodology": {
     "comparisonRule": "Raw units are never compared across engines without segment, road width and projection normalization.",
     "commercialMeasurement": {

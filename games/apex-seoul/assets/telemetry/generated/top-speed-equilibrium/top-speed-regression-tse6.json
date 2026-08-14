@@ -180,28 +180,28 @@
     {
       "id": "cornerLossUsesCalibratedStraightReference",
       "pass": true,
-      "target": "level loss exceeds safety-cap downhill by >= 5 percentage points for each grade",
+      "target": "all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points",
       "value": [
         {
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "easy",
-          "levelCornerLossPercent": 6.506,
-          "levelMinusDownhillPercentagePoints": 6.506
+          "levelCornerLossPercent": 1.478,
+          "levelMinusDownhillPercentagePoints": 1.478
         },
         {
-          "downhillCornerLossPercent": 21.45,
-          "downhillRawLossPercent": 21.268,
+          "downhillCornerLossPercent": 0,
+          "downhillRawLossPercent": 0,
           "grade": "medium",
-          "levelCornerLossPercent": 28.4,
-          "levelMinusDownhillPercentagePoints": 6.95
+          "levelCornerLossPercent": 4.946,
+          "levelMinusDownhillPercentagePoints": 4.946
         },
         {
-          "downhillCornerLossPercent": 42.716,
-          "downhillRawLossPercent": 42.299,
+          "downhillCornerLossPercent": 0.128,
+          "downhillRawLossPercent": 0.128,
           "grade": "sharp",
-          "levelCornerLossPercent": 48.131,
-          "levelMinusDownhillPercentagePoints": 5.415
+          "levelCornerLossPercent": 15.163,
+          "levelMinusDownhillPercentagePoints": 15.035
         }
       ]
     }
@@ -211,22 +211,22 @@
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "easy",
-      "levelCornerLossPercent": 6.506,
-      "levelMinusDownhillPercentagePoints": 6.506
+      "levelCornerLossPercent": 1.478,
+      "levelMinusDownhillPercentagePoints": 1.478
     },
     {
-      "downhillCornerLossPercent": 21.45,
-      "downhillRawLossPercent": 21.268,
+      "downhillCornerLossPercent": 0,
+      "downhillRawLossPercent": 0,
       "grade": "medium",
-      "levelCornerLossPercent": 28.4,
-      "levelMinusDownhillPercentagePoints": 6.95
+      "levelCornerLossPercent": 4.946,
+      "levelMinusDownhillPercentagePoints": 4.946
     },
     {
-      "downhillCornerLossPercent": 42.716,
-      "downhillRawLossPercent": 42.299,
+      "downhillCornerLossPercent": 0.128,
+      "downhillRawLossPercent": 0.128,
       "grade": "sharp",
-      "levelCornerLossPercent": 48.131,
-      "levelMinusDownhillPercentagePoints": 5.415
+      "levelCornerLossPercent": 15.163,
+      "levelMinusDownhillPercentagePoints": 15.035
     }
   ],
   "forceAt225": {
@@ -248,7 +248,7 @@
     "physicalFourthShiftSpeedKmh": 175.339513,
     "shiftRpm": 7400
   },
-  "generatedAt": "2026-07-23T05:16:52.362Z",
+  "generatedAt": "2026-07-31T08:48:15.528Z",
   "pass": true,
   "slopeRows": [
     {

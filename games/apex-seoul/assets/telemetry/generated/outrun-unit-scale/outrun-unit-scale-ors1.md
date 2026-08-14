@@ -1,6 +1,6 @@
 # Apex Seoul ORS-1 Unit / Screen-flow Audit
 
-Generated: 2026-07-23T01:54:08.824Z
+Generated: 2026-07-31T08:48:10.734Z
 
 Status: **PASS**
 
@@ -46,7 +46,7 @@ These are manual frame ranges, not reverse-engineered commercial units. Trailer 
 | factor | classification | evidence |
 | --- | --- | --- |
 | cameraProjection | secondary | Steady FOV changes from 70.976 to 74.2 degrees across the audit speeds. Even with the speed FOV applied, the 225km/h 60->85% pass remains 2.0612s. |
-| contentGap | secondary | 3 distinctive sign/chevron placements exist across 83520u, while no gate, traffic or sector-transition event kind exists. The longest sign/chevron-free interval is 46776u (74.8549s at 185km/h). Forest clusters are geometrically large but repeat every segment, so raw sprite count is not treated as event variety. |
+| contentGap | secondary | 3 distinctive sign/chevron placements exist across 95040u, while no gate, traffic or sector-transition event kind exists. The longest sign/chevron-free interval is 58296u (93.2902s at 185km/h). Forest clusters are geometrically large but repeat every segment, so raw sprite count is not treated as event variety. |
 | longitudinalUnitScale | primary | Apex reaches 3.1667 segment/s and 0.3958 road-width/s at 225km/h. Javascript Racer reaches 60 segment/s and 3 road-width/s at its configured maximum. Apex 225km/h needs 8.25x the Javascript Racer 60->85% ground-pass time. Apex 225km/h needs 6.87x to 23.56x the manually annotated commercial-reference time. |
 | markerDensity | not-primary | Corner lane and reflector cadence is already 5.2074/s at 185km/h. Increasing the same marker count would raise frequency without shortening a single anchor's approach time. |
 
@@ -67,8 +67,8 @@ These are manual frame ranges, not reverse-engineered commercial units. Trailer 
 ## Content-gap baseline
 
 - Distinctive sign/chevron objects: 3
-- Repeating forest sprites: 2760
-- Longest distinctive-event gap: 46776u / 74.8549s at 185km/h
+- Repeating forest sprites: 3144
+- Longest distinctive-event gap: 58296u / 93.2902s at 185km/h
 - Macro traffic/gate/sector transition kinds: 0
 
 ## Checks

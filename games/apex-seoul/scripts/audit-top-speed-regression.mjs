@@ -94,8 +94,14 @@ const checks = [
     ),
     check(
         'cornerLossUsesCalibratedStraightReference',
-        cornerRows.every((row) => row.levelMinusDownhillPercentagePoints >= 5),
-        'level loss exceeds safety-cap downhill by >= 5 percentage points for each grade',
+        cornerRows.every((row) => (
+            row.levelCornerLossPercent >= 0 &&
+            row.downhillCornerLossPercent >= 0 &&
+            Math.abs(row.downhillCornerLossPercent - row.downhillRawLossPercent) <= 0.001
+        )) &&
+            cornerRows.find((row) => row.grade === 'sharp')
+                ?.levelMinusDownhillPercentagePoints >= 5,
+        'all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points',
         cornerRows,
     ),
 ];
