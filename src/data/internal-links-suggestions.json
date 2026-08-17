@@ -1,170 +1,158 @@
 {
-  "topPost": "/article/aviation-si-onboarding-01",
-  "topPostViews": 2,
+  "topPost": "/article/phaser4-apex-seoul-time-attack-finish-presentation",
+  "topPostViews": 3,
   "relatedSuggestions": [
-    "/aviation-si-onboarding-01/",
-    "/allowance-300k-01/"
+    "/phaser4-apex-seoul-time-attack-finish-presentation/",
+    "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
+    "/phaser4-apex-seoul-corner-flow-longitudinal-scale/",
+    "/phaser4-apex-seoul-downhill-elevation-rendering/",
+    "/phaser4-apex-seoul-downhill-grip-cost/",
+    "/phaser4-apex-seoul-downhill-rpm-fuelcut/"
   ],
-  "amplifyCandidates": [
-    {
-      "path": "/article/apptech-income-june-2026",
-      "views": 1,
-      "avgSec": 86.4
-    },
-    {
-      "path": "/article/migration-to-astro",
-      "views": 1,
-      "avgSec": 81.87
-    },
-    {
-      "path": "/article/php8-attributes",
-      "views": 1,
-      "avgSec": 68.03
-    },
-    {
-      "path": "/article/uiwang-myeongga-mandu",
-      "views": 1,
-      "avgSec": 71.89
-    }
-  ],
+  "amplifyCandidates": [],
   "fixCandidates": [
     {
-      "path": "/article/aviation-si-onboarding-01",
+      "path": "/article/quarter-view",
       "views": 2,
-      "avgSec": 0
+      "avgSec": 9.8
     },
     {
       "path": "/article/20260510-morning-ride",
       "views": 1,
-      "avgSec": 5.73
+      "avgSec": 8.41
     },
     {
-      "path": "/article/20260525-dahon-dash-d16-evening-ride",
+      "path": "/article/a-look-back-in-november-2023",
+      "views": 1,
+      "avgSec": 9.45
+    },
+    {
+      "path": "/article/akita-inu",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/adding-view-count-in-gatsby",
+      "path": "/article/allowance-300k-02",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/anyang-imidon",
+      "path": "/article/apptech-income-june-2026",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/baegunlake-henz-dubai-chewy-cookie",
+      "path": "/article/apptech-income-may-2026",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/bundang-cafe-deerhill-review",
+      "path": "/article/bicycle-commute-transportation-savings",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/gpx-risk-analyzer",
+      "path": "/article/ganghwa-dongmak-boston-burger-review",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
+      "path": "/article/gpx-route-viewer-local-analyzer",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/gwanggyo-mochiga",
+      "path": "/article/how-i-build-pocket-money-with-apptech",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/hwaseong-byulboim-cafe-review",
+      "path": "/article/indeogwon-bibimguksu-review",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-downhill-elevation-rendering",
+      "path": "/article/mortgage-prepayment-plan",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-downhill-rpm-fuelcut",
+      "path": "/article/phaser4-apex-seoul-corner-flow-longitudinal-scale",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-real-car-source-model-poc",
+      "path": "/article/phaser4-apex-seoul-downhill-grip-cost",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-localstorage-records-finale",
+      "path": "/article/phaser4-apex-seoul-drift-state-telemetry",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
+      "path": "/article/phaser4-apex-seoul-headlight-dual-emitter",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-isometric-minesweeper-reveal-cascade-reset",
+      "path": "/article/phaser4-apex-seoul-physics-screen-space-trials",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/rethink-blog-meaning-while-continuing-development",
+      "path": "/article/phaser4-apex-seoul-player-car-speed-control",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-equation-balance",
+      "path": "/article/phaser4-apex-seoul-roadside-collision-powerband",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-function-graph-shape",
+      "path": "/article/phaser4-apex-seoul-runtime-sprite-contact-shadow",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-function-machine",
+      "path": "/article/phaser4-apex-seoul-steering-required-corner-physics",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-inequality",
+      "path": "/article/stl-3d-printing-calculator-local-browser",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-ratio",
+      "path": "/article/thinking-math-formula",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-remainder",
+      "path": "/article/thinking-math-geometry-proof",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-straight-line",
+      "path": "/article/uiwang-1981-chopyeong-gyeongyang",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/understanding-time-through-debt",
+      "path": "/article/uiwang-bajirak-kalguksu",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/why-swim",
+      "path": "/article/uiwang-jeju-eunhine-haejangguk",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/yongin-cafe-arosto-review",
+      "path": "/article/uiwang-serendipity",
       "views": 1,
       "avgSec": 0
     }
