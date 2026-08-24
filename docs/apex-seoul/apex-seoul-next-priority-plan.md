@@ -1,6 +1,6 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-07-29
+갱신일: 2026-08-18
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
 
@@ -10,8 +10,8 @@
 
 ## 구조·콘텐츠 백로그
 
-- **Stinger vehicle catalog 추가:** 다음 vehicle 확장 시 Stinger asset URL, atlas, shadow, engine profile, 선택 URL과 catalog fixture를 함께 추가한다. 현재 5순위의 FT86/Genesis 계약은 변경하지 않는다.
-- **Vehicle art pass — 5way→7way steering pose:** center와 mild steer 사이의 slight pose 두 장을 추가할 때 atlas, shadow/headlight profile, frame selection QA를 한 pass로 확장한다. Three.js raw intermediate pose는 현재 FT86 style-filter 승인본과 튀므로, ComfyUI 환경 복구 뒤에만 재개한다. 상세 계약은 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md)에서 관리한다.
+- **Playable vehicle trio art comparison:** 장기 playable 차량은 **FT86, Stinger, G70 (Nieve)** 세 종으로 정한다. catalog·physics 확장 전에 세 원본 3D 모델을 같은 Three.js camera/light/length 기준에서 비교하고, rear/quarter silhouette·wheelbase·glass/lamp separation·contact baseline의 공통 art direction을 승인한다. G70 (Nieve)는 `flipX` sprite 계약을 위해 좌우 대칭 배기구를 포함한 파생 GLB를 source로 사용한다. 현재 runtime의 FT86/G70 POC 선택 계약은 이 비교 pass가 끝날 때까지 유지한다.
+- **Vehicle art pass — 5way→7way steering pose:** 세 후보가 공통 art direction을 통과한 뒤 center와 mild steer 사이의 slight pose 두 장을 추가한다. atlas, shadow/headlight profile, frame selection QA를 한 pass로 확장한다. Three.js raw intermediate pose는 현재 FT86 style-filter 승인본과 튀므로, ComfyUI 환경 복구 뒤에만 runtime pixel pass를 재개한다. 상세 계약은 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md)에서 관리한다.
 
 ## 현재 승인 기준선
 
@@ -128,7 +128,7 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 5. 즉시 restart와 기록 유지
 6. 80km/h부터 시작해 속도에 따라 밀도·길이·발광이 커지는 소실점 기준 만화식 speed line
 7. 왼쪽 가드레일의 연속 가로등과 기존 `>> / <<` chevron의 코너 진입 재배치
-8. 가로등의 제한적인 lamp glow/road pool과, timed finish 뒤 약 5초 coast에 놓인 별도 finishing gantry
+8. ~~가로등의 제한적인 lamp glow/road pool과 finish coast 연출~~ — 완료. timed finish 직후의 비충돌 Π형 finish gate와 약 5초 coast를 승인 기준으로 사용한다. 별도 finishing gantry·3-lamp 구조물은 요구하지 않는다.
 
 현재 존재하는 progress/checkpoint/finish state를 사용하고 별도의 복잡한 메뉴 시스템부터 만들지 않는다.
 
@@ -145,7 +145,7 @@ speed line은 `80km/h`에서 거의 보이지 않게 시작해 `120~160km/h`에�
 
 가로등은 왼쪽 가드레일을 따라 야간 도로의 cadence를 만든다. 기존 chevron은 모든 curve segment에 반복하지 않고 commitment corner 진입 전의 바깥 rail에 `2~4개` 묶음으로 둬 위험 방향을 미리 읽게 한다.
 
-가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 약 5초(`48 segment`)의 untimed coast를 두고, checkpoint gate를 재사용하지 않는 넓은 finishing gantry와 상단의 세 light를 coast 34 segment 지점에 배치한다. gantry 뒤에도 약 1.5초의 도로를 남겨 terminal road block처럼 보이지 않게 한다. finish 직후 카메라는 finish 지점에 고정하고 차량만 연속된 road projection 위로 진행한 뒤 결과 UI를 보인다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
+가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 약 5초의 untimed coast를 둔다. timed line 직후의 비충돌 Π형 finish gate가 완주 지점을 읽게 하며, 이 gate는 checkpoint 판정과 분리된 연출물이다. finish 직후 카메라는 finish 지점에 고정하고 차량만 연속된 road projection 위로 진행한 뒤 결과 UI를 보인다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
 
 출발 countdown의 rev·launch control·burnout 구현 근거는 [archive 기록](./archive/apex-seoul-launch-control-burnout-plan.md)에 보관한다. 새 후속은 P1 time attack 작업에서만 다시 정의한다.
 

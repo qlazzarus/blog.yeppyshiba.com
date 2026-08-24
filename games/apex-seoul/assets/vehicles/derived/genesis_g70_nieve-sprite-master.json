@@ -1,0 +1,9 @@
+{
+  "derivedAt": "2026-08-19",
+  "generator": "scripts/create-g70-nieve-sprite-master.mjs",
+  "input": "genesis_g70_nieve-symmetric.glb",
+  "license": "CC Attribution",
+  "modification": "Removed explicit Genesis badge meshes and the source's separate rear GENESIS chrome/silver/glass lettering assembly; replaced the plate texture with a generic dark plate; retained the original body silhouette; removed the layered rear-lamp inserts and retained one existing broad rear-lamp mesh with a dark red emissive sprite role; normalized reusable material roles and cool glass tint for sprite rendering.",
+  "sourceModelUid": "509a72789a224bc894944638fc602426",
+  "sourceUrl": "https://sketchfab.com/3d-models/genesis-g70-509a72789a224bc894944638fc602426"
+}

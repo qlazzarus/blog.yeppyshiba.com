@@ -1,0 +1,39 @@
+:root { color: #edf5ff; background: #050913; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body.vehicle-preview-page { margin: 0; min-width: 320px; background: radial-gradient(circle at 50% -20%, #18385d, #050913 58%); }
+.vehicle-preview { width: min(1440px, 100%); margin: 0 auto; padding: clamp(24px, 5vw, 72px); }
+.vehicle-preview__header { max-width: 680px; margin-bottom: 34px; }
+.vehicle-preview__eyebrow { margin: 0 0 10px; color: #71b7ff; font-size: 12px; font-weight: 700; letter-spacing: .14em; }
+h1 { margin: 0; font-size: clamp(36px, 6vw, 68px); letter-spacing: -.055em; }
+.vehicle-preview__header > p:last-child { color: #a9bed3; line-height: 1.55; }
+.sprite-pose-preview { margin: 0 0 34px; padding: 20px; border: 1px solid #285070; border-radius: 16px; background: rgba(7, 17, 30, .88); }
+.sprite-pose-preview__toolbar { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.sprite-pose-preview h2 { margin: 0; font-size: 22px; }
+.sprite-pose-preview__vehicle-label { display: grid; gap: 6px; color: #92b3cf; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.sprite-pose-preview select, .sprite-pose-preview__modes button { border: 1px solid #315d82; border-radius: 8px; color: #eaf5ff; background: #0c1a29; padding: 9px 11px; font: inherit; }
+.sprite-pose-preview__modes { display: flex; gap: 8px; }
+.sprite-pose-preview__modes button { cursor: pointer; }
+.sprite-pose-preview__modes button.is-active { border-color: #77c0ff; color: #dff3ff; background: #17466f; }
+.sprite-pose-preview__description { min-height: 22px; margin: 18px 0 10px; color: #9db6cb; font-size: 13px; }
+.sprite-pose-preview__canvas { height: clamp(180px, 25vw, 310px); overflow: hidden; border: 1px solid #1e3e58; border-radius: 10px; background: #080e17; }
+.sprite-pose-preview__canvas canvas { display: block; width: 100%; height: 100%; }
+.sprite-pose-preview__frames { display: grid; margin-top: 8px; gap: 0; }
+.sprite-pose-preview__frames span { color: #83a3bf; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-align: center; }
+.sprite-pose-preview__frames span.is-new { color: #72c4ff; }
+.vehicle-preview__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.vehicle-card { overflow: hidden; border: 1px solid #23425f; border-radius: 16px; background: rgba(7, 17, 30, .9); box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+.vehicle-card__canvas { aspect-ratio: 1.18; min-height: 260px; cursor: zoom-in; }
+.vehicle-card__canvas:active { cursor: grabbing; }
+.vehicle-card__canvas canvas { display: block; width: 100%; height: 100%; }
+.vehicle-card__meta { padding: 16px 18px 18px; border-top: 1px solid #1c3954; }
+.vehicle-card h2, .vehicle-card p { margin: 0; }
+.vehicle-card h2 { font-size: 22px; }
+.vehicle-card p { margin-top: 5px; color: #89a7c4; font-size: 14px; }
+.vehicle-lightbox { width: min(1100px, calc(100vw - 32px)); height: min(800px, calc(100dvh - 32px)); padding: 0; overflow: hidden; border: 1px solid #2e618c; border-radius: 18px; background: #07101c; box-shadow: 0 32px 120px rgba(0, 0, 0, .7); }
+.vehicle-lightbox::backdrop { background: rgba(1, 5, 11, .82); backdrop-filter: blur(8px); }
+.vehicle-lightbox__canvas { width: 100%; height: 100%; cursor: grab; }
+.vehicle-lightbox__canvas:active { cursor: grabbing; }
+.vehicle-lightbox__canvas canvas { display: block; width: 100%; height: 100%; }
+.vehicle-lightbox__close { position: absolute; z-index: 1; top: 16px; right: 16px; width: 42px; height: 42px; border: 1px solid #4d82ad; border-radius: 50%; color: #eaf6ff; background: rgba(5, 16, 29, .78); font-size: 30px; line-height: 1; cursor: pointer; }
+.vehicle-lightbox__label { position: absolute; z-index: 1; right: 24px; bottom: 16px; left: 24px; margin: 0; color: #a8c7e1; font-size: 13px; pointer-events: none; text-align: center; }
+@media (max-width: 820px) { .sprite-pose-preview__toolbar { align-items: stretch; flex-direction: column; } .sprite-pose-preview__modes { flex-wrap: wrap; } .sprite-pose-preview__canvas { height: 190px; } .vehicle-preview__grid { grid-template-columns: 1fr; } .vehicle-card__canvas { min-height: 320px; } }
