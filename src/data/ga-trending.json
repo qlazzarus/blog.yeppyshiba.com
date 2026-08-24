@@ -1,35 +1,11 @@
 {
-  "generatedAt": "2026-08-10T04:26:59.784Z",
+  "generatedAt": "2026-08-24T03:51:23.591Z",
   "trending": [
     {
-      "path": "/article/aviation-si-onboarding-01",
-      "views": 2,
+      "path": "/article/20260510-morning-ride",
+      "views": 1,
       "avgSec": 0,
       "reason": "top_post"
-    },
-    {
-      "path": "/article/apptech-income-june-2026",
-      "views": 1,
-      "avgSec": 86.4,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/migration-to-astro",
-      "views": 1,
-      "avgSec": 81.87,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/php8-attributes",
-      "views": 1,
-      "avgSec": 68.03,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/uiwang-myeongga-mandu",
-      "views": 1,
-      "avgSec": 71.89,
-      "reason": "amplify"
     }
   ]
 }
