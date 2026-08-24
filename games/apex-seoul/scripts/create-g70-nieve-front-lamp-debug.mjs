@@ -26,6 +26,14 @@ const debugLayers = new Map([
     ['Object_108', [0.08, 0.42, 1, 1]],
     ['Object_110', [1, 0.3, 0.08, 1]],
     ['Object_112', [0.72, 0.12, 1, 1]],
+    // Front-bumper diagnostic set: upper grille backing, lower intake,
+    // central grille fill, and the two chrome-grid candidates.
+    ['Object_16', [1, 0.08, 0.08, 1]],
+    ['Object_60', [0.08, 0.95, 1, 1]],
+    ['Object_62', [1, 0.9, 0.06, 1]],
+    ['Object_198', [1, 0.32, 0.08, 1]],
+    ['Object_200', [0.92, 0.08, 0.72, 1]],
+    ['Object_216', [0.18, 1, 0.25, 1]],
 ]);
 
 for (const node of document.getRoot().listNodes()) {

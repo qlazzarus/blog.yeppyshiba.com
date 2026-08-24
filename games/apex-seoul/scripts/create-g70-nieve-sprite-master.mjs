@@ -20,6 +20,10 @@ const rearLampLayerNodeNames = new Set([
 ]);
 const frontLampGeometryNodeName = 'Object_264';
 const frontLampLayerNodeNames = new Set(['Object_182', 'Object_184', 'Object_208', 'Object_228', 'Object_306']);
+const frontGrilleLatticeNodeName = 'Object_200';
+const frontGrilleInsertNodeNames = new Set(['Object_94', 'Object_202', 'Object_204', 'Object_206', 'Object_216', 'Object_278']);
+const frontGrilleLatticeSourceMesh = nodes.find((node) => node.getName() === frontGrilleLatticeNodeName)?.getMesh();
+const frontGrilleBackingSourceMesh = nodes.find((node) => node.getName() === 'Object_62')?.getMesh();
 const frontLampHousingSourceMesh = nodes.find((node) => node.getName() === 'Object_182')?.getMesh();
 const frontLampBodySourceMesh = nodes.find((node) => node.getName() === 'Object_124')?.getMesh();
 
@@ -33,6 +37,24 @@ for (const node of nodes) {
     if (!isNamedGenesisBadge && !rearBadgeNodeNames.has(node.getName())) continue;
     const parent = nodes.find((candidate) => candidate.listChildren().includes(node));
     parent?.removeChild(node);
+}
+
+// The diagnostic pass identifies Object_200 as the high-frequency diamond
+// lattice. Keep Object_198's outer rim and Object_62's recessed backing so
+// the grille remains readable without the real-car mesh noise.
+const frontGrilleLatticeNode = nodes.find((node) => node.getName() === frontGrilleLatticeNodeName);
+if (frontGrilleLatticeNode) {
+    const parent = nodes.find((candidate) => candidate.listChildren().includes(frontGrilleLatticeNode));
+    parent?.removeChild(frontGrilleLatticeNode);
+}
+
+// Remove the plate, camera/badge-like insert, and their mounting block. The
+// recessed grille backing (Object_62) remains as the simplified curved face.
+for (const node of nodes) {
+    if (!frontGrilleInsertNodeNames.has(node.getName())) continue;
+    const parent = nodes.find((candidate) => candidate.listChildren().includes(node));
+    parent?.removeChild(node);
+    node.dispose();
 }
 
 // The front lamp uses the same art direction as the rear: preserve the
@@ -56,6 +78,15 @@ if (frontLampNode && frontLampMaterial) {
     if (parent && frontLampHousingSourceMesh && frontLampBodySourceMesh) {
         parent.addChild(document.createNode('front-lamp-outer-bezel')
             .setMesh(createFrontLampOuterBezelMesh(frontLampHousingSourceMesh, frontLampBodySourceMesh, frontLampMaterial)));
+        if (frontGrilleLatticeSourceMesh && frontGrilleBackingSourceMesh) {
+            const grilleFillMaterial = document.createMaterial('role-grille-fill')
+                .setBaseColorFactor([0.035, 0.06, 0.09, 1])
+                .setMetallicFactor(0.08)
+                .setRoughnessFactor(0.56)
+                .setDoubleSided(true);
+            parent.addChild(document.createNode('front-grille-fill')
+                .setMesh(createFrontGrilleFillMesh(frontGrilleLatticeSourceMesh, frontGrilleBackingSourceMesh, grilleFillMaterial)));
+        }
     }
 }
 
@@ -95,6 +126,7 @@ configureMaterial('TireBlack', { color: [0.025, 0.03, 0.04, 1], name: 'role-tire
 configureMaterial('brakes1', { color: [0.32, 0.37, 0.42, 1], metallic: 0.56, name: 'role-wheel', roughness: 0.34 });
 configureMaterial('chrome.004', { color: [0.52, 0.61, 0.68, 1], metallic: 0.62, name: 'role-chrome', roughness: 0.34 });
 configureMaterial('chrome_d', { color: [0.31, 0.38, 0.45, 1], metallic: 0.45, name: 'role-chrome-dark', roughness: 0.4 });
+configureMaterial('black_matt', { color: [0.035, 0.055, 0.078, 1], metallic: 0.04, name: 'role-grille-recess', roughness: 0.62 });
 configureMaterial('d_red', {
     color: [0.62, 0.015, 0.055, 1],
     emissive: [0.48, 0.002, 0.012],
@@ -238,6 +270,60 @@ function createContinuousFrontLampMesh(sourceMeshes, material) {
             .setAttribute('NORMAL', normal)
             .setIndices(index)
         .setMaterial(material));
+}
+
+function createFrontGrilleFillMesh(latticeMesh, backingMesh, material) {
+    const latticePoints = collectMeshPoints(latticeMesh);
+    const backingPoints = collectMeshPoints(backingMesh);
+    const hull = convexHull2d(latticePoints.map(([x, , z]) => [x, z]));
+    const center = hull.reduce((sum, [x, z]) => [sum[0] + x / hull.length, sum[1] + z / hull.length], [0, 0]);
+    // Stay just inside the chrome rim while reusing the original lattice's
+    // footprint. The surface itself follows only the grille backing.
+    const outline = hull.map(([x, z]) => [
+        center[0] + (x - center[0]) * 0.94,
+        center[1] + (z - center[1]) * 0.94,
+    ]);
+    const vertices = [[center[0], sampleGrilleSurfaceY(backingPoints, center[0], center[1]), center[1]]];
+    for (const [x, z] of outline) vertices.push([x, sampleGrilleSurfaceY(backingPoints, x, z), z]);
+    const positions = new Float32Array(vertices.flat());
+    const normals = new Float32Array(vertices.flatMap(() => [0, 1, 0]));
+    const indices = [];
+    for (let index = 1; index < outline.length; index += 1) indices.push(0, index, index + 1);
+    indices.push(0, outline.length, 1);
+    const position = document.createAccessor('front-grille-fill-position').setType('VEC3').setArray(positions);
+    const normal = document.createAccessor('front-grille-fill-normal').setType('VEC3').setArray(normals);
+    const index = document.createAccessor('front-grille-fill-index').setType('SCALAR').setArray(new Uint16Array(indices));
+    return document.createMesh('front-grille-fill')
+        .addPrimitive(document.createPrimitive()
+            .setAttribute('POSITION', position)
+            .setAttribute('NORMAL', normal)
+            .setIndices(index)
+            .setMaterial(material));
+}
+
+function convexHull2d(points) {
+    const unique = [...new Map(points.map(([x, z]) => [`${x.toFixed(5)},${z.toFixed(5)}`, [x, z]])).values()]
+        .sort(([ax, az], [bx, bz]) => ax - bx || az - bz);
+    const cross = (origin, a, b) => (a[0] - origin[0]) * (b[1] - origin[1]) - (a[1] - origin[1]) * (b[0] - origin[0]);
+    const lower = [];
+    for (const point of unique) {
+        while (lower.length >= 2 && cross(lower.at(-2), lower.at(-1), point) <= 0) lower.pop();
+        lower.push(point);
+    }
+    const upper = [];
+    for (const point of [...unique].reverse()) {
+        while (upper.length >= 2 && cross(upper.at(-2), upper.at(-1), point) <= 0) upper.pop();
+        upper.push(point);
+    }
+    return lower.slice(0, -1).concat(upper.slice(0, -1));
+}
+
+function sampleGrilleSurfaceY(points, x, z) {
+    const nearby = points
+        .map((point) => ({ point, distance: Math.abs(point[0] - x) * 2 + Math.abs(point[2] - z) * 6 }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 20);
+    return Math.max(...nearby.map(({ point }) => point[1])) + 0.004;
 }
 
 function createFrontLampOuterBezelMesh(housingMesh, bodyMesh, material) {

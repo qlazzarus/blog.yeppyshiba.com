@@ -5,7 +5,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import ft86ModelUrl from '../assets/vehicles/optimized/toyota_gt86-optimized.glb?url';
 import stingerModelUrl from '../assets/vehicles/optimized/kia_stinger-optimized.glb?url';
 import g70ModelUrl from '../assets/vehicles/optimized/genesis_g70-optimized.glb?url';
-import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url&v=front-lamp-r55';
+import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url&v=front-grille-r3';
 import g70NieveFrontLampDebugUrl from '../assets/vehicles/optimized/genesis_g70_nieve-front-lamp-debug-optimized.glb?url';
 import genesisCoupeModelUrl from '../assets/vehicles/optimized/genesis_coupe-optimized.glb?url';
 import ft86PoseSheetRaw from '../assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.json?raw';
@@ -43,6 +43,7 @@ type VehiclePreview = {
 };
 
 type SpritePoseMode = 'current' | 'planned';
+type SpritePoseFacing = 'rear' | 'front';
 
 type SpritePoseFrame = {
     degrees: number;
@@ -58,7 +59,8 @@ type ResolvedSpritePose = StoredPose & {
 const ft86PoseSheet = JSON.parse(ft86PoseSheetRaw) as StoredPoseSheet;
 const stingerPoseSheet = JSON.parse(stingerPoseSheetRaw) as StoredPoseSheet;
 const g70PoseSheet = JSON.parse(g70PoseSheetRaw) as StoredPoseSheet;
-const useFrontLampDebug = new URLSearchParams(window.location.search).has('front-lamp-debug');
+const previewQuery = new URLSearchParams(window.location.search);
+const useFrontLampDebug = previewQuery.has('front-lamp-debug') || previewQuery.has('front-bumper-debug');
 
 const VEHICLES: readonly VehiclePreview[] = [
     { id: 'ft86', lengthM: 4.24, modelUrl: ft86ModelUrl, rotation: [0, Math.PI, 0], scale: [1, 1, 1], spritePoseSheet: ft86PoseSheet },
@@ -88,6 +90,24 @@ const PLANNED_SPRITE_POSES: readonly SpritePoseFrame[] = [
     { degrees: 44, id: 'right-2', label: 'R2 · 44°' },
 ];
 
+const CURRENT_FRONT_SPRITE_POSES: readonly SpritePoseFrame[] = [
+    { degrees: -44, id: 'front-left-2', label: 'FL2 · 44°' },
+    { degrees: -24, id: 'front-left-1', label: 'FL1 · 24°' },
+    { degrees: 0, id: 'front-center', label: 'FRONT' },
+    { degrees: 24, id: 'front-right-1', label: 'FR1 · 24°' },
+    { degrees: 44, id: 'front-right-2', label: 'FR2 · 44°' },
+];
+
+const PLANNED_FRONT_SPRITE_POSES: readonly SpritePoseFrame[] = [
+    { degrees: -44, id: 'front-left-2', label: 'FL2 · 44°' },
+    { degrees: -24, id: 'front-left-1', label: 'FL1 · 24°' },
+    { degrees: -11, id: 'front-left-0', isNew: true, label: 'FL0 · 11°' },
+    { degrees: 0, id: 'front-center', label: 'FRONT' },
+    { degrees: 11, id: 'front-right-0', isNew: true, label: 'FR0 · 11°' },
+    { degrees: 24, id: 'front-right-1', label: 'FR1 · 24°' },
+    { degrees: 44, id: 'front-right-2', label: 'FR2 · 44°' },
+];
+
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
 const lightbox = document.querySelector<HTMLDialogElement>('.vehicle-lightbox');
@@ -100,7 +120,9 @@ const posePreviewDescription = document.querySelector<HTMLElement>('.sprite-pose
 const posePreviewFrames = document.querySelector<HTMLElement>('.sprite-pose-preview__frames');
 const posePreviewVehicle = document.querySelector<HTMLSelectElement>('.sprite-pose-preview__vehicle');
 const poseModeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-pose-mode]')];
+const poseFacingButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-pose-facing]')];
 let poseMode: SpritePoseMode = 'current';
+let poseFacing: SpritePoseFacing = 'rear';
 let disposePosePreview: (() => void) | null = null;
 let posePreviewRequest = 0;
 
@@ -123,6 +145,15 @@ for (const button of poseModeButtons) {
     button.addEventListener('click', () => {
         poseMode = button.dataset.poseMode === 'planned' ? 'planned' : 'current';
         for (const candidate of poseModeButtons) {
+            candidate.classList.toggle('is-active', candidate === button);
+        }
+        void updatePosePreview();
+    });
+}
+for (const button of poseFacingButtons) {
+    button.addEventListener('click', () => {
+        poseFacing = button.dataset.poseFacing === 'front' ? 'front' : 'rear';
+        for (const candidate of poseFacingButtons) {
             candidate.classList.toggle('is-active', candidate === button);
         }
         void updatePosePreview();
@@ -252,10 +283,16 @@ async function updatePosePreview() {
     posePreviewCanvas.replaceChildren();
 
     const vehicle = VEHICLES.find(({ id }) => id === posePreviewVehicle.value) ?? VEHICLES[0];
-    const poses = poseMode === 'planned' ? PLANNED_SPRITE_POSES : CURRENT_SPRITE_POSES;
-    posePreviewDescription.textContent = poseMode === 'planned'
-        ? 'Planned 7way contract. Blue labels are interpolated rear-camera poses between CENTER and R1/L1; validate them before pixel and atlas work.'
-        : 'Current 5way contract. It reuses the saved rear-camera and model-transform settings from the generated sprite sheet.';
+    const poses = poseFacing === 'front'
+        ? poseMode === 'planned' ? PLANNED_FRONT_SPRITE_POSES : CURRENT_FRONT_SPRITE_POSES
+        : poseMode === 'planned' ? PLANNED_SPRITE_POSES : CURRENT_SPRITE_POSES;
+    posePreviewDescription.textContent = poseFacing === 'front'
+        ? poseMode === 'planned'
+            ? 'Planned front 7way inspection. Blue labels interpolate between the front centre and saved front-quarter source poses.'
+            : 'Front 5way inspection. It mirrors the saved front-quarter source poses around a symmetric front-centre view.'
+        : poseMode === 'planned'
+            ? 'Planned rear 7way contract. Blue labels are interpolated rear-camera poses between CENTER and R1/L1; validate them before pixel and atlas work.'
+            : 'Current rear 5way contract. It reuses the saved rear-camera and model-transform settings from the generated sprite sheet.';
     posePreviewFrames.style.gridTemplateColumns = `repeat(${poses.length}, minmax(0, 1fr))`;
     posePreviewFrames.replaceChildren(...poses.map((pose) => {
         const label = document.createElement('span');
@@ -369,12 +406,38 @@ function resolveSpritePose(poseSheet: StoredPoseSheet, frame: SpritePoseFrame): 
     const center = getStoredPose(poseSheet, 'center');
     const rightOne = getStoredPose(poseSheet, 'steer-right-1');
     const rightTwo = getStoredPose(poseSheet, 'steer-right-2');
+    const isFront = frame.id.startsWith('front-');
+    const frontCenter: StoredPose = {
+        ...center,
+        camera: [0, center.camera[1], -center.camera[2]],
+        id: 'front-center',
+        rearAngleDeg: 180,
+    };
+    const frontRightOne = getStoredPose(poseSheet, 'spin-front-right-1');
+    const frontRightTwo = getStoredPose(poseSheet, 'spin-front-right-2');
     const interpolate = (factor: number): StoredPose => ({
         ...center,
         camera: center.camera.map((value, index) => THREE.MathUtils.lerp(value, rightOne.camera[index], factor)) as [number, number, number],
         id: frame.id,
         rearAngleDeg: THREE.MathUtils.lerp(center.rearAngleDeg, rightOne.rearAngleDeg, factor),
     });
+    const interpolateFront = (factor: number): StoredPose => ({
+        ...frontCenter,
+        camera: frontCenter.camera.map((value, index) => THREE.MathUtils.lerp(value, frontRightOne.camera[index], factor)) as [number, number, number],
+        id: frame.id,
+        modelYawDeg: THREE.MathUtils.lerp(frontCenter.modelYawDeg, frontRightOne.modelYawDeg, factor),
+        rearAngleDeg: THREE.MathUtils.lerp(frontCenter.rearAngleDeg, frontRightOne.rearAngleDeg, factor),
+    });
+
+    if (isFront) {
+        if (frame.id === 'front-center') return { ...frontCenter, flipX: false };
+        if (frame.id === 'front-right-0') return { ...interpolateFront(11 / 24), flipX: false };
+        if (frame.id === 'front-left-0') return { ...interpolateFront(11 / 24), flipX: true };
+        if (frame.id === 'front-right-1') return { ...frontRightOne, flipX: false };
+        if (frame.id === 'front-left-1') return { ...frontRightOne, flipX: true };
+        if (frame.id === 'front-right-2') return { ...frontRightTwo, flipX: false };
+        return { ...frontRightTwo, flipX: true };
+    }
 
     if (frame.id === 'center') return { ...center, flipX: false };
     if (frame.id === 'right-0') return { ...interpolate(11 / 24), flipX: false };
