@@ -15,6 +15,7 @@
         "build": "vite build",
         "build:parallax-assets": "node scripts/build-parallax-assets.mjs",
         "clean:vehicle-sprite-sheet": "node scripts/clean-vehicle-sprite-sheet.mjs",
+        "create:stinger-badge-debug": "node scripts/create-stinger-badge-debug.mjs",
         "create:g70-nieve-sprite-master": "node scripts/create-g70-nieve-sprite-master.mjs",
         "download:sketchfab-model": "node scripts/download-sketchfab-model.mjs",
         "download:vehicles": "node scripts/download-kenney-car-kit.mjs",

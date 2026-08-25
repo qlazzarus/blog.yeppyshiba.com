@@ -18,6 +18,8 @@
 
 G70 (Nieve)는 기존 G70 POC의 대체 **art donor**다. 원본의 한쪽 후면 배기구는 `flipX`에서 비대칭으로 보이므로, 양쪽 배기구를 갖는 파생 GLB를 sprite source로 고정한다. G70 runtime asset을 이 단계에서 제거하지 않으며, 실제 catalog 교체는 G70 (Nieve) pose sheet·pixel pass·atlas QA가 승인된 뒤에만 한다. real-name 모델은 POC/authoring reference이며, 공개 runtime 후보에는 Raven 계열의 fictionalized art·attribution 정책을 별도로 적용한다.
 
+공개 차량명은 **Mirae GT**로 고정한다. `G70 (Nieve)`, `genesis_g70_nieve` 등의 명칭은 원본·파생 GLB·render manifest를 연결하는 내부 provenance 식별자이며, 게임 UI·차량 카드·공개 atlas metadata에는 사용하지 않는다. 이 명칭 변경은 source license의 attribution 표기를 대체하지 않는다.
+
 ## 공통 sprite artwork와 palette variant 계약
 
 7way source를 만들기 전에 각 차량을 별도 완성작처럼 렌더하지 않는다. FT86, Stinger, G70 (Nieve)는 하나의 **Apex Seoul sprite family**로 읽혀야 하며, 차종 구분은 rear-quarter silhouette·roofline·wheelbase·lamp 폭처럼 저해상도에서도 남는 특징에만 둔다.
@@ -35,11 +37,29 @@ G70 (Nieve)는 기존 G70 POC의 대체 **art donor**다. 원본의 한쪽 후�
 
 ### G70 (Nieve) 3D art-master 방향
 
+- 공개 표기는 `Mirae GT`다. 원본 차명·제조사명은 source/attribution 기록에만 남기고, 플레이어에게 보이는 catalog·garage·sprite 설명에는 노출하지 않는다.
 - 차체 silhouette, roofline, wheelbase, rear overhang은 유지한다. 차고·바디킷·휠 위치처럼 contact baseline을 바꾸는 수정은 하지 않는다.
 - Genesis badge와 실차 번호판 텍스처는 제거하거나 generic 처리한다. 차종의 읽힘은 logo가 아니라 비례·유리선·rear lamp·배기구에서 만든다.
 - 차체는 neutral `role-body`로만 렌더한다. selectable body color는 3D GLB가 아니라 승인된 spritesheet의 body-role palette swap으로만 만든다.
 - glass는 차가운 tint와 통제된 반사 강도로 정리한다. 모든 palette variant가 같은 glass 역할을 공유한다.
 - rear lamp는 유지할 대표 캐릭터 요소다. lamp housing의 위치와 폭은 보존한다. 단일 연속 lamp는 원본 lamp geometry의 layered insert를 제거하고 남은 broad lamp mesh를 재질 role로 재가공한 후보로만 진행하며, 차체 위에 plane/housing을 덧대는 방식은 preview QA에서 rejected다.
+
+### FT86 / Raven Coupe 가상화 방향
+
+- 공개 차량명은 기존처럼 `Raven Coupe`를 사용한다. `FT86`, `GT86`, `toyota_gt86`은 source·render·physics reference를 연결하는 내부 식별자이며, 공개 catalog·garage·sprite 설명에는 사용하지 않는다.
+- 현재 최적화된 FT86 GLB는 차체와 투명 파트가 각각 통합 mesh로 병합되어 있다. 따라서 특정 lamp·grille·bumper mesh만 안전하게 분리·재가공하는 작업은 G70 (Nieve)보다 적합하지 않다. 임의 geometry 삭제나 scale 변형으로 해결하려 하지 않는다.
+- 기본 경로는 **render 후 sprite-stage 가상화**다. source render의 compact 2-door FR 비례, roofline, wheelbase, contact baseline은 유지하고, 식별성이 높은 전·후면 요소를 pixel/style pass에서 대체한다.
+
+| 우선순위 | sprite 가상화 작업 | 유지/제거 기준 |
+| --- | --- | --- |
+| 1 | 전·후 lamp를 원본의 분할·곡선 내부선 대신 단순한 단일 lamp mass로 재구성 | lamp의 대략적 위치와 폭은 유지, 원본 lens signature는 제거 |
+| 2 | 전면 grille와 lower intake를 넓고 단순한 가상 opening으로 재구성 | bumper 외곽과 차체 접지선은 유지, 원본 grille pattern은 제거 |
+| 3 | 번호판, badge, 차명, side marker, 작은 vent를 제거하거나 추상화 | 문구·상표·고유한 소형 trim은 남기지 않음 |
+| 4 | 휠을 공통 5-spoke 또는 disc 계열 sprite role로 단순화 | 타이어 위치·wheelbase는 유지, 실차 특유 wheel design은 제거 |
+| 5 | glass와 door seam을 적은 명암 단계로 정리 | 2-door cabin 비례는 유지, 세밀한 window/trim signature는 약화 |
+
+- 이 pass의 승인 기준은 128/256px에서 `낮고 짧은 2도어 FR 쿠페`로 읽히되, 특정 실차의 전·후면으로 즉시 읽히지 않는 것이다. 이름 변경이나 pixelation만으로 권리 검토가 완료되는 것은 아니며, source attribution 기록은 별도로 유지한다.
+- 위 가상화 pass로도 결과가 충분히 분리되지 않으면, 실차 GLB를 더 변형하지 않는다. 저장소의 `raven-coupe-procedural`을 다음 후보로 삼아 같은 pose·palette·atlas 계약에 맞춰 발전시킨다. 이 절차형 모델은 실차 POC를 pose·scale·readability 참고로만 쓰고 trade dress를 복제하지 않는 경로다.
 
 ## 결정
 
