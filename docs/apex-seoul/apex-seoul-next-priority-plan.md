@@ -10,7 +10,7 @@
 
 ## 구조·콘텐츠 백로그
 
-- **Playable vehicle trio art comparison:** 장기 playable 차량은 **FT86, Stinger, G70 (Nieve)** 세 종으로 정한다. catalog·physics 확장 전에 세 원본 3D 모델을 같은 Three.js camera/light/length 기준에서 비교하고, rear/quarter silhouette·wheelbase·glass/lamp separation·contact baseline의 공통 art direction을 승인한다. G70 (Nieve)는 `flipX` sprite 계약을 위해 좌우 대칭 배기구를 포함한 파생 GLB를 source로 사용한다. 현재 runtime의 FT86/G70 POC 선택 계약은 이 비교 pass가 끝날 때까지 유지한다.
+- **Playable vehicle trio art comparison:** 장기 playable 차량은 **FT86, Stinger, Mirae GT** 세 종으로 정한다. Mirae GT의 원본/파생 source 식별자는 내부에서만 `G70 (Nieve)`를 유지한다. catalog·physics 확장 전에 세 원본 3D 모델을 같은 Three.js camera/light/length 기준에서 비교하고, rear/quarter silhouette·wheelbase·glass/lamp separation·contact baseline의 공통 art direction을 승인한다. Mirae GT는 `flipX` sprite 계약을 위해 좌우 대칭 배기구를 포함한 파생 GLB를 source로 사용한다. 현재 runtime의 FT86/G70 POC 선택 계약은 이 비교 pass가 끝날 때까지 유지한다.
 - **Vehicle art pass — 5way→7way steering pose:** 세 후보가 공통 art direction을 통과한 뒤 center와 mild steer 사이의 slight pose 두 장을 추가한다. atlas, shadow/headlight profile, frame selection QA를 한 pass로 확장한다. Three.js raw intermediate pose는 현재 FT86 style-filter 승인본과 튀므로, ComfyUI 환경 복구 뒤에만 runtime pixel pass를 재개한다. 상세 계약은 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md)에서 관리한다.
 
 ## 현재 승인 기준선

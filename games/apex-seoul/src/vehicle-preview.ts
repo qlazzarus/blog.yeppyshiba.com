@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import ft86ModelUrl from '../assets/vehicles/optimized/toyota_gt86-optimized.glb?url';
 import stingerModelUrl from '../assets/vehicles/optimized/kia_stinger-optimized.glb?url';
+import stingerBadgeDebugModelUrl from '../assets/vehicles/derived/kia_stinger-badge-debug.glb?url';
 import g70ModelUrl from '../assets/vehicles/optimized/genesis_g70-optimized.glb?url';
 import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url&v=front-grille-r3';
 import g70NieveFrontLampDebugUrl from '../assets/vehicles/optimized/genesis_g70_nieve-front-lamp-debug-optimized.glb?url';
@@ -61,10 +62,11 @@ const stingerPoseSheet = JSON.parse(stingerPoseSheetRaw) as StoredPoseSheet;
 const g70PoseSheet = JSON.parse(g70PoseSheetRaw) as StoredPoseSheet;
 const previewQuery = new URLSearchParams(window.location.search);
 const useFrontLampDebug = previewQuery.has('front-lamp-debug') || previewQuery.has('front-bumper-debug');
+const useStingerBadgeDebug = previewQuery.has('stinger-badge-debug');
 
 const VEHICLES: readonly VehiclePreview[] = [
     { id: 'ft86', lengthM: 4.24, modelUrl: ft86ModelUrl, rotation: [0, Math.PI, 0], scale: [1, 1, 1], spritePoseSheet: ft86PoseSheet },
-    { id: 'stinger', lengthM: 4.83, modelUrl: stingerModelUrl, rotation: [0, 0, 0], scale: [1, 1, 1], spritePoseSheet: stingerPoseSheet },
+    { id: 'stinger', lengthM: 4.83, modelUrl: useStingerBadgeDebug ? stingerBadgeDebugModelUrl : stingerModelUrl, rotation: [0, 0, 0], scale: [1, 1, 1], spritePoseSheet: stingerPoseSheet },
     { id: 'g70', lengthM: 4.69, modelUrl: g70ModelUrl, rotation: [Math.PI / 2, 0, 0], scale: [-1, 1, -1], spritePoseSheet: g70PoseSheet },
     // Nieve has no rendered sheet yet. It intentionally uses the existing rear-pose
     // camera contract while retaining its own neutral model transform.
@@ -216,6 +218,20 @@ async function createVehiclePreview(
             node.receiveShadow = false;
         });
         scene.add(model);
+        if (useStingerBadgeDebug && vehicle.id === 'stinger') {
+            // Bounds inspection identifies layer 19 as a thin, rear-centre
+            // badge/lettering candidate. A depth-disabled helper is readable
+            // even when that source layer sits underneath another surface.
+            for (const index of [19]) {
+                const candidate = model.getObjectByName(`debug-layer-${index}`);
+                if (!candidate) continue;
+                const helper = new THREE.Box3Helper(new THREE.Box3().setFromObject(candidate), '#ff2d92');
+                helper.material.depthTest = false;
+                helper.material.depthWrite = false;
+                helper.renderOrder = 999;
+                scene.add(helper);
+            }
+        }
     } catch {
         container.dataset.error = 'true';
         container.insertAdjacentText('beforeend', 'Model could not be loaded.');
