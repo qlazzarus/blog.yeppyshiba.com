@@ -119,6 +119,10 @@ ComfyUI는 차량을 새로 그리는 generator가 아니라 style filter다. �
 
 차량 steering pose를 늘릴 때는 source model을 새로 생성하지 않는다. 동일한 Three.js offline render rig에서 `center`, slight steer, mild steer, strong steer의 source pose를 고정 camera/light 조건으로 렌더하고, 좌측은 `flipX`로 파생한다. 5way→7way의 naming, source angle, atlas·headlight·shadow QA 조건은 [차량 7way pose·Three.js sprite 생성 계획](apex-seoul-vehicle-pose-density-plan.md)이 소유한다.
 
+새 playable 차량을 늘릴 때는 sprite 후처리부터 시작하지 않는다. 먼저 모든 후보 3D 모델을 같은 preview rig와 실차 length 정규화로 비교해 silhouette, wheelbase, glass/lamp 분리, contact baseline을 승인한다. 이 비교가 끝난 뒤에만 차량별 pose sheet·pixel pass·atlas을 만든다.
+
+차량의 selectable color는 3D 모델을 색마다 다시 렌더하는 방식보다 body/glass/wheel/lamp/chrome/shadow 역할 mask 기반 palette variant로 만든다. body 이외 역할의 전체 RGB 치환은 금지하며, neutral master와 모든 variant는 같은 alpha·contact baseline·frame metadata를 공유한다.
+
 Three.js는 GLB scene transform·camera·light·material·procedural mesh를 결정적으로 수정/렌더하는 authoring 도구다. source mesh의 topology/UV/sculpt 같은 DCC 작업을 대체한다고 취급하지 않는다.
 
 ## 승인 체크리스트
@@ -127,6 +131,7 @@ Three.js는 GLB scene transform·camera·light·material·procedural mesh를 결
 
 - 출처·라이선스·모델 조건이 기록되어 있다.
 - 원본과 파생물이 분리되어 있다.
+- 차량 palette variant는 body-role mask를 사용하며 lamp·glass·chrome·shadow 역할을 보존한다.
 - 역할에 맞는 alpha, 크기, anchor, tile/seam 조건을 만족한다.
 - black/blue palette와 제한된 signal accent를 지킨다.
 - 차량보다 도로/표지/도시가 과도하게 밝지 않다.

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Apex Seoul — Vehicle Preview</title>
+    </head>
+    <body class="vehicle-preview-page">
+        <main class="vehicle-preview">
+            <header class="vehicle-preview__header">
+                <p class="vehicle-preview__eyebrow">APEX SEOUL / SOURCE MODEL CHECK</p>
+                <h1>Vehicle preview</h1>
+                <p>Drag to orbit, scroll to zoom. All models use the same studio lighting and real-world length scale.</p>
+            </header>
+            <section class="sprite-pose-preview" aria-labelledby="sprite-pose-preview-title">
+                <div class="sprite-pose-preview__toolbar">
+                    <div>
+                        <p class="vehicle-preview__eyebrow">PRE-SPRITE POSE CHECK</p>
+                        <h2 id="sprite-pose-preview-title">Sprite pose preview</h2>
+                    </div>
+                    <label class="sprite-pose-preview__vehicle-label">
+                        Vehicle
+                        <select class="sprite-pose-preview__vehicle">
+                            <option value="ft86">FT86</option>
+                            <option value="stinger">Stinger</option>
+                            <option value="g70">G70 (current)</option>
+                            <option value="g70-nieve">G70 (Nieve · art master r9)</option>
+                        </select>
+                    </label>
+                    <div class="sprite-pose-preview__modes" role="group" aria-label="Sprite pose mode">
+                        <button class="is-active" type="button" data-pose-mode="current">Current 5way</button>
+                        <button type="button" data-pose-mode="planned">Planned 7way</button>
+                    </div>
+                    <div class="sprite-pose-preview__modes" role="group" aria-label="Sprite facing">
+                        <button class="is-active" type="button" data-pose-facing="rear">Rear</button>
+                        <button type="button" data-pose-facing="front">Front</button>
+                    </div>
+                </div>
+                <p class="sprite-pose-preview__description"></p>
+                <div class="sprite-pose-preview__canvas" aria-label="Rendered sprite pose sheet preview"></div>
+                <div class="sprite-pose-preview__frames" aria-hidden="true"></div>
+            </section>
+            <section class="vehicle-preview__grid" aria-label="Vehicle model previews">
+                <article class="vehicle-card">
+                    <div class="vehicle-card__canvas" data-vehicle="ft86"></div>
+                    <div class="vehicle-card__meta"><h2>FT86</h2><p>Toyota GT86 · 4.24 m</p></div>
+                </article>
+                <article class="vehicle-card">
+                    <div class="vehicle-card__canvas" data-vehicle="stinger"></div>
+                    <div class="vehicle-card__meta"><h2>Stinger</h2><p>Kia Stinger · 4.83 m</p></div>
+                </article>
+                <article class="vehicle-card">
+                    <div class="vehicle-card__canvas" data-vehicle="g70"></div>
+                    <div class="vehicle-card__meta"><h2>G70</h2><p>Genesis G70 · 4.69 m</p></div>
+                </article>
+                <article class="vehicle-card">
+                    <div class="vehicle-card__canvas" data-vehicle="g70-nieve"></div>
+                    <div class="vehicle-card__meta"><h2>G70 (Nieve)</h2><p>Sprite art master r9 · badge-free, remeshed rear lamp</p></div>
+                </article>
+                <article class="vehicle-card">
+                    <div class="vehicle-card__canvas" data-vehicle="genesis-coupe"></div>
+                    <div class="vehicle-card__meta"><h2>Genesis Coupe</h2><p>Hyundai Genesis Coupe 3.8 · 4.63 m</p></div>
+                </article>
+            </section>
+        </main>
+        <dialog class="vehicle-lightbox" aria-label="Expanded vehicle preview">
+            <button class="vehicle-lightbox__close" type="button" aria-label="Close expanded preview">×</button>
+            <div class="vehicle-lightbox__canvas"></div>
+            <p class="vehicle-lightbox__label"></p>
+        </dialog>
+        <script type="module" src="/src/vehicle-preview.ts"></script>
+    </body>
+</html>

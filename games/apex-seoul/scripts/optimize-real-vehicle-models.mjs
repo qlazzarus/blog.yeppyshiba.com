@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir } from 'node:fs/promises';
+import { access, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,11 +19,33 @@ const vehicles = [
         input: 'assets/vehicles/genesis_g70.glb',
         output: 'assets/vehicles/optimized/genesis_g70-optimized.glb',
     },
+    {
+        input: 'assets/vehicles/genesis_g70_nieve.glb',
+        output: 'assets/vehicles/optimized/genesis_g70_nieve-optimized.glb',
+    },
+    {
+        input: 'assets/vehicles/derived/genesis_g70_nieve-symmetric.glb',
+        output: 'assets/vehicles/optimized/genesis_g70_nieve-symmetric-optimized.glb',
+    },
+    {
+        input: 'assets/vehicles/derived/genesis_g70_nieve-sprite-master.glb',
+        output: 'assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb',
+    },
+    {
+        input: 'assets/vehicles/genesis_coupe.glb',
+        output: 'assets/vehicles/optimized/genesis_coupe-optimized.glb',
+    },
 ];
 
 await mkdir(path.resolve(projectRoot, 'assets/vehicles/optimized'), { recursive: true });
 
 for (const vehicle of vehicles) {
+    try {
+        await access(path.resolve(projectRoot, vehicle.input));
+    } catch {
+        console.warn(`Skipping unavailable source model: ${vehicle.input}`);
+        continue;
+    }
     console.log(`Optimizing ${vehicle.input}`);
     await runGltfTransform([
         'gltf-transform',

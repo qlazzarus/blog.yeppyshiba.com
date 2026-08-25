@@ -1,0 +1,9 @@
+{
+  "derivedAt": "2026-08-19",
+  "generator": "scripts/mirror-g70-nieve-exhaust.mjs",
+  "license": "CC Attribution",
+  "modification": "Replaced the one-sided, low-hanging exhaust tip and internal pipe with paired recessed black sockets and short chrome rims for flipX-compatible sprite rendering.",
+  "source": "../genesis_g70_nieve.glb",
+  "sourceModelUid": "509a72789a224bc894944638fc602426",
+  "sourceUrl": "https://sketchfab.com/3d-models/genesis-g70-509a72789a224bc894944638fc602426"
+}
