@@ -11,6 +11,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const inputPath = path.resolve(projectRoot, 'assets/vehicles/optimized/kia_stinger-optimized.glb');
 const outputPath = path.resolve(projectRoot, 'assets/vehicles/derived/kia_stinger-badge-debug.glb');
 const reportPath = path.resolve(projectRoot, 'assets/vehicles/derived/kia_stinger-badge-debug.json');
+const textureDir = path.resolve(projectRoot, 'assets/vehicles/derived/kia_stinger-texture-debug');
 const highlightedLayers = new Set((process.env.STINGER_DEBUG_LAYERS ?? '19')
     .split(',')
     .map((value) => Number.parseInt(value.trim(), 10))
@@ -36,8 +37,30 @@ for (const [index, node] of nodes.entries()) {
 
 await mkdir(path.dirname(outputPath), { recursive: true });
 await io.write(outputPath, document);
+await mkdir(textureDir, { recursive: true });
+const textures = document.getRoot().listTextures();
+const textureReport = [];
+for (const [index, texture] of textures.entries()) {
+    const image = texture.getImage();
+    if (!image) continue;
+    const mimeType = texture.getMimeType() ?? 'image/webp';
+    const extension = mimeType === 'image/png' ? 'png' : mimeType === 'image/jpeg' ? 'jpg' : 'webp';
+    const fileName = `texture-${String(index).padStart(2, '0')}.${extension}`;
+    await writeFile(path.join(textureDir, fileName), image);
+    textureReport.push({ index, name: texture.getName(), mimeType, file: fileName });
+}
 await writeFile(reportPath, `${JSON.stringify({
     sourceBounds,
+    textures: textureReport,
+    materials: document.getRoot().listMaterials().map((material) => ({
+        name: material.getName(),
+        baseColorFactor: material.getBaseColorFactor(),
+        baseColorTexture: (() => {
+            const texture = material.getBaseColorTexture();
+            const index = document.getRoot().listTextures().indexOf(texture);
+            return index === -1 ? null : index;
+        })(),
+    })),
     layers: nodes.map((node, index) => {
         const bounds = getBounds(node);
         const size = bounds.max.map((value, axis) => value - bounds.min[axis]);
@@ -45,6 +68,8 @@ await writeFile(reportPath, `${JSON.stringify({
             index,
             name: node.getName(),
             mesh: node.getMesh()?.getName(),
+            materials: [...new Set(node.getMesh()?.listPrimitives()
+                .map((primitive) => primitive.getMaterial()?.getName() ?? null))],
             bounds,
             size,
         };
@@ -53,3 +78,4 @@ await writeFile(reportPath, `${JSON.stringify({
 console.log(`Created Stinger badge/plate layer debug asset: ${path.relative(projectRoot, outputPath)}`);
 console.log(`Highlighted layers: ${[...highlightedLayers].join(', ') || '(none)'}`);
 console.log(`Wrote Stinger layer bounds report: ${path.relative(projectRoot, reportPath)}`);
+console.log(`Extracted ${textureReport.length} embedded textures: ${path.relative(projectRoot, textureDir)}`);
