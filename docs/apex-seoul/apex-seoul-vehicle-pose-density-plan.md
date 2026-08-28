@@ -1,12 +1,149 @@
 # Apex Seoul 차량 조향 pose 밀도와 Three.js sprite 생성 계획
 
-갱신일: 2026-08-19
+갱신일: 2026-08-27
 
-상태: 3종 playable 후보의 공통 art direction 비교를 먼저 수행한다. ComfyUI style-filter 환경이 복구된 뒤 승인된 기준으로 7way 후보를 생성·QA한다. 현재 5way atlas·runtime은 유지한다.
+상태: 3종 playable 후보의 공통 art direction 비교와 3D master freeze를 마쳤다. 다음 pass는 이미지 AI/ComfyUI가 아닌 deterministic render와 script 기반 2D 보정으로 neutral 7way 후보를 생성·QA한다. 현재 5way atlas·runtime은 유지한다.
+
+## 3D freeze와 2D 보정 전환 — 2026-08-26
+
+Raven Coupe(내부 source `FT86`) / Seorin GT(내부 source `Stinger`) / Mirae GT(내부 source `G70 (Nieve)`)의 3D 단계는 sprite authoring용 **art-master freeze** 상태로 둔다. 이후 3D GLB에는 아래의 예외만 허용한다.
+
+- GLB가 로드되지 않거나 `flipX` 대칭이 깨지는 오류의 수정
+- 로고·번호판·문구처럼 공개에 남기면 안 되는 provenance 요소의 제거
+- sprite render에서 구멍, z-fighting, 명백한 접지 오류를 만드는 geometry 결함의 수정
+
+그 외 실차 식별성을 낮추는 작업과 palette variant는 2D 단계에서 해결한다. 차체 비례, roofline, wheelbase, 타이어 접지선, 휠 위치는 다시 변경하지 않는다.
+
+Stinger art master에는 badge·번호판·rear lettering·rear lip spoiler를 제거했고, 후면 중앙 연결선과 rear-quarter의 빨간 panel line을 차체색으로 단순화했다. 흰 외장과 노란 roll cage는 2D master에서도 유지할 역할 기준이다. 이 변경은 `kia_stinger-sprite-master.glb`에 고정하며, 새 3D stylization pass를 열지 않는다.
+
+### 기존 spritesheet 점검 기준선
+
+| 내부 source | 현재 128px candidate | 점검 결과 | 2D 다음 작업 |
+| --- | --- | --- | --- |
+| Raven Coupe / 내부 source `FT86` | `toyota-gt86-128/sheet-128.png` | 3×6, 16 pose. normal driving은 `center / steer-right-1 / steer-right-2`의 기존 5way 계약이며 QA score 100. | lamp·grille·wheel·trim을 공통 sprite language로 재구성하고 body-role mask를 확정한다. |
+| Stinger / 공개 `Seorin GT` | `kia-stinger-128/sheet-128.png` | 3×6, 16 pose. QA score 90. 현재 고정한 Stinger art master의 badge/plate/spoiler/panel-line 수정 전 POC다. | 새 art master로 neutral 7way source를 다시 렌더한 뒤, 2D에서 rear lamp 내부선·grille·trim을 단순화한다. |
+| G70 (Nieve) / 공개 `Mirae GT` | `genesis-g70-128/sheet-128.png` | 3×6, 16 pose. QA score 90. 이는 기존 G70 POC이며 Mirae GT의 대칭 배기·lamp art master가 반영되지 않았다. | Mirae GT master로 neutral 7way source를 생성하고, 2D에서 lamp mass·glass·body role을 공통화한다. |
+
+세 sheet 모두 center와 mild steer 사이의 `steer-right-0` / flip된 `steer-left-0`가 없다. 따라서 다음 sprite pass의 첫 산출물은 runtime atlas가 아니라, 동일 rig에서 만든 Phaser 구조의 17-pose beauty sheet와 각 frame의 body/glass/lamp/wheel/shadow role mask다.
+
+### 2D 보정 우선순위
+
+1. 각 neutral 7way source에서 차체 역할 mask를 확정한다. palette swap은 이 mask만 바꾸며 glass, lamp, tire, chrome, shadow는 바꾸지 않는다.
+2. 공통 2D 언어로 lamp 내부선, grille 격자, badge/lettering, side marker, 작은 vent, 휠 spoke를 축약한다.
+3. 128px에서 baseline·wheel contact·좌우 flip을 QA하고, 256px은 detail reference로만 사용한다.
+4. `blue / red / silver / black` variant를 body palette swap으로 파생한 뒤, 공개 atlas에는 fictionalized vehicle name만 남긴다.
+
+이 순서가 끝나기 전에는 7way frame selection이나 Phaser runtime atlas를 교체하지 않는다.
+
+### 7way candidate 단일 입력·2D script 계약 — 2026-08-27
+
+`assets/vehicles/generated/7way-sources/`의 4-pose 프리뷰와 `render:real-vehicle-7way-sources` 명령은 제거한다. 별도 preview source를 두면 2D 작업 대상과 Phaser atlas 구조가 다시 달라지기 때문이다.
+
+이후 차량별 단일 beauty 입력은 아래 경로로 고정한다.
+
+```text
+assets/vehicles/generated/7way-candidates/{raven-coupe|seorin-gt|mirae-gt}/
+  source-17pose-512.png      # 3 columns × 6 rows, source pose 17개와 마지막 blank cell
+  source-17pose-512.json     # pose, baseline, anchor, camera metadata
+```
+
+`steer-right-0`는 rear angle `10–12°`의 새 source frame이다. normal driving의 좌측 세 상태는 별도의 이미지를 만들지 않고 해당 right source를 `flipX`한다. spin/crash/uphill/downhill pose는 기존 3×6 배치와 index를 유지한다. 즉, 7way는 steering state만 5→7로 늘리고 sheet의 Phaser frame 계약은 유지한다.
+
+`phaser-128/`은 현재 beauty를 기계적으로 128px로 축소한 **검수용 export**다. 본격 2D 보정은 이 파일을 재가공하지 않고 늘 `source-17pose-512.png`와 metadata에서 시작한다. 승인된 2D 결과만 새 `processed/` 경로와 atlas로 작성하며, 현재 5way runtime asset은 그 전까지 교체하지 않는다.
+
+#### 0번 render 기준선 — 2026-08-27 완료
+
+Raven Coupe, Seorin GT, Mirae GT 모두 `source-17pose-512.png/json`의 17 source frame, 3×6 grid, 한 개의 마지막 blank cell, 7개 steering state export를 확인했다. 128px 검수 QA도 세 차량 모두 required frame 누락 없이 통과했다. Seorin GT는 재질을 강제로 `DoubleSide`로 만들지 않는다. 이 옵션은 겹친 차체 surface의 depth 경쟁을 만들어 흑백 얼룩처럼 보이는 z-fighting을 만들기 때문이다.
+
+이 기준선의 source PNG는 **beauty reference**이며, 아직 runtime asset이나 최종 retro sprite가 아니다. 다음 작업은 이 세 source에 공통 role-mask를 만드는 1번이다.
+
+#### 1번 role-mask 기준선 — 2026-08-27 완료
+
+`extract-vehicle-role-masks.mjs`가 3종의 `source-17pose-512.png/json`에서 `body / glass / lamp / wheel / chrome / accent / shadow` mask와 `roles-debug.png`, `roles.qa.json`을 생성한다. 각 opaque source pixel은 body fallback을 포함해 정확히 한 역할에만 들어가므로 mask 합계와 beauty silhouette이 일치한다. source beauty에 ground shadow는 없으므로 `shadow.png`는 비어 있으며 2번 stylize pass가 wheel-contact metadata로 새로 만든다.
+
+Seorin GT의 roll cage는 `accent`로 분리해 palette swap에서 보존한다. `glass`는 512px cell 전체가 아니라 pose의 실제 opaque vehicle bounds 상단 42%에서만 분류한다. 따라서 차가 cell 상단에 배치된 frame에서도 휠·그릴·하부나 Mirae GT의 측면 도어 트림이 glass로 오인되어 body가 깨지는 문제가 없다. `wheel`은 하부의 검은 범퍼·디퓨저를 절대 포함하지 않도록 pose 안쪽의 원형 dark component만 보수적으로 채택한다. 타원을 탐색 보조로만 쓰고 실제 wheel mask에는 원본의 어두운 tyre/rim pixel만 넣으므로, Mirae GT처럼 밝은 fender가 휠 주변까지 함께 빠지는 현상을 막는다. rollover/overturned 물리 pose는 차체 하부와 타이어가 합쳐져 오인되므로 현 단계에서는 비워 둔다. 자동 chrome 판정은 차체색을 잘못 보호할 위험이 커서 현재는 빈 후보로 유지한다. chrome의 pixel-art 표현은 3번 detail recipe에서 필요한 위치에만 더한다. `roles-debug.png`는 승인용 시각 검수 파일이며, mask가 부족한 차종별 영역은 후속 recipe 규칙으로 보강한다.
+
+#### 1a번 wheel geometry 내부 검증 — 2026-08-27 완료
+
+색·명암만으로 tyre를 판별하면 rear wheel이 body에 흡수되는 pose가 있어, 원본 GLB에서 wheel geometry만 뽑는 내부 검증을 추가했다. `create-vehicle-wheel-role-models.mjs`는 art master를 수정하지 않고 다음 파생 GLB와 QA를 만든다.
+
+```text
+assets/vehicles/derived/wheel-role-{raven-coupe|seorin-gt|mirae-gt}.glb
+assets/vehicles/generated/7way-candidates/{vehicle}/wheel-role-model.qa.json
+```
+
+- Raven Coupe: 네 tyre component, 8,623 triangles
+- Seorin GT: tyre sidewall/tread component, 1,700 triangles
+- Mirae GT: tyre·rim·brake component, 52개 / 98,105 triangles
+
+동일한 3개 key pose에서 camera reference model을 숨긴 뒤 흰 실루엣으로 확인했다. 세 차종 모두 tyre 위치가 유지되며 차체 panel은 포함되지 않는다. Mirae GT는 rim/brake의 작은 부속 pixel이 함께 들어가지만, body를 삭제하거나 alpha를 빼는 pass가 아니므로 타이어가 사라지는 위험은 없다.
+
+이 결과는 **wheel 보호/QA reference**이며, `render-vehicle-wheel-role-sheets.mjs`는 wheel-only GLB와 별도의 non-wheel depth occluder를 같은 camera/scale로 두 번 렌더해 `masks/wheel-geometry.png`를 만든다. 따라서 반대편 휠이 차체 위로 투영되어 `body`를 wheel로 오인하는 것을 막는다. role extractor는 이 가시 geometry alpha를 현행 screen-space `wheel.png`와 union한다. geometry에 잡히지 않은 tyre silhouette은 보수적인 screen-space 후보 또는 body fallback으로 남기며, beauty source의 alpha는 어떤 경우에도 삭제하지 않는다. rollover/overturned pose도 그대로 body fallback으로 둔다. 즉 최종 pose에 tyre 형상이 일부 남는 것은 허용하지만, mask 때문에 투명한 구멍이 생기는 것은 허용하지 않는다.
+
+#### 예정 script 목록과 책임
+
+| 순서 | script | 입력 → 출력 | 처리 내용 |
+| --- | --- | --- | --- |
+| 0 | `render-real-vehicle-phaser-7way.mjs` (존재) | frozen GLB → `source-17pose-512.png/json` | 3×6/17 pose, 공통 camera·light·baseline metadata를 결정적으로 렌더한다. 재질 깨짐·z-fighting이 있으면 이 단계에서 멈추며 2D pass로 숨기지 않는다. |
+| 1 | `extract-vehicle-role-masks.mjs` (완료) | beauty + metadata → `masks/body.png`, `glass.png`, `lamp.png`, `wheel.png`, `chrome.png`, `accent.png`, `shadow.png` | source alpha·색·pose-local geometry guard로 screen-space role 후보를 만든다. mask는 서로 겹치지 않으며 합계가 opaque silhouette을 덮는지 검사한다. |
+| 1a | `create-vehicle-wheel-role-models.mjs` (완료, internal QA) | frozen GLB → wheel-only derived GLB + QA JSON | GLB geometry component 기준으로 tyre/rim/brake 후보를 분리한다. `render-vehicle-pose-sheet.mjs --camera-reference-model-path --silhouette`로 beauty와 같은 camera key pose에서 tyre 보호 범위를 검증한다. final mask의 alpha 삭제 입력으로 사용하지 않는다. |
+| 1b | `render-vehicle-wheel-role-sheets.mjs` (완료) | wheel-only GLB + non-wheel occluder → `masks/wheel-geometry.png/json` | 17 pose·beauty와 같은 camera/scale의 explicit depth prepass로 **가시 휠만** alpha 렌더한다. `extract-vehicle-role-masks.mjs`가 이 alpha를 opaque beauty pixel에만 union하여 `body.png`를 갱신한다. |
+| 2 | `stylize-vehicle-7way-sheet.mjs` (신규) | beauty + role masks + recipe → `processed/neutral-128/sheet-128.png` | cell별 512→128 downsample, alpha hardening, 3~5단 명암 quantization, 검은 외곽선, 접지 shadow, lamp mass, glass tint를 적용한다. grid·bbox·anchor·wheel contact는 metadata에서 복사하고 다시 계산하지 않는다. |
+| 3 | `simplify-vehicle-details.mjs` (신규, 2단계 내부 helper 가능) | role masks + detail recipe → neutral sheet | grille lattice, lamp 내부선, badge/lettering, side marker, 작은 vent, 과도한 spoke를 role 단위로 축약한다. 차체 silhouette·roofline·wheelbase·휠 위치는 수정 금지다. |
+| 4 | `swap-vehicle-body-palette.mjs` (신규) | neutral sheet + `body` mask + palette recipe → `processed/{blue,red,silver,black}-128/sheet-128.png` | 차체의 shade index만 variant ramp로 치환한다. glass/lamp/wheel/chrome/shadow/outline의 RGBA는 byte 단위로 유지한다. 전체 RGB 치환은 금지한다. |
+| 5 | `qa-vehicle-7way-atlas.mjs` (신규) | neutral/variant sheets + metadata → QA JSON/contact sheet | 17 frame index, blank cell, anchor/baseline, wheel contact, left flip 대칭, palette 보호 영역, 누락·과도한 색 수를 검사한다. |
+| 6 | `write-vehicle-7way-atlas.mjs` (신규) | 승인된 processed sheet + QA → Phaser atlas JSON | `steer-left-{0,1,2}`가 대응하는 right source를 `flipX`하는 7 state map을 기록한다. QA가 통과하기 전에는 approved/runtime 경로에 쓰지 않는다. |
+
+기존 `pixel-pass-vehicle-sheet.mjs`는 resize·alpha hardening·quantization·outline·wheel restore의 참고 구현으로 유지한다. 기존 `postprocess-ft86-retro-sheet.mjs`의 palette-role audit과 variant ramp도 재사용하되, 특정 FT86 색값에 의존하는 부분은 위의 공통 `body` mask 기반 script로 일반화한 뒤에만 3종에 적용한다.
+
+#### Retro sprite recipe
+
+| 역할 | script 처리 | palette swap 여부 |
+| --- | --- | --- |
+| silhouette / outline | alpha 1-bit화 뒤 1px dark outline. isolated pixel과 지글거리는 계단은 cell 안에서만 정리한다. | 아니오 |
+| body | neutral gray-blue의 3~5 shade ramp로 묶고, 큰 panel만 남긴다. door seam·fender는 1 shade 차이를 넘지 않는다. | 예 |
+| glass | 2 shade cool tint와 제한된 하이라이트만 남긴다. 내부 roll cage는 별도 accent로 보존한다. | 아니오 |
+| lamp | housing 폭과 위치를 남기고 내부선·LED dot은 1~2개의 mass로 합친다. | 아니오 |
+| grille / vent | grid texture를 면 또는 낮은 빈도의 2-tone hatch로 축약한다. logo·문구는 남기지 않는다. | 아니오 |
+| wheel / brake | tire/rim/brake 역할을 mask로 보호하고, spoke는 회전 인지가 가능한 수만 남긴다. wheel centre·접지선은 이동하지 않는다. | 아니오 |
+| shadow | body와 분리한 dark-blue translucent ground blob으로 재작성하고 모든 palette variant에 재사용한다. | 아니오 |
+
+각 원본 pose는 512px 투명 PNG로 유지하고, 아래의 동기화된 레이어와 metadata를 함께 저장한다. 게임용 128px atlas는 이 source 묶음으로부터만 파생한다.
+
+| 출력 | 용도 | 2D 처리 원칙 |
+| --- | --- | --- |
+| `beauty` | 원본 silhouette·차체 명암 기준 | 직접 palette 교체하지 않는다. |
+| `body-mask` | body palette swap 대상 | blue/red/silver/black 변형은 이 mask 안에서만 수행한다. |
+| `glass-mask` | 유리·window trim 보호 | tint/반사 단계만 공통화하고 body palette의 영향을 받지 않는다. |
+| `lamp-mask` | rear lamp 및 발광 역할 | lamp mass는 단순화할 수 있으나 body color로 치환하지 않는다. |
+| `wheel-mask` | 타이어·림·브레이크 보호 | wheelbase·접지 위치를 바꾸지 않는다. |
+| `accent-mask` | roll cage·amber signal 등 body가 아닌 색상 강조 | body palette의 영향을 받지 않는다. |
+| `shadow` | 접지 그림자 | 차체와 분리해 공통 baseline에 맞춘다. |
+| `metadata` | bbox, anchor, baseline, rear angle | 후처리·flip·atlas QA의 단일 기준이다. |
+
+렌더러는 이미 transparent RGBA pose sheet와 JSON pose metadata를 만들고, 후처리 스크립트는 resize, alpha hardening, palette quantization, outline, wheel 보호, baseline QA를 지원한다. 새 작업은 이 파이프라인에 role-mask pass와 7way pose manifest를 추가하는 범위다. 이미지 AI style filter는 이 계약의 필수 단계가 아니다.
+
+#### 차량별 가능성 점검
+
+| 차량 | 7way source render | 역할 mask 난도 | 사용할 3D source | 판정 |
+| --- | --- | --- | --- | --- |
+| Raven Coupe / 내부 source `FT86` | 가능. 0°/11°/24°/44° camera 궤적을 기존 rig에 추가한다. | 중간~높음. 최적화 GLB가 2 mesh·2 material이라 body/lamp/glass를 재질명만으로 분리할 수 없다. alpha·색·screen-space 규칙을 보조로 쓰고 결과를 frame별 QA한다. | `optimized/toyota_gt86-optimized.glb` | 가능. 2D mask 검수가 핵심이다. |
+| Stinger / 공개 `Seorin GT` | 가능. 확정 art master를 offline renderer에 직접 연결한다. | 낮음~중간. art master가 22 mesh·14 material이라 badge 제거 후 body/glass/lamp/wheel 후보를 mesh·material 기준으로 분리할 수 있다. | `derived/kia_stinger-sprite-master.glb` | 가능. 세 차량 중 역할 분리가 가장 명확하다. |
+| G70 (Nieve) / 공개 `Mirae GT` | 가능. 대칭 배기와 lamp 변경을 포함한 master로 출력한다. | 중간. 16 mesh·12 material이 있어 mask 후보는 충분하나 palette 계열 material은 역할이 겹칠 수 있어 semantic mapping을 명시한다. | `optimized/genesis_g70_nieve-sprite-master-optimized.glb` | 가능. 경량화 master를 사용하므로 batch render에도 적합하다. |
+
+세 차량 모두 현재 Node/GLTF pipeline에서 extension을 등록한 reader로 읽히는 것을 확인했다. 단, 기존 `real-vehicle-poc` manifest는 Stinger(공개 `Seorin GT`)와 G70의 과거 optimized POC를 가리키므로 7way pass를 시작할 때 위 표의 확정 master 경로로 교체해야 한다. 이 manifest 전환 전의 sheet는 비교 기준일 뿐 새 atlas의 source가 아니다.
+
+#### 7way pass 승인 기준
+
+1. source 4장과 flip된 3장이 같은 `baseline` 및 `anchor` 계약을 만족한다.
+2. `steer-right-0`는 0°와 24° 사이에서 silhouette 폭·노출이 단조롭게 변하고, 128px에서 양쪽 frame과 구별된다.
+3. body palette swap이 lamp/glass/wheel/shadow의 RGB와 alpha를 바꾸지 않는다.
+4. Seorin GT와 Mirae GT는 후면에서 FlipX 대칭이 유지되는지 별도 contact sheet로 확인한다.
+5. dynamic spin/crash/uphill/downhill row에는 이번 7way 증설을 적용하지 않는다.
 
 ## playable 차량 art direction 비교 — 다음 gate
 
-대상은 **FT86, Stinger, G70 (Nieve)**다. 이 세 모델을 곧바로 runtime 차량으로 등록하지 않는다. 먼저 동일한 Three.js preview/render rig에서 비교해, 어떤 모델이더라도 하나의 Apex Seoul sprite family로 읽히는 기준을 고정한다.
+대상은 **Raven Coupe, Seorin GT, Mirae GT**다. 내부 source는 각각 `FT86`, `Stinger`, `G70 (Nieve)`다. 이 세 모델을 곧바로 runtime 차량으로 등록하지 않는다. 먼저 동일한 Three.js preview/render rig에서 비교해, 어떤 모델이더라도 하나의 Apex Seoul sprite family로 읽히는 기준을 고정한다.
 
 | 비교 항목 | 고정 기준 | 승인 목적 |
 | --- | --- | --- |
@@ -22,7 +159,7 @@ G70 (Nieve)는 기존 G70 POC의 대체 **art donor**다. 원본의 한쪽 후�
 
 ## 공통 sprite artwork와 palette variant 계약
 
-7way source를 만들기 전에 각 차량을 별도 완성작처럼 렌더하지 않는다. FT86, Stinger, G70 (Nieve)는 하나의 **Apex Seoul sprite family**로 읽혀야 하며, 차종 구분은 rear-quarter silhouette·roofline·wheelbase·lamp 폭처럼 저해상도에서도 남는 특징에만 둔다.
+7way source를 만들기 전에 각 차량을 별도 완성작처럼 렌더하지 않는다. Raven Coupe, Seorin GT, Mirae GT는 하나의 **Apex Seoul sprite family**로 읽혀야 하며, 차종 구분은 rear-quarter silhouette·roofline·wheelbase·lamp 폭처럼 저해상도에서도 남는 특징에만 둔다.
 
 | 단계 | 공통화 규칙 | 차종별로 남길 것 |
 | --- | --- | --- |
@@ -33,7 +170,7 @@ G70 (Nieve)는 기존 G70 POC의 대체 **art donor**다. 원본의 한쪽 후�
 
 색상 variant는 차종별 7way 3D render를 다시 만드는 작업이 아니다. 먼저 차종별 **neutral master 7way**를 승인하고, body-role mask를 이용해 후처리에서 색을 파생한다. 전체 RGB 치환은 lamp·반사광·shadow를 오염시키므로 금지한다. 기존 FT86 palette-role 후처리 구조를 세 차량 공통 manifest로 일반화한다.
 
-원본 차량의 recognizability는 유지하되, 완성 sprite는 실차 홍보 렌더처럼 보이지 않도록 한다. 공개 후보에는 fictionalized Raven 계열 명명과 attribution을 함께 적용한다. FT86와 Stinger도 sprite authoring을 시작하기 전에 source URL·author·license·파생 기록 sidecar를 보완해야 하며, G70 (Nieve)는 원본과 대칭 배기구 파생본의 연결을 계속 기록한다.
+원본 차량의 recognizability는 유지하되, 완성 sprite는 실차 홍보 렌더처럼 보이지 않도록 한다. 공개 후보에는 Raven Coupe/Seorin GT/Mirae GT 명명과 attribution을 함께 적용한다. Raven Coupe source(`FT86`)와 Seorin GT source(`Stinger`)도 sprite authoring을 시작하기 전에 source URL·author·license·파생 기록 sidecar를 보완해야 하며, Mirae GT는 원본과 대칭 배기구 파생본의 연결을 계속 기록한다.
 
 ### G70 (Nieve) 3D art-master 방향
 
@@ -44,7 +181,7 @@ G70 (Nieve)는 기존 G70 POC의 대체 **art donor**다. 원본의 한쪽 후�
 - glass는 차가운 tint와 통제된 반사 강도로 정리한다. 모든 palette variant가 같은 glass 역할을 공유한다.
 - rear lamp는 유지할 대표 캐릭터 요소다. lamp housing의 위치와 폭은 보존한다. 단일 연속 lamp는 원본 lamp geometry의 layered insert를 제거하고 남은 broad lamp mesh를 재질 role로 재가공한 후보로만 진행하며, 차체 위에 plane/housing을 덧대는 방식은 preview QA에서 rejected다.
 
-### FT86 / Raven Coupe 가상화 방향
+### Raven Coupe 가상화 방향
 
 - 공개 차량명은 기존처럼 `Raven Coupe`를 사용한다. `FT86`, `GT86`, `toyota_gt86`은 source·render·physics reference를 연결하는 내부 식별자이며, 공개 catalog·garage·sprite 설명에는 사용하지 않는다.
 - 현재 최적화된 FT86 GLB는 차체와 투명 파트가 각각 통합 mesh로 병합되어 있다. 따라서 특정 lamp·grille·bumper mesh만 안전하게 분리·재가공하는 작업은 G70 (Nieve)보다 적합하지 않다. 임의 geometry 삭제나 scale 변형으로 해결하려 하지 않는다.
@@ -130,9 +267,9 @@ Three.js renderer의 `WebGLRenderTarget` 또는 canvas render 결과는 이미�
 
 ## 실행 순서
 
-1. FT86, Stinger, G70 (Nieve)의 source model·license metadata와 preview를 같은 rig로 보관한다. G70 (Nieve)는 원본과 대칭 배기구 파생본의 provenance를 함께 보관한다.
+1. Raven Coupe, Seorin GT, Mirae GT의 source model·license metadata와 preview를 같은 rig로 보관한다. 내부 source는 각각 `FT86`, `Stinger`, `G70 (Nieve)`로 기록하고, Mirae GT는 원본과 대칭 배기구 파생본의 provenance를 함께 보관한다.
 2. 위 비교 표의 scale/camera/silhouette/material/sprite contract를 승인하고 공통 art direction을 문서화한다.
-3. 현재 FT86 5way의 pose sheet/atlas/runtime screenshot을 baseline으로 보관한다.
+3. 현재 Raven Coupe 5way의 pose sheet/atlas/runtime screenshot을 baseline으로 보관한다.
 4. 차종별 body/glass/wheel/lamp/chrome/shadow role manifest와 neutral master palette를 승인한다.
 5. `steer-right-0`(10–12°)만 추가한 4-source/7-runtime pose manifest 후보를 만든다.
 6. 동일 Three.js rig로 256px neutral master sheet를 렌더하고, 현재 pixel·style-filter·alpha restore pipeline을 통과시킨다.
@@ -143,6 +280,6 @@ Three.js renderer의 `WebGLRenderTarget` 또는 canvas render 결과는 이미�
 
 ### 보류 사유 — 2026-07-28
 
-Three.js raw render만으로 만든 intermediate pose는 현재 FT86 256px style-filter 승인본과 시각적으로 튀었다. 따라서 해당 runtime atlas·sprite·frame selection 변경은 모두 되돌렸다. ComfyUI style-filter 환경이 복구되기 전에는 7way source frame을 runtime에 부분 합성하지 않는다.
+Three.js raw render만으로 만든 intermediate pose는 현재 Raven Coupe 256px 승인본과 시각적으로 튀었다. 따라서 해당 runtime atlas·sprite·frame selection 변경은 모두 되돌렸다. 이후 7way source frame은 이 문서의 role-mask 기반 deterministic 2D pass와 QA를 통과하기 전에는 runtime에 부분 합성하지 않는다.
 
 이 pass는 차량 art/presentation 작업이 열릴 때만 시작한다. 핸들링 기준선은 이를 위해 재조정하지 않는다.

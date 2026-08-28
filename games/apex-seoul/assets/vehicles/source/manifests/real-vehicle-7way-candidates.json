@@ -1,0 +1,29 @@
+{
+  "cellSize": 512,
+  "frameSizeUnits": 2.95,
+  "padding": 1.08,
+  "referenceLengthM": 4.24,
+  "referenceLengthUnits": 2.2,
+  "scaleMode": "vehicle-length",
+  "vehicles": [
+    {
+      "id": "ft86-7way-candidate",
+      "lengthM": 4.24,
+      "modelPath": "assets/vehicles/optimized/toyota_gt86-optimized.glb",
+      "modelYawOffsetDeg": 180,
+      "publicId": "raven-coupe"
+    },
+    {
+      "id": "seorin-gt-7way-candidate",
+      "lengthM": 4.83,
+      "modelPath": "assets/vehicles/derived/kia_stinger-sprite-master.glb",
+      "publicId": "seorin-gt"
+    },
+    {
+      "id": "mirae-gt-7way-candidate",
+      "lengthM": 4.69,
+      "modelPath": "assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb",
+      "publicId": "mirae-gt"
+    }
+  ]
+}

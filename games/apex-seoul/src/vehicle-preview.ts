@@ -63,7 +63,6 @@ const g70PoseSheet = JSON.parse(g70PoseSheetRaw) as StoredPoseSheet;
 const previewQuery = new URLSearchParams(window.location.search);
 const useFrontLampDebug = previewQuery.has('front-lamp-debug') || previewQuery.has('front-bumper-debug');
 const useStingerBadgeDebug = previewQuery.has('stinger-badge-debug');
-const useStingerMaterialPick = previewQuery.has('stinger-material-pick');
 const useNeutralLighting = previewQuery.has('neutral-lighting');
 
 const VEHICLES: readonly VehiclePreview[] = [
@@ -224,20 +223,6 @@ async function createVehiclePreview(
             node.receiveShadow = false;
         });
         scene.add(model);
-        if (useStingerMaterialPick && vehicle.id === 'stinger') {
-            const raycaster = new THREE.Raycaster();
-            renderer.domElement.addEventListener('click', (event) => {
-                const bounds = renderer.domElement.getBoundingClientRect();
-                raycaster.setFromCamera(new THREE.Vector2(
-                    ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
-                    -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
-                ), camera);
-                const hit = raycaster.intersectObject(model, true)[0];
-                if (!(hit?.object instanceof THREE.Mesh)) return;
-                const material = Array.isArray(hit.object.material) ? hit.object.material[0] : hit.object.material;
-                window.alert(`mesh: ${hit.object.name || '(unnamed)'}\\nmaterial: ${material?.name || '(unnamed)'}\\nface: ${hit.faceIndex ?? '(none)'}`);
-            });
-        }
         if (useStingerBadgeDebug && vehicle.id === 'stinger') {
             // Bounds inspection identifies layer 19 as a thin, rear-centre
             // badge/lettering candidate. A depth-disabled helper is readable
@@ -298,7 +283,7 @@ function openLightbox(vehicle: VehiclePreview) {
     const name = vehicle.id === 'ft86'
         ? 'FT86'
         : vehicle.id === 'stinger'
-            ? 'Stinger'
+            ? 'Seorin GT'
             : vehicle.id === 'g70'
                 ? 'G70'
                 : vehicle.id === 'g70-nieve'

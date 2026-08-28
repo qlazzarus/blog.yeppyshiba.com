@@ -1,0 +1,322 @@
+{
+  "candidate": "assets/vehicles/generated/7way-candidates/mirae-gt",
+  "coverage": {
+    "opaquePixels": 466445,
+    "unclassifiedPixels": 0
+  },
+  "maskFiles": {
+    "body": "body.png",
+    "glass": "glass.png",
+    "lamp": "lamp.png",
+    "wheel": "wheel.png",
+    "chrome": "chrome.png",
+    "accent": "accent.png",
+    "shadow": "shadow.png"
+  },
+  "method": "screen-space role candidates; source alpha and RGB classification with optional GLB geometry wheel protection",
+  "notes": [
+    "Masks are mutually exclusive candidates. body is the fallback for every opaque source pixel.",
+    "The beauty source has no ground shadow. shadow.png is intentionally empty; the stylize pass generates it from wheel-contact metadata.",
+    "accent protects Seorin GT roll cage and amber signal accents from body palette swaps.",
+    "wheel-geometry.png is a wheel-only GLB render. Its alpha may promote opaque beauty pixels to wheel, but never removes source alpha."
+  ],
+  "poses": [
+    {
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "geometryWheelPixels": 590,
+      "id": "center",
+      "rolePixels": {
+        "body": 14579,
+        "glass": 934,
+        "lamp": 990,
+        "wheel": 590,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "geometryWheelPixels": 1590,
+      "id": "steer-right-0",
+      "rolePixels": {
+        "body": 16892,
+        "glass": 807,
+        "lamp": 979,
+        "wheel": 1590,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "geometryWheelPixels": 2632,
+      "id": "steer-right-1",
+      "rolePixels": {
+        "body": 19504,
+        "glass": 841,
+        "lamp": 947,
+        "wheel": 3252,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "geometryWheelPixels": 3960,
+      "id": "steer-right-2",
+      "rolePixels": {
+        "body": 24237,
+        "glass": 971,
+        "lamp": 866,
+        "wheel": 3960,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "geometryWheelPixels": 4194,
+      "id": "spin-right-1",
+      "rolePixels": {
+        "body": 24346,
+        "glass": 1112,
+        "lamp": 849,
+        "wheel": 4194,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "geometryWheelPixels": 4472,
+      "id": "spin-right-2",
+      "rolePixels": {
+        "body": 24863,
+        "glass": 1311,
+        "lamp": 831,
+        "wheel": 4472,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "geometryWheelPixels": 3364,
+      "id": "spin-front-right-1",
+      "rolePixels": {
+        "body": 23383,
+        "glass": 1417,
+        "lamp": 96,
+        "wheel": 3753,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "geometryWheelPixels": 825,
+      "id": "spin-front-right-2",
+      "rolePixels": {
+        "body": 16203,
+        "glass": 1273,
+        "lamp": 19,
+        "wheel": 825,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "geometryWheelPixels": 0,
+      "id": "rollover-right-1",
+      "rolePixels": {
+        "body": 38510,
+        "glass": 0,
+        "lamp": 1141,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "geometryWheelPixels": 0,
+      "id": "rollover-right-2",
+      "rolePixels": {
+        "body": 29510,
+        "glass": 0,
+        "lamp": 807,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "geometryWheelPixels": 0,
+      "id": "overturned",
+      "rolePixels": {
+        "body": 47835,
+        "glass": 0,
+        "lamp": 512,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "geometryWheelPixels": 399,
+      "id": "downhill-center",
+      "rolePixels": {
+        "body": 17113,
+        "glass": 1889,
+        "lamp": 1055,
+        "wheel": 399,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "geometryWheelPixels": 2270,
+      "id": "downhill-right-1",
+      "rolePixels": {
+        "body": 22152,
+        "glass": 1365,
+        "lamp": 995,
+        "wheel": 2793,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "geometryWheelPixels": 3636,
+      "id": "downhill-right-2",
+      "rolePixels": {
+        "body": 26272,
+        "glass": 1604,
+        "lamp": 886,
+        "wheel": 3636,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "geometryWheelPixels": 951,
+      "id": "uphill-center",
+      "rolePixels": {
+        "body": 12755,
+        "glass": 126,
+        "lamp": 918,
+        "wheel": 951,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "geometryWheelPixels": 3447,
+      "id": "uphill-right-1",
+      "rolePixels": {
+        "body": 18314,
+        "glass": 370,
+        "lamp": 890,
+        "wheel": 3875,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "geometryWheelPixels": 4879,
+      "id": "uphill-right-2",
+      "rolePixels": {
+        "body": 22591,
+        "glass": 578,
+        "lamp": 838,
+        "wheel": 4879,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    }
+  ],
+  "source": "assets/vehicles/generated/7way-candidates/mirae-gt/source-17pose-512.png",
+  "geometryWheelSource": "assets/vehicles/generated/7way-candidates/mirae-gt/masks/wheel-geometry.png",
+  "sourceCellSize": 512,
+  "sourceGrid": {
+    "columns": 3,
+    "rows": 6
+  },
+  "vehicleId": "mirae-gt"
+}
