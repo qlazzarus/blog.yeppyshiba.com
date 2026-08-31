@@ -1,17 +1,59 @@
 {
-  "topPost": "/article/20260510-morning-ride",
-  "topPostViews": 1,
+  "topPost": "/article/apptech-income-july-2026",
+  "topPostViews": 8,
   "relatedSuggestions": [
-    "/20260510-morning-ride/",
-    "/20260525-dahon-dash-d16-evening-ride/",
-    "/20260606-evening-ride/"
+    "/apptech-income-july-2026/",
+    "/apptech-income-june-2026/",
+    "/apptech-income-may-2026/",
+    "/apptech-to-small-investing/",
+    "/how-i-build-pocket-money-with-apptech/"
   ],
   "amplifyCandidates": [],
   "fixCandidates": [
     {
-      "path": "/article/20260510-morning-ride",
+      "path": "/article/apptech-to-small-investing",
+      "views": 3,
+      "avgSec": 6.55
+    },
+    {
+      "path": "/article/akita-inu",
       "views": 1,
-      "avgSec": 5.01
+      "avgSec": 0
+    },
+    {
+      "path": "/article/apptech-income-july-2026",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/better-bagel-bar-ganjeolgot-review",
+      "views": 1,
+      "avgSec": 7.86
+    },
+    {
+      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-physics-screen-space-trials",
+      "views": 1,
+      "avgSec": 4.18
+    },
+    {
+      "path": "/article/stl-3d-printing-calculator-local-browser",
+      "views": 1,
+      "avgSec": 4.39
+    },
+    {
+      "path": "/article/uiwang-bajirak-kalguksu",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/wooz-bakery-gijang-ocean-view-cafe",
+      "views": 1,
+      "avgSec": 8.79
     }
   ]
 }
