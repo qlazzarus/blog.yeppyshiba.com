@@ -65,7 +65,7 @@ async function extractRoleMasks(vehicle) {
         method: 'screen-space role candidates; source alpha and RGB classification with optional GLB geometry wheel protection',
         notes: [
             'Masks are mutually exclusive candidates. body is the fallback for every opaque source pixel.',
-            'The beauty source has no ground shadow. shadow.png is intentionally empty; the stylize pass generates it from wheel-contact metadata.',
+            'The beauty source has no ground shadow. shadow.png is intentionally empty; Phaser reuses its separate dynamic shadow atlas.',
             'accent protects Seorin GT roll cage and amber signal accents from body palette swaps.',
             geometryWheel
                 ? 'wheel-geometry.png is a wheel-only GLB render. Its alpha may promote opaque beauty pixels to wheel, but never removes source alpha.'
@@ -129,14 +129,12 @@ async function loadGeometryWheelMask(maskPath, sourceInfo) {
     }
 }
 
-function classifyPixel({ red, green, blue, isPhysicsPose, vehicleTop, vehicleBottom, x, y, width }) {
+function classifyPixel({ red, green, blue, isPhysicsPose, vehicleTop, vehicleBottom, y }) {
     const max = Math.max(red, green, blue);
     const min = Math.min(red, green, blue);
     const luminance = red * 0.2126 + green * 0.7152 + blue * 0.0722;
     const saturation = max - min;
-    const localX = x / Math.max(1, width - 1);
     const vehicleHeight = Math.max(1, vehicleBottom - vehicleTop + 1);
-    const vehicleY = (y - vehicleTop) / vehicleHeight;
     const isRedLamp = red > 82 && red > green * 1.3 && red > blue * 1.25;
     const isAmberAccent = red > 105 && green > 82 && blue < 115 && red > blue * 1.35;
     const isDark = luminance < 82;
@@ -148,17 +146,14 @@ function classifyPixel({ red, green, blue, isPhysicsPose, vehicleTop, vehicleBot
     // lower trim as glass. Use the actual opaque vehicle bounds instead.
     const isGlass = !isPhysicsPose && isDark && saturation < 72
         && y >= vehicleTop && y < vehicleTop + vehicleHeight * 0.42;
-    // Keep this deliberately narrow. A broad bright/desaturated rule would
-    // protect Seorin GT's white doors and fenders from palette swapping.
-    // Small exhaust/chrome tips are the only safe automatic candidate here;
-    // any larger chrome treatment is added later by the detail recipe.
-    const isChrome = !isGlass && luminance > 224 && saturation < 18
-        && vehicleY > 0.73 && (localX < 0.24 || localX > 0.76);
+    // Automatic chrome detection is deliberately disabled. Even this former
+    // lower-perimeter heuristic classified Seorin GT's painted side skirt
+    // highlight as chrome, causing a white stripe to survive body palette
+    // swaps. Explicit chrome styling belongs to the later detail recipe.
 
     if (isRedLamp) return 'lamp';
     if (isAmberAccent) return 'accent';
     if (isGlass) return 'glass';
-    if (isChrome) return 'chrome';
     return 'body';
 }
 

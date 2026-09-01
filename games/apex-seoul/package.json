@@ -81,13 +81,18 @@
         "preview": "vite preview --host 0.0.0.0",
         "prepare:vehicle-sprite-sheet": "node scripts/prepare-vehicle-sprite-sheet.mjs",
         "qa:runtime-vehicle": "node scripts/capture-runtime-vehicle-qa.mjs",
-        "qa:vehicle-steering": "node scripts/qa-vehicle-steering.mjs",
+    "qa:vehicle-steering": "node scripts/qa-vehicle-steering.mjs",
+    "qa:vehicle-7way-atlas": "node scripts/qa-vehicle-7way-atlas.mjs",
         "render:real-vehicle-pocs": "node scripts/render-real-vehicle-pocs.mjs",
         "render:real-vehicle-phaser-7way": "node scripts/render-real-vehicle-phaser-7way.mjs",
         "render:vehicle-wheel-role-sheets": "node scripts/render-vehicle-wheel-role-sheets.mjs",
         "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
-        "render:vehicles": "node scripts/render-vehicle-sprites.mjs",
-        "score:vehicle-sheet": "node scripts/score-vehicle-sprite-sheet.mjs"
+    "render:vehicles": "node scripts/render-vehicle-sprites.mjs",
+    "score:vehicle-sheet": "node scripts/score-vehicle-sprite-sheet.mjs",
+    "simplify:vehicle-details": "node scripts/simplify-vehicle-details.mjs",
+    "swap:vehicle-body-palette": "node scripts/swap-vehicle-body-palette.mjs",
+    "stylize:vehicle-7way": "node scripts/stylize-vehicle-7way-sheet.mjs",
+    "write:vehicle-7way-atlas": "node scripts/write-vehicle-7way-atlas.mjs"
     },
     "dependencies": {
         "phaser": "^4.1.0",

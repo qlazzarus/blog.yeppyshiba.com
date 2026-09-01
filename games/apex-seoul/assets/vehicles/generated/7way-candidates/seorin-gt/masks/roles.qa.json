@@ -16,7 +16,7 @@
   "method": "screen-space role candidates; source alpha and RGB classification with optional GLB geometry wheel protection",
   "notes": [
     "Masks are mutually exclusive candidates. body is the fallback for every opaque source pixel.",
-    "The beauty source has no ground shadow. shadow.png is intentionally empty; the stylize pass generates it from wheel-contact metadata.",
+    "The beauty source has no ground shadow. shadow.png is intentionally empty; Phaser reuses its separate dynamic shadow atlas.",
     "accent protects Seorin GT roll cage and amber signal accents from body palette swaps.",
     "wheel-geometry.png is a wheel-only GLB render. Its alpha may promote opaque beauty pixels to wheel, but never removes source alpha."
   ],
@@ -84,11 +84,11 @@
       "geometryWheelPixels": 1164,
       "id": "steer-right-2",
       "rolePixels": {
-        "body": 21727,
+        "body": 21761,
         "glass": 5061,
         "lamp": 333,
         "wheel": 3228,
-        "chrome": 34,
+        "chrome": 0,
         "accent": 167,
         "shadow": 0
       }
@@ -102,11 +102,11 @@
       "geometryWheelPixels": 1301,
       "id": "spin-right-1",
       "rolePixels": {
-        "body": 21813,
+        "body": 21867,
         "glass": 5013,
         "lamp": 313,
         "wheel": 3533,
-        "chrome": 54,
+        "chrome": 0,
         "accent": 179,
         "shadow": 0
       }
@@ -120,11 +120,11 @@
       "geometryWheelPixels": 1438,
       "id": "spin-right-2",
       "rolePixels": {
-        "body": 22635,
+        "body": 22660,
         "glass": 5197,
         "lamp": 286,
         "wheel": 3855,
-        "chrome": 25,
+        "chrome": 0,
         "accent": 204,
         "shadow": 0
       }
@@ -138,11 +138,11 @@
       "geometryWheelPixels": 905,
       "id": "spin-front-right-1",
       "rolePixels": {
-        "body": 20694,
+        "body": 20703,
         "glass": 6378,
         "lamp": 2,
         "wheel": 2787,
-        "chrome": 9,
+        "chrome": 0,
         "accent": 299,
         "shadow": 0
       }
@@ -264,11 +264,11 @@
       "geometryWheelPixels": 1125,
       "id": "downhill-right-2",
       "rolePixels": {
-        "body": 24543,
+        "body": 24863,
         "glass": 6158,
         "lamp": 361,
         "wheel": 3234,
-        "chrome": 320,
+        "chrome": 0,
         "accent": 189,
         "shadow": 0
       }
@@ -318,11 +318,11 @@
       "geometryWheelPixels": 1400,
       "id": "uphill-right-2",
       "rolePixels": {
-        "body": 21722,
+        "body": 21729,
         "glass": 3188,
         "lamp": 255,
         "wheel": 3765,
-        "chrome": 7,
+        "chrome": 0,
         "accent": 230,
         "shadow": 0
       }

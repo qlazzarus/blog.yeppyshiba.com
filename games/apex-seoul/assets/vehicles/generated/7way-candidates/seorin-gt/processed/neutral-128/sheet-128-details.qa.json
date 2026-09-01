@@ -1,0 +1,162 @@
+{
+  "vehicleId": "seorin-gt",
+  "input": "assets/vehicles/generated/7way-candidates/seorin-gt/processed/neutral-128/sheet-128.png",
+  "output": "assets/vehicles/generated/7way-candidates/seorin-gt/processed/neutral-128/sheet-128-details.png",
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "poses": [
+    {
+      "id": "center",
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "lampGapFillPixels": 4,
+      "modeSmoothedPixels": 99
+    },
+    {
+      "id": "steer-right-0",
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 88
+    },
+    {
+      "id": "steer-right-1",
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "lampGapFillPixels": 4,
+      "modeSmoothedPixels": 94
+    },
+    {
+      "id": "steer-right-2",
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "lampGapFillPixels": 4,
+      "modeSmoothedPixels": 127
+    },
+    {
+      "id": "spin-right-1",
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 134
+    },
+    {
+      "id": "spin-right-2",
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 144
+    },
+    {
+      "id": "spin-front-right-1",
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 213
+    },
+    {
+      "id": "spin-front-right-2",
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 212
+    },
+    {
+      "id": "rollover-right-1",
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 286
+    },
+    {
+      "id": "rollover-right-2",
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "lampGapFillPixels": 2,
+      "modeSmoothedPixels": 254
+    },
+    {
+      "id": "overturned",
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 232
+    },
+    {
+      "id": "downhill-center",
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 110
+    },
+    {
+      "id": "downhill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "lampGapFillPixels": 2,
+      "modeSmoothedPixels": 116
+    },
+    {
+      "id": "downhill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 148
+    },
+    {
+      "id": "uphill-center",
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 67
+    },
+    {
+      "id": "uphill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 85
+    },
+    {
+      "id": "uphill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "lampGapFillPixels": 2,
+      "modeSmoothedPixels": 151
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "changedBodyPixels": 24916,
+  "protectedPixelsChanged": 0,
+  "protectedPixelsTested": 269996,
+  "input": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/neutral-128/sheet-128-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/blue-128/sheet-128.png",
+  "vehicleId": "mirae-gt",
+  "variant": "blue"
+}

@@ -88,13 +88,93 @@ assets/vehicles/generated/7way-candidates/{vehicle}/wheel-role-model.qa.json
 | 1 | `extract-vehicle-role-masks.mjs` (완료) | beauty + metadata → `masks/body.png`, `glass.png`, `lamp.png`, `wheel.png`, `chrome.png`, `accent.png`, `shadow.png` | source alpha·색·pose-local geometry guard로 screen-space role 후보를 만든다. mask는 서로 겹치지 않으며 합계가 opaque silhouette을 덮는지 검사한다. |
 | 1a | `create-vehicle-wheel-role-models.mjs` (완료, internal QA) | frozen GLB → wheel-only derived GLB + QA JSON | GLB geometry component 기준으로 tyre/rim/brake 후보를 분리한다. `render-vehicle-pose-sheet.mjs --camera-reference-model-path --silhouette`로 beauty와 같은 camera key pose에서 tyre 보호 범위를 검증한다. final mask의 alpha 삭제 입력으로 사용하지 않는다. |
 | 1b | `render-vehicle-wheel-role-sheets.mjs` (완료) | wheel-only GLB + non-wheel occluder → `masks/wheel-geometry.png/json` | 17 pose·beauty와 같은 camera/scale의 explicit depth prepass로 **가시 휠만** alpha 렌더한다. `extract-vehicle-role-masks.mjs`가 이 alpha를 opaque beauty pixel에만 union하여 `body.png`를 갱신한다. |
-| 2 | `stylize-vehicle-7way-sheet.mjs` (신규) | beauty + role masks + recipe → `processed/neutral-128/sheet-128.png` | cell별 512→128 downsample, alpha hardening, 3~5단 명암 quantization, 검은 외곽선, 접지 shadow, lamp mass, glass tint를 적용한다. grid·bbox·anchor·wheel contact는 metadata에서 복사하고 다시 계산하지 않는다. |
-| 3 | `simplify-vehicle-details.mjs` (신규, 2단계 내부 helper 가능) | role masks + detail recipe → neutral sheet | grille lattice, lamp 내부선, badge/lettering, side marker, 작은 vent, 과도한 spoke를 role 단위로 축약한다. 차체 silhouette·roofline·wheelbase·휠 위치는 수정 금지다. |
-| 4 | `swap-vehicle-body-palette.mjs` (신규) | neutral sheet + `body` mask + palette recipe → `processed/{blue,red,silver,black}-128/sheet-128.png` | 차체의 shade index만 variant ramp로 치환한다. glass/lamp/wheel/chrome/shadow/outline의 RGBA는 byte 단위로 유지한다. 전체 RGB 치환은 금지한다. |
-| 5 | `qa-vehicle-7way-atlas.mjs` (신규) | neutral/variant sheets + metadata → QA JSON/contact sheet | 17 frame index, blank cell, anchor/baseline, wheel contact, left flip 대칭, palette 보호 영역, 누락·과도한 색 수를 검사한다. |
-| 6 | `write-vehicle-7way-atlas.mjs` (신규) | 승인된 processed sheet + QA → Phaser atlas JSON | `steer-left-{0,1,2}`가 대응하는 right source를 `flipX`하는 7 state map을 기록한다. QA가 통과하기 전에는 approved/runtime 경로에 쓰지 않는다. |
+| 2 | `stylize-vehicle-7way-sheet.mjs` (완료) | beauty + role masks + recipe → `processed/neutral-128/sheet-128.png` | cell별 512→128 downsample, alpha hardening, role별 3~5단 명암 quantization, 검은 외곽선, lamp mass, glass tint를 적용한다. grid·bbox·anchor는 metadata에서 복사하고 다시 계산하지 않는다. 그림자는 bake하지 않는다. |
+| 3 | `simplify-vehicle-details.mjs` (완료) | neutral sheet + role masks → `sheet-128-details.png` | role 내부의 고주파 texture를 mode smoothing하고, lamp 내부선의 2px 이하 gap만 하나의 mass로 합친다. grid·alpha·차체 silhouette·roofline·wheelbase·휠 위치는 수정 금지다. |
+| 4 | `swap-vehicle-body-palette.mjs` (완료) | detail sheet + `body` mask + palette recipe → `processed/{blue,red,silver,black}-128/sheet-128.png` | 차체의 shade index만 variant ramp로 치환한다. glass/lamp/wheel/chrome/shadow/outline의 RGBA는 byte 단위로 유지한다. 전체 RGB 치환은 금지한다. |
+| 5 | `qa-vehicle-7way-atlas.mjs` (완료) | detail/variant sheets + metadata → QA JSON/contact sheet | 17 frame index, blank cell, candidate atlas의 anchor/baseline, left flip map, variant alpha를 검사하고 4색 contact sheet를 만든다. |
+| 6 | `write-vehicle-7way-atlas.mjs` (완료) | QA 통과 processed sheet + QA → Phaser candidate atlas JSON | `steer-left-{0,1,2}`가 대응하는 right source를 `flipX`하는 7 state map을 기록한다. 모든 output은 candidateOnly이며 approved/runtime 경로에 쓰지 않는다. |
 
 기존 `pixel-pass-vehicle-sheet.mjs`는 resize·alpha hardening·quantization·outline·wheel restore의 참고 구현으로 유지한다. 기존 `postprocess-ft86-retro-sheet.mjs`의 palette-role audit과 variant ramp도 재사용하되, 특정 FT86 색값에 의존하는 부분은 위의 공통 `body` mask 기반 script로 일반화한 뒤에만 3종에 적용한다.
+
+#### 2번 neutral retro sheet — 2026-08-31 완료
+
+`npm run stylize:vehicle-7way --workspace @games/apex-seoul`는 Raven Coupe, Seorin GT, Mirae GT의 512px beauty와 1번 role mask만 읽어 아래의 별도 중간 산출물을 만든다. `--vehicle {raven-coupe|seorin-gt|mirae-gt}`로 한 차종만 다시 생성할 수도 있다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/processed/neutral-128/
+  sheet-128.png                  # 투명 RGBA의 3×6 neutral master
+  sheet-128.json                 # 원래 pose/cell/anchor 계약을 128px 기준으로 복사
+  sheet-128.qa.json              # pose별 role pixel·접지 shadow·blank-cell 검사 결과
+  sheet-128-checker-preview.png  # 투명 영역을 확인하기 위한 검수용 파일
+```
+
+- 마지막 18번째 cell은 명시적으로 투명인지 QA하며, 기존 5way runtime atlas와 approved asset에는 쓰지 않는다.
+- body / glass / lamp / wheel / accent는 고정된 role palette에서만 명암을 선택한다. 자동 `chrome` 후보는 false positive가 더 위험하므로 비워 두며, 필요할 때만 detail recipe에서 명시적으로 추가한다. 이 결과는 원본 텍스처의 RGB를 직접 보정하거나 전체 색상을 치환하지 않는다.
+- 1px outline은 cell 경계를 넘지 않는다. **접지 shadow는 sheet에 bake하지 않는다.** Phaser는 같은 frame의 별도 shadow spritesheet를 silhouette/soft 두 layer로 렌더하고, drift·경사·속도에 맞춰 회전·크기를 동적으로 조정한다. 따라서 neutral/variant sheet는 이 기존 shadow pipeline을 그대로 재사용한다.
+- 이 산출물은 다음 3번 detail simplification과 4번 body palette swap의 단일 입력이다.
+
+#### 3번 detail simplification — 2026-08-31 완료
+
+`npm run simplify:vehicle-details --workspace @games/apex-seoul`는 2번 neutral master를 변경하지 않고, 다음의 병렬 산출물을 만든다. `--vehicle {raven-coupe|seorin-gt|mirae-gt}`로 한 차종만 재생성할 수 있다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/processed/neutral-128/
+  sheet-128-details.png          # 4번 palette swap의 입력 후보
+  sheet-128-details.json         # source pose/cell/anchor를 그대로 계승
+  sheet-128-details.qa.json      # alpha·blank cell 불변, pose별 smoothing 수 검사
+```
+
+- `body / glass / wheel / accent / chrome`은 같은 role의 3×3 내부에서만 가장 빈번한 색으로 정리한다. role 경계와 outline은 건드리지 않는다.
+- lamp는 같은 row에서 2px 이하로 끊긴 body gap만 중간 lamp tone으로 메운다. 좌우 housing 사이처럼 넓은 간격이나 lamp의 폭·위치는 합치지 않는다.
+- source와 output의 alpha byte는 완전히 같고 마지막 blank cell도 투명인지 검사한다. baked-in shadow는 생성하지 않는다.
+- 결과적으로 grille lattice, wheel spoke, 작은 lens/trim noise가 저주파 pixel mass로 정리되지만, badge·lettering처럼 3D source에 남아 있는 provenance 요소를 이 pass가 임의로 감추지는 않는다. 그런 요소는 3D freeze 예외 수정 또는 명시 recipe 대상으로만 처리한다.
+
+#### 4번 body palette variant — 2026-08-31 완료
+
+`npm run swap:vehicle-body-palette --workspace @games/apex-seoul`는 3번의 `sheet-128-details.png`에서 body role의 neutral shade index만 치환해, 세 차량 각각의 `blue`, `red`, `silver`, `black` variant를 만든다. `--vehicle`과 `--variant`를 함께 사용해 한 차량·한 색상만 재생성할 수 있다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/processed/{blue,red,silver,black}-128/
+  sheet-128.png
+  sheet-128.json
+  sheet-128.qa.json
+```
+
+- 입력의 `body.png`와 512→128 Lanczos 축소에서 생긴 1px body fringe(정확한 neutral body ramp 색)만 body ramp로 변경한다. 3번이 lamp mass로 바꾼 red pixel은 detail 보호 규칙으로 lamp로 남긴다. 자동 chrome 후보는 비워 둬 painted side skirt 같은 밝은 차체 trim이 흰 선으로 보호되지 않게 한다.
+- glass, lamp, wheel, accent, chrome, outline, transparent pixel의 RGBA와 모든 alpha byte는 비교 QA에서 0 변경이어야 한다. 마지막 blank cell 역시 투명이어야 한다.
+- variant는 authoring 중간 산출물이다. 현재 Phaser 5way runtime atlas·shadow asset·catalog는 교체하지 않는다.
+
+#### 5번 7way atlas QA — 2026-08-31 완료
+
+`npm run qa:vehicle-7way-atlas --workspace @games/apex-seoul`는 3번 detail master, 네 body palette variant, 기존 candidate `phaser-128.atlas.json`을 읽고 아래의 승인용 QA를 만든다. `--vehicle`로 한 차종만 검사할 수 있다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/processed/qa/
+  7way-atlas.qa.json
+  palette-contact-sheet.png       # blue, red, silver, black 순서의 2×2 검수 sheet
+```
+
+- 3×6 / 17 pose / 마지막 blank cell, 각 variant의 alpha 동일성·blank cell 투명성을 검사한다.
+- candidate atlas의 pose cell·anchor·baseline을 source metadata와 대조한다. normal steering의 baseline spread는 1px 이하여야 한다.
+- `steer-left-{0,1,2}` → 대응 `steer-right-*`의 `flipX`, center/right state의 직접 source 사용을 검사한다.
+- 세 차량 모두 통과했다. Raven Coupe와 Seorin GT의 normal baseline spread는 0px, Mirae GT는 1px이다. 이 QA는 아직 기존 Phaser 5way runtime atlas를 교체하지 않는다.
+
+#### 6번 Phaser candidate atlas 작성 — 2026-09-01 완료
+
+`npm run write:vehicle-7way-atlas --workspace @games/apex-seoul`는 5번 QA가 통과한 경우에만 세 차량의 네 palette variant에 candidate Phaser atlas를 작성한다. `--vehicle`, `--variant`로 대상 하나만 다시 쓸 수 있다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/processed/{blue,red,silver,black}-128/
+  sheet-128.png
+  sheet-128.json
+  sheet-128.qa.json
+  phaser-128.atlas.json
+```
+
+- 12개 atlas 모두 `candidateOnly: true`이며 `promotionState`가 runtime 미승인 상태를 명시한다.
+- 기존 candidate atlas의 frame rectangle, anchor, baseline, 7way steering map을 그대로 계승한다. left steering은 새 left image를 만들지 않고 대응하는 right frame을 `flipX`한다.
+- 각 atlas는 동 폴더의 `sheet-128.png`만 참조하고, sheet에는 baked-in shadow가 없음을 기록한다. Phaser의 기존 separate/dynamic shadow atlas를 사용한다.
+- 현재 main game의 5way runtime atlas, texture key, vehicle catalog에는 이 파일을 연결하지 않았다. 다음 작업은 runtime integration 전용 변경과 browser QA다.
 
 #### Retro sprite recipe
 
