@@ -17,6 +17,8 @@ const defaultPoseManifest = 'assets/vehicles/source/manifests/outrun-inspired-po
 const config = {
     cellSize: 256,
     columns: 3,
+    cameraReferenceModelPath: null,
+    depthOccluderModelPath: null,
     model: 'raven-coupe-procedural',
     modelPitchOffsetDeg: 0,
     modelPath: null,
@@ -26,6 +28,8 @@ const config = {
     modelScaleZ: 1,
     modelYawOffsetDeg: 0,
     debugMaterials: false,
+    edgeVirtualTimeBudgetMs: 20_000,
+    forceDoubleSided: false,
     materialOverrides: {},
     output: 'assets/vehicles/generated/pose-sheets/raven-coupe-prototype.png',
     padding: 1.18,
@@ -36,6 +40,7 @@ const config = {
     referenceLengthM: 4.24,
     referenceLengthUnits: 2.2,
     scaleMode: 'max-dimension',
+    silhouette: false,
     frameSizeUnits: null,
     vehicleId: 'raven-coupe',
     vehicleLengthM: null,
@@ -50,6 +55,12 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--model-path' && next) {
         config.modelPath = next;
+        index += 1;
+    } else if (arg === '--camera-reference-model-path' && next) {
+        config.cameraReferenceModelPath = next;
+        index += 1;
+    } else if (arg === '--depth-occluder-model-path' && next) {
+        config.depthOccluderModelPath = next;
         index += 1;
     } else if (arg === '--model-pitch-offset' && next) {
         config.modelPitchOffsetDeg = parseFiniteNumber(arg, next);
@@ -71,6 +82,13 @@ for (let index = 2; index < process.argv.length; index += 1) {
         index += 1;
     } else if (arg === '--debug-materials') {
         config.debugMaterials = true;
+    } else if (arg === '--edge-virtual-time-budget-ms' && next) {
+        config.edgeVirtualTimeBudgetMs = parsePositiveNumber(arg, next);
+        index += 1;
+    } else if (arg === '--silhouette') {
+        config.silhouette = true;
+    } else if (arg === '--force-double-sided') {
+        config.forceDoubleSided = true;
     } else if (arg === '--material-overrides' && next) {
         config.materialOverrides = loadMaterialOverrides(next);
         index += 1;
@@ -131,6 +149,12 @@ for (let index = 2; index < process.argv.length; index += 1) {
 
 const isProceduralModel = config.model === 'raven-coupe-procedural';
 const modelPath = resolveModelPath(config, isProceduralModel);
+const cameraReferenceModelPath = config.cameraReferenceModelPath
+    ? resolveAssetPath(config.cameraReferenceModelPath, '--camera-reference-model-path')
+    : null;
+const depthOccluderModelPath = config.depthOccluderModelPath
+    ? resolveAssetPath(config.depthOccluderModelPath, '--depth-occluder-model-path')
+    : null;
 const outputPath = path.resolve(projectRoot, config.output);
 const metadataPath = outputPath.replace(/\.png$/i, '.json');
 const poseManifest = loadPoseManifest(config.poseManifest);
@@ -164,9 +188,12 @@ try {
     });
     const renderedPoses = [];
 
-    for (const pose of poses) {
+    for (const [poseIndex, pose] of poses.entries()) {
+        console.log(`Rendering source pose ${poseIndex + 1}/${poses.length}: ${pose.id}`);
         const renderConfig = {
             camera: pose.camera,
+            cameraReferenceModelPath,
+            depthOccluderModelPath,
             height: config.cellSize,
             frameSizeUnits: config.frameSizeUnits,
             modelPitchOffsetDeg: config.modelPitchOffsetDeg,
@@ -180,6 +207,7 @@ try {
             modelYawOffsetDeg: config.modelYawOffsetDeg,
             modelYawDeg: pose.modelYawDeg,
             debugMaterials: config.debugMaterials,
+            forceDoubleSided: config.forceDoubleSided,
             materialOverrides: config.materialOverrides,
             padding: config.padding,
             proceduralModel: isProceduralModel ? config.model : null,
@@ -187,6 +215,7 @@ try {
             referenceLengthM: config.referenceLengthM,
             referenceLengthUnits: config.referenceLengthUnits,
             scaleMode: config.scaleMode,
+            silhouette: config.silhouette,
             vehicleLengthM: config.vehicleLengthM,
             width: config.cellSize,
         };
@@ -223,6 +252,7 @@ try {
 
     const metadata = {
         cellSize: config.cellSize,
+        cameraReferenceModelPath,
         columns: config.columns,
         frameSizeUnits: config.frameSizeUnits,
         model: config.model,
@@ -233,6 +263,7 @@ try {
         modelScaleZ: config.modelScaleZ,
         modelYawOffsetDeg: config.modelYawOffsetDeg,
         debugMaterials: config.debugMaterials,
+        forceDoubleSided: config.forceDoubleSided,
         materialOverrides: config.materialOverrides,
         output: path.relative(projectRoot, outputPath),
         poseManifest: path.relative(projectRoot, poseManifest.path),
@@ -262,6 +293,7 @@ try {
         runtimeStates: poseManifest.runtimeStates,
         rows,
         scaleMode: config.scaleMode,
+        silhouette: config.silhouette,
         sourceModel: modelPath ?? `procedural:${config.model}`,
         vehicleId: config.vehicleId,
         referenceLengthM: config.referenceLengthM,
@@ -345,12 +377,16 @@ function resolveModelPath(renderConfig, isProcedural) {
         return `assets/vehicles/kenney-car-kit/Models/GLB format/${renderConfig.model}.glb`;
     }
 
-    const absolutePath = path.isAbsolute(renderConfig.modelPath)
-        ? path.resolve(renderConfig.modelPath)
-        : path.resolve(projectRoot, renderConfig.modelPath);
+    return resolveAssetPath(renderConfig.modelPath, '--model-path');
+}
+
+function resolveAssetPath(candidate, option) {
+    const absolutePath = path.isAbsolute(candidate)
+        ? path.resolve(candidate)
+        : path.resolve(projectRoot, candidate);
 
     if (!absolutePath.startsWith(projectRoot)) {
-        throw new Error(`--model-path must point inside ${projectRoot}`);
+        throw new Error(`${option} must point inside ${projectRoot}`);
     }
 
     return path.relative(projectRoot, absolutePath);
@@ -562,7 +598,10 @@ async function runEdgeScreenshot(url, outputPath) {
         '--use-gl=angle',
         `--user-data-dir=C:\\Temp\\edge-apex-seoul-pose-render-${profileId}`,
         `--window-size=${config.cellSize},${config.cellSize}`,
-        '--virtual-time-budget=7000',
+        // Large GLB masters such as Seorin GT can still be fetching when the
+        // old 7s budget expires. Capture only after a conservative load window;
+        // otherwise the visible "loading glb" status gets baked into the sheet.
+        `--virtual-time-budget=${config.edgeVirtualTimeBudgetMs}`,
         `--screenshot=${windowsOutputPath}`,
         `${url}&screenshot=1`,
     ], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -688,6 +727,8 @@ function createRendererHtml(rawConfig, screenshotMode) {
         scene.add(rim);
 
         let model;
+        let cameraReferenceModel = null;
+        let depthOccluderModel = null;
 
         if (config.proceduralModel === 'raven-coupe-procedural') {
             if (status) status.textContent = 'building procedural model';
@@ -698,17 +739,59 @@ function createRendererHtml(rawConfig, screenshotMode) {
             if (status) status.textContent = 'loading glb';
             const gltf = await loader.loadAsync('/' + config.modelPath);
             model = gltf.scene;
+
+            if (config.cameraReferenceModelPath) {
+                const referenceGltf = await loader.loadAsync('/' + config.cameraReferenceModelPath);
+                cameraReferenceModel = referenceGltf.scene;
+            }
+            if (config.depthOccluderModelPath) {
+                const occluderGltf = await loader.loadAsync('/' + config.depthOccluderModelPath);
+                depthOccluderModel = occluderGltf.scene;
+            }
         }
 
         if (status) status.textContent = 'rendering';
         scene.add(model);
         applyMaterialPipeline(model, config);
         applyModelBaseTransform(model, config);
-        normalizeModel(model);
+        if (cameraReferenceModel) {
+            scene.add(cameraReferenceModel);
+            applyModelBaseTransform(cameraReferenceModel, config);
+            normalizeModel(cameraReferenceModel);
+            model.scale.copy(cameraReferenceModel.scale);
+            model.position.copy(cameraReferenceModel.position);
+            cameraReferenceModel.visible = false;
+        } else {
+            normalizeModel(model);
+        }
+        if (depthOccluderModel) {
+            scene.add(depthOccluderModel);
+            applyModelBaseTransform(depthOccluderModel, config);
+            depthOccluderModel.scale.copy(cameraReferenceModel?.scale ?? model.scale);
+            depthOccluderModel.position.copy(cameraReferenceModel?.position ?? model.position);
+            applyDepthOccluderPipeline(depthOccluderModel);
+            depthOccluderModel.renderOrder = -1;
+        }
         applyModelPoseTransform(model, config);
+        if (cameraReferenceModel) applyModelPoseTransform(cameraReferenceModel, config);
+        if (depthOccluderModel) applyModelPoseTransform(depthOccluderModel, config);
 
-        const camera = buildCamera(model, config);
-        renderer.render(scene, camera);
+        const camera = buildCamera(cameraReferenceModel ?? model, config);
+        if (depthOccluderModel) {
+            // A single scene render does not guarantee that a colorless depth
+            // prepass is drawn before the role mesh on every WebGL backend.
+            // Render it explicitly: its body pixels write depth only, then the
+            // wheel-role model can contribute only where it is genuinely visible.
+            model.visible = false;
+            renderer.render(scene, camera);
+            model.visible = true;
+            depthOccluderModel.visible = false;
+            renderer.autoClear = false;
+            renderer.render(scene, camera);
+            renderer.autoClear = true;
+        } else {
+            renderer.render(scene, camera);
+        }
         if (status) status.style.display = 'none';
             window.__vehicleSpriteReady = true;
 
@@ -741,6 +824,10 @@ function createRendererHtml(rawConfig, screenshotMode) {
                         materialIndexByName.set(materialName, materialIndexByName.size);
                     }
 
+                    if (renderConfig.silhouette) {
+                        return new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+                    }
+
                     if (renderConfig.debugMaterials) {
                         const color = materialColors[materialIndexByName.get(materialName) % materialColors.length];
                         return new THREE.MeshBasicMaterial({
@@ -771,6 +858,26 @@ function createRendererHtml(rawConfig, screenshotMode) {
                 });
 
                 object.material = hadMaterialArray ? mappedMaterials : mappedMaterials[0];
+
+                if (renderConfig.forceDoubleSided) {
+                    for (const material of mappedMaterials) {
+                        material.side = THREE.DoubleSide;
+                        material.needsUpdate = true;
+                    }
+                }
+            });
+        }
+
+        function applyDepthOccluderPipeline(target) {
+            target.traverse((object) => {
+                if (!object.isMesh) return;
+                object.material = new THREE.MeshBasicMaterial({
+                    colorWrite: false,
+                    depthTest: true,
+                    depthWrite: true,
+                    side: THREE.DoubleSide,
+                });
+                object.renderOrder = -1;
             });
         }
 

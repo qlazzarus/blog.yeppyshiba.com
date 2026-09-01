@@ -1,0 +1,9 @@
+{
+  "id": "wheel-role-internal-key-poses",
+  "referencePolicy": "Internal wheel role validation: rear steering, rear quarter, and front quarter.",
+  "sourcePoses": [
+    { "id": "center", "camera": [-1, 1.17, -5], "modelPitchDeg": 0, "modelRollDeg": 0, "modelYawDeg": 0, "rearAngleDeg": 0, "referenceRole": "rear steering" },
+    { "id": "spin-right-2", "camera": [-1, 1.17, -5], "modelPitchDeg": 0, "modelRollDeg": 0, "modelYawDeg": -52, "rearAngleDeg": 52, "referenceRole": "rear quarter" },
+    { "id": "spin-front-right-2", "camera": [-1, 1.17, -5], "modelPitchDeg": 0, "modelRollDeg": 0, "modelYawDeg": -128, "rearAngleDeg": 128, "referenceRole": "front quarter" }
+  ]
+}

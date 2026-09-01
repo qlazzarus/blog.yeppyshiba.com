@@ -3,8 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import ft86ModelUrl from '../assets/vehicles/optimized/toyota_gt86-optimized.glb?url';
-import stingerModelUrl from '../assets/vehicles/optimized/kia_stinger-optimized.glb?url';
 import stingerBadgeDebugModelUrl from '../assets/vehicles/derived/kia_stinger-badge-debug.glb?url';
+import stingerSpriteMasterModelUrl from '../assets/vehicles/derived/kia_stinger-sprite-master.glb?url&v=rear-panel-line-triangles-r3';
 import g70ModelUrl from '../assets/vehicles/optimized/genesis_g70-optimized.glb?url';
 import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url&v=front-grille-r3';
 import g70NieveFrontLampDebugUrl from '../assets/vehicles/optimized/genesis_g70_nieve-front-lamp-debug-optimized.glb?url';
@@ -63,10 +63,11 @@ const g70PoseSheet = JSON.parse(g70PoseSheetRaw) as StoredPoseSheet;
 const previewQuery = new URLSearchParams(window.location.search);
 const useFrontLampDebug = previewQuery.has('front-lamp-debug') || previewQuery.has('front-bumper-debug');
 const useStingerBadgeDebug = previewQuery.has('stinger-badge-debug');
+const useNeutralLighting = previewQuery.has('neutral-lighting');
 
 const VEHICLES: readonly VehiclePreview[] = [
     { id: 'ft86', lengthM: 4.24, modelUrl: ft86ModelUrl, rotation: [0, Math.PI, 0], scale: [1, 1, 1], spritePoseSheet: ft86PoseSheet },
-    { id: 'stinger', lengthM: 4.83, modelUrl: useStingerBadgeDebug ? stingerBadgeDebugModelUrl : stingerModelUrl, rotation: [0, 0, 0], scale: [1, 1, 1], spritePoseSheet: stingerPoseSheet },
+    { id: 'stinger', lengthM: 4.83, modelUrl: useStingerBadgeDebug ? stingerBadgeDebugModelUrl : stingerSpriteMasterModelUrl, rotation: [0, 0, 0], scale: [1, 1, 1], spritePoseSheet: stingerPoseSheet },
     { id: 'g70', lengthM: 4.69, modelUrl: g70ModelUrl, rotation: [Math.PI / 2, 0, 0], scale: [-1, 1, -1], spritePoseSheet: g70PoseSheet },
     // Nieve has no rendered sheet yet. It intentionally uses the existing rear-pose
     // camera contract while retaining its own neutral model transform.
@@ -181,11 +182,15 @@ async function createVehiclePreview(
     renderer.toneMappingExposure = 1.1;
     container.replaceChildren(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight('#b7d9ff', '#07101d', 2.2));
-    const keyLight = new THREE.DirectionalLight('#d9edff', 4);
+    scene.add(new THREE.HemisphereLight(
+        useNeutralLighting ? '#eef3f8' : '#b7d9ff',
+        useNeutralLighting ? '#111722' : '#07101d',
+        useNeutralLighting ? 1.7 : 2.2,
+    ));
+    const keyLight = new THREE.DirectionalLight(useNeutralLighting ? '#ffffff' : '#d9edff', useNeutralLighting ? 3.4 : 4);
     keyLight.position.set(4, 7, 5);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight('#4c8dff', 3.4);
+    const rimLight = new THREE.DirectionalLight(useNeutralLighting ? '#f2f5f8' : '#4c8dff', useNeutralLighting ? 1.1 : 3.4);
     rimLight.position.set(-5, 3, -4);
     scene.add(rimLight);
 
@@ -267,6 +272,8 @@ async function createVehiclePreview(
     };
 }
 
+
+
 function openLightbox(vehicle: VehiclePreview) {
     if (!lightbox || !lightboxCanvas || !lightboxLabel) return;
 
@@ -276,7 +283,7 @@ function openLightbox(vehicle: VehiclePreview) {
     const name = vehicle.id === 'ft86'
         ? 'FT86'
         : vehicle.id === 'stinger'
-            ? 'Stinger'
+            ? 'Seorin GT'
             : vehicle.id === 'g70'
                 ? 'G70'
                 : vehicle.id === 'g70-nieve'
@@ -340,11 +347,15 @@ async function createPoseSheetPreview(
     renderer.toneMappingExposure = 1.1;
     container.replaceChildren(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight('#b7d9ff', '#07101d', 2.2));
-    const keyLight = new THREE.DirectionalLight('#d9edff', 4);
+    scene.add(new THREE.HemisphereLight(
+        useNeutralLighting ? '#eef3f8' : '#b7d9ff',
+        useNeutralLighting ? '#111722' : '#07101d',
+        useNeutralLighting ? 1.7 : 2.2,
+    ));
+    const keyLight = new THREE.DirectionalLight(useNeutralLighting ? '#ffffff' : '#d9edff', useNeutralLighting ? 3.4 : 4);
     keyLight.position.set(4, 7, 5);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight('#4c8dff', 3.4);
+    const rimLight = new THREE.DirectionalLight(useNeutralLighting ? '#f2f5f8' : '#4c8dff', useNeutralLighting ? 1.1 : 3.4);
     rimLight.position.set(-5, 3, -4);
     scene.add(rimLight);
 

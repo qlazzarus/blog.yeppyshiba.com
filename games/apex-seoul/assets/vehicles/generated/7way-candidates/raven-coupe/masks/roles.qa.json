@@ -1,0 +1,322 @@
+{
+  "candidate": "assets/vehicles/generated/7way-candidates/raven-coupe",
+  "coverage": {
+    "opaquePixels": 420158,
+    "unclassifiedPixels": 0
+  },
+  "maskFiles": {
+    "body": "body.png",
+    "glass": "glass.png",
+    "lamp": "lamp.png",
+    "wheel": "wheel.png",
+    "chrome": "chrome.png",
+    "accent": "accent.png",
+    "shadow": "shadow.png"
+  },
+  "method": "screen-space role candidates; source alpha and RGB classification with optional GLB geometry wheel protection",
+  "notes": [
+    "Masks are mutually exclusive candidates. body is the fallback for every opaque source pixel.",
+    "The beauty source has no ground shadow. shadow.png is intentionally empty; the stylize pass generates it from wheel-contact metadata.",
+    "accent protects Seorin GT roll cage and amber signal accents from body palette swaps.",
+    "wheel-geometry.png is a wheel-only GLB render. Its alpha may promote opaque beauty pixels to wheel, but never removes source alpha."
+  ],
+  "poses": [
+    {
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "geometryWheelPixels": 584,
+      "id": "center",
+      "rolePixels": {
+        "body": 11803,
+        "glass": 2920,
+        "lamp": 274,
+        "wheel": 584,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "geometryWheelPixels": 1464,
+      "id": "steer-right-0",
+      "rolePixels": {
+        "body": 13241,
+        "glass": 2987,
+        "lamp": 283,
+        "wheel": 1464,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "geometryWheelPixels": 2328,
+      "id": "steer-right-1",
+      "rolePixels": {
+        "body": 15767,
+        "glass": 2605,
+        "lamp": 264,
+        "wheel": 2459,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "geometryWheelPixels": 3253,
+      "id": "steer-right-2",
+      "rolePixels": {
+        "body": 17879,
+        "glass": 3445,
+        "lamp": 218,
+        "wheel": 3521,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "geometryWheelPixels": 3377,
+      "id": "spin-right-1",
+      "rolePixels": {
+        "body": 17989,
+        "glass": 3294,
+        "lamp": 209,
+        "wheel": 3778,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "geometryWheelPixels": 3482,
+      "id": "spin-right-2",
+      "rolePixels": {
+        "body": 18475,
+        "glass": 3354,
+        "lamp": 187,
+        "wheel": 3963,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "geometryWheelPixels": 2469,
+      "id": "spin-front-right-1",
+      "rolePixels": {
+        "body": 17305,
+        "glass": 4480,
+        "lamp": 27,
+        "wheel": 2662,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "geometryWheelPixels": 478,
+      "id": "spin-front-right-2",
+      "rolePixels": {
+        "body": 12319,
+        "glass": 4323,
+        "lamp": 2,
+        "wheel": 478,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "geometryWheelPixels": 0,
+      "id": "rollover-right-1",
+      "rolePixels": {
+        "body": 37642,
+        "glass": 0,
+        "lamp": 152,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "geometryWheelPixels": 0,
+      "id": "rollover-right-2",
+      "rolePixels": {
+        "body": 40351,
+        "glass": 0,
+        "lamp": 137,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 1,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "geometryWheelPixels": 0,
+      "id": "overturned",
+      "rolePixels": {
+        "body": 43893,
+        "glass": 0,
+        "lamp": 95,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "geometryWheelPixels": 505,
+      "id": "downhill-center",
+      "rolePixels": {
+        "body": 13739,
+        "glass": 4009,
+        "lamp": 266,
+        "wheel": 505,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "geometryWheelPixels": 2087,
+      "id": "downhill-right-1",
+      "rolePixels": {
+        "body": 17333,
+        "glass": 3797,
+        "lamp": 260,
+        "wheel": 2207,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "geometryWheelPixels": 3002,
+      "id": "downhill-right-2",
+      "rolePixels": {
+        "body": 19424,
+        "glass": 4303,
+        "lamp": 217,
+        "wheel": 3279,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "geometryWheelPixels": 706,
+      "id": "uphill-center",
+      "rolePixels": {
+        "body": 10612,
+        "glass": 1430,
+        "lamp": 267,
+        "wheel": 706,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "geometryWheelPixels": 2829,
+      "id": "uphill-right-1",
+      "rolePixels": {
+        "body": 14732,
+        "glass": 1631,
+        "lamp": 269,
+        "wheel": 2829,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      }
+    },
+    {
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "geometryWheelPixels": 3812,
+      "id": "uphill-right-2",
+      "rolePixels": {
+        "body": 17254,
+        "glass": 2218,
+        "lamp": 228,
+        "wheel": 3812,
+        "chrome": 0,
+        "accent": 1,
+        "shadow": 0
+      }
+    }
+  ],
+  "source": "assets/vehicles/generated/7way-candidates/raven-coupe/source-17pose-512.png",
+  "geometryWheelSource": "assets/vehicles/generated/7way-candidates/raven-coupe/masks/wheel-geometry.png",
+  "sourceCellSize": 512,
+  "sourceGrid": {
+    "columns": 3,
+    "rows": 6
+  },
+  "vehicleId": "raven-coupe"
+}

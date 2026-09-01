@@ -1,0 +1,91 @@
+{
+  "vehicleId": "mirae-gt",
+  "source": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/neutral-128/sheet-128-details.png",
+  "dimensions": {
+    "height": 768,
+    "width": 384
+  },
+  "checks": {
+    "poseGrid": {
+      "pass": true,
+      "poseCount": 17,
+      "uniqueCellCount": 17,
+      "expected": {
+        "cellSize": 128,
+        "columns": 3,
+        "poses": 17,
+        "rows": 6
+      },
+      "actual": {
+        "height": 768,
+        "width": 384
+      }
+    },
+    "blankCell": {
+      "pass": true,
+      "blankCells": [
+        {
+          "column": 2,
+          "row": 5
+        }
+      ],
+      "opaquePixels": 0
+    },
+    "anchorBaseline": {
+      "pass": true,
+      "missingFrames": [],
+      "deviations": [],
+      "normalBaselineSpread": 1
+    },
+    "flipStates": {
+      "pass": true,
+      "mismatches": []
+    },
+    "paletteAlpha": {
+      "blue": {
+        "pass": true,
+        "alphaMismatches": 0,
+        "blankCellOpaquePixels": 0,
+        "dimensions": {
+          "width": 384,
+          "height": 768
+        }
+      },
+      "red": {
+        "pass": true,
+        "alphaMismatches": 0,
+        "blankCellOpaquePixels": 0,
+        "dimensions": {
+          "width": 384,
+          "height": 768
+        }
+      },
+      "silver": {
+        "pass": true,
+        "alphaMismatches": 0,
+        "blankCellOpaquePixels": 0,
+        "dimensions": {
+          "width": 384,
+          "height": 768
+        }
+      },
+      "black": {
+        "pass": true,
+        "alphaMismatches": 0,
+        "blankCellOpaquePixels": 0,
+        "dimensions": {
+          "width": 384,
+          "height": 768
+        }
+      }
+    }
+  },
+  "paletteOrder": [
+    "blue",
+    "red",
+    "silver",
+    "black"
+  ],
+  "contactSheet": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/qa/palette-contact-sheet.png",
+  "pass": true
+}

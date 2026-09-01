@@ -1,0 +1,712 @@
+{
+  "alphaThreshold": 24,
+  "columns": 3,
+  "input": "assets/vehicles/generated/7way-candidates/mirae-gt/source-17pose-512.png",
+  "metadata": "assets/vehicles/generated/7way-candidates/mirae-gt/source-17pose-512.json",
+  "outline": true,
+  "output": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/sheet-128.png",
+  "outputPreview": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/sheet-128-magenta-preview.png",
+  "posePlanId": "phaser-rear-7way-source-17pose",
+  "poses": [
+    {
+      "anchor": {
+        "x": 64,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 35,
+        "width": 46,
+        "x": 41,
+        "y": 54
+      },
+      "droppedPixels": 151,
+      "id": "center",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1128,
+      "outlinePixels": 169,
+      "paletteColorCount": 9,
+      "referenceRole": "straight rear driving frame",
+      "rimRestorePixels": 8,
+      "semiTransparentPixels": 260,
+      "tireRestorePixels": 22,
+      "wheelCenters": [
+        {
+          "radiusX": 3.3,
+          "radiusY": 3.3,
+          "x": 54.32,
+          "y": 82.06
+        },
+        {
+          "radiusX": 3.3,
+          "radiusY": 3.3,
+          "x": 73.68,
+          "y": 82.06
+        }
+      ],
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 64,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 35,
+        "width": 54,
+        "x": 37,
+        "y": 54
+      },
+      "droppedPixels": 182,
+      "id": "steer-right-0",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1332,
+      "outlinePixels": 187,
+      "paletteColorCount": 11,
+      "referenceRole": "slight rear-quarter steer frame",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 281,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 63.5,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 35,
+        "width": 69,
+        "x": 29,
+        "y": 54
+      },
+      "droppedPixels": 188,
+      "id": "steer-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1604,
+      "outlinePixels": 214,
+      "paletteColorCount": 12,
+      "referenceRole": "mild rear-quarter steer frame",
+      "rimRestorePixels": 4,
+      "semiTransparentPixels": 325,
+      "tireRestorePixels": 10,
+      "wheelCenters": [
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.3,
+          "x": 44.74,
+          "y": 82.06
+        },
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.3,
+          "x": 82.26,
+          "y": 82.06
+        }
+      ],
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 62.5,
+        "y": 87
+      },
+      "baselineY": 87,
+      "bbox": {
+        "height": 34,
+        "width": 89,
+        "x": 18,
+        "y": 54
+      },
+      "droppedPixels": 256,
+      "id": "steer-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1965,
+      "outlinePixels": 255,
+      "paletteColorCount": 12,
+      "referenceRole": "strong rear-quarter steer frame, still normal driving",
+      "rimRestorePixels": 3,
+      "semiTransparentPixels": 418,
+      "tireRestorePixels": 13,
+      "wheelCenters": [
+        {
+          "radiusX": 4.79,
+          "radiusY": 3.2,
+          "x": 38.14,
+          "y": 81.24
+        },
+        {
+          "radiusX": 4.79,
+          "radiusY": 3.2,
+          "x": 86.86,
+          "y": 81.24
+        }
+      ],
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 62.5,
+        "y": 87
+      },
+      "baselineY": 87,
+      "bbox": {
+        "height": 34,
+        "width": 91,
+        "x": 17,
+        "y": 54
+      },
+      "droppedPixels": 265,
+      "id": "spin-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 12,
+      "opaquePixels": 1993,
+      "outlinePixels": 259,
+      "paletteColorCount": 12,
+      "referenceRole": "near-side slip or recovery frame, not normal steering",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 419,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 62.5,
+        "y": 87
+      },
+      "baselineY": 87,
+      "bbox": {
+        "height": 34,
+        "width": 95,
+        "x": 15,
+        "y": 54
+      },
+      "droppedPixels": 287,
+      "id": "spin-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": 24,
+      "opaquePixels": 2055,
+      "outlinePixels": 266,
+      "paletteColorCount": 12,
+      "referenceRole": "side-heavy spin frame",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 431,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 1
+      }
+    },
+    {
+      "anchor": {
+        "x": 63.5,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 38,
+        "width": 77,
+        "x": 25,
+        "y": 51
+      },
+      "droppedPixels": 220,
+      "id": "spin-front-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -12,
+      "opaquePixels": 1876,
+      "outlinePixels": 238,
+      "paletteColorCount": 9,
+      "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 362,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 64,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 38,
+        "width": 46,
+        "x": 41,
+        "y": 51
+      },
+      "droppedPixels": 148,
+      "id": "spin-front-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 0,
+      "modelYawDeg": -24,
+      "opaquePixels": 1189,
+      "outlinePixels": 170,
+      "paletteColorCount": 8,
+      "referenceRole": "strong front-facing spin frame, near full front-quarter exposure",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 267,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 59.5,
+        "y": 101
+      },
+      "baselineY": 101,
+      "bbox": {
+        "height": 57,
+        "width": 71,
+        "x": 24,
+        "y": 45
+      },
+      "droppedPixels": 240,
+      "id": "rollover-right-1",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 70,
+      "modelYawDeg": 18,
+      "opaquePixels": 2575,
+      "outlinePixels": 260,
+      "paletteColorCount": 10,
+      "referenceRole": "crash rollover frame, car lifting onto its side",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 405,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 2
+      }
+    },
+    {
+      "anchor": {
+        "x": 60,
+        "y": 100
+      },
+      "baselineY": 100,
+      "bbox": {
+        "height": 65,
+        "width": 70,
+        "x": 25,
+        "y": 36
+      },
+      "droppedPixels": 223,
+      "id": "rollover-right-2",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 138,
+      "modelYawDeg": 28,
+      "opaquePixels": 1987,
+      "outlinePixels": 268,
+      "paletteColorCount": 11,
+      "referenceRole": "crash rollover frame, underside becoming visible",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 391,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 64,
+        "y": 102
+      },
+      "baselineY": 102,
+      "bbox": {
+        "height": 74,
+        "width": 78,
+        "x": 25,
+        "y": 29
+      },
+      "droppedPixels": 261,
+      "id": "overturned",
+      "modelPitchDeg": 0,
+      "modelRollDeg": 180,
+      "modelYawDeg": 20,
+      "opaquePixels": 3121,
+      "outlinePixels": 307,
+      "paletteColorCount": 10,
+      "referenceRole": "crash aftermath frame, car fully upside down",
+      "rimRestorePixels": 0,
+      "semiTransparentPixels": 445,
+      "tireRestorePixels": 0,
+      "wheelCenters": [],
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 64,
+        "y": 93
+      },
+      "baselineY": 93,
+      "bbox": {
+        "height": 37,
+        "width": 46,
+        "x": 41,
+        "y": 57
+      },
+      "droppedPixels": 161,
+      "id": "downhill-center",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1323,
+      "outlinePixels": 166,
+      "paletteColorCount": 10,
+      "referenceRole": "rear frame with nose-down pitch cue",
+      "rimRestorePixels": 8,
+      "semiTransparentPixels": 288,
+      "tireRestorePixels": 42,
+      "wheelCenters": [
+        {
+          "radiusX": 3.3,
+          "radiusY": 3.5,
+          "x": 54.32,
+          "y": 86.7
+        },
+        {
+          "radiusX": 3.3,
+          "radiusY": 3.5,
+          "x": 73.68,
+          "y": 86.7
+        }
+      ],
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 3
+      }
+    },
+    {
+      "anchor": {
+        "x": 64.5,
+        "y": 94
+      },
+      "baselineY": 94,
+      "bbox": {
+        "height": 39,
+        "width": 69,
+        "x": 30,
+        "y": 56
+      },
+      "droppedPixels": 213,
+      "id": "downhill-right-1",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1787,
+      "outlinePixels": 217,
+      "paletteColorCount": 11,
+      "referenceRole": "mild rear-quarter steer with nose-down pitch cue",
+      "rimRestorePixels": 4,
+      "semiTransparentPixels": 335,
+      "tireRestorePixels": 23,
+      "wheelCenters": [
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.7,
+          "x": 45.74,
+          "y": 87.34
+        },
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.7,
+          "x": 83.26,
+          "y": 87.34
+        }
+      ],
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 63.5,
+        "y": 93
+      },
+      "baselineY": 93,
+      "bbox": {
+        "height": 38,
+        "width": 89,
+        "x": 19,
+        "y": 56
+      },
+      "droppedPixels": 234,
+      "id": "downhill-right-2",
+      "modelPitchDeg": -8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 2127,
+      "outlinePixels": 256,
+      "paletteColorCount": 11,
+      "referenceRole": "strong rear-quarter steer with nose-down pitch cue",
+      "rimRestorePixels": 4,
+      "semiTransparentPixels": 400,
+      "tireRestorePixels": 33,
+      "wheelCenters": [
+        {
+          "radiusX": 4.79,
+          "radiusY": 3.6,
+          "x": 39.14,
+          "y": 86.52
+        },
+        {
+          "radiusX": 4.79,
+          "radiusY": 3.6,
+          "x": 87.86,
+          "y": 86.52
+        }
+      ],
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 64,
+        "y": 87
+      },
+      "baselineY": 87,
+      "bbox": {
+        "height": 32,
+        "width": 46,
+        "x": 41,
+        "y": 56
+      },
+      "droppedPixels": 151,
+      "id": "uphill-center",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 977,
+      "outlinePixels": 162,
+      "paletteColorCount": 9,
+      "referenceRole": "rear frame with nose-up pitch cue",
+      "rimRestorePixels": 8,
+      "semiTransparentPixels": 240,
+      "tireRestorePixels": 16,
+      "wheelCenters": [
+        {
+          "radiusX": 3.3,
+          "radiusY": 3,
+          "x": 54.32,
+          "y": 81.6
+        },
+        {
+          "radiusX": 3.3,
+          "radiusY": 3,
+          "x": 73.68,
+          "y": 81.6
+        }
+      ],
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "sourceCell": {
+        "column": 2,
+        "row": 4
+      }
+    },
+    {
+      "anchor": {
+        "x": 63.5,
+        "y": 88
+      },
+      "baselineY": 88,
+      "bbox": {
+        "height": 34,
+        "width": 69,
+        "x": 29,
+        "y": 55
+      },
+      "droppedPixels": 207,
+      "id": "uphill-right-1",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1547,
+      "outlinePixels": 221,
+      "paletteColorCount": 12,
+      "referenceRole": "mild rear-quarter steer with nose-up pitch cue",
+      "rimRestorePixels": 4,
+      "semiTransparentPixels": 328,
+      "tireRestorePixels": 9,
+      "wheelCenters": [
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.2,
+          "x": 44.74,
+          "y": 82.24
+        },
+        {
+          "radiusX": 3.69,
+          "radiusY": 3.2,
+          "x": 82.26,
+          "y": 82.24
+        }
+      ],
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "sourceCell": {
+        "column": 0,
+        "row": 5
+      }
+    },
+    {
+      "anchor": {
+        "x": 62,
+        "y": 90
+      },
+      "baselineY": 90,
+      "bbox": {
+        "height": 37,
+        "width": 88,
+        "x": 18,
+        "y": 54
+      },
+      "droppedPixels": 240,
+      "id": "uphill-right-2",
+      "modelPitchDeg": 8,
+      "modelRollDeg": 0,
+      "modelYawDeg": 0,
+      "opaquePixels": 1897,
+      "outlinePixels": 267,
+      "paletteColorCount": 12,
+      "referenceRole": "strong rear-quarter steer with nose-up pitch cue",
+      "rimRestorePixels": 4,
+      "semiTransparentPixels": 410,
+      "tireRestorePixels": 11,
+      "wheelCenters": [
+        {
+          "radiusX": 4.73,
+          "radiusY": 3.5,
+          "x": 37.92,
+          "y": 83.7
+        },
+        {
+          "radiusX": 4.73,
+          "radiusY": 3.5,
+          "x": 86.08,
+          "y": 83.7
+        }
+      ],
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "sourceCell": {
+        "column": 1,
+        "row": 5
+      }
+    }
+  ],
+  "rows": 6,
+  "sourceCellSize": 512,
+  "targetCellSize": 128,
+  "vehicleId": "mirae-gt",
+  "wheelRestore": true
+}

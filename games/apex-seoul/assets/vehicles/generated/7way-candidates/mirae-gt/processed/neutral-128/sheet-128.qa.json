@@ -1,0 +1,324 @@
+{
+  "vehicleId": "mirae-gt",
+  "source": "assets/vehicles/generated/7way-candidates/mirae-gt/source-17pose-512.png",
+  "output": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/neutral-128/sheet-128.png",
+  "cellSize": 128,
+  "columns": 3,
+  "rows": 6,
+  "alphaThreshold": 36,
+  "poses": [
+    {
+      "id": "center",
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "opaquePixels": 1125,
+      "rolePixels": {
+        "body": 962,
+        "glass": 58,
+        "lamp": 65,
+        "wheel": 40,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "steer-right-0",
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "opaquePixels": 1328,
+      "rolePixels": {
+        "body": 1118,
+        "glass": 55,
+        "lamp": 61,
+        "wheel": 94,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "steer-right-1",
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "opaquePixels": 1603,
+      "rolePixels": {
+        "body": 1285,
+        "glass": 53,
+        "lamp": 61,
+        "wheel": 204,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "steer-right-2",
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "opaquePixels": 1951,
+      "rolePixels": {
+        "body": 1588,
+        "glass": 61,
+        "lamp": 55,
+        "wheel": 247,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "spin-right-1",
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "opaquePixels": 1990,
+      "rolePixels": {
+        "body": 1608,
+        "glass": 69,
+        "lamp": 52,
+        "wheel": 261,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "spin-right-2",
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "opaquePixels": 2046,
+      "rolePixels": {
+        "body": 1631,
+        "glass": 76,
+        "lamp": 52,
+        "wheel": 287,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "spin-front-right-1",
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "opaquePixels": 1868,
+      "rolePixels": {
+        "body": 1534,
+        "glass": 89,
+        "lamp": 6,
+        "wheel": 239,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "spin-front-right-2",
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "opaquePixels": 1186,
+      "rolePixels": {
+        "body": 1046,
+        "glass": 87,
+        "lamp": 1,
+        "wheel": 52,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "rollover-right-1",
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "opaquePixels": 2561,
+      "rolePixels": {
+        "body": 2487,
+        "glass": 0,
+        "lamp": 74,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "rollover-right-2",
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "opaquePixels": 1981,
+      "rolePixels": {
+        "body": 1932,
+        "glass": 0,
+        "lamp": 49,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "overturned",
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "opaquePixels": 3109,
+      "rolePixels": {
+        "body": 3076,
+        "glass": 0,
+        "lamp": 33,
+        "wheel": 0,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "downhill-center",
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "opaquePixels": 1320,
+      "rolePixels": {
+        "body": 1101,
+        "glass": 117,
+        "lamp": 70,
+        "wheel": 32,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "downhill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "opaquePixels": 1783,
+      "rolePixels": {
+        "body": 1464,
+        "glass": 82,
+        "lamp": 62,
+        "wheel": 175,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "downhill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "opaquePixels": 2116,
+      "rolePixels": {
+        "body": 1732,
+        "glass": 102,
+        "lamp": 57,
+        "wheel": 225,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "uphill-center",
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "opaquePixels": 976,
+      "rolePixels": {
+        "body": 848,
+        "glass": 7,
+        "lamp": 58,
+        "wheel": 63,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "uphill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "opaquePixels": 1540,
+      "rolePixels": {
+        "body": 1209,
+        "glass": 25,
+        "lamp": 56,
+        "wheel": 250,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    },
+    {
+      "id": "uphill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "opaquePixels": 1889,
+      "rolePixels": {
+        "body": 1496,
+        "glass": 36,
+        "lamp": 48,
+        "wheel": 309,
+        "chrome": 0,
+        "accent": 0,
+        "shadow": 0
+      },
+      "contactShadowPixels": 0
+    }
+  ],
+  "blankCells": [
+    {
+      "column": 2,
+      "row": 5
+    }
+  ],
+  "blankCellOpaquePixels": 0
+}

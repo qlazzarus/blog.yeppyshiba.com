@@ -11,11 +11,302 @@
       -30.164514541625977
     ]
   },
+  "textures": [
+    {
+      "index": 0,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-00.webp"
+    },
+    {
+      "index": 1,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-01.webp"
+    },
+    {
+      "index": 2,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-02.webp"
+    },
+    {
+      "index": 3,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-03.webp"
+    },
+    {
+      "index": 4,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-04.webp"
+    },
+    {
+      "index": 5,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-05.webp"
+    },
+    {
+      "index": 6,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-06.webp"
+    },
+    {
+      "index": 7,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-07.webp"
+    },
+    {
+      "index": 8,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-08.webp"
+    },
+    {
+      "index": 9,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-09.webp"
+    },
+    {
+      "index": 10,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-10.webp"
+    },
+    {
+      "index": 11,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-11.webp"
+    },
+    {
+      "index": 12,
+      "name": "",
+      "mimeType": "image/webp",
+      "file": "texture-12.webp"
+    },
+    {
+      "index": 13,
+      "name": "PaletteBaseColor",
+      "mimeType": "image/webp",
+      "file": "texture-13.webp"
+    }
+  ],
+  "materials": [
+    {
+      "name": "material_7",
+      "baseColorFactor": [
+        0.2541520943200296,
+        0.2746773120495699,
+        0.3005437944049895,
+        1
+      ],
+      "baseColorTexture": null
+    },
+    {
+      "name": "material_5",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 0
+    },
+    {
+      "name": "material_4",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 1
+    },
+    {
+      "name": "material_4_0",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 3
+    },
+    {
+      "name": "material_3",
+      "baseColorFactor": [
+        0.06847816983662759,
+        0,
+        0.0009105809505882353,
+        1
+      ],
+      "baseColorTexture": null
+    },
+    {
+      "name": "material_2",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 4
+    },
+    {
+      "name": "material_6",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 5
+    },
+    {
+      "name": "Tyre_Side",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 6
+    },
+    {
+      "name": "Profiel02",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 7
+    },
+    {
+      "name": "body_kit_screw",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 8
+    },
+    {
+      "name": "material_1",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 9
+    },
+    {
+      "name": "material_2_1",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 10
+    },
+    {
+      "name": "material_2_2",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 11
+    },
+    {
+      "name": "material_2_3",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 12
+    },
+    {
+      "name": "PaletteMaterial001",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    },
+    {
+      "name": "PaletteMaterial002",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    },
+    {
+      "name": "PaletteMaterial003",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    },
+    {
+      "name": "PaletteMaterial004",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    },
+    {
+      "name": "PaletteMaterial005",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    },
+    {
+      "name": "PaletteMaterial006",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": 13
+    }
+  ],
   "layers": [
     {
       "index": 0,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "PaletteMaterial001"
+      ],
       "bounds": {
         "min": [
           23.260502726273444,
@@ -38,6 +329,9 @@
       "index": 1,
       "name": "Material4",
       "mesh": "Material4",
+      "materials": [
+        "PaletteMaterial002"
+      ],
       "bounds": {
         "min": [
           23.260502726273444,
@@ -60,6 +354,9 @@
       "index": 2,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "PaletteMaterial002"
+      ],
       "bounds": {
         "min": [
           97.97588819826888,
@@ -82,6 +379,9 @@
       "index": 3,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "PaletteMaterial003"
+      ],
       "bounds": {
         "min": [
           109.59651038875654,
@@ -104,6 +404,9 @@
       "index": 4,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "PaletteMaterial004"
+      ],
       "bounds": {
         "min": [
           24.261871423604134,
@@ -126,6 +429,9 @@
       "index": 5,
       "name": "Material5",
       "mesh": "Material5",
+      "materials": [
+        "PaletteMaterial004"
+      ],
       "bounds": {
         "min": [
           97.70098127134042,
@@ -148,6 +454,9 @@
       "index": 6,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "PaletteMaterial005"
+      ],
       "bounds": {
         "min": [
           1922.1729657647593,
@@ -170,6 +479,9 @@
       "index": 7,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "material_7"
+      ],
       "bounds": {
         "min": [
           364.40353686557773,
@@ -192,6 +504,9 @@
       "index": 8,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "material_5"
+      ],
       "bounds": {
         "min": [
           809.9219674002634,
@@ -214,6 +529,9 @@
       "index": 9,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_4"
+      ],
       "bounds": {
         "min": [
           1509.96337890625,
@@ -236,6 +554,9 @@
       "index": 10,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_4_0"
+      ],
       "bounds": {
         "min": [
           1924.7633056640625,
@@ -258,6 +579,9 @@
       "index": 11,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "PaletteMaterial006"
+      ],
       "bounds": {
         "min": [
           272.76320252345886,
@@ -280,6 +604,9 @@
       "index": 12,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "material_3"
+      ],
       "bounds": {
         "min": [
           2107.650390625,
@@ -302,6 +629,9 @@
       "index": 13,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_2"
+      ],
       "bounds": {
         "min": [
           2208.290771484375,
@@ -324,6 +654,9 @@
       "index": 14,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_6"
+      ],
       "bounds": {
         "min": [
           1109.2315321404913,
@@ -346,6 +679,9 @@
       "index": 15,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "Tyre_Side"
+      ],
       "bounds": {
         "min": [
           80.15951025621689,
@@ -368,6 +704,9 @@
       "index": 16,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "Profiel02"
+      ],
       "bounds": {
         "min": [
           397.58232851162575,
@@ -390,6 +729,9 @@
       "index": 17,
       "name": "Material2",
       "mesh": "Material2",
+      "materials": [
+        "body_kit_screw"
+      ],
       "bounds": {
         "min": [
           813.783991979295,
@@ -412,6 +754,9 @@
       "index": 18,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_1"
+      ],
       "bounds": {
         "min": [
           7066.454141722355,
@@ -432,8 +777,11 @@
     },
     {
       "index": 19,
-      "name": "Material3",
+      "name": "debug-layer-19",
       "mesh": "Material3",
+      "materials": [
+        "material_2_1"
+      ],
       "bounds": {
         "min": [
           4088.57470703125,
@@ -456,6 +804,9 @@
       "index": 20,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_2_2"
+      ],
       "bounds": {
         "min": [
           10025.3505859375,
@@ -478,6 +829,9 @@
       "index": 21,
       "name": "Material3",
       "mesh": "Material3",
+      "materials": [
+        "material_2_3"
+      ],
       "bounds": {
         "min": [
           3579.41259765625,
