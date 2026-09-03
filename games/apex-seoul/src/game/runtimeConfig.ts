@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { PlayerVehicleControllerConfig } from './playerVehicleController';
+import type { PlayerSteeringStateId } from './vehicle';
 
 export type RuntimeTuning = {
     cameraBaseFov: number;
@@ -40,6 +41,7 @@ export type RuntimeQaOverrides = {
     initialSpeed: number | null;
     initialZ: number | null;
     lateralOffset: number | null;
+    pose: PlayerSteeringStateId | null;
     speed: number | null;
     steering: number | null;
     timeScale: number;
@@ -258,6 +260,7 @@ export function createRuntimeQaOverrides(
     );
     const initialZ = readOptionalTuningNumber(params, 'qaStartZ', 0, Number.MAX_SAFE_INTEGER);
     const steering = readOptionalTuningNumber(params, 'qaSteer', -1, 1);
+    const pose = readQaPose(params.get('qaPose'));
     const speed = readOptionalTuningNumber(params, 'qaSpeed', 0, defaults.playerAccelSpeed);
     const timeScale = readTuningNumber(params, 'qaTimeScale', 1, 1, 4);
     const z = readOptionalTuningNumber(params, 'qaZ', 0, Number.MAX_SAFE_INTEGER);
@@ -269,17 +272,28 @@ export function createRuntimeQaOverrides(
     );
 
     return {
-        enabled: freeze || initialSpeed !== null || initialZ !== null || steering !== null ||
+        enabled: freeze || initialSpeed !== null || initialZ !== null || pose !== null || steering !== null ||
             speed !== null || z !== null || lateralOffset !== null,
         freeze,
         initialSpeed,
         initialZ,
         lateralOffset,
+        pose,
         speed,
         steering,
         timeScale,
         z,
     };
+}
+
+function readQaPose(value: string | null): PlayerSteeringStateId | null {
+    if (!value) return null;
+    const allowed: PlayerSteeringStateId[] = [
+        'steer-left-2', 'steer-left-1', 'steer-left-0', 'center',
+        'steer-right-0', 'steer-right-1', 'steer-right-2',
+    ];
+    if (allowed.includes(value as PlayerSteeringStateId)) return value as PlayerSteeringStateId;
+    throw new Error(`Invalid qaPose: ${value}`);
 }
 
 export function createRuntimeTelemetryConfig(

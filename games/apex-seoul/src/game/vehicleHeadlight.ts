@@ -531,7 +531,7 @@ function smoothstep(edge0: number, edge1: number, value: number) {
     return ratio * ratio * (3 - 2 * ratio);
 }
 
-function getVehicleHeadlightProfileId(atlas: VehicleAtlas, frameId: string) {
+export function getVehicleHeadlightProfileId(atlas: VehicleAtlas, frameId: string) {
     if (atlas.apex.headlightProfiles[frameId]) return frameId;
     if (frameId.endsWith('right-1')) return 'steer-right-1';
     if (frameId.endsWith('right-2')) return 'steer-right-2';

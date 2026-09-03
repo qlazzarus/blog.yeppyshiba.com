@@ -1,6 +1,6 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-08-18
+갱신일: 2026-09-02
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
 
@@ -10,8 +10,7 @@
 
 ## 구조·콘텐츠 백로그
 
-- **Playable vehicle trio art comparison:** 장기 playable 차량은 **Raven Coupe, Seorin GT, Mirae GT** 세 종으로 정한다. 내부 source 식별자는 각각 `FT86`, `Stinger`, `G70 (Nieve)`로만 유지한다. catalog·physics 확장 전에 세 원본 3D 모델을 같은 Three.js camera/light/length 기준에서 비교하고, rear/quarter silhouette·wheelbase·glass/lamp separation·contact baseline의 공통 art direction을 승인한다. Mirae GT는 `flipX` sprite 계약을 위해 좌우 대칭 배기구를 포함한 파생 GLB를 source로 사용한다. 현재 runtime의 Raven Coupe/G70 POC 선택 계약은 이 비교 pass가 끝날 때까지 유지한다.
-- **Vehicle art pass — 5way→7way steering pose:** 세 후보가 공통 art direction을 통과한 뒤 center와 mild steer 사이의 slight pose 두 장을 추가한다. 3×6/17-pose Phaser candidate를 단일 beauty 입력으로 두고, role-mask 기반 script로 retro화·palette swap·shadow/headlight·frame selection QA를 한 pass로 확장한다. ComfyUI는 이 pass의 선행 조건이 아니다. 상세 계약은 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md)에서 관리한다.
+- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. 현재 5way runtime은 유지한다. 다음 범위는 별도 문서가 아니라 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md#7번-runtime-integration과-pre-run-선택-계약)의 runtime integration gate로 관리한다.
 
 ## 현재 승인 기준선
 
@@ -130,7 +129,16 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 7. 왼쪽 가드레일의 연속 가로등과 기존 `>> / <<` chevron의 코너 진입 재배치
 8. ~~가로등의 제한적인 lamp glow/road pool과 finish coast 연출~~ — 완료. timed finish 직후의 비충돌 Π형 finish gate와 약 5초 coast를 승인 기준으로 사용한다. 별도 finishing gantry·3-lamp 구조물은 요구하지 않는다.
 
-현재 존재하는 progress/checkpoint/finish state를 사용하고 별도의 복잡한 메뉴 시스템부터 만들지 않는다.
+현재 존재하는 progress/checkpoint/finish state를 사용한다. 단, run의 조건을 명시하려면 복잡한 메뉴 대신 최소 pre-run garage가 필요하다. 이는 차량 → 색상 → 코스(현재 Bugak Ridge Downhill 하나) → Start Run만 결정하고, 설정/상점/차고 진행도는 포함하지 않는다.
+
+```text
+raven-coupe | seorin-gt | mirae-gt
+  → blue | red | silver | black
+  → bugak-ridge-downhill
+  → countdown / timed run
+```
+
+선택 결과는 `vehicleId / colorId / courseId`로 URL에 직렬화한다. 이 값은 runtime catalog와 browser screenshot QA의 공통 입력이며, source model 이름이나 asset path를 UI가 직접 소유하지 않는다.
 
 checkpoint gate는 차량이 통과할 충분한 폭과 높이를 가진 `Π`형 상공 구조물이다. 도로 양쪽의 두 기둥과 이를 잇는 상단 빔만 렌더하며, 차량·가드레일과는 충돌하지 않는다.
 
@@ -224,7 +232,8 @@ rock-cut/overhang은 터널이나 새 코스의 대체물이 아니다. 기존 r
 P0의 HR-3K 기준선을 임시 동결하고 P1에서 아래 한 묶음을 확정한다.
 
 ```text
-countdown
+vehicle → color → course
+  → countdown
   → timed run
   → checkpoint split
   → finish/result

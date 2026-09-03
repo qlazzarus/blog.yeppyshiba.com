@@ -4,10 +4,17 @@ import type { RuntimeTuning } from './runtimeConfig';
 
 export type PlayerSteeringStateId =
     | 'center'
+    | 'steer-left-0'
     | 'steer-left-1'
     | 'steer-left-2'
+    | 'steer-right-0'
     | 'steer-right-1'
     | 'steer-right-2';
+
+export type VehicleSteeringState = {
+    flipX: boolean;
+    frame: string;
+};
 
 export type VehicleAtlasFrame = {
     frame: {
@@ -75,10 +82,10 @@ export type VehicleAtlas = {
     apex: {
         headlightProfiles: Record<string, VehicleHeadlightProfile>;
         shadowProfiles: Record<string, VehicleShadowProfile>;
-        steeringStates: Record<PlayerSteeringStateId, {
-            flipX: boolean;
-            frame: string;
-        }>;
+        // Legacy assets have the five stable states; 7way candidates add the
+        // optional slight pair without forcing a silent migration.
+        steeringStates: Record<Exclude<PlayerSteeringStateId, 'steer-left-0' | 'steer-right-0'>, VehicleSteeringState> &
+            Partial<Record<'steer-left-0' | 'steer-right-0', VehicleSteeringState>>;
         targetCellSize: number;
     };
     frames: Record<string, VehicleAtlasFrame>;
@@ -276,13 +283,15 @@ export function selectPlayerVehicleFrame(
     terrainCue: VehicleTerrainCue,
     steeringThreshold = tuning.steerWeakThreshold,
     allowStrongSteering = true,
+    forcedSteeringState?: PlayerSteeringStateId,
 ) {
-    const steeringState = selectPlayerSteeringState(
+    const steeringState = forcedSteeringState ?? selectPlayerSteeringState(
         steering,
         steeringThreshold,
         allowStrongSteering,
     );
-    const fallback = atlas.apex.steeringStates[steeringState];
+    const fallback = atlas.apex.steeringStates[steeringState] ??
+        atlas.apex.steeringStates.center;
 
     if (terrainCue === 'level') return fallback;
 
@@ -291,7 +300,9 @@ export function selectPlayerVehicleFrame(
     if (!frameId || !atlas.frames[frameId]) return fallback;
 
     return {
-        flipX: steeringState.startsWith('steer-left'),
+        // There is no terrain slight-steer art yet. Its center fallback must
+        // keep the centered body/headlight orientation rather than mirror it.
+        flipX: !frameId.endsWith('-center') && steeringState.startsWith('steer-left'),
         frame: frameId,
     };
 }
@@ -450,17 +461,21 @@ function selectPlayerSteeringState(
     allowStrongSteering: boolean,
 ): PlayerSteeringStateId {
     const strongThreshold = threshold + (1 - threshold) * 0.62;
+    const slightThreshold = threshold * 0.55;
 
     if (allowStrongSteering && steering <= -strongThreshold) return 'steer-left-2';
     if (allowStrongSteering && steering >= strongThreshold) return 'steer-right-2';
     if (steering <= -threshold) return 'steer-left-1';
     if (steering >= threshold) return 'steer-right-1';
+    if (steering <= -slightThreshold) return 'steer-left-0';
+    if (steering >= slightThreshold) return 'steer-right-0';
 
     return 'center';
 }
 
 function getTerrainFrameId(steeringState: PlayerSteeringStateId, terrainCue: Exclude<VehicleTerrainCue, 'level'>) {
     if (steeringState === 'center') return `${terrainCue}-center`;
+    if (steeringState.endsWith('-0')) return `${terrainCue}-center`;
     if (steeringState.endsWith('-1')) return `${terrainCue}-right-1`;
     if (steeringState.endsWith('-2')) return `${terrainCue}-right-2`;
 

@@ -1,8 +1,8 @@
 # Apex Seoul 차량 조향 pose 밀도와 Three.js sprite 생성 계획
 
-갱신일: 2026-08-27
+갱신일: 2026-09-02
 
-상태: 3종 playable 후보의 공통 art direction 비교와 3D master freeze를 마쳤다. 다음 pass는 이미지 AI/ComfyUI가 아닌 deterministic render와 script 기반 2D 보정으로 neutral 7way 후보를 생성·QA한다. 현재 5way atlas·runtime은 유지한다.
+상태: Raven Coupe / Seorin GT / Mirae GT의 17-pose 7way body 후보와 `blue / red / silver / black` palette QA를 마쳤다. 다음 pass는 기존 5way runtime을 바로 덮어쓰지 않고, 세 차량의 shadow·headlight·catalog 계약과 pre-run 선택 흐름을 준비하는 runtime integration이다.
 
 ## 3D freeze와 2D 보정 전환 — 2026-08-26
 
@@ -175,6 +175,104 @@ assets/vehicles/generated/7way-candidates/{vehicle}/processed/{blue,red,silver,b
 - 기존 candidate atlas의 frame rectangle, anchor, baseline, 7way steering map을 그대로 계승한다. left steering은 새 left image를 만들지 않고 대응하는 right frame을 `flipX`한다.
 - 각 atlas는 동 폴더의 `sheet-128.png`만 참조하고, sheet에는 baked-in shadow가 없음을 기록한다. Phaser의 기존 separate/dynamic shadow atlas를 사용한다.
 - 현재 main game의 5way runtime atlas, texture key, vehicle catalog에는 이 파일을 연결하지 않았다. 다음 작업은 runtime integration 전용 변경과 browser QA다.
+
+#### 7번 runtime integration과 pre-run 선택 계약 — 다음 pass
+
+최종 진입 흐름은 차량 sprite를 import한 즉시 주행하는 구조가 아니다. 플레이어는 **차량 선택 → 색상 선택 → 코스 선택 → Start Run → Phaser 주행** 순서로 한 번의 run 구성을 확정한다. 현재 코스는 `bugak-ridge-downhill` 하나뿐이지만, 선택 state에는 처음부터 `courseId`를 둔다. 단일 코스는 선택 불가 UI로 숨기지 않고 `Selected` 상태의 코스 카드로 표시한다.
+
+```text
+vehicleId: raven-coupe | seorin-gt | mirae-gt
+colorId: blue | red | silver | black
+courseId: bugak-ridge-downhill
+```
+
+- 선택 화면은 sprite file path, frame index, GLB provenance를 직접 알지 않는다. public vehicle id와 color id만 고르고, runtime catalog가 atlas·body sheet·shadow sheet·headlight profile·engine profile을 해석한다.
+- 첫 runtime pass에서는 URL query(`?vehicle=raven-coupe&vehicleColor=blue&course=bugak-ridge-downhill`)로 선택을 직렬화한다. reload, browser screenshot QA, 재현 가능한 bug report가 같은 run 조합을 가리켜야 한다.
+- 기존 `ft86-retro` URL은 Raven Coupe 기본 선택으로 이어지는 legacy alias로 유지하거나, candidate 검증이 끝날 때까지 현행 5way asset을 계속 가리킨다. 중간 상태에서 silent replacement하지 않는다.
+- 7way input state는 `center`, `steer-left/right-0`, `steer-left/right-1`, `steer-left/right-2`다. `steer-0`는 0 dead-zone과 기존 mild steer 사이에서만 선택하며 physics/grip/drift state를 바꾸지 않는다.
+- 현재 uphill/downhill row에는 `right-0` art가 없다. 첫 적용에서는 terrain 상태의 slight steer를 `uphill/downhill-center`로 fallback한다. 경사에서도 7way pose가 실제로 필요하다고 검증된 경우에만 right-source 두 장을 추가해 17 pose를 19 pose로 확장한다.
+
+차량별 runtime 준비물은 아래와 같다.
+
+| 준비물 | 수량 | 책임 |
+| --- | ---: | --- |
+| body sheet | 3차종 × 4색 = 12 | 이미 생성한 palette variant. 색상 변경은 body sheet URL만 교체한다. |
+| atlas metadata | 차량당 1개 | frame/origin/7way map은 색상과 독립적이다. 색상별로 중복 소유하지 않는다. |
+| external shadow sheet·profile | 차량당 1개 | baked-in shadow 없이 Phaser의 silhouette/soft/contact layer를 유지한다. neutral detail alpha와 frame metadata를 입력으로 결정적으로 생성·QA한다. |
+| headlight profile | 차량당 1개 | center/right-1/right-2와 terrain fallback을 제공한다. `right-0`은 첫 pass에서 center와 mild profile 사이를 보간하거나 center를 재사용한다. |
+| engine profile | 차량당 1개 | vehicle id에서 선택하며, 초기에는 visual integration과 독립적으로 기존 검증값을 유지한다. |
+
+`yellow`는 현행 FT86 전용 legacy variant다. 신규 trio의 최초 public contract는 공통 네 색으로 고정한다. yellow를 다시 공개할 경우에는 한 차량만 추가하지 않고 세 차량 모두에 같은 palette recipe와 alpha QA를 적용해 5색 계약으로 승격한다.
+
+runtime promotion gate는 다음을 모두 만족해야 한다.
+
+1. 세 차량이 각자 7way atlas, headlight profile, separate shadow profile을 가진다.
+2. 3차종 × 4색의 body alpha/frame/origin이 동일하고, 선택한 color가 lamp·glass·wheel·accent를 바꾸지 않는다.
+3. URL의 알 수 없는 vehicle/color/course는 안전한 기본 `raven-coupe / blue / bugak-ridge-downhill`으로 fallback한다.
+4. level, uphill, downhill, drift, flipX, finish coast에서 body·shadow·headlight가 frame index를 공유한다.
+5. 후보 query browser screenshot QA와 기존 handling/collision/build 회귀를 통과한 뒤에만 기본 진입 차량을 바꾼다.
+
+##### 7a번 external shadow sheet — 2026-09-02 완료
+
+`npm run derive:vehicle-7way-shadow --workspace @games/apex-seoul`는 기본 trio의 `processed/neutral-128/sheet-128-details.png` alpha를 읽어 아래의 별도 Phaser shadow candidate를 만든다. `--vehicle <public-id>`는 고정 목록이 아니라 해당 후보 디렉터리의 17-pose metadata·atlas를 직접 검증하므로, 같은 계약을 지키는 후속 차량에도 그대로 사용한다.
+
+```text
+assets/vehicles/generated/7way-candidates/{vehicle}/phaser-128/
+  shadow-128.png
+  shadow-128.profile.json
+  shadow-128-runtime-preview.png
+  shadow-128-runtime-footprint-debug.png
+  shadow-128.qa.json
+```
+
+- 출력은 3×6 / 17 pose / 마지막 blank cell을 body sheet와 정확히 공유한다. opaque body alpha는 검정 `210` alpha로, transparent pixel은 완전 투명으로 변환한다.
+- shadow sheet는 silhouette와 soft layer의 source일 뿐이며, body sheet에는 다시 bake하지 않는다. Phaser의 contact patch와 drift·경사·속도에 따른 transform은 runtime이 계속 소유한다.
+- QA는 source/shadow alpha shape, blank cell, pose별 opaque pixel, 단일 shadow alpha를 검사한다. 색상 variant와 무관하므로 차량당 한 장만 생성한다.
+- `shadow-128.profile.json`은 각 pose의 alpha bounds와 anchor/baseline에서 chassis contact center·patch 크기·tire contact 후보를 파생한다. `shadow-profile-overrides.json`이 있으면 이를 pose별로 병합하므로, 새 차량은 자동 초안을 baseline으로 두고 browser QA에서 확인된 값만 recipe로 고정한다. Raven Coupe는 같은 source인 기존 FT86 runtime profile을 seed로 재사용하고, `steer-right-0`처럼 새 frame만 자동 초안을 사용한다.
+- `shadow-128-runtime-preview.png`는 checker 배경에서 Phaser와 같은 silhouette squash, soft-shadow 확장, chassis center, contact patch를 적용한 3×6 검수용 합성본이다. 배경은 실제 게임보다 밝은 진단용 road tone으로 고정해 검정 multiply shadow가 사라져 보이지 않게 한다. 이는 GPU blur·실제 drift transform을 완전히 대체하지 않으며, 17 pose의 접지 위치를 빠르게 확인하는 asset-level debug다.
+- `shadow-128-runtime-footprint-debug.png`는 위 합성에서 body만 제외한 debug sheet다. body와 겹쳐 미세해지는 actual-preview와 함께 열어 shadow의 폭·squash·접지 중심이 실제로 생성됐는지 분리 확인한다.
+
+##### 7b번 Raven Coupe hidden runtime adapter — 2026-09-02 완료
+
+`npm run write:vehicle-7way-runtime-adapter --workspace @games/apex-seoul`는 candidate atlas를 즉시 approved asset으로 승격하지 않고, runtime이 요구하는 `headlightProfiles`와 separate `shadowProfiles`를 결합한 Raven 전용 adapter를 작성한다.
+
+```text
+assets/vehicles/generated/7way-candidates/raven-coupe/runtime-128/
+  runtime-128.atlas.json
+  runtime-128.qa.json
+```
+
+- Raven Coupe는 FT86과 같은 frozen source를 쓰므로, 검증된 기존 FT86 headlight profile을 seed로 재사용한다. 새 `steer-right-0` profile은 `center → steer-right-1` 보간값으로 기록하지만 아직 selection에 사용하지 않는다.
+- shadow profile은 7a의 128px Raven output을 사용한다. 따라서 body·shadow가 모두 같은 3×6, 17-pose frame index를 공유한다.
+- 현행 controller는 안정성 확인을 위해 여전히 `center / left-1 / left-2 / right-1 / right-2` 5개 state만 선택한다. `right-0`는 다음 selector pass에서만 활성화한다.
+- `?vehicle=raven-coupe&vehicleColor={blue|red|silver|black}`가 이 adapter, 대응 body variant, shared shadow를 선택한다. 기본 URL과 `?vehicle=ft86-retro`는 기존 256px FT86 asset을 계속 사용한다. 이 hidden query browser QA가 통과하기 전에는 default를 바꾸지 않는다.
+- adapter generator는 다른 차량의 profile을 추측해 승격하지 않는다. Seorin GT/Mirae GT는 차량별 headlight override가 준비되기 전에는 명시적으로 실패한다.
+- Runtime HUD는 `headlight frame / profile / pose aim / swivel`을 표시하고, `debugGuides=1` query는 lamp segment·frame forward axis·optical swivel·footprint를 road 위에 겹쳐 그린다. `window.__apexSeoulQaState.headlight.frameId/profileId`에도 같은 값을 publish하므로 screenshot/automation QA가 body frame과 headlight profile의 결합을 검사할 수 있다.
+
+##### 7c번 Raven Coupe level 7way selector와 pose QA — 2026-09-02 완료
+
+Raven Coupe runtime adapter는 이제 `center / left-0 / left-1 / left-2 / right-0 / right-1 / right-2`를 모두 전달한다. level 주행에서 `steerWeakThreshold`의 55%부터 새 slight pose(`±0`)를 선택하고, 기존 mild/strong threshold와 drift strong-art 정책은 유지한다. FT86/Genesis처럼 `±0` frame이 없는 legacy atlas는 같은 구간에서 center로 안전 fallback한다.
+
+- `qaPose={steer-left-2|steer-left-1|steer-left-0|center|steer-right-0|steer-right-1|steer-right-2}`는 selector threshold와 관계없이 한 pose를 고정한다. `qaFreeze=1&debugGuides=1`과 함께 body/shadow/headlight profile을 한 화면에서 확인한다.
+- `qaSteer`는 실제 selector 경계를 확인한다. 기본 고속 QA(`qaSpeed=440`)에서는 `0.15 → right-0`, `0.5 → right-1`, `1 → right-2`가 된다. 음수는 대응 right source를 flip한다.
+- downhill/uphill에는 `±0` art가 없으므로 slight steering은 `${terrain}-center`를 **flip 없이** 사용한다. 이는 17-pose 계약을 유지하는 의도적 fallback이며, 19-pose 확장은 browser QA에서 시각적 필요가 확인될 때만 연다.
+- `npm run qa:vehicle-7way-selector --workspace @games/apex-seoul`는 Raven level의 center/slight/mild/strong 및 양쪽 slight, downhill left/right slight fallback을 검사한다.
+
+##### 7d번 Raven Coupe 256px beauty 비교 preview — 2026-09-02 완료
+
+128px retro sheet의 detail 손실을 runtime 크기에서 비교하기 위해 `npm run render:vehicle-7way-runtime-preview --workspace @games/apex-seoul -- --vehicle raven-coupe --cell-size {192|256}`를 추가했다. 이 명령은 frozen 512px beauty source를 Lanczos로 192px 또는 256px 3×6/17-pose sheet로 축소하고, 같은 alpha에서 별도 shadow와 matching atlas를 같이 만든다.
+
+```text
+assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-{192|256}/
+  sheet-{192|256}.png
+  shadow-{192|256}.png
+  runtime-{192|256}.atlas.json
+  runtime-{192|256}.qa.json
+```
+
+- `?vehicle=raven-coupe-192-preview`와 `?vehicle=raven-coupe-256-preview`는 각각 한 장의 neutral beauty sheet를 사용한다. palette variant, approved asset, 기본 진입 차량에는 영향을 주지 않는다.
+- profile·shadow·7way state는 Raven runtime adapter와 같고 frame px coordinate만 두 배로 스케일한다. QA는 17 pose, 마지막 blank cell, body/shadow alpha shape, 256px frame rectangle을 검사한다.
+- 이는 128px retro style을 대체할 최종 output이 아니다. source texture가 충분히 읽히는지와 runtime 예산(현재 body는 192px 약 192KB, 256px 약 311KB)을 판단하는 임시 비교 기준이다.
 
 #### Retro sprite recipe
 

@@ -1,6 +1,6 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-07-29
+갱신일: 2026-09-02
 
 ## 프로젝트 목표
 
@@ -60,7 +60,10 @@ HR-3I/HR-3I-R은 physical steering command와 sprite의 의미를 맞췄다. 무
 ### 사용자 경험
 
 ```text
-ready/countdown
+vehicle 선택
+  → color 선택
+  → course 선택
+  → ready/countdown
   → 주행과 checkpoint split
   → finish
   → 결과와 best 비교
@@ -70,6 +73,9 @@ ready/countdown
 ### 핵심 결과물
 
 - 명확한 start/finish 상태와 restart
+- pre-run garage에서 Raven Coupe, Seorin GT, Mirae GT와 공통 palette를 확정하는 선택 상태
+- 현재 하나인 Bugak Ridge Downhill도 `courseId`로 선택·직렬화해 이후 코스 확장을 위한 계약을 먼저 고정
+- 선택한 `vehicleId / colorId / courseId`가 URL, asset catalog, run telemetry에서 같은 조합을 가리키는 규칙
 - 차량이 통과하는 `Π`형 비충돌 checkpoint gate와 현재 기록, best 기록, split 차이
 - 결과 화면과 최소 저장 정책
 - telemetry와 실제 UI가 같은 run timing source 사용
@@ -80,6 +86,7 @@ ready/countdown
 ### gate
 
 - 같은 조건의 반복 주행이 가능하다.
+- 차량·색상·코스 선택 뒤에만 run이 시작하며, 새로고침·QA URL이 동일 조합을 복원한다.
 - 기록 갱신과 restart가 예측 가능하다.
 - U2 속도와 기존 handling/collision 회귀가 없다.
 
@@ -136,7 +143,7 @@ ORS-2B, ORS-4, ORS-5와 ORS-6을 번호 순서대로 구현하지 않는다. M1~
 
 ### 후보 결과물
 
-- 실제 주행 성격이 다른 차량 선택
+- 선택 가능한 차량의 실제 주행 성격 차이와 unlock/challenge 규칙
 - traffic/opponent와 추월 또는 경쟁 규칙
 - 추가 목표, 점수 또는 난이도 변형
 - 충분히 다른 새 코스/sector/route

@@ -44,6 +44,12 @@ export type ApexHudState = {
         poseAuthority: number;
     };
     vehicleTerrainCue: VehicleTerrainCue;
+    headlightDebug: {
+        frameId: string;
+        mainSwivelDeg: number;
+        poseAimX: number;
+        profileId: string;
+    };
     worldTravelSpeed: number;
 };
 
@@ -111,6 +117,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
         tuning,
         understeerVisual,
         vehicleTerrainCue,
+        headlightDebug,
         worldTravelSpeed,
     } = state;
 
@@ -132,6 +139,7 @@ export function renderHudText(hudText: Phaser.GameObjects.Text, state: ApexHudSt
             `flow ${longitudinalProgression.candidateId} x${longitudinalProgression.scale.toFixed(2)} | world ${worldTravelSpeed.toFixed(0)}u/s${longitudinalProgression.diagnosticUpperBound ? ' | diagnostic upper bound' : ''}`,
             `slope ${slopeAcceleration.toFixed(0)} | corner ${cornerIntensity.toFixed(2)} | line ${player.cornerDemand.lineQuality.toFixed(2)} | demand ${player.cornerDemand.lateralDemand.toFixed(2)} | heading ${player.vehicleHeadingError.toFixed(2)}rad | inertia ${player.cornerInertiaLateralVelocity.toFixed(0)} | loss ${player.cornerSpeedLoss.zone} ${player.cornerSpeedLoss.totalForce.toFixed(0)} | steer ratio ${steeringRatio.toFixed(2)} | car offset ${player.lateralOffset.toFixed(0)} | steer ${player.steering.toFixed(2)} | terrain ${vehicleTerrainCue}`,
             `understeer ${player.overspeedUndersteerRatio.toFixed(2)} | grip auth ${understeerVisual.gripAuthorityRatio.toFixed(2)} | body auth ${understeerVisual.bodyYawAuthority.toFixed(2)} | pose auth ${understeerVisual.poseAuthority.toFixed(2)} | scrub cue ${understeerVisual.cueIntensity.toFixed(2)}`,
+            `headlight frame ${headlightDebug.frameId} | profile ${headlightDebug.profileId} | pose aim ${headlightDebug.poseAimX.toFixed(1)}px | swivel ${headlightDebug.mainSwivelDeg.toFixed(1)}deg${tuning.debugProjectionGuides ? ' | guides on' : ''}`,
             `sprite ${(tuning.vehicleViewportRatio * 100).toFixed(0)}vw | anchor ${tuning.playerRoadAnchorDistance.toFixed(0)}z | contact cue ${tuning.playerContactTerrainCueThreshold.toFixed(0)} | curve bias ${tuning.curveScreenBias.toFixed(0)}px`,
             `telemetry ${telemetry.enabled ? 'on' : 'off'} | log ${telemetryEventCount}`,
             qa.enabled

@@ -23,6 +23,18 @@ import ft86RetroRedVehicleSpriteUrl from '../assets/vehicles/generated/pixel-can
 import ft86RetroShadowSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png';
 import ft86RetroSilverVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png';
 import ft86RetroYellowVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png';
+import ravenCoupeRuntimeAtlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-128/runtime-128.atlas.json';
+import ravenCoupeBlackVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/black-128/sheet-128.png';
+import ravenCoupeBlueVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/blue-128/sheet-128.png';
+import ravenCoupeRedVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/red-128/sheet-128.png';
+import ravenCoupeShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128.png';
+import ravenCoupeSilverVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/silver-128/sheet-128.png';
+import ravenCoupePreview256Atlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/runtime-256.atlas.json';
+import ravenCoupePreview256ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/shadow-256.png';
+import ravenCoupePreview256SpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/sheet-256.png';
+import ravenCoupePreview192Atlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/runtime-192.atlas.json';
+import ravenCoupePreview192ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/shadow-192.png';
+import ravenCoupePreview192SpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/sheet-192.png';
 import {
     createCollisionDebugText,
     createHudText,
@@ -164,6 +176,7 @@ import {
     getVehicleHeadlightFootprintDimensions,
     getVehicleHeadlightFootprintGuide,
     getVehicleHeadlightOpticalState,
+    getVehicleHeadlightProfileId,
     getVehicleHeadlightScreenPose,
     updateVehicleHeadlightCurveIntent,
     type VehicleHeadlightOpticalState,
@@ -201,6 +214,7 @@ import {
     getVehicleShadowProfile,
     selectVehicleTerrainCue,
     type PlayerVehicleState,
+    type PlayerSteeringStateId,
     type RuntimeVehicleQaState,
     type VehicleAnchor,
     type VehicleAtlas,
@@ -282,6 +296,12 @@ const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
     silver: ft86RetroSilverVehicleSpriteUrl,
     yellow: ft86RetroYellowVehicleSpriteUrl,
 };
+const RAVEN_COUPE_SPRITE_URLS: Record<string, string> = {
+    black: ravenCoupeBlackVehicleSpriteUrl,
+    blue: ravenCoupeBlueVehicleSpriteUrl,
+    red: ravenCoupeRedVehicleSpriteUrl,
+    silver: ravenCoupeSilverVehicleSpriteUrl,
+};
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const APEX_RUNTIME = createApexSeoulRuntimeConfig(URL_PARAMS);
@@ -292,6 +312,24 @@ const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS, {
         colors: FT86_RETRO_SPRITE_URLS,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
         shadowSpriteUrl: ft86RetroShadowSpriteUrl,
+    },
+    ravenCoupe: {
+        atlas: ravenCoupeRuntimeAtlas as VehicleAtlas,
+        colors: RAVEN_COUPE_SPRITE_URLS,
+        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        shadowSpriteUrl: ravenCoupeShadowSpriteUrl,
+    },
+    ravenCoupePreview256: {
+        atlas: ravenCoupePreview256Atlas as VehicleAtlas,
+        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        shadowSpriteUrl: ravenCoupePreview256ShadowSpriteUrl,
+        spriteUrl: ravenCoupePreview256SpriteUrl,
+    },
+    ravenCoupePreview192: {
+        atlas: ravenCoupePreview192Atlas as VehicleAtlas,
+        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        shadowSpriteUrl: ravenCoupePreview192ShadowSpriteUrl,
+        spriteUrl: ravenCoupePreview192SpriteUrl,
     },
     genesis: {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
@@ -445,7 +483,9 @@ class ApexSeoulScene extends Phaser.Scene {
     private headlightCurveIntent = 0;
     private headlightCurveIntentTarget = 0;
     private headlightFineAimX = 0;
+    private headlightFrameId = 'center';
     private headlightFramePoseAimX = 0;
+    private headlightProfileId = 'center';
     private headlightRawRoadAimX = 0;
     private headlightRoadAimX = 0;
     private headlightOpticalState: VehicleHeadlightOpticalState =
@@ -1142,6 +1182,12 @@ class ApexSeoulScene extends Phaser.Scene {
                 gripAuthorityRatio: this.vehicleUndersteerVisualState.gripAuthorityRatio,
                 poseAuthority: this.vehicleUndersteerVisualState.poseAuthority,
             },
+            headlightDebug: {
+                frameId: this.headlightFrameId,
+                mainSwivelDeg: this.headlightOpticalState.mainSwivelDeg,
+                poseAimX: this.headlightFramePoseAimX,
+                profileId: this.headlightProfileId,
+            },
             vehicleTerrainCue: this.getVehicleTerrainCue(),
             worldTravelSpeed: this.getWorldTravelSpeed(),
             run: this.runState,
@@ -1287,8 +1333,12 @@ class ApexSeoulScene extends Phaser.Scene {
     ): PlayerVehiclePoseRenderState {
         const visualSteering = this.getVehicleVisualSteeringState(seconds);
         const presentation = getPlayerPosePresentation({
+            // Strong art normally belongs to drift presentation only. A fixed
+            // qaSteer must still enumerate every atlas frame while stationary.
+            allowStrongSteering: RUNTIME_QA.steering !== null || this.playerVehicle.driftState !== 'grip',
             atlas: PLAYER_VEHICLE_ATLAS,
             driftState: this.playerVehicle.driftState,
+            forcedSteeringState: RUNTIME_QA.pose ?? undefined,
             terrainCue: anchor.terrainCue,
             tuning: RUNTIME_TUNING,
             visualSteering,
@@ -1791,6 +1841,27 @@ class ApexSeoulScene extends Phaser.Scene {
             smoothSpeed,
         );
 
+        // qaSteer is a pose/optics fixture, not a simulated input. In
+        // particular qaFreeze intentionally skips the vehicle controller, so
+        // bypass its speed/understeer response and make every capture map to
+        // the requested atlas frame deterministically.
+        const qaSteering = RUNTIME_QA.steering ?? getQaPoseSteeringValue(RUNTIME_QA.pose);
+        if (qaSteering !== null) {
+            return {
+                bodyYawAuthority: 1,
+                bodyYawValue: qaSteering,
+                gripAuthorityRatio: 1,
+                inputPoseValue: qaSteering,
+                lowSpeedVisualSteeringAuthority: 1,
+                physicalValue: qaSteering,
+                poseAuthority: 1,
+                rotationValue: qaSteering,
+                threshold,
+                understeerCueIntensity: 0,
+                value: qaSteering,
+            };
+        }
+
         // Speed-dependent yaw is already sampled once in the controller.
         // The runtime multiplier defaults to 1 and remains only as an
         // explicit QA override instead of a second default attenuation.
@@ -2003,6 +2074,11 @@ class ApexSeoulScene extends Phaser.Scene {
         this.headlightOpticalState = getVehicleHeadlightOpticalState(
             PLAYER_VEHICLE_ATLAS,
             this.headlightCurveIntent,
+        );
+        this.headlightFrameId = poseState.frameId;
+        this.headlightProfileId = getVehicleHeadlightProfileId(
+            PLAYER_VEHICLE_ATLAS,
+            poseState.frameId,
         );
 
         const lampPose = getVehicleHeadlightScreenPose(
@@ -2262,7 +2338,9 @@ class ApexSeoulScene extends Phaser.Scene {
         this.headlightCurveIntent = 0;
         this.headlightCurveIntentTarget = 0;
         this.headlightFineAimX = 0;
+        this.headlightFrameId = 'center';
         this.headlightFramePoseAimX = 0;
+        this.headlightProfileId = 'center';
         this.headlightLampPose = null;
         this.headlightRawRoadAimX = 0;
         this.headlightRoadAimX = 0;
@@ -2404,9 +2482,11 @@ class ApexSeoulScene extends Phaser.Scene {
                     ? getVehicleHeadlightEmitterState(this.headlightLampPose)
                     : null,
                 fineAimX: this.headlightFineAimX,
+                frameId: this.headlightFrameId,
                 framePoseAimX: this.headlightFramePoseAimX,
                 lampPose: this.headlightLampPose,
                 opticalState: this.headlightOpticalState,
+                profileId: this.headlightProfileId,
                 rawRoadAimX: this.headlightRawRoadAimX,
                 roadAssistAimX: this.headlightRoadAimX,
                 roadTangent: this.roadStats?.headlightRoadTangent ?? null,
@@ -2633,4 +2713,17 @@ new Phaser.Game(config);
 
 function getAxis(positive: boolean, negative: boolean) {
     return Number(positive) - Number(negative);
+}
+
+function getQaPoseSteeringValue(pose: PlayerSteeringStateId | null) {
+    const values: Record<PlayerSteeringStateId, number> = {
+        'steer-left-2': -1,
+        'steer-left-1': -0.5,
+        'steer-left-0': -0.16,
+        center: 0,
+        'steer-right-0': 0.16,
+        'steer-right-1': 0.5,
+        'steer-right-2': 1,
+    };
+    return pose === null ? null : values[pose];
 }
