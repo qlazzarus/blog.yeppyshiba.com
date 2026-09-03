@@ -1,6 +1,6 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-09-02
+갱신일: 2026-09-03
 
 ## 프로젝트 목표
 
@@ -57,6 +57,12 @@ HR-3I/HR-3I-R은 physical steering command와 sprite의 의미를 맞췄다. 무
 
 ## M1 — 완결된 time attack loop — 다음 구현
 
+### 차량 asset 준비 상태
+
+- Raven Coupe / Seorin GT / Mirae GT의 192px 17-pose 7way sheet와 공통 `blue / red / silver / black` palette는 생성·asset QA를 마쳤다.
+- Raven Coupe만 기본 runtime sprite로 연결됐다. Seorin GT/Mirae GT는 separate shadow와 hidden debug preview가 있지만 vehicle-local headlight profile 승인 전이므로 selectable catalog에는 아직 넣지 않는다.
+- 따라서 M1의 차량 범위는 새 sprite를 만드는 일이 아니라, 세 차량·색상 catalog, 선택 state, garage UI와 run/result 복원 계약을 완성하는 일이다. 상세 순서는 [차량 pose 계획의 7h](./apex-seoul-vehicle-pose-density-plan.md#7h번-게임-연동-잔여-범위--2026-09-03)을 따른다.
+
 ### 사용자 경험
 
 ```text
@@ -73,7 +79,7 @@ vehicle 선택
 ### 핵심 결과물
 
 - 명확한 start/finish 상태와 restart
-- pre-run garage에서 Raven Coupe, Seorin GT, Mirae GT와 공통 palette를 확정하는 선택 상태
+- pre-run garage에서 Raven Coupe, Seorin GT, Mirae GT와 공통 `blue / red / silver / black` palette를 확정하는 선택 상태
 - 현재 하나인 Bugak Ridge Downhill도 `courseId`로 선택·직렬화해 이후 코스 확장을 위한 계약을 먼저 고정
 - 선택한 `vehicleId / colorId / courseId`가 URL, asset catalog, run telemetry에서 같은 조합을 가리키는 규칙
 - 차량이 통과하는 `Π`형 비충돌 checkpoint gate와 현재 기록, best 기록, split 차이

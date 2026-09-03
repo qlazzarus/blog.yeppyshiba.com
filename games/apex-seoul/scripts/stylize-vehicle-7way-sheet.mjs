@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const VEHICLE_IDS = ['raven-coupe', 'seorin-gt', 'mirae-gt'];
 const ROLE_NAMES = ['body', 'glass', 'lamp', 'wheel', 'chrome', 'accent', 'shadow'];
-const TARGET_CELL_SIZE = 128;
+let TARGET_CELL_SIZE = 128;
 const ALPHA_THRESHOLD = 36;
 
 const PALETTES = {
@@ -20,17 +20,25 @@ const PALETTES = {
     outline: [[7, 12, 20]],
 };
 
-const config = { vehicleIds: [] };
+const config = { cellSize: 128, vehicleIds: [] };
 for (let index = 2; index < process.argv.length; index += 1) {
     const arg = process.argv[index];
     const next = process.argv[index + 1];
     if (arg === '--vehicle' && next) {
         config.vehicleIds.push(next);
         index += 1;
+    } else if (arg === '--cell-size' && next) {
+        config.cellSize = Number(next);
+        index += 1;
     } else {
         throw new Error(`Unknown or incomplete option: ${arg}`);
     }
 }
+
+if (!Number.isInteger(config.cellSize) || ![128, 192].includes(config.cellSize)) {
+    throw new Error('cell-size must be 128 or 192');
+}
+TARGET_CELL_SIZE = config.cellSize;
 
 const vehicleIds = config.vehicleIds.length > 0 ? config.vehicleIds : VEHICLE_IDS;
 for (const vehicleId of vehicleIds) {
@@ -42,11 +50,11 @@ async function stylizeVehicle(vehicleId) {
     const candidateDir = path.join(projectRoot, 'assets/vehicles/generated/7way-candidates', vehicleId);
     const sourcePath = path.join(candidateDir, 'source-17pose-512.png');
     const metadataPath = path.join(candidateDir, 'source-17pose-512.json');
-    const outputDir = path.join(candidateDir, 'processed/neutral-128');
-    const outputPath = path.join(outputDir, 'sheet-128.png');
-    const outputMetadataPath = path.join(outputDir, 'sheet-128.json');
-    const qaPath = path.join(outputDir, 'sheet-128.qa.json');
-    const previewPath = path.join(outputDir, 'sheet-128-checker-preview.png');
+    const outputDir = path.join(candidateDir, `processed/neutral-${TARGET_CELL_SIZE}`);
+    const outputPath = path.join(outputDir, `sheet-${TARGET_CELL_SIZE}.png`);
+    const outputMetadataPath = path.join(outputDir, `sheet-${TARGET_CELL_SIZE}.json`);
+    const qaPath = path.join(outputDir, `sheet-${TARGET_CELL_SIZE}.qa.json`);
+    const previewPath = path.join(outputDir, `sheet-${TARGET_CELL_SIZE}-checker-preview.png`);
     const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
 
     validateMetadata(metadata, vehicleId);
@@ -89,7 +97,7 @@ async function stylizeVehicle(vehicleId) {
         stylize: {
             alphaThreshold: ALPHA_THRESHOLD,
             palette: 'neutral-retro-v1',
-            process: ['512-to-128-lanczos', 'role-palette-quantization', 'one-pixel-outline'],
+            process: [`512-to-${TARGET_CELL_SIZE}-lanczos`, 'role-palette-quantization', 'one-pixel-outline'],
             shadowPolicy: 'No baked-in shadow. Phaser renders the existing separate, dynamic shadow atlas.',
         },
     };

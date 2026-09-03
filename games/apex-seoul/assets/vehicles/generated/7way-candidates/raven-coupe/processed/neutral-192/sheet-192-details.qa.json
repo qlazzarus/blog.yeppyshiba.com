@@ -1,0 +1,162 @@
+{
+  "vehicleId": "raven-coupe",
+  "input": "assets/vehicles/generated/7way-candidates/raven-coupe/processed/neutral-192/sheet-192.png",
+  "output": "assets/vehicles/generated/7way-candidates/raven-coupe/processed/neutral-192/sheet-192-details.png",
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "poses": [
+    {
+      "id": "center",
+      "cell": {
+        "column": 0,
+        "row": 0
+      },
+      "lampGapFillPixels": 2,
+      "modeSmoothedPixels": 164
+    },
+    {
+      "id": "steer-right-0",
+      "cell": {
+        "column": 1,
+        "row": 0
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 177
+    },
+    {
+      "id": "steer-right-1",
+      "cell": {
+        "column": 2,
+        "row": 0
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 200
+    },
+    {
+      "id": "steer-right-2",
+      "cell": {
+        "column": 0,
+        "row": 1
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 215
+    },
+    {
+      "id": "spin-right-1",
+      "cell": {
+        "column": 1,
+        "row": 1
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 251
+    },
+    {
+      "id": "spin-right-2",
+      "cell": {
+        "column": 2,
+        "row": 1
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 268
+    },
+    {
+      "id": "spin-front-right-1",
+      "cell": {
+        "column": 0,
+        "row": 2
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 236
+    },
+    {
+      "id": "spin-front-right-2",
+      "cell": {
+        "column": 1,
+        "row": 2
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 229
+    },
+    {
+      "id": "rollover-right-1",
+      "cell": {
+        "column": 2,
+        "row": 2
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 357
+    },
+    {
+      "id": "rollover-right-2",
+      "cell": {
+        "column": 0,
+        "row": 3
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 331
+    },
+    {
+      "id": "overturned",
+      "cell": {
+        "column": 1,
+        "row": 3
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 410
+    },
+    {
+      "id": "downhill-center",
+      "cell": {
+        "column": 2,
+        "row": 3
+      },
+      "lampGapFillPixels": 1,
+      "modeSmoothedPixels": 211
+    },
+    {
+      "id": "downhill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 4
+      },
+      "lampGapFillPixels": 2,
+      "modeSmoothedPixels": 223
+    },
+    {
+      "id": "downhill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 4
+      },
+      "lampGapFillPixels": 3,
+      "modeSmoothedPixels": 207
+    },
+    {
+      "id": "uphill-center",
+      "cell": {
+        "column": 2,
+        "row": 4
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 133
+    },
+    {
+      "id": "uphill-right-1",
+      "cell": {
+        "column": 0,
+        "row": 5
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 233
+    },
+    {
+      "id": "uphill-right-2",
+      "cell": {
+        "column": 1,
+        "row": 5
+      },
+      "lampGapFillPixels": 0,
+      "modeSmoothedPixels": 244
+    }
+  ]
+}

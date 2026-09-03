@@ -138,6 +138,7 @@ vehicleId + colorId + courseId
 
 - public vehicle id는 `raven-coupe`, `seorin-gt`, `mirae-gt`만 사용한다. `FT86`, `Stinger`, `G70 (Nieve)`는 provenance/authoring 기록에만 둔다.
 - 첫 selectable palette contract는 모든 차량 공통 `blue / red / silver / black`이다. color는 body sheet만 바꾸며 atlas, shadow, headlight, engine profile은 공유한다.
+- 현재 192px 7way sheet와 네 palette는 세 차량 모두 생성·asset QA를 통과했다. Raven Coupe는 기본 runtime sprite로 연결됐고, Seorin GT/Mirae GT는 headlight profile 승인을 기다리는 hidden preview다. 즉 파일 생성 완료는 selectable catalog 등록 완료와 다르며, public selection에는 vehicle-local headlight·shadow·atlas·engine profile·fallback이 모두 승인돼야 한다.
 - 현재 course catalog에는 `bugak-ridge-downhill` 하나만 등록한다. UI에는 선택 완료 카드로 보이되, state와 URL에는 항상 course id를 기록해 후속 코스가 추가돼도 save/QA 계약을 바꾸지 않는다.
 - 선택은 `?vehicle=…&vehicleColor=…&course=…`로 직렬화해 reload와 browser QA가 같은 run을 재현하게 한다. 알 수 없는 id는 public 기본 조합으로 fallback한다.
 - baked-in body shadow는 금지한다. color와 무관한 차량별 external shadow sheet/profile을 one-per-vehicle로 관리하며 Phaser의 silhouette, soft, contact layer가 이를 사용한다. `derive-vehicle-7way-shadow.mjs`는 neutral detail alpha와 pose anchor/baseline에서 `shadow-128.png`, `shadow-128.profile.json`, runtime-style debug preview, QA JSON을 함께 생성한다. 이 preview는 squash·soft layer·contact patch를 확인하는 asset-level gate이며, 최종 승인은 browser runtime screenshot으로 한다.

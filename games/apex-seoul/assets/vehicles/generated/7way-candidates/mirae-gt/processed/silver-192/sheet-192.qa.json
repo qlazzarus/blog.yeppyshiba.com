@@ -1,0 +1,12 @@
+{
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "bodyFringePixels": 1868,
+  "changedBodyPixels": 57872,
+  "protectedPixelsChanged": 0,
+  "protectedPixelsTested": 605680,
+  "input": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/neutral-192/sheet-192-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/silver-192/sheet-192.png",
+  "vehicleId": "mirae-gt",
+  "variant": "silver"
+}

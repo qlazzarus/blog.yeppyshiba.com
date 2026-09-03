@@ -35,14 +35,13 @@ tail light accent: restrained red only
 
 우선순위:
 
-1. `ft86-retro` blue variant를 런타임 기본 차량으로 둔다.
-2. black variant는 최종 후보 비교용으로 반드시 생성한다.
-3. silver/red/yellow는 QA 비교용 또는 블로그 설명용 보조 산출물이다.
-4. base sprite에는 glow, bloom, ground shadow를 넣지 않는다. 빛 효과는 런타임 레이어에서 따로 붙인다.
+1. Raven Coupe 192px `blue` variant를 런타임 기본 차량으로 둔다. `ft86-retro`는 비교·롤백 URL로만 유지한다.
+2. Raven Coupe, Seorin GT, Mirae GT 모두 `blue / red / silver / black` body palette를 공유한다. garage 선택에 연결하기 전에는 vehicle-local headlight profile과 runtime QA를 승인한다.
+3. base sprite에는 glow, bloom, ground shadow를 넣지 않는다. 빛 효과는 런타임 레이어에서 따로 붙인다.
 
 ### Steering pose density
 
-현재 5way steering(`left-2 / left-1 / center / right-1 / right-2`)은 center에서 첫 steer frame으로 넘어갈 때 rear-quarter 변화가 크다. 다음 차량 art pass는 center와 `left-1`·`right-1` 사이에 slight steer 두 장을 넣은 7way를 목표로 한다. 이는 black/blue palette 변경이 아니라 조향의 연속성과 road-contact 기준을 보강하는 작업이다. pose 각도, Three.js renderer 활용 범위, atlas/QA gate는 [차량 7way pose·Three.js sprite 생성 계획](apex-seoul-vehicle-pose-density-plan.md)을 따른다.
+Raven Coupe의 기본 runtime은 center와 mild steer 사이의 slight steer를 포함한 7way(`left-2 / left-1 / left-0 / center / right-0 / right-1 / right-2`)를 사용한다. Seorin GT/Mirae GT도 같은 sheet 계약을 준비했고, headlight profile을 승인한 뒤 같은 selector로 승격한다. 이는 palette 변경이 아니라 저속 turn-in의 조향 연속성과 road-contact 기준을 보강하는 작업이다. pose 각도, Three.js renderer 활용 범위, atlas/QA gate는 [차량 7way pose·Three.js sprite 생성 계획](apex-seoul-vehicle-pose-density-plan.md)을 따른다.
 
 ### Environment Assets
 

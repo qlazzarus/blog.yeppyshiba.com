@@ -1,6 +1,6 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-09-02
+갱신일: 2026-09-03
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
 
@@ -10,7 +10,7 @@
 
 ## 구조·콘텐츠 백로그
 
-- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. 현재 5way runtime은 유지한다. 다음 범위는 별도 문서가 아니라 [차량 7way pose·Three.js sprite 생성 계획](./apex-seoul-vehicle-pose-density-plan.md#7번-runtime-integration과-pre-run-선택-계약)의 runtime integration gate로 관리한다.
+- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose 192px candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. Raven Coupe는 기본 7way runtime sprite로 승격했고, Seorin/Mirae는 hidden debug preview 상태다. 다음 범위는 [차량 pose 계획의 game integration 잔여 범위](./apex-seoul-vehicle-pose-density-plan.md#7h번-게임-연동-잔여-범위--2026-09-03)로 관리한다.
 
 ## 현재 승인 기준선
 

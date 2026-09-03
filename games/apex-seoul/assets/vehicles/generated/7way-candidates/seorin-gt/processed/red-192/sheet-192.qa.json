@@ -1,0 +1,12 @@
+{
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "bodyFringePixels": 1915,
+  "changedBodyPixels": 57090,
+  "protectedPixelsChanged": 0,
+  "protectedPixelsTested": 606462,
+  "input": "assets/vehicles/generated/7way-candidates/seorin-gt/processed/neutral-192/sheet-192-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/seorin-gt/processed/red-192/sheet-192.png",
+  "vehicleId": "seorin-gt",
+  "variant": "red"
+}

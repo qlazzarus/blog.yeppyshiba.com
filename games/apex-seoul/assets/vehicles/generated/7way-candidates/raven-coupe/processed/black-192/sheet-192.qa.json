@@ -1,0 +1,12 @@
+{
+  "alphaChangedPixels": 0,
+  "blankCellOpaquePixels": 0,
+  "bodyFringePixels": 1872,
+  "changedBodyPixels": 49584,
+  "protectedPixelsChanged": 0,
+  "protectedPixelsTested": 613968,
+  "input": "assets/vehicles/generated/7way-candidates/raven-coupe/processed/neutral-192/sheet-192-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/raven-coupe/processed/black-192/sheet-192.png",
+  "vehicleId": "raven-coupe",
+  "variant": "black"
+}

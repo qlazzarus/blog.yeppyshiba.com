@@ -1,0 +1,1383 @@
+{
+  "apex": {
+    "anchorPolicy": "Use per-frame origin for draw offset. Left steering frames reuse right steering art with flipX.",
+    "candidateOnly": true,
+    "steeringStates": {
+      "steer-left-2": {
+        "flipX": true,
+        "frame": "steer-right-2"
+      },
+      "steer-left-1": {
+        "flipX": true,
+        "frame": "steer-right-1"
+      },
+      "steer-left-0": {
+        "flipX": true,
+        "frame": "steer-right-0"
+      },
+      "center": {
+        "flipX": false,
+        "frame": "center"
+      },
+      "steer-right-0": {
+        "flipX": false,
+        "frame": "steer-right-0"
+      },
+      "steer-right-1": {
+        "flipX": false,
+        "frame": "steer-right-1"
+      },
+      "steer-right-2": {
+        "flipX": false,
+        "frame": "steer-right-2"
+      }
+    },
+    "targetCellSize": 192,
+    "vehicleId": "mirae-gt",
+    "headlightProfiles": {
+      "center": {
+        "emitter": {
+          "farLampIntensity": 1,
+          "farLampReachScale": 1,
+          "lobeWidthScale": 0.6,
+          "mergeStartRatio": 0.58
+        },
+        "emitterForwardYawDeg": 0,
+        "footprint": {
+          "farHalfWidthRatio": 0.125,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.098
+        },
+        "lampLeft": {
+          "x": 0.455,
+          "y": 0.455
+        },
+        "lampRight": {
+          "x": 0.545,
+          "y": 0.455
+        },
+        "optical": {
+          "cornerFillIntensity": 0,
+          "cornerFillReachScale": 0,
+          "cornerFillYawDeg": 0,
+          "mainSwivelDeg": 0
+        },
+        "poseAimX": 0
+      },
+      "steer-right-1": {
+        "emitter": {
+          "farLampIntensity": 0.65,
+          "farLampReachScale": 0.9,
+          "lobeWidthScale": 0.56,
+          "mergeStartRatio": 0.52
+        },
+        "emitterForwardYawDeg": 42,
+        "footprint": {
+          "farHalfWidthRatio": 0.09,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.135
+        },
+        "lampLeft": {
+          "x": 0.64,
+          "y": 0.47
+        },
+        "lampRight": {
+          "x": 0.74,
+          "y": 0.51
+        },
+        "optical": {
+          "cornerFillIntensity": 0.2,
+          "cornerFillReachScale": 0.55,
+          "cornerFillYawDeg": 7,
+          "mainSwivelDeg": 4
+        },
+        "poseAimX": 0.11
+      },
+      "steer-right-2": {
+        "emitter": {
+          "farLampIntensity": 0.35,
+          "farLampReachScale": 0.82,
+          "lobeWidthScale": 0.52,
+          "mergeStartRatio": 0.42
+        },
+        "emitterForwardYawDeg": 78,
+        "footprint": {
+          "farHalfWidthRatio": 0.065,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.13
+        },
+        "lampLeft": {
+          "x": 0.71,
+          "y": 0.5
+        },
+        "lampRight": {
+          "x": 0.82,
+          "y": 0.545
+        },
+        "optical": {
+          "cornerFillIntensity": 0.3,
+          "cornerFillReachScale": 0.65,
+          "cornerFillYawDeg": 12,
+          "mainSwivelDeg": 8
+        },
+        "poseAimX": 0.19
+      },
+      "downhill-center": {
+        "emitter": {
+          "farLampIntensity": 1,
+          "farLampReachScale": 1,
+          "lobeWidthScale": 0.6,
+          "mergeStartRatio": 0.58
+        },
+        "emitterForwardYawDeg": 0,
+        "footprint": {
+          "farHalfWidthRatio": 0.14,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.105
+        },
+        "lampLeft": {
+          "x": 0.455,
+          "y": 0.49
+        },
+        "lampRight": {
+          "x": 0.545,
+          "y": 0.49
+        },
+        "optical": {
+          "cornerFillIntensity": 0,
+          "cornerFillReachScale": 0,
+          "cornerFillYawDeg": 0,
+          "mainSwivelDeg": 0
+        },
+        "poseAimX": 0
+      },
+      "downhill-right-1": {
+        "emitter": {
+          "farLampIntensity": 0.65,
+          "farLampReachScale": 0.9,
+          "lobeWidthScale": 0.56,
+          "mergeStartRatio": 0.52
+        },
+        "emitterForwardYawDeg": 42,
+        "footprint": {
+          "farHalfWidthRatio": 0.1,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.145
+        },
+        "lampLeft": {
+          "x": 0.65,
+          "y": 0.48
+        },
+        "lampRight": {
+          "x": 0.75,
+          "y": 0.52
+        },
+        "optical": {
+          "cornerFillIntensity": 0.2,
+          "cornerFillReachScale": 0.55,
+          "cornerFillYawDeg": 7,
+          "mainSwivelDeg": 4
+        },
+        "poseAimX": 0.11
+      },
+      "downhill-right-2": {
+        "emitter": {
+          "farLampIntensity": 0.35,
+          "farLampReachScale": 0.82,
+          "lobeWidthScale": 0.52,
+          "mergeStartRatio": 0.42
+        },
+        "emitterForwardYawDeg": 78,
+        "footprint": {
+          "farHalfWidthRatio": 0.075,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.14
+        },
+        "lampLeft": {
+          "x": 0.72,
+          "y": 0.5
+        },
+        "lampRight": {
+          "x": 0.825,
+          "y": 0.545
+        },
+        "optical": {
+          "cornerFillIntensity": 0.3,
+          "cornerFillReachScale": 0.65,
+          "cornerFillYawDeg": 12,
+          "mainSwivelDeg": 8
+        },
+        "poseAimX": 0.19
+      },
+      "uphill-center": {
+        "emitter": {
+          "farLampIntensity": 1,
+          "farLampReachScale": 1,
+          "lobeWidthScale": 0.6,
+          "mergeStartRatio": 0.58
+        },
+        "emitterForwardYawDeg": 0,
+        "footprint": {
+          "farHalfWidthRatio": 0.115,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.084
+        },
+        "lampLeft": {
+          "x": 0.455,
+          "y": 0.43
+        },
+        "lampRight": {
+          "x": 0.545,
+          "y": 0.43
+        },
+        "optical": {
+          "cornerFillIntensity": 0,
+          "cornerFillReachScale": 0,
+          "cornerFillYawDeg": 0,
+          "mainSwivelDeg": 0
+        },
+        "poseAimX": 0
+      },
+      "uphill-right-1": {
+        "emitter": {
+          "farLampIntensity": 0.65,
+          "farLampReachScale": 0.9,
+          "lobeWidthScale": 0.56,
+          "mergeStartRatio": 0.52
+        },
+        "emitterForwardYawDeg": 42,
+        "footprint": {
+          "farHalfWidthRatio": 0.08,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.115
+        },
+        "lampLeft": {
+          "x": 0.63,
+          "y": 0.42
+        },
+        "lampRight": {
+          "x": 0.73,
+          "y": 0.46
+        },
+        "optical": {
+          "cornerFillIntensity": 0.2,
+          "cornerFillReachScale": 0.55,
+          "cornerFillYawDeg": 7,
+          "mainSwivelDeg": 4
+        },
+        "poseAimX": 0.11
+      },
+      "uphill-right-2": {
+        "emitter": {
+          "farLampIntensity": 0.35,
+          "farLampReachScale": 0.82,
+          "lobeWidthScale": 0.52,
+          "mergeStartRatio": 0.42
+        },
+        "emitterForwardYawDeg": 78,
+        "footprint": {
+          "farHalfWidthRatio": 0.055,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.11
+        },
+        "lampLeft": {
+          "x": 0.7,
+          "y": 0.45
+        },
+        "lampRight": {
+          "x": 0.81,
+          "y": 0.495
+        },
+        "optical": {
+          "cornerFillIntensity": 0.3,
+          "cornerFillReachScale": 0.65,
+          "cornerFillYawDeg": 12,
+          "mainSwivelDeg": 8
+        },
+        "poseAimX": 0.19
+      },
+      "steer-right-0": {
+        "emitter": {
+          "farLampIntensity": 0.839,
+          "farLampReachScale": 0.954,
+          "lobeWidthScale": 0.5816,
+          "mergeStartRatio": 0.5524
+        },
+        "emitterForwardYawDeg": 19.32,
+        "footprint": {
+          "farHalfWidthRatio": 0.1089,
+          "nearPaddingPx": 4,
+          "reachRatio": 0.11502000000000001
+        },
+        "lampLeft": {
+          "x": 0.5401,
+          "y": 0.4619
+        },
+        "lampRight": {
+          "x": 0.6347,
+          "y": 0.4803
+        },
+        "optical": {
+          "cornerFillIntensity": 0.09200000000000001,
+          "cornerFillReachScale": 0.25300000000000006,
+          "cornerFillYawDeg": 3.22,
+          "mainSwivelDeg": 1.84
+        },
+        "poseAimX": 0.0506
+      }
+    },
+    "shadowProfiles": {
+      "center": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.33781249999999996,
+          "x": 0.5,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.35811875000000004,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.64188125,
+            "y": 0.7155
+          }
+        ]
+      },
+      "steer-right-0": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.3765234375,
+          "x": 0.5055,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.34736015624999994,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.66363984375,
+            "y": 0.7155
+          }
+        ]
+      },
+      "steer-right-1": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.50809375,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.33169375,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.68449375,
+            "y": 0.7155
+          }
+        ]
+      },
+      "steer-right-2": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.51028125,
+          "y": 0.7116875
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.33388125,
+            "y": 0.7036875
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.68668125,
+            "y": 0.7076875
+          }
+        ]
+      },
+      "spin-right-1": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.51928125,
+          "y": 0.7116875
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.34288125,
+            "y": 0.7036875
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.69568125,
+            "y": 0.7076875
+          }
+        ]
+      },
+      "spin-right-2": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.52728125,
+          "y": 0.7116875
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.35088125000000003,
+            "y": 0.7036875
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.70368125,
+            "y": 0.7076875
+          }
+        ]
+      },
+      "spin-front-right-1": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.5640937500000001,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.38769375000000006,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.7404937500000001,
+            "y": 0.7155
+          }
+        ]
+      },
+      "spin-front-right-2": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.26953125,
+          "x": 0.578,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.46479687499999994,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.6912031249999999,
+            "y": 0.7155
+          }
+        ]
+      },
+      "rollover-right-1": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.416015625,
+          "x": 0.49584375,
+          "y": 0.8210625
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.32111718750000007,
+            "y": 0.8130625
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.6705703125,
+            "y": 0.8170625
+          }
+        ]
+      },
+      "rollover-right-2": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.41015625,
+          "x": 0.50775,
+          "y": 0.81325
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.33548437500000006,
+            "y": 0.80525
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.680015625,
+            "y": 0.80925
+          }
+        ]
+      },
+      "overturned": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.42,
+          "x": 0.545,
+          "y": 0.828875
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.36860000000000004,
+            "y": 0.820875
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.7214,
+            "y": 0.824875
+          }
+        ]
+      },
+      "downhill-center": {
+        "chassis": {
+          "alpha": 0.31,
+          "h": 0.061,
+          "w": 0.33781249999999996,
+          "x": 0.5,
+          "y": 0.7585625
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.35811875000000004,
+            "y": 0.7505625
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.64188125,
+            "y": 0.7545625
+          }
+        ]
+      },
+      "downhill-right-1": {
+        "chassis": {
+          "alpha": 0.31,
+          "h": 0.061,
+          "w": 0.42,
+          "x": 0.51590625,
+          "y": 0.766375
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.33950625,
+            "y": 0.758375
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.69230625,
+            "y": 0.762375
+          }
+        ]
+      },
+      "downhill-right-2": {
+        "chassis": {
+          "alpha": 0.31,
+          "h": 0.061,
+          "w": 0.42,
+          "x": 0.51809375,
+          "y": 0.7585625
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.34169375,
+            "y": 0.7505625
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.69449375,
+            "y": 0.7545625
+          }
+        ]
+      },
+      "uphill-center": {
+        "chassis": {
+          "alpha": 0.35,
+          "h": 0.077,
+          "w": 0.33781249999999996,
+          "x": 0.5,
+          "y": 0.7116875
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.35811875000000004,
+            "y": 0.7036875
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.64188125,
+            "y": 0.7076875
+          }
+        ]
+      },
+      "uphill-right-1": {
+        "chassis": {
+          "alpha": 0.35,
+          "h": 0.077,
+          "w": 0.42,
+          "x": 0.50809375,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.33169375,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.68449375,
+            "y": 0.7155
+          }
+        ]
+      },
+      "uphill-right-2": {
+        "chassis": {
+          "alpha": 0.35,
+          "h": 0.077,
+          "w": 0.42,
+          "x": 0.506375,
+          "y": 0.735125
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.329975,
+            "y": 0.727125
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.682775,
+            "y": 0.731125
+          }
+        ]
+      },
+      "default": {
+        "chassis": {
+          "alpha": 0.33,
+          "h": 0.071,
+          "w": 0.33781249999999996,
+          "x": 0.5,
+          "y": 0.7195
+        },
+        "tireContacts": [
+          {
+            "alpha": 0.78,
+            "h": 0.024,
+            "w": 0.076,
+            "x": 0.35811875000000004,
+            "y": 0.7115
+          },
+          {
+            "alpha": 0.82,
+            "h": 0.025,
+            "w": 0.08,
+            "x": 0.64188125,
+            "y": 0.7155
+          }
+        ]
+      }
+    },
+    "runtimeAdapter": {
+      "contract": "temporary-192px-processed-palette-preview",
+      "note": "Processed blue palette sheet at 192px for runtime comparison."
+    }
+  },
+  "frames": {
+    "center": {
+      "anchor": {
+        "x": 96,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "straight rear driving frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "steer-right-0": {
+      "anchor": {
+        "x": 96,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "slight rear-quarter steer frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "steer-right-1": {
+      "anchor": {
+        "x": 95.25,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 384,
+        "y": 0
+      },
+      "origin": {
+        "x": 0.49609375,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "steer-right-2": {
+      "anchor": {
+        "x": 93.75,
+        "y": 130.5
+      },
+      "baselineY": 130.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 192
+      },
+      "origin": {
+        "x": 0.48828125,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer frame, still normal driving"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-right-1": {
+      "anchor": {
+        "x": 93.75,
+        "y": 130.5
+      },
+      "baselineY": 130.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 192
+      },
+      "origin": {
+        "x": 0.48828125,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 12,
+        "referenceRole": "near-side slip or recovery frame, not normal steering"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-right-2": {
+      "anchor": {
+        "x": 93.75,
+        "y": 130.5
+      },
+      "baselineY": 130.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 384,
+        "y": 192
+      },
+      "origin": {
+        "x": 0.48828125,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": 24,
+        "referenceRole": "side-heavy spin frame"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-front-right-1": {
+      "anchor": {
+        "x": 95.25,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.49609375,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": -12,
+        "referenceRole": "front-facing spin or recovery frame, front bumper becomes visible"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "spin-front-right-2": {
+      "anchor": {
+        "x": 96,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 0,
+        "modelYawDeg": -24,
+        "referenceRole": "strong front-facing spin frame, near full front-quarter exposure"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "rollover-right-1": {
+      "anchor": {
+        "x": 89.25,
+        "y": 151.5
+      },
+      "baselineY": 151.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 384,
+        "y": 384
+      },
+      "origin": {
+        "x": 0.46484375,
+        "y": 0.7890625
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 70,
+        "modelYawDeg": 18,
+        "referenceRole": "crash rollover frame, car lifting onto its side"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "rollover-right-2": {
+      "anchor": {
+        "x": 90,
+        "y": 150
+      },
+      "baselineY": 150,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 576
+      },
+      "origin": {
+        "x": 0.46875,
+        "y": 0.78125
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 138,
+        "modelYawDeg": 28,
+        "referenceRole": "crash rollover frame, underside becoming visible"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "overturned": {
+      "anchor": {
+        "x": 96,
+        "y": 153
+      },
+      "baselineY": 153,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 576
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.796875
+      },
+      "pose": {
+        "modelPitchDeg": 0,
+        "modelRollDeg": 180,
+        "modelYawDeg": 20,
+        "referenceRole": "crash aftermath frame, car fully upside down"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-center": {
+      "anchor": {
+        "x": 96,
+        "y": 139.5
+      },
+      "baselineY": 139.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 384,
+        "y": 576
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.7265625
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "rear frame with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-right-1": {
+      "anchor": {
+        "x": 96.75,
+        "y": 141
+      },
+      "baselineY": 141,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 768
+      },
+      "origin": {
+        "x": 0.50390625,
+        "y": 0.734375
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "downhill-right-2": {
+      "anchor": {
+        "x": 95.25,
+        "y": 139.5
+      },
+      "baselineY": 139.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 768
+      },
+      "origin": {
+        "x": 0.49609375,
+        "y": 0.7265625
+      },
+      "pose": {
+        "modelPitchDeg": -8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer with nose-down pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-center": {
+      "anchor": {
+        "x": 96,
+        "y": 130.5
+      },
+      "baselineY": 130.5,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 384,
+        "y": 768
+      },
+      "origin": {
+        "x": 0.5,
+        "y": 0.6796875
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "rear frame with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-right-1": {
+      "anchor": {
+        "x": 95.25,
+        "y": 132
+      },
+      "baselineY": 132,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 960
+      },
+      "origin": {
+        "x": 0.49609375,
+        "y": 0.6875
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "mild rear-quarter steer with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "uphill-right-2": {
+      "anchor": {
+        "x": 93,
+        "y": 135
+      },
+      "baselineY": 135,
+      "frame": {
+        "h": 192,
+        "w": 192,
+        "x": 192,
+        "y": 960
+      },
+      "origin": {
+        "x": 0.484375,
+        "y": 0.703125
+      },
+      "pose": {
+        "modelPitchDeg": 8,
+        "modelRollDeg": 0,
+        "modelYawDeg": 0,
+        "referenceRole": "strong rear-quarter steer with nose-up pitch cue"
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 192,
+        "w": 192
+      },
+      "spriteSourceSize": {
+        "h": 192,
+        "w": 192,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    }
+  }
+}

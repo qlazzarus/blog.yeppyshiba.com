@@ -7,19 +7,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const VEHICLE_IDS = ['raven-coupe', 'seorin-gt', 'mirae-gt'];
 const ROLE_NAMES = ['body', 'glass', 'lamp', 'wheel', 'chrome', 'accent', 'shadow'];
-const CELL_SIZE = 128;
+let CELL_SIZE = 128;
 
-const config = { vehicleIds: [] };
+const config = { cellSize: 128, vehicleIds: [] };
 for (let index = 2; index < process.argv.length; index += 1) {
     const arg = process.argv[index];
     const next = process.argv[index + 1];
     if (arg === '--vehicle' && next) {
         config.vehicleIds.push(next);
         index += 1;
+    } else if (arg === '--cell-size' && next) {
+        config.cellSize = Number(next);
+        index += 1;
     } else {
         throw new Error(`Unknown or incomplete option: ${arg}`);
     }
 }
+
+if (!Number.isInteger(config.cellSize) || ![128, 192].includes(config.cellSize)) throw new Error('cell-size must be 128 or 192');
+CELL_SIZE = config.cellSize;
 
 const vehicleIds = config.vehicleIds.length > 0 ? config.vehicleIds : VEHICLE_IDS;
 for (const vehicleId of vehicleIds) {
@@ -29,12 +35,12 @@ for (const vehicleId of vehicleIds) {
 
 async function simplifyVehicle(vehicleId) {
     const candidateDir = path.join(projectRoot, 'assets/vehicles/generated/7way-candidates', vehicleId);
-    const inputDir = path.join(candidateDir, 'processed/neutral-128');
-    const inputPath = path.join(inputDir, 'sheet-128.png');
-    const inputMetadataPath = path.join(inputDir, 'sheet-128.json');
-    const outputPath = path.join(inputDir, 'sheet-128-details.png');
-    const metadataPath = path.join(inputDir, 'sheet-128-details.json');
-    const qaPath = path.join(inputDir, 'sheet-128-details.qa.json');
+    const inputDir = path.join(candidateDir, `processed/neutral-${CELL_SIZE}`);
+    const inputPath = path.join(inputDir, `sheet-${CELL_SIZE}.png`);
+    const inputMetadataPath = path.join(inputDir, `sheet-${CELL_SIZE}.json`);
+    const outputPath = path.join(inputDir, `sheet-${CELL_SIZE}-details.png`);
+    const metadataPath = path.join(inputDir, `sheet-${CELL_SIZE}-details.json`);
+    const qaPath = path.join(inputDir, `sheet-${CELL_SIZE}-details.qa.json`);
     const metadata = JSON.parse(await readFile(inputMetadataPath, 'utf8'));
     const width = metadata.columns * CELL_SIZE;
     const rows = Math.max(...metadata.poses.map((pose) => pose.cell.row)) + 1;

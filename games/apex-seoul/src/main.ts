@@ -23,18 +23,22 @@ import ft86RetroRedVehicleSpriteUrl from '../assets/vehicles/generated/pixel-can
 import ft86RetroShadowSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha-shadow.png';
 import ft86RetroSilverVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png';
 import ft86RetroYellowVehicleSpriteUrl from '../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-yellow-alpha.png';
-import ravenCoupeRuntimeAtlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-128/runtime-128.atlas.json';
-import ravenCoupeBlackVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/black-128/sheet-128.png';
-import ravenCoupeBlueVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/blue-128/sheet-128.png';
-import ravenCoupeRedVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/red-128/sheet-128.png';
-import ravenCoupeShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128.png';
-import ravenCoupeSilverVehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/silver-128/sheet-128.png';
 import ravenCoupePreview256Atlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/runtime-256.atlas.json';
 import ravenCoupePreview256ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/shadow-256.png';
 import ravenCoupePreview256SpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/sheet-256.png';
-import ravenCoupePreview192Atlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/runtime-192.atlas.json';
-import ravenCoupePreview192ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/shadow-192.png';
-import ravenCoupePreview192SpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-192/sheet-192.png';
+import ravenCoupePreview192Atlas from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/runtime-192.atlas.json';
+import ravenCoupePreview192ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/shadow-192.png';
+import ravenCoupePreview192SpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/sheet-192.png';
+import ravenCoupeBlack192VehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/black-192/sheet-192.png';
+import ravenCoupeBlue192VehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/blue-192/sheet-192.png';
+import ravenCoupeRed192VehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/red-192/sheet-192.png';
+import ravenCoupeSilver192VehicleSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/silver-192/sheet-192.png';
+import seorinGtPreview192Atlas from '../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/runtime-192.atlas.json';
+import seorinGtPreview192ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/shadow-192.png';
+import seorinGtPreview192SpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/sheet-192.png';
+import miraeGtPreview192Atlas from '../assets/vehicles/generated/7way-candidates/mirae-gt/runtime-192-blue/runtime-192.atlas.json';
+import miraeGtPreview192ShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/runtime-192-blue/shadow-192.png';
+import miraeGtPreview192SpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/runtime-192-blue/sheet-192.png';
 import {
     createCollisionDebugText,
     createHudText,
@@ -297,11 +301,15 @@ const FT86_RETRO_SPRITE_URLS: Record<string, string> = {
     yellow: ft86RetroYellowVehicleSpriteUrl,
 };
 const RAVEN_COUPE_SPRITE_URLS: Record<string, string> = {
-    black: ravenCoupeBlackVehicleSpriteUrl,
-    blue: ravenCoupeBlueVehicleSpriteUrl,
-    red: ravenCoupeRedVehicleSpriteUrl,
-    silver: ravenCoupeSilverVehicleSpriteUrl,
+    black: ravenCoupeBlack192VehicleSpriteUrl,
+    blue: ravenCoupeBlue192VehicleSpriteUrl,
+    red: ravenCoupeRed192VehicleSpriteUrl,
+    silver: ravenCoupeSilver192VehicleSpriteUrl,
 };
+// The source renderer preserves each vehicle's real-world length ratio. This
+// common factor only aligns the whole 192px candidate family with the legacy
+// FT86 on-road baseline; it must stay shared to preserve inter-car ratios.
+const CANDIDATE_192_PRESENTATION_SCALE = 0.97;
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const APEX_RUNTIME = createApexSeoulRuntimeConfig(URL_PARAMS);
@@ -314,10 +322,13 @@ const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS, {
         shadowSpriteUrl: ft86RetroShadowSpriteUrl,
     },
     ravenCoupe: {
-        atlas: ravenCoupeRuntimeAtlas as VehicleAtlas,
+        atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         colors: RAVEN_COUPE_SPRITE_URLS,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
-        shadowSpriteUrl: ravenCoupeShadowSpriteUrl,
+        // 192px processed center silhouette is ~3% larger than the legacy
+        // 256px FT86 source. Keep the same on-road perceived body size.
+        presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
+        shadowSpriteUrl: ravenCoupePreview192ShadowSpriteUrl,
     },
     ravenCoupePreview256: {
         atlas: ravenCoupePreview256Atlas as VehicleAtlas,
@@ -328,8 +339,23 @@ const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS, {
     ravenCoupePreview192: {
         atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: ravenCoupePreview192ShadowSpriteUrl,
         spriteUrl: ravenCoupePreview192SpriteUrl,
+    },
+    seorinGtPreview192: {
+        atlas: seorinGtPreview192Atlas as VehicleAtlas,
+        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
+        shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
+        spriteUrl: seorinGtPreview192SpriteUrl,
+    },
+    miraeGtPreview192: {
+        atlas: miraeGtPreview192Atlas as VehicleAtlas,
+        engineProfile: APEX_S_ENGINE_PROFILE,
+        presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
+        shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
+        spriteUrl: miraeGtPreview192SpriteUrl,
     },
     genesis: {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
@@ -338,7 +364,7 @@ const ACTIVE_RUNTIME_VEHICLE = selectRuntimeVehicleAsset(URL_PARAMS, {
         spriteUrl: genesisG70VehicleSpriteUrl,
     },
 });
-const LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro';
+const LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro' || ACTIVE_RUNTIME_VEHICLE.id === 'raven-coupe';
 const PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
 const PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
 const ACTIVE_ROAD_TRACK_ID = APEX_RUNTIME.roadTrackId;
@@ -1288,16 +1314,20 @@ class ApexSeoulScene extends Phaser.Scene {
         const roadRelativeSize = roadRelativePresentation.size;
         const roadRelativeTargetSize = roadRelativePresentation.targetSize;
 
-        let displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, RUNTIME_TUNING);
+        let displaySize: number;
         const finishStart = this.finishCoastPresentation;
         if (this.finishPresentationPhase === 'coast' && finishStart) {
             // The car begins at the captured rear-sprite transform, then its
             // scale follows the same fixed-camera projection as the road.
+            // finishStart.size already includes the selected asset scale.
             displaySize = finishStart.size * Phaser.Math.Clamp(
                 anchor.scale / Math.max(0.0001, this.finishCoastStartProjectionScale),
                 0.1,
                 1,
             );
+        } else {
+            displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, RUNTIME_TUNING)
+                * ACTIVE_RUNTIME_VEHICLE.presentationScale;
         }
         const centerContactProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, 'center');
         const guardrailScreenProjection = this.finishPresentationPhase === 'coast'

@@ -5,7 +5,7 @@ import sharp from 'sharp';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
-const config = { cellSize: 256, vehicleId: 'raven-coupe' };
+const config = { cellSize: 256, variant: null, vehicleId: 'raven-coupe' };
 
 for (let index = 2; index < process.argv.length; index += 1) {
     const arg = process.argv[index];
@@ -16,12 +16,16 @@ for (let index = 2; index < process.argv.length; index += 1) {
     } else if (arg === '--cell-size' && next) {
         config.cellSize = Number(next);
         index += 1;
+    } else if (arg === '--variant' && next) {
+        config.variant = next;
+        index += 1;
     } else {
         throw new Error(`Unknown or incomplete option: ${arg}`);
     }
 }
 
-if (!/^[a-z0-9-]+$/.test(config.vehicleId) || ![192, 256].includes(config.cellSize)) {
+if (!/^[a-z0-9-]+$/.test(config.vehicleId) || ![192, 256].includes(config.cellSize) ||
+    (config.variant !== null && !['blue', 'red', 'silver', 'black'].includes(config.variant))) {
     throw new Error('Only safe 192px or 256px temporary runtime previews are supported');
 }
 
@@ -29,14 +33,18 @@ const candidateDir = path.join(projectRoot, 'assets/vehicles/generated/7way-cand
 const sourcePath = path.join(candidateDir, 'source-17pose-512.png');
 const sourceMetadataPath = path.join(candidateDir, 'source-17pose-512.json');
 const adapterPath = path.join(candidateDir, 'runtime-128/runtime-128.atlas.json');
-const outputDir = path.join(candidateDir, `runtime-preview-${config.cellSize}`);
+const candidateAtlasPath = path.join(candidateDir, 'phaser-128.atlas.json');
+const shadowProfilePath = path.join(candidateDir, 'phaser-128/shadow-128.profile.json');
+const outputDir = path.join(candidateDir, config.variant
+    ? `runtime-${config.cellSize}-${config.variant}`
+    : `runtime-preview-${config.cellSize}`);
 const bodyPath = path.join(outputDir, `sheet-${config.cellSize}.png`);
 const shadowPath = path.join(outputDir, `shadow-${config.cellSize}.png`);
 const atlasPath = path.join(outputDir, `runtime-${config.cellSize}.atlas.json`);
 const qaPath = path.join(outputDir, `runtime-${config.cellSize}.qa.json`);
 const [metadata, adapter, source] = await Promise.all([
     readJson(sourceMetadataPath),
-    readJson(adapterPath),
+    readRuntimeBase(adapterPath, candidateAtlasPath, shadowProfilePath),
     sharp(sourcePath).ensureAlpha().raw().toBuffer({ resolveWithObject: true }),
 ]);
 
@@ -45,9 +53,12 @@ if (metadata.cellSize !== 512 || metadata.columns !== 3 || metadata.rows !== 6 |
 }
 const width = metadata.columns * config.cellSize;
 const height = metadata.rows * config.cellSize;
-const body = await sharp(source.data, {
+const bodySource = config.variant
+    ? await sharp(path.join(candidateDir, 'processed', `${config.variant}-${config.cellSize}`, `sheet-${config.cellSize}.png`)).ensureAlpha().png().toBuffer()
+    : await sharp(source.data, {
     raw: { width: source.info.width, height: source.info.height, channels: 4 },
 }).resize(width, height, { fit: 'fill', kernel: sharp.kernel.lanczos3 }).png().toBuffer();
+const body = bodySource;
 const bodyRaw = await sharp(body).ensureAlpha().raw().toBuffer();
 const shadowRaw = Buffer.alloc(bodyRaw.length, 0);
 for (let offset = 0; offset < bodyRaw.length; offset += 4) {
@@ -62,13 +73,15 @@ const atlas = {
         targetCellSize: config.cellSize,
         runtimeAdapter: {
             ...adapter.apex.runtimeAdapter,
-            contract: 'temporary-256px-beauty-preview',
-            note: 'Direct 512px beauty downsample for readability comparison. It is not the approved retro/palette output.',
+            contract: config.variant ? 'temporary-192px-processed-palette-preview' : 'temporary-256px-beauty-preview',
+            note: config.variant
+                ? `Processed ${config.variant} palette sheet at ${config.cellSize}px for runtime comparison.`
+                : 'Direct 512px beauty downsample for readability comparison. It is not the approved retro/palette output.',
         },
     },
     frames: Object.fromEntries(Object.entries(adapter.frames).map(([id, frame]) => [id, scaleFrame(frame, scale)])),
 };
-const qa = makeQa(metadata, bodyRaw, shadowRaw, width, config.cellSize, atlas);
+const qa = makeQa(metadata, bodyRaw, shadowRaw, width, config.cellSize, atlas, config.variant);
 if (!qa.pass) throw new Error('Temporary preview QA failed');
 
 await mkdir(outputDir, { recursive: true });
@@ -93,7 +106,7 @@ function scaleRect(rect, scale) {
     return Object.fromEntries(Object.entries(rect).map(([key, value]) => [key, value * scale]));
 }
 
-function makeQa(metadata, body, shadow, width, cellSize, atlas) {
+function makeQa(metadata, body, shadow, width, cellSize, atlas, variant) {
     const occupied = new Set(metadata.poses.map((pose) => `${pose.cell.column},${pose.cell.row}`));
     let alphaMismatches = 0;
     let blankOpaquePixels = 0;
@@ -107,7 +120,7 @@ function makeQa(metadata, body, shadow, width, cellSize, atlas) {
     ).map(([id]) => id);
     return {
         cellSize,
-        policy: 'temporary direct 512px beauty downsample; body remains shadow-free and shadow is an external alpha silhouette',
+        policy: variant ? 'temporary processed palette runtime sheet; body remains shadow-free and shadow is an external alpha silhouette' : 'temporary direct 512px beauty downsample; body remains shadow-free and shadow is an external alpha silhouette',
         checks: {
             alphaShape: { alphaMismatches, pass: alphaMismatches === 0 },
             blankCell: { blankOpaquePixels, pass: blankOpaquePixels === 0 },
@@ -120,4 +133,43 @@ function makeQa(metadata, body, shadow, width, cellSize, atlas) {
 
 async function readJson(filePath) {
     return JSON.parse(await readFile(filePath, 'utf8'));
+}
+
+async function readRuntimeBase(adapterPath, candidateAtlasPath, shadowProfilePath) {
+    try {
+        return await readJson(adapterPath);
+    } catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+    }
+    const [candidate, shadow, legacy] = await Promise.all([
+        readJson(candidateAtlasPath),
+        readJson(shadowProfilePath),
+        readJson(path.join(projectRoot, 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json')),
+    ]);
+    const headlightProfiles = structuredClone(legacy.apex.headlightProfiles);
+    headlightProfiles['steer-right-0'] = interpolateProfile(
+        headlightProfiles.center,
+        headlightProfiles['steer-right-1'],
+        0.46,
+    );
+    return {
+        apex: {
+            ...candidate.apex,
+            headlightProfiles,
+            shadowProfiles: shadow.shadowProfiles,
+            runtimeAdapter: {
+                contract: 'initial-vehicle-local-headlight-debug-profile',
+                note: 'FT86 profile-structure seed for hidden debug only; approve vehicle-local lamp placement before runtime promotion.',
+            },
+        },
+        frames: candidate.frames,
+    };
+}
+
+function interpolateProfile(from, to, ratio) {
+    if (typeof from === 'number') return from + (to - from) * ratio;
+    if (from && typeof from === 'object') {
+        return Object.fromEntries(Object.keys(from).map((key) => [key, interpolateProfile(from[key], to[key], ratio)]));
+    }
+    return from;
 }
