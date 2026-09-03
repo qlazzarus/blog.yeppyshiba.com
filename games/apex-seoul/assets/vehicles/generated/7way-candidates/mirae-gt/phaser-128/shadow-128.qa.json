@@ -1,0 +1,83 @@
+{
+  "vehicleId": "mirae-gt",
+  "source": "assets/vehicles/generated/7way-candidates/mirae-gt/processed/neutral-128/sheet-128-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/shadow-128.png",
+  "profile": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/shadow-128.profile.json",
+  "profileSource": "generated profile",
+  "contactPreview": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/shadow-128-runtime-preview.png",
+  "footprintPreview": "assets/vehicles/generated/7way-candidates/mirae-gt/phaser-128/shadow-128-runtime-footprint-debug.png",
+  "policy": "external-black-silhouette; derived only from neutral detail alpha; body sheet remains shadow-free",
+  "contactPreviewPolicy": "checker-backed preview mirrors Phaser silhouette squash, soft-shadow expansion, chassis center and contact patch; it is an asset-level approximation, not a browser render",
+  "dimensions": {
+    "width": 384,
+    "height": 768
+  },
+  "cellSize": 128,
+  "shadowAlpha": 210,
+  "checks": {
+    "alphaShape": {
+      "pass": true,
+      "alphaMismatches": 0
+    },
+    "shadowPixels": {
+      "pass": true,
+      "invalidShadowPixels": 0
+    },
+    "blankCell": {
+      "pass": true,
+      "blankCellOpaquePixels": 0
+    },
+    "poses": {
+      "pass": true,
+      "poseOpaquePixels": {
+        "center": 1294,
+        "steer-right-0": 1514,
+        "steer-right-1": 1817,
+        "steer-right-2": 2208,
+        "spin-right-1": 2249,
+        "spin-right-2": 2312,
+        "spin-front-right-1": 2107,
+        "spin-front-right-2": 1356,
+        "rollover-right-1": 2821,
+        "rollover-right-2": 2250,
+        "overturned": 3415,
+        "downhill-center": 1486,
+        "downhill-right-1": 2001,
+        "downhill-right-2": 2374,
+        "uphill-center": 1138,
+        "uphill-right-1": 1761,
+        "uphill-right-2": 2156
+      },
+      "missingShadowPoses": []
+    },
+    "profiles": {
+      "pass": true,
+      "missingFrames": [],
+      "invalidFrames": []
+    },
+    "previewFootprints": {
+      "pass": true,
+      "poseDarkPixels": {
+        "center": 731,
+        "steer-right-0": 878,
+        "steer-right-1": 992,
+        "steer-right-2": 1213,
+        "spin-right-1": 1239,
+        "spin-right-2": 1265,
+        "spin-front-right-1": 1197,
+        "spin-front-right-2": 783,
+        "rollover-right-1": 1563,
+        "rollover-right-2": 1277,
+        "overturned": 1920,
+        "downhill-center": 832,
+        "downhill-right-1": 1119,
+        "downhill-right-2": 1336,
+        "uphill-center": 629,
+        "uphill-right-1": 957,
+        "uphill-right-2": 1231
+      },
+      "missingPreviewPoses": []
+    }
+  },
+  "pass": true
+}

@@ -1,0 +1,24 @@
+{
+  "cellSize": 256,
+  "policy": "temporary direct 512px beauty downsample; body remains shadow-free and shadow is an external alpha silhouette",
+  "checks": {
+    "alphaShape": {
+      "alphaMismatches": 0,
+      "pass": true
+    },
+    "blankCell": {
+      "blankOpaquePixels": 0,
+      "pass": true
+    },
+    "frames": {
+      "incorrectFrames": [],
+      "pass": true
+    },
+    "poseCount": {
+      "actual": 17,
+      "expected": 17,
+      "pass": true
+    }
+  },
+  "pass": true
+}

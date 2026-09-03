@@ -12,6 +12,32 @@
                 <h1>Vehicle preview</h1>
                 <p>Drag to orbit, scroll to zoom. All models use the same studio lighting and real-world length scale.</p>
             </header>
+            <section class="sprite-turntable" aria-labelledby="sprite-turntable-title">
+                <div class="sprite-turntable__toolbar">
+                    <div>
+                        <p class="vehicle-preview__eyebrow">RUNTIME SPRITE / GARAGE STUDY</p>
+                        <h2 id="sprite-turntable-title">Sprite turntable</h2>
+                    </div>
+                    <label class="sprite-pose-preview__vehicle-label">
+                        Vehicle
+                        <select class="sprite-turntable__vehicle">
+                            <option value="raven-coupe">Raven Coupe</option>
+                            <option value="seorin-gt">Seorin GT</option>
+                            <option value="mirae-gt">Mirae GT</option>
+                        </select>
+                    </label>
+                    <div class="sprite-turntable__colors" role="group" aria-label="Vehicle color">
+                        <button class="is-active" type="button" data-sprite-color="blue">Blue</button>
+                        <button type="button" data-sprite-color="red">Red</button>
+                        <button type="button" data-sprite-color="silver">Silver</button>
+                        <button type="button" data-sprite-color="black">Black</button>
+                    </div>
+                    <button class="sprite-turntable__toggle" type="button">Pause</button>
+                </div>
+                <p class="sprite-turntable__frame" aria-live="polite"></p>
+                <canvas class="sprite-turntable__canvas" aria-label="Rotating runtime sprite preview"></canvas>
+                <p class="sprite-turntable__note">17-pose gameplay sheet의 rear/quarter/front spin frame과 좌우 flip을 연결한 선택 화면용 loop입니다. rollover와 경사 pose는 사용하지 않습니다.</p>
+            </section>
             <section class="sprite-pose-preview" aria-labelledby="sprite-pose-preview-title">
                 <div class="sprite-pose-preview__toolbar">
                     <div>

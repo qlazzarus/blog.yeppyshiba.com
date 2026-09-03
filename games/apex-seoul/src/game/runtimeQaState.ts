@@ -46,9 +46,11 @@ export function serializeRuntimeQaHeadlight(input: {
     curveIntentTarget: number;
     emitterState: VehicleHeadlightEmitterState | null;
     fineAimX: number;
+    frameId: string;
     framePoseAimX: number;
     lampPose: VehicleHeadlightScreenPose | null;
     opticalState: VehicleHeadlightOpticalState;
+    profileId: string;
     rawRoadAimX: number;
     roadAssistAimX: number;
     roadTangent: unknown | null;
@@ -63,10 +65,12 @@ export function serializeRuntimeQaHeadlight(input: {
         curveIntent: roundRuntimeQaValue(input.curveIntent, 4),
         curveIntentTarget: roundRuntimeQaValue(input.curveIntentTarget, 4),
         fineAimX: roundRuntimeQaValue(input.fineAimX, 3),
+        frameId: input.frameId,
         framePoseAimX: roundRuntimeQaValue(input.framePoseAimX, 3),
         emitterState: input.emitterState,
         lampPose: input.lampPose,
         mainSwivelDeg: roundRuntimeQaValue(input.opticalState.mainSwivelDeg, 3),
+        profileId: input.profileId,
         rawRoadAimX: roundRuntimeQaValue(input.rawRoadAimX, 3),
         roadAssistAimX: roundRuntimeQaValue(input.roadAssistAimX, 3),
         roadTangent: input.roadTangent,
@@ -274,7 +278,7 @@ export function applyRuntimeQaOverridesToState(input: {
     camera: Pick<Pseudo3dCamera, 'z'>;
     normalizeZ: (z: number) => number;
     overrides: RuntimeQaOverrides;
-    player: Pick<PlayerVehicleState, 'lateralOffset' | 'speed' | 'steering' | 'steeringVelocity'>;
+    player: Pick<PlayerVehicleState, 'lateralOffset' | 'physicalSteeringCommand' | 'speed' | 'steering' | 'steeringVelocity'>;
 }) {
     const { overrides, player } = input;
     if (!overrides.enabled) return;
@@ -284,6 +288,10 @@ export function applyRuntimeQaOverridesToState(input: {
     if (overrides.steering !== null) {
         player.steering = overrides.steering;
         player.steeringVelocity = 0;
+        // The visual pose and headlight selector use the controller command,
+        // not the integrated wheel angle. Keep deterministic frozen QA in the
+        // same state that a live input frame would have produced.
+        player.physicalSteeringCommand = overrides.steering;
     }
     if (overrides.lateralOffset !== null) player.lateralOffset = overrides.lateralOffset;
 }

@@ -12,6 +12,21 @@ import genesisCoupeModelUrl from '../assets/vehicles/optimized/genesis_coupe-opt
 import ft86PoseSheetRaw from '../assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.json?raw';
 import stingerPoseSheetRaw from '../assets/vehicles/generated/pose-sheets/poc-kia-stinger-scaled-rear.json?raw';
 import g70PoseSheetRaw from '../assets/vehicles/generated/pose-sheets/poc-genesis-g70-scaled-final.json?raw';
+import ravenCoupeBlackSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/black-192/sheet-192.png';
+import ravenCoupeBlueSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/blue-192/sheet-192.png';
+import ravenCoupeRedSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/red-192/sheet-192.png';
+import ravenCoupeSilverSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/processed/silver-192/sheet-192.png';
+import ravenCoupeShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/shadow-192.png';
+import seorinGtBlackSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/processed/black-192/sheet-192.png';
+import seorinGtBlueSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/processed/blue-192/sheet-192.png';
+import seorinGtRedSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/processed/red-192/sheet-192.png';
+import seorinGtSilverSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/processed/silver-192/sheet-192.png';
+import seorinGtShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/shadow-192.png';
+import miraeGtBlackSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/processed/black-192/sheet-192.png';
+import miraeGtBlueSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/processed/blue-192/sheet-192.png';
+import miraeGtRedSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/processed/red-192/sheet-192.png';
+import miraeGtSilverSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/processed/silver-192/sheet-192.png';
+import miraeGtShadowSpriteUrl from '../assets/vehicles/generated/7way-candidates/mirae-gt/runtime-192-blue/shadow-192.png';
 import './vehicle-preview.css';
 
 type StoredPose = {
@@ -55,6 +70,20 @@ type SpritePoseFrame = {
 
 type ResolvedSpritePose = StoredPose & {
     flipX: boolean;
+};
+
+type SpriteTurntableVehicle = {
+    colors: Record<string, string>;
+    id: 'raven-coupe' | 'seorin-gt' | 'mirae-gt';
+    label: string;
+    shadowUrl: string;
+};
+
+type SpriteTurntableFrame = {
+    column: number;
+    flipX: boolean;
+    label: string;
+    row: number;
 };
 
 const ft86PoseSheet = JSON.parse(ft86PoseSheetRaw) as StoredPoseSheet;
@@ -111,6 +140,42 @@ const PLANNED_FRONT_SPRITE_POSES: readonly SpritePoseFrame[] = [
     { degrees: 44, id: 'front-right-2', label: 'FR2 · 44°' },
 ];
 
+const SPRITE_TURNTABLE_VEHICLES: readonly SpriteTurntableVehicle[] = [
+    {
+        colors: { black: ravenCoupeBlackSpriteUrl, blue: ravenCoupeBlueSpriteUrl, red: ravenCoupeRedSpriteUrl, silver: ravenCoupeSilverSpriteUrl },
+        id: 'raven-coupe', label: 'Raven Coupe', shadowUrl: ravenCoupeShadowSpriteUrl,
+    },
+    {
+        colors: { black: seorinGtBlackSpriteUrl, blue: seorinGtBlueSpriteUrl, red: seorinGtRedSpriteUrl, silver: seorinGtSilverSpriteUrl },
+        id: 'seorin-gt', label: 'Seorin GT', shadowUrl: seorinGtShadowSpriteUrl,
+    },
+    {
+        colors: { black: miraeGtBlackSpriteUrl, blue: miraeGtBlueSpriteUrl, red: miraeGtRedSpriteUrl, silver: miraeGtSilverSpriteUrl },
+        id: 'mirae-gt', label: 'Mirae GT', shadowUrl: miraeGtShadowSpriteUrl,
+    },
+];
+
+// The 17-pose gameplay sheet does not contain a dedicated front-centre cell.
+// A selector can still show a readable full orbit by joining its normal and
+// spin poses, then mirroring the right-source frames for the return journey.
+const SPRITE_TURNTABLE_FRAMES: readonly SpriteTurntableFrame[] = [
+    { column: 0, flipX: false, label: 'REAR', row: 0 },
+    { column: 1, flipX: false, label: '11°', row: 0 },
+    { column: 2, flipX: false, label: '24°', row: 0 },
+    { column: 0, flipX: false, label: '44°', row: 1 },
+    { column: 1, flipX: false, label: '62°', row: 1 },
+    { column: 2, flipX: false, label: '78°', row: 1 },
+    { column: 0, flipX: false, label: '136°', row: 2 },
+    { column: 1, flipX: false, label: 'FRONT', row: 2 },
+    { column: 1, flipX: true, label: 'FRONT', row: 2 },
+    { column: 0, flipX: true, label: '224°', row: 2 },
+    { column: 2, flipX: true, label: '282°', row: 1 },
+    { column: 1, flipX: true, label: '298°', row: 1 },
+    { column: 0, flipX: true, label: '316°', row: 1 },
+    { column: 2, flipX: true, label: '336°', row: 0 },
+    { column: 1, flipX: true, label: '349°', row: 0 },
+];
+
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
 const lightbox = document.querySelector<HTMLDialogElement>('.vehicle-lightbox');
@@ -124,10 +189,21 @@ const posePreviewFrames = document.querySelector<HTMLElement>('.sprite-pose-prev
 const posePreviewVehicle = document.querySelector<HTMLSelectElement>('.sprite-pose-preview__vehicle');
 const poseModeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-pose-mode]')];
 const poseFacingButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-pose-facing]')];
+const spriteTurntableCanvas = document.querySelector<HTMLCanvasElement>('.sprite-turntable__canvas');
+const spriteTurntableColorButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-sprite-color]')];
+const spriteTurntableFrame = document.querySelector<HTMLElement>('.sprite-turntable__frame');
+const spriteTurntableToggle = document.querySelector<HTMLButtonElement>('.sprite-turntable__toggle');
+const spriteTurntableVehicle = document.querySelector<HTMLSelectElement>('.sprite-turntable__vehicle');
 let poseMode: SpritePoseMode = 'current';
 let poseFacing: SpritePoseFacing = 'rear';
 let disposePosePreview: (() => void) | null = null;
 let posePreviewRequest = 0;
+let spriteTurntableColor = 'blue';
+let spriteTurntablePaused = false;
+let spriteTurntableElapsedMs = 0;
+let spriteTurntableLastFrameAt = performance.now();
+let spriteTurntableRequest = 0;
+let stopSpriteTurntablePreview: (() => void) | null = null;
 
 lightboxClose?.addEventListener('click', () => lightbox?.close());
 lightbox?.addEventListener('close', () => {
@@ -163,6 +239,118 @@ for (const button of poseFacingButtons) {
     });
 }
 void updatePosePreview();
+void startSpriteTurntablePreview();
+
+spriteTurntableVehicle?.addEventListener('change', () => void startSpriteTurntablePreview());
+for (const button of spriteTurntableColorButtons) {
+    button.addEventListener('click', () => {
+        spriteTurntableColor = button.dataset.spriteColor ?? 'blue';
+        for (const candidate of spriteTurntableColorButtons) {
+            candidate.classList.toggle('is-active', candidate === button);
+        }
+        void startSpriteTurntablePreview();
+    });
+}
+spriteTurntableToggle?.addEventListener('click', () => {
+    spriteTurntablePaused = !spriteTurntablePaused;
+    spriteTurntableLastFrameAt = performance.now();
+    spriteTurntableToggle.textContent = spriteTurntablePaused ? 'Play' : 'Pause';
+});
+
+async function startSpriteTurntablePreview() {
+    if (!spriteTurntableCanvas || !spriteTurntableVehicle) return;
+
+    const request = ++spriteTurntableRequest;
+    stopSpriteTurntablePreview?.();
+    spriteTurntableElapsedMs = 0;
+    spriteTurntableLastFrameAt = performance.now();
+    const vehicle = SPRITE_TURNTABLE_VEHICLES.find(({ id }) => id === spriteTurntableVehicle.value)
+        ?? SPRITE_TURNTABLE_VEHICLES[0];
+    const [body, shadow] = await Promise.all([
+        loadPreviewImage(vehicle.colors[spriteTurntableColor] ?? vehicle.colors.blue),
+        loadPreviewImage(vehicle.shadowUrl),
+    ]);
+    if (request !== spriteTurntableRequest || !spriteTurntableCanvas.isConnected) return;
+
+    const context = spriteTurntableCanvas.getContext('2d');
+    if (!context) return;
+    let animationFrame = 0;
+    const draw = (now: number) => {
+        const bounds = spriteTurntableCanvas.getBoundingClientRect();
+        const ratio = Math.min(window.devicePixelRatio, 2);
+        const width = Math.max(1, Math.round(bounds.width * ratio));
+        const height = Math.max(1, Math.round(bounds.height * ratio));
+        if (spriteTurntableCanvas.width !== width || spriteTurntableCanvas.height !== height) {
+            spriteTurntableCanvas.width = width;
+            spriteTurntableCanvas.height = height;
+        }
+        if (!spriteTurntablePaused) {
+            spriteTurntableElapsedMs += now - spriteTurntableLastFrameAt;
+        }
+        spriteTurntableLastFrameAt = now;
+        const frameIndex = Math.floor(spriteTurntableElapsedMs / 145) % SPRITE_TURNTABLE_FRAMES.length;
+        const frame = SPRITE_TURNTABLE_FRAMES[frameIndex];
+        drawSpriteTurntableFrame(context, body, shadow, frame, width, height);
+        if (spriteTurntableFrame) spriteTurntableFrame.textContent = `${vehicle.label} · ${spriteTurntableColor} · ${frame.label}`;
+        animationFrame = requestAnimationFrame(draw);
+    };
+    animationFrame = requestAnimationFrame(draw);
+    stopSpriteTurntablePreview = () => cancelAnimationFrame(animationFrame);
+}
+
+function drawSpriteTurntableFrame(
+    context: CanvasRenderingContext2D,
+    body: HTMLImageElement,
+    shadow: HTMLImageElement,
+    frame: SpriteTurntableFrame,
+    width: number,
+    height: number,
+) {
+    context.clearRect(0, 0, width, height);
+    const gradient = context.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, '#0d2f59');
+    gradient.addColorStop(0.55, '#081322');
+    gradient.addColorStop(1, '#050812');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
+    context.strokeStyle = 'rgba(67, 148, 231, .22)';
+    context.lineWidth = Math.max(1, width / 700);
+    for (let y = height * 0.63; y < height; y += height * 0.14) {
+        context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
+    }
+    for (let x = -width; x <= width * 2; x += width * 0.2) {
+        context.beginPath(); context.moveTo(width / 2, height * 0.63); context.lineTo(x, height); context.stroke();
+    }
+
+    const cellSize = 192;
+    const drawSize = Math.min(width * 0.9, height * 1.62);
+    const baselineY = height * 0.78;
+    const drawX = (width - drawSize) / 2;
+    const drawY = baselineY - drawSize * (129 / cellSize);
+    const sourceX = frame.column * cellSize;
+    const sourceY = frame.row * cellSize;
+    context.imageSmoothingEnabled = false;
+    context.save();
+    if (frame.flipX) {
+        context.translate(width, 0);
+        context.scale(-1, 1);
+    }
+    const renderedX = frame.flipX ? width - drawX - drawSize : drawX;
+    context.globalAlpha = 0.78;
+    context.drawImage(shadow, sourceX, sourceY, cellSize, cellSize, renderedX, drawY, drawSize, drawSize);
+    context.globalAlpha = 1;
+    context.drawImage(body, sourceX, sourceY, cellSize, cellSize, renderedX, drawY, drawSize, drawSize);
+    context.restore();
+}
+
+function loadPreviewImage(url: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(`Could not load sprite preview image: ${url}`));
+        image.src = url;
+    });
+}
 
 async function createVehiclePreview(
     container: HTMLElement,

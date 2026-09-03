@@ -1,0 +1,28 @@
+{
+  "vehicleId": "raven-coupe",
+  "generatedBy": "write-vehicle-7way-runtime-adapter.mjs",
+  "checks": {
+    "candidateOnly": {
+      "pass": true
+    },
+    "frameCount": {
+      "expected": 17,
+      "actual": 17,
+      "pass": true
+    },
+    "headlightProfiles": {
+      "missing": [],
+      "pass": true
+    },
+    "runtimeSteering": {
+      "missing": [],
+      "pass": true
+    },
+    "shadowProfiles": {
+      "missing": [],
+      "hasDefault": true,
+      "pass": true
+    }
+  },
+  "pass": true
+}

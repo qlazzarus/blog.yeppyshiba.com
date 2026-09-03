@@ -104,16 +104,18 @@ accent:     red/yellow only for brake and hazard meaning
 
 ```text
 source model
-→ optimized GLB
-→ deterministic pose sheet
-→ pixel candidate
-→ ComfyUI style-filter candidate
-→ palette/alpha/shadow postprocess
-→ runtime QA
+→ optimized / frozen GLB
+→ deterministic 17-pose beauty sheet
+→ role masks
+→ neutral/detail pixel master
+→ body palette variants
+→ separate shadow + headlight metadata
+→ runtime vehicle catalog
+→ browser/runtime QA
 → approved atlas
 ```
 
-ComfyUI는 차량을 새로 그리는 generator가 아니라 style filter다. 실루엣, pose grid, material 역할은 deterministic 입력과 후처리가 보장한다.
+ComfyUI는 탐색용 style filter로만 남기며, 현재 playable 7way trio의 승인 경로에는 넣지 않는다. 실루엣, pose grid, material 역할, palette와 alpha는 deterministic render와 script가 보장한다.
 
 ### 7way steering pose 확장
 
@@ -122,6 +124,41 @@ ComfyUI는 차량을 새로 그리는 generator가 아니라 style filter다. �
 새 playable 차량을 늘릴 때는 sprite 후처리부터 시작하지 않는다. 먼저 모든 후보 3D 모델을 같은 preview rig와 실차 length 정규화로 비교해 silhouette, wheelbase, glass/lamp 분리, contact baseline을 승인한다. 이 비교가 끝난 뒤에만 차량별 pose sheet·pixel pass·atlas을 만든다.
 
 차량의 selectable color는 3D 모델을 색마다 다시 렌더하는 방식보다 body/glass/wheel/lamp/chrome/shadow 역할 mask 기반 palette variant로 만든다. body 이외 역할의 전체 RGB 치환은 금지하며, neutral master와 모든 variant는 같은 alpha·contact baseline·frame metadata를 공유한다.
+
+### Runtime vehicle·course catalog와 선택 상태
+
+public runtime은 authoring 경로나 source model 이름을 노출하지 않는다. 시작 화면은 아래의 선택 id만 만들고, catalog가 실제 asset과 gameplay profile을 해석한다.
+
+```text
+vehicleId + colorId + courseId
+→ vehicle catalog(atlas, body sheet, shadow sheet, headlight, engine)
+→ course catalog(track, environment, checkpoints)
+→ Phaser run
+```
+
+- public vehicle id는 `raven-coupe`, `seorin-gt`, `mirae-gt`만 사용한다. `FT86`, `Stinger`, `G70 (Nieve)`는 provenance/authoring 기록에만 둔다.
+- 첫 selectable palette contract는 모든 차량 공통 `blue / red / silver / black`이다. color는 body sheet만 바꾸며 atlas, shadow, headlight, engine profile은 공유한다.
+- 현재 192px 7way sheet와 네 palette는 세 차량 모두 생성·asset QA를 통과했다. Raven Coupe는 기본 runtime sprite로 연결됐고, Seorin GT/Mirae GT는 headlight profile 승인을 기다리는 hidden preview다. 즉 파일 생성 완료는 selectable catalog 등록 완료와 다르며, public selection에는 vehicle-local headlight·shadow·atlas·engine profile·fallback이 모두 승인돼야 한다.
+- 현재 course catalog에는 `bugak-ridge-downhill` 하나만 등록한다. UI에는 선택 완료 카드로 보이되, state와 URL에는 항상 course id를 기록해 후속 코스가 추가돼도 save/QA 계약을 바꾸지 않는다.
+- 선택은 `?vehicle=…&vehicleColor=…&course=…`로 직렬화해 reload와 browser QA가 같은 run을 재현하게 한다. 알 수 없는 id는 public 기본 조합으로 fallback한다.
+- baked-in body shadow는 금지한다. color와 무관한 차량별 external shadow sheet/profile을 one-per-vehicle로 관리하며 Phaser의 silhouette, soft, contact layer가 이를 사용한다. `derive-vehicle-7way-shadow.mjs`는 neutral detail alpha와 pose anchor/baseline에서 `shadow-128.png`, `shadow-128.profile.json`, runtime-style debug preview, QA JSON을 함께 생성한다. 이 preview는 squash·soft layer·contact patch를 확인하는 asset-level gate이며, 최종 승인은 browser runtime screenshot으로 한다.
+
+### Runtime loading manifest와 scene cache
+
+runtime asset은 source directory scan이나 Scene 내부의 흩어진 `load.*` 호출로 찾지 않는다. typed manifest가 public runtime key, loader type, URL, spritesheet frame size, public loading label을 소유한다.
+
+```text
+startup manifest
+  → LoadingScene (actual Loader progress)
+  → MainScene / VehicleSelectScene / GameScene / ResultScene
+  → shared Phaser cache key reuse
+```
+
+- `startup`에는 현재 출시 범위의 UI, environment/effect, `bugak-ridge-downhill`, 세 차량의 네 color sheet, external shadow/atlas, runtime audio만 넣는다. 선택 UI는 같은 192px body/shadow cache를 사용한다.
+- source GLB, frozen beauty sheet, role mask, QA contact sheet, authoring/debug preview는 manifest에 넣지 않는다. Vite import가 존재해도 runtime loader에 등록하지 않으면 browser가 gameplay asset으로 받지 않는다.
+- Loading bar는 byte/file 추측값이 아니라 Phaser Loader `progress`로 그린다. public label은 `Raven Coupe · Blue`처럼 loading UI에만 쓰며 provenance path·source model name을 노출하지 않는다.
+- Scene stop은 Phaser TextureManager의 asset을 자동으로 비우지 않는다. startup asset은 session 동안 cache에 유지하고, optional manifest를 도입했을 때만 owner/ref-count 정책과 명시적 texture removal을 추가한다. 선택 화면을 닫을 때 shared vehicle texture를 제거하지 않는다.
+- `RunSetup`은 vehicle/color/course 선택을 고정해 GameScene으로 전달한다. `RunResult`는 run time, split, selected ids, record update를 ResultScene으로 전달한다. cosmetic color는 telemetry에는 기록하지만 best record key는 vehicle performance와 course를 기준으로 정한다.
 
 Three.js는 GLB scene transform·camera·light·material·procedural mesh를 결정적으로 수정/렌더하는 authoring 도구다. source mesh의 topology/UV/sculpt 같은 DCC 작업을 대체한다고 취급하지 않는다.
 

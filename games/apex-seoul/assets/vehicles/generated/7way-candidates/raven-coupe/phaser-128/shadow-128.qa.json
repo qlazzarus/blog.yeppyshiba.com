@@ -1,0 +1,83 @@
+{
+  "vehicleId": "raven-coupe",
+  "source": "assets/vehicles/generated/7way-candidates/raven-coupe/processed/neutral-128/sheet-128-details.png",
+  "output": "assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128.png",
+  "profile": "assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128.profile.json",
+  "profileSource": "legacy-ft86-runtime-profile seed plus generated 7way-only frames",
+  "contactPreview": "assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128-runtime-preview.png",
+  "footprintPreview": "assets/vehicles/generated/7way-candidates/raven-coupe/phaser-128/shadow-128-runtime-footprint-debug.png",
+  "policy": "external-black-silhouette; derived only from neutral detail alpha; body sheet remains shadow-free",
+  "contactPreviewPolicy": "checker-backed preview mirrors Phaser silhouette squash, soft-shadow expansion, chassis center and contact patch; it is an asset-level approximation, not a browser render",
+  "dimensions": {
+    "width": 384,
+    "height": 768
+  },
+  "cellSize": 128,
+  "shadowAlpha": 210,
+  "checks": {
+    "alphaShape": {
+      "pass": true,
+      "alphaMismatches": 0
+    },
+    "shadowPixels": {
+      "pass": true,
+      "invalidShadowPixels": 0
+    },
+    "blankCell": {
+      "pass": true,
+      "blankCellOpaquePixels": 0
+    },
+    "poses": {
+      "pass": true,
+      "poseOpaquePixels": {
+        "center": 1192,
+        "steer-right-0": 1370,
+        "steer-right-1": 1604,
+        "steer-right-2": 1896,
+        "spin-right-1": 1928,
+        "spin-right-2": 1982,
+        "spin-front-right-1": 1837,
+        "spin-front-right-2": 1275,
+        "rollover-right-1": 2705,
+        "rollover-right-2": 2889,
+        "overturned": 3132,
+        "downhill-center": 1367,
+        "downhill-right-1": 1746,
+        "downhill-right-2": 2016,
+        "uphill-center": 1056,
+        "uphill-right-1": 1535,
+        "uphill-right-2": 1826
+      },
+      "missingShadowPoses": []
+    },
+    "profiles": {
+      "pass": true,
+      "missingFrames": [],
+      "invalidFrames": []
+    },
+    "previewFootprints": {
+      "pass": true,
+      "poseDarkPixels": {
+        "center": 673,
+        "steer-right-0": 782,
+        "steer-right-1": 886,
+        "steer-right-2": 1065,
+        "spin-right-1": 1067,
+        "spin-right-2": 1087,
+        "spin-front-right-1": 1017,
+        "spin-front-right-2": 700,
+        "rollover-right-1": 1523,
+        "rollover-right-2": 1627,
+        "overturned": 1786,
+        "downhill-center": 751,
+        "downhill-right-1": 960,
+        "downhill-right-2": 1125,
+        "uphill-center": 581,
+        "uphill-right-1": 854,
+        "uphill-right-2": 1011
+      },
+      "missingPreviewPoses": []
+    }
+  },
+  "pass": true
+}

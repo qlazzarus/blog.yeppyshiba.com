@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const VEHICLE_IDS = ['raven-coupe', 'seorin-gt', 'mirae-gt'];
 const VARIANTS = ['blue', 'red', 'silver', 'black'];
-const CELL_SIZE = 128;
+let CELL_SIZE = 128;
 const NEUTRAL_BODY_RAMP = [[20, 34, 51], [48, 76, 103], [94, 139, 169], [178, 211, 224]];
 const BODY_RAMPS = {
     black: [[8, 14, 25], [20, 33, 47], [45, 65, 79], [94, 119, 130]],
@@ -17,12 +17,15 @@ const BODY_RAMPS = {
 };
 const LAMP_PROTECTION = new Set(['91,25,37', '191,47,57', '255,127,103']);
 
-const config = { vehicleIds: [], variants: [] };
+const config = { cellSize: 128, vehicleIds: [], variants: [] };
 for (let index = 2; index < process.argv.length; index += 1) {
     const arg = process.argv[index];
     const next = process.argv[index + 1];
     if (arg === '--vehicle' && next) {
         config.vehicleIds.push(next);
+        index += 1;
+    } else if (arg === '--cell-size' && next) {
+        config.cellSize = Number(next);
         index += 1;
     } else if (arg === '--variant' && next) {
         config.variants.push(next);
@@ -32,6 +35,9 @@ for (let index = 2; index < process.argv.length; index += 1) {
     }
 }
 
+if (!Number.isInteger(config.cellSize) || ![128, 192].includes(config.cellSize)) throw new Error('cell-size must be 128 or 192');
+CELL_SIZE = config.cellSize;
+
 const vehicleIds = config.vehicleIds.length > 0 ? config.vehicleIds : VEHICLE_IDS;
 const variants = config.variants.length > 0 ? config.variants : VARIANTS;
 for (const vehicleId of vehicleIds) if (!VEHICLE_IDS.includes(vehicleId)) throw new Error(`Unknown vehicle: ${vehicleId}`);
@@ -40,9 +46,9 @@ for (const vehicleId of vehicleIds) await swapVehiclePalettes(vehicleId, variant
 
 async function swapVehiclePalettes(vehicleId, requestedVariants) {
     const candidateDir = path.join(projectRoot, 'assets/vehicles/generated/7way-candidates', vehicleId);
-    const detailsDir = path.join(candidateDir, 'processed/neutral-128');
-    const inputPath = path.join(detailsDir, 'sheet-128-details.png');
-    const metadata = JSON.parse(await readFile(path.join(detailsDir, 'sheet-128-details.json'), 'utf8'));
+    const detailsDir = path.join(candidateDir, `processed/neutral-${CELL_SIZE}`);
+    const inputPath = path.join(detailsDir, `sheet-${CELL_SIZE}-details.png`);
+    const metadata = JSON.parse(await readFile(path.join(detailsDir, `sheet-${CELL_SIZE}-details.json`), 'utf8'));
     const width = metadata.columns * CELL_SIZE;
     const rows = Math.max(...metadata.poses.map((pose) => pose.cell.row)) + 1;
     const height = rows * CELL_SIZE;
@@ -53,10 +59,10 @@ async function swapVehiclePalettes(vehicleId, requestedVariants) {
     ]);
 
     for (const variant of requestedVariants) {
-        const outputDir = path.join(candidateDir, 'processed', `${variant}-128`);
-        const outputPath = path.join(outputDir, 'sheet-128.png');
-        const metadataPath = path.join(outputDir, 'sheet-128.json');
-        const qaPath = path.join(outputDir, 'sheet-128.qa.json');
+        const outputDir = path.join(candidateDir, 'processed', `${variant}-${CELL_SIZE}`);
+        const outputPath = path.join(outputDir, `sheet-${CELL_SIZE}.png`);
+        const metadataPath = path.join(outputDir, `sheet-${CELL_SIZE}.json`);
+        const qaPath = path.join(outputDir, `sheet-${CELL_SIZE}.qa.json`);
         const { output, qa } = swapPalette({ input, bodyMask, width, height, metadata, variant });
         await mkdir(outputDir, { recursive: true });
         await writePng(output, width, height, outputPath);

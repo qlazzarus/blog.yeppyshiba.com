@@ -14,7 +14,7 @@ const camera = {
     pitch: -0.04,
     z: 42,
 };
-const player = { lateralOffset: 0, speed: 0, steering: 0, steeringVelocity: 7 };
+const player = { lateralOffset: 0, physicalSteeringCommand: 0, speed: 0, steering: 0, steeringVelocity: 7 };
 
 applyRuntimeQaOverridesToState({
     camera,
@@ -25,6 +25,7 @@ applyRuntimeQaOverridesToState({
         initialSpeed: null,
         initialZ: null,
         lateralOffset: 14.5,
+        pose: null,
         speed: 321.25,
         steering: -0.4,
         timeScale: 1,
@@ -36,7 +37,8 @@ applyRuntimeQaOverridesToState({
 const results = [
     check('qa-overrides-mutate-only-approved-fields',
         camera.z === 42 && player.speed === 321.25 && player.steering === -0.4 &&
-        player.steeringVelocity === 0 && player.lateralOffset === 14.5),
+        player.physicalSteeringCommand === -0.4 && player.steeringVelocity === 0 &&
+        player.lateralOffset === 14.5),
     check('camera-schema-and-rounding', JSON.stringify(serializeRuntimeQaCamera({
         camera,
         fovCueDegrees: 1.23456,

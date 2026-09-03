@@ -7,6 +7,7 @@ import {
     selectPlayerVehicleFrame,
     selectVehicleTerrainCue,
     type PlayerDriftState,
+    type PlayerSteeringStateId,
     type VehicleAnchor,
     type VehicleAtlas,
     type VehicleTerrainCue,
@@ -27,8 +28,10 @@ export type PlayerPosePresentation = {
 };
 
 export function getPlayerPosePresentation(input: {
+    allowStrongSteering?: boolean;
     atlas: VehicleAtlas;
     driftState: PlayerDriftState;
+    forcedSteeringState?: PlayerSteeringStateId;
     terrainCue: VehicleTerrainCue;
     tuning: Pick<RuntimeTuning, 'vehicleRotationDeg'>;
     visualSteering: { rotationValue: number; threshold: number; value: number };
@@ -39,7 +42,8 @@ export function getPlayerPosePresentation(input: {
         input.visualSteering.value,
         input.terrainCue,
         input.visualSteering.threshold,
-        input.driftState !== 'grip',
+        input.allowStrongSteering ?? input.driftState !== 'grip',
+        input.forcedSteeringState,
     );
 
     return {
