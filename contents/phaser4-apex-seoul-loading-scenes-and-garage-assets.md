@@ -1,6 +1,6 @@
 ---
 title: Apex Seoul의 loading scene 설계
-date: 2026-09-03T21:00:00+09:00
+date: 2026-09-03T14:00:00+09:00
 summary: Apex Seoul이 loading scene을 어떻게 구성하는지 설계합니다.
 image: /images/posts/202609/apex-seoul-loading-scenes/apex-seoul-loading-scenes-hero.png
 category: coding
