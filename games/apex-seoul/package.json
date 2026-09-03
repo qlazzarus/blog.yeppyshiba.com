@@ -88,6 +88,7 @@
         "render:real-vehicle-pocs": "node scripts/render-real-vehicle-pocs.mjs",
         "render:real-vehicle-phaser-7way": "node scripts/render-real-vehicle-phaser-7way.mjs",
         "render:vehicle-7way-runtime-preview": "node scripts/render-vehicle-7way-runtime-preview.mjs",
+        "render:vehicle-selection-gif": "node scripts/render-vehicle-selection-gif.mjs",
         "render:vehicle-wheel-role-sheets": "node scripts/render-vehicle-wheel-role-sheets.mjs",
         "render:vehicle-pose-sheet": "node scripts/render-vehicle-pose-sheet.mjs",
         "render:vehicles": "node scripts/render-vehicle-sprites.mjs",

@@ -143,6 +143,23 @@ vehicleId + colorId + courseId
 - 선택은 `?vehicle=…&vehicleColor=…&course=…`로 직렬화해 reload와 browser QA가 같은 run을 재현하게 한다. 알 수 없는 id는 public 기본 조합으로 fallback한다.
 - baked-in body shadow는 금지한다. color와 무관한 차량별 external shadow sheet/profile을 one-per-vehicle로 관리하며 Phaser의 silhouette, soft, contact layer가 이를 사용한다. `derive-vehicle-7way-shadow.mjs`는 neutral detail alpha와 pose anchor/baseline에서 `shadow-128.png`, `shadow-128.profile.json`, runtime-style debug preview, QA JSON을 함께 생성한다. 이 preview는 squash·soft layer·contact patch를 확인하는 asset-level gate이며, 최종 승인은 browser runtime screenshot으로 한다.
 
+### Runtime loading manifest와 scene cache
+
+runtime asset은 source directory scan이나 Scene 내부의 흩어진 `load.*` 호출로 찾지 않는다. typed manifest가 public runtime key, loader type, URL, spritesheet frame size, public loading label을 소유한다.
+
+```text
+startup manifest
+  → LoadingScene (actual Loader progress)
+  → MainScene / VehicleSelectScene / GameScene / ResultScene
+  → shared Phaser cache key reuse
+```
+
+- `startup`에는 현재 출시 범위의 UI, environment/effect, `bugak-ridge-downhill`, 세 차량의 네 color sheet, external shadow/atlas, runtime audio만 넣는다. 선택 UI는 같은 192px body/shadow cache를 사용한다.
+- source GLB, frozen beauty sheet, role mask, QA contact sheet, authoring/debug preview는 manifest에 넣지 않는다. Vite import가 존재해도 runtime loader에 등록하지 않으면 browser가 gameplay asset으로 받지 않는다.
+- Loading bar는 byte/file 추측값이 아니라 Phaser Loader `progress`로 그린다. public label은 `Raven Coupe · Blue`처럼 loading UI에만 쓰며 provenance path·source model name을 노출하지 않는다.
+- Scene stop은 Phaser TextureManager의 asset을 자동으로 비우지 않는다. startup asset은 session 동안 cache에 유지하고, optional manifest를 도입했을 때만 owner/ref-count 정책과 명시적 texture removal을 추가한다. 선택 화면을 닫을 때 shared vehicle texture를 제거하지 않는다.
+- `RunSetup`은 vehicle/color/course 선택을 고정해 GameScene으로 전달한다. `RunResult`는 run time, split, selected ids, record update를 ResultScene으로 전달한다. cosmetic color는 telemetry에는 기록하지만 best record key는 vehicle performance와 course를 기준으로 정한다.
+
 Three.js는 GLB scene transform·camera·light·material·procedural mesh를 결정적으로 수정/렌더하는 authoring 도구다. source mesh의 topology/UV/sculpt 같은 DCC 작업을 대체한다고 취급하지 않는다.
 
 ## 승인 체크리스트

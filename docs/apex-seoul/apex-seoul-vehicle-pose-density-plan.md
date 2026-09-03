@@ -318,11 +318,14 @@ assets/vehicles/generated/7way-candidates/{raven-coupe|seorin-gt|mirae-gt}/
 | 2 | 다음 | 세 차량 × 4색 runtime asset promotion | palette sheet 네 장이 같은 192px atlas·shadow·approved profile을 공유하도록 catalog entry를 만든다. `generated` candidate를 그대로 public contract로 남기지 않고 approved/runtime 경로와 manifest를 확정한다. |
 | 3 | 다음 | vehicle catalog 완성 | public id `raven-coupe / seorin-gt / mirae-gt`, 공통 color `blue / red / silver / black`, texture key, fallback, presentation scale, engine profile/capability를 하나의 typed catalog에서 해석한다. Seorin/Mirae의 첫 주행 profile은 명시적으로 승인하거나 temporary shared profile임을 UI 밖의 metadata에 기록한다. |
 | 4 | 다음 | course catalog 및 선택 state | 현재 Bugak Ridge Downhill 하나를 `bugak-ridge-downhill`로 등록한다. `vehicleId / colorId / courseId`를 URL·in-memory selection·run telemetry에 같은 값으로 직렬화하고 unknown id는 Raven blue/Bugak으로 fallback한다. |
-| 5 | 다음 | pre-run garage → ready/start | 차량 선택 → 색상 선택 → 코스 확인 → ready/countdown의 UI를 만든다. 선택 화면은 source GLB/path/frame index를 모르며 public catalog id만 쓴다. 선택이 끝나기 전에는 run을 시작하지 않는다. |
-| 6 | 다음 | 결과/retry와 저장 | finish/result/retry가 선택 조합을 유지한다. best record는 최소한 `vehicleId + colorId + courseId` 범위로 분리하고, 새로고침/공유 URL도 동일 조합을 복원한다. |
-| 7 | gate | browser/runtime QA matrix | 3 vehicles × 4 colors의 load/fallback, 7way pose/flip, external shadow, approved headlight, start/retry/refresh 및 desktop/mobile screenshot을 검사한다. handling·road-scale·build 회귀도 함께 통과해야 한다. |
+| 5 | 다음 | startup LoadingScene | runtime manifest의 UI/environment/effect/one course/3 vehicles × 4 colors/body-shadow-atlas/runtime audio를 실제 Loader progress와 함께 일괄 로드한다. Main 이후에는 same cache key를 재사용하며 GLB·source·QA asset은 넣지 않는다. |
+| 6 | 다음 | pre-run garage → ready/start | 차량 선택 → 색상 선택 → 코스 확인 → ready/countdown의 UI를 만든다. 선택 화면은 source GLB/path/frame index를 모르며 public catalog id만 쓴다. 선택이 끝나기 전에는 run을 시작하지 않는다. `vehicle-preview.html`의 Sprite turntable은 현재 192px body·external shadow·color sheet로 검수하는 prototype이며, garage는 이 public catalog 입력만 재사용한다. |
+| 7 | 다음 | 결과/retry와 저장 | finish/result/retry가 선택 조합을 유지한다. best record는 `vehicleId + courseId` 범위로 분리하고, cosmetic `colorId`는 run metadata에만 남긴다. 새로고침/공유 URL도 동일 조합을 복원한다. |
+| 8 | gate | browser/runtime QA matrix | startup loading progress/error/retry, 3 vehicles × 4 colors의 load/fallback, 7way pose/flip, external shadow, approved headlight, start/retry/refresh 및 desktop/mobile screenshot을 검사한다. handling·road-scale·build 회귀도 함께 통과해야 한다. |
 
 Raven Coupe는 현재 기본 진입 경로로만 먼저 연결됐으며, `?vehicle=ft86-retro`는 비교·롤백 route로 유지한다. Seorin GT/Mirae GT의 192px preview가 존재한다고 해서 garage 선택 대상으로 승격된 것은 아니다.
+
+Sprite turntable은 17-pose driving sheet의 rear/quarter/front-spin source와 `flipX`를 연결한 15-frame selection loop다. rollover·uphill·downhill pose는 쓰지 않는다. 이 sheet에는 dedicated front-centre frame이 없으므로 front 영역은 좌우 front-quarter 두 frame 사이로 짧게 통과한다. 이는 garage에서 차종·색상을 빠르게 읽게 하는 임시 presentation이며, 별도의 360° authoring atlas를 요구하거나 driving pose 계약을 바꾸지 않는다.
 
 #### Retro sprite recipe
 
