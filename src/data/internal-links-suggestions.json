@@ -1,59 +1,25 @@
 {
-  "topPost": "/article/apptech-income-july-2026",
-  "topPostViews": 8,
+  "topPost": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
+  "topPostViews": 16,
   "relatedSuggestions": [
-    "/apptech-income-july-2026/",
-    "/apptech-income-june-2026/",
-    "/apptech-income-may-2026/",
-    "/apptech-to-small-investing/",
-    "/how-i-build-pocket-money-with-apptech/"
+    "/phaser4-apex-seoul-7way-vehicle-asset-compiler/",
+    "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
+    "/phaser4-apex-seoul-corner-flow-longitudinal-scale/",
+    "/phaser4-apex-seoul-downhill-elevation-rendering/",
+    "/phaser4-apex-seoul-downhill-grip-cost/",
+    "/phaser4-apex-seoul-downhill-rpm-fuelcut/"
   ],
   "amplifyCandidates": [],
   "fixCandidates": [
-    {
-      "path": "/article/apptech-to-small-investing",
-      "views": 3,
-      "avgSec": 6.55
-    },
     {
       "path": "/article/akita-inu",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/apptech-income-july-2026",
+      "path": "/article/phaser4-apex-seoul-loading-scenes-and-garage-assets",
       "views": 1,
       "avgSec": 0
-    },
-    {
-      "path": "/article/better-bagel-bar-ganjeolgot-review",
-      "views": 1,
-      "avgSec": 7.86
-    },
-    {
-      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-physics-screen-space-trials",
-      "views": 1,
-      "avgSec": 4.18
-    },
-    {
-      "path": "/article/stl-3d-printing-calculator-local-browser",
-      "views": 1,
-      "avgSec": 4.39
-    },
-    {
-      "path": "/article/uiwang-bajirak-kalguksu",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/wooz-bakery-gijang-ocean-view-cafe",
-      "views": 1,
-      "avgSec": 8.79
     }
   ]
 }
