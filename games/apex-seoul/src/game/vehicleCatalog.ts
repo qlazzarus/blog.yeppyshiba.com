@@ -16,11 +16,18 @@ export type RuntimeVehicleAsset = {
 export type VehicleCatalogAssets = {
     ft86: PaletteVehicleCatalogAsset;
     ravenCoupe?: PaletteVehicleCatalogAsset;
+    seorinGt?: PaletteVehicleCatalogAsset;
+    miraeGt?: PaletteVehicleCatalogAsset;
     ravenCoupePreview192?: StaticVehicleCatalogAsset;
     ravenCoupePreview256?: StaticVehicleCatalogAsset;
     seorinGtPreview192?: StaticVehicleCatalogAsset;
     miraeGtPreview192?: StaticVehicleCatalogAsset;
     genesis: StaticVehicleCatalogAsset;
+};
+
+export type RuntimeVehicleSelection = {
+    vehicleColor?: string;
+    vehicleId?: string;
 };
 
 type StaticVehicleCatalogAsset = {
@@ -60,11 +67,15 @@ function selectPaletteVehicle(
 }
 
 export function selectRuntimeVehicleAsset(
-    params: URLSearchParams,
+    selection: URLSearchParams | RuntimeVehicleSelection,
     assets: VehicleCatalogAssets,
 ): RuntimeVehicleAsset {
-    const vehicleId = params.get('vehicle') ?? 'raven-coupe';
-    const requestedColor = params.get('vehicleColor');
+    const vehicleId = selection instanceof URLSearchParams
+        ? selection.get('vehicle') ?? 'raven-coupe'
+        : selection.vehicleId ?? 'raven-coupe';
+    const requestedColor = selection instanceof URLSearchParams
+        ? selection.get('vehicleColor')
+        : selection.vehicleColor;
 
     // Keep the legacy FT86 route available for comparison and rollback. Raven Coupe is the default.
     if (vehicleId === 'ft86-retro') {
@@ -72,6 +83,12 @@ export function selectRuntimeVehicleAsset(
     }
     if (vehicleId === 'raven-coupe' && assets.ravenCoupe) {
         return selectPaletteVehicle('raven-coupe', 'raven-coupe', requestedColor, assets.ravenCoupe);
+    }
+    if (vehicleId === 'seorin-gt' && assets.seorinGt) {
+        return selectPaletteVehicle('seorin-gt', 'seorin-gt', requestedColor, assets.seorinGt);
+    }
+    if (vehicleId === 'mirae-gt' && assets.miraeGt) {
+        return selectPaletteVehicle('mirae-gt', 'mirae-gt', requestedColor, assets.miraeGt);
     }
     if (vehicleId === 'raven-coupe-192-preview' && assets.ravenCoupePreview192) {
         return selectStaticVehicle('raven-coupe-192-preview', 'raven-coupe-192-preview', assets.ravenCoupePreview192);

@@ -1,6 +1,6 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-09-03
+갱신일: 2026-09-07
 
 상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
 
@@ -8,9 +8,47 @@
 
 `main.ts`의 config·run·presentation 책임 분리 순서와 ECS 보류 판단은 [구조 정리 계획](./archive/apex-seoul-architecture-refactor-plan.md)에 보관한다.
 
+## 현재 vertical slice 상태와 즉시 다음 작업
+
+### 이번 연결에서 완료한 범위
+
+- `LoadingScene → MainScene → VehicleSelectScene → TimeAttackScene → ResultScene` 기본 loop
+- 세 차량(Raven Coupe / Seorin GT / Mirae GT) × 네 색상(blue / red / silver / black)의 startup asset과 runtime catalog
+- `vehicle → colour → course → ready` 3단계 garage와 15-frame turntable preview
+- URL 재로딩 대신 Phaser scene data `RunSetup { vehicleId, vehicleColor, trackId }` 전달과 retry 시 setup 재사용
+- finish 뒤 1.25초 coast, 2.25초 finish summary, ResultScene 상세 결과 전환
+- Options의 키보드 focus·range·toggle UI mockup
+
+### P0 — 실제 플레이 데이터와 회귀를 고정한다
+
+1. **선택 조합 end-to-end browser QA**
+   - 3차량 × 4색상 각각에서 garage 선택값, 주행 texture/atlas·shadow, finish summary, ResultScene 표기가 일치해야 한다.
+   - start, countdown, finish, retry, main 복귀를 실제 브라우저에서 검증하고 screenshot fixture를 남긴다.
+2. **기록 key와 migration 결정**
+   - 목표 key는 `vehicleId + trackId`지만 현재 저장소 구현은 track 하나만 사용한다.
+   - 차량별 engine/handling profile이 다르므로 기존 Bugak 기록의 migration, Records 목록, ResultScene 비교 규칙을 한 작업으로 확정한다.
+3. **Records / Reset을 실제 기능으로 묶기**
+   - Main의 Records entry와 Options의 Reset Local Records를 위 record store와 연결한다.
+   - reset은 확인 UI를 거친 뒤 현재·이전 key 모두를 예측 가능하게 처리해야 한다.
+4. **기존 주행 회귀 유지**
+   - 새 catalog/scene 흐름이 corner production, drivetrain, handling, collision telemetry를 바꾸지 않는지 기존 자동 QA와 함께 확인한다.
+
+### P1 — 사용 환경과 설정을 완성한다
+
+1. Options 값을 localStorage에 저장하고 steering sensitivity, touch, vibration, audio runtime에 실제 적용한다.
+2. mobile landscape touch controls, safe area, pause/visibility/focus loss 시 timer 보호를 추가한다.
+3. garage의 touch 조작과 `prefers-reduced-motion` 정지 preview를 추가한다.
+4. engine/BGM/SFX와 autoplay permission을 Start Run 이후의 audio lifecycle으로 연결한다.
+
+### P2 — 반복 주행을 더 깊게 만든다
+
+1. checkpoint를 section metadata와 결합해 ResultScene에서 느린 구간과 다음 run의 판단 근거를 보여 준다.
+2. 차량별 engine/headlight/handling 차이를 telemetry로 비교해 selectable trio의 밸런스를 승인한다.
+3. 추가 코스가 필요해질 때만 startup manifest와 course manifest를 분리한다. traffic, challenge, replayability 확장은 이 gate 뒤에 검토한다.
+
 ## 구조·콘텐츠 백로그
 
-- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose 192px candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. Raven Coupe는 기본 7way runtime sprite로 승격했고, Seorin/Mirae는 hidden debug preview 상태다. 다음 범위는 [차량 pose 계획의 game integration 잔여 범위](./apex-seoul-vehicle-pose-density-plan.md#7h번-게임-연동-잔여-범위--2026-09-03)로 관리한다.
+- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose 192px candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. 세 차량 모두 selectable runtime catalog와 garage에 연결됐다. 남은 승인은 차량별 실주행 QA와 engine/headlight/handling balance다.
 
 ## 현재 승인 기준선
 
@@ -127,7 +165,7 @@ P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도�
 5. 즉시 restart와 기록 유지
 6. 80km/h부터 시작해 속도에 따라 밀도·길이·발광이 커지는 소실점 기준 만화식 speed line
 7. 왼쪽 가드레일의 연속 가로등과 기존 `>> / <<` chevron의 코너 진입 재배치
-8. ~~가로등의 제한적인 lamp glow/road pool과 finish coast 연출~~ — 완료. timed finish 직후의 비충돌 Π형 finish gate와 약 5초 coast를 승인 기준으로 사용한다. 별도 finishing gantry·3-lamp 구조물은 요구하지 않는다.
+8. ~~가로등의 제한적인 lamp glow/road pool과 finish coast 연출~~ — 완료. timed finish 직후의 비충돌 Π형 finish gate, 1.25초 coast, 2.25초 finish summary를 사용한다. 별도 finishing gantry·3-lamp 구조물은 요구하지 않는다.
 
 현재 존재하는 progress/checkpoint/finish state를 사용한다. 단, run의 조건을 명시하려면 복잡한 메뉴 대신 최소 pre-run garage가 필요하다. 이는 차량 → 색상 → 코스(현재 Bugak Ridge Downhill 하나) → Start Run만 결정하고, 설정/상점/차고 진행도는 포함하지 않는다.
 
@@ -138,7 +176,7 @@ raven-coupe | seorin-gt | mirae-gt
   → countdown / timed run
 ```
 
-선택 결과는 `vehicleId / colorId / courseId`로 URL에 직렬화한다. 이 값은 runtime catalog와 browser screenshot QA의 공통 입력이며, source model 이름이나 asset path를 UI가 직접 소유하지 않는다.
+normal flow의 선택 결과는 `RunSetup { vehicleId, vehicleColor, trackId }` scene data로 넘긴다. URL은 menu를 거치지 않는 QA 직접 진입의 fallback으로만 유지하며, source model 이름이나 asset path를 UI가 직접 소유하지 않는다.
 
 checkpoint gate는 차량이 통과할 충분한 폭과 높이를 가진 `Π`형 상공 구조물이다. 도로 양쪽의 두 기둥과 이를 잇는 상단 빔만 렌더하며, 차량·가드레일과는 충돌하지 않는다.
 
@@ -153,7 +191,7 @@ speed line은 `80km/h`에서 거의 보이지 않게 시작해 `120~160km/h`에�
 
 가로등은 왼쪽 가드레일을 따라 야간 도로의 cadence를 만든다. 기존 chevron은 모든 curve segment에 반복하지 않고 commitment corner 진입 전의 바깥 rail에 `2~4개` 묶음으로 둬 위험 방향을 미리 읽게 한다.
 
-가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 약 5초의 untimed coast를 둔다. timed line 직후의 비충돌 Π형 finish gate가 완주 지점을 읽게 하며, 이 gate는 checkpoint 판정과 분리된 연출물이다. finish 직후 카메라는 finish 지점에 고정하고 차량만 연속된 road projection 위로 진행한 뒤 결과 UI를 보인다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
+가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 1.25초의 untimed coast와 2.25초의 finish summary를 둔다. timed line 직후의 비충돌 Π형 finish gate가 완주 지점을 읽게 하며, 이 gate는 checkpoint 판정과 분리된 연출물이다. finish summary에는 완주 시간, best/new best, delta만 보이고 상세 split과 retry는 ResultScene이 맡는다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
 
 출발 countdown의 rev·launch control·burnout 구현 근거는 [archive 기록](./archive/apex-seoul-launch-control-burnout-plan.md)에 보관한다. 새 후속은 P1 time attack 작업에서만 다시 정의한다.
 
