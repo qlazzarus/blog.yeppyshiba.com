@@ -29,6 +29,25 @@ tail light accent: restrained red only
 
 빨강, 노랑, 주황은 신호 역할로만 쓴다. 화면 전체 팔레트를 끌고 가면 안 된다.
 
+### Menu UI palette — 2026-09-04 적용
+
+메뉴는 주행 화면의 차가운 black/blue palette를 유지하되, 야간 garage의 sodium light를 **선택과 동작을 뜻하는 제한된 앰버**로 사용한다. 이 규칙은 `src/game/uiTheme.ts`가 단일 기준으로 소유하며, 현재 `LoadingScene`과 `MainScene`에 적용한다.
+
+| 역할 | Token | 색상 |
+| --- | --- | --- |
+| 메뉴 배경 | `background` | `#050607` |
+| menu panel | `panel` | `#1B1D20` |
+| 기본 title | `textMainHex` | `#F4F0E5` |
+| 보조 text | `secondaryTextHex` | `#8D9298` |
+| 선택 / 진행 | `amber` | `#E5A629` |
+| hover / fine line | `amberHighlight` | `#FFD775` |
+| title shadow | `titleShadowHex` | `#80510D` |
+| night header | `nightBlue` | `#071426` |
+
+앰버는 `START`의 선택 상태, title rail, garage hero의 미세한 tint에만 쓴다. 본문 텍스트·넓은 panel·주행 world를 앰버로 물들이지 않는다. scanline은 hero image 영역에서만 낮은 alpha로 처리하며, title과 메뉴 text에는 적용하지 않는다.
+
+Main title은 두 줄(`APEX` / 오른쪽으로 이동한 `SEOUL`) 이탤릭 워드마크로 둔다. 자간은 좁게 유지하고, 검은 offset shadow로 배경에서 분리한다. 쐐기형 Apex mark, 분리된 amber rail, 좌측의 짧은 speed line은 이 제목 주변에서만 사용한다. 배경·메뉴·제목은 같은 token을 재사용한다.
+
 ### Vehicle Assets
 
 차량은 "밝은 실버 차량"이 아니라 어두운 차체가 푸른 하이라이트로 읽히는 방향을 기본으로 한다.
