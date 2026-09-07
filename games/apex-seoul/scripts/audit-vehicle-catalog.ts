@@ -1,4 +1,4 @@
-import { APEX_S_ENGINE_PROFILE, RAVEN_COUPE_ENGINE_PROFILE } from '../src/game/engineProfile';
+import { MIRAE_GT_ENGINE_PROFILE, RAVEN_COUPE_ENGINE_PROFILE } from '../src/game/engineProfile';
 import { selectRuntimeVehicleAsset } from '../src/game/vehicleCatalog';
 import type { VehicleCatalogAssets } from '../src/game/vehicleCatalog';
 
@@ -35,13 +35,13 @@ const assets: VehicleCatalogAssets = {
         shadowSpriteUrl: 'seorin-preview-192-shadow.png', spriteUrl: 'seorin-preview-192.png',
     },
     miraeGtPreview192: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'], engineProfile: APEX_S_ENGINE_PROFILE,
+        atlas: {} as VehicleCatalogAssets['ft86']['atlas'], engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: 0.97,
         shadowSpriteUrl: 'mirae-preview-192-shadow.png', spriteUrl: 'mirae-preview-192.png',
     },
     genesis: {
         atlas: {} as VehicleCatalogAssets['genesis']['atlas'],
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         shadowSpriteUrl: 'genesis-shadow.png',
         spriteUrl: 'genesis.png',
     },
@@ -67,7 +67,7 @@ const results = [
     check('raven-192-preview-selects-the-intermediate-beauty-sheet', ravenPreview192.id === 'raven-coupe-192-preview' && ravenPreview192.presentationScale === 0.97 && ravenPreview192.spriteUrl === 'raven-preview-192.png' && ravenPreview192.shadowSpriteUrl === 'raven-preview-192-shadow.png'),
     check('seorin-192-preview-selects-its-own-sheet', seorinPreview192.id === 'seorin-gt-192-preview' && seorinPreview192.presentationScale === 0.97 && seorinPreview192.spriteUrl === 'seorin-preview-192.png'),
     check('mirae-192-preview-selects-its-own-sheet', miraePreview192.id === 'mirae-gt-192-preview' && miraePreview192.presentationScale === 0.97 && miraePreview192.spriteUrl === 'mirae-preview-192.png'),
-    check('unknown-vehicle-falls-back-to-genesis', genesis.id === 'genesis-g70-poc' && genesis.color === 'silver' && genesis.engineProfile.id === APEX_S_ENGINE_PROFILE.id && genesis.textureKey === 'player-vehicle-genesis-g70-poc'),
+    check('unknown-vehicle-falls-back-to-genesis', genesis.id === 'genesis-g70-poc' && genesis.color === 'silver' && genesis.engineProfile.id === MIRAE_GT_ENGINE_PROFILE.id && genesis.textureKey === 'player-vehicle-genesis-g70-poc'),
 ];
 const failures = results.filter((result) => !result.pass);
 

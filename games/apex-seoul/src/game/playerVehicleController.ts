@@ -1,5 +1,5 @@
 import {
-    getBoostRatio,
+    getBoostTargetRatio,
     getGearRpm,
     getInitialGearIndex,
     getPhysicalDownshiftRpm,
@@ -1752,13 +1752,24 @@ function updateEngineState(
     }
 
     player.torqueScale = getTorqueScale(profile, player.rpm);
-    player.boostRatio = player.fuelCutActive
+    const boostTargetRatio = player.fuelCutActive
         ? 0
-        : getBoostRatio(profile, player.rpm, throttle, brake, cornerIntensity, speedRatio);
+        : getBoostTargetRatio(profile, player.rpm, throttle, brake, cornerIntensity, speedRatio);
+    const boostProfile = profile.boost;
+    const boostResponse = boostTargetRatio > player.boostRatio
+        ? boostProfile?.spoolRate ?? 0
+        : boostProfile?.decayRate ?? 0;
+    const boostBlend = 1 - Math.exp(-boostResponse * seconds);
+    player.boostRatio = lerp(player.boostRatio, boostTargetRatio, boostBlend);
     player.shiftCutRatio = player.fuelCutActive ? 0 : getShiftCutRatio(player);
-    player.engineTorqueScale = (
-        getEngineTorqueScale(player.torqueScale, player.fuelCutActive) +
-        player.boostRatio * 0.12
+    const turboTorqueRatio = boostProfile
+        ? lerp(boostProfile.baseTorqueRatio, 1, player.boostRatio)
+        : 1;
+    // The curve defines fully-spooled engine torque. Boost pressure now gates
+    // that curve rather than adding a second, hidden torque bonus on top.
+    player.engineTorqueScale = getEngineTorqueScale(
+        player.torqueScale * turboTorqueRatio,
+        player.fuelCutActive,
     ) * (1 - player.shiftCutRatio);
 }
 

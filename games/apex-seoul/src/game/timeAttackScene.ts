@@ -41,9 +41,10 @@ import {
     renderHudText,
 } from './hud';
 import {
-    APEX_S_ENGINE_PROFILE,
     getDisplaySpeedKmh,
+    MIRAE_GT_ENGINE_PROFILE,
     RAVEN_COUPE_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
 } from './engineProfile';
 import {
     createDefaultPlayerVehicleState,
@@ -303,14 +304,14 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     seorinGt: {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
         colors: SEORIN_GT_SPRITE_URLS,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        engineProfile: SEORIN_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
     },
     miraeGt: {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
         colors: MIRAE_GT_SPRITE_URLS,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
     },
@@ -329,21 +330,21 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     },
     seorinGtPreview192: {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        engineProfile: SEORIN_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
         spriteUrl: seorinGtPreview192SpriteUrl,
     },
     miraeGtPreview192: {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
         spriteUrl: miraeGtPreview192SpriteUrl,
     },
     genesis: {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         shadowSpriteUrl: genesisG70VehicleShadowSpriteUrl,
         spriteUrl: genesisG70VehicleSpriteUrl,
     },

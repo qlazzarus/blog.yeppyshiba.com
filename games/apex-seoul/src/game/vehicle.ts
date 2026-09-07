@@ -161,6 +161,7 @@ export type GuardrailContactPhase = 'clear' | 'enter' | 'stay' | 'exit';
 
 export type PlayerVehicleState = {
     brakePressure: number;
+    /** Actual turbo pressure after the profile's spool and decay response. */
     boostRatio: number;
     cornerInsideHeadingAllowance: number;
     cornerInsideHeadingLimited: boolean;
