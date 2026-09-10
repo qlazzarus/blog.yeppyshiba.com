@@ -1,3 +1,5 @@
+import { GameplayHud } from './gameplayHud';
+import { createGameplayHudState } from './gameplayHudState';
 import Phaser from 'phaser';
 import { MainScene } from './mainScene';
 import { OptionsScene } from './optionsScene';
@@ -41,9 +43,10 @@ import {
     renderHudText,
 } from './hud';
 import {
-    APEX_S_ENGINE_PROFILE,
     getDisplaySpeedKmh,
+    MIRAE_GT_ENGINE_PROFILE,
     RAVEN_COUPE_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
 } from './engineProfile';
 import {
     createDefaultPlayerVehicleState,
@@ -303,14 +306,14 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     seorinGt: {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
         colors: SEORIN_GT_SPRITE_URLS,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        engineProfile: SEORIN_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
     },
     miraeGt: {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
         colors: MIRAE_GT_SPRITE_URLS,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
     },
@@ -329,21 +332,21 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     },
     seorinGtPreview192: {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        engineProfile: SEORIN_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
         spriteUrl: seorinGtPreview192SpriteUrl,
     },
     miraeGtPreview192: {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
         spriteUrl: miraeGtPreview192SpriteUrl,
     },
     genesis: {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
-        engineProfile: APEX_S_ENGINE_PROFILE,
+        engineProfile: MIRAE_GT_ENGINE_PROFILE,
         shadowSpriteUrl: genesisG70VehicleShadowSpriteUrl,
         spriteUrl: genesisG70VehicleSpriteUrl,
     },
@@ -462,7 +465,8 @@ export class TimeAttackScene extends Phaser.Scene {
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionDebugText!: Phaser.GameObjects.Text;
-    private debugHudVisible = true;
+    private debugHudVisible = URL_PARAMS.get('debugHud') === '1';
+    private gameplayHud!: GameplayHud;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
@@ -646,6 +650,8 @@ export class TimeAttackScene extends Phaser.Scene {
         );
         this.collisionDebugText = createCollisionDebugText(this);
         this.hudText = createHudText(this);
+        this.gameplayHud = new GameplayHud(this, ACTIVE_RUNTIME_VEHICLE.engineProfile);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.gameplayHud.destroy());
         this.runStatusText = this.add
             .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.35, '', {
                 align: 'center',
@@ -671,7 +677,9 @@ export class TimeAttackScene extends Phaser.Scene {
             },
         );
 
-        this.scale.on('resize', () => this.render(0));
+        const onResize = () => this.render(0);
+        this.scale.on('resize', onResize);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.render();
     }
 
@@ -1166,6 +1174,11 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private renderHud() {
+        const viewport = this.getViewport();
+        this.gameplayHud.update(createGameplayHudState(
+            ACTIVE_RUNTIME_VEHICLE.engineProfile, this.playerVehicle,
+            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState,
+        ), viewport.width, viewport.height, this.finishPresentationPhase !== 'finish-summary');
         if (!this.debugHudVisible) {
             this.hudText.setVisible(false);
             this.collisionDebugText.setVisible(false);
@@ -2572,6 +2585,8 @@ export class TimeAttackScene extends Phaser.Scene {
             }),
             player: serializeRuntimeQaPlayer({
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
+                primaryBoostRatio: Number(this.playerVehicle.primaryBoostRatio.toFixed(4)),
+                secondaryBoostRatio: Number(this.playerVehicle.secondaryBoostRatio.toFixed(4)),
                 brakePressure: Number(this.playerVehicle.brakePressure.toFixed(4)),
                 cornerDemand: serializeRuntimeQaPlayerCornerDemand(
                     this.playerVehicle.cornerDemand,

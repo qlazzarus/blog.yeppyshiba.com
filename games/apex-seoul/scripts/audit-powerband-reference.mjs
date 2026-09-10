@@ -1,22 +1,21 @@
 import {
-    APEX_S_ENGINE_PROFILE,
-    getBoostRatio,
+    getBoostTargetRatio,
     getGearRpm,
     getInitialGearIndex,
     getTorqueScale,
     RAVEN_COUPE_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
+    MIRAE_GT_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
 } from '../src/game/engineProfile.ts';
 
 const ACCEL_SPEED = 760;
-const BOOST_TORQUE_LIFT = 0.12;
 const TORQUE_SCALE_MAX = 1.14;
 const TORQUE_SCALE_MIN = 0.7;
 const COMMON_SPEEDS_KMH = [60, 80, 90, 100, 120, 150, 180, 210, 230];
 const REFERENCE_PROFILES = [
     RAVEN_COUPE_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
-    APEX_S_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
+    MIRAE_GT_ENGINE_PROFILE,
 ];
 
 const rowsByVehicle = REFERENCE_PROFILES.map((profile) => ({
@@ -81,8 +80,11 @@ function getReferenceRows(profile) {
         const gearIndex = getInitialGearIndex(profile, speedRatio);
         const rpm = getGearRpm(profile, gearIndex, speedRatio);
         const torqueScale = getTorqueScale(profile, rpm);
-        const boostRatio = getBoostRatio(profile, rpm, 1, 0, 0, speedRatio);
-        const engineTorqueScale = getEngineTorqueScale(torqueScale) + boostRatio * BOOST_TORQUE_LIFT;
+        const boostRatio = getBoostTargetRatio(profile, rpm, 1, 0, 0, speedRatio);
+        const turboTorqueRatio = profile.boost
+            ? lerp(profile.boost.baseTorqueRatio, 1, boostRatio)
+            : 1;
+        const engineTorqueScale = getEngineTorqueScale(torqueScale * turboTorqueRatio);
 
         return {
             boostRatio,

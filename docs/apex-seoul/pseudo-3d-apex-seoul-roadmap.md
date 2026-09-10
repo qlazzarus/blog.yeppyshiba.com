@@ -1,6 +1,10 @@
 # Apex Seoul 구현 로드맵
 
-갱신일: 2026-09-03
+갱신일: 2026-09-10
+
+## 2026-09-10 현재 상태와 적용 순서
+
+Scene 분리와 세 차량 garage→주행→결과 loop는 현재 소스에 구현되어 있다. 아래 M1의 단일 Scene 설명과 M 단계의 예정 범위는 이전 설계 맥락이며 현재 미구현 목록으로 사용하지 않는다. **실행 순서는 [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)를 우선**한다. 첫 playable은 Bugak 타임어택·세 차량 개성·NA/싱글/트윈 HUD·과급 음향/효과·기록/재시도·모바일/설정까지로 정한다. [소스 분석과 클래스별 전환 설계](./apex-seoul-playable-game-plan.md)를 현재 gap 판단 기준으로 사용한다.
 
 ## 프로젝트 목표
 
@@ -53,7 +57,7 @@ HR-3I/HR-3I-R은 physical steering command와 sprite의 의미를 맞췄다. 무
 
 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했다. 이를 완료로 숨기지 않고 HR-3K를 임시 회귀 기준선으로 동결한다. CH-4 선택 코스 apex 재설계와 CH-5 grip/drift section time 승인은 time attack 기록 비교가 가능해진 뒤 다시 연다.
 
-상세 실행 순서는 [다음 구현 우선순위 P0](./apex-seoul-next-priority-plan.md#p0--코너-조향-필수-계약-복구), 진단과 QA는 [속도대별 핸들링 재검증](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)을 따른다.
+상세 실행 순서는 [다음 구현 우선순위 P0](./apex-seoul-next-priority-plan.md), 진단과 QA는 [속도대별 핸들링 재검증](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)을 따른다.
 
 ## M1 — 완결된 time attack loop — 다음 구현
 

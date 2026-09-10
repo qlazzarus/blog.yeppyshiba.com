@@ -3,10 +3,10 @@ import {
     updatePlayerVehicle,
 } from '../src/game/playerVehicleController.ts';
 import {
-    APEX_S_ENGINE_PROFILE,
     getDisplaySpeedKmh,
+    MIRAE_GT_ENGINE_PROFILE,
     RAVEN_COUPE_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
 } from '../src/game/engineProfile.ts';
 
 const FRAME_SECONDS = 1 / 60;
@@ -139,8 +139,8 @@ const BASE_CONFIG = {
 };
 const PROFILES = [
     RAVEN_COUPE_ENGINE_PROFILE,
-    APEX_S_ENGINE_PROFILE,
-    VORTEX_GT_ENGINE_PROFILE,
+    MIRAE_GT_ENGINE_PROFILE,
+    SEORIN_GT_ENGINE_PROFILE,
 ];
 
 const rows = PROFILES.map((profile) => simulateProfile(profile));

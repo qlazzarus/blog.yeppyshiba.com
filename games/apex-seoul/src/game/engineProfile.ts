@@ -14,9 +14,20 @@ export type EngineGearProfile = {
 };
 
 export type EngineBoostProfile = {
+    /** Torque available before the turbo has finished spooling. */
+    baseTorqueRatio: number;
+    /** How quickly pressure bleeds away after lifting or braking. */
+    decayRate: number;
+    /** Optional second-stage range for a sequential twin-turbo setup. */
+    mainEndRpm?: number;
     mainStartRpm?: number;
+    /** Sequential stage has its own inertia; weights sum to one, not extra torque. */
+    secondarySpoolRate?: number;
+    primaryTorqueShare?: number;
     peakEndRpm: number;
     peakStartRpm: number;
+    /** How quickly the turbine builds pressure while on throttle. */
+    spoolRate: number;
     startRpm: number;
 };
 
@@ -91,15 +102,23 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     tireCircumferenceM: 1.964,
 };
 
-export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
-    accelerationScale: 1.05,
+export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1.16,
     boost: {
-        mainStartRpm: 5600,
-        peakEndRpm: 6500,
-        peakStartRpm: 5800,
-        startRpm: 3200,
+        // Sequential twins: the small primary turbo gives early response,
+        // then the second stage fills the broad 4,500–6,200 rpm plateau.
+        baseTorqueRatio: 0.82,
+        decayRate: 2.8,
+        mainEndRpm: 4700,
+        mainStartRpm: 3900,
+        secondarySpoolRate: 3.2,
+        primaryTorqueShare: 0.8,
+        peakEndRpm: 6400,
+        peakStartRpm: 3600,
+        spoolRate: 5.4,
+        startRpm: 2100,
     },
-    displayName: 'Vortex GT',
+    displayName: 'Seorin GT',
     displayTopSpeedKmh: 230,
     fuelCutReturnRpm: 6500,
     fuelCutStartRpm: 7000,
@@ -113,7 +132,7 @@ export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         { label: '7', rpmMax: 6500, rpmMin: 4000, speedRatioMax: 0.98, speedRatioMin: 0.86 },
         { label: '8', rpmMax: 6200, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.94 },
     ],
-    id: 'vortex-gt-twin-turbo',
+    id: 'seorin-gt-twin-turbo',
     idleRpm: 950,
     induction: 'twin-turbo',
     maxRpm: 7000,
@@ -121,25 +140,31 @@ export const VORTEX_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     shiftDropRpm: 4400,
     shiftUpRpm: 6650,
     torqueCurve: [
-        { rpm: 1000, torqueScale: 0.32 },
-        { rpm: 2400, torqueScale: 0.42 },
-        { rpm: 3400, torqueScale: 0.62 },
-        { rpm: 4600, torqueScale: 0.88 },
-        { rpm: 5600, torqueScale: 1 },
-        { rpm: 6400, torqueScale: 0.98 },
-        { rpm: 7000, torqueScale: 0.72 },
+        { rpm: 1000, torqueScale: 0.3 },
+        { rpm: 2000, torqueScale: 0.45 },
+        { rpm: 3000, torqueScale: 0.66 },
+        { rpm: 3800, torqueScale: 0.88 },
+        { rpm: 4500, torqueScale: 0.98 },
+        { rpm: 6000, torqueScale: 1 },
+        { rpm: 6400, torqueScale: 0.96 },
+        { rpm: 7000, torqueScale: 0.76 },
     ],
 };
 
-export const APEX_S_ENGINE_PROFILE: VehicleEngineProfile = {
-    accelerationScale: 1,
+export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1.08,
     boost: {
+        // A larger single turbo has a more pronounced wait before its
+        // mid-range hit, and retains pressure longer between inputs.
+        baseTorqueRatio: 0.64,
+        decayRate: 1.55,
         peakEndRpm: 6500,
-        peakStartRpm: 4400,
+        peakStartRpm: 4800,
+        spoolRate: 2.25,
         startRpm: 3000,
     },
-    displayName: 'Apex S',
-    displayTopSpeedKmh: 215,
+    displayName: 'Mirae GT',
+    displayTopSpeedKmh: 218,
     fuelCutReturnRpm: 6650,
     fuelCutStartRpm: 7200,
     gears: [
@@ -150,7 +175,7 @@ export const APEX_S_ENGINE_PROFILE: VehicleEngineProfile = {
         { label: '5', rpmMax: 6700, rpmMin: 4600, speedRatioMax: 0.88, speedRatioMin: 0.62 },
         { label: '6', rpmMax: 6500, rpmMin: 4400, speedRatioMax: 1, speedRatioMin: 0.8 },
     ],
-    id: 'apex-s-single-turbo',
+    id: 'mirae-gt-single-turbo',
     idleRpm: 1000,
     induction: 'single-turbo',
     maxRpm: 7200,
@@ -158,20 +183,21 @@ export const APEX_S_ENGINE_PROFILE: VehicleEngineProfile = {
     shiftDropRpm: 4600,
     shiftUpRpm: 6850,
     torqueCurve: [
-        { rpm: 1000, torqueScale: 0.3 },
-        { rpm: 2400, torqueScale: 0.4 },
-        { rpm: 3400, torqueScale: 0.72 },
-        { rpm: 4600, torqueScale: 0.98 },
+        { rpm: 1000, torqueScale: 0.26 },
+        { rpm: 2400, torqueScale: 0.34 },
+        { rpm: 3200, torqueScale: 0.44 },
+        { rpm: 4000, torqueScale: 0.72 },
+        { rpm: 4800, torqueScale: 0.97 },
         { rpm: 5600, torqueScale: 1 },
-        { rpm: 6500, torqueScale: 0.88 },
-        { rpm: 7200, torqueScale: 0.7 },
+        { rpm: 6500, torqueScale: 0.9 },
+        { rpm: 7200, torqueScale: 0.68 },
     ],
 };
 
 export const VEHICLE_ENGINE_PROFILES = {
-    apexS: APEX_S_ENGINE_PROFILE,
+    miraeGt: MIRAE_GT_ENGINE_PROFILE,
     ravenCoupe: RAVEN_COUPE_ENGINE_PROFILE,
-    vortexGt: VORTEX_GT_ENGINE_PROFILE,
+    seorinGt: SEORIN_GT_ENGINE_PROFILE,
 } as const;
 
 export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: number) {
@@ -264,7 +290,11 @@ export function getTorqueScale(profile: VehicleEngineProfile, rpm: number) {
     return curve[curve.length - 1].torqueScale;
 }
 
-export function getBoostRatio(
+/**
+ * Returns requested boost for the current engine conditions. The controller
+ * applies spool/decay over time, so this deliberately is not instant pressure.
+ */
+export function getBoostTargetRatio(
     profile: VehicleEngineProfile,
     rpm: number,
     throttle: number,
@@ -272,28 +302,77 @@ export function getBoostRatio(
     cornerIntensity: number,
     speedRatio: number,
 ) {
-    if (!profile.boost || throttle <= 0 || brake > 0) return 0;
+    return getEngineBoostTargets(profile, rpm, throttle, brake, cornerIntensity, speedRatio).boostRatio;
+}
 
+export type EngineBoostState = {
+    boostRatio: number;
+    primaryBoostRatio: number;
+    secondaryBoostRatio: number;
+};
+
+export function getEngineBoostTargets(
+    profile: VehicleEngineProfile, rpm: number, throttle: number, brake: number,
+    cornerIntensity: number, speedRatio: number,
+): EngineBoostState {
     const boost = profile.boost;
-    const spoolRatio = smoothstep(clamp(
-        (rpm - boost.startRpm) / (boost.peakStartRpm - boost.startRpm),
-        0,
-        1,
+    if (profile.induction === 'na' || !boost || throttle <= 0 || brake > 0) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
+    const primarySpool = smoothstep(clamp(
+        (rpm - boost.startRpm) / Math.max(1, boost.peakStartRpm - boost.startRpm), 0, 1,
     ));
+    const isTwin = profile.induction === 'twin-turbo';
+    const secondarySpool = isTwin ? smoothstep(clamp(
+        (rpm - (boost.mainStartRpm ?? boost.startRpm)) /
+        Math.max(1, (boost.mainEndRpm ?? boost.peakStartRpm) - (boost.mainStartRpm ?? boost.startRpm)), 0, 1,
+    )) : 0;
     const redlineDecay = rpm > boost.peakEndRpm
-        ? 1 - smoothstep(clamp(
-            (rpm - boost.peakEndRpm) / (profile.fuelCutStartRpm - boost.peakEndRpm),
-            0,
-            1,
-        )) * 0.28
+        ? 1 - smoothstep(clamp((rpm - boost.peakEndRpm) /
+            Math.max(1, profile.fuelCutStartRpm - boost.peakEndRpm), 0, 1)) * 0.28
         : 1;
-    const cornerPenalty = lerp(1, profile.induction === 'single-turbo' ? 0.7 : 0.82, cornerIntensity);
-    const speedLift = profile.induction === 'twin-turbo'
-        ? lerp(0.82, 1.08, smoothstep(speedRatio))
-        : lerp(0.9, 1.02, smoothstep(speedRatio));
-    const mainBoostLift = boost.mainStartRpm && rpm >= boost.mainStartRpm ? 1.08 : 1;
+    const cornerPenalty = lerp(1, isTwin ? 0.82 : 0.7, clamp(cornerIntensity, 0, 1));
+    const speedLift = isTwin
+        ? lerp(0.82, 1.08, smoothstep(clamp(speedRatio, 0, 1)))
+        : lerp(0.9, 1.02, smoothstep(clamp(speedRatio, 0, 1)));
+    // Partial throttle must not command full boost. Pressure remains normalized,
+    // not bar/psi, and each needle shows the same state that supplies torque.
+    const load = redlineDecay * cornerPenalty * speedLift * clamp(throttle, 0, 1);
+    const primaryBoostRatio = clamp(primarySpool * load, 0, 1);
+    const secondaryBoostRatio = clamp(primarySpool * secondarySpool * load, 0, 1);
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
+}
 
-    return clamp(spoolRatio * redlineDecay * cornerPenalty * speedLift * mainBoostLift, 0, 1);
+function combineEngineBoost(profile: VehicleEngineProfile, primary: number, secondary: number) {
+    if (profile.induction === 'na' || !profile.boost) return 0;
+    if (profile.induction === 'single-turbo') return primary;
+    const share = clamp(profile.boost.primaryTorqueShare ?? 0.8, 0, 1);
+    return primary * share + secondary * (1 - share);
+}
+
+/** Exponential stage response is stable across frame rates for a held target. */
+export function advanceEngineBoost(
+    profile: VehicleEngineProfile, current: EngineBoostState, target: EngineBoostState, seconds: number,
+): EngineBoostState {
+    const boost = profile.boost;
+    if (profile.induction === 'na' || !boost) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
+    const advance = (value: number, goal: number, spoolRate: number) => {
+        const rate = goal > value ? spoolRate : boost.decayRate;
+        return clamp(lerp(value, goal, 1 - Math.exp(-rate * Math.max(0, seconds))), 0, 1);
+    };
+    const primaryBoostRatio = advance(current.primaryBoostRatio, target.primaryBoostRatio, boost.spoolRate);
+    const secondaryBoostRatio = profile.induction === 'twin-turbo'
+        ? advance(current.secondaryBoostRatio, target.secondaryBoostRatio, boost.secondarySpoolRate ?? boost.spoolRate)
+        : 0;
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
 }
 
 export function getDisplaySpeedKmh(speed: number, accelSpeed: number, profile: VehicleEngineProfile) {
