@@ -163,6 +163,8 @@ export type PlayerVehicleState = {
     brakePressure: number;
     /** Actual turbo pressure after the profile's spool and decay response. */
     boostRatio: number;
+    primaryBoostRatio: number;
+    secondaryBoostRatio: number;
     cornerInsideHeadingAllowance: number;
     cornerInsideHeadingLimited: boolean;
     cornerDemand: PlayerCornerDemandSample;

@@ -1,295 +1,62 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-09-07
-
-상태: HR-3K까지 구현·자동 회귀를 완료하고 현재 코너링 기준선을 임시 동결했다. 무입력 road-follow는 `0`이며 production 강코너 `8개 × 3속도`가 모두 바깥쪽으로 이탈한다. `185km/h`에서는 모든 강코너가 예상 바깥 rail에 닿고, 동일 rail 반복 impact는 코너당 `4~11회 → 1회`로 줄었다. 사용자 실주행에서는 코너 감각에 약 `20%`의 보완 여지가 남았다고 판단했지만, CH-4 코스 apex 재설계와 CH-5 grip/drift time 비교는 다음 코너링 재개 시점으로 이월한다.
-
-이 문서는 가까운 실행 순서만 관리한다. 구현 근거와 완료 이력은 각 설계 문서에, 당장 실행하지 않을 항목은 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)에 둔다.
-
-`main.ts`의 config·run·presentation 책임 분리 순서와 ECS 보류 판단은 [구조 정리 계획](./archive/apex-seoul-architecture-refactor-plan.md)에 보관한다.
-
-## 현재 vertical slice 상태와 즉시 다음 작업
-
-### 이번 연결에서 완료한 범위
-
-- `LoadingScene → MainScene → VehicleSelectScene → TimeAttackScene → ResultScene` 기본 loop
-- 세 차량(Raven Coupe / Seorin GT / Mirae GT) × 네 색상(blue / red / silver / black)의 startup asset과 runtime catalog
-- `vehicle → colour → course → ready` 3단계 garage와 15-frame turntable preview
-- URL 재로딩 대신 Phaser scene data `RunSetup { vehicleId, vehicleColor, trackId }` 전달과 retry 시 setup 재사용
-- finish 뒤 1.25초 coast, 2.25초 finish summary, ResultScene 상세 결과 전환
-- Options의 키보드 focus·range·toggle UI mockup
-
-### P0 — 실제 플레이 데이터와 회귀를 고정한다
-
-1. **선택 조합 end-to-end browser QA**
-   - 3차량 × 4색상 각각에서 garage 선택값, 주행 texture/atlas·shadow, finish summary, ResultScene 표기가 일치해야 한다.
-   - start, countdown, finish, retry, main 복귀를 실제 브라우저에서 검증하고 screenshot fixture를 남긴다.
-2. **기록 key와 migration 결정**
-   - 목표 key는 `vehicleId + trackId`지만 현재 저장소 구현은 track 하나만 사용한다.
-   - 차량별 engine/handling profile이 다르므로 기존 Bugak 기록의 migration, Records 목록, ResultScene 비교 규칙을 한 작업으로 확정한다.
-3. **Records / Reset을 실제 기능으로 묶기**
-   - Main의 Records entry와 Options의 Reset Local Records를 위 record store와 연결한다.
-   - reset은 확인 UI를 거친 뒤 현재·이전 key 모두를 예측 가능하게 처리해야 한다.
-4. **기존 주행 회귀 유지**
-   - 새 catalog/scene 흐름이 corner production, drivetrain, handling, collision telemetry를 바꾸지 않는지 기존 자동 QA와 함께 확인한다.
-
-### P1 — 사용 환경과 설정을 완성한다
-
-1. Options 값을 localStorage에 저장하고 steering sensitivity, touch, vibration, audio runtime에 실제 적용한다.
-2. mobile landscape touch controls, safe area, pause/visibility/focus loss 시 timer 보호를 추가한다.
-3. garage의 touch 조작과 `prefers-reduced-motion` 정지 preview를 추가한다.
-4. engine/BGM/SFX와 autoplay permission을 Start Run 이후의 audio lifecycle으로 연결한다.
-
-### P2 — 반복 주행을 더 깊게 만든다
-
-1. checkpoint를 section metadata와 결합해 ResultScene에서 느린 구간과 다음 run의 판단 근거를 보여 준다.
-2. 차량별 engine/headlight/handling 차이를 telemetry로 비교해 selectable trio의 밸런스를 승인한다.
-3. 추가 코스가 필요해질 때만 startup manifest와 course manifest를 분리한다. traffic, challenge, replayability 확장은 이 gate 뒤에 검토한다.
-
-## 구조·콘텐츠 백로그
-
-- **Playable vehicle trio art / 7way candidate:** Raven Coupe, Seorin GT, Mirae GT의 3D art-master freeze, 17-pose 192px candidate, role-mask 기반 2D script, 네 palette variant와 atlas QA는 완료했다. 세 차량 모두 selectable runtime catalog와 garage에 연결됐다. 남은 승인은 차량별 실주행 QA와 engine/headlight/handling balance다.
-
-## 현재 승인 기준선
-
-| 영역 | 현재 기준 |
-| --- | --- |
-| 기본 주행 | grip 중심 속도대 응답 유지. production 강코너 무조향 바깥 이탈과 rail 위협 재승인 완료 |
-| drift | `GRIP → SETUP → DRIFT → RECOVERY`, counter trim과 명시적 counter transition |
-| 속도 | Raven Coupe 표시 상한 `225km/h`, 0-100 약 `8.1초`, production longitudinal scale U2 `2.00` |
-| 코스 | Bugak Ridge Downhill timed course `348 segment / 83,520u` + finish coast `48 segment` = render track `396 segment / 95,040u` |
-| 충돌·화면 | 물리/화면 rail boundary 일치, `enter / stay / exit` contact lifecycle, physical command 기반 grip sprite |
-| 검증 | world-line `7/7`, grip trajectory `8/8`, corner exit steering `5/5`, production diagnosis `14/14`와 gameplay `5/5` PASS. exit speed/section time 비교는 HR-5 보류 |
-
-구동계, 표시 속도, 기본 grip/drift 상태 머신과 HR-3K 코너 궤적을 다음 기능 작업의 회귀 기준선으로 유지한다. 사용자 실주행에서 남은 감각 차이는 완료로 덮지 않고, 아래 P0의 보류 항목으로 기록한다.
-
-## P0 — 코너 조향 필수 계약 복구
-
-현재 최우선 작업은 코너가 화면 배경의 변화가 아니라 플레이어가 직접 처리해야 하는 시간 공격 구간이 되게 만드는 것이다.
-
-### 실행 순서
-
-1. ~~잘못된 상대 outward 승인을 폐기하고 첨부 runtime S-curve를 absolute shoulder/rail 계약으로 고정~~ — HR-0 완료
-2. ~~차량 heading error / road-relative velocity debt를 지속 상태로 구현~~ — HR-1 완료
-3. ~~무입력 lateral position centering과 steering wheel 복귀 책임 분리~~ — HR-2 완료
-4. ~~새 heading 상태를 기준으로 관성·scrub·collision 재조정~~ — HR-3A~E 완료
-   - ~~HR-3A: point curve 대신 near/far preview tangent demand~~
-   - ~~HR-3B: 위치 centering 없는 passive grip yaw capacity~~
-   - ~~HR-3C: heading hard clamp를 soft slip response로 교체~~
-   - ~~HR-3D: prepared grip, drift, shoulder/rail 결과 재조정~~
-   - ~~HR-3E: 속도×곡률×주행 방식 production matrix 승인~~
-5. ~~HR-3F 실주행 곡률 추종 보정~~ — 완료
-   - ~~preview near/far `68/32 → 80/20`~~
-   - ~~medium/sharp base authority `0.76/0.58 → 0.86/0.74`~~
-   - ~~overspeed grip loss `0.48 → 0.35`~~
-   - ~~easy, neutral centering과 sharp 무대응 위협은 유지~~
-6. ~~HR-3G 코너 출구 반대편 발사와 전방 rail 충돌 복구~~ — 완료
-   - ~~HR-3G0: `8% / 20% / 30%` 상태 fork replay~~
-   - ~~HR-3G1: passive yaw loss와 direct overspeed lateral의 중복 제거~~
-   - ~~HR-3G2: grip debt-cancel과 line-change authority 분리~~
-   - ~~HR-3G3: 차체 전방 swept rail contact~~
-   - ~~HR-3G4: neutral/prepared grip/drift production 재승인~~
-7. ~~HR-3H 무입력 월드 직진과 조향 기반 코너링 계약~~ — 완료
-   - ~~HR-3H0: 40%/production fork와 preview 격리 계약~~
-   - ~~HR-3H1: 물리 yaw를 현재 접지점 곡률로 변경~~
-   - ~~HR-3H2: passive road-follow 제거와 실제 steering authority 계측~~
-   - ~~HR-3H3: relative heading 기반 lateral kinematics~~
-   - ~~HR-3H4: 자동 corner scrub을 tire-loss budget으로 제한~~
-   - ~~HR-3H5: neutral rail / prepared grip / drift production 승인~~
-8. 판단 window가 부족한 선택 코너에만 sustained apex 적용 여부 결정 — HR-4 조건부, 다음 재개 시점으로 이월
-9. ~~HR-3I grip 방향 안정성과 차체-궤적 일치~~ — 완료
-   - ~~HR-3I0: 로그 기반 ice-feel fixture~~
-   - ~~HR-3I1: 물리 steering command slew~~
-   - ~~HR-3I2: trajectory 기반 body pose~~
-   - ~~HR-3I3: world-line/production/handling 회귀~~
-10. ~~HR-3I-R 무조향 sprite 회귀 보정~~ — 완료
-   - ~~trajectory heading의 sprite frame 관여 제거~~
-   - ~~physical steering command 기반 pose 복구~~
-   - ~~neutral command center-frame 자동 gate~~
-   - ~~world-line/production/handling 재승인~~
-11. ~~HR-3J guardrail contact lifecycle과 단일 impulse~~ — 완료
-    - ~~지속 접촉은 `enter`에서만 impulse 적용~~
-    - ~~같은 rail 반복 impact `4~11회 → 1회`~~
-    - ~~release inset 이탈 뒤에만 재충돌 허용~~
-12. ~~HR-3K 코너 출구 inside heading overshoot 제한~~ — 완료
-    - ~~grip `0.06rad`, drift 최대 `0.18rad` 성장 allowance~~
-    - ~~neutral·counter steer·직선에는 제한 미적용~~
-    - ~~좌우 drift exit 대칭과 기존 world-line 회귀 승인~~
-13. prepared grip과 drift의 line·exit speed·section time 최종 승인 — HR-5, 다음 재개 시점으로 이월
+갱신일: 2026-09-10
 
-상세 진단, 수치와 단계별 gate는 [속도대별 핸들링 계획의 2026-07-23 재검증](./apex-seoul-speed-band-handling-plan.md#2026-07-23-무입력-코너-관성-재검증)에서 관리한다.
+목표: 디버그 주행 환경을 **차량별 운전 전략과 시청각 피드백이 있는 완결된 아케이드 타임어택**으로 전환한다. 이번 갱신은 소스 정적 분석과 설계 정리이며 코드 구현·실주행 승인 결과가 아니다.
 
-HR-2 구조 계약은 `6/6 PASS`, HR-1 heading 계약은 `5/5 PASS`, production 진단은 `11/11 PASS`다. offset `360u`의 무입력 straight는 2초 뒤에도 `360u`이고 centering force와 steering velocity는 `0`이다. 기존 `-120u/s` 횡속도는 위치를 `350.2174u`까지만 이동시킨 뒤 역방향 복귀 없이 damping으로 `0`이 된다. production gameplay 계약은 `5/6`, 상태는 `HR2_CENTERING_SEPARATED_HR3_TUNING_BLOCKED`다. [HR-2 계약](../../games/apex-seoul/scripts/audit-neutral-centering-contract.mjs), [production 계약 보고서](../../games/apex-seoul/assets/telemetry/generated/corner-production/production-corner-contract.md)
+현재 loop는 `LoadingScene → MainScene → VehicleSelectScene → TimeAttackScene → ResultScene`까지 존재한다. 세 차량 × 네 색상 선택, countdown/checkpoint/finish와 retry도 기반이 있으므로 새로 만드는 항목으로 분류하지 않는다. 반면 gameplay HUD, 차량별 handling profile, 실제 Records/Options, 과급 음향·사건 표현, pause/mobile 연결은 출시 작업으로 남아 있다.
 
-HR-3F production에서 preview curve와 contact curve의 최대 차이는 `0.208`, yaw 분해 오차는 `0`이다. 첫 sharp 코너 prepared grip은 무입력 대비 최대 paved ratio `1.332 → 0.691`, impact `1 → 0`, 동일 구간 종료 속도 `128.733 → 145.354km/h`를 기록했다. 상세 구현과 gate는 [HR-3F 구현 결과](./apex-seoul-speed-band-handling-plan.md#hr-3f--실주행-곡률-추종-보정), 전체 matrix는 [HR-3F 보고서](../../games/apex-seoul/assets/telemetry/generated/hr3-handling-matrix/hr3-handling-matrix.md)에 둔다.
+이 문서만 실행 순서를 소유한다. [현재 코드 분석·차량·효과·클래스별 구현 설계](./apex-seoul-playable-game-plan.md)와 [HUD 상세](./apex-seoul-hud-plan.md)를 함께 읽는다. 기존 HR-3K까지의 완료 근거·회귀 수치는 [속도대별 핸들링 계획](./apex-seoul-speed-band-handling-plan.md)에 유지한다. 과거 PASS를 이번 검증 결과로 취급하지 않는다.
 
-HR-3G의 로그 근거, 단계별 변경 범위와 완료 gate는 [코너 출구 반대편 발사와 전방 rail 충돌 계약](./apex-seoul-speed-band-handling-plan.md#hr-3g--코너-출구-반대편-발사와-전방-rail-충돌-계약)에서 관리한다.
+## 2026-09-10 HUD·엔진 1차 구현
 
-HR-3G fork 계약은 `6/6 PASS`다. neutral은 세 fixture 모두 outward로 계속 진행했고, 짧은 correction은 반대 heading/inertia 없이 기존 debt만 줄였다. 차체 중심이 side rail limit에 닿기 전 front corner impact도 검증했다. [HR-3G 계약 보고서](../../games/apex-seoul/assets/telemetry/generated/corner-exit-recovery/corner-exit-recovery-contract.md)
+P0-2의 기본 아날로그 RPM·디지털 속도·차종별 boost dial(0/1/2개)을 구현했다. P1-2 중 트윈의 독립 primary/secondary 상태와 토크 합성, 부분 throttle 응답도 연결했다. Raven의 고회전 torque curve와 single의 기존 lag/decay 특성은 유지했다. `qa:gameplay-hud` 및 관련 회귀와 build는 통과했다. P0-2 전체 완료(PB·mobile 전용 배치)나 P1-1의 차량별 handling 밸런스 승인은 아니며, 음향·kick 사건 연출도 후속이다.
 
-HR-3H는 기존 HR-3E의 passive follow 승인 수치를 폐기한다. 상세 근거와 단계별 gate는 [무입력 월드 직진과 조향 기반 코너링 계약](./apex-seoul-speed-band-handling-plan.md#hr-3h--무입력-월드-직진과-조향-기반-코너링-계약)에서 관리한다.
+## P0 — 정상 플레이의 정보와 기록을 먼저 성립시킨다
 
-HR-3H world-line 계약은 `7/7 PASS`, production은 `14/14 + 5/5 PASS`다. neutral sharp는 rail에 도달하고 prepared grip과 drift는 서로 다른 명시적 입력으로 rail 없이 통과한다. exit speed/section time 비교는 HR-5에서 다시 승인한다. [HR-3H 계약 보고서](../../games/apex-seoul/assets/telemetry/generated/world-line-cornering/world-line-cornering-contract.md)
+| 작업 | 수정 대상 / 신규 제안 | 완료 기준 |
+| --- | --- | --- |
+| P0-1 선택과 성능 baseline | `TimeAttackScene`, `VehicleSelectScene`, `selectRuntimeVehicleAsset()`, 기존 차량 QA | 3차량×4색상 flow 확인. drivetrain/표시 속도/구간 이동 비교표 확보 |
+| P0-2 최소 아케이드 HUD | 기존 `hud.ts` 진단 분리, 신규 `GameplayHud`, `createGameplayHudState()` | 일반 debug OFF에서도 time/speed/gear/RPM/progress 식별. NA/single/twin 기본 패널이 실제 상태와 일치 |
+| P0-3 기록·결과·메뉴 | `runRecord.ts`, `TimeAttackResult`, `ResultScene`, `MainScene`, `OptionsScene`; 신규 `RunRecordStore`, `RecordsScene` | 차량/코스/ruleset별 PB, legacy 분리, 최초 기록 표기 수정, 명시적 retry setup, 실제 Records/Reset |
+| P0-4 공정한 run 시간 | `courseRun.ts`, `TimeAttackScene`; 신규 `RunSessionController` | 경계 시각 보간, pause/focus 시 입력·시간 보호, QA override 기록 제외 |
 
-Production track에서 강한 코너를 자동 탐색해 `120 / 160 / 185km/h` 무조향 full-throttle로 독립 실행하는 회귀도 추가했다. 현재 좌우 코너 `8개 × 3속도 = 24개`가 모두 바깥쪽으로 이탈하며, `185km/h`는 `8/8` 코너에서 `1.267~1.700초` 안에 차체 전방 rail contact를 만든다. `npm run qa:neutral-production-corners --workspace @games/apex-seoul`로 재검사한다. [production 무조향 코너 보고서](../../games/apex-seoul/assets/telemetry/generated/neutral-production-corners/neutral-production-corners.md)
+P0-2의 twin은 기존 total boost와 계산된 단계 표시까지만 사용한다. 두 개의 독립 stage bar는 P1-2 이후 연결한다. PB split은 P0-3 저장 계약 이후 연결하며 ghost를 기다리지 않는다. HUD 없이 기록 데이터만 계속 확장하지 않는다.
 
-HR-3I-R 이후 무조향 sprite는 road-relative heading이 아니라 physical steering command를 표현한다. 유효 command와 sprite 방향 불일치는 `0건`, release settled pose 최대값은 `0.0002`다. HR-3J는 같은 rail의 지속 접촉을 하나의 사건으로 묶어 production `185km/h` 8개 분기의 동일 rail impact를 모두 `1회`로 만들었다. HR-3K는 같은 방향 조향이 road-aligned 지점을 지난 뒤에도 inside heading을 중복 생성하는 경로를 제한했고, 좌우 drift exit 최대 inside heading은 `0.179rad`다.
+## P1 — 차량의 차이를 운전 재미로 만든다
 
-### P0 임시 동결 판단
+| 작업 | 수정 대상 / 신규 제안 | 완료 기준 |
+| --- | --- | --- |
+| P1-1 차량별 handling·powerband | `VehicleEngineProfile`, `RuntimeVehicleAsset`, `createPlayerVehicleRuntimeConfig()`, `updatePlayerVehicle()`; 신규 `VehicleHandlingProfile` | Raven의 민첩/속도 유지, Mirae의 lag/출구 가속, Seorin의 넓은 응답/안정감에 각각 장단점 존재 |
+| P1-2 과급 상태와 사건 | `EngineBoostProfile`, `getBoostTargetRatio()`; 신규 `PowertrainFeedbackState`, `derivePowertrainFeedback()` | single kick/twin stage/lift/shift를 실제 계산에서 도출. 토크 중복 가산·가짜 압력 없음 |
+| P1-3 소리·효과 | `playerPresentation.ts`, `cameraEffects.js`, `speedEffectShader.ts`, `LoadingScene`; 신규 `VehicleAudioController`, `VehicleEffectsPresenter` | RPM/load engine loop, spool·kick·배출음, NA powerband, 타이어·충돌 피드백. mute/reduced motion·lifecycle 정상 |
+| P1-4 garage 설명 | `VehicleSelectScene`, catalog capability | 과급 종류·장점·약점·운전 팁이 실제 성능과 일치. 차량 ID로 launch/HUD 효과를 추측하지 않음 |
 
-- 자동 계약상 “코너에서 조향하지 않으면 바깥 rail을 위협한다”는 핵심 규칙은 복구됐다.
-- contact lifecycle과 sprite는 물리 상태를 반복 충돌이나 가짜 조향으로 왜곡하지 않는다.
-- 사용자 실주행 감각에는 약 `20%`의 보완 여지가 남았다. 이는 승인 완료가 아니라 다음 재개를 위한 명시적 잔여 판단이다.
-- CH-4 선택 코스 apex 재설계와 CH-5 grip/drift section time 승인은 time attack loop에서 실제 기록 비교가 가능해질 때 함께 재개한다.
-- 기존 `qa:drive-telemetry`의 고정 `700u` rail 점수는 production의 동적 rail boundary를 대표하지 못하므로 별도 QA 부채로 남긴다. 이 점수만으로 현재 handling을 PASS/FAIL 처리하지 않는다.
+P1 gate: 동일 조건 가속·제동·코너/구간 시간 측정과 사용자 비교 주행으로 차량별 유리한 상황을 설명할 수 있다. 세 차 중 하나가 모든 상황의 정답이면 재조정한다. 물리 차이 없이 UI 색상만 바뀌는 상태는 완료가 아니다.
 
-### 완료 조건
+## P2 — 기록을 줄이는 판단과 재도전을 만든다
 
-- 직선과 easy sweep은 무조향 또는 작은 보정으로 안정적이다.
-- 선택한 sharp 코너에 과속 무조향으로 진입하면 shoulder 또는 rail 위협이 실제 production run에서 발생한다.
-- 같은 코너의 brake/lift prepared grip은 무조향보다 좋은 line을 만들며, exit speed·section time 우위는 HR-5에서 별도로 승인한다.
-- drift는 실제 slip/counter를 거쳐 유용한 line 또는 진입 속도 선택지가 되며 자동 정답은 아니다.
-- U1/U2 진행 배율이 달라도 같은 물리 속도·코너 geometry의 위험 관계가 설명 가능하다.
-- 최고속, 0-100, collision boundary와 기존 grip/drift 상태 회귀가 통과한다.
+1. `RoadTrack`에 `CourseSection` metadata를 연결하고 checkpoint·코너 예고·결과 이름을 일치시킨다.
+2. `CourseRunState`, `RunRecordStore`, `ResultScene`을 연결해 PB run의 구간 비교와 개선 팁 하나를 표시한다.
+3. CH-4 선택 apex와 CH-5 grip/drift 비교를 재개한다. 같은 코너의 line·impact·exit speed·section time으로 유용성을 승인하고 변경 전후를 기록한다.
+4. 실제 완주 분포로 차량별 medal 목표와 clean-run 도전을 정한다. 타임어택 완주에는 임의 drift 보너스나 중복 충돌 시간 벌점을 넣지 않는다.
 
-## P1 — 최소 time attack loop 완성
+완료 기준: 플레이어가 “어느 구간에서 왜 늦었고 다음 run에 무엇을 바꿀지” 알 수 있다. 코스 길이·차량 수 확대는 이 결과를 대신하지 않는다.
 
-P0 승인 뒤 한 번의 주행을 명확히 시작하고 끝낸 뒤 다시 도전할 이유를 만든다.
+## P3 — 플레이 가능한 배포 품질
 
-### 구현 범위
+- `OptionsScene`을 신규 `GameSettingsStore`로 영속화하고 steering/audio/debug/reduced motion을 실제 runtime에 적용한다.
+- `DriveCommand`/`mergeDriveCommands()`에 신규 `TouchDriveControls`를 연결한다. keyboard/touch 동시 입력, pointer cancel, blur를 처리한다.
+- desktop/mobile safe-area HUD, garage/result touch, orientation/pause, audio unlock과 asset 실패 복구를 확인한다.
+- 10회 retry의 listener/audio/particle 누적, storage 거부/손상, 30/60/120fps 기록 오차와 실제 기기 성능을 확인한다.
+- 신규 사용자 완주·retry 관찰과 차량 식별 검증을 통과한 뒤 공개 playable로 승인한다. 세부 gate는 [전환 설계](./apex-seoul-playable-game-plan.md)의 검증 시나리오를 따른다.
 
-1. ~~시작 전 짧은 ready/countdown 상태~~ — 일반 플레이는 3초간 정지 후 출발, QA URL은 즉시 시작
-2. 주행 중 현재 시간과 checkpoint split 피드백, checkpoint 상공 통과 gate
-3. finish 뒤 결과 화면
-4. 이번 기록, best 기록과 차이 표시
-5. 즉시 restart와 기록 유지
-6. 80km/h부터 시작해 속도에 따라 밀도·길이·발광이 커지는 소실점 기준 만화식 speed line
-7. 왼쪽 가드레일의 연속 가로등과 기존 `>> / <<` chevron의 코너 진입 재배치
-8. ~~가로등의 제한적인 lamp glow/road pool과 finish coast 연출~~ — 완료. timed finish 직후의 비충돌 Π형 finish gate, 1.25초 coast, 2.25초 finish summary를 사용한다. 별도 finishing gantry·3-lamp 구조물은 요구하지 않는다.
+P0의 pause/시간 보호는 P3까지 미루지 않는다. P1의 소리에 필요한 최소 volume/mute·설정 연결도 그 단계에서 함께 구현한다. P3는 전체 플랫폼 통합 승인이다.
 
-현재 존재하는 progress/checkpoint/finish state를 사용한다. 단, run의 조건을 명시하려면 복잡한 메뉴 대신 최소 pre-run garage가 필요하다. 이는 차량 → 색상 → 코스(현재 Bugak Ridge Downhill 하나) → Start Run만 결정하고, 설정/상점/차고 진행도는 포함하지 않는다.
+## 회귀 기준과 보류 범위
 
-```text
-raven-coupe | seorin-gt | mirae-gt
-  → blue | red | silver | black
-  → bugak-ridge-downhill
-  → countdown / timed run
-```
+HR-3K의 무입력 바깥 이탈, rail contact enter/stay/exit, physical steering 기반 sprite, grip/drift 상태와 Raven drivetrain을 기존 기준선으로 유지한다. 기존 문서의 CH/HR 후속 표기는 CH-4/CH-5 제품 과제와 그에 대응하는 HR-4/HR-5 검증을 함께 가리킨다. 수치 변경은 차량 비교·코스 개선과 직접 연결된 경우에만 전후 근거와 함께 승인한다.
 
-normal flow의 선택 결과는 `RunSetup { vehicleId, vehicleColor, trackId }` scene data로 넘긴다. URL은 menu를 거치지 않는 QA 직접 진입의 fallback으로만 유지하며, source model 이름이나 asset path를 UI가 직접 소유하지 않는다.
+변경에 관련된 기존 `qa:vehicle-catalog`, `qa:powerband-reference`, `qa:top-speed-regression`, `qa:handling-relations`, `qa:world-line-cornering`, `qa:neutral-production-corners`, `qa:corner-production`, `qa:guardrail-collision` 및 `build`를 사용한다. 명령과 신규 테스트 범위는 전환 설계에 정리했다. 과거 Raven 중심 fixture를 세 차량 전체 보증으로 간주하지 않는다.
 
-checkpoint gate는 차량이 통과할 충분한 폭과 높이를 가진 `Π`형 상공 구조물이다. 도로 양쪽의 두 기둥과 이를 잇는 상단 빔만 렌더하며, 차량·가드레일과는 충돌하지 않는다.
-
-```text
-+-----+
-|     |
-```
-
-통과 순간의 split UI와 같은 checkpoint source를 공유하며, gate 자체가 진행 지점을 읽게 한다. gate 전후에는 chevron을 과밀하게 두지 않는다.
-
-speed line은 `80km/h`에서 거의 보이지 않게 시작해 `120~160km/h`에서 명확해지고, `185~225km/h`에서 가장 강한 만화식 속도감을 만든다. 가속 중에는 짧게 증폭하고 제동에서는 빠르게 감쇠한다. 소실점 주변에서 화면 바깥으로 퍼지되 road, chevron과 checkpoint gate의 판독성을 가리지 않는다.
-
-가로등은 왼쪽 가드레일을 따라 야간 도로의 cadence를 만든다. 기존 chevron은 모든 curve segment에 반복하지 않고 commitment corner 진입 전의 바깥 rail에 `2~4개` 묶음으로 둬 위험 방향을 미리 읽게 한다.
-
-가로등 glow와 road pool은 가로등의 fog/crest visibility를 그대로 공유하며, player headlight보다 약하게 유지한다. 기록 finish 뒤에는 1.25초의 untimed coast와 2.25초의 finish summary를 둔다. timed line 직후의 비충돌 Π형 finish gate가 완주 지점을 읽게 하며, 이 gate는 checkpoint 판정과 분리된 연출물이다. finish summary에는 완주 시간, best/new best, delta만 보이고 상세 split과 retry는 ResultScene이 맡는다. coast 끝 이후 원경은 마지막 평탄 road profile을 clamp해 fog로 수렴시키며, 시작 구간으로 wrap하지 않는다.
-
-출발 countdown의 rev·launch control·burnout 구현 근거는 [archive 기록](./archive/apex-seoul-launch-control-burnout-plan.md)에 보관한다. 새 후속은 P1 time attack 작업에서만 다시 정의한다.
-
-### 완료 조건
-
-- 시작 전 차량이 임의로 진행하지 않고 countdown 뒤 같은 조건에서 출발한다.
-- checkpoint와 finish 시간이 한 run 안에서 단조 증가하고 restart 시 run state만 초기화된다.
-- best record는 새 기록일 때만 갱신되며 새로고침 정책이 명확하다.
-- 키보드와 향후 모바일 입력이 같은 run command를 사용한다.
-- U2 속도, powertrain, grip/drift, collision과 기존 telemetry가 유지된다.
-- checkpoint gate, chevron, 가로등과 speed line이 crest visibility/fog와 같은 road projection 규칙을 따르며 gameplay 시야를 가리지 않는다.
-
-## P2 — 코스 gameplay 구조
-
-time attack loop가 완성된 뒤 코스를 단순 배경이 아니라 판단 가능한 구간으로 정리한다.
-
-### 후보 범위
-
-- recovery straight, easy sweep, commitment corner, S transition의 section metadata
-- checkpoint별 split과 구간 특성 표시
-- 코너 진입 준비, line 유지와 exit speed를 결과에서 읽을 수 있는 최소 피드백
-- 같은 입력으로 반복 주행할 수 있는 deterministic start/track 조건
-- checkpoint/split과 같은 이름을 쓰는 짧은 section name 표지
-- 실제 section 전환이 필요한 한 곳에만 쓰는 짧은 rock-cut/overhang landmark
-
-rock-cut/overhang은 터널이나 새 코스의 대체물이 아니다. 기존 road projection, crest visibility, headlight/fog 규칙 안에서 짧은 시야·조명 변화로 section 전환만 읽게 한다. 환경 랜드마크, sector 전환, route fork를 먼저 구현하지 않는다. 필요해질 경우 D-01/D-02/D-05를 이 작업에 병합한다.
-
-### 완료 조건
-
-- 각 section의 시작·종료와 목적이 track data 또는 단일 파생 규칙으로 정의된다.
-- 결과 화면에서 느린 구간을 구분할 수 있다.
-- section metadata가 렌더 전용 좌표와 물리 코스 좌표를 분리하지 않는다.
-
-## P3 — 입력·플랫폼 완성도
-
-핵심 loop와 코스 피드백이 승인된 뒤 실제 배포 환경의 조작과 성능을 정리한다.
-
-### 후보 범위
-
-- 모바일 landscape용 accelerator/brake/steering 입력
-- keyboard와 touch가 공유하는 input abstraction
-- pause, visibility change와 focus loss 처리
-- 저사양 브라우저의 WebGL 성능·해상도 정책
-- HUD의 모바일 가독성과 안전 영역
-
-### 완료 조건
-
-- 같은 입력 시퀀스에서 keyboard/touch의 controller 결과가 허용 범위 안에 있다.
-- background/foreground 전환이 run time과 best record를 오염시키지 않는다.
-- production viewport에서 player anchor, road, HUD와 결과 화면이 겹치지 않는다.
-
-## 이후 milestone
-
-| 순서 | milestone | 핵심 결과 | 보류 항목 병합 가능성 |
-| ---: | --- | --- | --- |
-| 4 | presentation/content integration | 코스별 환경 정체성과 필요한 시청각 피드백, 제한적인 tail-light glow | D-01, D-03, D-09~D-12 |
-| 5 | replayability | 차량 선택, traffic/opponent, 점수 또는 다른 도전 조건 | D-06~D-08 |
-| 6 | track expansion | 새 sector, 충분히 다른 추가 코스 또는 선택 경로 | D-02, D-04, D-05 |
-| 7 | release readiness | 성능 budget, 저장 데이터, 통합 QA와 공개 빌드 | 남은 release blocker만 선별 |
-
-이 표는 구현을 예약하지 않는다. 앞 milestone이 실제로 필요성을 만들 때만 관련 보류 항목을 활성화한다.
-
-## 현재 하지 않을 것
-
-- ORS-2B roadside hero pass와 ORS-6 sector transition의 독립 구현
-- production 코너 실패 계약과 연결되지 않은 handling, drift와 longitudinal scale의 목적 없는 tuning
-- traffic, audio, route fork를 game loop보다 먼저 구현
-- 장면 변화 없는 코스 연장
-- 차량 수만 늘리고 차량별 gameplay 차이를 만들지 않는 확장
-- 자동 QA 통과 수치만을 위한 플레이 감각 변경
-
-테일라이트는 M4 vehicle-feedback pass에서 먼저 제한적인 red glow만 검토한다. 차량이 화면 anchor에 머무르는 구조상 이동 잔상은 속도보다 조향·drift로 오인될 수 있으므로, glow 가독성 검증 뒤에만 조건부로 추가한다.
-
-## 다음 결정
-
-P0의 HR-3K 기준선을 임시 동결하고 P1에서 아래 한 묶음을 확정한다.
-
-```text
-vehicle → color → course
-  → countdown
-  → timed run
-  → checkpoint split
-  → finish/result
-  → best record
-  → restart
-```
-
-화면 설계와 저장 범위를 정한 뒤 이 묶음을 하나의 vertical slice로 구현한다.
-
-## 필수 회귀
-
-새 milestone은 변경 범위에 맞는 세부 QA와 함께 최소 다음을 유지한다.
-
-```bash
-npm run qa:corner-production --workspace @games/apex-seoul
-npm run qa:top-speed-regression --workspace @games/apex-seoul
-npm run qa:handling-relations --workspace @games/apex-seoul
-npm run qa:outrun-longitudinal-ab --workspace @games/apex-seoul
-npm run qa:guardrail-collision --workspace @games/apex-seoul
-npm run build --workspace @games/apex-seoul
-```
+AI/traffic, ghost, 온라인 랭킹, 상점, 새 차량/코스, 대규모 ECS 재작성은 첫 playable의 선행 조건이 아니다. 그 밖의 환경 polish·확장 아이디어는 [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)를 따른다. 이 계획에서 활성화한 HUD·오디오·차량별 게임성은 이전 문서의 보류 순서보다 우선한다.

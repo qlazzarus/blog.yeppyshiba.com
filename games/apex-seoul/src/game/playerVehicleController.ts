@@ -1,5 +1,6 @@
 import {
-    getBoostTargetRatio,
+    advanceEngineBoost,
+    getEngineBoostTargets,
     getGearRpm,
     getInitialGearIndex,
     getPhysicalDownshiftRpm,
@@ -335,6 +336,8 @@ export function createDefaultPlayerVehicleState(
     return {
         brakePressure: 0,
         boostRatio: 0,
+        primaryBoostRatio: 0,
+        secondaryBoostRatio: 0,
         cornerInsideHeadingAllowance: 0,
         cornerInsideHeadingLimited: false,
         cornerDemand: createDefaultCornerDemandSample(cruiseSpeed, accelSpeed),
@@ -1752,15 +1755,14 @@ function updateEngineState(
     }
 
     player.torqueScale = getTorqueScale(profile, player.rpm);
-    const boostTargetRatio = player.fuelCutActive
-        ? 0
-        : getBoostTargetRatio(profile, player.rpm, throttle, brake, cornerIntensity, speedRatio);
+    const boostTarget = getEngineBoostTargets(
+        profile, player.rpm, player.fuelCutActive ? 0 : throttle, brake, cornerIntensity, speedRatio,
+    );
+    const boostState = advanceEngineBoost(profile, player, boostTarget, seconds);
+    player.boostRatio = boostState.boostRatio;
+    player.primaryBoostRatio = boostState.primaryBoostRatio;
+    player.secondaryBoostRatio = boostState.secondaryBoostRatio;
     const boostProfile = profile.boost;
-    const boostResponse = boostTargetRatio > player.boostRatio
-        ? boostProfile?.spoolRate ?? 0
-        : boostProfile?.decayRate ?? 0;
-    const boostBlend = 1 - Math.exp(-boostResponse * seconds);
-    player.boostRatio = lerp(player.boostRatio, boostTargetRatio, boostBlend);
     player.shiftCutRatio = player.fuelCutActive ? 0 : getShiftCutRatio(player);
     const turboTorqueRatio = boostProfile
         ? lerp(boostProfile.baseTorqueRatio, 1, player.boostRatio)

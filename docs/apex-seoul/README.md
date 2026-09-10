@@ -1,6 +1,6 @@
 # Apex Seoul 내부 문서 안내
 
-갱신일: 2026-07-23
+갱신일: 2026-09-10
 
 이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다. 완료된 설계·검증 기록은 [archive](./archive/README.md)에 둔다.
 
@@ -9,7 +9,7 @@
 | 문서                                                         | 역할                                  |
 | ------------------------------------------------------------ | ------------------------------------- |
 | [구현 로드맵](./pseudo-3d-apex-seoul-roadmap.md)             | 완료된 주행 기반과 M1~M6 제품 milestone |
-| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | 코너 조향 필수 계약 복구부터 시작하는 가까운 실행 순서 |
+| [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)     | HUD·기록 → 차량 개성·과급 효과 → 구간 도전 → 배포 품질 |
 | [후순위 보류 백로그](./apex-seoul-deferred-backlog.md)       | 다른 상위 기능에 병합할 때만 재개하는 ORS·polish 항목 |
 | [속도대별 핸들링](./apex-seoul-speed-band-handling-plan.md)  | 핸들링 구조, 코너 관성 재검증, understeer와 QA 단일 기준 |
 | [ORS-1 Unit / Screen-flow Audit](../../games/apex-seoul/assets/telemetry/generated/outrun-unit-scale/outrun-unit-scale-ors1.md) | 현재 unit/projection과 공식 60fps 영상 표본 비교, ORS-2A 진단 범위 |
@@ -18,6 +18,7 @@
 | [차량 7way pose·Three.js sprite 생성](./apex-seoul-vehicle-pose-density-plan.md) | 5way→7way 조향 pose와 offline Three.js renderer 경계 |
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |
+| [플레이 가능한 게임 전환 설계](./apex-seoul-playable-game-plan.md) | 현재 소스 분석, 차량별 전략, 과급 효과, 클래스별 변경과 완료 기준 |
 | [HUD 설계](./apex-seoul-hud-plan.md)                         | debug overlay 분리와 speed/RPM/boost gameplay HUD |
 | [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |
 

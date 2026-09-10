@@ -97,7 +97,8 @@
         "swap:vehicle-body-palette": "node scripts/swap-vehicle-body-palette.mjs",
         "stylize:vehicle-7way": "node scripts/stylize-vehicle-7way-sheet.mjs",
         "write:vehicle-7way-runtime-adapter": "node scripts/write-vehicle-7way-runtime-adapter.mjs",
-        "write:vehicle-7way-atlas": "node scripts/write-vehicle-7way-atlas.mjs"
+        "write:vehicle-7way-atlas": "node scripts/write-vehicle-7way-atlas.mjs",
+        "qa:gameplay-hud": "node scripts/audit-gameplay-hud.mjs"
     },
     "dependencies": {
         "phaser": "^4.1.0",

@@ -26,9 +26,10 @@
 | 4.80 / 5.00 | soft / silhouette player shadow | 차량 그림자 | sprite | 운영 중 |
 | 6.00 / 6.10 | `foregroundOcclusionGraphics` / `playerCar` | 좌·우·하단 foreground matte / 플레이어 차량 | 명시적 depth 분리 | 운영 중 |
 | 7.00 | `uiGraphics` | course progress | UI 도형 | 운영 중 |
+| 7.50 | `GameplayHud` | 아날로그 RPM / 디지털 속도 / 과급 계기와 timer | 우측 하단 cluster + 상단 timer container, 정적 face + 동적 needle | v1 적용 |
 | 8.00 | `hudText` | 디버그 HUD | text | 운영 중 |
 
-현재 `hud.ts`는 text를 depth 10으로 생성하지만, 씬 생성부가 곧바로 8로 덮어쓴다. 실제 기준은 8이다.
+`hud.ts`는 `RenderDepth.Hud=8`을 사용한다. `GameplayHud=7.5`는 progress 위, debug 및 countdown/finish notice 아래다. finish summary 중 gameplay 계기는 숨긴다.
 
 ## 현재 월드 렌더 패스
 

@@ -1,3 +1,5 @@
+import { GameplayHud } from './gameplayHud';
+import { createGameplayHudState } from './gameplayHudState';
 import Phaser from 'phaser';
 import { MainScene } from './mainScene';
 import { OptionsScene } from './optionsScene';
@@ -463,7 +465,8 @@ export class TimeAttackScene extends Phaser.Scene {
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionDebugText!: Phaser.GameObjects.Text;
-    private debugHudVisible = true;
+    private debugHudVisible = URL_PARAMS.get('debugHud') === '1';
+    private gameplayHud!: GameplayHud;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
@@ -647,6 +650,8 @@ export class TimeAttackScene extends Phaser.Scene {
         );
         this.collisionDebugText = createCollisionDebugText(this);
         this.hudText = createHudText(this);
+        this.gameplayHud = new GameplayHud(this, ACTIVE_RUNTIME_VEHICLE.engineProfile);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.gameplayHud.destroy());
         this.runStatusText = this.add
             .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.35, '', {
                 align: 'center',
@@ -672,7 +677,9 @@ export class TimeAttackScene extends Phaser.Scene {
             },
         );
 
-        this.scale.on('resize', () => this.render(0));
+        const onResize = () => this.render(0);
+        this.scale.on('resize', onResize);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.render();
     }
 
@@ -1167,6 +1174,11 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private renderHud() {
+        const viewport = this.getViewport();
+        this.gameplayHud.update(createGameplayHudState(
+            ACTIVE_RUNTIME_VEHICLE.engineProfile, this.playerVehicle,
+            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState,
+        ), viewport.width, viewport.height, this.finishPresentationPhase !== 'finish-summary');
         if (!this.debugHudVisible) {
             this.hudText.setVisible(false);
             this.collisionDebugText.setVisible(false);
@@ -2573,6 +2585,8 @@ export class TimeAttackScene extends Phaser.Scene {
             }),
             player: serializeRuntimeQaPlayer({
                 boostRatio: Number(this.playerVehicle.boostRatio.toFixed(4)),
+                primaryBoostRatio: Number(this.playerVehicle.primaryBoostRatio.toFixed(4)),
+                secondaryBoostRatio: Number(this.playerVehicle.secondaryBoostRatio.toFixed(4)),
                 brakePressure: Number(this.playerVehicle.brakePressure.toFixed(4)),
                 cornerDemand: serializeRuntimeQaPlayerCornerDemand(
                     this.playerVehicle.cornerDemand,

@@ -25,5 +25,6 @@ export enum RenderDepth {
     PlayerTireCue = 6.05,
     Player = 6.1,
     Ui = 7,
+    GameplayHud = 7.5,
     Hud = 8,
 }

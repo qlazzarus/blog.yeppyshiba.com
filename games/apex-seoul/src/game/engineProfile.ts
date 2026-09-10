@@ -21,6 +21,9 @@ export type EngineBoostProfile = {
     /** Optional second-stage range for a sequential twin-turbo setup. */
     mainEndRpm?: number;
     mainStartRpm?: number;
+    /** Sequential stage has its own inertia; weights sum to one, not extra torque. */
+    secondarySpoolRate?: number;
+    primaryTorqueShare?: number;
     peakEndRpm: number;
     peakStartRpm: number;
     /** How quickly the turbine builds pressure while on throttle. */
@@ -108,6 +111,8 @@ export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         decayRate: 2.8,
         mainEndRpm: 4700,
         mainStartRpm: 3900,
+        secondarySpoolRate: 3.2,
+        primaryTorqueShare: 0.8,
         peakEndRpm: 6400,
         peakStartRpm: 3600,
         spoolRate: 5.4,
@@ -297,33 +302,77 @@ export function getBoostTargetRatio(
     cornerIntensity: number,
     speedRatio: number,
 ) {
-    if (!profile.boost || throttle <= 0 || brake > 0) return 0;
+    return getEngineBoostTargets(profile, rpm, throttle, brake, cornerIntensity, speedRatio).boostRatio;
+}
 
+export type EngineBoostState = {
+    boostRatio: number;
+    primaryBoostRatio: number;
+    secondaryBoostRatio: number;
+};
+
+export function getEngineBoostTargets(
+    profile: VehicleEngineProfile, rpm: number, throttle: number, brake: number,
+    cornerIntensity: number, speedRatio: number,
+): EngineBoostState {
     const boost = profile.boost;
+    if (profile.induction === 'na' || !boost || throttle <= 0 || brake > 0) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
     const primarySpool = smoothstep(clamp(
-        (rpm - boost.startRpm) / (boost.peakStartRpm - boost.startRpm),
-        0,
-        1,
+        (rpm - boost.startRpm) / Math.max(1, boost.peakStartRpm - boost.startRpm), 0, 1,
     ));
-    const secondaryStage = boost.mainStartRpm && boost.mainEndRpm
-        ? lerp(0.8, 1, smoothstep(clamp(
-            (rpm - boost.mainStartRpm) / (boost.mainEndRpm - boost.mainStartRpm),
-            0,
-            1,
-        )))
-        : 1;
+    const isTwin = profile.induction === 'twin-turbo';
+    const secondarySpool = isTwin ? smoothstep(clamp(
+        (rpm - (boost.mainStartRpm ?? boost.startRpm)) /
+        Math.max(1, (boost.mainEndRpm ?? boost.peakStartRpm) - (boost.mainStartRpm ?? boost.startRpm)), 0, 1,
+    )) : 0;
     const redlineDecay = rpm > boost.peakEndRpm
-        ? 1 - smoothstep(clamp(
-            (rpm - boost.peakEndRpm) / (profile.fuelCutStartRpm - boost.peakEndRpm),
-            0,
-            1,
-        )) * 0.28
+        ? 1 - smoothstep(clamp((rpm - boost.peakEndRpm) /
+            Math.max(1, profile.fuelCutStartRpm - boost.peakEndRpm), 0, 1)) * 0.28
         : 1;
-    const cornerPenalty = lerp(1, profile.induction === 'single-turbo' ? 0.7 : 0.82, cornerIntensity);
-    const speedLift = profile.induction === 'twin-turbo'
-        ? lerp(0.82, 1.08, smoothstep(speedRatio))
-        : lerp(0.9, 1.02, smoothstep(speedRatio));
-    return clamp(primarySpool * secondaryStage * redlineDecay * cornerPenalty * speedLift, 0, 1);
+    const cornerPenalty = lerp(1, isTwin ? 0.82 : 0.7, clamp(cornerIntensity, 0, 1));
+    const speedLift = isTwin
+        ? lerp(0.82, 1.08, smoothstep(clamp(speedRatio, 0, 1)))
+        : lerp(0.9, 1.02, smoothstep(clamp(speedRatio, 0, 1)));
+    // Partial throttle must not command full boost. Pressure remains normalized,
+    // not bar/psi, and each needle shows the same state that supplies torque.
+    const load = redlineDecay * cornerPenalty * speedLift * clamp(throttle, 0, 1);
+    const primaryBoostRatio = clamp(primarySpool * load, 0, 1);
+    const secondaryBoostRatio = clamp(primarySpool * secondarySpool * load, 0, 1);
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
+}
+
+function combineEngineBoost(profile: VehicleEngineProfile, primary: number, secondary: number) {
+    if (profile.induction === 'na' || !profile.boost) return 0;
+    if (profile.induction === 'single-turbo') return primary;
+    const share = clamp(profile.boost.primaryTorqueShare ?? 0.8, 0, 1);
+    return primary * share + secondary * (1 - share);
+}
+
+/** Exponential stage response is stable across frame rates for a held target. */
+export function advanceEngineBoost(
+    profile: VehicleEngineProfile, current: EngineBoostState, target: EngineBoostState, seconds: number,
+): EngineBoostState {
+    const boost = profile.boost;
+    if (profile.induction === 'na' || !boost) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
+    const advance = (value: number, goal: number, spoolRate: number) => {
+        const rate = goal > value ? spoolRate : boost.decayRate;
+        return clamp(lerp(value, goal, 1 - Math.exp(-rate * Math.max(0, seconds))), 0, 1);
+    };
+    const primaryBoostRatio = advance(current.primaryBoostRatio, target.primaryBoostRatio, boost.spoolRate);
+    const secondaryBoostRatio = profile.induction === 'twin-turbo'
+        ? advance(current.secondaryBoostRatio, target.secondaryBoostRatio, boost.secondarySpoolRate ?? boost.spoolRate)
+        : 0;
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
 }
 
 export function getDisplaySpeedKmh(speed: number, accelSpeed: number, profile: VehicleEngineProfile) {
