@@ -1,8 +1,13 @@
+import type { RunSetup } from './runSetup';
+import type { SaveStatus } from './runRecord';
 import Phaser from 'phaser';
 import { UI_THEME } from './uiTheme';
 
 export type TimeAttackResult = {
     bestTimeSec: number | null;
+    previousBestTimeSec: number | null;
+    runSetup: RunSetup;
+    recordStatus: SaveStatus;
     checkpointTimesSec: Array<number | null>;
     color: string;
     courseName: string;
@@ -36,7 +41,7 @@ export class ResultScene extends Phaser.Scene {
         graphics.fillStyle(UI_THEME.panel, 0.97).fillRoundedRect(panelX, 184, panelWidth, height - 272, 4);
         graphics.lineStyle(1, UI_THEME.borderMuted, 1).strokeRoundedRect(panelX, 184, panelWidth, height - 272, 4);
 
-        this.add.text(width / 2, 38, result.isNewBest ? 'NEW BEST' : 'TIME ATTACK COMPLETE', {
+        this.add.text(width / 2, 38, result.isNewBest ? (result.previousBestTimeSec === null ? 'FIRST RECORD' : 'NEW BEST') : 'TIME ATTACK COMPLETE', {
             color: result.isNewBest ? UI_THEME.amberHighlightHex : UI_THEME.textMainHex,
             fontFamily: 'Arial, sans-serif', fontSize: compact ? '30px' : '38px', fontStyle: 'bold italic', letterSpacing: 3,
             stroke: UI_THEME.titleShadowHex, strokeThickness: 2,
@@ -46,14 +51,17 @@ export class ResultScene extends Phaser.Scene {
             stroke: UI_THEME.titleShadowHex, strokeThickness: 2,
         }).setOrigin(0.5);
 
-        const bestLine = result.bestTimeSec === null
+        const bestLine = result.recordStatus === 'excluded' ? 'PRACTICE RUN' : result.previousBestTimeSec === null
             ? 'FIRST RECORDED RUN'
             : result.isNewBest
-                ? `PREVIOUS BEST  ${formatTime(result.finishTimeSec - (result.deltaSec ?? 0))}`
-                : `BEST  ${formatTime(result.bestTimeSec)}`;
+                ? `PREVIOUS BEST  ${formatTime(result.previousBestTimeSec)}`
+                : `BEST  ${formatTime(result.bestTimeSec ?? result.finishTimeSec)}`;
         const deltaLine = result.deltaSec === null ? 'NO PREVIOUS RECORD' : `${result.deltaSec <= 0 ? '-' : '+'}${formatTime(Math.abs(result.deltaSec))} FROM BEST`;
         this.add.text(width / 2, 148, `${bestLine}  //  ${deltaLine}`, {
             color: UI_THEME.secondaryTextHex, fontFamily: 'monospace', fontSize: '11px', letterSpacing: 1,
+        }).setOrigin(0.5);
+        if (result.recordStatus !== 'saved') this.add.text(width / 2, 172, result.recordStatus === 'excluded' ? 'PRACTICE — RECORD NOT SAVED' : 'RECORD NOT SAVED TO BROWSER', {
+            color: UI_THEME.amberHex, fontFamily: 'monospace', fontSize: '11px',
         }).setOrigin(0.5);
         this.add.text(panelX + 28, 214, result.courseName.toUpperCase(), {
             color: UI_THEME.amberHex, fontFamily: 'monospace', fontSize: '12px', letterSpacing: 2,
@@ -81,7 +89,7 @@ export class ResultScene extends Phaser.Scene {
             actionText.forEach((label, index) => label.setColor(index === selectedIndex ? UI_THEME.menuSelectedTextHex : UI_THEME.menuTextHex));
         };
         const activate = () => {
-            if (selectedIndex === 0) this.scene.start('time-attack');
+            if (selectedIndex === 0) this.scene.start('time-attack', result.runSetup);
             else this.scene.start('main');
         };
         actionLabels.forEach((label, index) => {

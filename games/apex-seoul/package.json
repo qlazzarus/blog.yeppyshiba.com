@@ -98,6 +98,8 @@
         "stylize:vehicle-7way": "node scripts/stylize-vehicle-7way-sheet.mjs",
         "write:vehicle-7way-runtime-adapter": "node scripts/write-vehicle-7way-runtime-adapter.mjs",
         "write:vehicle-7way-atlas": "node scripts/write-vehicle-7way-atlas.mjs",
+        "qa:local-save": "node --import tsx scripts/audit-local-save.ts",
+        "qa:local-save-browser": "node scripts/audit-local-save-browser.mjs",
         "qa:gameplay-hud": "node scripts/audit-gameplay-hud.mjs"
     },
     "dependencies": {

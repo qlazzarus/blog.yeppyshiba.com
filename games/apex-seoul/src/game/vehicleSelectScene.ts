@@ -1,3 +1,4 @@
+import { runRecordStore } from './runRecord';
 import Phaser from 'phaser';
 
 import type { RunSetup } from './runSetup';
@@ -50,6 +51,10 @@ export class VehicleSelectScene extends Phaser.Scene {
     }
 
     create() {
+        const saved = runRecordStore.getSetup();
+        this.vehicleIndex = Math.max(0, VEHICLES.findIndex(v => v.id === saved.vehicleId));
+        this.colorIndex = Math.max(0, COLORS.findIndex(c => c === saved.vehicleColor));
+        this.step = 0;
         const { width, height } = this.scale;
         const compact = width < 680;
         const panelWidth = compact ? width - 48 : Math.min(430, width * 0.38);
@@ -243,6 +248,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                 vehicleColor: currentColor(),
                 vehicleId: currentVehicle().id,
             };
+            runRecordStore.saveSetup(runSetup);
             this.scene.start('time-attack', runSetup);
         };
         const nextStep = () => {

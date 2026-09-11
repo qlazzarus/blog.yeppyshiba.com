@@ -1,3 +1,4 @@
+import { runRecordStore } from './runRecord';
 import Phaser from 'phaser';
 
 import { UI_THEME } from './uiTheme';
@@ -17,7 +18,7 @@ type RowVisual = {
     value: Phaser.GameObjects.Text;
 };
 
-/** Visual and interaction prototype. Persistence is intentionally deferred. */
+/** Settings prototype with functional local record reset. */
 export class OptionsScene extends Phaser.Scene {
     constructor() {
         super('options');
@@ -44,6 +45,10 @@ export class OptionsScene extends Phaser.Scene {
             [6, 'DATA'],
         ]);
         const visuals: RowVisual[] = [];
+        let resetArmed = false;
+        const resetNotice = this.add.text(width / 2, height - 51, '', {
+            color: UI_THEME.amberHex, fontFamily: 'Arial, sans-serif', fontSize: '11px',
+        }).setOrigin(0.5).setDepth(10);
         const backIndex = rows.length;
         const rangeWidth = compact ? 106 : 164;
         const valueX = panelX + panelWidth - 38;
@@ -187,7 +192,9 @@ export class OptionsScene extends Phaser.Scene {
             update();
         };
         const select = (index: number) => {
-            selectedIndex = Phaser.Math.Wrap(index, 0, rows.length + 1);
+            const next = Phaser.Math.Wrap(index, 0, rows.length + 1);
+            if (next !== selectedIndex) { resetArmed = false; resetNotice.setText(''); }
+            selectedIndex = next;
             update();
         };
 
@@ -352,7 +359,16 @@ export class OptionsScene extends Phaser.Scene {
                 row.value = !row.value;
                 update();
             }
-            // Reset persistence is intentionally not wired yet.
+            if (row.kind === 'reset') {
+                if (!resetArmed) {
+                    resetArmed = true;
+                    resetNotice.setText('Delete personal records? Press again to confirm.');
+                } else {
+                    const status = runRecordStore.resetRecords();
+                    resetArmed = false;
+                    resetNotice.setText(status === 'saved' ? 'Records reset to defaults.' : 'Reset for this session only. Old records may return on reload.');
+                }
+            }
         };
         back.on('pointerover', () => select(backIndex));
         back.on('pointerup', () => {
@@ -363,8 +379,8 @@ export class OptionsScene extends Phaser.Scene {
         this.input.keyboard?.on('keydown-DOWN', () => select(selectedIndex + 1));
         this.input.keyboard?.on('keydown-LEFT', () => adjust(-1));
         this.input.keyboard?.on('keydown-RIGHT', () => adjust(1));
-        this.input.keyboard?.on('keydown-ENTER', activate);
-        this.input.keyboard?.on('keydown-SPACE', activate);
+        this.input.keyboard?.on('keydown-ENTER', (event: KeyboardEvent) => { if (!event.repeat) activate(); });
+        this.input.keyboard?.on('keydown-SPACE', (event: KeyboardEvent) => { if (!event.repeat) activate(); });
         this.input.keyboard?.on('keydown-ESC', returnToMain);
     }
 }

@@ -13,8 +13,6 @@ tags:
     - pseudo-3d
 ---
 
-![야간 산길의 파란 스포츠카와 아날로그 RPM·트윈 부스트 계기를 표현한 Apex Seoul 커버](/images/posts/202609/apex-seoul-analog-hud/cover.png)
-
 ## 이번 작업
 
 [지난 글](/article/phaser4-apex-seoul-loading-scenes-and-garage-assets/)에서 정리한 로딩·차량 선택 흐름은 현재 코드에 연결되어 있다. 세 차량과 네 가지 색상을 선택하고, 주행과 결과 화면을 거쳐 재시도할 수 있다.

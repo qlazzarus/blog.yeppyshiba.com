@@ -144,13 +144,6 @@ export class MainScene extends Phaser.Scene {
             fontSize: '11px',
             letterSpacing: 1,
         });
-        const notice = this.add.text(menuX, menuY + menuEntries.length * 64 + 12, '', {
-            color: UI_THEME.secondaryTextHex,
-            fontFamily: 'monospace',
-            fontSize: '11px',
-            letterSpacing: 1,
-        });
-
         const startTimeAttack = () => this.scene.start('vehicle-select');
         const select = (index: number) => {
             selectedIndex = Phaser.Math.Wrap(index, 0, menuEntries.length);
@@ -170,7 +163,7 @@ export class MainScene extends Phaser.Scene {
         const activate = () => {
             if (selectedIndex === 0) startTimeAttack();
             else if (selectedIndex === 2) this.scene.start('options');
-            else notice.setText(`${menuEntries[selectedIndex]} — COMING SOON`);
+            else this.scene.start('records');
         };
         menuEntries.forEach((entry, index) => {
             const y = menuY + index * 64;

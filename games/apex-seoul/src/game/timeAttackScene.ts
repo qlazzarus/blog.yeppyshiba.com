@@ -110,7 +110,9 @@ import {
     type CourseRunConfig,
     type CourseRunState,
 } from './courseRun';
-import { loadBestRunTime, saveBestRunTime } from './runRecord';
+import { runRecordStore, type SaveStatus } from './runRecord';
+import { RECORD_RULESET } from './saveDefaults';
+import { RecordsScene } from './recordsScene';
 import {
     beginLaunch,
     createLaunchControlState,
@@ -537,6 +539,10 @@ export class TimeAttackScene extends Phaser.Scene {
     private courseRunConfig: CourseRunConfig = COURSE_RUN_CONFIG;
     private runState: CourseRunState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
     private bestRunTimeSec: number | null = null;
+    private previousBestTimeSec: number | null = null;
+    private recordStatus: SaveStatus = 'excluded';
+    private recordRunId = '';
+    private recordEligible = false;
     private checkpointNoticeRemainingSec = 0;
     private checkpointNoticeText = '';
     private lastFinishDeltaSec: number | null = null;
@@ -590,7 +596,18 @@ export class TimeAttackScene extends Phaser.Scene {
         };
         this.runState = createCourseRunState(this.courseRunConfig, RUNTIME_QA.enabled);
         this.roadObjects = createRoadObjects(this.roadTrack, COURSE_CHECKPOINT_RATIOS);
-        this.bestRunTimeSec = loadBestRunTime(this.roadTrack.id);
+        this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
+        this.previousBestTimeSec = this.bestRunTimeSec;
+        this.recordRunId = crypto.randomUUID();
+        this.recordStatus = 'excluded';
+        this.finishPresentationPhase = 'racing';
+        this.resultSceneStarted = false;
+        this.runFinishedWithBest = false;
+        this.lastFinishDeltaSec = null;
+        this.checkpointNoticeRemainingSec = 0;
+        // Unknown development parameters are conservatively excluded from production PBs.
+        this.recordEligible = !RUNTIME_QA.enabled && [...URL_PARAMS.keys()].every(key =>
+            ['track', 'vehicle', 'vehicleColor', 'debugHud', 'utm_source', 'utm_medium', 'utm_campaign'].includes(key));
         this.applyRuntimeQaOverrides();
         this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
         this.cameras.main.setBackgroundColor('#050812');
@@ -2364,7 +2381,14 @@ export class TimeAttackScene extends Phaser.Scene {
             const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
             const previousBest = this.bestRunTimeSec;
             this.lastFinishDeltaSec = previousBest === null ? null : finishTimeSec - previousBest;
-            this.bestRunTimeSec = saveBestRunTime(this.roadTrack.id, previousBest, finishTimeSec);
+            this.previousBestTimeSec = previousBest;
+            this.recordStatus = runRecordStore.record({
+                runId: this.recordRunId, finishedAt: new Date().toISOString(),
+                trackId: this.roadTrack.id, vehicleId: ACTIVE_RUNTIME_VEHICLE.id,
+                vehicleColor: ACTIVE_RUNTIME_VEHICLE.color, rulesetVersion: RECORD_RULESET,
+                finishTimeSec, checkpointTimesSec: this.runState.checkpointTimesSec as number[],
+            }, this.recordEligible);
+            this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
             this.runFinishedWithBest = this.bestRunTimeSec === finishTimeSec && previousBest !== finishTimeSec;
         }
     }
@@ -2375,6 +2399,9 @@ export class TimeAttackScene extends Phaser.Scene {
         const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
         const result: TimeAttackResult = {
             bestTimeSec: this.bestRunTimeSec,
+            previousBestTimeSec: this.previousBestTimeSec,
+            recordStatus: this.recordStatus,
+            runSetup: { ...ACTIVE_RUN_SETUP },
             checkpointTimesSec: [...this.runState.checkpointTimesSec],
             color: ACTIVE_RUNTIME_VEHICLE.color,
             courseName: this.roadTrack.name,
@@ -2387,6 +2414,8 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private restartRun() {
+        this.recordRunId = crypto.randomUUID();
+        this.recordStatus = 'excluded';
         this.cameraResource.z = RUNTIME_QA.initialZ ?? 0;
         this.cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
@@ -2784,7 +2813,7 @@ export const APEX_SEOUL_GAME_CONFIG: Phaser.Types.Core.GameConfig = {
         mode: Phaser.Scale.FIT,
         width: GAME_WIDTH,
     },
-    scene: [LoadingScene, MainScene, OptionsScene, VehicleSelectScene, ResultScene, TimeAttackScene],
+    scene: [LoadingScene, MainScene, OptionsScene, VehicleSelectScene, ResultScene, RecordsScene, TimeAttackScene],
     type: Phaser.WEBGL,
 };
 
