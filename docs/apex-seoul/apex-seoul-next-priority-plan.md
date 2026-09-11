@@ -1,10 +1,10 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-09-10
+갱신일: 2026-09-11
 
 목표: 디버그 주행 환경을 **차량별 운전 전략과 시청각 피드백이 있는 완결된 아케이드 타임어택**으로 전환한다. 이번 갱신은 소스 정적 분석과 설계 정리이며 코드 구현·실주행 승인 결과가 아니다.
 
-현재 loop는 `LoadingScene → MainScene → VehicleSelectScene → TimeAttackScene → ResultScene`까지 존재한다. 세 차량 × 네 색상 선택, countdown/checkpoint/finish와 retry도 기반이 있으므로 새로 만드는 항목으로 분류하지 않는다. 반면 gameplay HUD, 차량별 handling profile, 실제 Records/Options, 과급 음향·사건 표현, pause/mobile 연결은 출시 작업으로 남아 있다.
+현재 loop는 `LoadingScene → MainScene → VehicleSelectScene → TimeAttackScene → ResultScene`까지 존재한다. 세 차량 × 네 색상 선택, countdown/checkpoint/finish와 retry도 기반이 있으므로 새로 만드는 항목으로 분류하지 않는다. 기본 gameplay HUD는 연결되었고, PB 비교·mobile 배치, 차량별 handling profile, 실제 Records/Options, 과급 음향·사건 표현, pause/mobile 연결은 출시 작업으로 남아 있다.
 
 이 문서만 실행 순서를 소유한다. [현재 코드 분석·차량·효과·클래스별 구현 설계](./apex-seoul-playable-game-plan.md)와 [HUD 상세](./apex-seoul-hud-plan.md)를 함께 읽는다. 기존 HR-3K까지의 완료 근거·회귀 수치는 [속도대별 핸들링 계획](./apex-seoul-speed-band-handling-plan.md)에 유지한다. 과거 PASS를 이번 검증 결과로 취급하지 않는다.
 
@@ -21,7 +21,14 @@ P0-2의 기본 아날로그 RPM·디지털 속도·차종별 boost dial(0/1/2개
 | P0-3 기록·결과·메뉴 | `runRecord.ts`, `TimeAttackResult`, `ResultScene`, `MainScene`, `OptionsScene`; 신규 `RunRecordStore`, `RecordsScene` | 차량/코스/ruleset별 PB, legacy 분리, 최초 기록 표기 수정, 명시적 retry setup, 실제 Records/Reset |
 | P0-4 공정한 run 시간 | `courseRun.ts`, `TimeAttackScene`; 신규 `RunSessionController` | 경계 시각 보간, pause/focus 시 입력·시간 보호, QA override 기록 제외 |
 
-P0-2의 twin은 기존 total boost와 계산된 단계 표시까지만 사용한다. 두 개의 독립 stage bar는 P1-2 이후 연결한다. PB split은 P0-3 저장 계약 이후 연결하며 ghost를 기다리지 않는다. HUD 없이 기록 데이터만 계속 확장하지 않는다.
+P0-2의 NA/single/twin 계기와 독립 boost 상태 연결을 기준선으로 유지한다. 다음 착수는 **P0-3 로컬 저장 기반**이며 상세 계약은 [로컬 저장 설계](./apex-seoul-local-save-plan.md)를 따른다.
+
+1. 코스 catalog·내장 기본값·버전 schema·store를 만들고 코스×차량×ruleset별 PB와 최근 완주 20개를 분리한다.
+2. P0-4의 시간 보간·pause/focus·QA override 제외를 함께 연결해 정상 완주 저장 조건을 확보한다.
+3. 마지막 선택 복원, 완주 집계, 결과/Records, HUD PB split을 연결한다. PB split은 저장 계약 이후 연결하며 ghost를 기다리지 않는다.
+4. Options의 기록 초기화·legacy 이전·저장 실패 복구를 연결하고, 새로고침/세 차량/추가 코스 fixture/초기화 후 기본값 복원을 검증한다.
+
+Retry는 개인 기록을 유지하고, 기록 초기화는 내장 기본 구조로 복귀한다. 기본 개인 PB는 `null`이며 목표 시간을 사용자 기록으로 채우지 않는다. 로컬 저장·마지막 선택·Records·옵션 리셋은 1차 구현했다. 기본값은 내부 배열에서 생성하며, 다음 작업은 P0-4 시간 정확성과 HUD PB split이다. 구현/보류 경계는 로컬 저장 설계의 구현 현황을 따른다.
 
 ## P1 — 차량의 차이를 운전 재미로 만든다
 

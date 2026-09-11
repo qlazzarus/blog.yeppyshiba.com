@@ -1,3 +1,5 @@
+import { runRecordStore } from './runRecord';
+
 export type RunSetup = {
     trackId: string;
     vehicleColor: string;
@@ -12,9 +14,10 @@ export type RunSetupInput = Partial<RunSetup> | undefined;
  * this object through Phaser's scene data.
  */
 export function resolveRunSetup(input: RunSetupInput, params: URLSearchParams): RunSetup {
+    const saved = runRecordStore.getSetup();
     return {
-        trackId: input?.trackId ?? params.get('track') ?? 'bugak-ridge-downhill',
-        vehicleColor: input?.vehicleColor ?? params.get('vehicleColor') ?? 'blue',
-        vehicleId: input?.vehicleId ?? params.get('vehicle') ?? 'raven-coupe',
+        trackId: input?.trackId ?? params.get('track') ?? saved.trackId,
+        vehicleColor: input?.vehicleColor ?? params.get('vehicleColor') ?? saved.vehicleColor,
+        vehicleId: input?.vehicleId ?? params.get('vehicle') ?? saved.vehicleId,
     };
 }

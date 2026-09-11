@@ -110,11 +110,13 @@ Seorin의 순차식은 현재 게임 코드의 설정이다. 모든 현실 트�
 
 ### 기록과 시간의 신뢰성
 
+2026-09-11 저장 계약 구체화: [로컬 저장 설계](./apex-seoul-local-save-plan.md)가 저장 schema·내장 기본값·초기화·호환성의 상세 기준이다. localStorage 기반으로 마지막 선택, 코스×차량×ruleset별 PB와 최근 완주 20개를 저장한다. 저장소가 비어도 catalog와 기본값 factory로 모든 기록 행을 복구하며 개인 PB는 `null`로 시작한다.
+
 `RunRecordStore` 신규 클래스가 기존 `runRecord.ts` 함수를 대체/감싸며 schemaVersion, rulesetVersion, trackId, vehicleId, bestTimeSec, checkpointTimesSec를 저장한다. 색상은 기록 key에 포함하지 않는다. geometry/handling/drivetrain 변경으로 기록 비교가 달라지면 rulesetVersion을 바꾼다.
 
 기존 track-only 기록에는 차량 출처가 없으므로 세 차에 복제하거나 Raven 기록으로 추정하지 않는다. legacy 별도 보관·표시 후 새 규칙의 PB를 시작한다. PB run의 누적 checkpoint와 이번 누적 checkpoint를 비교하고, 별도 best-sector 조합을 실제 PB run인 것처럼 표시하지 않는다. 최초 기록·느린 완주·새 PB·저장 거부·손상 데이터·Reset을 모두 정의한다. 저장 실패 때 현재 세션 기록은 유지하고 저장되지 않았음을 결과에 짧게 알린다.
 
-`TimeAttackResult`에 `runSetup`, `previousBestTimeSec`, `recordPersisted`, 구간 비교 데이터를 추가한다. `ResultScene` retry는 명시적으로 같은 setup을 전달한다. 신규 `RecordsScene`은 차량/코스별 PB를 보여주며 Options reset은 이 store를 통해 현재/legacy key만 지운다.
+`TimeAttackResult`에 `runSetup`, `previousBestTimeSec`, `recordPersisted`, 구간 비교 데이터를 추가한다. `ResultScene` retry는 명시적으로 같은 setup을 전달한다. 신규 `RecordsScene`은 차량/코스별 PB를 보여주며 Options reset은 이 store를 통해 현재/과거 규칙·legacy 개인 기록을 비우고 기본 기록 문서를 저장한다. 선택·설정은 유지한다.
 
 `courseRun.ts`의 경계 통과 시각은 이전 progress/time과 현재 값을 사용해 보간한다. 한 프레임에 여러 checkpoint를 통과해도 각각 계산한다. `RunSessionController` 신규 클래스가 countdown/running/paused/finishing/result와 게임 시간을 관리한다. blur/visibility loss 때 입력을 비우고 일시정지하며, 복귀 시 명시적인 재개를 받는다. 무작정 delta를 버려 slow-motion 기록이 생기지 않도록 simulation step과 타이머 정책을 함께 검증한다. QA timeScale/skip/freeze/튜닝 override를 쓴 run은 일반 PB 저장 대상에서 제외한다.
 

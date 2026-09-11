@@ -1,6 +1,6 @@
 # Apex Seoul 내부 문서 안내
 
-갱신일: 2026-09-10
+갱신일: 2026-09-11
 
 이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다. 완료된 설계·검증 기록은 [archive](./archive/README.md)에 둔다.
 
@@ -19,6 +19,7 @@
 | [Render Layer Tracker](./apex-seoul-render-layer-tracker.md) | Phaser depth와 가림 관계              |
 | [리소스 관리](./apex-seoul-resource-management.md)           | asset 출처, 생성, 승인, 저장 정책     |
 | [플레이 가능한 게임 전환 설계](./apex-seoul-playable-game-plan.md) | 현재 소스 분석, 차량별 전략, 과급 효과, 클래스별 변경과 완료 기준 |
+| [로컬 저장 설계](./apex-seoul-local-save-plan.md) | 코스·차량별 PB/완주 이력, 내장 기본값, 초기화·복구 계약 |
 | [HUD 설계](./apex-seoul-hud-plan.md)                         | debug overlay 분리와 speed/RPM/boost gameplay HUD |
 | [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |
 
