@@ -114,3 +114,7 @@ GameplayHudState (후속 확장안)
 6. formatter/state 전이 단위 검증, 실제 browser 연결 QA와 production build를 통과한다. v1에서 실행한 항목은 위 구현 상태에 기록했다. 후속 PB·사건·touch 검증은 아직 미완료다.
 
 실행 순서는 [다음 구현 우선순위](./apex-seoul-next-priority-plan.md) 한 곳에서 관리한다.
+
+## 2026-09-13 split 비교 확장 검토
+
+checkpoint·결승에서 전체 PB와 현재 차량 PB의 차이를 두 줄로 함께 표시한다. 전체는 동일 코스·ruleset의 로컬 모든 차량 중 최고 완주 run이며, 두 기준 모두 주행 시작 snapshot을 사용한다. 주행 중에는 누적 checkpoint 대비 `LAST SPLIT`으로 표시하고 무기록은 `--`로 처리한다. 알림 지속 시간·차량명·동률·첫 기록·작은 화면 계약은 [고착 자동 복귀·전체/차량별 기록 검토안](./apex-seoul-recovery-records-plan.md)을 따른다. 2026-09-13 두 PB snapshot과 LAST SPLIT 문자열을 연결했고 결승·Result 화면도 같은 비교 함수를 사용한다. 주행 상단의 두 줄 표시와 결과 캡처를 확인했으며 개별 구간 차분은 후속이다.

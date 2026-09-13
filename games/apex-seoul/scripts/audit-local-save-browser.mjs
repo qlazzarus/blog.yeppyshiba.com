@@ -17,7 +17,8 @@ try {
     await page.waitForFunction(() => window.__saveTestGame?.scene.isActive('main'));
     await page.evaluate(async () => {
         const { runRecordStore } = await import('/game-assets/apex-seoul/src/game/runRecord.ts');
-        runRecordStore.record({ trackId: 'bugak-ridge-downhill', vehicleId: 'mirae-gt', rulesetVersion: 'time-attack-v1', runId: 'browser-fixture', finishedAt: new Date().toISOString(), vehicleColor: 'red', finishTimeSec: 90, checkpointTimesSec: [20, 40, 60] });
+        const { RECORD_RULESET } = await import('/game-assets/apex-seoul/src/game/saveDefaults.ts');
+        runRecordStore.record({ trackId: 'bugak-ridge-downhill', vehicleId: 'mirae-gt', rulesetVersion: RECORD_RULESET, runId: 'browser-fixture', finishedAt: new Date().toISOString(), vehicleColor: 'red', finishTimeSec: 90, checkpointTimesSec: [20, 40, 60] });
         runRecordStore.saveSetup({ trackId: 'bugak-ridge-downhill', vehicleId: 'mirae-gt', vehicleColor: 'red' });
         localStorage.setItem('unrelated-save-test', 'keep');
     });
@@ -55,6 +56,7 @@ try {
         scene.runState.started = true;
         scene.runState.countdownRemainingSec = 0;
         scene.runState.elapsedSec = 90;
+        scene.runState.progressRatio = 0.99;
         scene.runState.checkpointTimesSec = [20, 40, 60];
         scene.cameraResource.z = scene.roadTrack.finishZ;
     });

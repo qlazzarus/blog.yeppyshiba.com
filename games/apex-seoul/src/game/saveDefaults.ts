@@ -4,7 +4,7 @@ export const SAVE_COURSES = [
 ] as const;
 export const SAVE_VEHICLES = ['raven-coupe', 'seorin-gt', 'mirae-gt'] as const;
 export const SAVE_COLORS = ['blue', 'red', 'silver', 'black'] as const;
-export const RECORD_RULESET = 'time-attack-v1';
+export const RECORD_RULESET = 'time-attack-v2';
 
 export type RecordIdentity = { trackId: string; vehicleId: string; rulesetVersion: string };
 export type RunSummary = RecordIdentity & {
@@ -13,6 +13,7 @@ export type RunSummary = RecordIdentity & {
     vehicleColor: string;
     finishTimeSec: number;
     checkpointTimesSec: number[];
+    recoveryCount?: number; // Missing in older v1 documents means zero.
 };
 export type RecordBucket = RecordIdentity & {
     bestRun: RunSummary | null;

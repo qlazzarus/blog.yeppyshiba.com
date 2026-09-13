@@ -1,9 +1,12 @@
+import { splitLines, finishRecordLabel, formatDelta, type BestSnapshots } from './runComparison';
 import type { RunSetup } from './runSetup';
 import type { SaveStatus } from './runRecord';
 import Phaser from 'phaser';
 import { UI_THEME } from './uiTheme';
 
 export type TimeAttackResult = {
+    bestSnapshot?: BestSnapshots;
+    recoveryCount?: number;
     bestTimeSec: number | null;
     previousBestTimeSec: number | null;
     runSetup: RunSetup;
@@ -56,8 +59,9 @@ export class ResultScene extends Phaser.Scene {
             : result.isNewBest
                 ? `PREVIOUS BEST  ${formatTime(result.previousBestTimeSec)}`
                 : `BEST  ${formatTime(result.bestTimeSec ?? result.finishTimeSec)}`;
+        const snapshot = result.bestSnapshot ?? { overall: null, vehicle: null };
         const deltaLine = result.deltaSec === null ? 'NO PREVIOUS RECORD' : `${result.deltaSec <= 0 ? '-' : '+'}${formatTime(Math.abs(result.deltaSec))} FROM BEST`;
-        this.add.text(width / 2, 148, `${bestLine}  //  ${deltaLine}`, {
+        this.add.text(width / 2, 138, result.bestSnapshot ? splitLines(snapshot, result.finishTimeSec) : `${bestLine}  //  ${deltaLine}`, {
             color: UI_THEME.secondaryTextHex, fontFamily: 'monospace', fontSize: '11px', letterSpacing: 1,
         }).setOrigin(0.5);
         if (result.recordStatus !== 'saved') this.add.text(width / 2, 172, result.recordStatus === 'excluded' ? 'PRACTICE — RECORD NOT SAVED' : 'RECORD NOT SAVED TO BROWSER', {
@@ -69,15 +73,16 @@ export class ResultScene extends Phaser.Scene {
         this.add.text(panelX + 28, 242, `${result.vehicleName.toUpperCase()}  //  ${result.color.toUpperCase()}`, {
             color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: '18px', fontStyle: 'bold',
         });
-        this.add.text(panelX + 28, 292, 'CHECKPOINT SPLITS', {
+        this.add.text(panelX + 28, 276, `${result.recordStatus === 'excluded' ? 'PRACTICE' : `ALL ${finishRecordLabel(result.finishTimeSec, snapshot.overall)} · CAR ${finishRecordLabel(result.finishTimeSec, snapshot.vehicle)}`} · RECOVERIES ${result.recoveryCount ?? 0}`, { color: UI_THEME.amberHex, fontFamily: 'monospace', fontSize: compact ? '9px' : '11px' });
+        this.add.text(panelX + 28, 303, 'CHECKPOINT SPLITS · ALL / CAR', {
             color: UI_THEME.amberHex, fontFamily: 'monospace', fontSize: '12px', letterSpacing: 2,
         });
         result.checkpointTimesSec.forEach((time, index) => {
-            this.add.text(panelX + 28, 320 + index * 28, `CP ${index + 1}`, {
+            this.add.text(panelX + 28, 330 + index * 36, `CP ${index + 1}`, {
                 color: UI_THEME.secondaryTextHex, fontFamily: 'monospace', fontSize: '12px',
             });
-            this.add.text(panelX + panelWidth - 28, 320 + index * 28, time === null ? '--:--.--' : formatTime(time), {
-                color: UI_THEME.textMainHex, fontFamily: 'monospace', fontSize: '13px',
+            this.add.text(panelX + panelWidth - 28, 330 + index * 36, `${time === null ? '--:--.--' : formatTime(time)}\n${formatDelta(time, snapshot.overall?.checkpointTimesSec[index])} / ${formatDelta(time, snapshot.vehicle?.checkpointTimesSec[index])}`, {
+                color: UI_THEME.textMainHex, fontFamily: 'monospace', fontSize: compact ? '9px' : '11px',
             }).setOrigin(1, 0);
         });
 

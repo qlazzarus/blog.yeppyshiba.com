@@ -10,6 +10,7 @@ const LEGACY_PREFIX = 'apex-seoul:best-run:';
 export type SaveStatus = 'saved' | 'memory-only' | 'unsupported-version' | 'external-change' | 'excluded';
 type StoragePort = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'>;
 type RecordDocument = { schemaVersion: 1; buckets: RecordBucket[]; legacy: { trackId: string; timeSec: number }[] };
+const normalizeRun = (run: RunSummary): RunSummary => ({ ...clone(run), recoveryCount: run.recoveryCount ?? 0 });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 const same = (a: RecordIdentity, b: RecordIdentity) => a.trackId === b.trackId && a.vehicleId === b.vehicleId && a.rulesetVersion === b.rulesetVersion;
 const positive = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n) && n > 0;
@@ -26,6 +27,7 @@ function validRun(value: unknown): value is RunSummary {
     return typeof value.runId === 'string' && value.runId.length > 0 && value.runId.length < 150 &&
         typeof value.finishedAt === 'string' && Number.isFinite(Date.parse(value.finishedAt)) &&
         typeof value.vehicleColor === 'string' && value.vehicleColor.length < 50 && positive(value.finishTimeSec) &&
+        (value.recoveryCount === undefined || (Number.isSafeInteger(value.recoveryCount) && value.recoveryCount >= 0)) &&
         Array.isArray(value.checkpointTimesSec) && value.checkpointTimesSec.length <= 32 &&
         (!course || value.rulesetVersion !== RECORD_RULESET || value.checkpointTimesSec.length === course.checkpointCount) &&
         value.checkpointTimesSec.every((t: unknown, i: number, times: number[]) => positive(t) && t <= value.finishTimeSec && (i === 0 || t >= times[i - 1]));
@@ -56,8 +58,8 @@ export class RunRecordStore {
                             typeof b.totalFinishTimeSec !== 'number' || !Number.isFinite(b.totalFinishTimeSec) || b.totalFinishTimeSec < 0) continue;
                         const bucket: RecordBucket = {
                             trackId: b.trackId, vehicleId: b.vehicleId, rulesetVersion: b.rulesetVersion,
-                            bestRun: validRun(b.bestRun) && same(b, b.bestRun) ? clone(b.bestRun) : null,
-                            recentRuns: Array.isArray(b.recentRuns) ? b.recentRuns.filter((r: unknown) => validRun(r) && same(b, r)).slice(0, 20).map((r: RunSummary) => clone(r)) : [],
+                            bestRun: validRun(b.bestRun) && same(b, b.bestRun) ? normalizeRun(b.bestRun) : null,
+                            recentRuns: Array.isArray(b.recentRuns) ? b.recentRuns.filter((r: unknown) => validRun(r) && same(b, r)).slice(0, 20).map((r: RunSummary) => normalizeRun(r)) : [],
                             completedRunCount: b.completedRunCount, totalFinishTimeSec: b.totalFinishTimeSec,
                         };
                         const index = this.document.buckets.findIndex(item => same(item, bucket));
@@ -122,9 +124,9 @@ export class RunRecordStore {
         this.processedRuns.add(run.runId);
         bucket.completedRunCount += 1;
         bucket.totalFinishTimeSec += run.finishTimeSec;
-        bucket.recentRuns.unshift(clone(run));
+        bucket.recentRuns.unshift(normalizeRun(run));
         bucket.recentRuns.length = Math.min(bucket.recentRuns.length, 20);
-        if (!bucket.bestRun || run.finishTimeSec < bucket.bestRun.finishTimeSec) bucket.bestRun = clone(run);
+        if (!bucket.bestRun || run.finishTimeSec < bucket.bestRun.finishTimeSec) bucket.bestRun = normalizeRun(run);
         return this.persist();
     }
 

@@ -9,6 +9,7 @@ export type GameplayHudState = {
     boostRatios: readonly number[];
     elapsedSec: number;
     checkpointLabel: string;
+    lastSplitText?: string;
 };
 
 export function createGameplayHudState(
@@ -16,6 +17,7 @@ export function createGameplayHudState(
     player: Pick<PlayerVehicleState, 'speed' | 'gearIndex' | 'rpm' | 'fuelCutActive' | 'primaryBoostRatio' | 'secondaryBoostRatio'>,
     accelSpeed: number,
     run: { elapsedSec: number; passedCheckpoints: number; checkpointTimesSec: Array<number | null> },
+    lastSplitText = '',
 ): GameplayHudState {
     return {
         speedKmh: getDisplaySpeedKmh(player.speed, accelSpeed, profile),
@@ -25,6 +27,7 @@ export function createGameplayHudState(
         boostRatios: profile.induction === 'na' ? [] : profile.induction === 'single-turbo'
             ? [player.primaryBoostRatio] : [player.primaryBoostRatio, player.secondaryBoostRatio],
         elapsedSec: run.elapsedSec,
+        lastSplitText,
         checkpointLabel: `CHECKPOINT  ${run.passedCheckpoints} / ${run.checkpointTimesSec.length}`,
     };
 }
