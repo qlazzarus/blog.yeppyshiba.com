@@ -114,3 +114,7 @@ MVP는 **localStorage + 버전이 있는 JSON + 앱 수명의 메모리 store**�
 검증 명령: `npm run qa:local-save --workspace=@games/apex-seoul`, `npm run qa:local-save-browser --workspace=@games/apex-seoul` (로컬 Vite 서버 필요), 기존 `qa:vehicle-catalog`, `qa:gameplay-hud`, `build`. 브라우저 검증은 격리된 임시 profile과 결정적 완주 fixture로 저장·결과·retry 연결을 확인하며 실제 운전 시간 공정성 검증을 대체하지 않는다.
 
 검증 결과: 저장 계약 QA·격리 브라우저 QA·차량 catalog·gameplay HUD·Vite build PASS. Records와 Options reset 화면을 캡처해 확인했다. 전체 `tsc --noEmit`은 기존 player/road renderer·shader·vehicle-preview 등의 오류로 실패하며, 신규 저장 모듈과 Records/Options/Result/Main 코드의 타입 오류는 없다.
+
+## 2026-09-13 후속 검토안
+
+[고착 자동 복귀·전체/차량별 기록 검토안](./apex-seoul-recovery-records-plan.md)에 Records 전체/차량별 전환, 전체 PB 파생 조회, 주행 시작 시 두 PB snapshot, checkpoint·결승 비교 계약을 추가했다. 전체 목록은 동일 코스·현재 ruleset의 로컬 차량 기록을 통합하며 bucket별 최근 20개/PB 보관 정책을 유지한다. 복귀 완주는 시간 손실·진행 보존 검증을 전제로 기록에 포함하고 `recoveryCount` 호환 처리 및 ruleset 변경을 계획한다. 2026-09-13 코드에 반영했다. 전체/차량별 PB snapshot과 목록 전환, recoveryCount 누락값 0 처리, time-attack-v2 분리를 구현했으며 상세 검증·잔여 범위는 연결 문서의 구현 현황을 따른다.

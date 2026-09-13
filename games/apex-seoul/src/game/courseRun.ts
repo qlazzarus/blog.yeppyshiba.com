@@ -46,11 +46,18 @@ export function updateCourseRunProgress(
 ) {
     if (!state.started || state.finished) return false;
 
+    const previousProgress = state.progressRatio;
+    const previousTime = state.elapsedSec;
+    const crossingTime = (boundary: number) => previousTime + seconds * (
+        progressRatio > previousProgress
+            ? clamp((boundary - previousProgress) / (progressRatio - previousProgress), 0, 1)
+            : 1
+    );
     state.elapsedSec += seconds;
     state.progressRatio = clamp(progressRatio, 0, config.finishRatio);
     for (const [index, checkpointRatio] of config.checkpointRatios.entries()) {
         if (state.progressRatio >= checkpointRatio && state.checkpointTimesSec[index] === null) {
-            state.checkpointTimesSec[index] = state.elapsedSec;
+            state.checkpointTimesSec[index] = crossingTime(checkpointRatio);
         }
     }
     state.passedCheckpoints = state.checkpointTimesSec.filter((time) => time !== null).length;
@@ -58,7 +65,8 @@ export function updateCourseRunProgress(
     if (state.progressRatio < config.finishRatio) return false;
 
     state.finished = true;
-    state.finishTimeSec = state.elapsedSec;
+    state.finishTimeSec = crossingTime(config.finishRatio);
+    state.elapsedSec = state.finishTimeSec;
 
     return true;
 }

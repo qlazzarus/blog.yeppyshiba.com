@@ -1,3 +1,5 @@
+import { bestSnapshots, splitLines, finishRecordLabel, type BestSnapshots } from './runComparison';
+import { createStuckRecoveryState, updateStuckRecovery, RECOVERY } from './stuckRecovery';
 import { GameplayHud } from './gameplayHud';
 import { createGameplayHudState } from './gameplayHudState';
 import Phaser from 'phaser';
@@ -538,6 +540,12 @@ export class TimeAttackScene extends Phaser.Scene {
     private telemetry: RuntimeTelemetryRecorder | null = null;
     private courseRunConfig: CourseRunConfig = COURSE_RUN_CONFIG;
     private runState: CourseRunState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
+    private recovery = createStuckRecoveryState();
+    private bestSnapshot: BestSnapshots = { overall: null, vehicle: null };
+    private lastSplitText = '';
+    private focusPaused = false;
+    private skipFocusFrame = false;
+    private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     private bestRunTimeSec: number | null = null;
     private previousBestTimeSec: number | null = null;
     private recordStatus: SaveStatus = 'excluded';
@@ -598,6 +606,9 @@ export class TimeAttackScene extends Phaser.Scene {
         this.roadObjects = createRoadObjects(this.roadTrack, COURSE_CHECKPOINT_RATIOS);
         this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
         this.previousBestTimeSec = this.bestRunTimeSec;
+        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id);
+        this.recovery = createStuckRecoveryState();
+        this.lastSplitText = '';
         this.recordRunId = crypto.randomUUID();
         this.recordStatus = 'excluded';
         this.finishPresentationPhase = 'racing';
@@ -697,10 +708,30 @@ export class TimeAttackScene extends Phaser.Scene {
         const onResize = () => this.render(0);
         this.scale.on('resize', onResize);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
+        this.focusPaused = false;
+        this.skipFocusFrame = false;
+        const onBlur = () => {
+            this.focusPaused = true;
+            this.input.keyboard?.resetKeys();
+            this.recovery.tracking = false;
+            this.recovery.elapsed = 0;
+        };
+        const onFocus = () => { this.focusPaused = false; this.skipFocusFrame = true; this.input.keyboard?.resetKeys(); };
+        const onVisibility = () => document.hidden ? onBlur() : onFocus();
+        window.addEventListener('blur', onBlur);
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', onVisibility);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            window.removeEventListener('blur', onBlur);
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', onVisibility);
+        });
         this.render();
     }
 
     update(_time: number, delta: number) {
+        if (document.hidden || this.focusPaused) return;
+        if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
         const seconds = delta / 1000 * RUNTIME_QA.timeScale;
         const camera = this.cameraResource;
 
@@ -806,6 +837,7 @@ export class TimeAttackScene extends Phaser.Scene {
             this.roadTrack.length,
         );
         this.updateRunState(seconds);
+        if (!this.runState.finished) this.updateRecovery(seconds);
         camera.pitch = this.updateCameraPitch(seconds);
         this.updateSpeedEffect(seconds);
         camera.fovDegrees = this.cameraEffects.fovDegrees;
@@ -1194,7 +1226,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const viewport = this.getViewport();
         this.gameplayHud.update(createGameplayHudState(
             ACTIVE_RUNTIME_VEHICLE.engineProfile, this.playerVehicle,
-            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState,
+            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState, this.lastSplitText,
         ), viewport.width, viewport.height, this.finishPresentationPhase !== 'finish-summary');
         if (!this.debugHudVisible) {
             this.hudText.setVisible(false);
@@ -1303,6 +1335,31 @@ export class TimeAttackScene extends Phaser.Scene {
             );
         }
         this.vehicleRenderState = null;
+    }
+
+    private updateRecovery(seconds: number) {
+        const drive = this.getDriveCommand();
+        const recovered = updateStuckRecovery(this.recovery, {
+            active: this.runState.started && !this.runState.finished,
+            attempting: drive.accelPressed && !drive.brakePressed,
+            contact: this.playerVehicle.guardrailContactActive,
+            z: this.cameraResource.z, x: this.playerVehicle.lateralOffset,
+        }, seconds);
+        if (!recovered) return;
+        // The current course has roadside colliders only: x=0 is safe at this exact Z.
+        // Do not change Z or run progress; a reset must never cross a timing boundary.
+        const impacts = this.playerVehicle.guardrailImpactCount;
+        this.playerVehicle = createDefaultPlayerVehicleState(0, ACTIVE_RUNTIME_VEHICLE.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
+        this.playerVehicle.guardrailImpactCount = impacts;
+        this.launchState = createLaunchControlState();
+        this.vehicleRenderState = null;
+        this.vehicleUndersteerVisualState = createVehicleUndersteerVisualState();
+        this.cameraResource.lateralOffset = 0;
+        this.cameraVelocity.lateral = 0;
+        this.debugGuardrailImpactTimer = 0;
+        this.debugGuardrailImpactSide = 0;
+        this.debugGuardrailImpactBounceVelocity = 0;
+        this.roadObjectMotionTracker.reset();
     }
 
     private getPlayerVehicleRenderState(viewport: Viewport): PlayerVehicleRenderState {
@@ -1457,7 +1514,9 @@ export class TimeAttackScene extends Phaser.Scene {
             .setPosition(anchor.x + this.cameraEffects.shake.x, anchor.y + this.cameraEffects.shake.y)
             .setDisplaySize(displaySize, displaySize)
             .setRotation(poseState.rotationRadians)
-            .setAlpha(finishCoastFade)
+            .setAlpha(finishCoastFade * (this.recovery.blinkRemaining > 0 && !this.runState.finished
+                ? this.reducedMotion ? 0.6 : 0.4 + 0.6 * (0.5 + 0.5 * Math.cos(this.recovery.blinkRemaining * Math.PI * 4))
+                : 1))
             .setTint(this.getFinishCoastVehicleTint());
 
         // `capture` has already forced the central rear frame. Recording this
@@ -2361,7 +2420,8 @@ export class TimeAttackScene extends Phaser.Scene {
             const checkpointIndex = this.runState.passedCheckpoints - 1;
             const checkpointTime = this.runState.checkpointTimesSec[checkpointIndex] ?? this.runState.elapsedSec;
             this.checkpointNoticeText = `CHECKPOINT ${checkpointIndex + 1}/${COURSE_CHECKPOINT_RATIOS.length}\n${formatRunTime(checkpointTime)}`;
-            this.checkpointNoticeRemainingSec = 1.25;
+            this.lastSplitText = `LAST SPLIT · CP ${checkpointIndex + 1}\n${splitLines(this.bestSnapshot, checkpointTime, checkpointIndex)}`;
+            this.checkpointNoticeRemainingSec = 3;
         }
 
         this.checkpointNoticeRemainingSec = Math.max(0, this.checkpointNoticeRemainingSec - seconds);
@@ -2386,6 +2446,7 @@ export class TimeAttackScene extends Phaser.Scene {
                 runId: this.recordRunId, finishedAt: new Date().toISOString(),
                 trackId: this.roadTrack.id, vehicleId: ACTIVE_RUNTIME_VEHICLE.id,
                 vehicleColor: ACTIVE_RUNTIME_VEHICLE.color, rulesetVersion: RECORD_RULESET,
+                recoveryCount: this.recovery.count,
                 finishTimeSec, checkpointTimesSec: this.runState.checkpointTimesSec as number[],
             }, this.recordEligible);
             this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
@@ -2398,6 +2459,8 @@ export class TimeAttackScene extends Phaser.Scene {
         this.resultSceneStarted = true;
         const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
         const result: TimeAttackResult = {
+            bestSnapshot: this.bestSnapshot,
+            recoveryCount: this.recovery.count,
             bestTimeSec: this.bestRunTimeSec,
             previousBestTimeSec: this.previousBestTimeSec,
             recordStatus: this.recordStatus,
@@ -2414,6 +2477,11 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private restartRun() {
+        this.recovery = createStuckRecoveryState();
+        this.lastSplitText = '';
+        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id);
+        this.bestRunTimeSec = this.bestSnapshot.vehicle?.finishTimeSec ?? null;
+        this.previousBestTimeSec = this.bestRunTimeSec;
         this.recordRunId = crypto.randomUUID();
         this.recordStatus = 'excluded';
         this.cameraResource.z = RUNTIME_QA.initialZ ?? 0;
@@ -2512,12 +2580,6 @@ export class TimeAttackScene extends Phaser.Scene {
                 return;
             }
             const finishTime = this.runState.finishTimeSec ?? this.runState.elapsedSec;
-            const bestText = this.bestRunTimeSec === null
-                ? 'BEST --'
-                : this.runFinishedWithBest ? 'NEW BEST' : `BEST ${formatRunTime(this.bestRunTimeSec)}`;
-            const deltaText = this.lastFinishDeltaSec === null
-                ? ''
-                : `\nDELTA ${this.lastFinishDeltaSec >= 0 ? '+' : '-'}${formatRunTime(Math.abs(this.lastFinishDeltaSec))}`;
             const summaryElapsedSec = FINISH_SUMMARY_DURATION_SEC - this.finishSummaryRemainingSec;
             const summaryAlpha = Math.min(
                 1,
@@ -2525,8 +2587,8 @@ export class TimeAttackScene extends Phaser.Scene {
                 this.finishSummaryRemainingSec / 0.3,
             );
             this.runStatusText
-                .setText(`FINISH\n${formatRunTime(finishTime)}\n${bestText}${deltaText}`)
-                .setFontSize(42)
+                .setText(`FINISH  ${formatRunTime(finishTime)}\n${splitLines(this.bestSnapshot, finishTime)}\n${this.recordEligible ? `ALL ${finishRecordLabel(finishTime, this.bestSnapshot.overall)} / CAR ${finishRecordLabel(finishTime, this.bestSnapshot.vehicle)}` : 'PRACTICE RUN'}`)
+                .setFontSize(viewport.width < 680 ? 16 : 24)
                 .setAlpha(summaryAlpha)
                 .setVisible(true);
             return;
@@ -2537,6 +2599,12 @@ export class TimeAttackScene extends Phaser.Scene {
                 .setText(String(Math.max(1, Math.ceil(this.runState.countdownRemainingSec))))
                 .setFontSize(64)
                 .setVisible(true);
+            return;
+        }
+
+        if (this.recovery.elapsed >= RECOVERY.stuckSec || this.recovery.blinkRemaining > 0) {
+            this.runStatusText.setText(this.recovery.blinkRemaining > 0 ? 'BACK ON ROAD' : 'RETURNING TO ROAD…')
+                .setFontSize(22).setAlpha(1).setVisible(true);
             return;
         }
 

@@ -146,7 +146,7 @@ export class GameplayHud {
         this.speed.setText(`${Math.round(state.speedKmh)}`.padStart(3, '0'));
         this.gear.setText(state.gearLabel);
         this.timer.setText(formatGameplayTime(state.elapsedSec));
-        this.checkpoint.setText(state.checkpointLabel);
+        this.checkpoint.setText(`${state.checkpointLabel}${state.lastSplitText ? `\n${state.lastSplitText}` : ''}`);
         this.boosts.forEach((dial, index) => {
             const ratio = state.boostRatios[index] ?? 0;
             dial.update(ratio, 54, index === 0 ? BLUE : AMBER, `${Math.round(ratio * 100)}%`);
