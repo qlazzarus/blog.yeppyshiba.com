@@ -1,6 +1,6 @@
 import {
     createDefaultBuckets, createDefaultSetup, DEFAULT_REFERENCE_RECORDS,
-    RECORD_RULESET, SAVE_COLORS, SAVE_COURSES, SAVE_VEHICLES,
+    DEFAULT_PLAYER_NAME, RECORD_RULESET, SAVE_COLORS, SAVE_COURSES, SAVE_VEHICLES,
     type RecordBucket, type RecordIdentity, type RunSummary,
 } from './saveDefaults';
 
@@ -10,7 +10,7 @@ const LEGACY_PREFIX = 'apex-seoul:best-run:';
 export type SaveStatus = 'saved' | 'memory-only' | 'unsupported-version' | 'external-change' | 'excluded';
 type StoragePort = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'>;
 type RecordDocument = { schemaVersion: 1; buckets: RecordBucket[]; legacy: { trackId: string; timeSec: number }[] };
-const normalizeRun = (run: RunSummary): RunSummary => ({ ...clone(run), recoveryCount: run.recoveryCount ?? 0 });
+const normalizeRun = (run: RunSummary): RunSummary => ({ ...clone(run), recoveryCount: run.recoveryCount ?? 0, playerName: run.playerName ?? DEFAULT_PLAYER_NAME });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 const same = (a: RecordIdentity, b: RecordIdentity) => a.trackId === b.trackId && a.vehicleId === b.vehicleId && a.rulesetVersion === b.rulesetVersion;
 const positive = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n) && n > 0;
@@ -27,6 +27,7 @@ function validRun(value: unknown): value is RunSummary {
     return typeof value.runId === 'string' && value.runId.length > 0 && value.runId.length < 150 &&
         typeof value.finishedAt === 'string' && Number.isFinite(Date.parse(value.finishedAt)) &&
         typeof value.vehicleColor === 'string' && value.vehicleColor.length < 50 && positive(value.finishTimeSec) &&
+        (value.playerName === undefined || value.playerName === DEFAULT_PLAYER_NAME || (typeof value.playerName === 'string' && /^[A-Z]{3}$/.test(value.playerName))) &&
         (value.recoveryCount === undefined || (Number.isSafeInteger(value.recoveryCount) && value.recoveryCount >= 0)) &&
         Array.isArray(value.checkpointTimesSec) && value.checkpointTimesSec.length <= 32 &&
         (!course || value.rulesetVersion !== RECORD_RULESET || value.checkpointTimesSec.length === course.checkpointCount) &&

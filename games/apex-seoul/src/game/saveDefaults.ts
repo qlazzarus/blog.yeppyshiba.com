@@ -4,6 +4,7 @@ export const SAVE_COURSES = [
 ] as const;
 export const SAVE_VEHICLES = ['raven-coupe', 'seorin-gt', 'mirae-gt'] as const;
 export const SAVE_COLORS = ['blue', 'red', 'silver', 'black'] as const;
+export const DEFAULT_PLAYER_NAME = 'PLAYER';
 export const RECORD_RULESET = 'time-attack-v2';
 
 export type RecordIdentity = { trackId: string; vehicleId: string; rulesetVersion: string };
@@ -11,6 +12,7 @@ export type RunSummary = RecordIdentity & {
     runId: string;
     finishedAt: string;
     vehicleColor: string;
+    playerName?: string; // Older saves and runs before name entry use PLAYER.
     finishTimeSec: number;
     checkpointTimesSec: number[];
     recoveryCount?: number; // Missing in older v1 documents means zero.
