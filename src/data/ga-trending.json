@@ -1,11 +1,23 @@
 {
-  "generatedAt": "2026-08-31T09:16:59.390Z",
+  "generatedAt": "2026-09-14T08:30:52.844Z",
   "trending": [
     {
-      "path": "/article/apptech-income-july-2026",
-      "views": 8,
+      "path": "/article/phaser4-apex-seoul-analog-hud-turbo-character",
+      "views": 4,
       "avgSec": 0,
       "reason": "top_post"
+    },
+    {
+      "path": "/article/phaser3-to-4-ecs-code-conversion",
+      "views": 1,
+      "avgSec": 78.43,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/phaser4-overview",
+      "views": 1,
+      "avgSec": 424.76,
+      "reason": "amplify"
     }
   ]
 }

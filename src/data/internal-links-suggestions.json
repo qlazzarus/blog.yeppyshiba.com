@@ -1,23 +1,89 @@
 {
-  "topPost": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
-  "topPostViews": 16,
+  "topPost": "/article/phaser4-apex-seoul-analog-hud-turbo-character",
+  "topPostViews": 4,
   "relatedSuggestions": [
+    "/phaser4-apex-seoul-analog-hud-turbo-character/",
     "/phaser4-apex-seoul-7way-vehicle-asset-compiler/",
     "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
     "/phaser4-apex-seoul-corner-flow-longitudinal-scale/",
     "/phaser4-apex-seoul-downhill-elevation-rendering/",
-    "/phaser4-apex-seoul-downhill-grip-cost/",
-    "/phaser4-apex-seoul-downhill-rpm-fuelcut/"
+    "/phaser4-apex-seoul-downhill-grip-cost/"
   ],
-  "amplifyCandidates": [],
+  "amplifyCandidates": [
+    {
+      "path": "/article/phaser3-to-4-ecs-code-conversion",
+      "views": 1,
+      "avgSec": 78.43
+    },
+    {
+      "path": "/article/phaser4-overview",
+      "views": 1,
+      "avgSec": 424.76
+    }
+  ],
   "fixCandidates": [
     {
-      "path": "/article/akita-inu",
+      "path": "/article/phaser4-apex-seoul-analog-hud-turbo-character",
+      "views": 4,
+      "avgSec": 9.28
+    },
+    {
+      "path": "/article/apptech-to-small-investing",
+      "views": 2,
+      "avgSec": 1.54
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
+      "views": 2,
+      "avgSec": 1.72
+    },
+    {
+      "path": "/article/a-look-back-in-2024",
+      "views": 1,
+      "avgSec": 9.46
+    },
+    {
+      "path": "/article/apptech-income-july-2026",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/phaser4-apex-seoul-loading-scenes-and-garage-assets",
+      "path": "/article/better-bagel-bar-ganjeolgot-review",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/gwacheon-nid-bakery-dessert-cafe",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/gwanggyo-mochiga",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser3-with-parallax-scroll",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-corner-flow-longitudinal-scale",
+      "views": 1,
+      "avgSec": 6.47
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-downhill-grip-cost",
+      "views": 1,
+      "avgSec": 3.52
+    },
+    {
+      "path": "/article/phaser4-migration-checklist",
+      "views": 1,
+      "avgSec": 3.51
+    },
+    {
+      "path": "/article/wooz-bakery-gijang-ocean-view-cafe",
       "views": 1,
       "avgSec": 0
     }
