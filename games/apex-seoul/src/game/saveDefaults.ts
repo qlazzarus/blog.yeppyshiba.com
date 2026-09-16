@@ -5,7 +5,8 @@ export const SAVE_COURSES = [
 export const SAVE_VEHICLES = ['raven-coupe', 'seorin-gt', 'mirae-gt'] as const;
 export const SAVE_COLORS = ['blue', 'red', 'silver', 'black'] as const;
 export const DEFAULT_PLAYER_NAME = 'PLAYER';
-export const RECORD_RULESET = 'time-attack-v2';
+// Shift scheduling and single-tick engine response change attainable lap times.
+export const RECORD_RULESET = 'time-attack-v4';
 
 export type RecordIdentity = { trackId: string; vehicleId: string; rulesetVersion: string };
 export type RunSummary = RecordIdentity & {

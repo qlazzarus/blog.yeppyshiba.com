@@ -78,7 +78,7 @@ function runOutwardCorrection(direction) {
         updatePlayerVehicle(
             player,
             { accelPressed: true, brakePressed: false, steerAxis: direction },
-            { currentCurve: -0.45 * direction, slopeAcceleration: 0 },
+            { currentCurve: 0.45 * direction, slopeAcceleration: 0 },
             config,
             FRAME_SECONDS,
         );
@@ -100,7 +100,7 @@ function runNeutralDebt() {
         updatePlayerVehicle(
             player,
             { accelPressed: true, brakePressed: false, steerAxis: 0 },
-            { currentCurve: -0.45, slopeAcceleration: 0 },
+            { currentCurve: 0.45, slopeAcceleration: 0 },
             config,
             FRAME_SECONDS,
         );
@@ -124,7 +124,7 @@ function runRapidReversal() {
         updatePlayerVehicle(
             player,
             { accelPressed: true, brakePressed: false, steerAxis: 1 },
-            { currentCurve: -0.45, slopeAcceleration: 0 },
+            { currentCurve: 0.45, slopeAcceleration: 0 },
             config,
             FRAME_SECONDS,
         );
@@ -166,10 +166,10 @@ function runOppositeSteerRailImpact() {
         player.speed = 500;
         updatePlayerVehicle(
             player,
-            // Positive render curve has negative required road yaw. Positive
-            // steer is therefore the visual left-curve's outside/right input.
+            // Negative curve creates positive neutral heading debt. Positive
+            // steering adds to that outward debt and can reach the right rail.
             { accelPressed: true, brakePressed: false, steerAxis: 1 },
-            { currentCurve: 0.55, slopeAcceleration: 0 },
+            { currentCurve: -0.55, slopeAcceleration: 0 },
             config,
             FRAME_SECONDS,
         );

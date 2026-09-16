@@ -1,4 +1,6 @@
 import {
+    DEFAULT_ENGINE_SHIFT_PROFILE,
+    REFERENCE_SPEED_KMH,
     advanceEngineBoost,
     getEngineBoostTargets,
     getGearRpm,
@@ -18,10 +20,6 @@ import type {
 } from './vehicle';
 
 const SHIFT_CUT_DECAY_POWER = 0.9;
-const SHIFT_DOWN_CUT_RATIO = 0.16;
-const SHIFT_DOWN_DURATION_SECONDS = 0.1;
-const SHIFT_UP_CUT_RATIO = 0.42;
-const SHIFT_UP_DURATION_SECONDS = 0.22;
 const LOW_SPEED_DRIFT_LOCK_RATIO = 0.33;
 const LOW_SPEED_DRIFT_VELOCITY_DECAY = 18;
 const VEHICLE_HEADING_SOFT_ALIGN_START = 0.72;
@@ -59,7 +57,7 @@ const DRIFT_TIRE_LOSS_BRAKE_RATIO = 0.32;
 
 type SpeedHandlingKnot = PlayerSpeedHandlingState;
 
-// Raven uses a linear physical-speed mapping: these ratios correspond to
+// All vehicles share a linear speed mapping: these ratios correspond to
 // 0 / 5 / 10 / 30 / 60 / 110 / 145 / 170 / 185 km/h over a 225km/h envelope.
 const SPEED_HANDLING_KNOTS: SpeedHandlingKnot[] = [
     {
@@ -518,11 +516,10 @@ export function updatePlayerVehicle(
         ? player.driftDirection * Math.abs(gripSteerAxis) * 0.75
         : gripSteerAxis;
     const inputSteerDirection = getDirection(input.steerAxis);
-    // `currentCurve` is a render-space bend. Vehicle yaw follows the inverse
-    // road-frame rate, so every steering comparison must use the actual yaw
-    // direction; otherwise an outside steer can be mistaken for an inside
-    // correction on a visually mirrored corner.
-    const roadSteerDirection = getDirection(requiredRoadYawRate);
+    // Road rotation adds relative heading debt. Following the bend requires
+    // steering yaw that cancels that debt, i.e. the opposite sign. Use this
+    // direction consistently for recovery, inside limits and outside scrub.
+    const roadSteerDirection = getDirection(-requiredRoadYawRate);
     const baseSteeringHeadingRate = headingSteerAxis *
         VEHICLE_HEADING_STEER_RESPONSE *
         lowSpeedLateralAuthority *
@@ -1166,7 +1163,7 @@ export function getCornerSpeedBudget(
     >,
     slopeAcceleration = 0,
 ) {
-    // Raven maps raw speed linearly to its 225km/h physical-speed envelope.
+    // The common calibration maps raw speed linearly to a 225km/h envelope.
     // These ratios are the grade baselines before line-quality adjustment.
     if (grade === 'easy') return config.accelSpeed * 0.866;
 
@@ -1360,7 +1357,7 @@ export function getSpeedHandlingSample(speedRatio: number): PlayerSpeedHandlingS
 }
 
 function getReferenceSpeedRatio(displaySpeedKmh: number) {
-    return clamp(displaySpeedKmh / 225, 0, 1);
+    return clamp(displaySpeedKmh / REFERENCE_SPEED_KMH, 0, 1);
 }
 
 function getSmoothSpeedRatio(speedRatio: number) {
@@ -1568,7 +1565,9 @@ function updatePlayerSpeed(
         cornerIntensity,
         clamp(player.speed / config.accelSpeed, 0, 1),
         config,
-        seconds,
+        // Reconcile speed-crossed gear/fuel-cut boundaries, but do not advance
+        // RPM, turbo pressure and shift timers twice in the same physics tick.
+        0,
     );
 }
 
@@ -1682,18 +1681,19 @@ function updateEngineState(
     const previousGearIndex = gearIndex;
     let gear = profile.gears[gearIndex];
     const downshiftMargin = 0.025;
-    const upshiftMargin = 0.005;
+    const shift = profile.shift ?? DEFAULT_ENGINE_SHIFT_PROFILE;
     const usesPhysicalShiftSchedule = profile.drivetrainModel === 'physical';
 
     // Physical profiles use mechanical RPM as the single powered shift
-    // boundary. Arcade profiles retain their authored speed envelope and RPM
-    // target because those gear ranges are presentation data rather than real
-    // ratios.
+    // boundary. Arcade RPM envelopes are presentation data, so only their
+    // authored speed boundary controls shifts. Requiring global shiftUpRpm as
+    // well strands gears whose rpmMax is below that target (Seorin 7/Mirae 5).
     while (
         gearIndex < profile.gears.length - 1 &&
         throttle > 0 &&
-        (usesPhysicalShiftSchedule || speedRatio > gear.speedRatioMax - upshiftMargin) &&
-        getGearRpm(profile, gearIndex, speedRatio) >= profile.shiftUpRpm
+        (usesPhysicalShiftSchedule
+            ? getGearRpm(profile, gearIndex, speedRatio) >= profile.shiftUpRpm
+            : speedRatio >= gear.speedRatioMax - shift.upshiftSpeedMargin)
     ) {
         gearIndex += 1;
         gear = profile.gears[gearIndex];
@@ -1712,7 +1712,7 @@ function updateEngineState(
     const shiftDirection = getDirection(gearIndex - previousGearIndex);
     if (shiftDirection !== 0) {
         player.shiftDirection = shiftDirection;
-        player.shiftTimer = shiftDirection > 0 ? SHIFT_UP_DURATION_SECONDS : SHIFT_DOWN_DURATION_SECONDS;
+        player.shiftTimer = shiftDirection > 0 ? shift.upDurationSec : shift.downDurationSec;
     } else if (player.shiftTimer > 0) {
         player.shiftTimer = Math.max(0, player.shiftTimer - seconds);
         if (player.shiftTimer <= 0) {
@@ -1755,15 +1755,20 @@ function updateEngineState(
     }
 
     player.torqueScale = getTorqueScale(profile, player.rpm);
+    // Transmission interruption unloads the turbo without changing the
+    // driver's throttle state (and therefore cannot trigger a lift drift).
+    const boostThrottle = player.fuelCutActive ? 0 : throttle * (
+        player.shiftDirection > 0 && player.shiftTimer > 0 ? shift.upshiftBoostLoadRatio : 1
+    );
     const boostTarget = getEngineBoostTargets(
-        profile, player.rpm, player.fuelCutActive ? 0 : throttle, brake, cornerIntensity, speedRatio,
+        profile, player.rpm, boostThrottle, brake, cornerIntensity, speedRatio,
     );
     const boostState = advanceEngineBoost(profile, player, boostTarget, seconds);
     player.boostRatio = boostState.boostRatio;
     player.primaryBoostRatio = boostState.primaryBoostRatio;
     player.secondaryBoostRatio = boostState.secondaryBoostRatio;
     const boostProfile = profile.boost;
-    player.shiftCutRatio = player.fuelCutActive ? 0 : getShiftCutRatio(player);
+    player.shiftCutRatio = player.fuelCutActive ? 0 : getShiftCutRatio(player, profile);
     const turboTorqueRatio = boostProfile
         ? lerp(boostProfile.baseTorqueRatio, 1, player.boostRatio)
         : 1;
@@ -1788,11 +1793,12 @@ function getEngineTorqueScale(torqueScale: number, fuelCutActive: boolean) {
     return fuelCutActive ? torqueMultiplier * 0.45 : torqueMultiplier;
 }
 
-function getShiftCutRatio(player: PlayerVehicleState) {
+function getShiftCutRatio(player: PlayerVehicleState, profile: VehicleEngineProfile) {
     if (player.shiftTimer <= 0 || player.shiftDirection === 0) return 0;
 
-    const duration = player.shiftDirection > 0 ? SHIFT_UP_DURATION_SECONDS : SHIFT_DOWN_DURATION_SECONDS;
-    const peakCut = player.shiftDirection > 0 ? SHIFT_UP_CUT_RATIO : SHIFT_DOWN_CUT_RATIO;
+    const shift = profile.shift ?? DEFAULT_ENGINE_SHIFT_PROFILE;
+    const duration = player.shiftDirection > 0 ? shift.upDurationSec : shift.downDurationSec;
+    const peakCut = player.shiftDirection > 0 ? shift.upTorqueCutRatio : shift.downTorqueCutRatio;
     const timerRatio = clamp(player.shiftTimer / duration, 0, 1);
 
     return peakCut * Math.pow(timerRatio, SHIFT_CUT_DECAY_POWER);

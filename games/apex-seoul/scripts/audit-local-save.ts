@@ -113,3 +113,21 @@ const oldBucket = new RunRecordStore(() => nameStorage).getBucket('bugak-ridge-d
 assert.equal(oldBucket.bestRun?.playerName, 'PLAYER');
 assert.equal(oldBucket.recentRuns[0].playerName, 'PLAYER');
 console.log('PASS: name metadata persistence, validation and missing-name compatibility');
+
+// Previous physics rules remain stored but cannot become a current-rules PB.
+for (const oldRules of ['time-attack-v2', 'time-attack-v3']) {
+    const rulesStorage = new MemoryStorage();
+    const oldRulesRun = { ...run('old-best', 80), rulesetVersion: oldRules };
+    rulesStorage.setItem(RECORDS_KEY, JSON.stringify({ schemaVersion: 1, buckets: [{
+        ...createDefaultBuckets()[0], rulesetVersion: oldRules,
+        bestRun: oldRulesRun, recentRuns: [oldRulesRun], completedRunCount: 1, totalFinishTimeSec: 80,
+    }], legacy: [] }));
+    const rulesStore = new RunRecordStore(() => rulesStorage);
+    assert.equal(rulesStore.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun, null);
+    assert.equal(rulesStore.getBucket('bugak-ridge-downhill', 'raven-coupe', oldRules).bestRun?.runId, 'old-best');
+    assert.equal(rulesStore.record(run('current-first', 100)), 'saved');
+    const reloadedRules = new RunRecordStore(() => rulesStorage);
+    assert.equal(reloadedRules.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.runId, 'current-first');
+    assert.equal(reloadedRules.getBucket('bugak-ridge-downhill', 'raven-coupe', oldRules).bestRun?.runId, 'old-best');
+}
+console.log('PASS: previous handling rules preserved and excluded from current PB');

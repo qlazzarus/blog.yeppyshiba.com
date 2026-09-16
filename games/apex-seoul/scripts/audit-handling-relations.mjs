@@ -53,11 +53,12 @@ const gradeLossRows = slopes.map((slopeId) => ({
 }));
 const levelSharpLoss = gradeLossRows.find((row) => row.slopeId === 'level').sharp;
 const downhillSharpLoss = gradeLossRows.find((row) => row.slopeId === 'downhill').sharp;
-const currentStraightComparison = compareStraightControls(corner, tse6);
+const engineV4 = await readJson('scripts/reference-data/engine-v4-straight-controls.json');
+const currentStraightComparison = compareStraightControls(corner, engineV4);
 const tse2MigrationComparison = compareStraightControls(tse2, hnd3);
-const zeroTo100DeltaSec = Math.abs(corner.controls.zeroTo100Sec - hnd1.controls.zeroTo100Sec);
+const zeroTo100DeltaSec = Math.abs(corner.controls.zeroTo100Sec - engineV4.controls.zeroTo100Sec);
 const sixtyKmhDeltaSec = Math.abs(
-    corner.controls.sixtyKmh.timeSec - tse6.controls.sixtyKmh.timeSec,
+    corner.controls.sixtyKmh.timeSec - engineV4.controls.sixtyKmh.timeSec,
 );
 const accidentalDriftRatioMax = Math.max(
     ...corner.syntheticRows.map((row) => row.accidentalDriftRatio),
@@ -149,7 +150,7 @@ const legacyChecks = [
     check(
         'control.straightExitSpeedStable',
         currentStraightComparison.maxExitSpeedDeltaKmh <= 0.05,
-        '<= 0.05km/h versus TSE-6 calibrated straight controls',
+        '<= 0.05km/h versus v4 single-tick engine straight controls',
         currentStraightComparison,
     ),
     check(
@@ -157,24 +158,24 @@ const legacyChecks = [
         zeroTo100DeltaSec <= 0.05 &&
             corner.controls.zeroTo100Sec >= corner.controls.zeroTo100TargetSec[0] &&
             corner.controls.zeroTo100Sec <= corner.controls.zeroTo100TargetSec[1],
-        '<= 0.05s versus HND-1 and within 7.8~8.3s',
+        '<= 0.05s versus engine v4 and within 7.8~8.3s',
         {
             currentSec: corner.controls.zeroTo100Sec,
             deltaSec: round(zeroTo100DeltaSec),
-            hnd1Sec: hnd1.controls.zeroTo100Sec,
+            engineV4Sec: engineV4.controls.zeroTo100Sec,
         },
     ),
     check(
         'control.sixtyKmhStable',
         sixtyKmhDeltaSec <= 0.05 &&
-            corner.controls.sixtyKmh.gear === tse6.controls.sixtyKmh.gear &&
+            corner.controls.sixtyKmh.gear === engineV4.controls.sixtyKmh.gear &&
             corner.controls.sixtyKmh.timeSec >= 3.5 &&
             corner.controls.sixtyKmh.timeSec <= 5,
-        '<= 0.05s versus TSE-6, same gear, and within 3.5~5.0s',
+        '<= 0.05s versus engine v4, same gear, and within 3.5~5.0s',
         {
             current: corner.controls.sixtyKmh,
             deltaSec: round(sixtyKmhDeltaSec),
-            tse6: tse6.controls.sixtyKmh,
+            engineV4: engineV4.controls.sixtyKmh,
         },
     ),
     check(

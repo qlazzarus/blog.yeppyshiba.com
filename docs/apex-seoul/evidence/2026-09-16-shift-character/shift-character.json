@@ -1,0 +1,607 @@
+{
+  "pass": true,
+  "results": [
+    {
+      "vehicle": "Raven Coupe",
+      "fps": 30,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.9,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 7427.649262,
+          "landingRpm": 4481.990233,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 7.666667,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 7415.428473,
+          "landingRpm": 5222.657805,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 13.633333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 7402.402068,
+          "landingRpm": 5826.809674,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 21.9,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 7402.11968,
+          "landingRpm": 6102.324551,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 38.4,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 7401.047527,
+          "landingRpm": 5676.603453,
+          "cut": 0.42
+        }
+      ]
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 30,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.5,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6418.148269,
+          "landingRpm": 4090.613081,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 6.233333,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6577.982983,
+          "landingRpm": 4181.581106,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 8.866667,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6580.582899,
+          "landingRpm": 4053.276053,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 11.466667,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6582.6364,
+          "landingRpm": 4056.247993,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 13.966667,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6588.887811,
+          "landingRpm": 4121.414375,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 16.033333,
+          "from": 6,
+          "to": 7,
+          "mechanicalRpm": 6561.240441,
+          "landingRpm": 4196.103865,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 17.4,
+          "from": 7,
+          "to": 8,
+          "mechanicalRpm": 6317.020844,
+          "landingRpm": 4724.189371,
+          "cut": 0.24
+        }
+      ]
+    },
+    {
+      "vehicle": "Mirae GT",
+      "fps": 30,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 5.033333,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6839.915169,
+          "landingRpm": 4810.535793,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 8.4,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6846.982241,
+          "landingRpm": 4833.566145,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 12.033333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6848.056447,
+          "landingRpm": 4938.296196,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 15.733333,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6848.416034,
+          "landingRpm": 5031.819869,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 19.066667,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6698.152446,
+          "landingRpm": 5072.167548,
+          "cut": 0.5
+        }
+      ]
+    },
+    {
+      "vehicle": "Raven Coupe",
+      "fps": 60,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.9,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 7428.429933,
+          "landingRpm": 4482.461305,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 7.65,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 7400.588436,
+          "landingRpm": 5212.206024,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 13.65,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 7401.463027,
+          "landingRpm": 5826.070507,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 21.916667,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 7400.327118,
+          "landingRpm": 6100.846758,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 38.433333,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 7400.51909,
+          "landingRpm": 5676.198142,
+          "cut": 0.42
+        }
+      ]
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 60,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.5,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6417.505445,
+          "landingRpm": 4090.283023,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 6.216667,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6570.308833,
+          "landingRpm": 4169.337648,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 8.883333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6585.546295,
+          "landingRpm": 4060.576329,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 11.466667,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6580.22872,
+          "landingRpm": 4052.770121,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 13.966667,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6585.66223,
+          "landingRpm": 4114.839675,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 16.05,
+          "from": 6,
+          "to": 7,
+          "mechanicalRpm": 6564.180766,
+          "landingRpm": 4202.127795,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 17.416667,
+          "from": 7,
+          "to": 8,
+          "mechanicalRpm": 6319.1562,
+          "landingRpm": 4729.72353,
+          "cut": 0.24
+        }
+      ]
+    },
+    {
+      "vehicle": "Mirae GT",
+      "fps": 60,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 5.016667,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6836.096384,
+          "landingRpm": 4802.731164,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 8.4,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6846.560377,
+          "landingRpm": 4830.984827,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 12.033333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6847.401745,
+          "landingRpm": 4932.609154,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 15.75,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6848.341463,
+          "landingRpm": 5030.846459,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 19.083333,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6697.702408,
+          "landingRpm": 5064.492227,
+          "cut": 0.5
+        }
+      ]
+    },
+    {
+      "vehicle": "Raven Coupe",
+      "fps": 120,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.891667,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 7408.901658,
+          "landingRpm": 4470.677559,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 7.666667,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 7404.749589,
+          "landingRpm": 5215.136708,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 13.658333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 7400.687735,
+          "landingRpm": 5825.460235,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 21.933333,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 7400.525502,
+          "landingRpm": 6101.010306,
+          "cut": 0.42
+        },
+        {
+          "timeSec": 38.45,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 7400.265416,
+          "landingRpm": 5676.003574,
+          "cut": 0.42
+        }
+      ]
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 120,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "shifts": [
+        {
+          "timeSec": 3.491667,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6407.471531,
+          "landingRpm": 4085.214642,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 6.208333,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6566.2735,
+          "landingRpm": 4163.203347,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 8.875,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6581.700572,
+          "landingRpm": 4054.885367,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 11.475,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6582.589915,
+          "landingRpm": 4056.179978,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 13.958333,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6580.58207,
+          "landingRpm": 4104.950856,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 16.041667,
+          "from": 6,
+          "to": 7,
+          "mechanicalRpm": 6557.242154,
+          "landingRpm": 4188.177831,
+          "cut": 0.24
+        },
+        {
+          "timeSec": 17.425,
+          "from": 7,
+          "to": 8,
+          "mechanicalRpm": 6321.151383,
+          "landingRpm": 4734.934872,
+          "cut": 0.24
+        }
+      ]
+    },
+    {
+      "vehicle": "Mirae GT",
+      "fps": 120,
+      "reachedGears": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "shifts": [
+        {
+          "timeSec": 5.016667,
+          "from": 1,
+          "to": 2,
+          "mechanicalRpm": 6835.942359,
+          "landingRpm": 4802.442453,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 8.391667,
+          "from": 2,
+          "to": 3,
+          "mechanicalRpm": 6845.640064,
+          "landingRpm": 4825.88195,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 12.033333,
+          "from": 3,
+          "to": 4,
+          "mechanicalRpm": 6847.056067,
+          "landingRpm": 4929.905831,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 15.75,
+          "from": 4,
+          "to": 5,
+          "mechanicalRpm": 6847.967713,
+          "landingRpm": 5026.274742,
+          "cut": 0.5
+        },
+        {
+          "timeSec": 19.1,
+          "from": 5,
+          "to": 6,
+          "mechanicalRpm": 6697.905682,
+          "landingRpm": 5067.854853,
+          "cut": 0.5
+        }
+      ]
+    }
+  ],
+  "pulses": [
+    {
+      "vehicle": "Mirae GT",
+      "fps": 30,
+      "activeDuration": 0.266667,
+      "beforeBoost": 0.722907,
+      "minBoost": 0.515845,
+      "retainedRatio": 0.71357,
+      "maxCut": 0.5,
+      "recover90Sec": 0.466667
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 30,
+      "activeDuration": 0.166667,
+      "beforeBoost": 0.772851,
+      "minBoost": 0.69554,
+      "retainedRatio": 0.899966,
+      "maxCut": 0.24,
+      "recover90Sec": 0.2
+    },
+    {
+      "vehicle": "Mirae GT",
+      "fps": 60,
+      "activeDuration": 0.266667,
+      "beforeBoost": 0.72291,
+      "minBoost": 0.515684,
+      "retainedRatio": 0.713345,
+      "maxCut": 0.5,
+      "recover90Sec": 0.45
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 60,
+      "activeDuration": 0.15,
+      "beforeBoost": 0.772852,
+      "minBoost": 0.701748,
+      "retainedRatio": 0.907998,
+      "maxCut": 0.24,
+      "recover90Sec": 0.166667
+    },
+    {
+      "vehicle": "Mirae GT",
+      "fps": 120,
+      "activeDuration": 0.266667,
+      "beforeBoost": 0.722911,
+      "minBoost": 0.515592,
+      "retainedRatio": 0.713216,
+      "maxCut": 0.5,
+      "recover90Sec": 0.45
+    },
+    {
+      "vehicle": "Seorin GT",
+      "fps": 120,
+      "activeDuration": 0.141667,
+      "beforeBoost": 0.772852,
+      "minBoost": 0.704664,
+      "retainedRatio": 0.911771,
+      "maxCut": 0.24,
+      "recover90Sec": 0.15
+    }
+  ]
+}

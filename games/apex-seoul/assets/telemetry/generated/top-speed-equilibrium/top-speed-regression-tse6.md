@@ -1,6 +1,6 @@
 # Apex Seoul TSE-6 최고속 회귀 묶음
 
-생성: 2026-07-31T08:48:15.528Z
+생성: 2026-09-16T05:39:47.933Z
 
 상태: **PASS**
 
@@ -32,20 +32,20 @@
 | candidate | 0-60 | 0-100 |
 | --- | ---: | ---: |
 | drag-only intermediate | 3.817s | 7.083s |
-| corrected production | 4.033s | 8.083s |
+| corrected production | 4.067s | 8.133s |
 
 ## Mid/high-speed splits
 
 | source | 100→175.34 | 175.34→212.687 | 212.687→223 |
 | --- | ---: | ---: | ---: |
-| deterministic level | 13.75s | 16.467s | 113.533s |
+| deterministic level | 13.767s | 16.517s | 114.017s |
 | runtime SH-7 downhill | 11.213s | 10.78s | 7.966s |
 
 ## Slope relationship
 
 | scenario | speed km/h | classification |
 | --- | ---: | --- |
-| uphill | 168.711 | observed-at-300s |
+| uphill | 168.333 | observed-at-300s |
 | level | 223.953 | force-equilibrium |
 | sh7-mild-downhill | 225 | safety-cap |
 
@@ -55,9 +55,9 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 
 | grade | level corner-only % | downhill corner-only % | downhill raw % | level - downhill pp |
 | --- | ---: | ---: | ---: | ---: |
-| easy | 1.478 | 0 | 0 | 1.478 |
-| medium | 4.946 | 0 | 0 | 4.946 |
-| sharp | 15.163 | 0.128 | 0.128 | 15.035 |
+| easy | 0.732 | 0 | 0 | 0.732 |
+| medium | 0.673 | 0 | 0 | 0.673 |
+| sharp | 8.204 | 0.094 | 0.094 | 8.11 |
 
 과거 HND-3 손실률은 225km/h 직선 자체가 감속하던 상태를 기준으로 했다. TSE-6은 같은 speed/slope/pedal의 calibrated straight control과 코너 출구를 비교한다.
 
@@ -73,16 +73,16 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 | cornerDemandTse6Pass | yes | true | true |
 | handlingRelationsTse6Pass | yes | true | true |
 | speedPresentationPreserved | yes | true | true |
-| standingStart0to100Sec | yes | 7.8, 8.3 | 8.083333333 |
+| standingStart0to100Sec | yes | 7.8, 8.3 | 8.133333333 |
 | standingStartGearAt60 | yes | 2 | 2 |
 | standingStartGearAt100 | yes | 3 | 3 |
-| levelNaturalEquilibriumKmh | yes | 223, 225 | 223.953313489 |
+| levelNaturalEquilibriumKmh | yes | 223, 225 | 223.952753651 |
 | levelAvoidsClamp | yes | false | false |
 | runtimeReaches225 | yes | 225 | 225 |
 | runtimeStraightIsClean | yes | 0 | {"cornerLoss":0,"guardrailImpacts":0,"steering":0} |
-| slopeOrderingAndClassification | yes | uphill < level equilibrium < downhill safety-cap | {"downhill":[225,"safety-cap"],"level":[223.953313488908,"force-equilibrium"],"uphill":[168.710930168434,"observed-at-300s"]} |
-| forceBracketStillNatural | yes | positive / approximately zero / negative at 223 / 224 / 225km/h | 0.074416324, -0.000835742, -0.07755501 |
-| cornerLossUsesCalibratedStraightReference | yes | all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":1.478,"levelMinusDownhillPercentagePoints":1.478}, {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"medium","levelCornerLossPercent":4.946,"levelMinusDownhillPercentagePoints":4.946}, {"downhillCornerLossPercent":0.128,"downhillRawLossPercent":0.128,"grade":"sharp","levelCornerLossPercent":15.163,"levelMinusDownhillPercentagePoints":15.035} |
+| slopeOrderingAndClassification | yes | uphill < level equilibrium < downhill safety-cap | {"downhill":[225,"safety-cap"],"level":[223.952753650998,"force-equilibrium"],"uphill":[168.332554400046,"observed-at-300s"]} |
+| forceBracketStillNatural | yes | positive / approximately zero / negative at 223 / 224 / 225km/h | 0.074411343, -0.000835686, -0.077549856 |
+| cornerLossUsesCalibratedStraightReference | yes | all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":0.732,"levelMinusDownhillPercentagePoints":0.732}, {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"medium","levelCornerLossPercent":0.673,"levelMinusDownhillPercentagePoints":0.673}, {"downhillCornerLossPercent":0.094,"downhillRawLossPercent":0.094,"grade":"sharp","levelCornerLossPercent":8.204,"levelMinusDownhillPercentagePoints":8.11} |
 
 이 PASS는 최고속 회귀가 고정됐다는 뜻이다. Visual rail과 drift cycle의 통합 실주행 승인은 별도 blocker로 남는다.
 

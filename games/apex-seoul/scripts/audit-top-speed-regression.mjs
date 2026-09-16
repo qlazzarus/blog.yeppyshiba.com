@@ -97,7 +97,8 @@ const checks = [
         cornerRows.every((row) => (
             row.levelCornerLossPercent >= 0 &&
             row.downhillCornerLossPercent >= 0 &&
-            Math.abs(row.downhillCornerLossPercent - row.downhillRawLossPercent) <= 0.001
+            // Source percentages are rounded to three decimals; include float epsilon.
+            Math.abs(row.downhillCornerLossPercent - row.downhillRawLossPercent) <= 0.001 + 1e-9
         )) &&
             cornerRows.find((row) => row.grade === 'sharp')
                 ?.levelMinusDownhillPercentagePoints >= 5,

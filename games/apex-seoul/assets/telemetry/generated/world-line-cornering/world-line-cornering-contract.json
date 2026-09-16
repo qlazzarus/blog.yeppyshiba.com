@@ -31,7 +31,7 @@
     {
       "evidence": {
         "left": {
-          "endSpeedKmh": 184.7209,
+          "endSpeedKmh": 184.7208,
           "finalHeading": 1.0489,
           "finalOffset": 487.055,
           "maxAbsHeading": 1.0489,
@@ -39,7 +39,7 @@
           "maxGripFollowAuthority": 0
         },
         "right": {
-          "endSpeedKmh": 184.7209,
+          "endSpeedKmh": 184.7208,
           "finalHeading": -1.0489,
           "finalOffset": -487.055,
           "maxAbsHeading": 1.0489,
@@ -56,13 +56,13 @@
         "preparedError": 0,
         "rightError": 0
       },
-      "id": "lateral-motion-is-heading-projection",
+      "id": "lateral-motion-is-input-weighted-heading-projection",
       "pass": true
     },
     {
       "evidence": {
         "neutral": {
-          "endSpeedKmh": 184.7209,
+          "endSpeedKmh": 184.7208,
           "finalHeading": -1.0489,
           "finalOffset": -487.055,
           "maxAbsHeading": 1.0489,
@@ -70,11 +70,11 @@
           "maxGripFollowAuthority": 0
         },
         "prepared": {
-          "endSpeedKmh": 120.7379,
-          "finalHeading": 0.0253,
-          "finalOffset": -3.9375,
-          "maxAbsHeading": 0.0281,
-          "maxAbsOffset": 21.4738,
+          "endSpeedKmh": 120.9697,
+          "finalHeading": 0.02,
+          "finalOffset": 135.277,
+          "maxAbsHeading": 0.02,
+          "maxAbsOffset": 135.277,
           "maxGripFollowAuthority": 1
         }
       },
@@ -98,7 +98,7 @@
     "pavedCenterLimit": 580,
     "railCenterLimit": 700
   },
-  "generatedAt": "2026-07-27T08:46:59.835Z",
+  "generatedAt": "2026-09-16T05:37:58.250Z",
   "pass": true,
   "purpose": "HR-3H neutral world-line, contact-point yaw, steering grip, and tire-loss contract",
   "scenarios": [
@@ -118,7 +118,7 @@
       "speedKmh": 185
     },
     {
-      "endSpeedKmh": 184.7209,
+      "endSpeedKmh": 184.7208,
       "finalHeading": -1.0489,
       "finalOffset": -487.055,
       "id": "sharp-right-neutral",
@@ -133,7 +133,7 @@
       "speedKmh": 185
     },
     {
-      "endSpeedKmh": 184.7209,
+      "endSpeedKmh": 184.7208,
       "finalHeading": 1.0489,
       "finalOffset": 487.055,
       "id": "sharp-left-neutral",
@@ -148,33 +148,33 @@
       "speedKmh": 185
     },
     {
-      "endSpeedKmh": 120.7379,
-      "finalHeading": 0.0253,
-      "finalOffset": -3.9375,
+      "endSpeedKmh": 120.9697,
+      "finalHeading": 0.02,
+      "finalOffset": 135.277,
       "id": "sharp-right-prepared-grip",
-      "maxAbsHeading": 0.0281,
-      "maxAbsInertia": 26.0255,
-      "maxAbsOffset": 21.4738,
-      "maxCornerLossForce": 31.5359,
+      "maxAbsHeading": 0.02,
+      "maxAbsInertia": 12.2402,
+      "maxAbsOffset": 135.277,
+      "maxCornerLossForce": 30.0563,
       "maxGripFollowAuthority": 1,
-      "maxOffset": 0,
+      "maxOffset": 135.277,
       "maxProjectionError": 0,
-      "minOffset": -21.4738,
+      "minOffset": -0.267,
       "speedKmh": 185
     },
     {
-      "endSpeedKmh": 174.708,
+      "endSpeedKmh": 174.704,
       "finalHeading": -0.9713,
-      "finalOffset": -551.8287,
+      "finalOffset": -551.8422,
       "id": "sharp-right-severe-overspeed",
       "maxAbsHeading": 0.9713,
-      "maxAbsInertia": 216.1182,
-      "maxAbsOffset": 551.8287,
+      "maxAbsInertia": 216.1406,
+      "maxAbsOffset": 551.8422,
       "maxCornerLossForce": 65.9999,
       "maxGripFollowAuthority": 0,
       "maxOffset": -300,
       "maxProjectionError": 0,
-      "minOffset": -551.8287,
+      "minOffset": -551.8422,
       "speedKmh": 200
     }
   ],

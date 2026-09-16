@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import type { PlayerVehicleControllerConfig } from './playerVehicleController';
 import type { PlayerSteeringStateId } from './vehicle';
 
@@ -1133,7 +1132,7 @@ function readTuningNumber(
 
     if (!Number.isFinite(parsed)) return fallback;
 
-    return Phaser.Math.Clamp(parsed, min, max);
+    return Math.min(max, Math.max(min, parsed));
 }
 
 function readOptionalTuningNumber(
@@ -1150,7 +1149,7 @@ function readOptionalTuningNumber(
 
     if (!Number.isFinite(parsed)) return null;
 
-    return Phaser.Math.Clamp(parsed, min, max);
+    return Math.min(max, Math.max(min, parsed));
 }
 
 function readBooleanParam(params: URLSearchParams, key: string, fallback: boolean) {

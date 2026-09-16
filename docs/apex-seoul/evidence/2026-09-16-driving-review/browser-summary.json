@@ -1,0 +1,322 @@
+{
+  "method": "Actual Chromium WebGL scene, Playwright keyboard input; fixed 60 Hz scene clock, feedback every 100 ms, WebGL submissions at 10 Hz (legacy resumed fixtures 60 Hz). QA start poses, no saved records; screenshots visually inspected separately. --resume is only valid when gameplay source/settings are unchanged.",
+  "checks": [
+    {
+      "id": "raven-coupe-grip-4500",
+      "pass": true
+    },
+    {
+      "id": "raven-coupe-lift-4500",
+      "pass": true
+    },
+    {
+      "id": "seorin-gt-grip-4500",
+      "pass": true
+    },
+    {
+      "id": "seorin-gt-lift-4500",
+      "pass": true
+    },
+    {
+      "id": "mirae-gt-grip-4500",
+      "pass": true
+    },
+    {
+      "id": "mirae-gt-lift-4500",
+      "pass": true
+    },
+    {
+      "id": "raven-coupe-lift-neutral-4500",
+      "pass": true
+    },
+    {
+      "id": "raven-coupe-grip-14200",
+      "pass": true
+    },
+    {
+      "id": "raven-coupe-lift-14200",
+      "pass": true
+    }
+  ],
+  "reports": [
+    {
+      "id": "raven-coupe-grip-4500",
+      "vehicle": "raven-coupe",
+      "mode": "grip",
+      "z": 4500,
+      "endZ": 10500,
+      "reachedEnd": true,
+      "timeSec": 6,
+      "exitSpeedKmh": 161.4,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 179.87726516049267,
+      "maxAbsHeading": 0.0974,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": -0.012,
+      "finalOffset": 75.55343205773785,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "raven-coupe-lift-4500",
+      "vehicle": "raven-coupe",
+      "mode": "lift",
+      "z": 4500,
+      "endZ": 10500,
+      "reachedEnd": true,
+      "timeSec": 6.5,
+      "exitSpeedKmh": 148.8,
+      "minSpeedKmh": 128.1,
+      "maxAbsOffset": 592.2311447344234,
+      "maxAbsHeading": 0.3228,
+      "impacts": 0,
+      "driftStates": [
+        "grip",
+        "setup",
+        "drift",
+        "recovery"
+      ],
+      "errors": [],
+      "captures": [
+        "raven-coupe-lift-4500-drift.png",
+        "raven-coupe-lift-4500-exit.png"
+      ],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "false/1",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": -0.0829,
+      "finalOffset": 177.61727059397228,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "seorin-gt-grip-4500",
+      "vehicle": "seorin-gt",
+      "mode": "grip",
+      "z": 4500,
+      "endZ": 10500,
+      "reachedEnd": true,
+      "timeSec": 5.2,
+      "exitSpeedKmh": 206.5,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 92.15890408864921,
+      "maxAbsHeading": 0.16,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "true/0"
+      ],
+      "finalHeading": 0.0218,
+      "finalOffset": 26.61670097947102,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "seorin-gt-lift-4500",
+      "vehicle": "seorin-gt",
+      "mode": "lift",
+      "z": 4500,
+      "endZ": 10500,
+      "reachedEnd": true,
+      "timeSec": 5.6,
+      "exitSpeedKmh": 193.8,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 522.2925809341094,
+      "maxAbsHeading": 0.2308,
+      "impacts": 0,
+      "driftStates": [
+        "grip",
+        "setup",
+        "drift",
+        "recovery"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "false/1",
+        "true/0"
+      ],
+      "finalHeading": -0.0776,
+      "finalOffset": 154.17221920420474,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "mirae-gt-grip-4500",
+      "vehicle": "mirae-gt",
+      "mode": "grip",
+      "z": 4500,
+      "endZ": 10500,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 5.4,
+      "exitSpeedKmh": 198.6,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 136.02247362712092,
+      "maxAbsHeading": 0.07,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": 0.0113,
+      "finalOffset": 43.37169088565383,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "mirae-gt-lift-4500",
+      "vehicle": "mirae-gt",
+      "mode": "lift",
+      "z": 4500,
+      "endZ": 10500,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 5.8,
+      "exitSpeedKmh": 183.4,
+      "minSpeedKmh": 138.6,
+      "maxAbsOffset": 545.3451293101236,
+      "maxAbsHeading": 0.2846,
+      "impacts": 0,
+      "driftStates": [
+        "grip",
+        "setup",
+        "drift",
+        "recovery"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "false/1",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": -0.0729,
+      "finalOffset": 158.22843319640157,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "raven-coupe-lift-neutral-4500",
+      "vehicle": "raven-coupe",
+      "mode": "lift-neutral",
+      "z": 4500,
+      "endZ": 10500,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 6.1,
+      "exitSpeedKmh": 158.4,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 82.66054942641738,
+      "maxAbsHeading": 0.1604,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/1",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": 0.0204,
+      "finalOffset": 44.20123009588085,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "raven-coupe-grip-14200",
+      "vehicle": "raven-coupe",
+      "mode": "grip",
+      "z": 14200,
+      "endZ": 19700,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 5.5,
+      "exitSpeedKmh": 159.1,
+      "minSpeedKmh": 140,
+      "maxAbsOffset": 148.25222032889624,
+      "maxAbsHeading": 0.0609,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [],
+      "inputSeen": [
+        "false/0",
+        "true/0",
+        "true/-1"
+      ],
+      "finalHeading": 0.0566,
+      "finalOffset": -92.0053312778835,
+      "finalDriftState": "grip"
+    },
+    {
+      "id": "raven-coupe-lift-14200",
+      "vehicle": "raven-coupe",
+      "mode": "lift",
+      "z": 14200,
+      "endZ": 19700,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 6,
+      "exitSpeedKmh": 147.9,
+      "minSpeedKmh": 127.7,
+      "maxAbsOffset": 571.4116901708044,
+      "maxAbsHeading": 0.26,
+      "impacts": 0,
+      "driftStates": [
+        "grip",
+        "setup",
+        "drift",
+        "recovery"
+      ],
+      "errors": [],
+      "captures": [
+        "raven-coupe-lift-14200-drift.png"
+      ],
+      "inputSeen": [
+        "false/0",
+        "true/0",
+        "true/-1",
+        "false/-1"
+      ],
+      "finalHeading": 0.1306,
+      "finalOffset": -227.83853929443862,
+      "finalDriftState": "grip"
+    }
+  ]
+}

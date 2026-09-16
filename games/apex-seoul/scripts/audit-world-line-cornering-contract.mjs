@@ -122,7 +122,7 @@ const checks = [
         },
     ),
     check(
-        'lateral-motion-is-heading-projection',
+        'lateral-motion-is-input-weighted-heading-projection',
         Math.max(
             neutralRight.maxProjectionError,
             neutralLeft.maxProjectionError,
@@ -240,11 +240,17 @@ function runScenario({
             FRAME_SECONDS,
         );
 
+        // Direct tire response shares the turn-in load with heading inertia.
+        const gripAxis = Math.abs(player.physicalSteeringCommand * player.gripSteerAngleLimit);
+        const weight = clamp(gripAxis, 0, 1);
+        const inputScale = player.driftState === 'grip'
+            ? 1 - 0.28 * weight * weight * (3 - 2 * weight)
+            : 1;
         const rawProjection = Math.sin(clamp(
             player.vehicleHeadingError,
             -1.2,
             1.2,
-        )) * player.speed * LONGITUDINAL_SCALE;
+        )) * player.speed * LONGITUDINAL_SCALE * inputScale;
         const inertiaCap = Math.max(
             80,
             player.speedHandling.lateralVelocityCap * 1.85,

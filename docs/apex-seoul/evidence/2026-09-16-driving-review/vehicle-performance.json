@@ -1,0 +1,658 @@
+{
+  "generatedAt": "2026-09-16T01:06:11.504Z",
+  "method": "Production controller/config, fixed steps 60/120 Hz, flat longitudinal tests; launch bonus off; real Bugak geometry for two corner sectors; same digital feedback, no best-lap claim. Distances are world units, not meters.",
+  "results": [
+    {
+      "vehicle": "Raven Coupe",
+      "profileId": "raven-coupe-na",
+      "fps": 60,
+      "drivetrain": "physical",
+      "induction": "na",
+      "targetTopSpeedKmh": 225,
+      "unreachableUpshifts": [],
+      "acceleration": {
+        "hitsSec": {
+          "60": 4.0375,
+          "100": 8.0909,
+          "160": 18.212,
+          "200": 31.1815
+        },
+        "endSpeedKmh": 220.1282,
+        "endGear": 6,
+        "distanceWorldUnits": 113766.9238
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 4.938
+        },
+        "endSpeedKmh": 187.2405,
+        "endGear": 5,
+        "distanceWorldUnits": 19603.2677
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.1,
+        "distanceWorldUnits": 395.8479
+      },
+      "liftReapply130": {
+        "boostBefore": 0,
+        "boostAfterLift": 0,
+        "boostAfterReapply": 0,
+        "speedAfterLift": 123.8701,
+        "speedAfterReapply": 130.9639,
+        "gainInOneSecondKmh": 7.0938
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.9704,
+          "exitSpeedKmh": 161.6747,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 178.5072,
+          "maxAbsHeading": 0.0807,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.9833
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 6.4135,
+          "exitSpeedKmh": 150.5905,
+          "minSpeedKmh": 128.0325,
+          "maxAbsOffset": 573.2479,
+          "maxAbsHeading": 0.2774,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.95,
+            "setup": 0.1833,
+            "drift": 1.9833,
+            "recovery": 0.3
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.4812,
+          "exitSpeedKmh": 159.0979,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 151.4793,
+          "maxAbsHeading": 0.0603,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.4833
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.8939,
+          "exitSpeedKmh": 148.6577,
+          "minSpeedKmh": 127.8098,
+          "maxAbsOffset": 554.3248,
+          "maxAbsHeading": 0.2601,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.1833,
+            "setup": 0.1833,
+            "drift": 2.2333,
+            "recovery": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "vehicle": "Seorin GT",
+      "profileId": "seorin-gt-twin-turbo",
+      "fps": 60,
+      "drivetrain": "arcade",
+      "induction": "twin-turbo",
+      "targetTopSpeedKmh": 230,
+      "unreachableUpshifts": [
+        {
+          "fromGear": 7,
+          "toGear": 8,
+          "attainableRpm": 6500,
+          "requiredRpm": 6650
+        }
+      ],
+      "acceleration": {
+        "hitsSec": {
+          "60": 5.9452,
+          "100": 9.1682,
+          "160": 13.458,
+          "200": 16.3446
+        },
+        "endSpeedKmh": 225,
+        "endGear": 7,
+        "distanceWorldUnits": 121887.8138
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 3.0314
+        },
+        "endSpeedKmh": 225,
+        "endGear": 7,
+        "distanceWorldUnits": 25177.1073
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.1,
+        "distanceWorldUnits": 395.8479
+      },
+      "liftReapply130": {
+        "boostBefore": 0.9147,
+        "boostAfterLift": 0.0556,
+        "boostAfterReapply": 0.8748,
+        "speedAfterLift": 123.8701,
+        "speedAfterReapply": 137.4892,
+        "gainInOneSecondKmh": 13.6191
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.151,
+          "exitSpeedKmh": 206.0914,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 92.1858,
+          "maxAbsHeading": 0.16,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.1667
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.535,
+          "exitSpeedKmh": 194.1375,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 528.379,
+          "maxAbsHeading": 0.2558,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.35,
+            "setup": 0.1833,
+            "drift": 1.7167,
+            "recovery": 0.3
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 4.7691,
+          "exitSpeedKmh": 201.1107,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 56.164,
+          "maxAbsHeading": 0.1364,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 4.7833
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.1325,
+          "exitSpeedKmh": 189.1951,
+          "minSpeedKmh": 139.8849,
+          "maxAbsOffset": 512.8988,
+          "maxAbsHeading": 0.2379,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 2.7,
+            "setup": 0.1833,
+            "drift": 1.95,
+            "recovery": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "vehicle": "Mirae GT",
+      "profileId": "mirae-gt-single-turbo",
+      "fps": 60,
+      "drivetrain": "arcade",
+      "induction": "single-turbo",
+      "targetTopSpeedKmh": 218,
+      "unreachableUpshifts": [
+        {
+          "fromGear": 5,
+          "toGear": 6,
+          "attainableRpm": 6700,
+          "requiredRpm": 6850
+        }
+      ],
+      "acceleration": {
+        "hitsSec": {
+          "60": 7.1817,
+          "100": 10.8312,
+          "160": 15.8401,
+          "200": 19.0861
+        },
+        "endSpeedKmh": 225,
+        "endGear": 5,
+        "distanceWorldUnits": 119183.8644
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 3.5009
+        },
+        "endSpeedKmh": 225,
+        "endGear": 5,
+        "distanceWorldUnits": 24421.0025
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.1,
+        "distanceWorldUnits": 395.8479
+      },
+      "liftReapply130": {
+        "boostBefore": 0.974,
+        "boostAfterLift": 0.2067,
+        "boostAfterReapply": 0.9682,
+        "speedAfterLift": 123.8701,
+        "speedAfterReapply": 136.3862,
+        "gainInOneSecondKmh": 12.5161
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.312,
+          "exitSpeedKmh": 197.9361,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 133.8218,
+          "maxAbsHeading": 0.0636,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.3167
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.7281,
+          "exitSpeedKmh": 185.1059,
+          "minSpeedKmh": 138.4012,
+          "maxAbsOffset": 537.8249,
+          "maxAbsHeading": 0.2553,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.4833,
+            "setup": 0.1833,
+            "drift": 1.7667,
+            "recovery": 0.3
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 4.9158,
+          "exitSpeedKmh": 192.9444,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 111.2396,
+          "maxAbsHeading": 0.0425,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 4.9167
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.3048,
+          "exitSpeedKmh": 180.9567,
+          "minSpeedKmh": 136.5874,
+          "maxAbsOffset": 525.095,
+          "maxAbsHeading": 0.2437,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 2.8,
+            "setup": 0.1833,
+            "drift": 2.0333,
+            "recovery": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "vehicle": "Raven Coupe",
+      "profileId": "raven-coupe-na",
+      "fps": 120,
+      "drivetrain": "physical",
+      "induction": "na",
+      "targetTopSpeedKmh": 225,
+      "unreachableUpshifts": [],
+      "acceleration": {
+        "hitsSec": {
+          "60": 4.0368,
+          "100": 8.0939,
+          "160": 18.2161,
+          "200": 31.1908
+        },
+        "endSpeedKmh": 220.1257,
+        "endGear": 6,
+        "distanceWorldUnits": 113755.4796
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 4.9427
+        },
+        "endSpeedKmh": 187.2077,
+        "endGear": 5,
+        "distanceWorldUnits": 19596.2469
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.0917,
+        "distanceWorldUnits": 401.2051
+      },
+      "liftReapply130": {
+        "boostBefore": 0,
+        "boostAfterLift": 0,
+        "boostAfterReapply": 0,
+        "speedAfterLift": 123.8703,
+        "speedAfterReapply": 130.9643,
+        "gainInOneSecondKmh": 7.094
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.9719,
+          "exitSpeedKmh": 161.5942,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 177.3622,
+          "maxAbsHeading": 0.0788,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.975
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 6.4066,
+          "exitSpeedKmh": 150.8389,
+          "minSpeedKmh": 128.192,
+          "maxAbsOffset": 574.6347,
+          "maxAbsHeading": 0.2731,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.9667,
+            "setup": 0.1833,
+            "drift": 1.9667,
+            "recovery": 0.2917
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.4837,
+          "exitSpeedKmh": 159.0793,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 150.1648,
+          "maxAbsHeading": 0.06,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.4917
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.885,
+          "exitSpeedKmh": 149.024,
+          "minSpeedKmh": 127.9675,
+          "maxAbsOffset": 554.8788,
+          "maxAbsHeading": 0.259,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.1917,
+            "setup": 0.1833,
+            "drift": 2.225,
+            "recovery": 0.2917
+          }
+        }
+      ]
+    },
+    {
+      "vehicle": "Seorin GT",
+      "profileId": "seorin-gt-twin-turbo",
+      "fps": 120,
+      "drivetrain": "arcade",
+      "induction": "twin-turbo",
+      "targetTopSpeedKmh": 230,
+      "unreachableUpshifts": [
+        {
+          "fromGear": 7,
+          "toGear": 8,
+          "attainableRpm": 6500,
+          "requiredRpm": 6650
+        }
+      ],
+      "acceleration": {
+        "hitsSec": {
+          "60": 5.9447,
+          "100": 9.1675,
+          "160": 13.457,
+          "200": 16.3436
+        },
+        "endSpeedKmh": 225,
+        "endGear": 7,
+        "distanceWorldUnits": 121882.4147
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 3.0306
+        },
+        "endSpeedKmh": 225,
+        "endGear": 7,
+        "distanceWorldUnits": 25173.4976
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.0917,
+        "distanceWorldUnits": 401.2051
+      },
+      "liftReapply130": {
+        "boostBefore": 0.9161,
+        "boostAfterLift": 0.0557,
+        "boostAfterReapply": 0.8782,
+        "speedAfterLift": 123.8703,
+        "speedAfterReapply": 137.4427,
+        "gainInOneSecondKmh": 13.5724
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.1528,
+          "exitSpeedKmh": 205.9484,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 90.2007,
+          "maxAbsHeading": 0.1615,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.1583
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.5302,
+          "exitSpeedKmh": 194.2516,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 530.3055,
+          "maxAbsHeading": 0.2522,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.35,
+            "setup": 0.1833,
+            "drift": 1.7083,
+            "recovery": 0.2917
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 4.7681,
+          "exitSpeedKmh": 201.1499,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 59.331,
+          "maxAbsHeading": 0.1273,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 4.775
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.1345,
+          "exitSpeedKmh": 189.3603,
+          "minSpeedKmh": 139.7064,
+          "maxAbsOffset": 515.765,
+          "maxAbsHeading": 0.2399,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 2.7167,
+            "setup": 0.1833,
+            "drift": 1.95,
+            "recovery": 0.2917
+          }
+        }
+      ]
+    },
+    {
+      "vehicle": "Mirae GT",
+      "profileId": "mirae-gt-single-turbo",
+      "fps": 120,
+      "drivetrain": "arcade",
+      "induction": "single-turbo",
+      "targetTopSpeedKmh": 218,
+      "unreachableUpshifts": [
+        {
+          "fromGear": 5,
+          "toGear": 6,
+          "attainableRpm": 6700,
+          "requiredRpm": 6850
+        }
+      ],
+      "acceleration": {
+        "hitsSec": {
+          "60": 7.1823,
+          "100": 10.8306,
+          "160": 15.8403,
+          "200": 19.0867
+        },
+        "endSpeedKmh": 225,
+        "endGear": 5,
+        "distanceWorldUnits": 119177.3067
+      },
+      "rolling80to120": {
+        "hitsSec": {
+          "120": 3.4998
+        },
+        "endSpeedKmh": 225,
+        "endGear": 5,
+        "distanceWorldUnits": 24417.3684
+      },
+      "braking100to0": {
+        "stopTimeSec": 1.0917,
+        "distanceWorldUnits": 401.2051
+      },
+      "liftReapply130": {
+        "boostBefore": 0.9739,
+        "boostAfterLift": 0.2067,
+        "boostAfterReapply": 0.9682,
+        "speedAfterLift": 123.8703,
+        "speedAfterReapply": 136.387,
+        "gainInOneSecondKmh": 12.5167
+      },
+      "corners": [
+        {
+          "mode": "grip",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.3141,
+          "exitSpeedKmh": 197.8846,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 132.1788,
+          "maxAbsHeading": 0.0636,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 5.3167
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 4500,
+          "finishZ": 10500,
+          "timeSec": 5.7324,
+          "exitSpeedKmh": 185.0366,
+          "minSpeedKmh": 138.1791,
+          "maxAbsOffset": 540.2093,
+          "maxAbsHeading": 0.2569,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 3.4917,
+            "setup": 0.1833,
+            "drift": 1.7667,
+            "recovery": 0.2917
+          }
+        },
+        {
+          "mode": "grip",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 4.9172,
+          "exitSpeedKmh": 193.0366,
+          "minSpeedKmh": 140,
+          "maxAbsOffset": 114.0106,
+          "maxAbsHeading": 0.0439,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 4.925
+          }
+        },
+        {
+          "mode": "lift",
+          "startZ": 14200,
+          "finishZ": 19700,
+          "timeSec": 5.3002,
+          "exitSpeedKmh": 181.2143,
+          "minSpeedKmh": 136.5695,
+          "maxAbsOffset": 526.5197,
+          "maxAbsHeading": 0.2431,
+          "impacts": 0,
+          "stateTimes": {
+            "grip": 2.8083,
+            "setup": 0.1833,
+            "drift": 2.025,
+            "recovery": 0.2917
+          }
+        }
+      ]
+    }
+  ]
+}

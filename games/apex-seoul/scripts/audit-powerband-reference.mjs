@@ -1,4 +1,5 @@
 import {
+    REFERENCE_SPEED_KMH,
     getBoostTargetRatio,
     getGearRpm,
     getInitialGearIndex,
@@ -25,7 +26,7 @@ const rowsByVehicle = REFERENCE_PROFILES.map((profile) => ({
 
 console.log('# Apex Seoul Powerband Reference');
 console.log('');
-console.log('Each profile is sampled at player-facing km/h; physical Raven uses a linear physics-speed mapping while legacy profiles retain their display curve.');
+console.log('Each profile is sampled at the same linear speed calibration; vehicle targets do not rescale km/h.');
 
 for (const { profile, rows } of rowsByVehicle) {
     console.log('');
@@ -68,15 +69,12 @@ function between(value, min, max) {
 }
 
 function getReferenceRows(profile) {
-    const speeds = [...COMMON_SPEEDS_KMH, profile.displayTopSpeedKmh]
-        .filter((speed, index, values) => speed <= profile.displayTopSpeedKmh && values.indexOf(speed) === index)
+    const speeds = [...COMMON_SPEEDS_KMH, REFERENCE_SPEED_KMH]
+        .filter((speed, index, values) => speed <= REFERENCE_SPEED_KMH && values.indexOf(speed) === index)
         .sort((a, b) => a - b);
 
     return speeds.map((speedKmh) => {
-        const displayRatio = speedKmh / profile.displayTopSpeedKmh;
-        const speedRatio = profile.drivetrainModel === 'physical'
-            ? displayRatio
-            : inverseSmoothstep(displayRatio);
+        const speedRatio = speedKmh / REFERENCE_SPEED_KMH;
         const gearIndex = getInitialGearIndex(profile, speedRatio);
         const rpm = getGearRpm(profile, gearIndex, speedRatio);
         const torqueScale = getTorqueScale(profile, rpm);
@@ -111,27 +109,6 @@ function getNote(profile, rpm, torqueScale, boostRatio) {
 
 function getEngineTorqueScale(torqueScale) {
     return lerp(TORQUE_SCALE_MIN, TORQUE_SCALE_MAX, clamp(torqueScale, 0, 1));
-}
-
-function inverseSmoothstep(target) {
-    const clampedTarget = clamp(target, 0, 1);
-    let low = 0;
-    let high = 1;
-
-    for (let index = 0; index < 32; index += 1) {
-        const mid = (low + high) / 2;
-        if (smoothstep(mid) < clampedTarget) {
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-
-    return (low + high) / 2;
-}
-
-function smoothstep(value) {
-    return value * value * (3 - 2 * value);
 }
 
 function clamp(value, min, max) {
