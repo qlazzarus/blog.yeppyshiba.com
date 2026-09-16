@@ -7,7 +7,7 @@
         3.5,
         5
       ],
-      "value": 4.033333333333
+      "value": 4.066666666667
     },
     {
       "id": "level0to100Sec",
@@ -16,7 +16,7 @@
         7.8,
         8.3
       ],
-      "value": 8.083333333333
+      "value": 8.133333333333
     },
     {
       "id": "levelGearAt60",
@@ -54,16 +54,16 @@
       "value": [
         {
           "fromGear": 4,
-          "mechanicalRpm": 7399.454095124966,
-          "speedKmh": 175.388635985634,
-          "timeSec": 21.833333333333,
+          "mechanicalRpm": 7397.693783450906,
+          "speedKmh": 175.34726390166,
+          "timeSec": 21.9,
           "toGear": 5
         },
         {
           "fromGear": 5,
-          "mechanicalRpm": 7399.537435374826,
-          "speedKmh": 212.69667738885,
-          "timeSec": 38.3,
+          "mechanicalRpm": 7399.711744505454,
+          "speedKmh": 212.7017486737,
+          "timeSec": 38.416666666667,
           "toGear": 6
         }
       ]
@@ -75,7 +75,7 @@
         223,
         225
       ],
-      "value": 223.953313488908
+      "value": 223.952753650998
     },
     {
       "id": "levelTerminalGear",
@@ -96,7 +96,7 @@
         0,
         0.02
       ],
-      "value": 0.004243932022
+      "value": 0.004307711837
     },
     {
       "id": "levelNetAcceleration",
@@ -105,7 +105,7 @@
         0,
         0.02
       ],
-      "value": 0.002709512258
+      "value": 0.002750329243
     },
     {
       "id": "selectedForceBrackets224",
@@ -113,15 +113,15 @@
       "target": "positive at 223, approximately zero at 224, negative at 225",
       "value": [
         {
-          "netAcceleration": 0.074416324086,
+          "netAcceleration": 0.074411343107,
           "speedKmh": 223
         },
         {
-          "netAcceleration": -0.000835741632,
+          "netAcceleration": -0.00083568589,
           "speedKmh": 224
         },
         {
-          "netAcceleration": -0.077555010389,
+          "netAcceleration": -0.077549856198,
           "speedKmh": 225
         }
       ]
@@ -133,11 +133,11 @@
       "value": [
         {
           "id": "uphill",
-          "speedKmh": 168.710930168434
+          "speedKmh": 168.332554400046
         },
         {
           "id": "level",
-          "speedKmh": 223.953313488908
+          "speedKmh": 223.952753650998
         },
         {
           "id": "sh7-mild-downhill",
@@ -172,23 +172,23 @@
       "value": [
         {
           "speedKmh": 60,
-          "timeSec": 4.033333333333
+          "timeSec": 4.066666666667
         },
         {
           "speedKmh": 100,
-          "timeSec": 8.083333333333
+          "timeSec": 8.133333333333
         },
         {
           "speedKmh": 175.34,
-          "timeSec": 21.833333333333
+          "timeSec": 21.9
         },
         {
           "speedKmh": 212.687,
-          "timeSec": 38.3
+          "timeSec": 38.416666666667
         },
         {
           "speedKmh": 223,
-          "timeSec": 151.833333333333
+          "timeSec": 152.433333333333
         }
       ]
     },
@@ -205,7 +205,7 @@
       "id": "levelAvoidsFuelCut",
       "pass": true,
       "target": "< 7200 mechanical rpm",
-      "value": 5976.459478348349
+      "value": 5976.444538410487
     }
   ],
   "constants": {
@@ -229,66 +229,66 @@
       "force": {
         "aeroDrag": 4.346837258639,
         "cornerLoss": 0,
-        "drive": 18.421253582725,
+        "drive": 18.421248601746,
         "engineBrake": 0,
-        "netAcceleration": 0.074416324086,
+        "netAcceleration": 0.074411343107,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6191.024363415603,
+      "rpm": 6191.019178547179,
       "speedKmh": 223
     },
     {
       "force": {
         "aeroDrag": 4.385909756671,
         "cornerLoss": 0,
-        "drive": 18.385074015038,
+        "drive": 18.385074070781,
         "engineBrake": 0,
-        "netAcceleration": -0.000835741632,
+        "netAcceleration": -0.00083568589,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6217.705304975045,
+      "rpm": 6217.70536320434,
       "speedKmh": 224
     },
     {
       "force": {
         "aeroDrag": 4.425157075723,
         "cornerLoss": 0,
-        "drive": 18.347602065334,
+        "drive": 18.347607219525,
         "engineBrake": 0,
-        "netAcceleration": -0.077555010389,
+        "netAcceleration": -0.077549856198,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6244.386144308864,
+      "rpm": 6244.391547861503,
       "speedKmh": 225
     }
   ],
-  "generatedAt": "2026-07-31T08:48:12.420Z",
+  "generatedAt": "2026-09-16T05:39:43.481Z",
   "pass": true,
   "rows": [
     {
       "classification": "observed-at-300s",
       "end": {
         "force": {
-          "aeroDrag": 2.488017748754,
+          "aeroDrag": 2.476871218399,
           "cornerLoss": 0,
-          "drive": 26.354979555602,
+          "drive": 26.337664780153,
           "engineBrake": 0,
-          "netAcceleration": -0.133038193152,
+          "netAcceleration": -0.139206438246,
           "rollingResistance": 14,
           "slope": -10
         },
         "gear": 5,
-        "mechanicalRpm": 5869.949199682452,
-        "rpm": 6110.046831100471,
-        "speedKmh": 168.710930168434,
-        "speedUnitPerSec": 569.868030791155,
-        "windowSpeedDeltaKmh": 0.194576274449
+        "mechanicalRpm": 5856.784394434719,
+        "rpm": 6097.001272231234,
+        "speedKmh": 168.332554400046,
+        "speedUnitPerSec": 568.589961529043,
+        "windowSpeedDeltaKmh": 0.20351735938
       },
       "forceIdentityErrorMax": 3e-12,
       "gearsVisited": [
@@ -302,51 +302,51 @@
       "hits": {
         "60": {
           "gear": 2,
-          "timeSec": 5.083333333333
+          "timeSec": 5.133333333333
         },
         "100": {
           "gear": 3,
-          "timeSec": 10.983333333333
+          "timeSec": 11.083333333333
         },
         "175.34": {
           "gear": 5,
-          "timeSec": 45.35
+          "timeSec": 45.5
         }
       },
       "id": "uphill",
       "label": "uphill -10",
       "segmentTimes": {
-        "100-175.34": 34.366666666667,
+        "100-175.34": 34.416666666667,
         "175.34-212.687": null,
         "212.687-223": null
       },
       "shifts": [
         {
           "fromGear": 1,
-          "mechanicalRpm": 7374.130286299065,
-          "speedKmh": 58.705334540539,
-          "timeSec": 4.816666666667,
+          "mechanicalRpm": 7383.05721718077,
+          "speedKmh": 58.784191470507,
+          "timeSec": 4.85,
           "toGear": 2
         },
         {
           "fromGear": 2,
-          "mechanicalRpm": 7398.126478427479,
-          "speedKmh": 97.301016756462,
-          "timeSec": 10.116666666667,
+          "mechanicalRpm": 7393.729380600506,
+          "speedKmh": 97.245118763111,
+          "timeSec": 10.15,
           "toGear": 3
         },
         {
           "fromGear": 3,
-          "mechanicalRpm": 7399.709922894895,
-          "speedKmh": 138.068517833918,
-          "timeSec": 20.65,
+          "mechanicalRpm": 7398.538059864595,
+          "speedKmh": 138.047104162076,
+          "timeSec": 20.733333333333,
           "toGear": 4
         },
         {
           "fromGear": 4,
-          "mechanicalRpm": 7399.865079808881,
-          "speedKmh": 175.348821743405,
-          "timeSec": 45.35,
+          "mechanicalRpm": 7399.832387190019,
+          "speedKmh": 175.348105267007,
+          "timeSec": 45.5,
           "toGear": 5
         }
       ],
@@ -356,20 +356,20 @@
       "classification": "force-equilibrium",
       "end": {
         "force": {
-          "aeroDrag": 4.384081184257,
+          "aeroDrag": 4.384059257769,
           "cornerLoss": 0,
-          "drive": 18.386790696515,
+          "drive": 18.386809587011,
           "engineBrake": 0,
-          "netAcceleration": 0.002709512258,
+          "netAcceleration": 0.002750329243,
           "rollingResistance": 14,
           "slope": 0
         },
         "gear": 6,
-        "mechanicalRpm": 5976.459478348349,
-        "rpm": 6216.457950595639,
-        "speedKmh": 223.953313488908,
-        "speedUnitPerSec": 756.464525562534,
-        "windowSpeedDeltaKmh": 0.004243932022
+        "mechanicalRpm": 5976.444538410487,
+        "rpm": 6216.441239692756,
+        "speedKmh": 223.952753650998,
+        "speedUnitPerSec": 756.46263455448,
+        "windowSpeedDeltaKmh": 0.004307711837
       },
       "forceIdentityErrorMax": 3e-12,
       "gearsVisited": [
@@ -384,66 +384,66 @@
       "hits": {
         "60": {
           "gear": 2,
-          "timeSec": 4.033333333333
+          "timeSec": 4.066666666667
         },
         "100": {
           "gear": 3,
-          "timeSec": 8.083333333333
+          "timeSec": 8.133333333333
         },
         "223": {
           "gear": 6,
-          "timeSec": 151.833333333333
+          "timeSec": 152.433333333333
         },
         "175.34": {
           "gear": 5,
-          "timeSec": 21.833333333333
+          "timeSec": 21.9
         },
         "212.687": {
           "gear": 6,
-          "timeSec": 38.3
+          "timeSec": 38.416666666667
         }
       },
       "id": "level",
       "label": "level 0",
       "segmentTimes": {
-        "100-175.34": 13.75,
-        "175.34-212.687": 16.466666666667,
-        "212.687-223": 113.533333333333
+        "100-175.34": 13.766666666667,
+        "175.34-212.687": 16.516666666667,
+        "212.687-223": 114.016666666667
       },
       "shifts": [
         {
           "fromGear": 1,
-          "mechanicalRpm": 7365.450690308523,
-          "speedKmh": 58.687930007099,
-          "timeSec": 3.85,
+          "mechanicalRpm": 7388.816220298284,
+          "speedKmh": 58.881397449262,
+          "timeSec": 3.883333333333,
           "toGear": 2
         },
         {
           "fromGear": 2,
-          "mechanicalRpm": 7394.688252695567,
-          "speedKmh": 97.305921106885,
-          "timeSec": 7.616666666667,
+          "mechanicalRpm": 7387.470401828387,
+          "speedKmh": 97.213775949914,
+          "timeSec": 7.633333333333,
           "toGear": 3
         },
         {
           "fromGear": 3,
-          "mechanicalRpm": 7396.555234060235,
-          "speedKmh": 138.059433356199,
-          "timeSec": 13.583333333333,
+          "mechanicalRpm": 7395.79198213583,
+          "speedKmh": 138.045995324872,
+          "timeSec": 13.633333333333,
           "toGear": 4
         },
         {
           "fromGear": 4,
-          "mechanicalRpm": 7399.454095124966,
-          "speedKmh": 175.388635985634,
-          "timeSec": 21.833333333333,
+          "mechanicalRpm": 7397.693783450906,
+          "speedKmh": 175.34726390166,
+          "timeSec": 21.9,
           "toGear": 5
         },
         {
           "fromGear": 5,
-          "mechanicalRpm": 7399.537435374826,
-          "speedKmh": 212.69667738885,
-          "timeSec": 38.3,
+          "mechanicalRpm": 7399.711744505454,
+          "speedKmh": 212.7017486737,
+          "timeSec": 38.416666666667,
           "toGear": 6
         }
       ],
@@ -481,66 +481,66 @@
       "hits": {
         "60": {
           "gear": 2,
-          "timeSec": 3.733333333333
+          "timeSec": 3.75
         },
         "100": {
           "gear": 3,
-          "timeSec": 7.333333333333
+          "timeSec": 7.383333333333
         },
         "223": {
           "gear": 6,
-          "timeSec": 37.266666666667
+          "timeSec": 37.433333333333
         },
         "175.34": {
           "gear": 5,
-          "timeSec": 18.566666666667
+          "timeSec": 18.633333333333
         },
         "212.687": {
           "gear": 6,
-          "timeSec": 29.3
+          "timeSec": 29.383333333333
         }
       },
       "id": "sh7-mild-downhill",
       "label": "SH-7 mild downhill +3.987697",
       "segmentTimes": {
-        "100-175.34": 11.233333333333,
-        "175.34-212.687": 10.733333333333,
-        "212.687-223": 7.966666666667
+        "100-175.34": 11.25,
+        "175.34-212.687": 10.75,
+        "212.687-223": 8.05
       },
       "shifts": [
         {
           "fromGear": 1,
-          "mechanicalRpm": 7363.155616287736,
-          "speedKmh": 58.690162577942,
-          "timeSec": 3.566666666667,
+          "mechanicalRpm": 7392.056768348658,
+          "speedKmh": 58.927594203163,
+          "timeSec": 3.6,
           "toGear": 2
         },
         {
           "fromGear": 2,
-          "mechanicalRpm": 7398.360192004665,
-          "speedKmh": 97.373941109292,
-          "timeSec": 6.95,
+          "mechanicalRpm": 7393.276386870067,
+          "speedKmh": 97.310029593113,
+          "timeSec": 6.966666666667,
           "toGear": 3
         },
         {
           "fromGear": 3,
-          "mechanicalRpm": 7396.848800006529,
-          "speedKmh": 138.084702616687,
-          "timeSec": 12.033333333333,
+          "mechanicalRpm": 7399.747141907214,
+          "speedKmh": 138.13959290815,
+          "timeSec": 12.083333333333,
           "toGear": 4
         },
         {
           "fromGear": 4,
-          "mechanicalRpm": 7397.813278811945,
-          "speedKmh": 175.369562723647,
-          "timeSec": 18.566666666667,
+          "mechanicalRpm": 7398.993939060394,
+          "speedKmh": 175.397875791368,
+          "timeSec": 18.633333333333,
           "toGear": 5
         },
         {
           "fromGear": 5,
-          "mechanicalRpm": 7399.977829193811,
-          "speedKmh": 212.729046599471,
-          "timeSec": 29.3,
+          "mechanicalRpm": 7399.718605245044,
+          "speedKmh": 212.721729310474,
+          "timeSec": 29.383333333333,
           "toGear": 6
         }
       ],

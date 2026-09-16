@@ -23,6 +23,8 @@ assert.equal(store.getRecords().buckets.length, 3);
 assert.equal(store.record(run('first')), 'saved');
 assert.equal(store.record(run('first')), 'saved');
 assert.equal(bucket().completedRunCount, 1);
+assert.equal(bucket().bestRun?.playerName, 'PLAYER');
+assert.equal(new RunRecordStore(() => storage).getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.playerName, 'PLAYER');
 store.record(run('slower', 110));
 store.record({ ...run('tie'), vehicleColor: 'red' });
 assert.equal(bucket().bestRun?.runId, 'first');
@@ -94,3 +96,38 @@ assert.equal(expanded.getBucket('bugak-ridge-downhill', 'seorin-gt').completedRu
 assert.equal(expanded.getBucket('future-course-fixture', 'raven-coupe', 'old-rules').bestRun?.runId, 'archived');
 assert.equal(expanded.getBucket('future-course-fixture', 'raven-coupe').bestRun, null);
 console.log('PASS: vehicle isolation, PB/ties/history, duplicate finish, reload, profile, reset, defaults, QA exclusion, corrupt/denied/future storage, legacy, external reset');
+
+// Compatible name metadata must not invalidate records created before name entry existed.
+const nameStorage = new MemoryStorage();
+const nameStore = new RunRecordStore(() => nameStorage);
+assert.equal(nameStore.record({ ...run('named'), playerName: 'ABC' }), 'saved');
+assert.equal(new RunRecordStore(() => nameStorage).getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.playerName, 'ABC');
+assert.equal(nameStore.record({ ...run('bad-name'), playerName: 'A1C' }), 'excluded');
+const oldDocument = JSON.parse(nameStorage.getItem(RECORDS_KEY)!);
+for (const b of oldDocument.buckets) {
+    if (b.bestRun) delete b.bestRun.playerName;
+    for (const r of b.recentRuns) delete r.playerName;
+}
+nameStorage.setItem(RECORDS_KEY, JSON.stringify(oldDocument));
+const oldBucket = new RunRecordStore(() => nameStorage).getBucket('bugak-ridge-downhill', 'raven-coupe');
+assert.equal(oldBucket.bestRun?.playerName, 'PLAYER');
+assert.equal(oldBucket.recentRuns[0].playerName, 'PLAYER');
+console.log('PASS: name metadata persistence, validation and missing-name compatibility');
+
+// Previous physics rules remain stored but cannot become a current-rules PB.
+for (const oldRules of ['time-attack-v2', 'time-attack-v3']) {
+    const rulesStorage = new MemoryStorage();
+    const oldRulesRun = { ...run('old-best', 80), rulesetVersion: oldRules };
+    rulesStorage.setItem(RECORDS_KEY, JSON.stringify({ schemaVersion: 1, buckets: [{
+        ...createDefaultBuckets()[0], rulesetVersion: oldRules,
+        bestRun: oldRulesRun, recentRuns: [oldRulesRun], completedRunCount: 1, totalFinishTimeSec: 80,
+    }], legacy: [] }));
+    const rulesStore = new RunRecordStore(() => rulesStorage);
+    assert.equal(rulesStore.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun, null);
+    assert.equal(rulesStore.getBucket('bugak-ridge-downhill', 'raven-coupe', oldRules).bestRun?.runId, 'old-best');
+    assert.equal(rulesStore.record(run('current-first', 100)), 'saved');
+    const reloadedRules = new RunRecordStore(() => rulesStorage);
+    assert.equal(reloadedRules.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.runId, 'current-first');
+    assert.equal(reloadedRules.getBucket('bugak-ridge-downhill', 'raven-coupe', oldRules).bestRun?.runId, 'old-best');
+}
+console.log('PASS: previous handling rules preserved and excluded from current PB');

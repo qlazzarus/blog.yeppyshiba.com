@@ -40,7 +40,8 @@ const FIXED_LOW_SPEED_KMH = 120;
 const FIXED_START_Z = 16 * 240;
 const FIXED_END_Z = 40 * 240;
 const LAUNCH_END_Z = 30_000;
-const MAX_RUN_SECONDS = 70;
+// Complete the spatial fixture even after engine/shift timing changes.
+const MAX_RUN_SECONDS = 120;
 
 const cli = {
     cornerInertiaMax: null,
@@ -248,7 +249,8 @@ const diagnosisChecks = [
     ),
     check(
         's-curve-no-input-reaches-absolute-threat',
-        launchU2.sCurveWindow.strongCurveDirections.length === 2 &&
+        launchU2.endZ >= LAUNCH_END_Z &&
+            launchU2.sCurveWindow.strongCurveDirections.length === 2 &&
             launchU2.sCurveWindow.lateralSpan >= 500 &&
             launchU2.sCurveWindow.maxAbsOffsetPavedRatio >= 0.9 &&
             launchU2.sCurveWindow.maxShoulderRatio > 0 &&

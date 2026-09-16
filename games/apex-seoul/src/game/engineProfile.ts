@@ -1,3 +1,7 @@
+// Shared speed calibration: the 760-unit reference envelope maps to 225 km/h.
+// Vehicle targets must not change the speedometer's units.
+export const REFERENCE_SPEED_KMH = 225;
+
 export type EngineInduction = 'na' | 'single-turbo' | 'twin-turbo';
 
 export type EngineTorquePoint = {
@@ -31,10 +35,31 @@ export type EngineBoostProfile = {
     startRpm: number;
 };
 
+export type EngineShiftProfile = {
+    upDurationSec: number;
+    downDurationSec: number;
+    upTorqueCutRatio: number;
+    downTorqueCutRatio: number;
+    /** Remaining engine load driving the turbo during an upshift. */
+    upshiftBoostLoadRatio: number;
+    /** Arcade speed-envelope lead; physical gearboxes use mechanical RPM. */
+    upshiftSpeedMargin: number;
+};
+
+export const DEFAULT_ENGINE_SHIFT_PROFILE: EngineShiftProfile = {
+    upDurationSec: 0.22,
+    downDurationSec: 0.1,
+    upTorqueCutRatio: 0.42,
+    downTorqueCutRatio: 0.16,
+    upshiftBoostLoadRatio: 1,
+    upshiftSpeedMargin: 0.005,
+};
+
 export type VehicleEngineProfile = {
     accelerationScale: number;
     boost?: EngineBoostProfile;
     displayName: string;
+    /** Legacy name: target top speed for tuning, not a speedometer scale. */
     displayTopSpeedKmh: number;
     fuelCutReturnRpm: number;
     fuelCutStartRpm: number;
@@ -44,6 +69,7 @@ export type VehicleEngineProfile = {
     induction: EngineInduction;
     maxRpm: number;
     redlineStartRpm: number;
+    shift?: EngineShiftProfile;
     shiftDropRpm: number;
     shiftUpRpm: number;
     torqueCurve: EngineTorquePoint[];
@@ -83,6 +109,8 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     induction: 'na',
     maxRpm: 7800,
     redlineStartRpm: 7200,
+    // NA: keep the existing mechanical high-rev shifts and direct response.
+    shift: { ...DEFAULT_ENGINE_SHIFT_PROFILE },
     shiftDropRpm: 5400,
     shiftUpRpm: 7400,
     torqueCurve: [
@@ -137,6 +165,12 @@ export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     induction: 'twin-turbo',
     maxRpm: 7000,
     redlineStartRpm: 6500,
+    // Sequential twin: short interruption, early shift, primary stays loaded.
+    shift: {
+        upDurationSec: 0.14, downDurationSec: 0.1,
+        upTorqueCutRatio: 0.24, downTorqueCutRatio: 0.12,
+        upshiftBoostLoadRatio: 0.65, upshiftSpeedMargin: 0.02,
+    },
     shiftDropRpm: 4400,
     shiftUpRpm: 6650,
     torqueCurve: [
@@ -180,6 +214,12 @@ export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     induction: 'single-turbo',
     maxRpm: 7200,
     redlineStartRpm: 6700,
+    // Large single: hold the high-rev pull, then rebuild load after a shift.
+    shift: {
+        upDurationSec: 0.26, downDurationSec: 0.12,
+        upTorqueCutRatio: 0.5, downTorqueCutRatio: 0.18,
+        upshiftBoostLoadRatio: 0.12, upshiftSpeedMargin: 0.005,
+    },
     shiftDropRpm: 4600,
     shiftUpRpm: 6850,
     torqueCurve: [
@@ -240,7 +280,7 @@ export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, spe
     const gear = profile.gears[clamp(Math.round(gearIndex), 0, profile.gears.length - 1)];
 
     if (profile.drivetrainModel === 'physical' && profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM) {
-        const speedKmh = clamp(speedRatio, 0, 1) * profile.displayTopSpeedKmh;
+        const speedKmh = clamp(speedRatio, 0, 1) * REFERENCE_SPEED_KMH;
         const wheelRpm = (speedKmh / 3.6) / profile.tireCircumferenceM * 60;
         const ratio = profile.gearRatios[clamp(Math.round(gearIndex), 0, profile.gearRatios.length - 1)];
 
@@ -375,13 +415,8 @@ export function advanceEngineBoost(
     };
 }
 
-export function getDisplaySpeedKmh(speed: number, accelSpeed: number, profile: VehicleEngineProfile) {
-    const speedRatio = clamp(speed / accelSpeed, 0, 1);
-    const displayRatio = profile.drivetrainModel === 'physical'
-        ? speedRatio
-        : smoothstep(speedRatio);
-
-    return lerp(0, profile.displayTopSpeedKmh, displayRatio);
+export function getDisplaySpeedKmh(speed: number, accelSpeed: number, _profile: VehicleEngineProfile) {
+    return clamp(speed / accelSpeed, 0, 1) * REFERENCE_SPEED_KMH;
 }
 
 function clamp(value: number, min: number, max: number) {

@@ -1,8 +1,8 @@
 {
   "acceleration": {
     "corrected": {
-      "zeroTo100Sec": 8.083333333333,
-      "zeroTo60Sec": 4.033333333333
+      "zeroTo100Sec": 8.133333333333,
+      "zeroTo60Sec": 4.066666666667
     },
     "dragOnlyCandidate": {
       "zeroTo100Sec": 7.083333333333,
@@ -10,9 +10,9 @@
     },
     "splits": {
       "deterministicLevel": {
-        "100-175.34": 13.75,
-        "175.34-212.687": 16.466666666667,
-        "212.687-223": 113.533333333333
+        "100-175.34": 13.766666666667,
+        "175.34-212.687": 16.516666666667,
+        "212.687-223": 114.016666666667
       },
       "runtimeSh7": {
         "100-175.34": 11.213,
@@ -38,7 +38,7 @@
       "classification": "force-equilibrium",
       "gear": 6,
       "id": "after-level-tse4",
-      "speedKmh": 223.953313488908
+      "speedKmh": 223.952753650998
     },
     {
       "classification": "mild-downhill-safety-cap",
@@ -103,7 +103,7 @@
         7.8,
         8.3
       ],
-      "value": 8.083333333333
+      "value": 8.133333333333
     },
     {
       "id": "standingStartGearAt60",
@@ -124,7 +124,7 @@
         223,
         225
       ],
-      "value": 223.953313488908
+      "value": 223.952753650998
     },
     {
       "id": "levelAvoidsClamp",
@@ -158,11 +158,11 @@
           "safety-cap"
         ],
         "level": [
-          223.953313488908,
+          223.952753650998,
           "force-equilibrium"
         ],
         "uphill": [
-          168.710930168434,
+          168.332554400046,
           "observed-at-300s"
         ]
       }
@@ -172,9 +172,9 @@
       "pass": true,
       "target": "positive / approximately zero / negative at 223 / 224 / 225km/h",
       "value": [
-        0.074416324086,
-        -0.000835741632,
-        -0.077555010389
+        0.074411343107,
+        -0.00083568589,
+        -0.077549856198
       ]
     },
     {
@@ -186,22 +186,22 @@
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "easy",
-          "levelCornerLossPercent": 1.478,
-          "levelMinusDownhillPercentagePoints": 1.478
+          "levelCornerLossPercent": 0.732,
+          "levelMinusDownhillPercentagePoints": 0.732
         },
         {
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "medium",
-          "levelCornerLossPercent": 4.946,
-          "levelMinusDownhillPercentagePoints": 4.946
+          "levelCornerLossPercent": 0.673,
+          "levelMinusDownhillPercentagePoints": 0.673
         },
         {
-          "downhillCornerLossPercent": 0.128,
-          "downhillRawLossPercent": 0.128,
+          "downhillCornerLossPercent": 0.094,
+          "downhillRawLossPercent": 0.094,
           "grade": "sharp",
-          "levelCornerLossPercent": 15.163,
-          "levelMinusDownhillPercentagePoints": 15.035
+          "levelCornerLossPercent": 8.204,
+          "levelMinusDownhillPercentagePoints": 8.11
         }
       ]
     }
@@ -211,29 +211,29 @@
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "easy",
-      "levelCornerLossPercent": 1.478,
-      "levelMinusDownhillPercentagePoints": 1.478
+      "levelCornerLossPercent": 0.732,
+      "levelMinusDownhillPercentagePoints": 0.732
     },
     {
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "medium",
-      "levelCornerLossPercent": 4.946,
-      "levelMinusDownhillPercentagePoints": 4.946
+      "levelCornerLossPercent": 0.673,
+      "levelMinusDownhillPercentagePoints": 0.673
     },
     {
-      "downhillCornerLossPercent": 0.128,
-      "downhillRawLossPercent": 0.128,
+      "downhillCornerLossPercent": 0.094,
+      "downhillRawLossPercent": 0.094,
       "grade": "sharp",
-      "levelCornerLossPercent": 15.163,
-      "levelMinusDownhillPercentagePoints": 15.035
+      "levelCornerLossPercent": 8.204,
+      "levelMinusDownhillPercentagePoints": 8.11
     }
   ],
   "forceAt225": {
     "after": {
       "aero": 4.425157075723,
-      "drive": 18.347602065334,
-      "netAcceleration": -0.077555010389,
+      "drive": 18.347607219525,
+      "netAcceleration": -0.077549856198,
       "rolling": 14
     },
     "before": {
@@ -248,18 +248,18 @@
     "physicalFourthShiftSpeedKmh": 175.339513,
     "shiftRpm": 7400
   },
-  "generatedAt": "2026-07-31T08:48:15.528Z",
+  "generatedAt": "2026-09-16T05:39:47.933Z",
   "pass": true,
   "slopeRows": [
     {
       "classification": "observed-at-300s",
       "id": "uphill",
-      "speedKmh": 168.710930168434
+      "speedKmh": 168.332554400046
     },
     {
       "classification": "force-equilibrium",
       "id": "level",
-      "speedKmh": 223.953313488908
+      "speedKmh": 223.952753650998
     },
     {
       "classification": "safety-cap",

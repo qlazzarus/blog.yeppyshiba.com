@@ -15,23 +15,31 @@ try {
     await page.evaluate(async () => {
         const { runRecordStore } = await import('/game-assets/apex-seoul/src/game/runRecord.ts');
         const { RECORD_RULESET } = await import('/game-assets/apex-seoul/src/game/saveDefaults.ts');
-        for (const [vehicleId, finishTimeSec] of [['raven-coupe', 100], ['mirae-gt', 90]]) {
-            for (let i = 0; i < 8; i++) runRecordStore.record({ vehicleId, trackId: 'bugak-ridge-downhill', rulesetVersion: RECORD_RULESET, runId: `${vehicleId}-${i}`, finishedAt: new Date(1700000000000 + i * 1000).toISOString(), vehicleColor: 'blue', finishTimeSec: finishTimeSec + i, checkpointTimesSec: [20, 40, 60] });
+        for (const [vehicleId, finishTimeSec] of [['raven-coupe', 100], ['mirae-gt', 90], ['seorin-gt', 110]]) {
+            for (let i = 0; i < 8; i++) runRecordStore.record({ vehicleId, trackId: 'bugak-ridge-downhill', rulesetVersion: RECORD_RULESET, runId: `${vehicleId}-${i}`, finishedAt: new Date(1700000000000 + i * 1000).toISOString(), vehicleColor: ['blue', 'red', 'silver', 'black'][i % 4], finishTimeSec: finishTimeSec + i, checkpointTimesSec: [20, 40, 60] });
         }
         window.__testGame.scene.getScene('main').scene.start('records');
     });
     await page.waitForFunction(() => window.__testGame.scene.isActive('records'));
-    assert((await labels()).some(t => t.includes('MIRAE-GT') && t.includes('1:30.00')));
-    await page.screenshot({ path: '/tmp/apex-records-all.png' });
-    await page.keyboard.press('b');
+    const firstPage = await labels();
+    assert(!firstPage.includes('MIRAE GT') && !firstPage.includes('RAVEN COUPE'));
+    const portraits = await page.evaluate(() => window.__testGame.scene.getScene('records').children.list
+        .filter(c => c.name?.startsWith('record-vehicle-') && c.visible)
+        .map(c => ({ texture: c.texture.key, frame: c.frame.name, flip: c.flipX })));
+    assert.equal(portraits.length, 5);
+    assert(portraits.every(p => p.frame === 6 && p.flip));
+    for (const id of ['mirae-gt', 'raven-coupe', 'seorin-gt']) assert(portraits.some(p => p.texture === `player-vehicle-${id}-black`));
+    assert(firstPage.includes('01:37.00') && firstPage.includes('01:47.00'));
+    assert(firstPage.includes('PLAYER'));
+    assert(!firstPage.includes('BEST') && !firstPage.includes('BY VEHICLE'));
+    await page.screenshot({ path: '/tmp/apex-records-simple.png' });
     await page.keyboard.press('PageDown');
     await page.waitForTimeout(100);
-    assert((await labels()).includes('2 / 4'));
-    await page.keyboard.press('Tab');
+    assert((await labels()).includes('2 / 5'));
+    assert(!(await labels()).includes('01:37.00'));
+    await page.keyboard.press('ArrowLeft');
     await page.waitForTimeout(100);
-    assert((await labels()).some(t => t.includes('‹ RAVEN-COUPE ›')));
-    assert(!(await labels()).some(t => t.includes('MIRAE-GT')));
-    await page.screenshot({ path: '/tmp/apex-records-car.png' });
+    assert((await labels()).includes('1 / 5'));
     await page.evaluate(() => {
         const game = window.__testGame;
         game.scale.resize(640, 600);
@@ -112,5 +120,5 @@ try {
     });
     assert(pause);
     assert.deepEqual(errors, []);
-    console.log('PASS: Records tabs/pages, scene recovery without progress gain, dual split/result, retry cleanup, no browser errors');
+    console.log('PASS: Records recent list/pages, scene recovery without progress gain, dual split/result, retry cleanup, no browser errors');
 } finally { await browser.close(); }

@@ -25,7 +25,9 @@ try {
     await press('ArrowDown'); await press('Enter');
     await page.waitForFunction(() => window.__saveTestGame.scene.isActive('records'));
     const labels = () => page.evaluate(() => window.__saveTestGame.scene.getScenes(true)[0].children.list.filter(c => typeof c.text === 'string').map(c => c.text));
-    assert((await labels()).some(t => t.includes('MIRAE-GT') && t.includes('1:30.00')));
+    assert(await page.evaluate(() => window.__saveTestGame.scene.getScene('records').children.list.some(c => c.name === 'record-vehicle-0' && c.visible && c.texture.key === 'player-vehicle-mirae-gt-red' && c.frame.name === 6 && c.flipX)));
+    assert((await labels()).includes('01:30.00'));
+    assert((await labels()).includes('PLAYER'));
     await page.screenshot({ path: '/tmp/apex-local-records.png' });
     await press('Escape');
     await page.waitForFunction(() => window.__saveTestGame.scene.isActive('main'));

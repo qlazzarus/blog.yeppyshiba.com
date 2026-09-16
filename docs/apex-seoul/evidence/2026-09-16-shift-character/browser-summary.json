@@ -1,0 +1,130 @@
+{
+  "method": "Actual Chromium WebGL scene, Playwright keyboard input; fixed 60 Hz scene clock, feedback every 100 ms, WebGL submissions at 10 Hz (legacy resumed fixtures 60 Hz). QA start poses, no saved records; screenshots visually inspected separately. --resume is only valid when gameplay source/settings are unchanged.",
+  "checks": [
+    {
+      "id": "raven-coupe-shift-0",
+      "pass": true
+    },
+    {
+      "id": "seorin-gt-shift-0",
+      "pass": true
+    },
+    {
+      "id": "mirae-gt-shift-0",
+      "pass": true
+    }
+  ],
+  "reports": [
+    {
+      "id": "raven-coupe-shift-0",
+      "vehicle": "raven-coupe",
+      "mode": "shift",
+      "z": 0,
+      "endZ": 3000,
+      "startKmh": 173,
+      "expectedGear": 5,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 2.5,
+      "exitSpeedKmh": 182.1,
+      "minSpeedKmh": 173,
+      "maxAbsOffset": 0,
+      "maxAbsHeading": 0,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [
+        "raven-coupe-shift-0-exit.png"
+      ],
+      "inputSeen": [
+        "false/0",
+        "true/0"
+      ],
+      "initialGear": 4,
+      "finalGear": 5,
+      "reachedGears": [
+        4,
+        5
+      ],
+      "finalHeading": 0,
+      "finalOffset": 0
+    },
+    {
+      "id": "seorin-gt-shift-0",
+      "vehicle": "seorin-gt",
+      "mode": "shift",
+      "z": 0,
+      "endZ": 3000,
+      "startKmh": 215,
+      "expectedGear": 8,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 2,
+      "exitSpeedKmh": 225,
+      "minSpeedKmh": 215,
+      "maxAbsOffset": 0,
+      "maxAbsHeading": 0,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [
+        "seorin-gt-shift-0-exit.png"
+      ],
+      "inputSeen": [
+        "false/0",
+        "true/0"
+      ],
+      "initialGear": 7,
+      "finalGear": 8,
+      "reachedGears": [
+        7,
+        8
+      ],
+      "finalHeading": 0,
+      "finalOffset": 0
+    },
+    {
+      "id": "mirae-gt-shift-0",
+      "vehicle": "mirae-gt",
+      "mode": "shift",
+      "z": 0,
+      "endZ": 3000,
+      "startKmh": 196,
+      "expectedGear": 6,
+      "updateHz": 60,
+      "renderHz": 10,
+      "reachedEnd": true,
+      "timeSec": 2.2,
+      "exitSpeedKmh": 220.7,
+      "minSpeedKmh": 196,
+      "maxAbsOffset": 0,
+      "maxAbsHeading": 0,
+      "impacts": 0,
+      "driftStates": [
+        "grip"
+      ],
+      "errors": [],
+      "captures": [
+        "mirae-gt-shift-0-exit.png"
+      ],
+      "inputSeen": [
+        "false/0",
+        "true/0"
+      ],
+      "initialGear": 5,
+      "finalGear": 6,
+      "reachedGears": [
+        5,
+        6
+      ],
+      "finalHeading": 0,
+      "finalOffset": 0
+    }
+  ]
+}

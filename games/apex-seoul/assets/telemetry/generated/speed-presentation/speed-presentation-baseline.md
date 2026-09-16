@@ -1,6 +1,6 @@
 # Apex Seoul Speed Presentation Baseline
 
-Generated: 2026-07-31T08:48:15.481Z
+Generated: 2026-09-16T05:39:47.880Z
 
 Status: **PASS**
 
