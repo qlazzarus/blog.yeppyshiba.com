@@ -2,6 +2,7 @@ import { bestSnapshots, splitLines, finishRecordLabel, type BestSnapshots } from
 import { createStuckRecoveryState, updateStuckRecovery, RECOVERY } from './stuckRecovery';
 import { GameplayHud } from './gameplayHud';
 import { createGameplayHudState } from './gameplayHudState';
+import { createPowertrainFeedbackState, createPowertrainSnapshot, derivePowertrainFeedback, type PowertrainFeedbackState } from './powertrainFeedback';
 import Phaser from 'phaser';
 import { MainScene } from './mainScene';
 import { OptionsScene } from './optionsScene';
@@ -510,6 +511,7 @@ export class TimeAttackScene extends Phaser.Scene {
         ACTIVE_RUNTIME_VEHICLE.engineProfile,
         PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
     );
+    private powertrainFeedback: PowertrainFeedbackState = createPowertrainFeedbackState();
     private roadObjects: RoadObject[] = [];
     private roadObjectMotionTracker: RoadObjectMotionTracker = createRoadObjectMotionTracker();
     private roadObjectStats: RoadObjectRenderStats | null = null;
@@ -608,6 +610,7 @@ export class TimeAttackScene extends Phaser.Scene {
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
             PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
         );
+        this.powertrainFeedback = createPowertrainFeedbackState();
         this.headlightOpticalState = getVehicleHeadlightOpticalState(PLAYER_VEHICLE_ATLAS, 0);
         this.roadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
     }
@@ -1249,7 +1252,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const viewport = this.getViewport();
         this.gameplayHud.update(createGameplayHudState(
             ACTIVE_RUNTIME_VEHICLE.engineProfile, this.playerVehicle,
-            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState, this.lastSplitText,
+            PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState, this.lastSplitText, this.powertrainFeedback,
         ), viewport.width, viewport.height, this.finishPresentationPhase !== 'finish-summary');
         if (!this.debugHudVisible) {
             this.hudText.setVisible(false);
@@ -1342,6 +1345,15 @@ export class TimeAttackScene extends Phaser.Scene {
             controllerConfig,
             seconds,
         );
+        this.powertrainFeedback = derivePowertrainFeedback(
+            this.powertrainFeedback,
+            createPowertrainSnapshot(
+                ACTIVE_RUNTIME_VEHICLE.engineProfile.induction,
+                this.playerVehicle,
+                drive.accelPressed && !drive.brakePressed ? 1 : 0,
+            ),
+            seconds,
+        );
         const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
         const impactCountBeforeCollision = this.playerVehicle.guardrailImpactCount;
 
@@ -1373,6 +1385,7 @@ export class TimeAttackScene extends Phaser.Scene {
         // Do not change Z or run progress; a reset must never cross a timing boundary.
         const impacts = this.playerVehicle.guardrailImpactCount;
         this.playerVehicle = createDefaultPlayerVehicleState(0, ACTIVE_RUNTIME_VEHICLE.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
+        this.powertrainFeedback = createPowertrainFeedbackState();
         this.playerVehicle.guardrailImpactCount = impacts;
         this.launchState = createLaunchControlState();
         this.vehicleRenderState = null;

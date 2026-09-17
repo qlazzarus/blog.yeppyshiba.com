@@ -1,6 +1,6 @@
 # Apex Seoul TSE-6 Corner Demand Regression
 
-Generated: 2026-09-17T00:53:29.882Z
+Generated: 2026-09-17T04:05:33.379Z
 
 Status: **PASS**
 

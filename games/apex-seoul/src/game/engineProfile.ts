@@ -73,6 +73,10 @@ export type VehicleEngineProfile = {
     shiftDropRpm: number;
     shiftUpRpm: number;
     torqueCurve: EngineTorquePoint[];
+    /** Attainable full-throttle terminal speed; display calibration remains shared. */
+    terminalSpeedKmh: number;
+    /** Optional drivetrain cap below the shared 225km/h safety envelope. */
+    terminalSpeedCapKmh?: number;
     drivetrainModel?: 'arcade' | 'physical';
     gearRatios?: number[];
     finalDriveRatio?: number;
@@ -113,6 +117,7 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
     shift: { ...DEFAULT_ENGINE_SHIFT_PROFILE },
     shiftDropRpm: 5400,
     shiftUpRpm: 7400,
+    terminalSpeedKmh: 223,
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.25 },
         { rpm: 2500, torqueScale: 0.38 },
@@ -150,7 +155,7 @@ export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         startRpm: 2100,
     },
     displayName: 'Seorin GT',
-    displayTopSpeedKmh: 230,
+    displayTopSpeedKmh: 225,
     fuelCutReturnRpm: 6500,
     fuelCutStartRpm: 7000,
     gears: [
@@ -178,6 +183,7 @@ export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     },
     shiftDropRpm: 4400,
     shiftUpRpm: 6650,
+    terminalSpeedKmh: 225,
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.3 },
         { rpm: 2000, torqueScale: 0.45 },
@@ -214,7 +220,7 @@ export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         { label: '5', rpmMax: 6700, rpmMin: 4600, speedRatioMax: 0.88, speedRatioMin: 0.62 },
         // Terminal gear must reach the profile limiter; automatic upshifts
         // still occur at the preceding speed-envelope boundaries.
-        { label: '6', rpmMax: 7200, rpmMin: 4400, speedRatioMax: 1, speedRatioMin: 0.8 },
+        { label: '6', rpmMax: 7200, rpmMin: 4400, speedRatioMax: 218 / REFERENCE_SPEED_KMH, speedRatioMin: 0.8 },
     ],
     id: 'mirae-gt-single-turbo',
     idleRpm: 1000,
@@ -229,6 +235,8 @@ export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
     },
     shiftDropRpm: 4600,
     shiftUpRpm: 6850,
+    terminalSpeedKmh: 218,
+    terminalSpeedCapKmh: 218,
     torqueCurve: [
         { rpm: 1000, torqueScale: 0.26 },
         { rpm: 2400, torqueScale: 0.34 },

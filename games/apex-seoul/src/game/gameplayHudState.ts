@@ -1,4 +1,5 @@
 import { getDisplaySpeedKmh, type VehicleEngineProfile } from './engineProfile.ts';
+import type { PowertrainFeedbackState } from './powertrainFeedback.ts';
 import type { PlayerVehicleState } from './vehicle';
 
 export type GameplayHudState = {
@@ -6,6 +7,7 @@ export type GameplayHudState = {
     gearLabel: string;
     rpm: number;
     fuelCutActive: boolean;
+    powertrainEvent: PowertrainFeedbackState['activeEvent'];
     boostRatios: readonly number[];
     elapsedSec: number;
     checkpointLabel: string;
@@ -18,12 +20,14 @@ export function createGameplayHudState(
     accelSpeed: number,
     run: { elapsedSec: number; passedCheckpoints: number; checkpointTimesSec: Array<number | null> },
     lastSplitText = '',
+    powertrainFeedback?: PowertrainFeedbackState,
 ): GameplayHudState {
     return {
         speedKmh: getDisplaySpeedKmh(player.speed, accelSpeed, profile),
         gearLabel: profile.gears[player.gearIndex]?.label ?? 'N',
         rpm: player.rpm,
         fuelCutActive: player.fuelCutActive,
+        powertrainEvent: powertrainFeedback?.activeEvent ?? null,
         boostRatios: profile.induction === 'na' ? [] : profile.induction === 'single-turbo'
             ? [player.primaryBoostRatio] : [player.primaryBoostRatio, player.secondaryBoostRatio],
         elapsedSec: run.elapsedSec,
