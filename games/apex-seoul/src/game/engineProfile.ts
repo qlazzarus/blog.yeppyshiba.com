@@ -126,7 +126,10 @@ export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
         { rpm: 7400, torqueScale: 0.84 },
         { rpm: 7800, torqueScale: 0.68 },
     ],
-    gearRatios: [3.626, 2.188, 1.541, 1.213, 1, 0.767],
+    // Keep sixth close enough to fifth that the 225km/h envelope reaches the
+    // 7,750RPM limiter. The old overdrive topped out around 6,000RPM and made
+    // the high-rev red zone presentation unreachable during a normal run.
+    gearRatios: [3.626, 2.188, 1.541, 1.213, 1, 0.97],
     tireCircumferenceM: 1.964,
 };
 
@@ -158,7 +161,9 @@ export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         { label: '5', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.77, speedRatioMin: 0.56 },
         { label: '6', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.9, speedRatioMin: 0.72 },
         { label: '7', rpmMax: 6500, rpmMin: 4000, speedRatioMax: 0.98, speedRatioMin: 0.86 },
-        { label: '8', rpmMax: 6200, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.94 },
+        // Terminal gear must reach the profile limiter; automatic upshifts
+        // still occur at the preceding speed-envelope boundaries.
+        { label: '8', rpmMax: 7000, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.94 },
     ],
     id: 'seorin-gt-twin-turbo',
     idleRpm: 950,
@@ -207,7 +212,9 @@ export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
         { label: '3', rpmMax: 6850, rpmMin: 4600, speedRatioMax: 0.5, speedRatioMin: 0.27 },
         { label: '4', rpmMax: 6850, rpmMin: 4600, speedRatioMax: 0.7, speedRatioMin: 0.43 },
         { label: '5', rpmMax: 6700, rpmMin: 4600, speedRatioMax: 0.88, speedRatioMin: 0.62 },
-        { label: '6', rpmMax: 6500, rpmMin: 4400, speedRatioMax: 1, speedRatioMin: 0.8 },
+        // Terminal gear must reach the profile limiter; automatic upshifts
+        // still occur at the preceding speed-envelope boundaries.
+        { label: '6', rpmMax: 7200, rpmMin: 4400, speedRatioMax: 1, speedRatioMin: 0.8 },
     ],
     id: 'mirae-gt-single-turbo',
     idleRpm: 1000,

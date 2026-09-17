@@ -15,7 +15,7 @@
     {
       "id": "control.straightExitSpeedStable",
       "pass": true,
-      "target": "<= 0.05km/h versus v4 single-tick engine straight controls",
+      "target": "<= 0.05km/h versus v5 limiter straight controls",
       "value": {
         "comparedRows": 24,
         "maxExitSpeedDeltaKmh": 0
@@ -24,17 +24,17 @@
     {
       "id": "control.zeroTo100Stable",
       "pass": true,
-      "target": "<= 0.05s versus engine v4 and within 7.8~8.3s",
+      "target": "<= 0.05s versus engine v5 and within 7.8~8.3s",
       "value": {
         "currentSec": 8.15,
         "deltaSec": 0,
-        "engineV4Sec": 8.15
+        "engineV5Sec": 8.15
       }
     },
     {
       "id": "control.sixtyKmhStable",
       "pass": true,
-      "target": "<= 0.05s versus engine v4, same gear, and within 3.5~5.0s",
+      "target": "<= 0.05s versus engine v5, same gear, and within 3.5~5.0s",
       "value": {
         "current": {
           "gear": 2,
@@ -42,17 +42,17 @@
           "timeSec": 4.083
         },
         "deltaSec": 0,
-        "tse6": {
+        "engineV5": {
           "gear": 2,
-          "rpm": 4961,
-          "timeSec": 4.05
+          "rpm": 5470,
+          "timeSec": 4.083
         }
       }
     },
     {
       "id": "control.drivetrainIdentityStable",
       "pass": true,
-      "target": "gear ratios/final drive/tire circumference unchanged from HND-1",
+      "target": "limiter-approved gear ratios/final drive/tire circumference match engine v5",
       "value": {
         "finalDrive": 4.1,
         "gearRatios": [
@@ -61,7 +61,7 @@
           1.541,
           1.213,
           1,
-          0.767
+          0.97
         ],
         "tireCircumferenceM": 1.964
       }
@@ -95,7 +95,7 @@
         1.541,
         1.213,
         1,
-        0.767
+        0.97
       ],
       "sixtyKmh": {
         "gear": 2,
@@ -143,18 +143,18 @@
       "maxExitSpeedDeltaKmh": 8.817
     }
   },
-  "generatedAt": "2026-09-16T05:39:47.553Z",
+  "generatedAt": "2026-09-17T00:53:30.090Z",
   "gradeLossRows": [
     {
-      "easy": 0.732,
-      "medium": 0.673,
-      "sharp": 8.204,
+      "easy": 0.557,
+      "medium": 0.5,
+      "sharp": 7.602,
       "slopeId": "level"
     },
     {
       "easy": 0,
       "medium": 0,
-      "sharp": 0.094,
+      "sharp": 0.215,
       "slopeId": "downhill"
     }
   ],
@@ -184,16 +184,16 @@
       "grade": "medium",
       "lineRetentionGain": 0,
       "preparedLineRetention": 1,
-      "preparedUndersteerMean": 0.419,
+      "preparedUndersteerMean": 0.464,
       "slopeId": "level",
-      "understeerRelief": 0.139
+      "understeerRelief": 0.094
     },
     {
-      "fullLineRetention": 0.631,
+      "fullLineRetention": 0.632,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.031,
-      "preparedLineRetention": 0.662,
+      "lineRetentionGain": 0.039,
+      "preparedLineRetention": 0.671,
       "preparedUndersteerMean": 0.932,
       "slopeId": "level",
       "understeerRelief": 0
@@ -204,9 +204,9 @@
       "grade": "easy",
       "lineRetentionGain": 0,
       "preparedLineRetention": 1,
-      "preparedUndersteerMean": 0.279,
+      "preparedUndersteerMean": 0.283,
       "slopeId": "downhill",
-      "understeerRelief": 0.016
+      "understeerRelief": 0.012
     },
     {
       "fullLineRetention": 1,
@@ -222,8 +222,8 @@
       "fullLineRetention": 0.631,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.012,
-      "preparedLineRetention": 0.643,
+      "lineRetentionGain": 0.011,
+      "preparedLineRetention": 0.642,
       "preparedUndersteerMean": 0.932,
       "slopeId": "downhill",
       "understeerRelief": 0
@@ -260,16 +260,16 @@
       "grade": "medium",
       "lineRetentionGain": 0,
       "preparedLineRetention": 1,
-      "preparedUndersteerMean": 0.514,
+      "preparedUndersteerMean": 0.536,
       "slopeId": "bugak-fixed",
-      "understeerRelief": 0.044
+      "understeerRelief": 0.022
     },
     {
       "fullLineRetention": 0.647,
       "fullUndersteerMean": 0.932,
       "grade": "sharp",
-      "lineRetentionGain": 0.042,
-      "preparedLineRetention": 0.689,
+      "lineRetentionGain": 0.039,
+      "preparedLineRetention": 0.686,
       "preparedUndersteerMean": 0.932,
       "slopeId": "bugak-fixed",
       "understeerRelief": 0

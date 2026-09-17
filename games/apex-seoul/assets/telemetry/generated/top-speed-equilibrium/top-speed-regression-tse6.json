@@ -12,7 +12,7 @@
       "deterministicLevel": {
         "100-175.34": 13.766666666667,
         "175.34-212.687": 16.516666666667,
-        "212.687-223": 114.016666666667
+        "212.687-223": 11.966666666667
       },
       "runtimeSh7": {
         "100-175.34": 11.213,
@@ -35,10 +35,10 @@
       "speedKmh": 140.7
     },
     {
-      "classification": "force-equilibrium",
+      "classification": "rpm-limiter",
       "gear": 6,
       "id": "after-level-tse4",
-      "speedKmh": 223.952753650998
+      "speedKmh": 223.211119851103
     },
     {
       "classification": "mild-downhill-safety-cap",
@@ -118,19 +118,28 @@
       "value": 3
     },
     {
-      "id": "levelNaturalEquilibriumKmh",
+      "id": "levelLimiterKmh",
       "pass": true,
       "target": [
         223,
         225
       ],
-      "value": 223.952753650998
+      "value": 223.211119851103
     },
     {
       "id": "levelAvoidsClamp",
       "pass": true,
       "target": false,
       "value": false
+    },
+    {
+      "id": "levelLimiterCycles",
+      "pass": true,
+      "target": "RPM limiter without hard cap",
+      "value": {
+        "classification": "rpm-limiter",
+        "frames": 4160
+      }
     },
     {
       "id": "runtimeReaches225",
@@ -151,15 +160,15 @@
     {
       "id": "slopeOrderingAndClassification",
       "pass": true,
-      "target": "uphill < level equilibrium < downhill safety-cap",
+      "target": "uphill < level RPM limiter < downhill safety-cap",
       "value": {
         "downhill": [
           225,
           "safety-cap"
         ],
         "level": [
-          223.952753650998,
-          "force-equilibrium"
+          223.211119851103,
+          "rpm-limiter"
         ],
         "uphill": [
           168.332554400046,
@@ -168,13 +177,22 @@
       }
     },
     {
-      "id": "forceBracketStillNatural",
+      "id": "forceBracketSamplesLimiterCycle",
       "pass": true,
-      "target": "positive / approximately zero / negative at 223 / 224 / 225km/h",
+      "target": "223/224/225km/h probes include limiter approach and cut phases",
       "value": [
-        0.074411343107,
-        -0.00083568589,
-        -0.077549856198
+        {
+          "net": 2.652836454607,
+          "rpm": 7709.305687035357
+        },
+        {
+          "net": -8.796896673065,
+          "rpm": 7603.678129409306
+        },
+        {
+          "net": 2.76184477963,
+          "rpm": 7616.219936450705
+        }
       ]
     },
     {
@@ -186,22 +204,22 @@
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "easy",
-          "levelCornerLossPercent": 0.732,
-          "levelMinusDownhillPercentagePoints": 0.732
+          "levelCornerLossPercent": 0.557,
+          "levelMinusDownhillPercentagePoints": 0.557
         },
         {
           "downhillCornerLossPercent": 0,
           "downhillRawLossPercent": 0,
           "grade": "medium",
-          "levelCornerLossPercent": 0.673,
-          "levelMinusDownhillPercentagePoints": 0.673
+          "levelCornerLossPercent": 0.5,
+          "levelMinusDownhillPercentagePoints": 0.5
         },
         {
-          "downhillCornerLossPercent": 0.094,
-          "downhillRawLossPercent": 0.094,
+          "downhillCornerLossPercent": 0.215,
+          "downhillRawLossPercent": 0.215,
           "grade": "sharp",
-          "levelCornerLossPercent": 8.204,
-          "levelMinusDownhillPercentagePoints": 8.11
+          "levelCornerLossPercent": 7.602,
+          "levelMinusDownhillPercentagePoints": 7.387
         }
       ]
     }
@@ -211,29 +229,29 @@
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "easy",
-      "levelCornerLossPercent": 0.732,
-      "levelMinusDownhillPercentagePoints": 0.732
+      "levelCornerLossPercent": 0.557,
+      "levelMinusDownhillPercentagePoints": 0.557
     },
     {
       "downhillCornerLossPercent": 0,
       "downhillRawLossPercent": 0,
       "grade": "medium",
-      "levelCornerLossPercent": 0.673,
-      "levelMinusDownhillPercentagePoints": 0.673
+      "levelCornerLossPercent": 0.5,
+      "levelMinusDownhillPercentagePoints": 0.5
     },
     {
-      "downhillCornerLossPercent": 0.094,
-      "downhillRawLossPercent": 0.094,
+      "downhillCornerLossPercent": 0.215,
+      "downhillRawLossPercent": 0.215,
       "grade": "sharp",
-      "levelCornerLossPercent": 8.204,
-      "levelMinusDownhillPercentagePoints": 8.11
+      "levelCornerLossPercent": 7.602,
+      "levelMinusDownhillPercentagePoints": 7.387
     }
   ],
   "forceAt225": {
     "after": {
       "aero": 4.425157075723,
-      "drive": 18.347607219525,
-      "netAcceleration": -0.077549856198,
+      "drive": 21.187001855353,
+      "netAcceleration": 2.76184477963,
       "rolling": 14
     },
     "before": {
@@ -248,7 +266,7 @@
     "physicalFourthShiftSpeedKmh": 175.339513,
     "shiftRpm": 7400
   },
-  "generatedAt": "2026-09-16T05:39:47.933Z",
+  "generatedAt": "2026-09-16T11:19:49.460Z",
   "pass": true,
   "slopeRows": [
     {
@@ -257,9 +275,9 @@
       "speedKmh": 168.332554400046
     },
     {
-      "classification": "force-equilibrium",
+      "classification": "rpm-limiter",
       "id": "level",
-      "speedKmh": 223.952753650998
+      "speedKmh": 223.211119851103
     },
     {
       "classification": "safety-cap",

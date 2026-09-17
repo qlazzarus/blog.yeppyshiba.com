@@ -63,8 +63,14 @@ const checks = [
     between('standingStart0to100Sec', tse4Level.hits['100'].timeSec, 7.8, 8.3),
     check('standingStartGearAt60', tse4Level.hits['60'].gear === 2, 2, tse4Level.hits['60'].gear),
     check('standingStartGearAt100', tse4Level.hits['100'].gear === 3, 3, tse4Level.hits['100'].gear),
-    between('levelNaturalEquilibriumKmh', tse4Level.end.speedKmh, 223, 225),
+    between('levelLimiterKmh', tse4Level.end.speedKmh, 223, 225),
     check('levelAvoidsClamp', tse4Level.hitHardClamp === false, false, tse4Level.hitHardClamp),
+    check(
+        'levelLimiterCycles',
+        tse4Level.classification === 'rpm-limiter' && tse4Level.limiterActiveFrames > 0,
+        'RPM limiter without hard cap',
+        { classification: tse4Level.classification, frames: tse4Level.limiterActiveFrames },
+    ),
     check('runtimeReaches225', runtime.speedKmh.max === 225, 225, runtime.speedKmh.max),
     check('runtimeStraightIsClean', runtime.maxAbsSteering === 0 && runtime.maxCornerLossForce === 0 && runtime.guardrailImpacts === 0, 0, {
         cornerLoss: runtime.maxCornerLossForce,
@@ -75,9 +81,9 @@ const checks = [
         'slopeOrderingAndClassification',
         tse4Uphill.end.speedKmh < tse4Level.end.speedKmh &&
             tse4Level.end.speedKmh < tse4Downhill.end.speedKmh &&
-            tse4Level.classification === 'force-equilibrium' &&
+            tse4Level.classification === 'rpm-limiter' &&
             tse4Downhill.classification === 'safety-cap',
-        'uphill < level equilibrium < downhill safety-cap',
+        'uphill < level RPM limiter < downhill safety-cap',
         {
             downhill: [tse4Downhill.end.speedKmh, tse4Downhill.classification],
             level: [tse4Level.end.speedKmh, tse4Level.classification],
@@ -85,12 +91,11 @@ const checks = [
         },
     ),
     check(
-        'forceBracketStillNatural',
-        tse4.forceBracket[0].force.netAcceleration > 0 &&
-            Math.abs(tse4.forceBracket[1].force.netAcceleration) <= 0.001 &&
-            tse4.forceBracket[2].force.netAcceleration < 0,
-        'positive / approximately zero / negative at 223 / 224 / 225km/h',
-        tse4.forceBracket.map((row) => row.force.netAcceleration),
+        'forceBracketSamplesLimiterCycle',
+        tse4.forceBracket.some((row) => row.rpm >= 7700) &&
+            tse4.forceBracket.some((row) => row.force.netAcceleration < 0),
+        '223/224/225km/h probes include limiter approach and cut phases',
+        tse4.forceBracket.map((row) => ({ net: row.force.netAcceleration, rpm: row.rpm })),
     ),
     check(
         'cornerLossUsesCalibratedStraightReference',

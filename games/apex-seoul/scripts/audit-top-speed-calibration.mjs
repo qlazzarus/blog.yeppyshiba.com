@@ -34,9 +34,6 @@ const uphill = findRow('uphill');
 const level = findRow('level');
 const downhill = findRow('sh7-mild-downhill');
 const forceBracket = [223, 224, 225].map(measureSteadyForce);
-const force223 = forceBracket.find((row) => row.speedKmh === 223);
-const force224 = forceBracket.find((row) => row.speedKmh === 224);
-const force225 = forceBracket.find((row) => row.speedKmh === 225);
 const checks = [
     between('level0to60Sec', level.hits['60']?.timeSec, 3.5, 5),
     between('level0to100Sec', level.hits['100']?.timeSec, 7.8, 8.3),
@@ -61,15 +58,18 @@ const checks = [
     between('levelTerminalKmh', level.end.speedKmh, 223, 225),
     equal('levelTerminalGear', level.end.gear, 6),
     check('levelAvoidsHardClamp', !level.hitHardClamp, false, level.hitHardClamp),
-    between('levelFiveSecondDeltaKmh', level.end.windowSpeedDeltaKmh, 0, 0.02),
-    between('levelNetAcceleration', Math.abs(level.end.force.netAcceleration), 0, 0.02),
+    between('levelLimiterSpeedSwing', level.end.windowSpeedDeltaKmh, 0, 0.3),
     check(
-        'selectedForceBrackets224',
-        force223.force.netAcceleration > 0 &&
-            Math.abs(force224.force.netAcceleration) <= 0.001 &&
-            force225.force.netAcceleration < 0,
-        'positive at 223, approximately zero at 224, negative at 225',
-        forceBracket.map((row) => ({ netAcceleration: row.force.netAcceleration, speedKmh: row.speedKmh })),
+        'levelUsesRpmLimiter',
+        level.limiterActiveFrames > 0 &&
+            level.maxRpm >= profile.fuelCutStartRpm &&
+            level.minRpmDuringLimiter < profile.fuelCutStartRpm - 100,
+        `reaches ${profile.fuelCutStartRpm}rpm and drops at least 100rpm while limited`,
+        {
+            frames: level.limiterActiveFrames,
+            maxRpm: level.maxRpm,
+            minRpmDuringLimiter: level.minRpmDuringLimiter,
+        },
     ),
     check(
         'slopeSpeedOrdering',
@@ -78,10 +78,11 @@ const checks = [
         rows.map((row) => ({ id: row.id, speedKmh: row.end.speedKmh })),
     ),
     check(
-        'onlyDownhillUsesSafetyCap',
-        !uphill.hitHardClamp && !level.hitHardClamp && downhill.hitHardClamp,
-        { downhill: true, level: false, uphill: false },
-        Object.fromEntries(rows.map((row) => [row.id, row.hitHardClamp])),
+        'levelUsesLimiterDownhillUsesSafetyCap',
+        !uphill.hitHardClamp && !level.hitHardClamp && downhill.hitHardClamp &&
+            level.limiterActiveFrames > 0,
+        { downhill: true, levelLimiter: true },
+        Object.fromEntries(rows.map((row) => [row.id, { clamp: row.hitHardClamp, limiterFrames: row.limiterActiveFrames }])),
     ),
     check(
         'levelSegmentTimesOrdered',
@@ -91,12 +92,6 @@ const checks = [
         targetsKmh.map((target) => ({ speedKmh: target, timeSec: level.hits[target]?.timeSec ?? null })),
     ),
     between('forceIdentityErrorMax', Math.max(...rows.map((row) => row.forceIdentityErrorMax)), 0, 0.000001),
-    check(
-        'levelAvoidsFuelCut',
-        level.end.mechanicalRpm < profile.redlineStartRpm,
-        `< ${profile.redlineStartRpm} mechanical rpm`,
-        level.end.mechanicalRpm,
-    ),
 ];
 const report = roundObject({
     checks,
@@ -111,7 +106,7 @@ const report = roundObject({
         rollingResistance: config.rollingResistance,
     },
     decision: {
-        downhillClampInterpretation: 'The level road must reach a force equilibrium without the hard cap. A positive SH-7 downhill slope may reach the 225km/h safety cap and is reported as safety-cap, not as equilibrium.',
+        downhillClampInterpretation: 'The level road reaches the profile RPM limiter without the hard cap. A positive SH-7 downhill slope may reach the 225km/h safety cap and is reported as safety-cap, not as limiter behavior.',
         levelClassification: level.classification,
         selectedAeroDrag: config.aeroDrag,
         selectedLaunchThrottleFullSpeedRatio: config.launchThrottleFullSpeedRatio,
@@ -145,6 +140,9 @@ function simulateScenario(scenario) {
     const recent = [];
     let forceIdentityErrorMax = 0;
     let hitHardClamp = false;
+    let limiterActiveFrames = 0;
+    let maxRpm = player.rpm;
+    let minRpmDuringLimiter = Infinity;
 
     for (let frame = 0; frame <= durationSec / frameSeconds; frame += 1) {
         const timeSec = frame * frameSeconds;
@@ -168,6 +166,11 @@ function simulateScenario(scenario) {
             );
         }
         hitHardClamp ||= clamped;
+        maxRpm = Math.max(maxRpm, player.rpm);
+        if (player.fuelCutActive) {
+            limiterActiveFrames += 1;
+            minRpmDuringLimiter = Math.min(minRpmDuringLimiter, player.rpm);
+        }
         gearsVisited.add(player.gearIndex + 1);
         for (const target of targetsKmh) {
             if (hits[target] === undefined && speedKmh >= target) {
@@ -191,6 +194,8 @@ function simulateScenario(scenario) {
     return {
         classification: hitHardClamp
             ? 'safety-cap'
+            : limiterActiveFrames > 0
+                ? 'rpm-limiter'
             : Math.abs(end.force.netAcceleration) <= 0.02 && end.windowSpeedDeltaKmh <= 0.02
                 ? 'force-equilibrium'
                 : 'observed-at-300s',
@@ -198,6 +203,9 @@ function simulateScenario(scenario) {
         forceIdentityErrorMax,
         gearsVisited: [...gearsVisited],
         hitHardClamp,
+        limiterActiveFrames,
+        maxRpm,
+        minRpmDuringLimiter: Number.isFinite(minRpmDuringLimiter) ? minRpmDuringLimiter : null,
         hits,
         id: scenario.id,
         label: scenario.label,
@@ -262,13 +270,13 @@ function buildMarkdown(result) {
         '',
         `상태: **${result.pass ? 'PASS' : 'FAIL'}**`,
         '',
-        'TSE-3에서 선택한 aero 계수와 launch 보정을 production에 적용하고, 저속 가속·물리 변속·평지 평형·경사 관계를 같은 controller로 검증한다.',
+        'TSE-3에서 선택한 aero 계수와 launch 보정을 production에 적용하고, 저속 가속·물리 변속·평지 limiter·경사 관계를 같은 controller로 검증한다.',
         '',
         '## Scenario result',
         '',
-        '| scenario | slope | 300s km/h | gear | mechanical RPM | net | 5s delta | class | clamp |',
-        '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
-        ...result.rows.map((row) => `| ${row.id} | ${format(row.slopeAcceleration)} | ${format(row.end.speedKmh)} | ${row.end.gear} | ${format(row.end.mechanicalRpm)} | ${format(row.end.force.netAcceleration, 6)} | ${format(row.end.windowSpeedDeltaKmh, 6)} | ${row.classification} | ${row.hitHardClamp ? 'yes' : 'no'} |`),
+        '| scenario | slope | 300s km/h | gear | mechanical RPM | limiter frames | net | 5s delta | class | clamp |',
+        '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
+        ...result.rows.map((row) => `| ${row.id} | ${format(row.slopeAcceleration)} | ${format(row.end.speedKmh)} | ${row.end.gear} | ${format(row.end.mechanicalRpm)} | ${row.limiterActiveFrames} | ${format(row.end.force.netAcceleration, 6)} | ${format(row.end.windowSpeedDeltaKmh, 6)} | ${row.classification} | ${row.hitHardClamp ? 'yes' : 'no'} |`),
         '',
         '## Level acceleration splits',
         '',
@@ -286,7 +294,7 @@ function buildMarkdown(result) {
         '',
         `- production aeroDrag: **${format(result.constants.aeroDrag, 12)}**`,
         `- launch full-speed ratio: **${format(result.constants.launchThrottleFullSpeedRatio)}**`,
-        '- 평지는 hard clamp 없이 force equilibrium이어야 한다.',
+        '- 평지는 hard clamp 없이 profile RPM limiter를 반복해야 한다.',
         '- SH-7 내리막은 양의 경사 가속 때문에 225km/h safety cap에 닿을 수 있으며, 이 경우 평형으로 표기하지 않는다.',
         '',
         '## Checks',

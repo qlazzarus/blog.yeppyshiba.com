@@ -1081,6 +1081,12 @@ export function createRuntimePlayerVehicleConfig(
         rpmIdle: defaults.rpmIdle,
         rpmRedline: defaults.rpmRedline,
         rpmResponse: defaults.rpmResponse,
+        powerExitBoostThreshold: readTuningNumber(
+            params, 'powerExitBoostThreshold', defaults.powerExitBoostThreshold, 0, 1,
+        ),
+        powerExitTractionScale: readTuningNumber(
+            params, 'powerExitTractionScale', defaults.powerExitTractionScale, 0.5, 1.5,
+        ),
         steerAcceleration: readTuningNumber(
             params,
             'steerAccel',

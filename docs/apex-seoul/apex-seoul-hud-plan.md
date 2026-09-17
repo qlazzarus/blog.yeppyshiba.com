@@ -64,13 +64,13 @@ RPM·디지털 속도·gear 위치는 사용자가 승인한 위치를 그대로
 
 | 방식 | 전용 패널 | 플레이 판단 | 금지 사항 |
 | --- | --- | --- | --- |
-| Raven / NA | `NA · POWER BAND`, profile 기반 고회전 구간 표시 | 높은 RPM 유지와 변속 후 회전 회복 확인 | 빈 boost meter, 0 bar, turbo sound |
-| Mirae / single | `TURBO`, 단일 actual boost meter, SPOOL/BOOST/LIFT 상태 | lag·가속 준비·잔여 과급 확인. kick 사건에 테두리 pulse | throttle만으로 즉시 full meter, 무조건 full-screen flash |
-| Seorin / sequential twin | `TWIN TURBO`, 왼쪽 `TURBO 1` / 오른쪽 `TURBO 2`의 실제 단계별 계기 | 저회전 응답과 두 번째 단계 연결 확인 | 같은 boostRatio로 두 압력계를 복제 |
+| Raven / NA | profile 기반 고회전 구간 표시 | 높은 RPM 유지와 변속 후 회전 회복 확인 | 빈 boost meter, 0 bar, turbo sound |
+| Mirae / single | 단일 actual boost meter, SPOOL/BOOST/LIFT 상태 | lag·가속 준비·잔여 과급 확인. kick 사건에 테두리 pulse | throttle만으로 즉시 full meter, 무조건 full-screen flash |
+| Seorin / sequential twin | 왼쪽 `TURBO 1` / 오른쪽 `TURBO 2`의 실제 단계별 계기 | 저회전 응답과 두 번째 단계 연결 확인 | 같은 boostRatio로 두 압력계를 복제 |
 
 현재 트윈은 단계별 동적 상태와 토크 합성을 연결했으므로 두 개의 독립 아날로그 계기를 사용한다. total meter를 추가할 필요는 없다. 현재 엔진 프로파일은 순차식이며 나중에 parallel twin을 추가하면 capability에 따라 같은 단계 UI를 강제하지 않는다.
 
-RPM dial은 0부터 `maxRpm`을 1,000 단위로 올림한 스케일까지 표시하되 redline과 실제 fuel cut을 구분한다. speed는 `getDisplaySpeedKmh()`를 공유하고 gear는 profile의 label을 사용한다. boost는 0–1 정규화 비율/segment로 표시하며 압력 모델이 생기기 전에는 bar/psi를 쓰지 않는다. powerband는 torque curve에서 정의한 범위로 표시하고 임의 RPM을 HUD 안에 하드코딩하지 않는다.
+RPM dial은 0부터 `maxRpm`을 1,000 단위로 올림한 스케일까지 표시하며, red zone 시작 위치와 바늘 색은 profile의 `redlineStartRpm`을 직접 사용한다. RPM 아래에는 차량 종류를 반복하는 `NA`/`TURBO` 상태 문구를 두지 않고, 실제 fuel cut 때만 `REV LIMIT`를 표시한다. speed는 `getDisplaySpeedKmh()`를 공유하고 gear는 profile의 label을 사용한다. boost는 0–1 정규화 비율/segment로 표시하며 압력 모델이 생기기 전에는 bar/psi를 쓰지 않는다. powerband는 torque curve에서 정의한 범위로 표시하고 임의 RPM을 HUD 안에 하드코딩하지 않는다.
 
 자동변속에서는 변속 순간 gear pulse를 사용한다. 수동변속 기능이 없는 상태에서 운전자에게 SHIFT 조작을 요구하지 않는다. countdown의 launch 안내는 launch capability가 있는 차량에만 표시하고 GO 후 정상 패널로 돌아간다.
 

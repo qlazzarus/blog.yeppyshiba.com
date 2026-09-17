@@ -51,6 +51,11 @@ import {
     SEORIN_GT_ENGINE_PROFILE,
 } from './engineProfile';
 import {
+    MIRAE_GT_HANDLING_PROFILE,
+    RAVEN_COUPE_HANDLING_PROFILE,
+    SEORIN_GT_HANDLING_PROFILE,
+} from './vehicleHandlingProfile';
+import {
     createDefaultPlayerVehicleState,
     updatePlayerVehicle,
 } from './playerVehicleController';
@@ -296,12 +301,14 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
         atlas: ft86RetroVehicleAtlas as VehicleAtlas,
         colors: FT86_RETRO_SPRITE_URLS,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
         shadowSpriteUrl: ft86RetroShadowSpriteUrl,
     },
     ravenCoupe: {
         atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         colors: RAVEN_COUPE_SPRITE_URLS,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
         // 192px processed center silhouette is ~3% larger than the legacy
         // 256px FT86 source. Keep the same on-road perceived body size.
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
@@ -311,6 +318,7 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
         colors: SEORIN_GT_SPRITE_URLS,
         engineProfile: SEORIN_GT_ENGINE_PROFILE,
+        handlingProfile: SEORIN_GT_HANDLING_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
     },
@@ -318,18 +326,21 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
         colors: MIRAE_GT_SPRITE_URLS,
         engineProfile: MIRAE_GT_ENGINE_PROFILE,
+        handlingProfile: MIRAE_GT_HANDLING_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
     },
     ravenCoupePreview256: {
         atlas: ravenCoupePreview256Atlas as VehicleAtlas,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
         shadowSpriteUrl: ravenCoupePreview256ShadowSpriteUrl,
         spriteUrl: ravenCoupePreview256SpriteUrl,
     },
     ravenCoupePreview192: {
         atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: ravenCoupePreview192ShadowSpriteUrl,
         spriteUrl: ravenCoupePreview192SpriteUrl,
@@ -337,6 +348,7 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     seorinGtPreview192: {
         atlas: seorinGtPreview192Atlas as VehicleAtlas,
         engineProfile: SEORIN_GT_ENGINE_PROFILE,
+        handlingProfile: SEORIN_GT_HANDLING_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: seorinGtPreview192ShadowSpriteUrl,
         spriteUrl: seorinGtPreview192SpriteUrl,
@@ -344,6 +356,7 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     miraeGtPreview192: {
         atlas: miraeGtPreview192Atlas as VehicleAtlas,
         engineProfile: MIRAE_GT_ENGINE_PROFILE,
+        handlingProfile: MIRAE_GT_HANDLING_PROFILE,
         presentationScale: CANDIDATE_192_PRESENTATION_SCALE,
         shadowSpriteUrl: miraeGtPreview192ShadowSpriteUrl,
         spriteUrl: miraeGtPreview192SpriteUrl,
@@ -351,6 +364,7 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     genesis: {
         atlas: genesisG70VehicleAtlas as VehicleAtlas,
         engineProfile: MIRAE_GT_ENGINE_PROFILE,
+        handlingProfile: MIRAE_GT_HANDLING_PROFILE,
         shadowSpriteUrl: genesisG70VehicleShadowSpriteUrl,
         spriteUrl: genesisG70VehicleSpriteUrl,
     },
@@ -378,6 +392,7 @@ function createRuntimeQaCamera() {
 let PLAYER_CONTROLLER_CONFIG = createPlayerVehicleRuntimeConfig(
     URL_PARAMS,
     ACTIVE_RUNTIME_VEHICLE.engineProfile,
+    ACTIVE_RUNTIME_VEHICLE.handlingProfile,
 );
 
 let PLAYER_VEHICLE_ATLAS = ACTIVE_RUNTIME_VEHICLE.atlas;
@@ -583,6 +598,7 @@ export class TimeAttackScene extends Phaser.Scene {
         PLAYER_CONTROLLER_CONFIG = createPlayerVehicleRuntimeConfig(
             URL_PARAMS,
             ACTIVE_RUNTIME_VEHICLE.engineProfile,
+            ACTIVE_RUNTIME_VEHICLE.handlingProfile,
         );
 
         this.cameraResource = createRuntimeQaCamera();
@@ -679,7 +695,14 @@ export class TimeAttackScene extends Phaser.Scene {
         this.collisionDebugText = createCollisionDebugText(this);
         this.hudText = createHudText(this);
         this.gameplayHud = new GameplayHud(this, ACTIVE_RUNTIME_VEHICLE.engineProfile);
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.gameplayHud.destroy());
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.gameplayHud?.destroy();
+            // Phaser destroys scene objects at shutdown, but this scene
+            // instance is reused by ResultScene → Retry. Do not retain the
+            // destroyed forest Images and mistake them for live sprites on
+            // the next run.
+            this.wallForestSprites.clear();
+        });
         this.runStatusText = this.add
             .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.35, '', {
                 align: 'center',

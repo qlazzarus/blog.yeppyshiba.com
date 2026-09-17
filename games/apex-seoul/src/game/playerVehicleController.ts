@@ -20,6 +20,7 @@ import type {
 } from './vehicle';
 
 const SHIFT_CUT_DECAY_POWER = 0.9;
+const FUEL_CUT_ENTRY_EPSILON_RPM = 1;
 const LOW_SPEED_DRIFT_LOCK_RATIO = 0.33;
 const LOW_SPEED_DRIFT_VELOCITY_DECAY = 18;
 const VEHICLE_HEADING_SOFT_ALIGN_START = 0.72;
@@ -299,6 +300,8 @@ export type PlayerVehicleControllerConfig = {
     rpmIdle: number;
     rpmRedline: number;
     rpmResponse: number;
+    powerExitBoostThreshold: number;
+    powerExitTractionScale: number;
     steerAcceleration: number;
     steerDamping: number;
     steeringSpeedScrub: number;
@@ -992,8 +995,15 @@ function updateDriftState(
             }
             break;
         case 'recovery':
-            player.driftRatio = approach(player.driftRatio, 0, config.driftRecoveryRate, seconds);
-            player.traction = approach(player.traction, 1, config.driftRecoveryRate, seconds);
+            // Boosted exit recovery is grip recovery, never an extra engine-force bonus.
+            const powerExitTractionScale = input.accelPressed &&
+                config.engineProfile.boost &&
+                player.boostRatio >= config.powerExitBoostThreshold
+                ? config.powerExitTractionScale
+                : 1;
+            const recoveryRate = config.driftRecoveryRate * powerExitTractionScale;
+            player.driftRatio = approach(player.driftRatio, 0, recoveryRate, seconds);
+            player.traction = approach(player.traction, 1, recoveryRate, seconds);
             if (player.driftRatio <= 0.025) {
                 player.driftRatio = 0;
                 player.driftDirection = 0;
@@ -1726,7 +1736,11 @@ function updateEngineState(
     const throttleLift = throttle > 0 ? getThrottleRpmLift(profile.induction) : 0;
     const brakeDrop = brake > 0 ? 360 : 0;
     const baseTargetRpm = baseRpm + throttleLift - brakeDrop;
-    const shouldEnterFuelCut = player.rpm >= profile.fuelCutStartRpm && throttle > 0;
+    // A target exactly equal to the limiter approaches it asymptotically with
+    // RPM smoothing. Allow one RPM of numerical tolerance so terminal gears
+    // that are authored to meet the limiter can actually enter fuel cut.
+    const shouldEnterFuelCut = player.rpm >= profile.fuelCutStartRpm - FUEL_CUT_ENTRY_EPSILON_RPM &&
+        throttle > 0;
 
     if (shouldEnterFuelCut) {
         player.fuelCutActive = true;

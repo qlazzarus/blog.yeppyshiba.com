@@ -11,6 +11,7 @@ import { createDefaultPlayerVehicleState, updatePlayerVehicle } from '../src/gam
 const output = path.resolve(process.argv[2] ?? '/tmp/apex-shift-character');
 const input = { accelPressed: true, brakePressed: false, steerAxis: 0 };
 const road = { currentCurve: 0, slopeAcceleration: 0, longitudinalScale: 2 };
+const profiles = [na, twin, single];
 const results = [];
 for (const fps of [30, 60, 120]) {
     for (const profile of [na, twin, single]) {
@@ -88,6 +89,38 @@ const pulses = [30, 60, 120].flatMap(fps => {
     return [singlePulse, twinPulse];
 });
 
+// At the terminal gear, every profile must reach its own limiter. Hold speed
+// constant so this verifies engine/boost behavior rather than top-speed force
+// balance, which is measured separately.
+const limiterCycles = [30, 60, 120].flatMap(fps => profiles.map(profile => {
+    const config = createPlayerVehicleRuntimeConfig(new URLSearchParams(), profile);
+    const player = createDefaultPlayerVehicleState(config.accelSpeed, profile, config.accelSpeed);
+    player.gearIndex = profile.gears.length - 1;
+    let fuelCutFrames = 0;
+    let maxRpm = player.rpm;
+    let minRpmDuringCut = Infinity;
+    let maxBoost = player.boostRatio;
+    let minBoostDuringCut = Infinity;
+    for (let frame = 0; frame < fps * 4; frame++) {
+        player.speed = config.accelSpeed;
+        updatePlayerVehicle(player, input, road, config, 1 / fps);
+        maxRpm = Math.max(maxRpm, player.rpm);
+        maxBoost = Math.max(maxBoost, player.boostRatio);
+        if (player.fuelCutActive) {
+            fuelCutFrames += 1;
+            minRpmDuringCut = Math.min(minRpmDuringCut, player.rpm);
+            minBoostDuringCut = Math.min(minBoostDuringCut, player.boostRatio);
+        }
+    }
+    assert.ok(fuelCutFrames > 0, `${profile.displayName} terminal gear must enter its limiter`);
+    assert.ok(maxRpm >= profile.fuelCutStartRpm - 1, `${profile.displayName} must reach limiter entry RPM within numerical tolerance`);
+    assert.ok(minRpmDuringCut < profile.fuelCutStartRpm - 100, `${profile.displayName} limiter must pull RPM below its entry threshold`);
+    if (profile.induction !== 'na') {
+        assert.ok(minBoostDuringCut < maxBoost - 0.02, `${profile.displayName} fuel cut must unload turbo pressure`);
+    }
+    return { vehicle: profile.displayName, fps, fuelCutFrames, maxRpm, minRpmDuringCut, maxBoost, minBoostDuringCut };
+}));
+
 // A stationary engine operating point exposes accidental double integration.
 for (const profile of [single, twin]) {
     for (const fps of [30, 60, 120]) {
@@ -113,6 +146,6 @@ for (const profile of [single, twin]) {
     assert.equal(player.gearIndex, profile.gears.length - 1);
 }
 await mkdir(output, { recursive: true });
-await writeFile(path.join(output, 'shift-character.json'), JSON.stringify({ pass: true, results, pulses }, null, 2) + '\n');
-console.log('PASS: 30/60/120Hz all gears, NA high-rev boundary, braking/downshifts, no hunting, lift gate, distinct turbo shift/pressure recovery');
+await writeFile(path.join(output, 'shift-character.json'), JSON.stringify({ pass: true, results, pulses, limiterCycles }, null, 2) + '\n');
+console.log('PASS: 30/60/120Hz all gears, limiter cycles, NA high-rev boundary, braking/downshifts, no hunting, lift gate, distinct turbo shift/pressure recovery');
 console.log(JSON.stringify(pulses.map(({ samples, ...p }) => p), null, 2));

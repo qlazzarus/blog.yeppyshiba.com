@@ -1,6 +1,7 @@
 import type { VehicleEngineProfile } from './engineProfile';
 import type { PlayerVehicleControllerConfig } from './playerVehicleController';
 import { createRuntimePlayerVehicleConfig } from './runtimeConfig';
+import { getVehicleHandlingProfile, type VehicleHandlingProfile } from './vehicleHandlingProfile';
 
 export const PLAYER_BRAKE_SPEED = 0;
 export const PLAYER_BRAKING = 330;
@@ -171,8 +172,12 @@ export const PLAYER_SLOPE_SAMPLE_DISTANCE = 720;
 export const PLAYER_RPM_IDLE = 1100;
 export const PLAYER_RPM_REDLINE = 7200;
 export const PLAYER_RPM_RESPONSE = 7;
-export function createPlayerVehicleRuntimeConfig(params: URLSearchParams, engineProfile: VehicleEngineProfile): PlayerVehicleControllerConfig {
-    return createRuntimePlayerVehicleConfig(params, {
+export function createPlayerVehicleRuntimeConfig(
+    params: URLSearchParams,
+    engineProfile: VehicleEngineProfile,
+    handlingProfile = getVehicleHandlingProfile(engineProfile),
+): PlayerVehicleControllerConfig {
+    const defaults: PlayerVehicleControllerConfig = {
     accelSpeed: PLAYER_ACCEL_SPEED,
     aeroDrag: PLAYER_AERO_DRAG,
     brakeSpeed: PLAYER_BRAKE_SPEED,
@@ -292,10 +297,29 @@ export function createPlayerVehicleRuntimeConfig(params: URLSearchParams, engine
     rpmIdle: PLAYER_RPM_IDLE,
     rpmRedline: PLAYER_RPM_REDLINE,
     rpmResponse: PLAYER_RPM_RESPONSE,
+    powerExitBoostThreshold: handlingProfile.powerExitBoostThreshold,
+    powerExitTractionScale: handlingProfile.powerExitTractionScale,
     steerAcceleration: PLAYER_STEER_ACCELERATION,
     steerDamping: PLAYER_STEER_DAMPING,
     steeringSpeedScrub: PLAYER_STEERING_SPEED_SCRUB,
     steeringSpeedScrubThreshold: PLAYER_STEERING_SPEED_SCRUB_THRESHOLD,
     steeringVelocityCue: PLAYER_STEERING_VELOCITY_CUE,
-});
+    };
+
+    return createRuntimePlayerVehicleConfig(params, applyVehicleHandlingProfile(defaults, handlingProfile));
+}
+
+function applyVehicleHandlingProfile(
+    defaults: PlayerVehicleControllerConfig,
+    profile: VehicleHandlingProfile,
+): PlayerVehicleControllerConfig {
+    return {
+        ...defaults,
+        inputResponse: defaults.inputResponse * profile.steeringResponseScale,
+        highSpeedInputResponseDrop: defaults.highSpeedInputResponseDrop * profile.highSpeedStabilityScale,
+        highSpeedSteerForceDrop: defaults.highSpeedSteerForceDrop * profile.highSpeedStabilityScale,
+        driftBuildRate: defaults.driftBuildRate * profile.liftRotationScale,
+        driftEntryLateralKick: defaults.driftEntryLateralKick * profile.liftRotationScale,
+        driftMinCornerIntensity: defaults.driftMinCornerIntensity / profile.liftRotationScale,
+    };
 }

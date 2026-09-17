@@ -115,7 +115,7 @@ assert.equal(oldBucket.recentRuns[0].playerName, 'PLAYER');
 console.log('PASS: name metadata persistence, validation and missing-name compatibility');
 
 // Previous physics rules remain stored but cannot become a current-rules PB.
-for (const oldRules of ['time-attack-v2', 'time-attack-v3']) {
+for (const oldRules of ['time-attack-v2', 'time-attack-v3', 'time-attack-v4']) {
     const rulesStorage = new MemoryStorage();
     const oldRulesRun = { ...run('old-best', 80), rulesetVersion: oldRules };
     rulesStorage.setItem(RECORDS_KEY, JSON.stringify({ schemaVersion: 1, buckets: [{
