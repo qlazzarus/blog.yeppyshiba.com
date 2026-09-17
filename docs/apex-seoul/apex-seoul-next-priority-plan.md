@@ -145,6 +145,10 @@ P1 gate: 동일 조건 가속·제동·코너/구간 시간 측정과 사용자 
 
 `qa:asset-attributions` 신규 검사는 startup/runtime manifest의 외부 asset마다 attribution ID가 있는지, `CC-BY-NC`·unknown·pending license가 release 목록에 없는지, source URL/license URL/author가 비어 있지 않은지 확인한다. 현재 CC0 환경·Kenney 효과/차량 키트는 이 형식으로 이전하고, 실차 POC 모델처럼 provenance가 아직 미확정인 자산은 공개 runtime 승격과 배포 공지 완료의 blocker로 취급한다.
 
+### 라이선스 공지 1차 구현 (2026-09-17)
+
+Main menu에 `CREDITS & LICENSES`를 추가하고 `AssetNoticesScene`에서 asset category를 나누지 않은 단일 목록으로 모든 현재 고지를 표시한다. `assetAttributions.ts`는 환경 CC0 원본, Kenney smoke/car kit, Sketchfab CC Attribution 차량 원본, Phaser 및 Three.js를 단일 source of truth로 둔다. 작은 화면에서만 동일 목록을 스크롤하며, desktop 기준으로는 전체 항목을 한 화면에 표시한다. source provenance가 없는 runtime asset의 release 승인과 `ATTRIBUTIONS.md` 생성/정합 QA는 여전히 다음 공지 pass의 필수 조건이다.
+
 ## P2 — 기록을 줄이는 판단과 재도전을 만든다
 
 1. `RoadTrack`에 `CourseSection` metadata를 연결하고 checkpoint·코너 예고·결과 이름을 일치시킨다.

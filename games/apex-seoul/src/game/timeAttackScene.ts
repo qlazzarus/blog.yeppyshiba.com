@@ -5,6 +5,7 @@ import { createGameplayHudState } from './gameplayHudState';
 import { createPowertrainFeedbackState, createPowertrainSnapshot, derivePowertrainFeedback, type PowertrainFeedbackState } from './powertrainFeedback';
 import Phaser from 'phaser';
 import { MainScene } from './mainScene';
+import { AssetNoticesScene } from './assetNoticesScene';
 import { OptionsScene } from './optionsScene';
 import { ResultScene, type TimeAttackResult } from './resultScene';
 import { VehicleSelectScene } from './vehicleSelectScene';
@@ -2917,7 +2918,7 @@ export const APEX_SEOUL_GAME_CONFIG: Phaser.Types.Core.GameConfig = {
         mode: Phaser.Scale.FIT,
         width: GAME_WIDTH,
     },
-    scene: [LoadingScene, MainScene, OptionsScene, VehicleSelectScene, ResultScene, RecordsScene, TimeAttackScene],
+    scene: [LoadingScene, MainScene, OptionsScene, AssetNoticesScene, VehicleSelectScene, ResultScene, RecordsScene, TimeAttackScene],
     type: Phaser.WEBGL,
 };
 

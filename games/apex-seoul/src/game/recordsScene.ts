@@ -22,12 +22,20 @@ export class RecordsScene extends Phaser.Scene {
         const right = width - left;
         const columnX = [left, left + (right - left) * 0.58, right];
         this.cameras.main.setBackgroundColor(UI_THEME.backgroundHex);
+        const graphics = this.add.graphics();
+        graphics.fillStyle(UI_THEME.background, 1).fillRect(0, 0, width, height);
+        graphics.fillStyle(UI_THEME.nightBlue, 0.82).fillRect(0, 0, width, 126);
+        graphics.lineStyle(2, UI_THEME.amber, 0.9).lineBetween(0, 124, width, 124);
         const text = (x: number, y: number, label: string, size = 16, origin = 0.5) => this.add.text(x, y, label, {
             color: UI_THEME.textMainHex, fontFamily: 'monospace', fontSize: `${size}px`,
         }).setOrigin(origin, 0.5);
-        text(width / 2, 36, 'LOCAL RECORDS', 26);
-        text(width / 2, 76, course.name.toUpperCase(), compact ? 12 : 16);
-        text(width / 2, 110, 'FASTEST TIMES FIRST', 11).setColor(UI_THEME.secondaryTextHex);
+        this.add.text(width / 2, 36, 'LOCAL RECORDS', {
+            color: UI_THEME.textMainHex, fontFamily: 'Arial, sans-serif',
+            fontSize: compact ? '28px' : '34px', fontStyle: 'bold italic', letterSpacing: 2,
+            stroke: UI_THEME.titleShadowHex, strokeThickness: 2,
+        }).setOrigin(0.5);
+        text(width / 2, 78, course.name.toUpperCase(), compact ? 11 : 13).setColor(UI_THEME.amberHighlightHex);
+        text(width / 2, 104, 'FASTEST TIMES FIRST', 10).setColor(UI_THEME.secondaryTextHex);
         ['VEHICLE', 'TIME', 'NAME'].forEach((label, i) =>
             text(columnX[i], 158, label, 12, i === 0 ? 0 : i === 2 ? 1 : 0.5).setColor(UI_THEME.amberHex));
         const rowHeight = compact ? 48 : 58;
