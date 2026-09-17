@@ -549,7 +549,11 @@ export class VehicleSelectScene extends Phaser.Scene {
         });
         this.input.keyboard?.on('keydown-ENTER', nextStep);
         this.input.keyboard?.on('keydown-SPACE', nextStep);
-        this.input.keyboard?.on('keydown-ESC', previousStep);
+        // Use the bound key rather than a string event so browser Escape is
+        // handled consistently after this scene is re-entered from the menu.
+        const escapeKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        escapeKey?.on('down', previousStep);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => escapeKey?.off('down', previousStep));
     }
 
     update(time: number) {

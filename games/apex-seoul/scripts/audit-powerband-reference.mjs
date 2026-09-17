@@ -49,7 +49,7 @@ const ravenAt = (speedKmh) => ravenRows.find((row) => row.speedKmh === speedKmh)
 const checks = [
     check('raven.physicalModel', RAVEN_COUPE_ENGINE_PROFILE.drivetrainModel === 'physical'),
     check('raven.topSpeedEnvelope', RAVEN_COUPE_ENGINE_PROFILE.displayTopSpeedKmh === 225),
-    check('raven.gearRatios', JSON.stringify(RAVEN_COUPE_ENGINE_PROFILE.gearRatios) === JSON.stringify([3.626, 2.188, 1.541, 1.213, 1, 0.767])),
+    check('raven.gearRatios', JSON.stringify(RAVEN_COUPE_ENGINE_PROFILE.gearRatios) === JSON.stringify([3.626, 2.188, 1.541, 1.213, 1, 0.97])),
     check('raven.60kmh.secondGear', ravenAt(60)?.gear === 2),
     check('raven.100kmh.thirdGear', ravenAt(100)?.gear === 3),
     check('raven.100kmh.rpmWindow', between(ravenAt(100)?.rpm, 5000, 6200)),

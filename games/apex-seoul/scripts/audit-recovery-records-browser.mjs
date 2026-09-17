@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
-const browser = await chromium.launch({ headless: true, args: ['--enable-webgl', '--enable-unsafe-swiftshader', '--use-angle=swiftshader'] });
+const browser = process.env.APEX_BROWSER_CDP_URL
+    ? await chromium.connectOverCDP(process.env.APEX_BROWSER_CDP_URL)
+    : await chromium.launch({
+        headless: true,
+        executablePath: process.env.APEX_BROWSER_EXECUTABLE || undefined,
+        args: ['--enable-webgl', '--enable-unsafe-swiftshader', '--use-angle=swiftshader'],
+    });
 try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     const errors = [];
@@ -21,25 +27,25 @@ try {
         window.__testGame.scene.getScene('main').scene.start('records');
     });
     await page.waitForFunction(() => window.__testGame.scene.isActive('records'));
-    const firstPage = await labels();
-    assert(!firstPage.includes('MIRAE GT') && !firstPage.includes('RAVEN COUPE'));
+    const records = await labels();
+    assert(!records.includes('MIRAE GT') && !records.includes('RAVEN COUPE'));
     const portraits = await page.evaluate(() => window.__testGame.scene.getScene('records').children.list
         .filter(c => c.name?.startsWith('record-vehicle-') && c.visible)
         .map(c => ({ texture: c.texture.key, frame: c.frame.name, flip: c.flipX })));
-    assert.equal(portraits.length, 5);
+    assert.equal(portraits.length, 10);
     assert(portraits.every(p => p.frame === 6 && p.flip));
-    for (const id of ['mirae-gt', 'raven-coupe', 'seorin-gt']) assert(portraits.some(p => p.texture === `player-vehicle-${id}-black`));
-    assert(firstPage.includes('01:37.00') && firstPage.includes('01:47.00'));
-    assert(firstPage.includes('PLAYER'));
-    assert(!firstPage.includes('BEST') && !firstPage.includes('BY VEHICLE'));
+    const displayedTimes = await page.evaluate(() => window.__testGame.scene.getScene('records').children.list
+        .filter(c => typeof c.text === 'string' && /^\d{2}:\d{2}\.\d{2}$/.test(c.text))
+        .sort((a, b) => a.y - b.y).map(c => c.text));
+    assert.deepEqual(displayedTimes, ['01:30.00', '01:31.00', '01:32.00', '01:33.00', '01:34.00', '01:35.00', '01:36.00', '01:37.00', '01:40.00', '01:41.00']);
+    assert(records.includes('01:30.00') && records.includes('01:37.00'));
+    assert(records.includes('PLAYER'));
+    assert(records.includes('FASTEST TIMES FIRST'));
+    assert(!records.includes('BEST') && !records.includes('BY VEHICLE'));
+    assert(!records.some(label => /^\d+ \/ \d+$/.test(label)));
     await page.screenshot({ path: '/tmp/apex-records-simple.png' });
     await page.keyboard.press('PageDown');
-    await page.waitForTimeout(100);
-    assert((await labels()).includes('2 / 5'));
-    assert(!(await labels()).includes('01:37.00'));
-    await page.keyboard.press('ArrowLeft');
-    await page.waitForTimeout(100);
-    assert((await labels()).includes('1 / 5'));
+    await page.waitForFunction(() => window.__testGame.scene.isActive('main'));
     await page.evaluate(() => {
         const game = window.__testGame;
         game.scale.resize(640, 600);
@@ -120,5 +126,5 @@ try {
     });
     assert(pause);
     assert.deepEqual(errors, []);
-    console.log('PASS: Records recent list/pages, scene recovery without progress gain, dual split/result, retry cleanup, no browser errors');
+    console.log('PASS: Records time ranking/keyboard return, scene recovery without progress gain, dual split/result, retry cleanup, no browser errors');
 } finally { await browser.close(); }

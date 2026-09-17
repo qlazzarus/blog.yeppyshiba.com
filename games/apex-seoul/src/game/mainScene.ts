@@ -19,7 +19,7 @@ export class MainScene extends Phaser.Scene {
         const menuWidth = compact ? width - 48 : Math.min(380, width * 0.31);
         const menuX = compact ? 24 : width - menuWidth - 42;
         const menuY = compact ? height * 0.57 : height * 0.36;
-        const menuEntries = ['START', 'RECORDS', 'OPTIONS'] as const;
+        const menuEntries = ['START', 'RECORDS', 'OPTIONS', 'CREDITS & LICENSES'] as const;
         const menuButtons: Phaser.GameObjects.Rectangle[] = [];
         const menuLabels: Phaser.GameObjects.Text[] = [];
         let selectedIndex = 0;
@@ -161,9 +161,11 @@ export class MainScene extends Phaser.Scene {
             );
         };
         const activate = () => {
-            if (selectedIndex === 0) startTimeAttack();
-            else if (selectedIndex === 2) this.scene.start('options');
-            else this.scene.start('records');
+            const entry = menuEntries[selectedIndex];
+            if (entry === 'START') startTimeAttack();
+            else if (entry === 'RECORDS') this.scene.start('records');
+            else if (entry === 'OPTIONS') this.scene.start('options');
+            else this.scene.start('asset-notices');
         };
         menuEntries.forEach((entry, index) => {
             const y = menuY + index * 64;

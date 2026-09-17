@@ -1561,7 +1561,12 @@ function updatePlayerSpeed(
     player.speed = clamp(
         player.speed + acceleration * seconds,
         config.brakeSpeed,
-        config.accelSpeed,
+        config.engineProfile.terminalSpeedCapKmh === undefined
+            ? config.accelSpeed
+            : Math.min(
+                config.accelSpeed,
+                config.accelSpeed * config.engineProfile.terminalSpeedCapKmh / REFERENCE_SPEED_KMH,
+            ),
     );
 
     if (input.brakePressed && player.speed < 2) {

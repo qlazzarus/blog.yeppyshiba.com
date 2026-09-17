@@ -4,11 +4,17 @@
 
 ## 2026-09-16 차량 비교 전 공통 주행 수정
 
-차량 비교 전에 공통 선형 속도 환산과 코너 조향 방향 판정을 수정했다. 기존 탈출 검사는 수정 없이 통과했으며, 당시 물리 변화에 맞춘 v3 기록은 보존한다. 이후 변속·엔진 시간 수정은 v4, limiter·Raven 최종 기어 조정은 v5로 분리했다. 근거·검증 범위는 [주행 기준선 점검](./apex-seoul-driving-baseline-review.md)을 따른다.
+차량 비교 전에 공통 선형 속도 환산과 코너 조향 방향 판정을 수정했다. 기존 탈출 검사는 수정 없이 통과했으며, 당시 물리 변화에 맞춘 v3 기록은 보존한다. 이후 변속·엔진 시간 수정은 v4, limiter·Raven 최종 기어 조정은 v5, 차량별 terminal speed 정합성은 v6로 분리했다. 근거·검증 범위는 [주행 기준선 점검](./apex-seoul-driving-baseline-review.md)을 따른다.
 
 **TODO: 차량별 핸들링은 `VehicleHandlingProfile` 설정으로 차량 프로파일에 추가한다.** 현재 공통 설정을 기본값으로 보존하고, 성능 비교 후 차등 튜닝한다. 다음 비교는 공통 계기판 단위와 실제 코스 이동량을 함께 사용한다. 현재 공통 상한 225km/h와 차량별 목표 최고속도는 별개이며 목표 성능 달성을 뜻하지 않는다.
 
-브라우저 코너/lift 9개 시나리오와 세 차량의 60/120Hz 비교를 완료했다. [v3 측정 결과](./apex-seoul-vehicle-performance-review.md)는 이전 기준선으로 보존하며, 변속 특성은 [v4 검증](./apex-seoul-shift-character-review.md)에 기록한다. 현재 우선순위는 **Mirae의 유리한 상황 검증 → 차량별 handling 설정 → 차량별 최고속도 목표 재조정**이다.
+브라우저 코너/lift 9개 시나리오와 세 차량의 60/120Hz 비교를 완료했다. [v3 측정 결과](./apex-seoul-vehicle-performance-review.md)는 이전 기준선으로 보존하며, 변속 특성은 [v4 검증](./apex-seoul-shift-character-review.md)에 기록한다. 차량별 handling, terminal speed, 과급 상태·사건 피드백까지 완료했으므로 현재 우선순위는 **P1-3 소리·효과**다.
+
+## 2026-09-17 차량별 terminal speed·변속 RPM 정합성 (v6)
+
+`displayTopSpeedKmh`는 공통 계기판 환산 호환 필드로 유지하고, 실제 full-throttle 상한은 `VehicleEngineProfile.terminalSpeedKmh`로 분리했다. Raven은 물리 구동계·limiter 평형으로 223km/h, Seorin은 공통 safety cap 225km/h, Mirae는 terminal gear RPM envelope과 controller clamp를 함께 적용해 218km/h를 목표로 한다. Seorin의 이전 230 목표는 공통 225km/h envelope 밖이어서 225로 정리했다.
+
+`qa:vehicle-terminal-speed`는 level full throttle 180초 동안 30/60/120Hz별 모든 upshift의 pre-shift·landing RPM, terminal limiter, 최고속도를 기록한다. Raven은 1→6단 후 223km/h·약 7,750RPM, Seorin은 1→8단 후 225km/h·약 7,000RPM, Mirae는 1→6단 후 218km/h·약 7,200RPM으로 limiter를 반복했다. 60/120Hz terminal speed 차이는 0.2km/h 이하였다. Mirae의 최고속도 변화는 기록에 영향을 주므로 `time-attack-v6`를 새 PB 규칙으로 사용하고 v2~v5는 legacy로 보존한다.
 
 ## 현재 착수 순서
 
@@ -35,9 +41,15 @@ Mirae의 출구 장점은 단순한 최고 grip 보너스가 아니다. 엔진�
 
 검증 fixture는 동일 코스 구간에서 grip, brake/trail-brake, lift, power-on exit 네 입력을 세 차량에 동일하게 공급한다. entry/apex/exit speed, lateral offset·heading, drift 진입과 회복 시간, 충돌 수, section time을 기록한다. 차량별로 의도한 상황 하나에서는 우위가 나와야 하고, 다른 상황에서는 분명한 비용이 보여야 한다. 30/60/120Hz 결과 차이, recovery, 실제 Chromium 주행도 함께 통과해야 profile 값을 승인한다.
 
+### 자동 balance gate (2026-09-17)
+
+`qa:vehicle-handling-balance`는 profile 성격과 production 구간을 분리해 측정한다. 공유 Raven 엔진과 고정 속도 fixture에서 Raven의 turn-in·lift 회전, Seorin의 더 작은 고속 라인 offset, Mirae의 boost 0.70 전후 recovery 차이를 각각 확인한다. Raven의 turn-in은 Seorin보다 5% 이상, lift 횡이동은 10% 이상 커야 한다. 이어 실제 엔진·Bugak 경사·가드레일을 쓰는 동일 lift 구간을 60/120Hz로 실행해 세 차량의 무충돌 완주와 0.05초 미만의 프레임률 차이를 보장한다. 이 gate는 결정론적 입력에서 의도한 장단점이 유지되는지 판정하며, 최적 랩타임이나 사람의 체감 평가는 별도 브라우저·수동 주행으로 승인한다.
+
+2차 수치 조정 후 60Hz character fixture에서 Raven의 초기 turn-in 횡이동은 1.417로 Seorin 1.197보다 약 18% 컸고, lift 횡이동은 177.756으로 Seorin 160.177보다 약 11% 컸다. Mirae는 boost 0.82에서 0.217초에 grip으로 복귀해 boost 0.40의 0.267초보다 약 0.05초 빨랐다. production Bugak lift 구간의 최대 offset은 Raven 577.180, Seorin 520.757, Mirae 536.188이었으며 충돌은 모두 0회였다.
+
 ### 1차 구현·검증 (2026-09-17)
 
-`VehicleHandlingProfile`을 추가해 `RuntimeVehicleAsset → createPlayerVehicleRuntimeConfig()` 경로로 연결했다. controller에는 차량 ID 분기가 없고, 공통 상태 기계에 profile이 합성된다. Raven은 조향 응답 1.06·lift 회전 1.10, Seorin은 고속 조향 감쇠 1.12·lift 회전 0.88, Mirae는 조향 응답 0.94·boost 0.70 이상에서만 출구 회복 1.16으로 시작한다.
+`VehicleHandlingProfile`을 추가해 `RuntimeVehicleAsset → createPlayerVehicleRuntimeConfig()` 경로로 연결했다. controller에는 차량 ID 분기가 없고, 공통 상태 기계에 profile이 합성된다. Raven은 조향 응답 1.12·고속 조향 감쇠 0.82·lift 회전 1.18, Seorin은 고속 조향 감쇠 1.80·lift 회전 0.80, Mirae는 조향 응답 0.92·boost 0.70 이상에서만 출구 회복 1.24로 시작한다.
 
 고정 Bugak 비교(60/120Hz)에서 Raven은 lift 구간의 최대 offset 약 575로 가장 빠르게 자세를 만들고, Seorin은 첫 grip 구간 offset 약 91로 가장 안정적인 고속 라인을 유지했다. Mirae는 boost 0.82의 recovery 한 프레임에서 drift ratio가 0.562→0.556으로 줄었고, boost 0.41에서는 0.562로 일반 회복을 유지했다. 이는 출구 축이 엔진 토크 추가 없이 실제 boost 상태에만 반응함을 확인한 값이다. `qa:vehicle-handling-profile`, vehicle catalog, handling relations, shift character 및 build를 통과했다.
 
@@ -95,7 +107,7 @@ Retry는 개인 기록을 유지하고, 기록 초기화는 내장 기본 구조
 
 P0-5 고착 복귀, P0-3 Records와 목록 탐색, P0-2 전체/차량 PB LAST SPLIT·결과 비교를 1차 구현했다. P0-4 중 checkpoint/finish 시간 보간·focus/숨김 정지도 함께 연결했다. 다음 확인은 세 차량의 실제 코너 고착/탈출 비교 주행과 판정 임계값 튜닝이다. 수동 pause 메뉴·countdown 잔여 프레임 처리·개별 구간 개선 팁은 남아 있으며 P0-4 전체 완료를 뜻하지 않는다.
 
-Records는 후속 리뷰에 따라 최근 완주순 `차량 / 시간 / 이름` 단일 목록으로 단순화했다. 주행 중 전체/차량별 split은 유지한다. **TODO: 경기 종료 후 a-z 세 글자 이름 입력**은 이번 구현에서 제외하며 [로컬 저장 설계의 TODO](./apex-seoul-local-save-plan.md#todo--경기-종료-후-영문-세-글자-이름-입력)를 따른다.
+Records는 후속 리뷰에 따라 빠른 완주 시간순 `차량 / 시간 / 이름` 단일 목록으로 단순화했다. 페이지 이동 없이 같은 목록을 스크롤하며, 아무 키나 누르면 메인 메뉴로 돌아간다. 주행 중 전체/차량별 split은 유지한다. **TODO: 경기 종료 후 a-z 세 글자 이름 입력**은 이번 구현에서 제외하며 [로컬 저장 설계](./apex-seoul-local-save-plan.md#todo--경기-종료-후-영문-세-글자-이름-입력)의 TODO를 따른다.
 
 ## P1 — 차량의 차이를 운전 재미로 만든다
 
@@ -103,10 +115,39 @@ Records는 후속 리뷰에 따라 최근 완주순 `차량 / 시간 / 이름` �
 | --- | --- | --- |
 | P1-1 차량별 handling·powerband | `VehicleEngineProfile`, `RuntimeVehicleAsset`, `createPlayerVehicleRuntimeConfig()`, `updatePlayerVehicle()`; 신규 `VehicleHandlingProfile` | Raven의 민첩/속도 유지, Mirae의 lag/출구 가속, Seorin의 넓은 응답/안정감에 각각 장단점 존재 |
 | P1-2 과급 상태와 사건 | `EngineBoostProfile`, `getBoostTargetRatio()`; 신규 `PowertrainFeedbackState`, `derivePowertrainFeedback()` | single kick/twin stage/lift/shift를 실제 계산에서 도출. 토크 중복 가산·가짜 압력 없음 |
-| P1-3 소리·효과 | `playerPresentation.ts`, `cameraEffects.js`, `speedEffectShader.ts`, `LoadingScene`; 신규 `VehicleAudioController`, `VehicleEffectsPresenter` | RPM/load engine loop, spool·kick·배출음, NA powerband, 타이어·충돌 피드백. mute/reduced motion·lifecycle 정상 |
+| P1-3 소리·효과 | `playerPresentation.ts`, `cameraEffects.js`, `speedEffectShader.ts`, `LoadingScene`; 신규 `VehicleAudioController`, `VehicleEffectsPresenter`, `AssetNoticesScene` | RPM/load engine loop, spool·kick·배출음, NA powerband, 타이어·충돌 피드백. mute/reduced motion·lifecycle·라이선스 공지 정상 |
 | P1-4 garage 설명 | `VehicleSelectScene`, catalog capability | 과급 종류·장점·약점·운전 팁이 실제 성능과 일치. 차량 ID로 launch/HUD 효과를 추측하지 않음 |
 
 P1 gate: 동일 조건 가속·제동·코너/구간 시간 측정과 사용자 비교 주행으로 차량별 유리한 상황을 설명할 수 있다. 세 차 중 하나가 모든 상황의 정답이면 재조정한다. 물리 차이 없이 UI 색상만 바뀌는 상태는 완료가 아니다.
+
+### P1-2 구현 (2026-09-17)
+
+`powertrainFeedback.ts`가 controller 이후 snapshot의 실제 boost 비율, throttle, gear, shift cut, fuel cut만 읽어 `single-kick`, `twin-stage`, `lift`, `shift`, `fuel-cut` 사건을 도출한다. kick은 65% 상향 통과 뒤 45% 아래로 떨어져야 재무장하고, twin secondary는 10% 진입/5% 이탈 hysteresis를 사용한다. HUD는 limiter를 우선 표시하며 남은 실제 사건만 짧게 표시한다. 이 모듈은 토크·boost 값을 변경하지 않는다. `qa:powertrain-feedback`는 held state 중복, shift-cut 가짜 kick, stage flicker, lift 재무장과 실제 변속·fuel-cut 진입을 검증한다.
+
+### P1-3 SFX·라이선스 제안 (승인 전)
+
+첫 pass는 **CC0 자산만** 사용한다. 엔진 loop는 [OpenGameArt racing car engine loops](https://opengameart.org/content/racing-car-engine-sound-loops), 시동 one-shot은 [Car engine start 01](https://opengameart.org/content/car-engine-start-01), menu/UI는 [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)를 후보로 한다. Kenney asset page와 지원 정책은 CC0 및 상업 사용 가능을 명시한다. [Digital Audio](https://www.kenney.nl/assets/digital-audio)도 UI 또는 짧은 전자 효과의 보조 후보로 둔다. 외부 파일은 원본 URL·다운로드 일자·author·license 전문 URL을 source 폴더에 그대로 보관하고, runtime에는 가공한 OGG만 넣는다.
+
+`Freesound`는 **CC0 필터 결과만** 두 번째 후보로 허용한다. CC-BY, CC-BY-NC, 라이선스 표기가 불완전한 파일은 첫 pass에서 제외한다. 이후 CC-BY가 꼭 필요하면 작품명·작가·원본 URL·라이선스를 고지 데이터에 넣는 별도 승인으로만 추가한다. [Freesound의 라이선스 안내](https://freesound.org/help/faq/)처럼 파일별 라이선스가 다르므로 사이트 이름만으로 포괄 승인하지 않는다. 고품질 차량 Foley가 CC0만으로 부족한 경우에만 [Sonniss GDC Game Audio Bundle](https://gdc.sonniss.com/)을 별도 후보로 검토한다. 이는 CC0이 아니므로 다운로드 시점의 bundle license와 사용 범위를 source metadata에 고정하기 전에는 import하지 않는다. Pixabay도 독립 배포 제한과 제3자 권리 검토가 있으므로 첫 pass 후보에서 제외한다.
+
+#### SFX 구성과 우선순위
+
+1. **P1-3A — 주행의 지속음:** 차량마다 idle/low-load, mid-load, high-load의 세 RPM loop를 둔다. `VehicleAudioController`는 실제 RPM·throttle·engineTorqueScale만 받아 low/mid/high gain과 playback rate를 crossfade한다. Raven은 자연흡기 고회전 layer만, Mirae는 single spool layer 하나, Seorin은 primary/secondary spool layer 둘을 추가한다. boost 수치가 소리를 직접 키우는 두 번째 토크/가속 보너스가 되지 않게 한다.
+2. **P1-3B — 사건 one-shot:** P1-2의 `PowertrainEvent.sequence`을 소비한다. `single-kick`, `twin-stage`, `lift`, `shift`, `fuel-cut`은 각 event sequence당 한 번만 재생한다. shift는 짧은 drivetrain cut, lift는 배출음, kick/stage는 작은 turbine accent로 제한하며, 지속 배기 화염·로켓 같은 과장은 넣지 않는다.
+3. **P1-3C — 접지와 충돌:** 실제 `driftState`/slip에는 looped tire scrub를, guardrail `enter`에만 짧은 impact one-shot을 연결한다. `stay`에는 impact를 반복하지 않고, 속도·slip·contact가 없으면 소리도 없다. 타이어/충돌 SFX는 차량의 조향·속도·기록을 변경하지 않는다.
+4. **P1-3D — 메뉴와 결과:** Kenney CC0 UI click/confirm/cancel만 먼저 넣고 BGM은 보류한다. 결과·PB 효과는 one-shot 하나로 제한해 엔진 사건과 경쟁하지 않게 한다.
+
+가공 규칙은 source WAV 보존, runtime OGG 44.1kHz 변환, 루프의 무음/클릭 제거, one-shot의 -1dB ceiling 및 동일 event 80ms 재발화 억제다. 모든 재생은 사용자 Start 이후 unlock하며, WebAudio/asset load 실패 시 silent fallback으로 계속 주행한다. pause·hidden·finish·retry·scene shutdown에서는 loop를 pause/stop하고, retry run ID 또는 event sequence가 바뀌면 이전 one-shot을 다시 재생하지 않는다. reduced motion은 camera kick/flash만 끄며 소리와 HUD 사건 표시는 유지한다.
+
+#### 라이선스 공지와 승인 gate
+
+메인 메뉴에 `CREDITS & LICENSES`를 추가하고, 독립 `AssetNoticesScene`에서 `GAME ASSETS` / `AUDIO` / `OPEN-SOURCE SOFTWARE`를 표시한다. 화면과 배포용 `ATTRIBUTIONS.md`는 동일한 `assetAttributions.ts` manifest에서 생성한다. manifest의 각 runtime asset은 `id`, 표시명, category, author, source URL, license ID/URL, 다운로드 일자, 가공 설명, runtime 경로를 가진다. 원본 POC·QA·미사용 다운로드는 공지 목록에 섞지 않고, 실제 번들에 들어가는 자산만 표기한다.
+
+`qa:asset-attributions` 신규 검사는 startup/runtime manifest의 외부 asset마다 attribution ID가 있는지, `CC-BY-NC`·unknown·pending license가 release 목록에 없는지, source URL/license URL/author가 비어 있지 않은지 확인한다. 현재 CC0 환경·Kenney 효과/차량 키트는 이 형식으로 이전하고, 실차 POC 모델처럼 provenance가 아직 미확정인 자산은 공개 runtime 승격과 배포 공지 완료의 blocker로 취급한다.
+
+### 라이선스 공지 1차 구현 (2026-09-17)
+
+Main menu에 `CREDITS & LICENSES`를 추가하고 `AssetNoticesScene`에서 asset category를 나누지 않은 단일 목록으로 모든 현재 고지를 표시한다. `assetAttributions.ts`는 환경 CC0 원본, Kenney smoke/car kit, Sketchfab CC Attribution 차량 원본, Phaser 및 Three.js를 단일 source of truth로 둔다. 작은 화면에서만 동일 목록을 스크롤하며, desktop 기준으로는 전체 항목을 한 화면에 표시한다. source provenance가 없는 runtime asset의 release 승인과 `ATTRIBUTIONS.md` 생성/정합 QA는 여전히 다음 공지 pass의 필수 조건이다.
 
 ## P2 — 기록을 줄이는 판단과 재도전을 만든다
 

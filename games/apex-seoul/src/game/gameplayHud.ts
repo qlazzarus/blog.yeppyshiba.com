@@ -154,9 +154,14 @@ export class GameplayHud {
         // Induction type is fixed for a run and repeats information already
         // conveyed by the boost instruments. Reserve this position for the
         // real limiter event instead of a permanent NA/TURBO label.
+        const powertrainLabel = state.powertrainEvent?.type === 'single-kick' ? 'TURBO KICK'
+            : state.powertrainEvent?.type === 'twin-stage' ? 'TURBO 2'
+                : state.powertrainEvent?.type === 'lift' ? 'BLOW OFF'
+                    : state.powertrainEvent?.type === 'shift' ? 'SHIFT'
+                        : '';
         this.status
-            .setText(state.fuelCutActive ? 'REV LIMIT' : '')
-            .setVisible(state.fuelCutActive);
+            .setText(state.fuelCutActive ? 'REV LIMIT' : powertrainLabel)
+            .setVisible(state.fuelCutActive || Boolean(powertrainLabel));
     }
 
     destroy() {
