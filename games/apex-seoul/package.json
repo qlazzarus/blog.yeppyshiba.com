@@ -103,10 +103,13 @@
         "write:vehicle-7way-runtime-adapter": "node scripts/write-vehicle-7way-runtime-adapter.mjs",
         "write:vehicle-7way-atlas": "node scripts/write-vehicle-7way-atlas.mjs",
         "qa:recovery-records": "node --import tsx scripts/audit-recovery-records.ts",
-        "qa:recovery-records-browser": "node scripts/audit-recovery-records-browser.mjs",
-        "qa:local-save": "node --import tsx scripts/audit-local-save.ts",
+    "qa:recovery-records-browser": "node scripts/audit-recovery-records-browser.mjs",
+    "qa:retry-visual-lifecycle-browser": "node scripts/audit-retry-visual-lifecycle-browser.mjs",
+    "qa:redline-browser": "node scripts/audit-redline-browser.mjs",
+    "qa:local-save": "node --import tsx scripts/audit-local-save.ts",
         "qa:local-save-browser": "node scripts/audit-local-save-browser.mjs",
-        "qa:gameplay-hud": "node scripts/audit-gameplay-hud.mjs"
+        "qa:gameplay-hud": "node scripts/audit-gameplay-hud.mjs",
+        "qa:vehicle-handling-profile": "node --import tsx scripts/audit-vehicle-handling-profile.ts"
     },
     "dependencies": {
         "phaser": "^4.1.0",

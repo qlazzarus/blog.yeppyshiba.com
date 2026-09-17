@@ -1,10 +1,12 @@
 import type { VehicleEngineProfile } from './engineProfile';
 import type { VehicleAtlas } from './vehicle';
+import { getVehicleHandlingProfile, type VehicleHandlingProfile } from './vehicleHandlingProfile';
 
 export type RuntimeVehicleAsset = {
     atlas: VehicleAtlas;
     color: string;
     engineProfile: VehicleEngineProfile;
+    handlingProfile: VehicleHandlingProfile;
     id: string;
     presentationScale: number;
     shadowSpriteUrl: string;
@@ -33,6 +35,7 @@ export type RuntimeVehicleSelection = {
 type StaticVehicleCatalogAsset = {
     atlas: VehicleAtlas;
     engineProfile: VehicleEngineProfile;
+    handlingProfile?: VehicleHandlingProfile;
     presentationScale?: number;
     shadowSpriteUrl: string;
     spriteUrl: string;
@@ -42,6 +45,7 @@ type PaletteVehicleCatalogAsset = {
     atlas: VehicleAtlas;
     colors: Record<string, string>;
     engineProfile: VehicleEngineProfile;
+    handlingProfile?: VehicleHandlingProfile;
     presentationScale?: number;
     shadowSpriteUrl: string;
 };
@@ -57,6 +61,7 @@ function selectPaletteVehicle(
         atlas: asset.atlas,
         color,
         engineProfile: asset.engineProfile,
+        handlingProfile: asset.handlingProfile ?? getVehicleHandlingProfile(asset.engineProfile),
         id,
         presentationScale: asset.presentationScale ?? 1,
         shadowSpriteUrl: asset.shadowSpriteUrl,
@@ -104,6 +109,7 @@ export function selectRuntimeVehicleAsset(
     }
     return {
         atlas: assets.genesis.atlas, color: 'silver', engineProfile: assets.genesis.engineProfile,
+        handlingProfile: assets.genesis.handlingProfile ?? getVehicleHandlingProfile(assets.genesis.engineProfile),
         id: 'genesis-g70-poc', shadowSpriteUrl: assets.genesis.shadowSpriteUrl,
         presentationScale: assets.genesis.presentationScale ?? 1,
         shadowTextureKey: 'player-vehicle-genesis-g70-poc-shadow', spriteUrl: assets.genesis.spriteUrl,
@@ -120,6 +126,7 @@ function selectStaticVehicle(
         atlas: asset.atlas,
         color: 'beauty-preview',
         engineProfile: asset.engineProfile,
+        handlingProfile: asset.handlingProfile ?? getVehicleHandlingProfile(asset.engineProfile),
         id,
         presentationScale: asset.presentationScale ?? 1,
         shadowSpriteUrl: asset.shadowSpriteUrl,

@@ -1,6 +1,6 @@
-# 차량별 변속 특성 검증
+# 차량별 변속 특성 검증 (v4 기록)
 
-2026-09-16 · `time-attack-v4`. [이전 v3 비교](./apex-seoul-vehicle-performance-review.md) 이후의 구현 결과다.
+2026-09-16 · `time-attack-v4`. [이전 v3 비교](./apex-seoul-vehicle-performance-review.md) 이후의 구현 기록이다. 이후 Raven 최종 기어와 세 차량 limiter를 조정한 현재 규칙은 `time-attack-v5`이며 [우선순위 계획](./apex-seoul-next-priority-plan.md#2026-09-16-터보-차량-red-zone-limiter-조사)을 따른다.
 
 ## 구현
 
@@ -41,6 +41,6 @@ Production 설정, 평지 직선, 출발 보너스 없음, 60Hz. 80–120은 과
 
 [브라우저 결과](./evidence/2026-09-16-shift-character/browser-summary.json) · [Raven 5단](./evidence/2026-09-16-shift-character/raven-coupe-shift-0-exit.png) · [Seorin 8단](./evidence/2026-09-16-shift-character/seorin-gt-shift-0-exit.png) · [Mirae 6단](./evidence/2026-09-16-shift-character/mirae-gt-shift-0-exit.png)
 
-물리 변경에 맞춰 기록 규칙은 v4로 분리했다. v2/v3 기록은 보존하지만 현재 PB와 섞지 않으며 저장·재로드 검증을 통과했다.
+당시 물리 변경에 맞춰 기록 규칙은 v4로 분리했다. v2/v3 기록은 보존하지만 당시 PB와 섞지 않았으며 저장·재로드 검증을 통과했다. 현재 v5는 v2/v3/v4 기록을 모두 legacy로 분리한다.
 
 차량별 반응 차이는 확보했지만 Mirae의 성능상 이점까지 확보한 것은 아니다. 공통 225km/h 상한과 차량별 목표 최고속도 정합성, Mirae가 유리한 구간 검증은 후속이다. 차량별 핸들링 차이는 요청대로 `VehicleHandlingProfile` TODO로 유지한다.

@@ -4,15 +4,62 @@
 
 ## 2026-09-16 차량 비교 전 공통 주행 수정
 
-차량 비교 전에 공통 선형 속도 환산과 코너 조향 방향 판정을 수정했다. 기존 탈출 검사는 수정 없이 통과했으며, 물리 변화에 맞춰 기록 규칙을 v3로 분리하고 v2 기록을 보존한다. 근거·검증 범위는 [주행 기준선 점검](./apex-seoul-driving-baseline-review.md)을 따른다.
+차량 비교 전에 공통 선형 속도 환산과 코너 조향 방향 판정을 수정했다. 기존 탈출 검사는 수정 없이 통과했으며, 당시 물리 변화에 맞춘 v3 기록은 보존한다. 이후 변속·엔진 시간 수정은 v4, limiter·Raven 최종 기어 조정은 v5로 분리했다. 근거·검증 범위는 [주행 기준선 점검](./apex-seoul-driving-baseline-review.md)을 따른다.
 
 **TODO: 차량별 핸들링은 `VehicleHandlingProfile` 설정으로 차량 프로파일에 추가한다.** 현재 공통 설정을 기본값으로 보존하고, 성능 비교 후 차등 튜닝한다. 다음 비교는 공통 계기판 단위와 실제 코스 이동량을 함께 사용한다. 현재 공통 상한 225km/h와 차량별 목표 최고속도는 별개이며 목표 성능 달성을 뜻하지 않는다.
 
-브라우저 코너/lift 9개 시나리오와 세 차량의 60/120Hz 성능 비교를 완료했다. [측정 결과·화면·프로파일 우선순위](./apex-seoul-vehicle-performance-review.md)를 다음 착수 기준으로 사용한다. **우선순위는 Seorin 7→8/Mirae 5→6의 도달 불가능한 변속 조건 → 구동계/최고속도 목표 정합성 → Mirae의 유리한 상황 검증 → 차량별 handling 설정**이다. 이번 비교에서는 차량별 성능 수치를 조정하지 않았다.
+브라우저 코너/lift 9개 시나리오와 세 차량의 60/120Hz 비교를 완료했다. [v3 측정 결과](./apex-seoul-vehicle-performance-review.md)는 이전 기준선으로 보존하며, 변속 특성은 [v4 검증](./apex-seoul-shift-character-review.md)에 기록한다. 현재 우선순위는 **Mirae의 유리한 상황 검증 → 차량별 handling 설정 → 차량별 최고속도 목표 재조정**이다.
+
+## 현재 착수 순서
+
+P0는 정상 완주·기록·시간의 신뢰성을 지키는 release gate다. Retry 오브젝트 수명과 red-zone limiter는 이 범주의 즉시 결함으로 처리했다. P0에 남은 수동 pause/countdown 경계와 실제 touch/mobile 통합은 계속 추적하되, 현재 차량 비교를 막는 결함은 아니다. 따라서 다음 작업은 **P0 전체 완료가 아니라 P1-1 차량별 코너링 프로파일 설계·검증**이다.
+
+1. 세 차량이 같은 입력에서 어떤 코너에 유리해야 하는지 고정한다.
+2. 그 차이를 `VehicleHandlingProfile`로 추가하고 공통 controller 기본값에 합성한다.
+3. 같은 코스·진입 속도·입력으로 측정해 장점 하나와 비용 하나가 실제로 함께 생기는지 확인한다.
+4. 그 결과를 바탕으로 Mirae의 유리한 구간과 차량별 목표 최고속도를 다시 정한다.
+
+## P1-1 다음 착수 — 차량별 코너링 프로파일
+
+공통 도로 폭·조향 방향·충돌·grip/drift 상태 기계와 계기판 단위는 차량 간에 바꾸지 않는다. `updatePlayerVehicle()` 안에서 차량 ID를 분기하지 않고, `RuntimeVehicleAsset`가 `VehicleEngineProfile`과 함께 `VehicleHandlingProfile`을 소유하게 한다. `createPlayerVehicleRuntimeConfig()`가 공통 기본값과 이 프로파일을 합성하는 유일한 적용 지점이다.
+
+첫 프로파일은 조향 응답, 고속 안정성, lift 회전성, 재가속 출구 접지의 네 축만 가진다. 각 축은 기존 `inputResponse`/고속 조향 제한, overspeed understeer·lateral authority, lift drift 진입·회복, grip 복귀·power-on traction에 연결한다. 코너 속도 손실이나 엔진 토크를 차량별로 동시에 바꾸지 않아 원인을 분리한다. 초기 값은 Raven 공통 기준선을 보존하는 중립값에서 출발하고, 한 축씩 변경·측정한다.
+
+| 차량 | 의도한 코너 성격 | 반드시 함께 둘 비용 | 첫 검증 상황 |
+| --- | --- | --- | --- |
+| Raven NA | 저·중속 진입에서 빠르게 차를 돌리고 lift로 자세를 만들기 쉽다. | 고속 장거리 코너와 power-on 출구에서 가장 안정적이지는 않다. | 감속 진입·lift·counter-steer가 필요한 타이트 코너 |
+| Seorin twin turbo | 고속 sweep에서 라인이 안정적이고, throttle을 유지한 출구가 예측 가능하다. | 초기 turn-in과 lift 회전은 Raven보다 둔하다. | 높은 진입 속도의 긴 코너와 유지 가속 출구 |
+| Mirae single turbo | spool이 오른 뒤의 저·중속 출구에서 접지를 유지해 속도를 회수한다. | boost 전 turn-in이 Raven보다 즉답하지 않으며, lift로 쉽게 미끄러지지 않는다. | 같은 apex 뒤의 재가속 구간; boost 형성 전·후를 분리 측정 |
+
+Mirae의 출구 장점은 단순한 최고 grip 보너스가 아니다. 엔진의 실제 `boostRatio`와 throttle 재인가 상태가 성립할 때만 power-on traction 축이 작동해야 한다. 따라서 Raven의 회전성과 Seorin의 고속 안정성을 동시에 빼앗지 않으며, boost가 없는 진입에서 Mirae가 전 영역 우승하는 문제를 막는다.
+
+검증 fixture는 동일 코스 구간에서 grip, brake/trail-brake, lift, power-on exit 네 입력을 세 차량에 동일하게 공급한다. entry/apex/exit speed, lateral offset·heading, drift 진입과 회복 시간, 충돌 수, section time을 기록한다. 차량별로 의도한 상황 하나에서는 우위가 나와야 하고, 다른 상황에서는 분명한 비용이 보여야 한다. 30/60/120Hz 결과 차이, recovery, 실제 Chromium 주행도 함께 통과해야 profile 값을 승인한다.
+
+### 1차 구현·검증 (2026-09-17)
+
+`VehicleHandlingProfile`을 추가해 `RuntimeVehicleAsset → createPlayerVehicleRuntimeConfig()` 경로로 연결했다. controller에는 차량 ID 분기가 없고, 공통 상태 기계에 profile이 합성된다. Raven은 조향 응답 1.06·lift 회전 1.10, Seorin은 고속 조향 감쇠 1.12·lift 회전 0.88, Mirae는 조향 응답 0.94·boost 0.70 이상에서만 출구 회복 1.16으로 시작한다.
+
+고정 Bugak 비교(60/120Hz)에서 Raven은 lift 구간의 최대 offset 약 575로 가장 빠르게 자세를 만들고, Seorin은 첫 grip 구간 offset 약 91로 가장 안정적인 고속 라인을 유지했다. Mirae는 boost 0.82의 recovery 한 프레임에서 drift ratio가 0.562→0.556으로 줄었고, boost 0.41에서는 0.562로 일반 회복을 유지했다. 이는 출구 축이 엔진 토크 추가 없이 실제 boost 상태에만 반응함을 확인한 값이다. `qa:vehicle-handling-profile`, vehicle catalog, handling relations, shift character 및 build를 통과했다.
 
 ## 2026-09-16 변속 조건·엔진 특성 반영
 
-Seorin 7→8/Mirae 5→6 변속 조건을 수정하고 NA 고회전 유지, single의 압력 재형성, twin의 짧은 변속과 압력 유지를 프로파일로 분리했다. 엔진 시간 중복 진행도 수정했으며 현재 기록 규칙은 v4다. [구현·성능·브라우저 검증](./apex-seoul-shift-character-review.md)을 현재 기준으로 사용한다. 남은 우선순위는 **구동계/최고속도 목표 정합성 → Mirae의 유리한 상황 검증 → 차량별 handling 설정 TODO**다.
+Seorin 7→8/Mirae 5→6 변속 조건을 수정하고 NA 고회전 유지, single의 압력 재형성, twin의 짧은 변속과 압력 유지를 프로파일로 분리했다. 엔진 시간 중복 진행도 수정했으며 v4 기록은 보존한다. [구현·성능·브라우저 검증](./apex-seoul-shift-character-review.md)을 이전 변속 기준으로 사용한다.
+
+## 2026-09-16 Retry 뒤 코스 오브젝트 소실 조사
+
+**완료.** `ResultScene`의 Retry는 `TimeAttackScene`을 새로 시작한다. 이전 scene의 GameObject는 shutdown 때 파괴되지만, `TimeAttackScene.wallForestSprites` Map은 scene 인스턴스에 남았다. 다음 run에서 같은 나무 ID를 만나면 `syncWallForestSprites()`가 파괴된 Image를 이미 존재하는 sprite로 판단해 새 Image를 만들지 않는 수명주기 결함이었다.
+
+asset cache를 제거하는 경로는 없었다. 도로 Graphics·하늘/parallax·차량은 매 run 다시 만들고, 나무만 scene 수명보다 긴 Map에 보관했다. shutdown에서 Map을 비워 파괴된 Image 참조를 남기지 않는다. 실제 Chromium에서 결과→Retry 10회를 반복해 시작 구간 forest 294개의 live·visible 상태가 매번 첫 run과 같음을 확인했다.
+
+`R` 키의 in-place restart와 결과 화면 Retry는 서로 다른 경로이므로, 이후 scene-owned sprite cache를 추가할 때도 같은 반복 검사를 유지한다.
+
+## 2026-09-16 터보 차량 red-zone limiter 조사
+
+**완료.** 관찰은 맞았지만 원인은 Raven의 주행 limiter가 아니었다. 기존 Raven 6단은 225km/h에서 약 6,000RPM이어서 limiter에 닿지 않았고, 보였던 RPM 변화는 launch control일 수 있었다. Seorin과 Mirae도 최종 기어 RPM 범위가 limiter보다 낮았다.
+
+Raven 6단 비율을 0.97로 조정해 7,750RPM limiter에 도달하게 했고, Seorin 8단과 Mirae 6단의 RPM 상한도 각각 7,000/7,200RPM으로 맞췄다. 목표가 limiter와 정확히 같을 때 RPM smoothing이 임계값 바로 아래에서 멈추던 문제는 1RPM 진입 허용 범위로 해결했다. 자동 상승 변속은 별도 속도 경계로 유지한다.
+
+세 차량은 지속 full throttle에서 limiter 진입·RPM 하강을 보이며, turbo는 fuel cut 중 실제 boost가 빠진다. 30/60/120Hz simulation과 실제 Chromium scene에서 Raven 7,751RPM, Seorin 6,999RPM, Mirae 7,199RPM의 limiter 및 `REV LIMIT` HUD를 확인했다. Raven 평지는 hard cap 없이 약 223.1km/h에서 limiter를 반복하고, 내리막만 225km/h safety cap에 닿는다. 기록 규칙은 `time-attack-v5`이며 v2/v3/v4 PB는 보존하되 현재 PB와 섞지 않는다.
 
 목표: 디버그 주행 환경을 **차량별 운전 전략과 시청각 피드백이 있는 완결된 아케이드 타임어택**으로 전환한다. 각 날짜의 구현·검증 범위는 해당 결과 문서를 따른다.
 

@@ -1,6 +1,6 @@
 # Apex Seoul TSE-6 최고속 회귀 묶음
 
-생성: 2026-09-16T05:39:47.933Z
+생성: 2026-09-16T11:19:49.460Z
 
 상태: **PASS**
 
@@ -12,7 +12,7 @@
 | --- | ---: | ---: | --- |
 | before-level-tse2 | 126.759 | 4 | historical level force equilibrium |
 | before-sh7-runtime | 140.7 | 4 | historical SH-7 runtime observation |
-| after-level-tse4 | 223.953 | 6 | force-equilibrium |
+| after-level-tse4 | 223.211 | 6 | rpm-limiter |
 | after-sh7-runtime-tse5 | 225 | 6 | mild-downhill-safety-cap |
 
 ## The hidden fourth-gear boundary
@@ -25,7 +25,7 @@
 | stage | drive | rolling | aero | net acceleration |
 | --- | ---: | ---: | ---: | ---: |
 | before | 18.343 | 14 | 69.312 | -64.969 |
-| after | 18.348 | 14 | 4.425 | -0.078 |
+| after | 21.187 | 14 | 4.425 | 2.762 |
 
 ## Acceleration preservation
 
@@ -38,7 +38,7 @@
 
 | source | 100→175.34 | 175.34→212.687 | 212.687→223 |
 | --- | ---: | ---: | ---: |
-| deterministic level | 13.767s | 16.517s | 114.017s |
+| deterministic level | 13.767s | 16.517s | 11.967s |
 | runtime SH-7 downhill | 11.213s | 10.78s | 7.966s |
 
 ## Slope relationship
@@ -46,7 +46,7 @@
 | scenario | speed km/h | classification |
 | --- | ---: | --- |
 | uphill | 168.333 | observed-at-300s |
-| level | 223.953 | force-equilibrium |
+| level | 223.211 | rpm-limiter |
 | sh7-mild-downhill | 225 | safety-cap |
 
 Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경사 가속이 남은 safety cap이다.
@@ -55,9 +55,9 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 
 | grade | level corner-only % | downhill corner-only % | downhill raw % | level - downhill pp |
 | --- | ---: | ---: | ---: | ---: |
-| easy | 0.732 | 0 | 0 | 0.732 |
-| medium | 0.673 | 0 | 0 | 0.673 |
-| sharp | 8.204 | 0.094 | 0.094 | 8.11 |
+| easy | 0.557 | 0 | 0 | 0.557 |
+| medium | 0.5 | 0 | 0 | 0.5 |
+| sharp | 7.602 | 0.215 | 0.215 | 7.387 |
 
 과거 HND-3 손실률은 225km/h 직선 자체가 감속하던 상태를 기준으로 했다. TSE-6은 같은 speed/slope/pedal의 calibrated straight control과 코너 출구를 비교한다.
 
@@ -76,13 +76,14 @@ Level은 clamp 없는 force equilibrium이고 SH-7 mild downhill은 양의 경�
 | standingStart0to100Sec | yes | 7.8, 8.3 | 8.133333333 |
 | standingStartGearAt60 | yes | 2 | 2 |
 | standingStartGearAt100 | yes | 3 | 3 |
-| levelNaturalEquilibriumKmh | yes | 223, 225 | 223.952753651 |
+| levelLimiterKmh | yes | 223, 225 | 223.211119851 |
 | levelAvoidsClamp | yes | false | false |
+| levelLimiterCycles | yes | RPM limiter without hard cap | {"classification":"rpm-limiter","frames":4160} |
 | runtimeReaches225 | yes | 225 | 225 |
 | runtimeStraightIsClean | yes | 0 | {"cornerLoss":0,"guardrailImpacts":0,"steering":0} |
-| slopeOrderingAndClassification | yes | uphill < level equilibrium < downhill safety-cap | {"downhill":[225,"safety-cap"],"level":[223.952753650998,"force-equilibrium"],"uphill":[168.332554400046,"observed-at-300s"]} |
-| forceBracketStillNatural | yes | positive / approximately zero / negative at 223 / 224 / 225km/h | 0.074411343, -0.000835686, -0.077549856 |
-| cornerLossUsesCalibratedStraightReference | yes | all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":0.732,"levelMinusDownhillPercentagePoints":0.732}, {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"medium","levelCornerLossPercent":0.673,"levelMinusDownhillPercentagePoints":0.673}, {"downhillCornerLossPercent":0.094,"downhillRawLossPercent":0.094,"grade":"sharp","levelCornerLossPercent":8.204,"levelMinusDownhillPercentagePoints":8.11} |
+| slopeOrderingAndClassification | yes | uphill < level RPM limiter < downhill safety-cap | {"downhill":[225,"safety-cap"],"level":[223.211119851103,"rpm-limiter"],"uphill":[168.332554400046,"observed-at-300s"]} |
+| forceBracketSamplesLimiterCycle | yes | 223/224/225km/h probes include limiter approach and cut phases | {"net":2.652836454607,"rpm":7709.305687035357}, {"net":-8.796896673065,"rpm":7603.678129409306}, {"net":2.76184477963,"rpm":7616.219936450705} |
+| cornerLossUsesCalibratedStraightReference | yes | all grades use non-negative calibrated losses; sharp level loss exceeds safety-cap downhill by >= 5 percentage points | {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"easy","levelCornerLossPercent":0.557,"levelMinusDownhillPercentagePoints":0.557}, {"downhillCornerLossPercent":0,"downhillRawLossPercent":0,"grade":"medium","levelCornerLossPercent":0.5,"levelMinusDownhillPercentagePoints":0.5}, {"downhillCornerLossPercent":0.215,"downhillRawLossPercent":0.215,"grade":"sharp","levelCornerLossPercent":7.602,"levelMinusDownhillPercentagePoints":7.387} |
 
 이 PASS는 최고속 회귀가 고정됐다는 뜻이다. Visual rail과 drift cycle의 통합 실주행 승인은 별도 blocker로 남는다.
 

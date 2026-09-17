@@ -122,7 +122,7 @@ export class GameplayHud {
         this.status = scene.add.text(-86, 10, '', {
             fontFamily: 'monospace', fontSize: '11px', color: '#ffc469',
             backgroundColor: '#081525', padding: { x: 6, y: 3 },
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setVisible(false);
         this.cluster.add(this.status);
         this.timer = scene.add.text(0, 15, '', {
             fontFamily: 'monospace', fontSize: '30px', fontStyle: 'bold', color: '#edf7ff',
@@ -151,9 +151,12 @@ export class GameplayHud {
             const ratio = state.boostRatios[index] ?? 0;
             dial.update(ratio, 54, index === 0 ? BLUE : AMBER, `${Math.round(ratio * 100)}%`);
         });
-        this.status.setText(state.fuelCutActive ? 'REV LIMIT' : this.profile.induction === 'na'
-            ? (state.rpm >= this.profile.shiftDropRpm ? 'NA · HIGH REV' : 'NA')
-            : this.profile.induction === 'twin-turbo' ? 'TWIN TURBO' : 'SINGLE TURBO');
+        // Induction type is fixed for a run and repeats information already
+        // conveyed by the boost instruments. Reserve this position for the
+        // real limiter event instead of a permanent NA/TURBO label.
+        this.status
+            .setText(state.fuelCutActive ? 'REV LIMIT' : '')
+            .setVisible(state.fuelCutActive);
     }
 
     destroy() {

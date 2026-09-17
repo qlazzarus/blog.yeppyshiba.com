@@ -75,7 +75,7 @@
         223,
         225
       ],
-      "value": 223.952753650998
+      "value": 223.211119851103
     },
     {
       "id": "levelTerminalGear",
@@ -90,41 +90,23 @@
       "value": false
     },
     {
-      "id": "levelFiveSecondDeltaKmh",
+      "id": "levelLimiterSpeedSwing",
       "pass": true,
       "target": [
         0,
-        0.02
+        0.3
       ],
-      "value": 0.004307711837
+      "value": 0.13398600377
     },
     {
-      "id": "levelNetAcceleration",
+      "id": "levelUsesRpmLimiter",
       "pass": true,
-      "target": [
-        0,
-        0.02
-      ],
-      "value": 0.002750329243
-    },
-    {
-      "id": "selectedForceBrackets224",
-      "pass": true,
-      "target": "positive at 223, approximately zero at 224, negative at 225",
-      "value": [
-        {
-          "netAcceleration": 0.074411343107,
-          "speedKmh": 223
-        },
-        {
-          "netAcceleration": -0.00083568589,
-          "speedKmh": 224
-        },
-        {
-          "netAcceleration": -0.077549856198,
-          "speedKmh": 225
-        }
-      ]
+      "target": "reaches 7750rpm and drops at least 100rpm while limited",
+      "value": {
+        "frames": 4160,
+        "maxRpm": 7751.800842698314,
+        "minRpmDuringLimiter": 7526.353358939925
+      }
     },
     {
       "id": "slopeSpeedOrdering",
@@ -137,7 +119,7 @@
         },
         {
           "id": "level",
-          "speedKmh": 223.952753650998
+          "speedKmh": 223.211119851103
         },
         {
           "id": "sh7-mild-downhill",
@@ -146,17 +128,25 @@
       ]
     },
     {
-      "id": "onlyDownhillUsesSafetyCap",
+      "id": "levelUsesLimiterDownhillUsesSafetyCap",
       "pass": true,
       "target": {
         "downhill": true,
-        "level": false,
-        "uphill": false
+        "levelLimiter": true
       },
       "value": {
-        "uphill": false,
-        "level": false,
-        "sh7-mild-downhill": true
+        "uphill": {
+          "clamp": false,
+          "limiterFrames": 0
+        },
+        "level": {
+          "clamp": false,
+          "limiterFrames": 4160
+        },
+        "sh7-mild-downhill": {
+          "clamp": true,
+          "limiterFrames": 5552
+        }
       }
     },
     {
@@ -188,7 +178,7 @@
         },
         {
           "speedKmh": 223,
-          "timeSec": 152.433333333333
+          "timeSec": 50.383333333333
         }
       ]
     },
@@ -200,12 +190,6 @@
         0.000001
       ],
       "value": 3e-12
-    },
-    {
-      "id": "levelAvoidsFuelCut",
-      "pass": true,
-      "target": "< 7200 mechanical rpm",
-      "value": 5976.444538410487
     }
   ],
   "constants": {
@@ -219,8 +203,8 @@
     "rollingResistance": 14
   },
   "decision": {
-    "downhillClampInterpretation": "The level road must reach a force equilibrium without the hard cap. A positive SH-7 downhill slope may reach the 225km/h safety cap and is reported as safety-cap, not as equilibrium.",
-    "levelClassification": "force-equilibrium",
+    "downhillClampInterpretation": "The level road reaches the profile RPM limiter without the hard cap. A positive SH-7 downhill slope may reach the 225km/h safety cap and is reported as safety-cap, not as limiter behavior.",
+    "levelClassification": "rpm-limiter",
     "selectedAeroDrag": 0.000007661283,
     "selectedLaunchThrottleFullSpeedRatio": 1
   },
@@ -229,46 +213,46 @@
       "force": {
         "aeroDrag": 4.346837258639,
         "cornerLoss": 0,
-        "drive": 18.421248601746,
+        "drive": 20.999673713246,
         "engineBrake": 0,
-        "netAcceleration": 0.074411343107,
+        "netAcceleration": 2.652836454607,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6191.019178547179,
+      "rpm": 7709.305687035357,
       "speedKmh": 223
     },
     {
       "force": {
         "aeroDrag": 4.385909756671,
         "cornerLoss": 0,
-        "drive": 18.385074070781,
+        "drive": 9.589013083606,
         "engineBrake": 0,
-        "netAcceleration": -0.00083568589,
+        "netAcceleration": -8.796896673065,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6217.70536320434,
+      "rpm": 7603.678129409306,
       "speedKmh": 224
     },
     {
       "force": {
         "aeroDrag": 4.425157075723,
         "cornerLoss": 0,
-        "drive": 18.347607219525,
+        "drive": 21.187001855353,
         "engineBrake": 0,
-        "netAcceleration": -0.077549856198,
+        "netAcceleration": 2.76184477963,
         "rollingResistance": 14,
         "slope": 0
       },
       "gear": 6,
-      "rpm": 6244.391547861503,
+      "rpm": 7616.219936450705,
       "speedKmh": 225
     }
   ],
-  "generatedAt": "2026-09-16T05:39:43.481Z",
+  "generatedAt": "2026-09-16T11:19:46.128Z",
   "pass": true,
   "rows": [
     {
@@ -299,6 +283,9 @@
         5
       ],
       "hitHardClamp": false,
+      "limiterActiveFrames": 0,
+      "maxRpm": 7635.496448637065,
+      "minRpmDuringLimiter": null,
       "hits": {
         "60": {
           "gear": 2,
@@ -353,23 +340,23 @@
       "slopeAcceleration": -10
     },
     {
-      "classification": "force-equilibrium",
+      "classification": "rpm-limiter",
       "end": {
         "force": {
-          "aeroDrag": 4.384059257769,
+          "aeroDrag": 4.354576034716,
           "cornerLoss": 0,
-          "drive": 18.386809587011,
+          "drive": 20.928861199039,
           "engineBrake": 0,
-          "netAcceleration": 0.002750329243,
+          "netAcceleration": 2.574285164323,
           "rollingResistance": 14,
           "slope": 0
         },
         "gear": 6,
-        "mechanicalRpm": 5976.444538410487,
-        "rpm": 6216.441239692756,
-        "speedKmh": 223.952753650998,
-        "speedUnitPerSec": 756.46263455448,
-        "windowSpeedDeltaKmh": 0.004307711837
+        "mechanicalRpm": 7533.185876169707,
+        "rpm": 7724.76253981736,
+        "speedKmh": 223.211119851103,
+        "speedUnitPerSec": 753.957560385949,
+        "windowSpeedDeltaKmh": 0.13398600377
       },
       "forceIdentityErrorMax": 3e-12,
       "gearsVisited": [
@@ -381,6 +368,9 @@
         6
       ],
       "hitHardClamp": false,
+      "limiterActiveFrames": 4160,
+      "maxRpm": 7751.800842698314,
+      "minRpmDuringLimiter": 7526.353358939925,
       "hits": {
         "60": {
           "gear": 2,
@@ -392,7 +382,7 @@
         },
         "223": {
           "gear": 6,
-          "timeSec": 152.433333333333
+          "timeSec": 50.383333333333
         },
         "175.34": {
           "gear": 5,
@@ -408,7 +398,7 @@
       "segmentTimes": {
         "100-175.34": 13.766666666667,
         "175.34-212.687": 16.516666666667,
-        "212.687-223": 114.016666666667
+        "212.687-223": 11.966666666667
       },
       "shifts": [
         {
@@ -453,20 +443,20 @@
       "classification": "safety-cap",
       "end": {
         "force": {
-          "aeroDrag": 4.425157075723,
+          "aeroDrag": 4.423954112638,
           "cornerLoss": 0,
-          "drive": 18.347607219525,
+          "drive": 21.189357632557,
           "engineBrake": 0,
-          "netAcceleration": 3.910147145114,
+          "netAcceleration": 6.753100521231,
           "rollingResistance": 14,
           "slope": 3.987697001312
         },
         "gear": 6,
-        "mechanicalRpm": 6004.391547861506,
-        "rpm": 6244.391547861503,
+        "mechanicalRpm": 7593.559063136456,
+        "rpm": 7616.219936450705,
         "speedKmh": 225,
         "speedUnitPerSec": 760,
-        "windowSpeedDeltaKmh": 0
+        "windowSpeedDeltaKmh": 0.030584800367
       },
       "forceIdentityErrorMax": 3e-12,
       "gearsVisited": [
@@ -478,6 +468,9 @@
         6
       ],
       "hitHardClamp": true,
+      "limiterActiveFrames": 5552,
+      "maxRpm": 7753.958168425462,
+      "minRpmDuringLimiter": 7526.350944146683,
       "hits": {
         "60": {
           "gear": 2,
@@ -489,7 +482,7 @@
         },
         "223": {
           "gear": 6,
-          "timeSec": 37.433333333333
+          "timeSec": 34.266666666667
         },
         "175.34": {
           "gear": 5,
@@ -505,7 +498,7 @@
       "segmentTimes": {
         "100-175.34": 11.25,
         "175.34-212.687": 10.75,
-        "212.687-223": 8.05
+        "212.687-223": 4.883333333333
       },
       "shifts": [
         {
