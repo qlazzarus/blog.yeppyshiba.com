@@ -33,7 +33,7 @@ try {
     await page.waitForFunction(() => window.__saveTestGame.scene.isActive('main'));
     await press('ArrowDown'); await press('ArrowDown'); await press('Enter');
     await page.waitForFunction(() => window.__saveTestGame.scene.isActive('options'));
-    for (let i = 0; i < 7; i++) await press('ArrowDown');
+    for (let i = 0; i < 6; i++) await press('ArrowDown');
     await press('Enter');
     assert((await labels()).some(t => t.includes('Press again')));
     await press('Enter');

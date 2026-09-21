@@ -1,14 +1,13 @@
 export const GAME_SETTINGS_KEY = 'apex-seoul:settings:v1';
 
 export type GameSettings = {
+    controlScheme: 'virtual' | 'motion';
     debugMode: boolean;
     masterVolume: number;
     musicVolume: number;
     reducedMotion: boolean;
     sfxVolume: number;
     steeringSensitivity: number;
-    touchControls: boolean;
-    vibration: boolean;
 };
 
 export type GameSettingsSaveStatus = 'saved' | 'memory-only' | 'unsupported-version';
@@ -17,14 +16,13 @@ type StoragePort = Pick<Storage, 'getItem' | 'setItem'>;
 type SettingsDocument = GameSettings & { schemaVersion: 1 };
 
 const defaults = (): GameSettings => ({
+    controlScheme: 'virtual',
     debugMode: false,
     masterVolume: 80,
     musicVolume: 65,
     reducedMotion: false,
     sfxVolume: 85,
     steeringSensitivity: 70,
-    touchControls: true,
-    vibration: true,
 });
 
 const range = (value: unknown, fallback: number) =>
@@ -33,20 +31,20 @@ const range = (value: unknown, fallback: number) =>
         : fallback;
 
 const bool = (value: unknown, fallback: boolean) => typeof value === 'boolean' ? value : fallback;
+const controlScheme = (value: unknown): GameSettings['controlScheme'] => value === 'motion' ? 'motion' : 'virtual';
 
 function normalize(value: unknown): GameSettings {
     const fallback = defaults();
     if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback;
     const source = value as Record<string, unknown>;
     return {
+        controlScheme: controlScheme(source.controlScheme),
         debugMode: bool(source.debugMode, fallback.debugMode),
         masterVolume: range(source.masterVolume, fallback.masterVolume),
         musicVolume: range(source.musicVolume, fallback.musicVolume),
         reducedMotion: bool(source.reducedMotion, fallback.reducedMotion),
         sfxVolume: range(source.sfxVolume, fallback.sfxVolume),
         steeringSensitivity: range(source.steeringSensitivity, fallback.steeringSensitivity),
-        touchControls: bool(source.touchControls, fallback.touchControls),
-        vibration: bool(source.vibration, fallback.vibration),
     };
 }
 

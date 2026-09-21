@@ -10,10 +10,10 @@ class MemoryStorage {
 const storage = new MemoryStorage();
 const store = new GameSettingsStore(() => storage);
 assert.equal(store.getSettings().debugMode, false);
-assert.equal(store.update({ debugMode: true, steeringSensitivity: 73 }), 'saved');
+assert.equal(store.update({ controlScheme: 'motion', debugMode: true, steeringSensitivity: 73 }), 'saved');
 assert.deepEqual(new GameSettingsStore(() => storage).getSettings(), {
-    debugMode: true, masterVolume: 80, musicVolume: 65, reducedMotion: false,
-    sfxVolume: 85, steeringSensitivity: 73, touchControls: true, vibration: true,
+    controlScheme: 'motion', debugMode: true, masterVolume: 80, musicVolume: 65,
+    reducedMotion: false, sfxVolume: 85, steeringSensitivity: 73,
 });
 storage.setItem(GAME_SETTINGS_KEY, JSON.stringify({ schemaVersion: 2 }));
 assert.equal(new GameSettingsStore(() => storage).update({ debugMode: true }), 'unsupported-version');

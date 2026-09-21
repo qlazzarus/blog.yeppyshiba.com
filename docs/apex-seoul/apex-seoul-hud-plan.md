@@ -120,6 +120,35 @@ GameplayHudState (후속 확장안)
 
 `TouchDriveControls`는 `DriveCommand`로만 입력을 전달하며 keyboard 입력과 병합한다. touch UI가 차량 물리, HUD 수치, 저장 설정을 직접 변경해서는 안 된다. `TOUCH CONTROLS` 옵션은 `GameSettingsStore`에 저장되고 실제 control 생성·비활성화에 반영되어야 한다.
 
+### Motion steering·양쪽 페달 설계 — P3-4
+
+가로 모바일의 기본 driving scheme은 **가상 4버튼**이다. 하단 좌측의 `← / →`가 조향, 하단 우측의 `BRAKE / ACCEL`이 제동·가속을 맡는다. 이는 센서 권한 거부·미지원에서도 한 lap을 완주할 수 있는 완전한 fallback이다. Motion Steering을 켜면 조향 버튼은 숨기고 스마트폰 기울기가 조향을 맡으며, `BRAKE / ACCEL` 페달은 그대로 유지한다.
+
+페달은 화면 전체를 누르는 방식이 아니라 차량·HUD·pause 영역과 겹치지 않는 하단 safe-area 안의 명시적 hold control로 둔다. left pointer가 브레이크, right pointer가 가속이며 `pointerdown` 동안만 유지한다. 두 페달이 동시에 눌리면 brake가 우선하고, `pointerup`·`pointercancel`·blur·세로 전환·scene shutdown에서는 두 상태를 즉시 해제한다.
+
+설정 저장 모델은 서로 충돌하는 boolean 대신 `controlScheme: 'virtual' | 'motion'`을 사용한다. 기본값은 `virtual`이며 PC는 keyboard를 계속 우선한다. Options에는 `MOTION STEERING  ON / OFF`만 표시한다. ON은 권한·calibration이 성공하기 전까지 저장하지 않으며, OFF는 즉시 virtual 4버튼으로 돌아간다.
+
+조향은 `DeviceOrientationEvent`의 기울기만 읽어 `-1…1` 아날로그 `steerAxis`로 보낸다. compass/heading인 `alpha`는 사용하지 않는다. keyboard는 기존의 정확한 `-1/0/1` 값을 유지하고, keyboard 방향키가 눌린 동안에는 keyboard가 motion보다 우선한다. controller는 이미 수치 steer axis를 받으므로 P3-4에서 `DriveCommand`와 `mergeDriveCommands()`의 이산형 타입만 연속 값 계약으로 바꾼다. 기존 자동 QA fixture는 그대로 `-1/0/1`을 공급해 desktop 기준선을 보존한다.
+
+#### 권한·calibration·fallback
+
+- 센서 리스너와 권한 요청은 첫 `ENABLE MOTION STEERING` tap처럼 명시적인 사용자 제스처 뒤에만 시작한다. 권한이 없는 브라우저에서는 요청하지 않고 지원 여부를 표시한다.
+- 허용 뒤 `HOLD LEVEL` 안내 동안 250–500ms의 안정된 샘플 median을 neutral로 잡는다. 사용자는 pause 메뉴/설정에서 다시 calibration할 수 있어야 하며, 주행 중 임의 자동 recentre는 하지 않는다.
+- permission 거부·센서 미지원·초기 calibration 실패는 설정을 즉시 `virtual`로 유지/복귀하고 원인을 한 줄로 알린다. 센서 권한이 없다는 이유로 mobile run을 시작 불가 상태로 만들지 않는다. 주행 중 이벤트가 250ms 이상 끊기면 steer `0`으로 fail-safe 처리하고 virtual 조향 버튼을 다시 보인다.
+- raw angle은 dead zone 약 ±2.5–3°, full steer 약 18–22°, 80–120ms 저역 필터와 완만한 비선형 curve를 거친다. `STEERING SENSITIVITY`는 **motion mode에서만** full-steer angle/gain을 조절하며 물리 설정을 직접 바꾸지 않는다. virtual·keyboard mode에서는 숨기거나 disabled `MOTION ONLY` 상태로 표시하고 값을 적용하지 않는다.
+
+#### 기울기와 화면 회전의 분리
+
+기울기 조향은 화면 회전 판정에 사용하지 않는다. 화면 회전은 CSS display size, `resize`, `screen.orientation` 변화만으로 판정한다. `screen.orientation.angle`에 맞춰 beta/gamma 축을 가로 화면 기준의 하나의 steering angle로 변환하므로 OS가 landscape 방향을 바꿔도 좌우 조향 의미가 뒤집히지 않는다.
+
+실제 orientation change가 오면 즉시 motion sample·페달 held state를 무효화하고 P3-1의 `ROTATE DEVICE` pause로 들어간다. 가로 복귀 뒤 `TAP TO RESUME` 다음에 다시 neutral calibration을 거쳐야 한다. Screen Orientation API의 landscape lock은 지원되는 fullscreen 환경에서만 선택적으로 시도하며, lock 실패는 정상 fallback으로 취급한다.
+
+#### 범위와 검증
+
+Vibration API/haptic feedback은 이 playable 범위에서 지원하지 않는다. 따라서 Options에 `VIBRATION` 항목을 두지 않고, 충돌·shift·limiter 피드백은 HUD·소리·시각 효과로만 전달한다.
+
+P3-4 승인에는 30/60/120Hz에서 같은 calibration fixture의 steering output, 권한 허용/거부/미지원, 센서 stale, landscape 0°/90°/180°/270° 축 변환, 회전 중 페달 held, blur/retry/scene shutdown listener 정리, fallback 조향으로 한 lap 완주을 포함한다. 실제 기기에서 left/right pedal과 HUD·progress가 safe-area 안에서 겹치지 않는지도 확인한다.
+
 모바일 회귀 승인은 최소 `844×390`, `667×375`, 짧은 높이의 `640×360` 가로 viewport에서 screenshot과 실제 pointer flow로 수행한다. 각 viewport에서 메뉴의 hit area, garage 4단계, Records/Credits scroll·back, countdown/주행/finish, result retry·main 복귀 및 page error 없음을 확인한다.
 
 ### 메뉴별 모바일 개선 목록
