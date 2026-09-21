@@ -32,9 +32,8 @@ export class OptionsScene extends Phaser.Scene {
         const panelX = (width - panelWidth) / 2;
         const settings = gameSettingsStore.getSettings();
         const rows: OptionRow[] = [
+            { kind: 'toggle', label: 'MOTION STEERING', setting: 'controlScheme', value: settings.controlScheme === 'motion' },
             { kind: 'range', label: 'STEERING SENSITIVITY', setting: 'steeringSensitivity', value: settings.steeringSensitivity },
-            { kind: 'toggle', label: 'TOUCH CONTROLS', setting: 'touchControls', value: settings.touchControls },
-            { kind: 'toggle', label: 'VIBRATION', setting: 'vibration', value: settings.vibration },
             { kind: 'range', label: 'MASTER VOLUME', setting: 'masterVolume', value: settings.masterVolume },
             { kind: 'range', label: 'MUSIC VOLUME', setting: 'musicVolume', value: settings.musicVolume },
             { kind: 'range', label: 'SFX VOLUME', setting: 'sfxVolume', value: settings.sfxVolume },
@@ -43,8 +42,8 @@ export class OptionsScene extends Phaser.Scene {
         ];
         const sectionStarts = new Map<number, string>([
             [0, 'CONTROLS'],
-            [3, 'AUDIO'],
-            [6, 'DATA'],
+            [2, 'AUDIO'],
+            [5, 'DATA'],
         ]);
         const visuals: RowVisual[] = [];
         let resetArmed = false;
@@ -84,19 +83,32 @@ export class OptionsScene extends Phaser.Scene {
             if (row.kind === 'reset') return active ? 'ENTER ›' : 'ENTER';
             return row.value ? 'ON' : 'OFF';
         };
+        const isEnabled = (row: OptionRow) =>
+            row.setting !== 'steeringSensitivity' || rows.some(item => item.setting === 'controlScheme' && item.value === true);
+        const persist = (row: OptionRow) => {
+            if (!row.setting) return;
+            if (row.setting === 'controlScheme') {
+                gameSettingsStore.update({ controlScheme: row.value ? 'motion' : 'virtual' });
+                return;
+            }
+            gameSettingsStore.update({ [row.setting]: row.value } as Partial<GameSettings>);
+        };
         const update = () => {
             rows.forEach((row, index) => {
-                const active = index === selectedIndex;
+                const enabled = isEnabled(row);
+                const active = index === selectedIndex && enabled;
                 const visual = visuals[index];
                 const isReset = row.kind === 'reset';
                 visual.control.setFillStyle(
-                    active ? UI_THEME.amber : isReset ? 0x281b12 : UI_THEME.background,
+                    active ? UI_THEME.amber : !enabled ? 0x161b20 : isReset ? 0x281b12 : UI_THEME.background,
                 );
                 visual.control.setStrokeStyle(
                     1,
                     active
                         ? UI_THEME.amberHighlight
-                        : isReset
+                        : !enabled
+                          ? 0x34373b
+                          : isReset
                           ? 0x9e6b32
                           : UI_THEME.borderMuted,
                 );
@@ -104,7 +116,9 @@ export class OptionsScene extends Phaser.Scene {
                 visual.label.setColor(
                     active
                         ? UI_THEME.menuSelectedTextHex
-                        : isReset
+                        : !enabled
+                          ? UI_THEME.secondaryTextHex
+                          : isReset
                           ? '#d49a55'
                           : UI_THEME.menuTextHex,
                 );
@@ -113,7 +127,9 @@ export class OptionsScene extends Phaser.Scene {
                     .setColor(
                         active
                             ? UI_THEME.menuSelectedTextHex
-                            : isReset
+                            : !enabled
+                              ? UI_THEME.secondaryTextHex
+                              : isReset
                               ? '#d49a55'
                               : UI_THEME.amberHighlightHex,
                     );
@@ -126,9 +142,9 @@ export class OptionsScene extends Phaser.Scene {
                         4,
                     );
                     visual.rangeFill.setFillStyle(
-                        active ? UI_THEME.background : UI_THEME.amber,
+                        !enabled ? 0x34373b : active ? UI_THEME.background : UI_THEME.amber,
                     );
-                    visual.rangeTrack.setFillStyle(active ? 0xc58d22 : 0x34373b);
+                    visual.rangeTrack.setFillStyle(!enabled ? 0x24272b : active ? 0xc58d22 : 0x34373b);
                 }
                 if (row.kind === 'toggle' && visual.toggleTrack && visual.toggleKnob) {
                     const enabled = Boolean(row.value);
@@ -184,6 +200,7 @@ export class OptionsScene extends Phaser.Scene {
         const adjust = (direction: -1 | 1) => {
             if (selectedIndex === backIndex) return;
             const row = rows[selectedIndex];
+            if (!isEnabled(row)) return;
             if (row.kind === 'range')
                 row.value = Phaser.Math.Clamp(
                     Number(row.value) + direction * 5,
@@ -191,14 +208,22 @@ export class OptionsScene extends Phaser.Scene {
                     100,
                 );
             if (row.kind === 'toggle') row.value = direction > 0;
-            if (row.setting) gameSettingsStore.update({ [row.setting]: row.value } as Partial<GameSettings>);
+            persist(row);
             update();
         };
         const select = (index: number) => {
             const next = Phaser.Math.Wrap(index, 0, rows.length + 1);
+            if (next !== backIndex && !isEnabled(rows[next])) return;
             if (next !== selectedIndex) { resetArmed = false; resetNotice.setText(''); }
             selectedIndex = next;
             update();
+        };
+        const move = (direction: -1 | 1) => {
+            let next = selectedIndex;
+            for (let attempt = 0; attempt <= rows.length; attempt += 1) {
+                next = Phaser.Math.Wrap(next + direction, 0, rows.length + 1);
+                if (next === backIndex || isEnabled(rows[next])) return select(next);
+            }
         };
 
         let rowTop = 178;
@@ -357,10 +382,11 @@ export class OptionsScene extends Phaser.Scene {
         const activate = () => {
             if (selectedIndex === backIndex) return returnToMain();
             const row = rows[selectedIndex];
+            if (!isEnabled(row)) return;
             if (row.kind === 'range') adjust(1);
             if (row.kind === 'toggle') {
                 row.value = !row.value;
-                if (row.setting) gameSettingsStore.update({ [row.setting]: row.value } as Partial<GameSettings>);
+                persist(row);
                 update();
             }
             if (row.kind === 'reset') {
@@ -379,8 +405,8 @@ export class OptionsScene extends Phaser.Scene {
             select(backIndex);
             activate();
         });
-        this.input.keyboard?.on('keydown-UP', () => select(selectedIndex - 1));
-        this.input.keyboard?.on('keydown-DOWN', () => select(selectedIndex + 1));
+        this.input.keyboard?.on('keydown-UP', () => move(-1));
+        this.input.keyboard?.on('keydown-DOWN', () => move(1));
         this.input.keyboard?.on('keydown-LEFT', () => adjust(-1));
         this.input.keyboard?.on('keydown-RIGHT', () => adjust(1));
         this.input.keyboard?.on('keydown-ENTER', (event: KeyboardEvent) => { if (!event.repeat) activate(); });

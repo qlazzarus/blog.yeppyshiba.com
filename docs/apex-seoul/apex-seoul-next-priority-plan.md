@@ -165,10 +165,11 @@ P3는 P1-3 소리·효과와 P1-4 garage 설명 뒤에 착수하는 **가로 모
 1. **P3-1 — 표시 크기·orientation 기반:** `Phaser.Scale.FIT`의 logical size와 CSS display size를 분리한다. 가로 mobile layout mode, 세로 `ROTATE DEVICE` overlay, safe-area 측정, resize/orientation pause/resume을 먼저 만든다. logical `width < 680`만으로 mobile을 판정하지 않는다.
 2. **P3-2 — 메뉴 pointer flow:** `MainScene`, `VehicleSelectScene`, `ResultScene`의 실제 hit area를 최소 44×44 CSS px로 보장하고, garage 4단계·result Retry/Main을 pointer만으로 완료하게 한다. hover는 필수가 아니다.
 3. **P3-3 — 탐색·설정:** `RecordsScene`/`AssetNoticesScene`에 drag scroll과 visible Back을 추가한다. `OptionsScene`은 `GameSettingsStore`를 통해 steering/audio/debug/reduced motion/touch 값을 영속화하고 실제 runtime에 적용한다. reset의 두 단계 확인과 취소도 touch로 가능해야 한다.
-4. **P3-4 — 주행 touch와 HUD:** `DriveCommand`/`mergeDriveCommands()`에 `TouchDriveControls`를 연결한다. keyboard/touch 동시 입력, pointer cancel, blur, pause, audio unlock을 처리하고 HUD·progress·controls·notch/home indicator가 겹치지 않게 배치한다.
-5. **P3-5 — 실제 기기 release QA:** `844×390`, `667×375`, `640×360` 가로 viewport에서 Main의 네 메뉴, garage 4단계, Records/Credits scroll·back, 정상 완주, Result retry/main을 실제 pointer flow로 검증한다. 세로 진입·orientation 전환, 10회 retry listener/audio/particle 누적, storage 거부/손상, 30/60/120fps 기록 오차와 실제 기기 성능도 확인한다.
+4. **P3-4 — motion steering·주행 touch와 HUD:** 기본 `controlScheme: 'virtual'`은 `← / → / BRAKE / ACCEL` 가상 4버튼으로 완전한 주행을 제공한다. `motion`은 기울기 조향만 대체하고 두 페달은 유지한다. `DriveCommand`/`mergeDriveCommands()`를 연속 steer axis로 확장하고 `MotionSteeringController` 및 `TouchDriveControls`를 연결한다. Options의 Motion ON은 사용자 제스처 기반 권한·neutral calibration이 성공한 뒤에만 저장하며, 거부·미지원·초기 실패는 virtual로 복귀한다. screen orientation 축 보정, 센서 stale fallback, keyboard 우선, pointer cancel/blur/pause/audio unlock을 처리한다. `STEERING SENSITIVITY`는 motion mode에서만 적용한다. HUD·progress·controls·notch/home indicator가 겹치지 않게 배치한다. 세부 계약은 [HUD 설계](./apex-seoul-hud-plan.md#motion-steering양쪽-페달-설계--p3-4)를 따른다. Vibration은 지원 범위에서 제외한다.
+5. **P3-5 — 설치형 PWA와 내부 설치 UX:** 설치 시작점은 iframe/hub가 아닌 독립 게임 경로 `/game-assets/apex-seoul/`로 고정한다. 게임 source `public/`에서 manifest·192/512·maskable icon을 빌드 산출물로 복사하고, manifest의 `id`/`start_url`/`scope`와 service worker scope를 모두 `/game-assets/apex-seoul/`로 제한한다. `beforeinstallprompt`를 저장해 installable Chromium에서만 `INSTALL APP` action을 보이고, 한 번의 prompt 뒤·`appinstalled` 뒤에는 숨긴다. iframe 안에서는 독립 화면으로 열기를 제공하며, iOS 및 prompt 미지원 환경은 browser mode에서만 홈 화면 추가 방법을 안내한다. service worker와 offline cache는 설치 버튼과 별도 단계이며, 도입 시 게임 runtime asset만 대상으로 하고 race 중 update/reload를 금지한다.
+6. **P3-6 — 실제 기기 release QA:** `844×390`, `667×375`, `640×360` 가로 viewport에서 Main의 네 메뉴, garage 4단계, Records/Credits scroll·back, 정상 완주, Result retry/main을 실제 pointer flow로 검증한다. 세로 진입·orientation 전환, 10회 retry listener/audio/particle 누적, storage 거부/손상, 30/60/120fps 기록 오차와 실제 기기 성능도 확인한다. PWA는 Android Chromium 설치 prompt·설치 후 standalone launch·update 안내, iPhone/iPad의 수동 홈 화면 추가 안내·standalone launch를 각각 실제 기기에서 확인한다.
 
-P3 완료 기준: 세 차량×네 색상에서 키보드 없이 `Main → garage → run → result → retry/main`을 수행하고, Records/Credits/Options을 touch로 탐색·복귀·저장할 수 있다. 모든 메뉴 action은 정확히 한 번만 scene 전환하며, 세로 화면은 입력을 막고 run을 안전하게 pause한다. 신규 사용자 완주·retry 관찰과 차량 식별 검증을 통과한 뒤 공개 playable로 승인한다. 세부 QA는 [HUD 설계](./apex-seoul-hud-plan.md#landscape-only-모바일-정책)와 [전환 설계](./apex-seoul-playable-game-plan.md)의 검증 시나리오를 함께 따른다.
+P3 완료 기준: 세 차량×네 색상에서 키보드 없이 `Main → garage → run → result → retry/main`을 수행하고, Records/Credits/Options을 touch로 탐색·복귀·저장할 수 있다. 모든 메뉴 action은 정확히 한 번만 scene 전환하며, 세로 화면은 입력을 막고 run을 안전하게 pause한다. 설치 가능한 환경에서는 게임 안의 action으로 browser-native install prompt 또는 플랫폼별 수동 설치 안내에 도달하고, 설치된 앱은 독립 게임 경로로 실행된다. 신규 사용자 완주·retry 관찰과 차량 식별 검증을 통과한 뒤 공개 playable로 승인한다. 세부 QA는 [HUD 설계](./apex-seoul-hud-plan.md#landscape-only-모바일-정책)와 [전환 설계](./apex-seoul-playable-game-plan.md)의 검증 시나리오를 함께 따른다.
 
 ### P3-1 1차 구현 (2026-09-21)
 
@@ -180,7 +181,17 @@ P3 완료 기준: 세 차량×네 색상에서 키보드 없이 `Main → garage
 
 `RecordsScene`에 항상 보이는 `BACK TO MENU` pointer action을 추가하고, Records와 `AssetNoticesScene` 모두 wheel 외의 pointer drag scroll을 지원한다. drag/pointer listener는 scene shutdown 때 해제해 Main으로 돌아온 뒤에도 이전 목록의 입력이 남지 않게 한다. 이는 모바일에서 Records를 나갈 수 없던 즉시 결함을 해소하는 탐색 pass이며, 실제 44px hit area·safe-area 재배치는 P3-2, `GameSettingsStore`와 Options의 실제 설정 적용은 P3-3의 다음 pass로 남는다.
 
-`GameSettingsStore` 1차 구현으로 Options의 steering/audio/touch/vibration/debug 값도 별도 `apex-seoul:settings:v1` 문서에 영속화한다. `DEBUG MODE`는 다음 `TimeAttackScene` 시작 시 기존 debug HUD를 켜며, `?debugHud=1` URL override도 유지한다. `RESET LOCAL RECORDS`는 이미 `RunRecordStore.resetRecords()`를 호출하므로 화면 이름을 `RESET RECORDS`로 단순화했다. 오디오·진동·touch control은 아직 runtime presenter/controller가 없으므로 값만 보존하며 동작 완료로 주장하지 않는다.
+`GameSettingsStore` 1차 구현으로 Options의 steering/audio/control scheme/debug 값도 별도 `apex-seoul:settings:v1` 문서에 영속화한다. `MOTION STEERING`은 기본 `virtual`/후속 `motion` scheme을 고르고, `STEERING SENSITIVITY`는 motion 선택 때만 활성화한다. 실제 센서 권한·입력 controller 연결은 P3-4에서 수행한다. `DEBUG MODE`는 다음 `TimeAttackScene` 시작 시 기존 debug HUD를 켜며, `?debugHud=1` URL override도 유지한다. `RESET LOCAL RECORDS`는 이미 `RunRecordStore.resetRecords()`를 호출하므로 화면 이름을 `RESET RECORDS`로 단순화했다. Vibration은 지원 범위에서 제외해 Options와 저장 모델에서도 제거했다. 오디오는 아직 runtime presenter가 없으므로 값만 보존하며 동작 완료로 주장하지 않는다.
+
+### P3-5 PWA 설치 방향 (2026-09-21, 구현 전)
+
+현재 Apex Seoul은 `manifest.webmanifest`, 앱 icon, service worker, `beforeinstallprompt` 처리 없이 Vite 번들을 `/game-assets/apex-seoul/`에 복사하는 구조다. 따라서 `public/game-assets/apex-seoul/`에 결과물을 직접 추가하지 않는다. `build:games`가 이 디렉터리를 매번 비우므로, 게임의 `games/apex-seoul/public/`을 source of truth로 두고 Vite가 `dist`에 복사한 뒤 기존 build script가 public 경로로 옮기게 한다.
+
+설치 대상은 `/games/apex-seoul/`의 iframe 또는 `/play/apex-seoul/` 래퍼가 아니라 `/game-assets/apex-seoul/`의 독립 게임이다. manifest의 `id`, `start_url`, `scope`는 이 경로로 통일하고, service worker를 추가할 때도 같은 하위 경로에 두어 블로그·다른 게임·`/play/`를 제어하지 않게 한다. standalone 실행에도 기존 mobile display guard와 세로 pause/resume 정책을 그대로 적용한다.
+
+게임 안의 `INSTALL APP` UI는 browser-native prompt를 대체하는 가짜 설치 버튼이 아니다. installable Chromium이 준 `beforeinstallprompt` event를 보관했다가 명시적 tap에서 단 한 번 `prompt()`하는 action이다. event가 없거나 이미 standalone이면 action을 숨긴다. iframe 안에서는 설치를 시도하지 않고 독립 게임 화면으로 여는 action을 제공한다. iOS와 prompt 미지원 browser에서는 설치를 강제할 수 없으므로, browser display mode에서만 홈 화면 추가 방법을 안내한다. 이 UI 상태는 개인 기록이나 game settings에 저장하지 않는다.
+
+초기 P3-5의 목표는 **설치 가능한 앱과 안전한 안내**다. offline까지 즉시 약속하지 않는다. service worker는 후속 pass에서 hash된 runtime asset만 cache 대상으로 정하고, manifest/HTML 새 버전은 menu에서만 안내·적용한다. race 도중 worker update·skip waiting·강제 reload를 실행하지 않으며 cache reset과 `RunRecordStore`의 local record reset도 분리한다.
 
 P0의 pause/시간 보호는 P3까지 미루지 않는다. P1의 소리에 필요한 최소 volume/mute·설정 연결도 그 단계에서 함께 구현한다. P3는 전체 플랫폼 통합 승인이다.
 
