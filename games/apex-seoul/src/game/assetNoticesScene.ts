@@ -16,6 +16,8 @@ export class AssetNoticesScene extends Phaser.Scene {
         const visibleRowCount = Math.max(1, Math.floor((listBottom - listTop) / rowHeight));
         let scrollIndex = 0;
         let backSelected = false;
+        let dragPointerId: number | null = null;
+        let dragLastY = 0;
 
         this.cameras.main.setBackgroundColor(UI_THEME.backgroundHex);
         const graphics = this.add.graphics();
@@ -72,10 +74,11 @@ export class AssetNoticesScene extends Phaser.Scene {
             back.setStrokeStyle(1, selected ? UI_THEME.amberHighlight : UI_THEME.borderMuted);
             backLabel.setColor(selected ? UI_THEME.menuSelectedTextHex : UI_THEME.menuTextHex);
         };
-        const onWheel = (_pointer: Phaser.Input.Pointer, _over: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => {
-            const next = Phaser.Math.Clamp(scrollIndex + Math.sign(deltaY), 0, Math.max(0, ASSET_ATTRIBUTIONS.length - visibleRowCount));
+        const scroll = (direction: number) => {
+            const next = Phaser.Math.Clamp(scrollIndex + Math.sign(direction), 0, Math.max(0, ASSET_ATTRIBUTIONS.length - visibleRowCount));
             if (next !== scrollIndex) { scrollIndex = next; render(); }
         };
+        const onWheel = (_pointer: Phaser.Input.Pointer, _over: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => scroll(deltaY);
         back.on('pointerup', returnToMain);
         back.on('pointerover', () => {
             setBackSelected(true);
@@ -98,7 +101,29 @@ export class AssetNoticesScene extends Phaser.Scene {
         };
         const activate = () => { if (backSelected) returnToMain(); };
         const focusBack = () => setBackSelected(true);
+        const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+            if (pointer.y < listTop || pointer.y > listBottom) return;
+            dragPointerId = pointer.id;
+            dragLastY = pointer.y;
+        };
+        const onPointerMove = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointerId !== pointer.id) return;
+            const distance = dragLastY - pointer.y;
+            if (Math.abs(distance) < rowHeight) return;
+            scroll(distance);
+            dragLastY = pointer.y;
+        };
+        const onPointerEnd = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointerId !== pointer.id) return;
+            if (Math.abs(dragLastY - pointer.y) >= rowHeight / 3)
+                scroll(dragLastY - pointer.y);
+            dragPointerId = null;
+        };
         this.input.on('wheel', onWheel);
+        this.input.on('pointerdown', onPointerDown);
+        this.input.on('pointermove', onPointerMove);
+        this.input.on('pointerup', onPointerEnd);
+        this.input.on('pointerupoutside', onPointerEnd);
         this.input.keyboard?.on('keydown-UP', scrollUp);
         this.input.keyboard?.on('keydown-DOWN', scrollDown);
         this.input.keyboard?.on('keydown-TAB', focusBack);
@@ -107,6 +132,10 @@ export class AssetNoticesScene extends Phaser.Scene {
         this.input.keyboard?.on('keydown-ESC', returnToMain);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.input.off('wheel', onWheel);
+            this.input.off('pointerdown', onPointerDown);
+            this.input.off('pointermove', onPointerMove);
+            this.input.off('pointerup', onPointerEnd);
+            this.input.off('pointerupoutside', onPointerEnd);
             this.input.keyboard?.off('keydown-UP', scrollUp);
             this.input.keyboard?.off('keydown-DOWN', scrollDown);
             this.input.keyboard?.off('keydown-TAB', focusBack);

@@ -1,0 +1,14 @@
+{
+    "$schema": "../../node_modules/wrangler/config-schema.json",
+    "name": "yeppyshiba-resident-verification",
+    "main": "src/index.ts",
+    "compatibility_date": "2026-09-21",
+    "compatibility_flags": ["nodejs_compat"],
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+    },
+    "secrets": {
+        "required": ["RESIDENT_ENTRY_PASSWORD", "KAKAO_OPEN_CHAT_URL"]
+    }
+}

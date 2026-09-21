@@ -19,6 +19,8 @@ pnpm-debug.log*
 .env.production
 workers/view-counter/.dev.vars
 workers/view-counter/.wrangler
+workers/resident-verification/.dev.vars
+workers/resident-verification/.wrangler
 
 # macOS-specific files
 .DS_Store

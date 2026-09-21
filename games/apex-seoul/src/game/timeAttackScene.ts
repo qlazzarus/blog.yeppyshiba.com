@@ -150,6 +150,14 @@ import {
 import * as PLAYER_DEFAULTS from './playerVehicleDefaults';
 import { createPlayerVehicleRuntimeConfig } from './playerVehicleDefaults';
 import { RuntimeTelemetryRecorder } from './runtimeTelemetry';
+import { gameSettingsStore } from './gameSettings';
+import {
+    DISPLAY_CHANGE_EVENT,
+    ORIENTATION_RESUME_EVENT,
+    getSceneMobileDisplayMetrics,
+    isPortraitMobile,
+    readDisplayChange,
+} from './mobileDisplay';
 import {
     createSceneKeyboardBindings,
     mergeDriveCommands,
@@ -486,7 +494,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private terrainHorizonOcclusionGraphics!: Phaser.GameObjects.Graphics;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private collisionDebugText!: Phaser.GameObjects.Text;
-    private debugHudVisible = URL_PARAMS.get('debugHud') === '1';
+    private debugHudVisible = false;
     private gameplayHud!: GameplayHud;
     private graphics!: Phaser.GameObjects.Graphics;
     private uiGraphics!: Phaser.GameObjects.Graphics;
@@ -562,6 +570,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private bestSnapshot: BestSnapshots = { overall: null, vehicle: null };
     private lastSplitText = '';
     private focusPaused = false;
+    private orientationPaused = false;
     private skipFocusFrame = false;
     private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     private bestRunTimeSec: number | null = null;
@@ -591,6 +600,7 @@ export class TimeAttackScene extends Phaser.Scene {
         // A retry does not provide new scene data, so retain the last garage
         // choice for the lifetime of this game instance.
         if (data) ACTIVE_RUN_SETUP = resolveRunSetup(data, URL_PARAMS);
+        this.debugHudVisible = URL_PARAMS.get('debugHud') === '1' || gameSettingsStore.getSettings().debugMode;
 
         ACTIVE_RUNTIME_VEHICLE = selectActiveRuntimeVehicle(ACTIVE_RUN_SETUP);
         LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro' || ACTIVE_RUNTIME_VEHICLE.id === 'raven-coupe';
@@ -736,6 +746,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.scale.on('resize', onResize);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.focusPaused = false;
+        this.orientationPaused = isPortraitMobile(getSceneMobileDisplayMetrics(this));
         this.skipFocusFrame = false;
         const onBlur = () => {
             this.focusPaused = true;
@@ -745,19 +756,37 @@ export class TimeAttackScene extends Phaser.Scene {
         };
         const onFocus = () => { this.focusPaused = false; this.skipFocusFrame = true; this.input.keyboard?.resetKeys(); };
         const onVisibility = () => document.hidden ? onBlur() : onFocus();
+        const onDisplayChange = (event: Event) => {
+            const metrics = readDisplayChange(event);
+            if (!metrics || !isPortraitMobile(metrics)) return;
+            this.orientationPaused = true;
+            this.input.keyboard?.resetKeys();
+            this.recovery.tracking = false;
+            this.recovery.elapsed = 0;
+        };
+        const onOrientationResume = () => {
+            if (!this.orientationPaused) return;
+            this.orientationPaused = false;
+            this.skipFocusFrame = true;
+            this.input.keyboard?.resetKeys();
+        };
         window.addEventListener('blur', onBlur);
         window.addEventListener('focus', onFocus);
         document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener(DISPLAY_CHANGE_EVENT, onDisplayChange);
+        window.addEventListener(ORIENTATION_RESUME_EVENT, onOrientationResume);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             window.removeEventListener('blur', onBlur);
             window.removeEventListener('focus', onFocus);
             document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener(DISPLAY_CHANGE_EVENT, onDisplayChange);
+            window.removeEventListener(ORIENTATION_RESUME_EVENT, onOrientationResume);
         });
         this.render();
     }
 
     update(_time: number, delta: number) {
-        if (document.hidden || this.focusPaused) return;
+        if (document.hidden || this.focusPaused || this.orientationPaused) return;
         if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
         const seconds = delta / 1000 * RUNTIME_QA.timeScale;
         const camera = this.cameraResource;

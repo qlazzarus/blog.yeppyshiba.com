@@ -1,0 +1,528 @@
+---
+const title = '내손 삼성래미안 입주민 위치 확인';
+const description =
+    '경기도 의왕시 포일로 39 삼성래미안아파트 101~107동 대상의 현장 위치 확인 예제입니다.';
+const canonicalUrl = new URL('/naeson-raemian/', Astro.site);
+
+// This URL is public; the password and Kakao link stay in Worker secret bindings.
+const verificationApiUrl =
+    'https://yeppyshiba-resident-verification.yeppyshiba.workers.dev';
+---
+
+<!doctype html>
+<html lang='ko'>
+    <head>
+        <meta charset='utf-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <meta name='robots' content='noindex,nofollow' />
+        <meta name='description' content={description} />
+        <link rel='canonical' href={canonicalUrl} />
+        <title>{title}</title>
+    </head>
+    <body>
+        <main class='shell'>
+            <section class='card' aria-labelledby='page-title'>
+                <p class='eyebrow'>ON-SITE CHECK</p>
+                <h1 id='page-title'>내손 삼성래미안<br />현장 위치 확인</h1>
+                <p class='intro'>
+                    경기 의왕시 포일로 39 · 101동~107동에서만 다음 단계로 진행합니다.
+                    위치는 이 버튼을 누른 순간에만 읽고 저장하지 않습니다.
+                </p>
+
+                <div class='site-plan' aria-label='인증 대상 동 배치도'>
+                    <span class='road road-top'>평의길</span>
+                    <span class='road road-bottom'>포일로</span>
+                    <span class='building b107'>107동</span>
+                    <span class='building b106'>106동</span>
+                    <span class='building b105'>105동</span>
+                    <span class='building b104'>104동</span>
+                    <span class='building b103'>103동</span>
+                    <span class='building b102'>102동</span>
+                    <span class='building b101'>101동</span>
+                    <span class='green g1'>놀이터</span>
+                    <span class='green g2'>놀이터</span>
+                </div>
+
+                <div class='actions'>
+                    <button id='verify-location' class='primary' type='button'>
+                        내 위치로 인증하기
+                    </button>
+                    <p id='location-help' class='helper' aria-live='polite'>
+                        위치 접근을 허용하면, 정확도와 대상 동까지의 거리를 함께
+                        확인합니다.
+                    </p>
+                </div>
+
+                <section id='result' class='result' hidden aria-live='polite'></section>
+
+                <form id='entry-form' class='entry-form' hidden>
+                    <label for='entry-password'>입장 비밀번호</label>
+                    <div class='password-row'>
+                        <input
+                            id='entry-password'
+                            type='password'
+                            autocomplete='current-password'
+                            required
+                        />
+                        <button type='submit'>확인</button>
+                    </div>
+                    <p id='password-message' class='helper' aria-live='polite'></p>
+                </form>
+
+                <a
+                    id='kakao-link'
+                    class='kakao-link'
+                    href='#'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    hidden
+                >
+                    카카오톡 오픈채팅 입장하기 <span aria-hidden='true'>↗</span>
+                </a>
+
+                <details class='details'>
+                    <summary>이 예제의 인증 기준</summary>
+                    <ul>
+                        <li>101~107동 각 중심점에서 58m 이내인 경우에만 통과합니다.</li>
+                        <li>기기 위치 정확도가 45m를 초과하면 재시도를 요청합니다.</li>
+                        <li>
+                            건물 중심점은 첨부 지도를 기준으로 잡은 초기값입니다. 운영
+                            전 각 동 현관에서 실측 보정하세요.
+                        </li>
+                    </ul>
+                </details>
+            </section>
+        </main>
+
+        <script define:vars={{ verificationApiUrl }}>
+            const buildings = [
+                // Initial centers based on the supplied complex map; validate on site before production use.
+                { name: '101동', lat: 37.39049, lng: 126.97845, radius: 58 },
+                { name: '102동', lat: 37.38953, lng: 126.97754, radius: 58 },
+                { name: '103동', lat: 37.38954, lng: 126.9767, radius: 58 },
+                { name: '104동', lat: 37.38885, lng: 126.97598, radius: 58 },
+                { name: '105동', lat: 37.38886, lng: 126.97462, radius: 58 },
+                { name: '106동', lat: 37.39002, lng: 126.975, radius: 58 },
+                { name: '107동', lat: 37.39063, lng: 126.9765, radius: 58 },
+            ];
+            const maximumAccuracy = 45;
+            const verifyButton = document.querySelector('#verify-location');
+            const helper = document.querySelector('#location-help');
+            const result = document.querySelector('#result');
+            const form = document.querySelector('#entry-form');
+            const passwordInput = document.querySelector('#entry-password');
+            const passwordMessage = document.querySelector('#password-message');
+            const kakaoLink = document.querySelector('#kakao-link');
+            let verifiedPosition = null;
+
+            function metersBetween(a, b) {
+                const radians = (value) => (value * Math.PI) / 180;
+                const earthRadius = 6371000;
+                const dLat = radians(b.lat - a.lat);
+                const dLng = radians(b.lng - a.lng);
+                const h =
+                    Math.sin(dLat / 2) ** 2 +
+                    Math.cos(radians(a.lat)) *
+                        Math.cos(radians(b.lat)) *
+                        Math.sin(dLng / 2) ** 2;
+                return 2 * earthRadius * Math.asin(Math.sqrt(h));
+            }
+
+            function showResult(kind, message) {
+                result.hidden = false;
+                result.dataset.kind = kind;
+                result.textContent = message;
+            }
+
+            verifyButton.addEventListener('click', () => {
+                form.hidden = true;
+                kakaoLink.hidden = true;
+                result.hidden = true;
+
+                if (!navigator.geolocation) {
+                    showResult('error', '이 브라우저는 위치 확인을 지원하지 않습니다.');
+                    return;
+                }
+
+                verifyButton.disabled = true;
+                helper.textContent = '현재 위치를 확인하고 있습니다…';
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        verifyButton.disabled = false;
+                        const current = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        const accuracy = position.coords.accuracy;
+                        const nearest = buildings
+                            .map((building) => ({
+                                ...building,
+                                distance: metersBetween(current, building),
+                            }))
+                            .sort((a, b) => a.distance - b.distance)[0];
+
+                        if (accuracy > maximumAccuracy) {
+                            helper.textContent =
+                                '창가나 실외로 이동한 뒤 다시 시도해 주세요.';
+                            showResult(
+                                'error',
+                                `위치 정확도가 약 ${Math.round(accuracy)}m로 낮아 인증할 수 없습니다. (기준 ${maximumAccuracy}m 이하)`,
+                            );
+                            return;
+                        }
+
+                        if (nearest.distance > nearest.radius) {
+                            helper.textContent = '대상 구역 밖입니다.';
+                            showResult(
+                                'error',
+                                `가장 가까운 ${nearest.name}까지 약 ${Math.round(nearest.distance)}m입니다. 101~107동 인증 구역 안에서 다시 시도해 주세요.`,
+                            );
+                            return;
+                        }
+
+                        helper.textContent = '현장 위치 확인이 완료되었습니다.';
+                        showResult(
+                            'success',
+                            `${nearest.name} 인증 구역입니다. 위치 정확도 약 ${Math.round(accuracy)}m · 중심점에서 약 ${Math.round(nearest.distance)}m`,
+                        );
+                        verifiedPosition = {
+                            accuracy,
+                            latitude: current.lat,
+                            longitude: current.lng,
+                        };
+                        form.hidden = false;
+                    },
+                    (error) => {
+                        verifyButton.disabled = false;
+                        const messages = {
+                            1: '위치 권한이 필요합니다. 브라우저 설정에서 위치 접근을 허용해 주세요.',
+                            2: '현재 위치를 찾을 수 없습니다. GPS 또는 네트워크를 확인해 주세요.',
+                            3: '위치 확인 시간이 초과되었습니다. 다시 시도해 주세요.',
+                        };
+                        helper.textContent = '위치를 다시 확인해 주세요.';
+                        showResult(
+                            'error',
+                            messages[error.code] || '위치 확인 중 오류가 발생했습니다.',
+                        );
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+                );
+            });
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (!verificationApiUrl) {
+                    passwordMessage.textContent =
+                        '인증 서버 URL이 설정되지 않았습니다. 운영자에게 문의해 주세요.';
+                    return;
+                }
+                if (!verifiedPosition) {
+                    passwordMessage.textContent = '위치 인증을 먼저 완료해 주세요.';
+                    return;
+                }
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                passwordMessage.textContent = '서버에서 인증을 확인하고 있습니다…';
+                try {
+                    const response = await fetch(`${verificationApiUrl}/v1/verify`, {
+                        body: JSON.stringify({
+                            ...verifiedPosition,
+                            password: passwordInput.value,
+                        }),
+                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST',
+                    });
+                    const body = await response.json().catch(() => null);
+                    if (
+                        !response.ok ||
+                        !body?.verified ||
+                        typeof body.kakaoOpenChatUrl !== 'string'
+                    ) {
+                        passwordMessage.textContent =
+                            body?.message ||
+                            '인증에 실패했습니다. 위치와 비밀번호를 다시 확인해 주세요.';
+                        passwordInput.focus();
+                        return;
+                    }
+                    kakaoLink.href = body.kakaoOpenChatUrl;
+                    passwordMessage.textContent = `${body.building} 현장 인증이 완료되었습니다. 아래 버튼으로 입장하세요.`;
+                    kakaoLink.hidden = false;
+                } catch {
+                    passwordMessage.textContent =
+                        '인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+        </script>
+    </body>
+</html>
+
+<style>
+    :global(*) {
+        box-sizing: border-box;
+    }
+    :global(body) {
+        margin: 0;
+        background: #f2f5f2;
+        color: #1e2924;
+        font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            sans-serif;
+    }
+    .shell {
+        width: min(100% - 32px, 680px);
+        margin: 0 auto;
+        padding: 28px 0 56px;
+    }
+    .back-link {
+        color: #52665b;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+    .card {
+        margin-top: 18px;
+        overflow: hidden;
+        border: 1px solid #dce4dd;
+        border-radius: 24px;
+        background: white;
+        padding: clamp(24px, 6vw, 46px);
+        box-shadow: 0 18px 50px rgba(46, 68, 54, 0.08);
+    }
+    .eyebrow {
+        margin: 0 0 10px;
+        color: #39805b;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.13em;
+    }
+    h1 {
+        margin: 0;
+        font-size: clamp(2rem, 7vw, 3rem);
+        line-height: 1.15;
+        letter-spacing: -0.055em;
+    }
+    .intro {
+        margin: 18px 0 28px;
+        color: #56645b;
+        line-height: 1.7;
+    }
+    .site-plan {
+        position: relative;
+        height: 315px;
+        overflow: hidden;
+        border: 1px solid #d5ddd4;
+        border-radius: 18px;
+        background: #f1eee4;
+    }
+    .site-plan::before {
+        position: absolute;
+        inset: 44px 22px 45px;
+        border: 18px solid #e2ddd0;
+        border-radius: 20px;
+        content: '';
+    }
+    .road {
+        position: absolute;
+        z-index: 1;
+        color: #8c8479;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+    .road-top {
+        top: 17px;
+        left: 45%;
+    }
+    .road-bottom {
+        right: 22px;
+        bottom: 12px;
+        transform: rotate(-23deg);
+    }
+    .building {
+        position: absolute;
+        z-index: 2;
+        display: grid;
+        width: 92px;
+        height: 32px;
+        place-items: center;
+        border: 1px solid #c8bca8;
+        border-radius: 4px;
+        background: #fffdf7;
+        color: #5e574d;
+        font-size: 0.75rem;
+        font-weight: 800;
+        box-shadow: 0 2px 2px rgba(74, 62, 45, 0.08);
+    }
+    .b107 {
+        top: 67px;
+        left: 44%;
+        transform: rotate(-28deg);
+    }
+    .b106 {
+        top: 137px;
+        left: 14%;
+        transform: rotate(-25deg);
+    }
+    .b105 {
+        bottom: 43px;
+        left: 16%;
+        transform: rotate(62deg);
+    }
+    .b104 {
+        bottom: 47px;
+        left: 39%;
+        transform: rotate(-27deg);
+    }
+    .b103 {
+        top: 157px;
+        left: 48%;
+        transform: rotate(61deg);
+    }
+    .b102 {
+        top: 191px;
+        right: 17%;
+        transform: rotate(-28deg);
+    }
+    .b101 {
+        top: 101px;
+        right: 8%;
+        transform: rotate(61deg);
+    }
+    .green {
+        position: absolute;
+        z-index: 1;
+        display: grid;
+        width: 54px;
+        height: 48px;
+        place-items: center;
+        border-radius: 45% 55% 42% 58%;
+        background: #cfe4bc;
+        color: #668456;
+        font-size: 0.63rem;
+    }
+    .g1 {
+        top: 62px;
+        left: 24%;
+    }
+    .g2 {
+        top: 137px;
+        left: 60%;
+    }
+    .actions {
+        margin-top: 25px;
+    }
+    .primary,
+    .password-row button {
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        background: #23734d;
+        color: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 800;
+        padding: 16px 20px;
+    }
+    .primary:hover,
+    .password-row button:hover {
+        background: #185c3b;
+    }
+    button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+    }
+    .helper {
+        margin: 10px 2px 0;
+        color: #708076;
+        font-size: 0.83rem;
+        line-height: 1.5;
+    }
+    .result {
+        margin-top: 18px;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+    .result[data-kind='success'] {
+        background: #e5f5ea;
+        color: #1c653d;
+    }
+    .result[data-kind='error'] {
+        background: #fff0ed;
+        color: #a13e2a;
+    }
+    .entry-form {
+        margin-top: 20px;
+    }
+    .entry-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+    .password-row {
+        display: flex;
+        gap: 8px;
+    }
+    .password-row input {
+        min-width: 0;
+        flex: 1;
+        border: 1px solid #cfd8d0;
+        border-radius: 10px;
+        padding: 12px;
+        font: inherit;
+    }
+    .password-row button {
+        width: auto;
+        padding: 12px 18px;
+    }
+    .kakao-link {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        border-radius: 12px;
+        background: #fee500;
+        color: #291d00;
+        padding: 16px 18px;
+        font-weight: 900;
+        text-decoration: none;
+    }
+    .details {
+        margin-top: 28px;
+        border-top: 1px solid #e5e9e5;
+        padding-top: 18px;
+        color: #607067;
+        font-size: 0.84rem;
+        line-height: 1.7;
+    }
+    summary {
+        cursor: pointer;
+        font-weight: 800;
+    }
+    .details ul {
+        padding-left: 20px;
+    }
+    @media (max-width: 450px) {
+        .site-plan {
+            height: 280px;
+        }
+        .building {
+            width: 72px;
+            height: 29px;
+        }
+        .b101 {
+            right: 3%;
+        }
+        .b102 {
+            right: 12%;
+        }
+        .b106 {
+            left: 9%;
+        }
+    }
+</style>

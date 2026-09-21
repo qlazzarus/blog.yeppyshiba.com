@@ -59,6 +59,8 @@
         "qa:launch-control": "tsx scripts/audit-launch-control.ts",
         "qa:vehicle-catalog": "tsx scripts/audit-vehicle-catalog.ts",
         "qa:runtime-qa-state": "tsx scripts/audit-runtime-qa-state.ts",
+    "qa:mobile-display": "node --import tsx scripts/audit-mobile-display.ts",
+    "qa:game-settings": "node --import tsx scripts/audit-game-settings.ts",
         "qa:runtime-qa-browser": "node scripts/audit-runtime-qa-browser.mjs",
         "qa:headlight-profiles": "tsx scripts/audit-headlight-profiles.ts",
         "qa:low-speed-steering": "node scripts/simulate-low-speed-steering.mjs",
