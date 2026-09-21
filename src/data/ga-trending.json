@@ -1,22 +1,16 @@
 {
-  "generatedAt": "2026-09-14T08:30:52.844Z",
+  "generatedAt": "2026-09-21T08:32:37.836Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-analog-hud-turbo-character",
-      "views": 4,
+      "path": "/article/phaser4-apex-seoul-vehicle-profiles-rpm-retry",
+      "views": 7,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/phaser3-to-4-ecs-code-conversion",
+      "path": "/article/apptech-income-august-2026",
       "views": 1,
-      "avgSec": 78.43,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/phaser4-overview",
-      "views": 1,
-      "avgSec": 424.76,
+      "avgSec": 128.96,
       "reason": "amplify"
     }
   ]
