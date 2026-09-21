@@ -125,6 +125,28 @@ export class VehicleSelectScene extends Phaser.Scene {
                 strokeThickness: 2,
             })
             .setOrigin(0.5);
+        const backToMenu = () => this.scene.start('main');
+        const menuBack = this.add
+            .rectangle(112, 100, 176, 30, UI_THEME.panel)
+            .setStrokeStyle(1, UI_THEME.borderMuted)
+            .setInteractive({ useHandCursor: true });
+        const menuBackLabel = this.add
+            .text(112, 100, '‹  BACK TO MENU', {
+                color: UI_THEME.menuTextHex,
+                fontFamily: 'Arial, sans-serif',
+                fontSize: '13px',
+                fontStyle: 'bold',
+            })
+            .setOrigin(0.5);
+        menuBack.on('pointerover', () => {
+            menuBack.setFillStyle(UI_THEME.amber).setStrokeStyle(1, UI_THEME.amberHighlight);
+            menuBackLabel.setColor(UI_THEME.menuSelectedTextHex);
+        });
+        menuBack.on('pointerout', () => {
+            menuBack.setFillStyle(UI_THEME.panel).setStrokeStyle(1, UI_THEME.borderMuted);
+            menuBackLabel.setColor(UI_THEME.menuTextHex);
+        });
+        menuBack.on('pointerup', backToMenu);
         const steps = ['VEHICLE', 'COLOUR', 'COURSE'];
         steps.forEach((label, index) => {
             const x = panelX + 34 + index * ((panelWidth - 68) / 3);

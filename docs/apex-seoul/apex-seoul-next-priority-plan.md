@@ -160,11 +160,27 @@ Main menu에 `CREDITS & LICENSES`를 추가하고 `AssetNoticesScene`에서 asse
 
 ## P3 — 플레이 가능한 배포 품질
 
-- `OptionsScene`을 신규 `GameSettingsStore`로 영속화하고 steering/audio/debug/reduced motion을 실제 runtime에 적용한다.
-- `DriveCommand`/`mergeDriveCommands()`에 신규 `TouchDriveControls`를 연결한다. keyboard/touch 동시 입력, pointer cancel, blur를 처리한다.
-- desktop/mobile safe-area HUD, garage/result touch, orientation/pause, audio unlock과 asset 실패 복구를 확인한다.
-- 10회 retry의 listener/audio/particle 누적, storage 거부/손상, 30/60/120fps 기록 오차와 실제 기기 성능을 확인한다.
-- 신규 사용자 완주·retry 관찰과 차량 식별 검증을 통과한 뒤 공개 playable로 승인한다. 세부 gate는 [전환 설계](./apex-seoul-playable-game-plan.md)의 검증 시나리오를 따른다.
+P3는 P1-3 소리·효과와 P1-4 garage 설명 뒤에 착수하는 **가로 모바일 playable release gate**다. 물리·기록 규칙을 다시 설계하지 않으며, 저장된 선택·완주·retry 계약을 touch 경로에서도 동일하게 보장한다. 화면별 요구는 [HUD 설계의 메뉴별 모바일 개선 목록](./apex-seoul-hud-plan.md#메뉴별-모바일-개선-목록)을 단일 상세 기준으로 사용한다.
+
+1. **P3-1 — 표시 크기·orientation 기반:** `Phaser.Scale.FIT`의 logical size와 CSS display size를 분리한다. 가로 mobile layout mode, 세로 `ROTATE DEVICE` overlay, safe-area 측정, resize/orientation pause/resume을 먼저 만든다. logical `width < 680`만으로 mobile을 판정하지 않는다.
+2. **P3-2 — 메뉴 pointer flow:** `MainScene`, `VehicleSelectScene`, `ResultScene`의 실제 hit area를 최소 44×44 CSS px로 보장하고, garage 4단계·result Retry/Main을 pointer만으로 완료하게 한다. hover는 필수가 아니다.
+3. **P3-3 — 탐색·설정:** `RecordsScene`/`AssetNoticesScene`에 drag scroll과 visible Back을 추가한다. `OptionsScene`은 `GameSettingsStore`를 통해 steering/audio/debug/reduced motion/touch 값을 영속화하고 실제 runtime에 적용한다. reset의 두 단계 확인과 취소도 touch로 가능해야 한다.
+4. **P3-4 — 주행 touch와 HUD:** `DriveCommand`/`mergeDriveCommands()`에 `TouchDriveControls`를 연결한다. keyboard/touch 동시 입력, pointer cancel, blur, pause, audio unlock을 처리하고 HUD·progress·controls·notch/home indicator가 겹치지 않게 배치한다.
+5. **P3-5 — 실제 기기 release QA:** `844×390`, `667×375`, `640×360` 가로 viewport에서 Main의 네 메뉴, garage 4단계, Records/Credits scroll·back, 정상 완주, Result retry/main을 실제 pointer flow로 검증한다. 세로 진입·orientation 전환, 10회 retry listener/audio/particle 누적, storage 거부/손상, 30/60/120fps 기록 오차와 실제 기기 성능도 확인한다.
+
+P3 완료 기준: 세 차량×네 색상에서 키보드 없이 `Main → garage → run → result → retry/main`을 수행하고, Records/Credits/Options을 touch로 탐색·복귀·저장할 수 있다. 모든 메뉴 action은 정확히 한 번만 scene 전환하며, 세로 화면은 입력을 막고 run을 안전하게 pause한다. 신규 사용자 완주·retry 관찰과 차량 식별 검증을 통과한 뒤 공개 playable로 승인한다. 세부 QA는 [HUD 설계](./apex-seoul-hud-plan.md#landscape-only-모바일-정책)와 [전환 설계](./apex-seoul-playable-game-plan.md)의 검증 시나리오를 함께 따른다.
+
+### P3-1 1차 구현 (2026-09-21)
+
+`mobileDisplay.ts`가 Phaser logical viewport와 canvas/container의 CSS 표시 크기를 분리해 `desktop` / `landscape-mobile` / `portrait-mobile` 상태를 제공한다. 모바일 user-agent/iPad 판정만 세로 guard 대상으로 삼으므로 touch monitor를 포함한 PC는 방향과 무관하게 desktop으로 유지된다. `main.ts`의 DOM guard는 모바일 세로 화면에서 `ROTATE DEVICE` overlay로 canvas 입력을 막고, 가로 복귀 뒤에는 `TAP TO RESUME`을 요구한다. `TimeAttackScene`은 세로 전환에서 keyboard held state와 recovery tracking을 해제한 채 시간을 멈추고, 재개 tap 뒤 한 frame을 건너뛰어 이전 입력이 run으로 들어가지 않게 한다.
+
+이 pass는 월드의 `1200×760` 좌표·도로 투영·기존 desktop 레이아웃을 바꾸지 않는다. 메뉴의 실제 44px hit area와 mobile 재배치, safe-area를 쓰는 HUD/controls, touch driving은 각각 P3-2~P3-4의 후속 작업이다. `qa:mobile-display`는 CSS 표시 크기와 logical size의 분리 및 desktop/landscape/portrait 판정을 고정하고, production build를 함께 실행한다.
+
+### P3-3 탐색 1차 구현 (2026-09-21)
+
+`RecordsScene`에 항상 보이는 `BACK TO MENU` pointer action을 추가하고, Records와 `AssetNoticesScene` 모두 wheel 외의 pointer drag scroll을 지원한다. drag/pointer listener는 scene shutdown 때 해제해 Main으로 돌아온 뒤에도 이전 목록의 입력이 남지 않게 한다. 이는 모바일에서 Records를 나갈 수 없던 즉시 결함을 해소하는 탐색 pass이며, 실제 44px hit area·safe-area 재배치는 P3-2, `GameSettingsStore`와 Options의 실제 설정 적용은 P3-3의 다음 pass로 남는다.
+
+`GameSettingsStore` 1차 구현으로 Options의 steering/audio/touch/vibration/debug 값도 별도 `apex-seoul:settings:v1` 문서에 영속화한다. `DEBUG MODE`는 다음 `TimeAttackScene` 시작 시 기존 debug HUD를 켜며, `?debugHud=1` URL override도 유지한다. `RESET LOCAL RECORDS`는 이미 `RunRecordStore.resetRecords()`를 호출하므로 화면 이름을 `RESET RECORDS`로 단순화했다. 오디오·진동·touch control은 아직 runtime presenter/controller가 없으므로 값만 보존하며 동작 완료로 주장하지 않는다.
 
 P0의 pause/시간 보호는 P3까지 미루지 않는다. P1의 소리에 필요한 최소 volume/mute·설정 연결도 그 단계에서 함께 구현한다. P3는 전체 플랫폼 통합 승인이다.
 

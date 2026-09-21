@@ -41,6 +41,8 @@ export class RecordsScene extends Phaser.Scene {
         const rowHeight = compact ? 48 : 58;
         const visibleRowCount = Math.max(1, Math.floor((height - 214) / rowHeight));
         let scrollIndex = 0;
+        let dragPointerId: number | null = null;
+        let dragLastY = 0;
         const rows = Array.from({ length: visibleRowCount }, (_, i) => {
             const y = 200 + i * rowHeight;
             // Frames include transparent padding; this scale keeps the visible body inside its row.
@@ -69,15 +71,56 @@ export class RecordsScene extends Phaser.Scene {
             });
             empty.setVisible(runs.length === 0);
         };
-        const onWheel = (_pointer: Phaser.Input.Pointer, _currentlyOver: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => {
-            const nextIndex = Phaser.Math.Clamp(scrollIndex + Math.sign(deltaY), 0, Math.max(0, runs.length - visibleRowCount));
+        const scroll = (direction: number) => {
+            const nextIndex = Phaser.Math.Clamp(scrollIndex + Math.sign(direction), 0, Math.max(0, runs.length - visibleRowCount));
             if (nextIndex !== scrollIndex) { scrollIndex = nextIndex; render(); }
         };
+        const onWheel = (_pointer: Phaser.Input.Pointer, _currentlyOver: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => scroll(deltaY);
         const returnToMain = () => this.scene.start('main');
+        const back = this.add.rectangle(width / 2, height - 26, 190, 30, UI_THEME.panel)
+            .setStrokeStyle(1, UI_THEME.borderMuted).setInteractive({ useHandCursor: true });
+        const backLabel = this.add.text(width / 2, height - 26, '‹  BACK TO MENU', {
+            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: '13px', fontStyle: 'bold',
+        }).setOrigin(0.5);
+        back.on('pointerover', () => {
+            back.setFillStyle(UI_THEME.amber).setStrokeStyle(1, UI_THEME.amberHighlight);
+            backLabel.setColor(UI_THEME.menuSelectedTextHex);
+        });
+        back.on('pointerout', () => {
+            back.setFillStyle(UI_THEME.panel).setStrokeStyle(1, UI_THEME.borderMuted);
+            backLabel.setColor(UI_THEME.menuTextHex);
+        });
+        back.on('pointerup', returnToMain);
+        const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+            if (pointer.y < 132 || pointer.y > height - 58) return;
+            dragPointerId = pointer.id;
+            dragLastY = pointer.y;
+        };
+        const onPointerMove = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointerId !== pointer.id) return;
+            const distance = dragLastY - pointer.y;
+            if (Math.abs(distance) < rowHeight) return;
+            scroll(distance);
+            dragLastY = pointer.y;
+        };
+        const onPointerEnd = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointerId !== pointer.id) return;
+            if (Math.abs(dragLastY - pointer.y) >= rowHeight / 3)
+                scroll(dragLastY - pointer.y);
+            dragPointerId = null;
+        };
         this.input.on('wheel', onWheel);
+        this.input.on('pointerdown', onPointerDown);
+        this.input.on('pointermove', onPointerMove);
+        this.input.on('pointerup', onPointerEnd);
+        this.input.on('pointerupoutside', onPointerEnd);
         this.input.keyboard?.once('keydown', returnToMain);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.input.off('wheel', onWheel);
+            this.input.off('pointerdown', onPointerDown);
+            this.input.off('pointermove', onPointerMove);
+            this.input.off('pointerup', onPointerEnd);
+            this.input.off('pointerupoutside', onPointerEnd);
             this.input.keyboard?.off('keydown', returnToMain);
         });
         render();

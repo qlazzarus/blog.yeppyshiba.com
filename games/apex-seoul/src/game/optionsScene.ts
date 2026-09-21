@@ -1,10 +1,11 @@
 import { runRecordStore } from './runRecord';
 import Phaser from 'phaser';
 
+import { gameSettingsStore, type GameSettings } from './gameSettings';
 import { UI_THEME } from './uiTheme';
 
 type OptionKind = 'range' | 'reset' | 'toggle';
-type OptionRow = { kind: OptionKind; label: string; value: number | boolean | null };
+type OptionRow = { kind: OptionKind; label: string; setting?: keyof GameSettings; value: number | boolean | null };
 type RowVisual = {
     control: Phaser.GameObjects.Rectangle;
     focusBar: Phaser.GameObjects.Rectangle;
@@ -29,15 +30,16 @@ export class OptionsScene extends Phaser.Scene {
         const compact = width < 680;
         const panelWidth = Math.min(compact ? width - 40 : 680, width - 40);
         const panelX = (width - panelWidth) / 2;
+        const settings = gameSettingsStore.getSettings();
         const rows: OptionRow[] = [
-            { kind: 'range', label: 'STEERING SENSITIVITY', value: 70 },
-            { kind: 'toggle', label: 'TOUCH CONTROLS', value: true },
-            { kind: 'toggle', label: 'VIBRATION', value: true },
-            { kind: 'range', label: 'MASTER VOLUME', value: 80 },
-            { kind: 'range', label: 'MUSIC VOLUME', value: 65 },
-            { kind: 'range', label: 'SFX VOLUME', value: 85 },
-            { kind: 'toggle', label: 'DEBUG MODE', value: false },
-            { kind: 'reset', label: 'RESET LOCAL RECORDS', value: null },
+            { kind: 'range', label: 'STEERING SENSITIVITY', setting: 'steeringSensitivity', value: settings.steeringSensitivity },
+            { kind: 'toggle', label: 'TOUCH CONTROLS', setting: 'touchControls', value: settings.touchControls },
+            { kind: 'toggle', label: 'VIBRATION', setting: 'vibration', value: settings.vibration },
+            { kind: 'range', label: 'MASTER VOLUME', setting: 'masterVolume', value: settings.masterVolume },
+            { kind: 'range', label: 'MUSIC VOLUME', setting: 'musicVolume', value: settings.musicVolume },
+            { kind: 'range', label: 'SFX VOLUME', setting: 'sfxVolume', value: settings.sfxVolume },
+            { kind: 'toggle', label: 'DEBUG MODE', setting: 'debugMode', value: settings.debugMode },
+            { kind: 'reset', label: 'RESET RECORDS', value: null },
         ];
         const sectionStarts = new Map<number, string>([
             [0, 'CONTROLS'],
@@ -189,6 +191,7 @@ export class OptionsScene extends Phaser.Scene {
                     100,
                 );
             if (row.kind === 'toggle') row.value = direction > 0;
+            if (row.setting) gameSettingsStore.update({ [row.setting]: row.value } as Partial<GameSettings>);
             update();
         };
         const select = (index: number) => {
@@ -357,6 +360,7 @@ export class OptionsScene extends Phaser.Scene {
             if (row.kind === 'range') adjust(1);
             if (row.kind === 'toggle') {
                 row.value = !row.value;
+                if (row.setting) gameSettingsStore.update({ [row.setting]: row.value } as Partial<GameSettings>);
                 update();
             }
             if (row.kind === 'reset') {

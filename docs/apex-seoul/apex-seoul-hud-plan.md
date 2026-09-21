@@ -104,6 +104,40 @@ GameplayHudState (후속 확장안)
 - resize/orientation change에서 배치를 다시 계산하고 세로 화면은 회전 안내와 pause를 제공한다.
 - reduced motion은 shake·flash·pulse 크기를 줄이거나 끈다. 문자·게이지·소리로 같은 정보가 전달되어야 한다.
 
+### Landscape-only 모바일 정책 — 2026-09-21 추가
+
+모바일은 **가로 화면 전용**으로 실행한다. 세로 화면에서는 주행·메뉴 입력을 받지 않고 `ROTATE DEVICE` 안내만 보이며, 이미 진행 중인 run은 pause 상태를 유지한다. 다만 가로 전용은 현재 화면을 그대로 축소해도 된다는 뜻이 아니다.
+
+현재 `1200×760` 논리 viewport와 `Phaser.Scale.FIT` 조합은 844×390 같은 넓은 가로 화면에서 높이를 기준으로 축소된다. 따라서 Scene의 `width < 680` 분기는 논리 폭 1200 때문에 활성화되지 않고, 50px 논리 버튼도 실제 손가락 대상 크기는 약 26px에 그친다. 기존 FIT 캡처의 잘림·page error 없음은 **터치 가독성이나 모바일 승인 근거가 아니다.**
+
+구현 시에는 canvas의 CSS 표시 크기와 safe-area inset을 기준으로 layout mode를 결정한다. 가로 모바일에서는 최소한 다음을 보장한다.
+
+- 메뉴, garage, result의 모든 탭 대상은 실제 표시 좌표에서 최소 `44×44 CSS px`이며, pointer hit area와 보이는 버튼 범위가 일치한다.
+- `START → vehicle/color/course → time attack → result → retry/main`을 키보드 없이 완료할 수 있다.
+- `Records`와 `CREDITS & LICENSES`는 pointer drag로 목록을 스크롤하고, 각각 화면에 보이는 `BACK TO MENU` 탭 대상을 둔다. mouse wheel은 desktop 보조 입력으로만 남긴다.
+- 하단 좌측/우측 touch controls, HUD, progress bar, notch·home indicator safe-area가 겹치지 않는다. HUD는 timer/speed/gear/RPM과 차량별 과급 구조를 우선 보존하고, 보조 설명·상시 PB 표시는 좁을 때 축약한다.
+- orientation change, 브라우저 주소창 높이 변화, pointer cancel, blur에서 held touch가 해제되고 run 시간·입력이 안전하게 pause/resume 된다.
+
+`TouchDriveControls`는 `DriveCommand`로만 입력을 전달하며 keyboard 입력과 병합한다. touch UI가 차량 물리, HUD 수치, 저장 설정을 직접 변경해서는 안 된다. `TOUCH CONTROLS` 옵션은 `GameSettingsStore`에 저장되고 실제 control 생성·비활성화에 반영되어야 한다.
+
+모바일 회귀 승인은 최소 `844×390`, `667×375`, 짧은 높이의 `640×360` 가로 viewport에서 screenshot과 실제 pointer flow로 수행한다. 각 viewport에서 메뉴의 hit area, garage 4단계, Records/Credits scroll·back, countdown/주행/finish, result retry·main 복귀 및 page error 없음을 확인한다.
+
+### 메뉴별 모바일 개선 목록
+
+아래 항목은 desktop의 키보드·mouse 동작을 제거하는 것이 아니라, 가로 모바일에서 같은 상태 전이를 pointer만으로 완료하게 만드는 작업이다. hover는 색상 보조 피드백으로만 쓰고 선택·활성화의 전제 조건으로 쓰지 않는다.
+
+| 화면 | 현재 위험 | 모바일 개선 | 완료 판정 |
+| --- | --- | --- | --- |
+| `LoadingScene` / 세로 안내 | 로딩과 세로 화면이 같은 FIT 축소 정책에 묶여 있다. | logical viewport와 분리된 CSS display size 관측, 세로 `ROTATE DEVICE` overlay, 진행 중 run pause 및 orientation 복귀 후 명시적 resume을 둔다. | 세로에서 game input이 발생하지 않고 가로 복귀 뒤 held pointer가 남지 않는다. |
+| `MainScene` | 50px 논리 버튼이 FIT 후 실제 44px보다 작아질 수 있다. | 실제 표시 크기 기준의 menu layout과 44px 이상 pointer hit area를 만들고, 작은 높이에서도 네 항목과 선택 상태를 한 화면에 둔다. | 네 메뉴를 각 한 번의 tap으로 열며, 잘못된 중복 scene start가 없다. |
+| `VehicleSelectScene` | fixed Y 좌표·작은 색상 swatch·키보드 중심 footer hint가 짧은 가로 화면에 맞지 않는다. | vehicle/color/course/run-ready를 mobile layout mode로 재배치하고, 색상 swatch·confirm·back을 44px 이상으로 한다. footer는 터치 문구로 바꾸고 필요하면 현재 단계만 세로 스크롤한다. | 세 차량×네 색상과 course 확정을 tap만으로 완료하고 선택값이 run setup 및 다음 진입에 보존된다. |
+| `RecordsScene` | wheel과 아무 키 복귀만 있어 touch 사용자가 목록을 탐색하거나 나갈 수 없다. | drag scroll(관성은 선택 사항), visible `BACK TO MENU`, empty state를 추가한다. drag 종료는 row 선택·scene 전환을 일으키지 않는다. | 긴 목록의 첫/끝 행을 drag로 확인하고 Back tap 뒤 Main으로 정확히 한 번 복귀한다. |
+| `OptionsScene` | 화면 내 값만 변하고 실제 설정 저장소·touch control과 연결되지 않는다. fixed row 간격도 낮은 높이에 취약하다. | `GameSettingsStore`를 연결하고 range는 tap/drag 모두 지원하며, destructive reset은 명확한 두 단계 확인과 취소 경로를 둔다. 목록은 safe-area를 제외한 영역에서 scroll한다. | 새로고침 뒤 steering/audio/reduced-motion/touch 값이 유지·적용되고, reset은 오동작 없이 기록만 초기화한다. |
+| `AssetNoticesScene` | wheel 전용 목록 탐색이며 Back 외에는 touch affordance가 없다. | Records와 같은 drag scroll, 항상 보이는 Back, 링크는 화면 안에서 URL 텍스트만 보여 주되 tap이 스크롤과 충돌하지 않게 한다. | 모든 attribution 행을 drag로 읽고 Back tap으로 메인에 복귀한다. |
+| `ResultScene` | checkpoint 목록과 두 버튼이 짧은 높이에서 경쟁하며 Retry/Main의 실제 탭 크기가 작아진다. | 정보 밀도별 compact result layout, 44px 이상 `RETRY`/`MAIN MENU`, safe-area 하단 여백을 둔다. | PB/저장 상태/3 checkpoint와 두 action이 가려지지 않고, retry가 새 run을 만들며 main 복귀는 run 상태를 남기지 않는다. |
+
+메뉴 공통으로 모든 interactive object는 `pointerup`, `pointercancel`, scene shutdown을 처리한다. 같은 pointer sequence가 두 번 activate하지 않고, scene 변경 뒤 이전 Scene의 drag·keyboard·pointer listener가 남지 않아야 한다.
+
 ## 검증 계약
 
 1. 세 차량 × normal/countdown/shift/fuel-cut/finish에서 profile과 표기가 일치한다.
