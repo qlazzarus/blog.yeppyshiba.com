@@ -1,0 +1,50 @@
+:root { color: #eaf1f5; background: #07111e; font-family: Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 50% -10%, #213f57 0, #07111e 47rem); }
+button, input { font: inherit; }
+button { cursor: pointer; }
+.sound-lab { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 80px; }
+.sound-lab__header { max-width: 660px; margin-bottom: 42px; }
+.sound-lab__eyebrow { margin: 0 0 8px; color: #f4ba4b; font: 700 11px monospace; letter-spacing: .16em; }
+h1, h2 { margin: 0; letter-spacing: -.04em; }
+h1 { font-size: clamp(42px, 7vw, 72px); font-style: italic; }
+h2 { font-size: clamp(25px, 4vw, 38px); }
+.sound-lab__header > p:last-child, .sound-lab__sfx > div > p:last-child { color: #a9bfcc; line-height: 1.6; }
+.sound-lab__console, .sound-lab__sfx { border: 1px solid #395469; background: rgba(8, 22, 36, .9); box-shadow: 0 18px 50px #01060b66; }
+.sound-lab__console { padding: clamp(20px, 4vw, 38px); }
+.sound-lab__console-heading { display: flex; gap: 20px; justify-content: space-between; align-items: start; }
+.sound-lab__start, .sound-lab__actions button, .sound-lab__sfx-play { border: 1px solid #f4ba4b; color: #07111e; background: #f4ba4b; font-weight: 800; letter-spacing: .05em; }
+.sound-lab__start { min-height: 42px; padding: 0 16px; }
+.sound-lab__start.is-active { color: #d5e4eb; border-color: #577185; background: #173047; }
+.sound-lab__vehicles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 30px 0 20px; }
+.sound-lab__vehicle { min-height: 92px; padding: 16px; text-align: left; color: #b7cbd6; border: 1px solid #395469; background: #0c1b2b; }
+.sound-lab__vehicle strong, .sound-lab__vehicle span { display: block; }
+.sound-lab__vehicle strong { color: #edf5f8; font-size: 17px; }
+.sound-lab__vehicle span { margin-top: 6px; color: #8caab9; font: 11px monospace; }
+.sound-lab__vehicle.is-active { border-color: #f4ba4b; background: #213d4f; box-shadow: inset 4px 0 #f4ba4b; }
+.sound-lab__meters { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #395469; border-bottom: 1px solid #395469; }
+.sound-lab__meters div { padding: 16px; border-right: 1px solid #395469; }
+.sound-lab__meters div:last-child { border: 0; }
+.sound-lab__meters span, .sound-lab__meters strong { display: block; }
+.sound-lab__meters span { color: #8caab9; font: 11px monospace; letter-spacing: .1em; }
+.sound-lab__meters strong { margin-top: 4px; color: #f4ba4b; font: 700 21px monospace; }
+.sound-lab__waveform { margin: 18px 0 0; border: 1px solid #294558; background: #050d17; }
+.sound-lab__waveform figcaption { display: flex; justify-content: space-between; padding: 9px 12px; color: #8caab9; border-bottom: 1px solid #294558; font: 10px monospace; letter-spacing: .1em; }
+.sound-lab__wave-status { color: #f4ba4b; }
+.sound-lab__wave-canvas { display: block; width: 100%; height: 150px; }
+.sound-lab__control { margin-top: 22px; }
+.sound-lab__control label { display: flex; justify-content: space-between; color: #c9d8df; font-size: 13px; font-weight: bold; }
+.sound-lab__control output { color: #f4ba4b; font-family: monospace; }
+input[type="range"] { width: 100%; margin-top: 10px; accent-color: #f4ba4b; }
+.sound-lab__actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 28px; }
+.sound-lab__actions button { min-height: 40px; padding: 0 13px; }
+.sound-lab__actions button:hover, .sound-lab__sfx-play:hover { background: #ffe1a1; }
+.sound-lab__character { min-height: 22px; margin: 22px 0 0; color: #94b4c2; font: 12px/1.55 monospace; }
+.sound-lab__sfx { display: grid; grid-template-columns: minmax(210px, .8fr) 1.2fr; gap: 32px; margin-top: 24px; padding: clamp(20px, 4vw, 38px); }
+.sound-lab__sfx-list { display: grid; gap: 8px; align-content: start; }
+.sound-lab__sfx-item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; min-height: 54px; padding: 10px 12px; border: 1px solid #294558; background: #0b1928; }
+.sound-lab__sfx-item strong, .sound-lab__sfx-item span { display: block; }
+.sound-lab__sfx-item strong { font-size: 13px; }
+.sound-lab__sfx-item span { margin-top: 3px; color: #8caab9; font-size: 11px; }
+.sound-lab__sfx-play { min-height: 31px; padding: 0 10px; font-size: 10px; }
+@media (max-width: 700px) { .sound-lab { width: min(100% - 20px, 1040px); padding-top: 28px; } .sound-lab__vehicles, .sound-lab__sfx { grid-template-columns: 1fr; } .sound-lab__console-heading { align-items: center; } .sound-lab__meters strong { font-size: 16px; } }

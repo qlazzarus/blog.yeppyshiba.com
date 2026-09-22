@@ -8,6 +8,7 @@ export default defineConfig({
         outDir: 'dist',
         rollupOptions: {
             input: {
+                engineSoundLab: resolve(__dirname, 'engine-sound-lab.html'),
                 game: resolve(__dirname, 'index.html'),
                 vehiclePreview: resolve(__dirname, 'vehicle-preview.html'),
             },
