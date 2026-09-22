@@ -1,3 +1,5 @@
+import { isMobileDevice } from './motionSteeringPermission';
+
 export type MobileDisplayLayout = 'desktop' | 'landscape-mobile' | 'portrait-mobile';
 
 export type MobileDisplayMetrics = {
@@ -108,12 +110,6 @@ export function installMobileDisplayGuard(container: HTMLElement) {
             resume.remove();
         },
     };
-}
-
-function isMobileDevice() {
-    const userAgent = navigator.userAgent;
-    return /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent) ||
-        (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
 }
 
 export function readDisplayChange(event: Event): MobileDisplayMetrics | null {

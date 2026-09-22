@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Apex Seoul — Engine Sound Lab</title>
+    </head>
+    <body>
+        <main class="sound-lab">
+            <header class="sound-lab__header">
+                <p class="sound-lab__eyebrow">APEX SEOUL / SYNTHESIS STUDY</p>
+                <h1>Engine Sound Lab</h1>
+                <p>세 차량의 회전수, 부스트, 변속과 리프트를 합성 사운드로 비교합니다. 소리는 브라우저에서만 생성됩니다.</p>
+            </header>
+
+            <section class="sound-lab__console" aria-labelledby="engine-console-title">
+                <div class="sound-lab__console-heading">
+                    <div>
+                        <p class="sound-lab__eyebrow">POWERTRAIN AUDITION</p>
+                        <h2 id="engine-console-title">Choose a character</h2>
+                    </div>
+                    <button class="sound-lab__start" type="button">ENABLE AUDIO</button>
+                </div>
+                <div class="sound-lab__vehicles" role="radiogroup" aria-label="Vehicle sound profile">
+                    <button class="sound-lab__vehicle is-active" type="button" role="radio" aria-checked="true" data-vehicle="raven">
+                        <strong>Raven Coupe</strong><span>NA / eager high-rev</span>
+                    </button>
+                    <button class="sound-lab__vehicle" type="button" role="radio" aria-checked="false" data-vehicle="seorin">
+                        <strong>Seorin GT</strong><span>Sequential twin / broad surge</span>
+                    </button>
+                    <button class="sound-lab__vehicle" type="button" role="radio" aria-checked="false" data-vehicle="mirae">
+                        <strong>Mirae GT</strong><span>Large single / late hit</span>
+                    </button>
+                </div>
+                <div class="sound-lab__meters" aria-live="polite">
+                    <div><span>RPM</span><strong class="sound-lab__rpm">1,100</strong></div>
+                    <div><span>BOOST</span><strong class="sound-lab__boost">N/A</strong></div>
+                    <div><span>EVENT</span><strong class="sound-lab__event">IDLE</strong></div>
+                </div>
+                <figure class="sound-lab__waveform">
+                    <figcaption><span>LIVE OUTPUT WAVEFORM</span><span class="sound-lab__wave-status">AUDIO OFF</span></figcaption>
+                    <canvas class="sound-lab__wave-canvas" aria-label="Live synthesized engine audio waveform"></canvas>
+                </figure>
+                <div class="sound-lab__control">
+                    <label for="rpm">Engine speed <output class="sound-lab__rpm-output" for="rpm">1,100 RPM</output></label>
+                    <input id="rpm" type="range" min="900" max="7800" value="1100" step="50" />
+                </div>
+                <div class="sound-lab__control">
+                    <label for="throttle">Throttle <output class="sound-lab__throttle-output" for="throttle">0%</output></label>
+                    <input id="throttle" type="range" min="0" max="100" value="0" step="1" />
+                </div>
+                <div class="sound-lab__actions">
+                    <button type="button" data-action="sweep">FULL-THROTTLE SWEEP</button>
+                    <button type="button" data-action="shift">UPSHiFT</button>
+                    <button type="button" data-action="lift">LIFT / BOV</button>
+                    <button type="button" data-action="limiter">LIMITER</button>
+                </div>
+                <p class="sound-lab__character"></p>
+            </section>
+
+            <section class="sound-lab__sfx" aria-labelledby="sfx-title">
+                <div>
+                    <p class="sound-lab__eyebrow">GAMEPLAY SOUND CHECKLIST</p>
+                    <h2 id="sfx-title">General effects</h2>
+                    <p>아래 항목은 게임에 필요한 효과음 목록이며, 버튼으로 합성 임시음을 확인할 수 있습니다.</p>
+                </div>
+                <div class="sound-lab__sfx-list"></div>
+            </section>
+        </main>
+        <script type="module" src="/src/engine-sound-lab.ts"></script>
+    </body>
+</html>

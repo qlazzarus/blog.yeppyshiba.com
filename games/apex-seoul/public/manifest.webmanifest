@@ -1,0 +1,32 @@
+{
+  "id": "/game-assets/apex-seoul/",
+  "name": "Apex Seoul",
+  "short_name": "Apex Seoul",
+  "description": "A pseudo-3D night racing game through Seoul.",
+  "start_url": "/game-assets/apex-seoul/",
+  "scope": "/game-assets/apex-seoul/",
+  "display": "standalone",
+  "background_color": "#07111e",
+  "theme_color": "#07111e",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/game-assets/apex-seoul/icons/apex-seoul-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/game-assets/apex-seoul/icons/apex-seoul-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/game-assets/apex-seoul/icons/apex-seoul.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

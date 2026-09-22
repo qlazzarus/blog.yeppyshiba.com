@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Apex Seoul</title>
+  <desc id="desc">Amber racing lettering above a blue sports coupe on a Seoul night road.</desc>
+  <defs>
+    <linearGradient id="night" x2="0" y2="1">
+      <stop stop-color="#16304a"/>
+      <stop offset="1" stop-color="#060d18"/>
+    </linearGradient>
+    <linearGradient id="body" x2="0" y2="1">
+      <stop stop-color="#477694"/>
+      <stop offset="0.45" stop-color="#23435d"/>
+      <stop offset="1" stop-color="#102336"/>
+    </linearGradient>
+    <linearGradient id="road" x2="0" y2="1">
+      <stop stop-color="#f4b747" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#f4b747" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Opaque, edge-to-edge artwork for platform masks. -->
+  <path fill="url(#night)" d="M0 0h512v512H0z"/>
+  <circle cx="256" cy="256" r="224" fill="none" stroke="#45627b" stroke-opacity="0.25" stroke-width="2"/>
+  <!-- The skyline stays quiet behind the wordmark and rear silhouette. -->
+  <path fill="#091522" d="M0 280h48v-52h26v24h24v-68h30v44h28v-18h30v46h32v-30h22v-24h10v-29h4v-30h4v30h4v29h10v24h22v30h26v-43h30v-25h26v44h20v-70h28v102h30v-38h26v49h54v241H0z"/>
+  <path d="m208 280-94 232m190-232 94 232" fill="none" stroke="url(#road)" stroke-width="5"/>
+  <path d="M252 395h8l5 32h-18zm-9 54h26l9 63h-44z" fill="#d8aa58" opacity="0.22"/>
+  <!-- Outlined lettering avoids font substitution in installed icons. -->
+  <g fill="none" stroke="#f8c35e" stroke-width="12" stroke-linejoin="miter" stroke-linecap="square" transform="translate(12 0) skewX(-5)">
+    <path d="m151 181 20-56h15l20 56m-45-19h35"/>
+    <path d="M222 181v-56h33v29h-33"/>
+    <path d="M302 125h-29v56h29m-29-29h24"/>
+    <path d="m322 125 35 56m0-56-35 56"/>
+  </g>
+  <g fill="none" stroke="#99adc0" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="square">
+    <path d="M211 199h-13v8h13v9h-13m38-17h-13v17h13m-13-9h10m14-8h13v17h-13zm25 0v17h13v-17m12 0v17h13"/>
+  </g>
+  <!-- Rear view: roof, glass, shoulder line, light bar and diffuser. -->
+  <ellipse cx="256" cy="375" rx="134" ry="16" fill="#020710" opacity="0.8"/>
+  <path d="M143 340h28v37h-28zm198 0h28v37h-28z" fill="#030910"/>
+  <path d="m144 300 31-53q7-11 22-11h118q15 0 22 11l31 53 14 19-7 43H137l-7-43z" fill="url(#body)" stroke="#63839b" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m184 254-20 39h184l-20-39q-3-5-11-5H195q-8 0-11 5" fill="#081522" stroke="#7c9aaa" stroke-width="3"/>
+  <path d="m194 257-12 26h76l-17-26z" fill="#294253"/>
+  <path d="M148 301h216" stroke="#a3b6bf" stroke-width="4"/>
+  <path d="m146 312 7 19h206l7-19" fill="#08111d"/>
+  <path d="m151 318 6 8h62m74 0h62l6-8" fill="none" stroke="#ff7153" stroke-width="7"/>
+  <path d="M223 320h66" stroke="#ff7153" stroke-width="3" opacity="0.65"/>
+  <path d="m148 349 26 12h164l26-12" fill="#050d17"/>
+  <path d="M241 339h30v10h-30z" fill="#f8c35e"/>
+  <path d="M160 351h21m150 0h21" stroke="#94a9b6" stroke-width="5"/>
+</svg>

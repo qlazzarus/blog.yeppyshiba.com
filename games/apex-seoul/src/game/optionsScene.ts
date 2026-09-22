@@ -2,9 +2,11 @@ import { runRecordStore } from './runRecord';
 import Phaser from 'phaser';
 
 import { gameSettingsStore, type GameSettings } from './gameSettings';
+import { requestMotionSteeringPermission } from './motionSteeringPermission';
+import { getPwaInstallAction, requestPwaInstall } from './pwaInstall';
 import { UI_THEME } from './uiTheme';
 
-type OptionKind = 'range' | 'reset' | 'toggle';
+type OptionKind = 'range' | 'reset' | 'toggle' | 'action';
 type OptionRow = { kind: OptionKind; label: string; setting?: keyof GameSettings; value: number | boolean | null };
 type RowVisual = {
     control: Phaser.GameObjects.Rectangle;
@@ -31,6 +33,7 @@ export class OptionsScene extends Phaser.Scene {
         const panelWidth = Math.min(compact ? width - 40 : 680, width - 40);
         const panelX = (width - panelWidth) / 2;
         const settings = gameSettingsStore.getSettings();
+        const installAction = getPwaInstallAction();
         const rows: OptionRow[] = [
             { kind: 'toggle', label: 'MOTION STEERING', setting: 'controlScheme', value: settings.controlScheme === 'motion' },
             { kind: 'range', label: 'STEERING SENSITIVITY', setting: 'steeringSensitivity', value: settings.steeringSensitivity },
@@ -38,6 +41,7 @@ export class OptionsScene extends Phaser.Scene {
             { kind: 'range', label: 'MUSIC VOLUME', setting: 'musicVolume', value: settings.musicVolume },
             { kind: 'range', label: 'SFX VOLUME', setting: 'sfxVolume', value: settings.sfxVolume },
             { kind: 'toggle', label: 'DEBUG MODE', setting: 'debugMode', value: settings.debugMode },
+            ...(installAction ? [{ kind: 'action' as const, label: 'INSTALL APP', value: null }] : []),
             { kind: 'reset', label: 'RESET RECORDS', value: null },
         ];
         const sectionStarts = new Map<number, string>([
@@ -47,6 +51,7 @@ export class OptionsScene extends Phaser.Scene {
         ]);
         const visuals: RowVisual[] = [];
         let resetArmed = false;
+        let motionSteeringPending = false;
         const resetNotice = this.add.text(width / 2, height - 51, '', {
             color: UI_THEME.amberHex, fontFamily: 'Arial, sans-serif', fontSize: '11px',
         }).setOrigin(0.5).setDepth(10);
@@ -81,6 +86,7 @@ export class OptionsScene extends Phaser.Scene {
         const valueText = (row: OptionRow, active: boolean) => {
             if (row.kind === 'range') return `${row.value}%`;
             if (row.kind === 'reset') return active ? 'ENTER ›' : 'ENTER';
+            if (row.kind === 'action') return active ? 'OPEN ›' : 'OPEN';
             return row.value ? 'ON' : 'OFF';
         };
         const isEnabled = (row: OptionRow) =>
@@ -207,6 +213,10 @@ export class OptionsScene extends Phaser.Scene {
                     0,
                     100,
                 );
+            if (row.kind === 'toggle' && row.setting === 'controlScheme' && direction > 0) {
+                activate();
+                return;
+            }
             if (row.kind === 'toggle') row.value = direction > 0;
             persist(row);
             update();
@@ -385,6 +395,29 @@ export class OptionsScene extends Phaser.Scene {
             if (!isEnabled(row)) return;
             if (row.kind === 'range') adjust(1);
             if (row.kind === 'toggle') {
+                if (row.setting === 'controlScheme' && !row.value) {
+                    if (motionSteeringPending) return;
+                    motionSteeringPending = true;
+                    resetNotice.setText('Checking motion steering permission…');
+                    void requestMotionSteeringPermission().then((status) => {
+                        motionSteeringPending = false;
+                        if (status === 'enabled') {
+                            row.value = true;
+                            persist(row);
+                            resetNotice.setText('Motion steering enabled.');
+                        } else {
+                            const notices: Record<Exclude<typeof status, 'enabled'>, string> = {
+                                'not-mobile': 'Motion steering is available on mobile devices only.',
+                                unsupported: 'This browser does not support device orientation.',
+                                'insecure-context': 'Motion steering requires a secure connection.',
+                                denied: 'Motion permission was not granted. Virtual controls remain active.',
+                            };
+                            resetNotice.setText(notices[status]);
+                        }
+                        update();
+                    });
+                    return;
+                }
                 row.value = !row.value;
                 persist(row);
                 update();
@@ -398,6 +431,17 @@ export class OptionsScene extends Phaser.Scene {
                     resetArmed = false;
                     resetNotice.setText(status === 'saved' ? 'Records reset to defaults.' : 'Reset for this session only. Old records may return on reload.');
                 }
+            }
+            if (row.kind === 'action') {
+                void requestPwaInstall().then((result) => {
+                    const notices: Record<string, string> = {
+                        accepted: 'Install request accepted. Apex Seoul will appear on your home screen.',
+                        dismissed: 'Install request dismissed.',
+                        'ios-guide': 'In Safari, tap Share then Add to Home Screen.',
+                        unavailable: 'App installation is not available in this browser right now.',
+                    };
+                    resetNotice.setText(notices[result]);
+                });
             }
         };
         back.on('pointerover', () => select(backIndex));
