@@ -135,7 +135,7 @@ P1 gate: 동일 조건 가속·제동·코너/구간 시간 측정과 사용자 
 1. **P1-3A — 주행의 지속음:** 차량마다 idle/low-load, mid-load, high-load의 세 RPM loop를 둔다. `VehicleAudioController`는 실제 RPM·throttle·engineTorqueScale만 받아 low/mid/high gain과 playback rate를 crossfade한다. Raven은 자연흡기 고회전 layer만, Mirae는 single spool layer 하나, Seorin은 primary/secondary spool layer 둘을 추가한다. boost 수치가 소리를 직접 키우는 두 번째 토크/가속 보너스가 되지 않게 한다.
 2. **P1-3B — 사건 one-shot:** P1-2의 `PowertrainEvent.sequence`을 소비한다. `single-kick`, `twin-stage`, `lift`, `shift`, `fuel-cut`은 각 event sequence당 한 번만 재생한다. shift는 짧은 drivetrain cut, lift는 배출음, kick/stage는 작은 turbine accent로 제한하며, 지속 배기 화염·로켓 같은 과장은 넣지 않는다.
 3. **P1-3C — 접지와 충돌:** 실제 `driftState`/slip에는 looped tire scrub를, guardrail `enter`에만 짧은 impact one-shot을 연결한다. `stay`에는 impact를 반복하지 않고, 속도·slip·contact가 없으면 소리도 없다. 타이어/충돌 SFX는 차량의 조향·속도·기록을 변경하지 않는다.
-4. **P1-3D — 메뉴와 결과:** Kenney CC0 UI click/confirm/cancel만 먼저 넣고 BGM은 보류한다. 결과·PB 효과는 one-shot 하나로 제한해 엔진 사건과 경쟁하지 않게 한다.
+4. **P1-3D — 메뉴와 결과:** Kenney CC0 UI click/confirm/cancel만 먼저 넣고, BGM stem·후보·승인 기준은 [오디오·음악 계획](./apex-seoul-audio-music-plan.md)을 따른다. 결과·PB 효과는 one-shot 하나로 제한해 엔진 사건과 경쟁하지 않게 한다.
 
 가공 규칙은 source WAV 보존, runtime OGG 44.1kHz 변환, 루프의 무음/클릭 제거, one-shot의 -1dB ceiling 및 동일 event 80ms 재발화 억제다. 모든 재생은 사용자 Start 이후 unlock하며, WebAudio/asset load 실패 시 silent fallback으로 계속 주행한다. pause·hidden·finish·retry·scene shutdown에서는 loop를 pause/stop하고, retry run ID 또는 event sequence가 바뀌면 이전 one-shot을 다시 재생하지 않는다. reduced motion은 camera kick/flash만 끄며 소리와 HUD 사건 표시는 유지한다.
 

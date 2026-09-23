@@ -27,6 +27,10 @@ games/apex-seoul/assets/
 │   ├── source/       # 원본 다운로드, 라이선스·출처 메모
 │   ├── generated/    # 생성 후보와 중간 산출물 (향후 추가)
 │   └── approved/     # 런타임 교체가 승인된 환경 리소스 (향후 추가)
+├── audio/
+│   ├── source/       # 원본 음원, 작성자·URL·라이선스 README
+│   ├── generated/    # loop point·loudness·format 변환 후보
+│   └── approved/     # 런타임 OGG와 manifest (향후 추가)
 ├── vehicles/
 │   ├── source/       # 원본 모델과 attribution metadata
 │   ├── optimized/    # 렌더 입력용 최적화 모델
@@ -41,6 +45,7 @@ games/apex-seoul/assets/
 - `generated`는 후보이며 런타임 import 대상이 아니다.
 - `approved`만 런타임 asset으로 승격할 수 있다. 기존 차량 POC처럼 예외가 필요하면 manifest에 이유와 교체 계획을 남긴다.
 - 생성용 원본과 런타임용 파생물은 같은 파일을 공유하지 않는다.
+- audio source에는 원곡의 loop 허용 여부와 원본 format도 기록한다. runtime에는 승인된 OGG만 두고 WAV/FLAC 원본은 source에 남긴다.
 
 ## 라이선스와 출처
 

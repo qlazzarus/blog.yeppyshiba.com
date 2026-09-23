@@ -40,6 +40,7 @@ export class OptionsScene extends Phaser.Scene {
             { kind: 'range', label: 'MASTER VOLUME', setting: 'masterVolume', value: settings.masterVolume },
             { kind: 'range', label: 'MUSIC VOLUME', setting: 'musicVolume', value: settings.musicVolume },
             { kind: 'range', label: 'SFX VOLUME', setting: 'sfxVolume', value: settings.sfxVolume },
+            { kind: 'toggle', label: 'CRT / VHS EFFECT', setting: 'crtEffect', value: settings.crtEffect },
             { kind: 'toggle', label: 'DEBUG MODE', setting: 'debugMode', value: settings.debugMode },
             ...(installAction ? [{ kind: 'action' as const, label: 'INSTALL APP', value: null }] : []),
             { kind: 'reset', label: 'RESET RECORDS', value: null },
@@ -47,7 +48,8 @@ export class OptionsScene extends Phaser.Scene {
         const sectionStarts = new Map<number, string>([
             [0, 'CONTROLS'],
             [2, 'AUDIO'],
-            [5, 'DATA'],
+            [5, 'DISPLAY'],
+            [6, 'DATA'],
         ]);
         const visuals: RowVisual[] = [];
         let resetArmed = false;
@@ -236,7 +238,7 @@ export class OptionsScene extends Phaser.Scene {
             }
         };
 
-        let rowTop = 178;
+        let rowTop = 170;
         rows.forEach((row, index) => {
             const section = sectionStarts.get(index);
             if (section) {
@@ -254,9 +256,9 @@ export class OptionsScene extends Phaser.Scene {
                         panelX + panelWidth - 24,
                         rowTop + 7,
                     );
-                rowTop += 22;
+                rowTop += 18;
             }
-            const rowHeight = row.kind === 'range' ? 54 : 42;
+            const rowHeight = row.kind === 'range' ? 48 : 38;
             const y = rowTop + rowHeight / 2;
             const control = this.add
                 .rectangle(

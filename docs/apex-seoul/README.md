@@ -22,6 +22,7 @@
 | [로컬 저장 설계](./apex-seoul-local-save-plan.md) | 코스·차량별 PB/완주 이력, 내장 기본값, 초기화·복구 계약 |
 | [고착 자동 복귀·기록 비교 검토안](./apex-seoul-recovery-records-plan.md) | 코너 고착 안전 복귀, 전체/차량별 Records와 checkpoint PB 비교 |
 | [HUD 설계](./apex-seoul-hud-plan.md)                         | debug overlay 분리와 speed/RPM/boost gameplay HUD |
+| [오디오·음악 계획](./apex-seoul-audio-music-plan.md)         | BGM stem·외부 CC0 후보·오디오 승인 기준 |
 | [Retro Asset Studio](../retro-asset-studio/README.md)        | 차량 sprite 생성·후처리 운영 가이드   |
 
 ## 문서 운영 규칙

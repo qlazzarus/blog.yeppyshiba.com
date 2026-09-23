@@ -2,6 +2,7 @@ export const GAME_SETTINGS_KEY = 'apex-seoul:settings:v1';
 
 export type GameSettings = {
     controlScheme: 'virtual' | 'motion';
+    crtEffect: boolean;
     debugMode: boolean;
     masterVolume: number;
     musicVolume: number;
@@ -17,6 +18,7 @@ type SettingsDocument = GameSettings & { schemaVersion: 1 };
 
 const defaults = (): GameSettings => ({
     controlScheme: 'virtual',
+    crtEffect: true,
     debugMode: false,
     masterVolume: 80,
     musicVolume: 65,
@@ -39,6 +41,7 @@ function normalize(value: unknown): GameSettings {
     const source = value as Record<string, unknown>;
     return {
         controlScheme: controlScheme(source.controlScheme),
+        crtEffect: bool(source.crtEffect, fallback.crtEffect),
         debugMode: bool(source.debugMode, fallback.debugMode),
         masterVolume: range(source.masterVolume, fallback.masterVolume),
         musicVolume: range(source.musicVolume, fallback.musicVolume),
@@ -60,6 +63,8 @@ export class GameSettingsStore {
         if (this.loaded) return;
         this.loaded = true;
         try {
+            // Preserve the previous screen-button preference for older saves.
+            this.settings.crtEffect = this.storage().getItem('apex-seoul:vhs') !== 'off';
             const raw = this.storage().getItem(GAME_SETTINGS_KEY);
             if (!raw) return;
             const document: unknown = JSON.parse(raw);
@@ -68,7 +73,7 @@ export class GameSettingsStore {
                 this.status = 'unsupported-version';
                 return;
             }
-            this.settings = normalize(document);
+            this.settings = normalize({ crtEffect: this.settings.crtEffect, ...document });
         } catch { /* Defaults remain usable when browser storage is unavailable. */ }
     }
 

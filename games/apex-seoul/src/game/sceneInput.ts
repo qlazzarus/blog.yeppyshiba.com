@@ -1,7 +1,7 @@
 export type DriveCommand = {
     accelPressed: boolean;
     brakePressed: boolean;
-    steerAxis: -1 | 0 | 1;
+    steerAxis: number;
 };
 
 export type SceneHotkeys = {
@@ -60,7 +60,7 @@ export function mergeDriveCommands(commands: readonly DriveCommand[]): DriveComm
     return {
         accelPressed: commands.some((command) => command.accelPressed),
         brakePressed: commands.some((command) => command.brakePressed),
-        steerAxis: axis(steerSum > 0, steerSum < 0),
+        steerAxis: Math.max(-1, Math.min(1, steerSum)),
     };
 }
 

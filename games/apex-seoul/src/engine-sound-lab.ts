@@ -4,6 +4,7 @@ import {
     SEORIN_GT_ENGINE_PROFILE,
     type VehicleEngineProfile,
 } from './game/engineProfile';
+import { getMusicAssetUrl, MUSIC_ASSETS, type MusicAsset } from './game/musicAssetManifest';
 import './engine-sound-lab.css';
 
 type VehicleId = 'raven' | 'seorin' | 'mirae';
@@ -60,6 +61,7 @@ const rpmOutput = $<HTMLOutputElement>('.sound-lab__rpm-output');
 const throttleOutput = $<HTMLOutputElement>('.sound-lab__throttle-output');
 const character = $<HTMLElement>('.sound-lab__character');
 const sfxList = $<HTMLElement>('.sound-lab__sfx-list');
+const musicList = $<HTMLElement>('.sound-lab__music-list');
 const waveCanvas = $<HTMLCanvasElement>('.sound-lab__wave-canvas');
 const waveStatus = $<HTMLElement>('.sound-lab__wave-status');
 const waveContext = waveCanvas.getContext('2d');
@@ -73,6 +75,8 @@ let turboNoise: AudioBufferSourceNode | null = null;
 let turboGain: GainNode | null = null;
 let analyser: AnalyserNode | null = null;
 let actionTimer: number | null = null;
+const musicPlayers = new Map<MusicAsset['id'], HTMLAudioElement>();
+const availableMusic = new Set<MusicAsset['id']>();
 
 function getRpm() { return Number(rpmInput.value); }
 function getThrottle() { return Number(throttleInput.value) / 100; }
@@ -197,6 +201,44 @@ function oneShot(type: 'bov' | 'shift' | 'limiter' | 'sfx', variant = 0) {
 
 function setEvent(label: string) { eventReadout.textContent = label; }
 
+function stopMusic() {
+    musicPlayers.forEach((player) => { player.pause(); player.currentTime = 0; });
+}
+
+async function playMusic(asset: MusicAsset) {
+    const player = musicPlayers.get(asset.id) ?? new Audio(getMusicAssetUrl(asset));
+    player.loop = asset.id !== 'result-sting';
+    player.volume = asset.id === 'race-intensity' ? 0.38 : asset.id === 'race-accent' ? 0.24 : 0.72;
+    musicPlayers.set(asset.id, player);
+    await player.play();
+    setEvent(asset.label.toUpperCase());
+}
+
+async function checkMusicAsset(asset: MusicAsset) {
+    const item = document.createElement('article');
+    item.className = 'sound-lab__music-item';
+    item.dataset.status = 'checking';
+    item.innerHTML = `<div><strong>${asset.label}</strong><span>${asset.fileName} · ${asset.role}</span></div><button type="button" disabled>CHECKING</button>`;
+    musicList.append(item);
+    const button = item.querySelector<HTMLButtonElement>('button');
+    try {
+        const response = await fetch(getMusicAssetUrl(asset), { cache: 'no-store', method: 'HEAD' });
+        if (!response.ok) {
+            item.dataset.status = 'missing';
+            if (button) button.textContent = `NOT PREPARED (${response.status})`;
+            return;
+        }
+        availableMusic.add(asset.id);
+        item.dataset.status = 'ready';
+        if (button) { button.disabled = false; button.textContent = 'PLAY'; button.addEventListener('click', () => void playMusic(asset)); }
+    } catch {
+        item.dataset.status = 'missing';
+        if (button) button.textContent = 'CHECK FAILED';
+    }
+    const raceMixButton = document.querySelector<HTMLButtonElement>('[data-music-action="race-mix"]');
+    if (raceMixButton) raceMixButton.disabled = !availableMusic.has('race-base') || !availableMusic.has('race-intensity');
+}
+
 function waveformColor() {
     if (vehicle === 'seorin') return '#7fd8ff';
     if (vehicle === 'mirae') return '#ff8ba5';
@@ -280,6 +322,16 @@ SFX.forEach(([name, detail], index) => {
     item.innerHTML = `<div><strong>${name}</strong><span>${detail}</span></div><button class="sound-lab__sfx-play" type="button">PLAY</button>`;
     item.querySelector('button')?.addEventListener('click', () => { void enableAudio(); oneShot('sfx', index); setEvent(name.toUpperCase()); });
     sfxList.append(item);
+});
+
+MUSIC_ASSETS.forEach((asset) => void checkMusicAsset(asset));
+document.querySelector<HTMLButtonElement>('[data-music-action="stop"]')?.addEventListener('click', stopMusic);
+document.querySelector<HTMLButtonElement>('[data-music-action="race-mix"]')?.addEventListener('click', () => {
+    const base = MUSIC_ASSETS.find((asset) => asset.id === 'race-base');
+    const intensity = MUSIC_ASSETS.find((asset) => asset.id === 'race-intensity');
+    if (!base || !intensity) return;
+    stopMusic();
+    void Promise.all([playMusic(base), playMusic(intensity)]);
 });
 
 updateSound();
