@@ -12,9 +12,19 @@ const store = new GameSettingsStore(() => storage);
 assert.equal(store.getSettings().debugMode, false);
 assert.equal(store.update({ controlScheme: 'motion', debugMode: true, steeringSensitivity: 73 }), 'saved');
 assert.deepEqual(new GameSettingsStore(() => storage).getSettings(), {
-    controlScheme: 'motion', debugMode: true, masterVolume: 80, musicVolume: 65,
+    controlScheme: 'motion', crtEffect: true, debugMode: true, masterVolume: 80, musicVolume: 65,
     reducedMotion: false, sfxVolume: 85, steeringSensitivity: 73,
 });
 storage.setItem(GAME_SETTINGS_KEY, JSON.stringify({ schemaVersion: 2 }));
 assert.equal(new GameSettingsStore(() => storage).update({ debugMode: true }), 'unsupported-version');
+const legacy = new MemoryStorage();
+legacy.setItem('apex-seoul:vhs', 'off');
+legacy.setItem(GAME_SETTINGS_KEY, JSON.stringify({ schemaVersion: 1, masterVolume: 55 }));
+const migrated = new GameSettingsStore(() => legacy);
+assert.equal(migrated.getSettings().crtEffect, false);
+assert.equal(migrated.getSettings().masterVolume, 55);
+assert.equal(migrated.update({ crtEffect: true }), 'saved');
+assert.equal(new GameSettingsStore(() => legacy).getSettings().crtEffect, true);
+assert.equal(migrated.update({ crtEffect: false }), 'saved');
+assert.equal(new GameSettingsStore(() => legacy).getSettings().crtEffect, false);
 console.log('PASS: game settings persist debug mode and retain safe defaults');

@@ -151,6 +151,7 @@ import * as PLAYER_DEFAULTS from './playerVehicleDefaults';
 import { createPlayerVehicleRuntimeConfig } from './playerVehicleDefaults';
 import { RuntimeTelemetryRecorder } from './runtimeTelemetry';
 import { gameSettingsStore } from './gameSettings';
+import { createMotionSteering } from './motionSteering';
 import {
     DISPLAY_CHANGE_EVENT,
     ORIENTATION_RESUME_EVENT,
@@ -164,6 +165,7 @@ import {
     readDriveCommand,
     readSceneHotkeys,
 } from './sceneInput';
+import { createVirtualDriveControls } from './virtualDriveControls';
 import {
     getLaunchBurnoutPresentation,
     getPlayerAnchorPresentation,
@@ -500,6 +502,8 @@ export class TimeAttackScene extends Phaser.Scene {
     private uiGraphics!: Phaser.GameObjects.Graphics;
     private hudText!: Phaser.GameObjects.Text;
     private runStatusText!: Phaser.GameObjects.Text;
+    private motionSteering!: ReturnType<typeof createMotionSteering>;
+    private virtualDriveControls!: ReturnType<typeof createVirtualDriveControls>;
     private keys!: Record<'a' | 'b' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
     private lastVehicleQaState: RuntimeVehicleQaState | null = null;
@@ -733,6 +737,14 @@ export class TimeAttackScene extends Phaser.Scene {
         const keyboardBindings = createSceneKeyboardBindings(this.input.keyboard!);
         this.cursors = keyboardBindings.cursors;
         this.keys = keyboardBindings.keys;
+        // Phaser starts with one pointer. Racing needs steering and throttle
+        // simultaneously, so reserve two additional touch pointers.
+        this.input.addPointer(2);
+        this.virtualDriveControls = createVirtualDriveControls(this);
+        this.motionSteering = createMotionSteering(
+            () => gameSettingsStore.getSettings().steeringSensitivity,
+        );
+        this.updateVirtualDriveControls();
         this.telemetry = new RuntimeTelemetryRecorder(
             RUNTIME_TELEMETRY,
             () => {
@@ -742,7 +754,10 @@ export class TimeAttackScene extends Phaser.Scene {
             },
         );
 
-        const onResize = () => this.render(0);
+        const onResize = () => {
+            this.updateVirtualDriveControls();
+            this.render(0);
+        };
         this.scale.on('resize', onResize);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.focusPaused = false;
@@ -751,16 +766,22 @@ export class TimeAttackScene extends Phaser.Scene {
         const onBlur = () => {
             this.focusPaused = true;
             this.input.keyboard?.resetKeys();
+            this.virtualDriveControls.reset();
+            this.motionSteering.reset();
             this.recovery.tracking = false;
             this.recovery.elapsed = 0;
         };
-        const onFocus = () => { this.focusPaused = false; this.skipFocusFrame = true; this.input.keyboard?.resetKeys(); };
+        const onFocus = () => { this.focusPaused = false; this.skipFocusFrame = true; this.input.keyboard?.resetKeys(); this.virtualDriveControls.reset(); this.motionSteering.reset(); };
         const onVisibility = () => document.hidden ? onBlur() : onFocus();
         const onDisplayChange = (event: Event) => {
             const metrics = readDisplayChange(event);
-            if (!metrics || !isPortraitMobile(metrics)) return;
+            if (!metrics) return;
+            this.updateVirtualDriveControls();
+            if (!isPortraitMobile(metrics)) return;
             this.orientationPaused = true;
             this.input.keyboard?.resetKeys();
+            this.virtualDriveControls.reset();
+            this.motionSteering.reset();
             this.recovery.tracking = false;
             this.recovery.elapsed = 0;
         };
@@ -769,6 +790,8 @@ export class TimeAttackScene extends Phaser.Scene {
             this.orientationPaused = false;
             this.skipFocusFrame = true;
             this.input.keyboard?.resetKeys();
+            this.virtualDriveControls.reset();
+            this.motionSteering.reset();
         };
         window.addEventListener('blur', onBlur);
         window.addEventListener('focus', onFocus);
@@ -776,6 +799,8 @@ export class TimeAttackScene extends Phaser.Scene {
         window.addEventListener(DISPLAY_CHANGE_EVENT, onDisplayChange);
         window.addEventListener(ORIENTATION_RESUME_EVENT, onOrientationResume);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.virtualDriveControls.destroy();
+            this.motionSteering.destroy();
             window.removeEventListener('blur', onBlur);
             window.removeEventListener('focus', onFocus);
             document.removeEventListener('visibilitychange', onVisibility);
@@ -2426,7 +2451,25 @@ export class TimeAttackScene extends Phaser.Scene {
             steerLeft: this.cursors.left,
             steerRight: this.cursors.right,
         });
-        return mergeDriveCommands([keyboardCommand]);
+        return mergeDriveCommands([
+            keyboardCommand,
+            this.virtualDriveControls.getCommand(),
+            this.motionSteering.getCommand(),
+        ]);
+    }
+
+    private updateVirtualDriveControls() {
+        const mobileDisplay = getSceneMobileDisplayMetrics(this);
+        const landscapeMobile = mobileDisplay.layout === 'landscape-mobile';
+        const motionEnabled = landscapeMobile && gameSettingsStore.getSettings().controlScheme === 'motion';
+        this.motionSteering.setEnabled(motionEnabled);
+        this.virtualDriveControls.setMode(
+            !landscapeMobile ? 'hidden' : motionEnabled ? 'pedals' : 'full',
+            {
+                height: this.scale.height,
+                width: this.scale.width,
+            },
+        );
     }
 
     private getSceneHotkeys() {
