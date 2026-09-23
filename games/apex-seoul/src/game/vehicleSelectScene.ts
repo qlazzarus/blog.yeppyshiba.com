@@ -396,7 +396,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                             .rectangle(x - 34, y, 30, 30, COLOR_HEX[color])
                             .setStrokeStyle(
                                 active ? 2 : 1,
-                                active ? UI_THEME.textMainHex : UI_THEME.borderMuted,
+                                active ? COLOR_HEX.silver : UI_THEME.borderMuted,
                             ),
                     );
                     addPanel(

@@ -53,7 +53,7 @@ type PaletteVehicleCatalogAsset = {
 function selectPaletteVehicle(
     id: string,
     textureKeyPrefix: string,
-    requestedColor: string | null,
+    requestedColor: string | null | undefined,
     asset: PaletteVehicleCatalogAsset,
 ): RuntimeVehicleAsset {
     const color = asset.colors[requestedColor ?? 'blue'] ? requestedColor ?? 'blue' : 'blue';

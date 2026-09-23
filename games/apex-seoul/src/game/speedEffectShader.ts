@@ -97,6 +97,7 @@ export function createSpeedEffectShader(
         .shader(
             {
                 fragmentSource: SPEED_EFFECT_FRAGMENT_SHADER,
+                name: 'apex-seoul-speed-effect',
                 setupUniforms: (setUniform: (name: string, value: unknown) => void) => {
                     const uniforms = getUniforms();
 

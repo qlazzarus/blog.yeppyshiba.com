@@ -1,6 +1,7 @@
 import { runRecordStore } from './runRecord';
 import Phaser from 'phaser';
 
+import { IS_INTERNAL_BUILD } from './buildFlavor';
 import { gameSettingsStore, type GameSettings } from './gameSettings';
 import { requestMotionSteeringPermission } from './motionSteeringPermission';
 import { getPwaInstallAction, requestPwaInstall } from './pwaInstall';
@@ -41,7 +42,9 @@ export class OptionsScene extends Phaser.Scene {
             { kind: 'range', label: 'MUSIC VOLUME', setting: 'musicVolume', value: settings.musicVolume },
             { kind: 'range', label: 'SFX VOLUME', setting: 'sfxVolume', value: settings.sfxVolume },
             { kind: 'toggle', label: 'CRT / VHS EFFECT', setting: 'crtEffect', value: settings.crtEffect },
-            { kind: 'toggle', label: 'DEBUG MODE', setting: 'debugMode', value: settings.debugMode },
+            ...(IS_INTERNAL_BUILD
+                ? [{ kind: 'toggle' as const, label: 'DEBUG MODE', setting: 'debugMode' as const, value: settings.debugMode }]
+                : []),
             ...(installAction ? [{ kind: 'action' as const, label: 'INSTALL APP', value: null }] : []),
             { kind: 'reset', label: 'RESET RECORDS', value: null },
         ];
@@ -49,7 +52,7 @@ export class OptionsScene extends Phaser.Scene {
             [0, 'CONTROLS'],
             [2, 'AUDIO'],
             [5, 'DISPLAY'],
-            [6, 'DATA'],
+            [IS_INTERNAL_BUILD ? 6 : 5, 'DATA'],
         ]);
         const visuals: RowVisual[] = [];
         let resetArmed = false;

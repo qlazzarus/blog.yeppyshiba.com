@@ -1,6 +1,51 @@
 # Apex Seoul 다음 구현 우선순위
 
-갱신일: 2026-09-16
+갱신일: 2026-09-23
+
+## 재사용성 리팩터링 트랙
+
+목표는 Apex Seoul의 주행 특성을 바꾸지 않은 채, 다음 Phaser 게임에서 재사용 가능한 순수 주행 코어와 플랫폼 어댑터의 경계를 만든다. 지금은 별도 npm 패키지를 만들지 않는다. 이 게임 안에서 두 번째 사용처가 생기기 전에는 `src/game/core`, `src/game/platform`, `src/game/phaser` 경계를 먼저 검증한다.
+
+### 목표 구조
+
+```text
+core/racing-sim       vehicle state, powertrain, steering, drift, road, course
+core/pseudo3d         camera projection, road geometry, distance/fog calculation
+platform/browser-game URL params, storage, PWA, device capability and input sources
+phaser/racing         scene lifecycle, renderers, HUD, shaders, asset loading
+```
+
+- `core`는 Phaser·DOM·`window`·`localStorage`를 import하지 않는다.
+- 입력은 `DriveCommand`, 렌더링은 core snapshot만 경계로 넘긴다.
+- 자산 URL과 Phaser texture key는 catalog/asset adapter가 소유한다.
+- tuning 값과 기능 변경을 같은 리팩터링 pass에 섞지 않는다.
+- 새 패키지 승격은 두 번째 게임이 같은 API를 실제로 사용할 때만 결정한다.
+
+### 실행 우선순위
+
+| 우선순위 | 상태 | 작업 | 완료 기준 | 검증 |
+| --- | --- | --- | --- | --- |
+| R0 | 완료 | 타입 안전성 release gate | `build`가 typecheck를 선행하고 strict TS 오류가 0건이다. JS 모듈 공개 계약도 선언한다. | `npm run typecheck`, build, catalog/settings/save/runtime-QA |
+| R1 | 진행 중 | runtime composition root·internal surface | URL·선택·런타임 mutable state를 module scope에서 제거하고 Scene 생성 시 의존성으로 주입한다. internal build 외의 debug/QA 진입점은 차단한다. | 두 game instance/fixture가 상태를 공유하지 않고, production bundle에는 debug UI/QA 전역 상태가 없다. |
+| R2 | 대기 | 순수 pseudo-3D core | camera/road projection과 collision geometry를 Phaser renderer 밖 API로 고정한다. | Phaser 없는 fixture에서 projection/geometry contract를 실행한다. |
+| R3 | 대기 | 차량 simulation slice | powertrain, steering, drift, corner-demand reducer와 조합 `stepVehicle`을 만든다. | 기존 handling QA와 30/60/120Hz 계약이 동일하다. |
+| R4 | 대기 | browser/phaser adapter 정리 | input, storage, PWA, renderer/HUD/shader의 의존성 역전을 완료한다. | core가 browser/Phaser import 없이 build·fixture를 통과한다. |
+
+### R0 완료 기록 (2026-09-23)
+
+- `typecheck`를 추가하고 `build`의 선행 조건으로 연결했다. 이전에는 Vite transpile만 실행되어 strict TypeScript 오류가 배포 빌드를 통과할 수 있었다.
+- strict 검사에서 발견한 null canvas context, shader config, asset URL query, Phaser/Three material type, ES2022 호환 road iteration, nullable QA snapshot 및 사용하지 않는 구현 잔재를 정리했다.
+- `speedCue.js`에는 TypeScript 소비자를 위한 선언 계약을 추가했다. 런타임 동작이나 tuning 값은 바꾸지 않았다.
+- `qa:vehicle-catalog`, `qa:game-settings`, `qa:local-save`, `qa:runtime-qa-state`를 다시 통과했다.
+
+R1을 시작할 때는 `TimeAttackScene`의 module-level `URL_PARAMS`, `ACTIVE_*`, `PLAYER_*` mutable state만 옮긴다. scene update 순서, asset key 형식, query parameter 이름과 QA schema는 변경하지 않는다.
+
+### R1 internal surface 차단 기록 (2026-09-23)
+
+- `buildFlavor`가 Vite의 `DEV`로 internal build를 결정한다. production은 URL을 읽지 않아 `track`, `vehicle`, tuning, QA override, telemetry, `launch=time-attack` 모두 주소창으로 활성화할 수 없다.
+- production Options에서는 `DEBUG MODE` 행을 만들지 않으며, 기존 localStorage 값도 false로 정규화한다.
+- `D` debug HUD, `B` longitudinal A/B, `L` telemetry export는 internal build에서만 단축키 입력을 읽는다. `__apexSeoulQaReady`/`__apexSeoulQaState` browser QA 전역 상태도 production에서는 publish하지 않는다.
+- R1의 남은 범위는 module-level runtime state를 Scene 인스턴스의 composition root로 옮기는 구조 변경이다. 위 surface 차단과 혼합하지 않고 다음 pass로 진행한다.
 
 ## 2026-09-16 차량 비교 전 공통 주행 수정
 

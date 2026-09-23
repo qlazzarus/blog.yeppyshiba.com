@@ -52,8 +52,9 @@ type RoadRenderOptions = {
 type ProjectedSegment = {
     absoluteIndex: number;
     road: ProjectedRoadSlice;
-    segment: {
-        laneCount: number;
+        segment: {
+            curve: number;
+            laneCount: number;
     };
 };
 
@@ -388,12 +389,6 @@ function projectRoadSlice(
         roadNearLeft,
         roadNearRight,
     };
-}
-
-function getRoadWidthAtY(road: ProjectedRoadSlice, screenY: number) {
-    const span = getRoadSpanAtY(road, screenY);
-
-    return span ? Math.abs(span.rightX - span.leftX) : null;
 }
 
 function getRoadSpanAtY(road: ProjectedRoadSlice, screenY: number) {

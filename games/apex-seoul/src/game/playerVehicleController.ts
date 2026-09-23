@@ -1370,10 +1370,6 @@ function getReferenceSpeedRatio(displaySpeedKmh: number) {
     return clamp(displaySpeedKmh / REFERENCE_SPEED_KMH, 0, 1);
 }
 
-function getSmoothSpeedRatio(speedRatio: number) {
-    return speedRatio * speedRatio * (3 - 2 * speedRatio);
-}
-
 function updatePlayerSpeed(
     player: PlayerVehicleState,
     input: PlayerVehicleInput,
