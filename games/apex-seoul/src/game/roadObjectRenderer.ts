@@ -449,6 +449,7 @@ export function createRoadObjectMotionTracker(): RoadObjectMotionTracker {
             }
 
             stats = {
+                leftCliffForestSprites: [],
                 motionAnchorPassRate: passTimes.length,
                 motionAnchorPasses: totalPasses,
                 motionAnchorScreenVelocity: screenVelocity,
@@ -578,9 +579,14 @@ function getVisibleSpanEndZ(
 
     if (!endPoint || endPoint.roadVisible) return object.spanEndZ;
 
-    const lastVisiblePoint = envelope.findLast(
-        (point) => point.distanceAhead <= endDistanceAhead && point.roadVisible,
-    );
+    let lastVisiblePoint: CrestVisibilityEnvelope[number] | undefined;
+    for (let index = envelope.length - 1; index >= 0; index -= 1) {
+        const point = envelope[index];
+        if (point.distanceAhead <= endDistanceAhead && point.roadVisible) {
+            lastVisiblePoint = point;
+            break;
+        }
+    }
 
     if (!lastVisiblePoint) return null;
 
@@ -1071,23 +1077,6 @@ function fillQuad(
     graphics.lineTo(x2, y2);
     graphics.lineTo(x3, y3);
     graphics.lineTo(x4, y4);
-    graphics.closePath();
-    graphics.fillPath();
-}
-
-function fillTriangle(
-    graphics: Phaser.GameObjects.Graphics,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    x3: number,
-    y3: number,
-) {
-    graphics.beginPath();
-    graphics.moveTo(x1, y1);
-    graphics.lineTo(x2, y2);
-    graphics.lineTo(x3, y3);
     graphics.closePath();
     graphics.fillPath();
 }

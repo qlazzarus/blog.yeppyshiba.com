@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { getInternalUrlParams, IS_INTERNAL_BUILD } from './buildFlavor';
 import { getStartupAssetCount, queueStartupAssets } from './startupAssetManifest';
 import { UI_THEME } from './uiTheme';
 
@@ -28,8 +29,8 @@ export class LoadingScene extends Phaser.Scene {
     }
 
     create() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('launch') === 'time-attack') {
+        const params = getInternalUrlParams();
+        if (IS_INTERNAL_BUILD && params.get('launch') === 'time-attack') {
             params.delete('launch');
             window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
             this.scene.start('time-attack');

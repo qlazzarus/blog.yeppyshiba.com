@@ -15,7 +15,7 @@
         "analyze:stinger-hood-decoration": "node scripts/analyze-stinger-rear-decoration.mjs hood",
         "analyze:stinger-roof-decoration": "node scripts/analyze-stinger-rear-decoration.mjs roof",
         "dev": "vite --host 0.0.0.0",
-        "build": "vite build",
+        "build": "npm run typecheck && vite build",
         "generate:pwa-icons": "node scripts/generate-pwa-icons.mjs",
         "build:parallax-assets": "node scripts/build-parallax-assets.mjs",
         "clean:vehicle-sprite-sheet": "node scripts/clean-vehicle-sprite-sheet.mjs",
@@ -115,7 +115,8 @@
         "qa:powertrain-feedback": "node scripts/audit-powertrain-feedback.mjs",
         "qa:vehicle-handling-profile": "node --import tsx scripts/audit-vehicle-handling-profile.ts",
         "qa:vehicle-handling-balance": "node --import tsx scripts/audit-vehicle-handling-balance.ts",
-        "qa:vehicle-terminal-speed": "node --import tsx scripts/audit-vehicle-terminal-speed.ts"
+        "qa:vehicle-terminal-speed": "node --import tsx scripts/audit-vehicle-terminal-speed.ts",
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "phaser": "^4.1.0",

@@ -246,6 +246,8 @@ function waveformColor() {
 }
 
 function drawWaveform() {
+    const context = waveContext;
+    if (!context) return;
     const width = Math.max(1, Math.round(waveCanvas.clientWidth));
     const height = Math.max(1, Math.round(waveCanvas.clientHeight));
     const pixelRatio = window.devicePixelRatio || 1;
@@ -253,28 +255,28 @@ function drawWaveform() {
         waveCanvas.width = width * pixelRatio;
         waveCanvas.height = height * pixelRatio;
     }
-    waveContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    waveContext.fillStyle = '#050d17';
-    waveContext.fillRect(0, 0, width, height);
-    waveContext.strokeStyle = '#294558';
-    waveContext.lineWidth = 1;
-    for (let x = 0; x <= width; x += 48) { waveContext.beginPath(); waveContext.moveTo(x, 0); waveContext.lineTo(x, height); waveContext.stroke(); }
-    for (let y = 0; y <= height; y += 30) { waveContext.beginPath(); waveContext.moveTo(0, y); waveContext.lineTo(width, y); waveContext.stroke(); }
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.fillStyle = '#050d17';
+    context.fillRect(0, 0, width, height);
+    context.strokeStyle = '#294558';
+    context.lineWidth = 1;
+    for (let x = 0; x <= width; x += 48) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke(); }
+    for (let y = 0; y <= height; y += 30) { context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke(); }
     const samples = new Uint8Array(analyser?.fftSize ?? 256);
     if (analyser) analyser.getByteTimeDomainData(samples);
     else samples.fill(128);
-    waveContext.beginPath();
+    context.beginPath();
     samples.forEach((value, index) => {
         const x = index / (samples.length - 1) * width;
         const y = (value / 255) * height;
-        if (index === 0) waveContext.moveTo(x, y); else waveContext.lineTo(x, y);
+        if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
     });
-    waveContext.strokeStyle = waveformColor();
-    waveContext.shadowBlur = analyser ? 10 : 0;
-    waveContext.shadowColor = waveformColor();
-    waveContext.lineWidth = 2;
-    waveContext.stroke();
-    waveContext.shadowBlur = 0;
+    context.strokeStyle = waveformColor();
+    context.shadowBlur = analyser ? 10 : 0;
+    context.shadowColor = waveformColor();
+    context.lineWidth = 2;
+    context.stroke();
+    context.shadowBlur = 0;
     window.requestAnimationFrame(drawWaveform);
 }
 

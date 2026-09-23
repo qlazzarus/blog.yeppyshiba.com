@@ -173,12 +173,12 @@ export function serializeRuntimeQaVehicle(input: {
     asset: string;
     color: string;
     engineProfile: VehicleEngineProfile;
-    state: Record<string, unknown>;
+    state: object | null;
 }) {
     const { engineProfile } = input;
 
     return {
-        ...input.state,
+        ...(input.state ?? {}),
         asset: input.asset,
         color: input.color,
         engine: {

@@ -4,9 +4,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import ft86ModelUrl from '../assets/vehicles/optimized/toyota_gt86-optimized.glb?url';
 import stingerBadgeDebugModelUrl from '../assets/vehicles/derived/kia_stinger-badge-debug.glb?url';
-import stingerSpriteMasterModelUrl from '../assets/vehicles/derived/kia_stinger-sprite-master.glb?url&v=rear-panel-line-triangles-r3';
+import stingerSpriteMasterModelUrl from '../assets/vehicles/derived/kia_stinger-sprite-master.glb?url';
 import g70ModelUrl from '../assets/vehicles/optimized/genesis_g70-optimized.glb?url';
-import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url&v=front-grille-r3';
+import g70NieveModelUrl from '../assets/vehicles/optimized/genesis_g70_nieve-sprite-master-optimized.glb?url';
 import g70NieveFrontLampDebugUrl from '../assets/vehicles/optimized/genesis_g70_nieve-front-lamp-debug-optimized.glb?url';
 import genesisCoupeModelUrl from '../assets/vehicles/optimized/genesis_coupe-optimized.glb?url';
 import ft86PoseSheetRaw from '../assets/vehicles/generated/pose-sheets/poc-toyota-gt86-scaled.json?raw';
@@ -419,8 +419,11 @@ async function createVehiclePreview(
                 const candidate = model.getObjectByName(`debug-layer-${index}`);
                 if (!candidate) continue;
                 const helper = new THREE.Box3Helper(new THREE.Box3().setFromObject(candidate), '#ff2d92');
-                helper.material.depthTest = false;
-                helper.material.depthWrite = false;
+                const material = Array.isArray(helper.material)
+                    ? helper.material[0]
+                    : helper.material;
+                material.depthTest = false;
+                material.depthWrite = false;
                 helper.renderOrder = 999;
                 scene.add(helper);
             }

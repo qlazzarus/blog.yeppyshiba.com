@@ -1,3 +1,5 @@
+import { IS_INTERNAL_BUILD } from './buildFlavor';
+
 export const GAME_SETTINGS_KEY = 'apex-seoul:settings:v1';
 
 export type GameSettings = {
@@ -35,14 +37,14 @@ const range = (value: unknown, fallback: number) =>
 const bool = (value: unknown, fallback: boolean) => typeof value === 'boolean' ? value : fallback;
 const controlScheme = (value: unknown): GameSettings['controlScheme'] => value === 'motion' ? 'motion' : 'virtual';
 
-function normalize(value: unknown): GameSettings {
+function normalize(value: unknown, internalBuild = IS_INTERNAL_BUILD): GameSettings {
     const fallback = defaults();
     if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback;
     const source = value as Record<string, unknown>;
     return {
         controlScheme: controlScheme(source.controlScheme),
         crtEffect: bool(source.crtEffect, fallback.crtEffect),
-        debugMode: bool(source.debugMode, fallback.debugMode),
+        debugMode: internalBuild && bool(source.debugMode, fallback.debugMode),
         masterVolume: range(source.masterVolume, fallback.masterVolume),
         musicVolume: range(source.musicVolume, fallback.musicVolume),
         reducedMotion: bool(source.reducedMotion, fallback.reducedMotion),
@@ -57,7 +59,10 @@ export class GameSettingsStore {
     private settings = defaults();
     private status: GameSettingsSaveStatus | null = null;
 
-    constructor(private readonly storage: () => StoragePort = () => window.localStorage) {}
+    constructor(
+        private readonly storage: () => StoragePort = () => window.localStorage,
+        private readonly internalBuild = IS_INTERNAL_BUILD,
+    ) {}
 
     private ensureLoaded() {
         if (this.loaded) return;
@@ -73,7 +78,10 @@ export class GameSettingsStore {
                 this.status = 'unsupported-version';
                 return;
             }
-            this.settings = normalize({ crtEffect: this.settings.crtEffect, ...document });
+            this.settings = normalize(
+                { crtEffect: this.settings.crtEffect, ...document },
+                this.internalBuild,
+            );
         } catch { /* Defaults remain usable when browser storage is unavailable. */ }
     }
 
@@ -84,7 +92,14 @@ export class GameSettingsStore {
 
     update(value: Partial<GameSettings>): GameSettingsSaveStatus {
         this.ensureLoaded();
-        this.settings = normalize({ ...this.settings, ...value });
+        this.settings = normalize(
+            {
+                ...this.settings,
+                ...value,
+                debugMode: this.internalBuild ? value.debugMode ?? this.settings.debugMode : false,
+            },
+            this.internalBuild,
+        );
         if (this.status === 'unsupported-version') return this.status;
         try {
             const document: SettingsDocument = { schemaVersion: 1, ...this.settings };

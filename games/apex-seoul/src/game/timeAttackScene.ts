@@ -1,6 +1,7 @@
 import { bestSnapshots, splitLines, finishRecordLabel, type BestSnapshots } from './runComparison';
 import { createStuckRecoveryState, updateStuckRecovery, RECOVERY } from './stuckRecovery';
 import { GameplayHud } from './gameplayHud';
+import { getInternalUrlParams, IS_INTERNAL_BUILD } from './buildFlavor';
 import { createGameplayHudState } from './gameplayHudState';
 import { createPowertrainFeedbackState, createPowertrainSnapshot, derivePowertrainFeedback, type PowertrainFeedbackState } from './powertrainFeedback';
 import Phaser from 'phaser';
@@ -207,9 +208,7 @@ import {
     type VehicleHeadlightScreenPose,
 } from './vehicleHeadlight';
 import {
-    createCameraEffectsConfig,
     createCameraEffectsState,
-    DEFAULT_CAMERA_EFFECTS_CONFIG,
     updateCameraEffects,
 } from './cameraEffects.js';
 import {
@@ -222,7 +221,6 @@ import {
     SPEED_PRESENTATION_WORLD_CONFIG,
 } from './speedPresentationConfig';
 import {
-    createLongitudinalProgressionConfig,
     getLongitudinalWorldTravelSpeed,
     getNextLongitudinalUnitScale,
 } from './longitudinalProgression';
@@ -262,17 +260,10 @@ const {
         countdownSeconds: RUN_COUNTDOWN_SECONDS,
         finishRatio: COURSE_FINISH_RATIO,
     },
-    debug: {
-        guardrailImpactHoldSeconds: DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS,
-        projectionGuides: DEBUG_PROJECTION_GUIDES,
-    },
+    debug: { guardrailImpactHoldSeconds: DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS },
     game: { height: GAME_HEIGHT, width: GAME_WIDTH },
     launch: LAUNCH_DEFAULTS,
     run: { finishCoastSpeed: RUN_FINISH_COAST_SPEED },
-    telemetry: {
-        durationSec: TELEMETRY_DEFAULT_DURATION_SEC,
-        sampleHz: TELEMETRY_DEFAULT_SAMPLE_HZ,
-    },
     world: {
         cityFarParallaxHeight: CITY_FAR_PARALLAX_HEIGHT,
         cityParallaxWidth: CITY_PARALLAX_WIDTH,
@@ -302,7 +293,7 @@ const LAUNCH_CONTROL_CONFIG: LaunchControlConfig = {
 // FT86 on-road baseline; it must stay shared to preserve inter-car ratios.
 const CANDIDATE_192_PRESENTATION_SCALE = 0.97;
 
-const URL_PARAMS = new URLSearchParams(window.location.search);
+const URL_PARAMS = getInternalUrlParams();
 const APEX_RUNTIME = createApexSeoulRuntimeConfig(URL_PARAMS);
 const LONGITUDINAL_PROGRESSION = APEX_RUNTIME.longitudinalProgression;
 let ACTIVE_RUN_SETUP = resolveRunSetup(undefined, URL_PARAMS);
@@ -604,7 +595,9 @@ export class TimeAttackScene extends Phaser.Scene {
         // A retry does not provide new scene data, so retain the last garage
         // choice for the lifetime of this game instance.
         if (data) ACTIVE_RUN_SETUP = resolveRunSetup(data, URL_PARAMS);
-        this.debugHudVisible = URL_PARAMS.get('debugHud') === '1' || gameSettingsStore.getSettings().debugMode;
+        this.debugHudVisible = IS_INTERNAL_BUILD && (
+            URL_PARAMS.get('debugHud') === '1' || gameSettingsStore.getSettings().debugMode
+        );
 
         ACTIVE_RUNTIME_VEHICLE = selectActiveRuntimeVehicle(ACTIVE_RUN_SETUP);
         LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro' || ACTIVE_RUNTIME_VEHICLE.id === 'raven-coupe';
@@ -683,7 +676,8 @@ export class TimeAttackScene extends Phaser.Scene {
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
                 PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
             );
-        this.playerSoftShadowCar.enableFilters().filters.internal.addBlur(1, 2.5, 1.4, 1, 0x000000, 2);
+        this.playerSoftShadowCar.enableFilters();
+        this.playerSoftShadowCar.filters?.internal.addBlur(1, 2.5, 1.4, 1, 0x000000, 2);
         this.playerShadowCar = this.add
             .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
             .setAlpha(PLAYER_DEFAULTS.PLAYER_SILHOUETTE_SHADOW_ALPHA)
@@ -1590,7 +1584,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const elapsedSinceLastSizeSample = previousSizeSample
             ? this.elapsedSec - previousSizeSample.elapsedSec
             : 0;
-        const sizeDeltaPerSec = elapsedSinceLastSizeSample > 0.0001
+        const sizeDeltaPerSec = previousSizeSample && elapsedSinceLastSizeSample > 0.0001
             ? (displaySize - previousSizeSample.size) / elapsedSinceLastSizeSample
             : 0;
         const vehicleBodyWidth = displaySize;
@@ -2439,6 +2433,7 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private updateDebugHudHotkey() {
+        if (!IS_INTERNAL_BUILD) return;
         if (!this.getSceneHotkeys().toggleDebugHud) return;
 
         this.debugHudVisible = !this.debugHudVisible;
@@ -2474,14 +2469,15 @@ export class TimeAttackScene extends Phaser.Scene {
 
     private getSceneHotkeys() {
         return readSceneHotkeys({
-            exportTelemetry: Phaser.Input.Keyboard.JustDown(this.keys.l),
+            exportTelemetry: IS_INTERNAL_BUILD && Phaser.Input.Keyboard.JustDown(this.keys.l),
             restart: Phaser.Input.Keyboard.JustDown(this.keys.r),
-            toggleDebugHud: Phaser.Input.Keyboard.JustDown(this.keys.d),
-            toggleLongitudinalAb: Phaser.Input.Keyboard.JustDown(this.keys.b),
+            toggleDebugHud: IS_INTERNAL_BUILD && Phaser.Input.Keyboard.JustDown(this.keys.d),
+            toggleLongitudinalAb: IS_INTERNAL_BUILD && Phaser.Input.Keyboard.JustDown(this.keys.b),
         });
     }
 
     private updateLongitudinalAbHotkey() {
+        if (!IS_INTERNAL_BUILD) return;
         if (!this.getSceneHotkeys().toggleLongitudinalAb) return;
 
         const nextScale = getNextLongitudinalUnitScale(LONGITUDINAL_PROGRESSION.scale);
@@ -2730,6 +2726,7 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private publishRuntimeQaState(viewport: Viewport, horizonY: number) {
+        if (!IS_INTERNAL_BUILD) return;
         const qaWindow = window as Window & {
             __apexSeoulQaReady?: boolean;
             __apexSeoulQaState?: unknown;
