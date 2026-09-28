@@ -1,36 +1,85 @@
 {
-  "topPost": "/article/phaser4-apex-seoul-vehicle-profiles-rpm-retry",
-  "topPostViews": 7,
+  "topPost": "/article/phaser4-apex-seoul-mobile-controls-motion-pwa",
+  "topPostViews": 9,
   "relatedSuggestions": [
-    "/phaser4-apex-seoul-vehicle-profiles-rpm-retry/",
+    "/phaser4-apex-seoul-mobile-controls-motion-pwa/",
     "/phaser4-apex-seoul-7way-vehicle-asset-compiler/",
-    "/phaser4-apex-seoul-downhill-rpm-fuelcut/",
     "/phaser4-apex-seoul-analog-hud-turbo-character/",
     "/phaser4-apex-seoul-comfyui-retro-palette-compiler/",
-    "/phaser4-apex-seoul-corner-flow-longitudinal-scale/"
+    "/phaser4-apex-seoul-corner-flow-longitudinal-scale/",
+    "/phaser4-apex-seoul-crt-vhs-shader/"
   ],
-  "amplifyCandidates": [
-    {
-      "path": "/article/apptech-income-august-2026",
-      "views": 1,
-      "avgSec": 128.96
-    }
-  ],
+  "amplifyCandidates": [],
   "fixCandidates": [
     {
-      "path": "/article/better-bagel-bar-ganjeolgot-review",
-      "views": 1,
-      "avgSec": 0
+      "path": "/article/phaser4-apex-seoul-mobile-controls-motion-pwa",
+      "views": 9,
+      "avgSec": 6.35
+    },
+    {
+      "path": "/article/apptech-income-july-2026",
+      "views": 2,
+      "avgSec": 1.58
     },
     {
       "path": "/article/phaser4-apex-seoul-comfyui-retro-palette-compiler",
+      "views": 2,
+      "avgSec": 5.98
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-stuck-recovery",
+      "views": 2,
+      "avgSec": 8.98
+    },
+    {
+      "path": "/article/uiwang-myeongga-mandu",
+      "views": 2,
+      "avgSec": 4.13
+    },
+    {
+      "path": "/article/20260510-morning-ride",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/uiwang-myeongga-mandu",
+      "path": "/article/adding-view-count-in-gatsby",
       "views": 1,
-      "avgSec": 5.08
+      "avgSec": 0
+    },
+    {
+      "path": "/article/apptech-income-may-2026",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/baegunlake-henz-dubai-chewy-cookie",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-crt-vhs-shader",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-loading-scenes-and-garage-assets",
+      "views": 1,
+      "avgSec": 5.09
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-mobile-controls-motion-pwa",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-vehicle-profiles-rpm-retry",
+      "views": 1,
+      "avgSec": 1.46
+    },
+    {
+      "path": "/article/wooz-bakery-gijang-ocean-view-cafe",
+      "views": 1,
+      "avgSec": 0
     }
   ]
 }
