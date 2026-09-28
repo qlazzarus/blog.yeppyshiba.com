@@ -1,0 +1,242 @@
+:root {
+    font-family: Inter, Pretendard, system-ui, sans-serif;
+    color: #e4eadd;
+    background: #101a17;
+    font-synthesis: none;
+    color-scheme: dark;
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+main {
+    max-width: 1280px;
+    margin: auto;
+    padding: 40px 28px;
+}
+header {
+    margin-bottom: 32px;
+}
+.eyebrow {
+    color: #e8b365;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+}
+h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 550;
+    letter-spacing: -0.045em;
+    margin: 12px 0;
+}
+h1 span {
+    font-size: 14px;
+    letter-spacing: 0;
+    color: #93a69b;
+    margin-left: 20px;
+    font-weight: 400;
+}
+header > p:last-child {
+    color: #9faea4;
+    font-size: 14px;
+    line-height: 1.8;
+}
+h2 {
+    font-size: 15px;
+    margin: 0 0 16px;
+}
+p {
+    line-height: 1.7;
+}
+.workspace {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+}
+aside,
+.stage,
+.sheet {
+    border: 1px solid #33453b;
+    border-radius: 16px;
+    background: #17211c;
+}
+aside {
+    padding: 24px;
+}
+label {
+    display: block;
+    font-size: 12px;
+    color: #a8b9ac;
+    margin: 18px 0;
+}
+select,
+button {
+    font: inherit;
+    color: #e4eadd;
+    background: #233329;
+    border: 1px solid #405747;
+    border-radius: 7px;
+    padding: 10px;
+}
+select {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+}
+button {
+    cursor: pointer;
+    font-size: 12px;
+}
+button:hover {
+    background: #344b3c;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid #efbf73;
+    outline-offset: 3px;
+}
+button[aria-pressed='true'] {
+    border-color: #f0bb60;
+    background: #3e4028;
+}
+.buttons {
+    display: flex;
+    gap: 8px;
+}
+.buttons button {
+    flex: 1;
+}
+#play {
+    color: #f4c98b;
+}
+input[type='range'] {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    accent-color: #e8b365;
+}
+output {
+    float: right;
+    color: #e4c28b;
+}
+.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.check input {
+    accent-color: #e8b365;
+}
+hr {
+    border: 0;
+    border-top: 1px solid #33453b;
+    margin: 24px 0;
+}
+.muted {
+    font-size: 11px;
+    color: #96ab9c;
+}
+.stage {
+    padding: 24px;
+    min-width: 0;
+}
+.stage-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.stage-heading span {
+    font-size: 10px;
+    color: #8aa08e;
+    letter-spacing: 0.13em;
+}
+#viewport {
+    width: 100%;
+    max-width: 590px;
+    margin: auto;
+}
+#viewport canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+.sheet {
+    margin-top: 24px;
+    padding: 24px;
+}
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+.section-heading p {
+    font-size: 12px;
+    color: #96ab9c;
+}
+#directions {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 10px;
+}
+#directions button {
+    padding: 4px;
+    overflow: hidden;
+}
+#directions canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+#directions span {
+    display: block;
+    padding: 8px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+}
+footer {
+    padding: 24px 0;
+    color: #81988a;
+    font-size: 11px;
+}
+#error {
+    color: #ffb49f;
+}
+@media (max-width: 760px) {
+    main {
+        padding: 24px 16px;
+    }
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+    aside {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 20px;
+    }
+    aside h2,
+    aside hr,
+    aside p {
+        grid-column: 1/-1;
+    }
+    #directions {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    h1 span {
+        display: block;
+        margin: 10px 0 0;
+    }
+    .stage-heading,
+    .section-heading {
+        display: block;
+    }
+    .stage {
+        padding: 16px;
+    }
+}

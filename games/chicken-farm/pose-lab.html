@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex,nofollow" />
+        <title>Chicken Farm · Pose Lab</title>
+    </head>
+    <body>
+        <main>
+            <header>
+                <p class="eyebrow">CHICKEN FARM / INTERNAL STUDY 01</p>
+                <h1>Pose lab<span>Stick character study</span></h1>
+                <p>
+                    같은 캐릭터, 같은 카메라. 방향과 움직임만 바꾸며 스프라이트의 기준
+                    포즈를 살펴봅니다.
+                </p>
+            </header>
+            <div class="workspace">
+                <aside>
+                    <h2>캐릭터와 동작</h2>
+                    <label
+                        >캐릭터<select id="character">
+                            <option value="chicken">닭 · Biped bird</option>
+                            <option value="farmer">농부 · Humanoid</option>
+                            <option value="dog">개 · Quadruped</option>
+                            <option value="wolf">늑대 · Quadruped</option>
+                        </select></label
+                    >
+                    <label
+                        >동작<select id="action">
+                            <option value="idle">대기</option>
+                            <option value="walk">걷기</option>
+                            <option value="attack">공격</option>
+                            <option value="work">작업 / 탐색</option>
+                            <option value="death">쓰러짐</option>
+                        </select></label
+                    >
+                    <p id="pose-note" class="muted"></p>
+                    <label>방향<select id="direction"></select></label>
+                    <div class="buttons">
+                        <button id="play" type="button">재생</button
+                        ><button id="step" type="button">다음 프레임</button>
+                    </div>
+                    <label
+                        >동작 진행 <output id="phase-label">0%</output
+                        ><input id="phase" type="range" min="0" max="1000" value="0"
+                    /></label>
+                    <label
+                        >재생 속도<select id="speed">
+                            <option value="0.5">0.5×</option>
+                            <option value="1" selected>1×</option>
+                            <option value="2">2×</option>
+                        </select></label
+                    >
+                    <hr />
+                    <h2>고정 카메라</h2>
+                    <label
+                        >내려다보는 각도 <output id="angle-label">45°</output
+                        ><input id="angle" type="range" min="20" max="75" value="45"
+                    /></label>
+                    <label class="check"
+                        ><input id="guides" type="checkbox" checked /> 바닥 격자와 방향
+                        표시</label
+                    >
+                    <button id="reset" type="button">기준 포즈로 초기화</button>
+                    <p class="muted">
+                        막대는 뼈대, 구는 관절입니다. 색이 있는 머리와 주황색 방향
+                        표시로 앞뒤를 구분합니다.
+                    </p>
+                </aside>
+                <section class="stage">
+                    <div class="stage-heading">
+                        <h2 id="stage-title">닭</h2>
+                        <span>ORTHOGRAPHIC · IN PLACE</span>
+                    </div>
+                    <div
+                        id="viewport"
+                        role="img"
+                        aria-label="선택한 캐릭터의 3D stick 포즈"
+                    ></div>
+                    <p class="muted">
+                        캐릭터 크기와 발밑 원점은 고정됩니다. 현재 동작은 포즈 검토용
+                        모사이며 최종 접지·전투 애니메이션이 아닙니다.
+                    </p>
+                    <p id="error" role="alert" hidden></p>
+                </section>
+            </div>
+            <section class="sheet">
+                <div class="section-heading">
+                    <h2>8방향 비교</h2>
+                    <p>같은 동작 시점 · 같은 배율 · 클릭해서 방향 선택</p>
+                </div>
+                <div id="directions"></div>
+            </section>
+            <footer>로컬 개발용 페이지 · 첫 비교 대상 4종 · 게임 런타임과 분리</footer>
+        </main>
+        <script type="module" src="/src/pose-lab/main.ts"></script>
+    </body>
+</html>
