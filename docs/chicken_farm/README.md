@@ -33,6 +33,7 @@
 - [Playtest Telemetry](./chicken_farm_playtest_telemetry_plan.md)
 - [Wave/Shop MVP](./chicken_farm_wave_shop_disease_mvp_spec.md)
 - [Actual Play Observation](./chicken_farm_actual_play_observation_protocol.md)
+- [RTX 3080 로컬 에셋 제작 기준](./chicken_farm_asset_feasibility_2026-09-28.md) — 현재 에셋 우선순위, context 유지, 모델/LoRA/학습/prompt/검수 기준.
 - [Sprite Asset Generation](./chicken_farm_sprite_asset_generation_plan.md)
 
 Archive:
