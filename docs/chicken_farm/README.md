@@ -10,7 +10,7 @@
 
 새 작업은 아래 순서로 시작한다. 큰 분석·P2P 문서는 필요한 질문이 생겼을 때만 연다.
 
-1. [Current Context](./chicken_farm_current_context.md) — 현재 구현 경계와 바로 다음 작업을 3분 안에 파악하는 시작점.
+1. [Current Context](./chicken_farm_current_context.md) — 최종 업데이트·현재 task·달성률을 먼저 보여 주는 최신 현황판과 구현 시작점.
 2. [W3X·Warsmash·현재 구현 차이](./chicken_farm_gap_analysis.md) — 원본 사실, 엔진 감각, 의도적 MVP 변환, 미통합 항목을 구분한 기준 문서.
 3. 작업 범위에 맞는 PoC 문서 하나 — 건설, command queue, telemetry, asset 등.
 4. 수치/원본 근거가 필요할 때만 [W3X 추출 분석 노트](./chicken_farm_w3x_analysis.md)와 artifact를 연다.
@@ -20,7 +20,7 @@
 
 | 층 | 문서 | 역할 |
 | --- | --- | --- |
-| 현재 판단 | [Current Context](./chicken_farm_current_context.md), [Gap Analysis](./chicken_farm_gap_analysis.md), [Runtime Audit](./chicken_farm_runtime_audit_2026-07-13.md) | 다음 구현의 출발점, 차이·실제 코드 감사·우선순위 |
+| 현재 판단 | [Current Context](./chicken_farm_current_context.md), [Gap Analysis](./chicken_farm_gap_analysis.md), [Runtime Audit](./chicken_farm_runtime_audit_2026-07-13.md) | Current Context의 현황판이 최신 task·달성률·다음 행동의 기준이며, 나머지는 차이·코드 감사 근거다. |
 | 원본 근거 | [W3X 추출 분석](./chicken_farm_w3x_analysis.md), `chicken_farm_w3x_artifacts/` | 정적 추출값·JASS·오브젝트·지형 관찰 |
 | 엔진 참고 | [Warsmash 동작 노트](./chicken_farm_warsmash_behavior_notes.md), [참조 계획](./chicken_farm_warsmash_reference_plan.md) | Warcraft III식 order/pathing/attack 감각 |
 | 구현별 계획 | [Next Priority](./chicken_farm_next_priority_plan.md), 건설/명령/telemetry/sprite 계획 | 세부 완료 기준과 이력. 현재 판단은 위 두 압축 문서가 우선 |
@@ -28,7 +28,9 @@
 
 ### 범위별 PoC 문서
 
-- [프로토타입 UI 개선·2D 에셋 배치 계획](./chicken_farm_ui_asset_placement_plan_2026-09-28.md) — 현재 실행 우선순위. Terra medium 작업 패킷, UI 사용성, 향후 3080 정적 에셋·8way spritesheet 배치 계약. 에셋은 아직 생성 전.
+- [싱글플레이 구현 task](./chicken_farm_implementation_backlog.md#싱글플레이-task-상세) — **현재 최우선**. 시작·경제·방어·웨이브·승패·재시작 및 전체 플레이 검수(SP-01~16).
+- [Astra light 개발 작업량·한도 예산](./chicken_farm_astra_light_work_budget_2026-09-28.md) — Plus 5시간·주간 한도 실측 기록과 계산 기준. 이전 싱글/멀티 통합 견적은 참고값이며 새 싱글 범위는 재산정 전.
+- [프로토타입 UI 개선·2D 에셋 배치 계획](./chicken_farm_ui_asset_placement_plan_2026-09-28.md) — **후순위** UI polish·3080 정적 에셋·8way spritesheet 배치 계약. 에셋은 아직 생성 전.
 - [Construction Placement](./chicken_farm_construction_poc_plan.md), [Construction Visibility](./chicken_farm_construction_visibility_poc_plan.md)
 - [Command Queue](./chicken_farm_command_queue_poc_plan.md)
 - [Playtest Telemetry](./chicken_farm_playtest_telemetry_plan.md)

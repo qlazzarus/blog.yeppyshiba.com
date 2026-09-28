@@ -1,6 +1,10 @@
 # 닭농장 프로토타입 UI 개선·2D 에셋 배치 계획
 
+> **2026-09-28 16:16 KST 우선순위 변경:** 이 문서의 UI polish·에셋·adapter 패스는 후순위다. 현재는 [Current Context의 싱글플레이 task](./chicken_farm_current_context.md)를 따른다. 기존 구현 이력은 유지하며 플레이를 막는 입력 오류·필수 상태 피드백만 SP-14 및 관련 게임 task에 포함한다. 아래의 과거 P0 실행 순서를 현재 최우선으로 적용하지 않는다.
+
 작성: 2026-09-28. 현재 구현 소스 검토와 **GPT-5.6 Terra / medium** 검토를 합친 후속 구현 계획이다. 구현 완료 보고서가 아니다.
+
+실행 기준 갱신: 이후 개발은 사용자 지정 **Astra light / ChatGPT Plus**의 5시간·주간 한도를 기준으로 한다. Terra medium은 최초 검토 이력이다. 작업 분할은 유지하되 [개발 작업량·한도 예산](./chicken_farm_astra_light_work_budget_2026-09-28.md)에 따라 소작업별 사용량을 측정한다.
 
 ## 1. 이번 작업의 기준
 
@@ -10,7 +14,7 @@
 - 후속 UI 작업도 에셋 생성·학습·다운로드를 선행 조건으로 삼지 않는다. 지금의 도형/텍스트를 placeholder로 사용한다.
 - 8방향 런타임 입력은 spritesheet와 프레임 메타데이터다. 런타임 3D 렌더러 도입이나 단일 그림 회전으로 대체하지 않는다.
 - 제작 방법은 [RTX 3080 제작 기준](./chicken_farm_asset_feasibility_2026-09-28.md), ID 이력은 [Sprite 계획](./chicken_farm_sprite_asset_generation_plan.md)을 참조한다. **당장의 실행 순서는 이 문서의 UI 우선순위를 따른다.**
-- 이 문서는 모델 성능/가격 비교가 아니라, 요청한 Terra medium에 작은 구현 단위를 넘기기 위한 작업 분할이다.
+- 작업 분할은 모델 변경 후에도 재사용한다. 현재 실행 모델과 사용량 예산은 Current Context를 따른다.
 
 ## 2. 현재 구현에서 확인한 문제
 
@@ -154,18 +158,21 @@ P0-0 → P0-1 → P0-2 → P0-3 → P1-1 순서가 기본이다. P1-2/3은 UI와
 ### 재사용할 작업 지시문
 
 ```text
-모델: GPT-5.6 Terra, reasoning: medium
+모델: Astra, 추론: light (사용자 UI 설정 기준)
+예산: ChatGPT Plus 5시간·주간 한도, 추가 크레딧/API 지출 목표 $0
 계획: docs/chicken_farm/chicken_farm_ui_asset_placement_plan_2026-09-28.md
 이번 패킷: [P0-1 등 하나만]
 
 Current Context와 이번 패킷의 대상 파일을 먼저 읽어라.
+최신 5시간·주간 잔여율과 초기화 시각을 확인하고, 한 개의 검증 가능한 소작업으로 범위를 제한하라.
+한도 데이터를 조회할 수 없으면 미측정으로 표시하고, 종료 후 사용량 기록이 필요함을 인계하라.
 현재는 prototype이고 아트 생성 전이다. 기존 도형으로 이번 완료 조건을 충족하라.
 3080 제작/다운로드/학습, runtime 3D 전환, 경제·전투 밸런스 변경은 범위 밖이다.
 기존 CommandCardAction, wallet, selection, validation 경로를 재사용하라.
 main.ts 전체 정리나 관계없는 시스템 추출은 하지 말고 필요한 접점만 수정하라.
 새 에셋 파일/프레임 순서를 추측하지 말고 manifest/fallback으로 분리하라.
 변경 전 확인한 상태 → 변경 → 관련 build/smoke → 남은 한계를 보고하라.
-이번 패킷 완료 후 다음 패킷은 자동으로 섞지 말고 인계 내용을 기록하라.
+이번 소작업 완료 후 다음 패킷은 자동으로 섞지 말고 변경·검증·잔여 작업·한도 소비를 기록하라.
 ```
 
 컨텍스트는 Current Context + 이 문서의 해당 절 + 대상 파일로 시작한다. W3X 전체 분석·모델 제작 문서는 해당 수치/공정이 필요한 경우에만 연다. 변경 후 인계에는 수정 파일, 검증 명령/결과, 남은 문제, 다음 패킷 네 가지만 남긴다. 실제 예상 시간·모델 비용은 첫 패킷 결과 없이 단정하지 않는다.
@@ -174,7 +181,7 @@ main.ts 전체 정리나 관계없는 시스템 추출은 하지 말고 필요�
 
 - 변경: `main.ts`에서 DBG overlay와 build grid의 초기 표시를 껐고, `G` 키 토글은 유지했다. 상단 HUD는 gold/lumber/supply만 표시하며 farm/egg/inventory/hatch PoC 집계는 DBG overlay에만 남긴다. 미선택 패널은 한국어 첫 행동 안내를 표시한다.
 - 범위 보존: wallet, economy, CommandCardAction, 건설 validation, 충돌/경로와 실제 에셋은 변경하지 않았다.
-- 검증: `npm run build --workspace /chicken-farm` 성공.
+- 검증: `npm run build --workspace @games/chicken-farm` 성공.
 - 확인 한계: `npx tsc --noEmit -p games/chicken-farm/tsconfig.json`은 P0-1과 무관한 기존 `balance.ts`, terrain renderer, combat/unit system, `main.ts` 오류로 실패했다. 새 Edge headless 캡처는 프로세스가 종료하지 않아 만들지 못했다. 다음 패킷을 시작하기 전에 초기 화면에서 DBG/격자 숨김과 한국어 안내를 수동 확인한다.
 - 다음: P0-2만 진행한다. 명령 카드의 비용/불가 사유/targeting 안내와 수명 있는 feedback presenter를 추가하며, 이 패킷의 자원·선택 레이아웃을 다시 섞지 않는다.
 

@@ -1,71 +1,69 @@
 # Chicken Farm Current Context
 
-> 목적: 다음 작업자가 전체 문서를 다시 읽지 않고도 현재 구현 경계, 기준 문서, 우선순위를 파악하는 압축 컨텍스트다. 2026-07-13 기준.
+## 작업 현황
 
-## 2026-09-28 작업 우선순위 갱신
+- **최종 업데이트:** 2026-09-28 16:16 KST
+- **현재 목표:** 기존 도형으로 **시작 → 농장 경제 → 방어 → 늑대 웨이브 → 승리/패배 → 재시작**이 이어지는 싱글플레이 완성.
+- **이번 변경:** 우선순위와 task 목록만 정리했다. 게임 기능 구현·실행 검증은 하지 않았다.
+- **진행률:** 새 싱글플레이 목록은 완료 기준 대조 전이므로 **미산정**. 기존 UI 스프린트 21%를 게임 완성도로 사용하지 않는다. 아래 `연결 있음`은 통합 검증 완료를 뜻하지 않는다.
+- **개발 기준:** Astra light / ChatGPT Plus. 5시간·주간 한도 내 한 번에 소작업 하나, 추가 크레딧·API 지출 목표 $0.
+- **후순위:** UI 디자인·반응형 재배치·에셋 생성/교체·SFX/VFX 강화·8way adapter·멀티플레이·serverless DB/WebRTC. 조작을 막는 입력 오류와 필수 상태 표시는 게임 task 안에서 처리한다.
 
-현재 우선순위는 **프로토타입 UI 사용성 개선과 향후 2D 에셋 배치 계약 준비**다. 사용자 확인 기준 에셋은 아직 생성 전이며, 지금 이미지 교체를 진행하지 않는다. 실행 순서는 [UI 개선·배치 계획](./chicken_farm_ui_asset_placement_plan_2026-09-28.md)의 Terra medium 작업 패킷을 따른다. 향후 RTX 3080으로 정적 에셋을 제작하고, 8방향 유닛은 spritesheet와 명시적 frame metadata를 입력으로 연결한다.
+## 싱글플레이 task 목록
 
-제작 공정·원본/포즈/팔레트·LoRA·reference·prompt 기준은 [로컬 에셋 제작 기준](./chicken_farm_asset_feasibility_2026-09-28.md)에 유지한다. 아래 7월 구현 현황과 경제 통합 목록은 기존 기술 배경/잔여 작업이며, 실제 작업 전에는 현재 소스와 대조한다. 이번 갱신은 UI/에셋 통합 계획 수립이며 런타임 구현 완료를 의미하지 않는다.
+| 순서 | ID | Task | 현재 근거 / 상태 | 이번 task에서 확인할 결과 |
+| ---: | --- | --- | --- | --- |
+| 1 | SP-01 | 한 판의 목표·승패 규칙 확정 | 계획 대조 필요 | 시작 조건, 방어 목표, 패배 대상, 최종 웨이브/생존 목표, 재시작 규칙을 하나로 고정 |
+| 2 | SP-02 | 플레이 검증 경로 확보 | build 통과 이력, 타입/브라우저 문제 남음 | 싱글 실행·상태 확인·반복 테스트 가능; 진행을 막는 환경/타입 문제부터 해결 |
+| 3 | SP-03 | 정상 시작 상태 구성 | 농부·개·인벤토리·debug 자원 존재 | 실제 시작 자원/유닛/아이템, 초기 적·중립 배치와 재시작 초기화 일치 |
+| 4 | SP-04 | 선택·이동·경로·기본 명령 검수 | 기존 시스템 있음 | 선택, 우클릭 이동, 정지, Shift 예약, 막힌 길 처리로 기본 플레이가 끊기지 않음 |
+| 5 | SP-05 | 건설 lifecycle 완결 | 건설·경제 adapter 연결 있음 | 비용 차감, 일꾼 이동/착공, 중단/재개, 취소/환불, 파괴 시 footprint·시야·경제 정리 |
+| 6 | SP-06 | 닭·알 경제 한 바퀴 검증 | 수집·입고·부화·시장 판매 경로 있음 | 우물/닭장 건설 → 산란 → 수집 → 입고/부화 또는 시장 판매 → 같은 wallet 반영 |
+| 7 | SP-07 | 실제 맵 전투 연결 | Combat PoC 존재, 기본 off | 농부/개/타워와 적의 공격·피해·사망, 시야·사거리·펜스 blocker, attack-move 복귀 |
+| 8 | SP-08 | 늑대 웨이브 진행 연결 | 데이터/PoC 기반, 실제 판 검증 남음 | 실제 spawn 구역, 단계별 출현/보충, 농장 진입, 경로 막힘 대응, 웨이브 전환 |
+| 9 | SP-09 | 건물 기능·성장 경로 | 건물 데이터와 일부 기능 존재 | 플레이에 필요한 생산·업그레이드·선행조건·인구·취소 처리와 명령 연결 |
+| 10 | SP-10 | 적 단계·보스·보상 연결 | 데이터/계획 기준 대조 필요 | 일반 적 티어/보스의 능력·처치·드롭·보상과 다음 진행 연결; 중복 보상 방지 |
+| 11 | SP-11 | 승리·패배·재시작 구현 | 전체 루프 확인 필요 | SP-01 규칙으로 종료, 판정/경제 진행 중단, 재시작 시 이전 판 객체·예약·타이머 제거 |
+| 12 | SP-12 | 싱글 콘텐츠 누락 정리·연결 | 항목별 구현 감사 필요 | 상점/아이템, 가족/용병, 연구/스킬, 질병/치유·이벤트 등 기존 기획을 구현/미구현/후속 제안으로 대조하고 필수분 연결 |
+| 13 | SP-13 | 일시정지·탭 복귀 안정화 | 정책 문서 존재 | pause/resume, hidden→visible 복귀 후 시간 폭주·일괄 피해·생산 중복 방지 |
+| 14 | SP-14 | 플레이 필수 피드백·입력 오류 | 일부 HUD·입력 연결 있음 | 자원/HP/건설·생산 상태, 대상 지정/취소/실패 이유, HUD 클릭의 월드 명령 누출 방지 |
+| 15 | SP-15 | 한 판 밸런스 확인 | 임시 debug 시작값 존재 | 정상 시작 자원으로 경제와 방어가 성립하고 초기 압박부터 최종 목표까지 진행 가능 |
+| 16 | SP-16 | 싱글 전체 회귀·성능 검수 | 개별 측정 스크립트 존재 | 승리/패배/재시작, 장시간 플레이, 다수 닭·적·건물, 경로/프레임/메모리 회귀 통과 |
 
-## 1. 3분 컨텍스트
+ID는 추적용 task이며 같은 크기의 작업량 단위가 아니다. `SP-12`처럼 큰 항목은 착수할 때 소작업으로 나눈다. 현재 목록의 task 수를 기존 예산 문서의 소작업 수와 직접 비교하지 않는다.
 
-Chicken Farm은 `닭농장1.3a.w3x`의 에셋·코드 복제가 아니라, 원본의 **닭 경제 + 늑대 압박 + Warcraft III식 명령 감각**을 Phaser 웹 게임으로 새로 해석하는 프로젝트다.
+## Task 단위 상세와 실행 순서
 
-- 원본 사실의 기준은 `chicken_farm_w3x_analysis.md`와 `chicken_farm_w3x_artifacts/`다.
-- Warcraft III 엔진 동작의 기준은 `chicken_farm_warsmash_behavior_notes.md`다.
-- 현재 구현과 두 기준의 차이는 `chicken_farm_gap_analysis.md`를 먼저 읽는다.
-- 코드 기준의 실제 통합 상태와 검증 실패는 `chicken_farm_runtime_audit_2026-07-13.md`를 따른다.
-- 현재 런타임은 단일 플레이어 PoC다. `combat`과 `combatSmoke` 기본값은 모두 꺼져 있다.
-- 조작/건설/지형 pathing, 알·우물·닭장·부화의 순수 economy PoC는 존재한다. 그러나 이들은 아직 한 개의 경제 상태와 실제 늑대 웨이브로 완전히 통합되지 않았다.
+- **첫 묶음 — SP-01~06:** 한 판 규칙과 정상 시작 상태를 고정하고, 기존 이동/건설/경제 코드를 실제 맵에서 검증한다. 연결된 wallet·adapter를 새로 만들지 않는다.
+- **핵심 게임 — SP-07~11:** 경제가 있는 맵에서 늑대를 막고 성장해 승패에 도달하게 한다. 전투 flag만 켜는 것으로 완료 처리하지 않는다.
+- **완성 검수 — SP-12~16:** 기존 기획의 콘텐츠 누락, 탭 복귀, 필수 조작 안내, 밸런스·회귀를 점검한다. SP-12에서 기존 기획을 임의로 삭제하거나 원본 전체 이식을 완료했다고 간주하지 않는다.
+- **선행 적용:** SP-13/14의 문제가 앞선 task 플레이를 막으면 해당 오류만 먼저 해결한다. HUD 재디자인이나 아이콘 제작을 선행 조건으로 삼지 않는다.
 
-## 2. 지금의 구현 경계
+task별 세부 점검 항목은 [Implementation Backlog의 싱글플레이 task 상세](./chicken_farm_implementation_backlog.md#싱글플레이-task-상세)에 둔다. 기존 UI 작업 결과는 유지하고 추가 polish는 싱글 한 판 검수 뒤 재개한다.
 
-| 영역 | 상태 | 주 파일 | 다음에 필요한 일 |
-| --- | --- | --- | --- |
-| 선택·이동·공격·Shift 이동/건설 예약 | 최소 구현 | `controllableUnitSystem.ts`, `constructionPlacementSystem.ts` | attack-move 처치 후 목적지 복귀, 생산 queue |
-| WPM 지형·동적 blocker·늑대 blocker fallback | 최소 구현, 전투 플래그 off | `terrainBlocker.ts`, `combatPocSystem.ts`, `wolfAiStateMachine.ts` | 실제 맵 웨이브와 fence/tower/coop 통합 |
-| 건설 | PoC 통과 | `buildingSystem.ts`, `buildingTemplates.ts` | 경제 상태와 지갑·tech·생산 card 통합 |
-| 알·우물·닭·부화 | 순수 simulation + 임시 presenter 통과 | `economyTypes.ts`, `economySystem.ts`, `main.ts` | 건설/상점/업그레이드/판매와 같은 player state로 통합 |
-| 시야 | 단일 플레이어 기준 연결 | `visibilitySystem.ts`, `buildingSystem.ts` | player-slot별 시야와 네트워크 모델 |
-| 웨이브·보스·P2P | 데이터/계획 위주 | `balance.ts`, P2P/네트워크 문서 | 원본 population 모델, deterministic command replay, host authority |
+## 구현 증거와 재사용 대상
 
-현재 economy presenter는 건설/전투 월드와 분리된 별도 PoC entity를 직접 만든다. 따라서 “경제 PoC 통과”는 건설한 닭장이 실제로 경제·전투에 연결됐다는 뜻이 아니다.
+| 영역 | 확인한 코드 | 후속 판단 |
+| --- | --- | --- |
+| 조작/건설 | `controllableUnitSystem.ts`, `constructionPlacementSystem.ts`, `buildingSystem.ts` | SP-04/05에서 회귀·빈 동작 확인 |
+| 공용 지갑·건물 경제 | `playerWallet.ts`, `buildingEconomyAdapter.ts`, `main.ts` 완료/제거 callback | 이미 연결 있음. SP-05/06에서 같은 ID·소유자·수량의 실제 흐름 검증 |
+| 알·인벤토리·시장·부화 | `economySystem.ts`, `main.ts` 수집/판매/부화 경로 | SP-06에서 정상 시작부터 끝까지 확인 |
+| 전투·웨이브 | `combatPocSystem.ts`, `wolfAiStateMachine.ts`, `balance.ts` | combat/combatSmoke 기본 off. SP-07/08/10에서 실제 맵 통합 |
+| 표현 | 도형 기반, DBG·격자 기본 숨김 반영 | 당장 플레이 검증에 사용. 에셋 생성 대기 없이 진행 |
 
-## 3. 현재 포커스와 다음 우선순위
+7월 [Gap Analysis](./chicken_farm_gap_analysis.md), [Runtime Audit](./chicken_farm_runtime_audit_2026-07-13.md)는 과거 근거다. 현재 소스 대조 없이 미구현 task로 복사하지 않는다.
 
-아래는 2026-07-13에 정한 경제 통합 작업이다. 현재 작업 우선순위는 위 2026-09-28 갱신을 따른다.
+## Plus 한도와 작업 예산
 
-> **건설한 닭장·우물에 경제를 붙이고, 시장에서만 알을 판매해 하나의 지갑에 반영하게 만들기**
+- 마지막 사용자 보고: **2026-09-28 16:10 KST 기록**, 5시간 잔여 61%(reset in 3h 11m), 주간 잔여 78%(reset in 6d 17h). 자동 갱신되지 않는 과거 스냅샷이다.
+- 운영안: 매 소작업 전후 양쪽 잔여율 기록, 각 한도 20% 여유. 실제 task당 Astra light 소비 표본은 아직 없다.
+- 다음 측정 대상은 **SP-02의 검증 환경 확인 → SP-05의 건설 lifecycle 검증 → SP-06의 경제 루프 검증**이다. UI polish를 한도 측정 때문에 선행하지 않는다.
+- 기존 20~34개 싱글 / 전체 45~78개 추정은 UI·표현·멀티를 포함한 이전 범위다. **이번 싱글 우선 task의 기간·비용 예측으로 그대로 사용하지 않는다.** 상세 목록 대조와 실측 이후 재산정한다.
+- 측정표와 계산 규칙: [Astra light 개발 작업량·한도 예산](./chicken_farm_astra_light_work_budget_2026-09-28.md).
 
-이를 위해 먼저 아래 1~3을 순서대로 완료한다.
+## 후순위 문서
 
-1. **경제·건설 월드 통합:** 건설 완료한 `coop_basic`/`well_basic`이 같은 ID·소유자·footprint의 economy entity가 되며, 취소·파괴 시 함께 정리된다.
-2. **공용 지갑·기준 밸런스:** `coins`와 숫자형 `carriedEggs`는 폐기됐다. player slot별 단일 `gold/lumber/supply` wallet이 건설·취소 환불·시장 판매를 처리하며, 알은 농부/닭장 inventory의 stackable `I006` item으로만 관리된다. egg stack 판매는 완성 시장에서만 `gold`를 만들고 부화는 wallet을 바꾸지 않는다. 순수 측정은 통과했고 browser smoke artifact만 남았다.
-3. **경제 조작 루프 완성:** 농부가 알을 줍고 닭장에 입고해 부화하며, 알을 든 농부가 완성 시장을 우클릭했을 때만 판매한다.
-
-이 통합 smoke가 통과한 뒤 다음 순서로 진행한다.
-
-4. **실제 맵 늑대 웨이브:** 13개 map spawn rect에서 늑대가 농장으로 attack-move하고, acquire 및 blocker attack을 수행한다.
-5. **좌표 정합·경로 회귀 및 성능 측정:** tilemap/W3X/WPM 변환과 `chicken:perf:measure`를 현재 맵/fixture 기준으로 고정한다.
-6. **명령 완결성:** attack-move resume, 생산 queue, cancel, rally 및 조건부 건물 command card를 추가한다.
-7. **표현·상태 adapter:** sprite/state/아이콘과 render layer로 shape/debug 중심 표현을 교체한다.
-8. **replay·simulation 경계와 P2P 기반:** command replay, host authority, player-slot별 시야를 위한 순수 simulation 경계를 만든다.
-
-## 4. 문서 사용 규칙
-
-- 새 구현 전: 이 문서 → `chicken_farm_gap_analysis.md` → 해당 시스템의 짧은 PoC 계획만 읽는다.
-- 구현 변경 전: 위 순서 뒤 [Runtime Audit](./chicken_farm_runtime_audit_2026-07-13.md)에서 P0 통합 경계를 확인한다.
-- 원본 수치/근거가 필요할 때만 `chicken_farm_w3x_analysis.md`와 artifact TSV/JSON을 연다.
-- 엔진 감각이 필요할 때만 Warsmash 동작 노트를 연다. Warsmash는 구현 사양이 아니라 behavior 참고 기준이다.
-- `chicken_farm_next_priority_plan.md`의 세부 체크리스트와 `chicken_farm_phaser_p2p_game_plan.md`는 설계 이력도 포함한다. 현재 상태 판정은 이 문서와 gap analysis가 우선한다.
-
-## 5. 검증 명령
-
-```bash
-npm run chicken:economy:measure
-npm run chicken:wolfai:measure
-npm run chicken:perf:measure
-```
-
-각 측정 artifact는 `chicken_farm_w3x_artifacts/`에 남긴다. 수치가 문서의 기준값과 달라지면 gap analysis와 canonical balance를 함께 갱신한다.
+- [UI·에셋 배치 계획](./chicken_farm_ui_asset_placement_plan_2026-09-28.md): 기존 수정 이력과 후속 polish/adapter 계약. 게임 진행에 필요한 피드백은 SP-14로 가져온다.
+- [RTX 3080 에셋 제작 기준](./chicken_farm_asset_feasibility_2026-09-28.md): 정적 이미지·8way 시트 제작. 현재 생성 전이며 싱글 기능 구현의 선행 조건이 아니다.
+- [P2P 계획](./chicken_farm_phaser_p2p_game_plan.md), [Network/Suspend](./chicken_farm_network_and_suspend_plan.md): 멀티는 싱글 검수 후. 싱글 탭 복귀 정책만 SP-13에서 참조한다.
+- [Next Priority Plan](./chicken_farm_next_priority_plan.md): 과거 설계 이력. 현재 실행 순서는 이 현황판을 따른다.
