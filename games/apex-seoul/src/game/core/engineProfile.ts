@@ -1,0 +1,447 @@
+// Shared speed calibration: the 760-unit reference envelope maps to 225 km/h.
+// Vehicle targets must not change the speedometer's units.
+export const REFERENCE_SPEED_KMH = 225;
+
+export type EngineInduction = 'na' | 'single-turbo' | 'twin-turbo';
+
+export type EngineTorquePoint = {
+    rpm: number;
+    torqueScale: number;
+};
+
+export type EngineGearProfile = {
+    label: string;
+    rpmMax: number;
+    rpmMin: number;
+    speedRatioMax: number;
+    speedRatioMin: number;
+};
+
+export type EngineBoostProfile = {
+    /** Torque available before the turbo has finished spooling. */
+    baseTorqueRatio: number;
+    /** How quickly pressure bleeds away after lifting or braking. */
+    decayRate: number;
+    /** Optional second-stage range for a sequential twin-turbo setup. */
+    mainEndRpm?: number;
+    mainStartRpm?: number;
+    /** Sequential stage has its own inertia; weights sum to one, not extra torque. */
+    secondarySpoolRate?: number;
+    primaryTorqueShare?: number;
+    peakEndRpm: number;
+    peakStartRpm: number;
+    /** How quickly the turbine builds pressure while on throttle. */
+    spoolRate: number;
+    startRpm: number;
+};
+
+export type EngineShiftProfile = {
+    upDurationSec: number;
+    downDurationSec: number;
+    upTorqueCutRatio: number;
+    downTorqueCutRatio: number;
+    /** Remaining engine load driving the turbo during an upshift. */
+    upshiftBoostLoadRatio: number;
+    /** Arcade speed-envelope lead; physical gearboxes use mechanical RPM. */
+    upshiftSpeedMargin: number;
+};
+
+export const DEFAULT_ENGINE_SHIFT_PROFILE: EngineShiftProfile = {
+    upDurationSec: 0.22,
+    downDurationSec: 0.1,
+    upTorqueCutRatio: 0.42,
+    downTorqueCutRatio: 0.16,
+    upshiftBoostLoadRatio: 1,
+    upshiftSpeedMargin: 0.005,
+};
+
+export type VehicleEngineProfile = {
+    accelerationScale: number;
+    boost?: EngineBoostProfile;
+    displayName: string;
+    /** Legacy name: target top speed for tuning, not a speedometer scale. */
+    displayTopSpeedKmh: number;
+    fuelCutReturnRpm: number;
+    fuelCutStartRpm: number;
+    gears: EngineGearProfile[];
+    id: string;
+    idleRpm: number;
+    induction: EngineInduction;
+    maxRpm: number;
+    redlineStartRpm: number;
+    shift?: EngineShiftProfile;
+    shiftDropRpm: number;
+    shiftUpRpm: number;
+    torqueCurve: EngineTorquePoint[];
+    /** Attainable full-throttle terminal speed; display calibration remains shared. */
+    terminalSpeedKmh: number;
+    /** Optional drivetrain cap below the shared 225km/h safety envelope. */
+    terminalSpeedCapKmh?: number;
+    drivetrainModel?: 'arcade' | 'physical';
+    gearRatios?: number[];
+    finalDriveRatio?: number;
+    tireCircumferenceM?: number;
+    drivetrainEfficiency?: number;
+    drivetrainForceScale?: number;
+};
+
+export const RAVEN_COUPE_ENGINE_PROFILE: VehicleEngineProfile = {
+    // Raven Coupe is the in-game name; the drivetrain references the Toyota GT86/FT86.
+    accelerationScale: 1.34,
+    displayName: 'Raven Coupe',
+    // The physics envelope maps to the Raven/FT86 reference top-speed target;
+    // handling still uses normalized world units internally.
+    displayTopSpeedKmh: 225,
+    drivetrainModel: 'physical',
+    drivetrainEfficiency: 0.85,
+    drivetrainForceScale: 0.50,
+    finalDriveRatio: 4.1,
+    fuelCutReturnRpm: 7350,
+    fuelCutStartRpm: 7750,
+    gears: [
+        // FT86-inspired spacing: each full-throttle shift drops back into the
+        // 5,400–5,800 rpm pull instead of exhausting 1st and 5th immediately.
+        { label: '1', rpmMax: 7400, rpmMin: 1100, speedRatioMax: 0.201, speedRatioMin: 0 },
+        { label: '2', rpmMax: 7400, rpmMin: 4400, speedRatioMax: 0.333, speedRatioMin: 0.201 },
+        { label: '3', rpmMax: 7400, rpmMin: 5200, speedRatioMax: 0.473, speedRatioMin: 0.333 },
+        { label: '4', rpmMax: 7400, rpmMin: 5800, speedRatioMax: 0.600, speedRatioMin: 0.473 },
+        { label: '5', rpmMax: 7400, rpmMin: 6000, speedRatioMax: 0.728, speedRatioMin: 0.600 },
+        { label: '6', rpmMax: 7800, rpmMin: 5100, speedRatioMax: 1, speedRatioMin: 0.728 },
+    ],
+    id: 'raven-coupe-na',
+    idleRpm: 1100,
+    induction: 'na',
+    maxRpm: 7800,
+    redlineStartRpm: 7200,
+    // NA: keep the existing mechanical high-rev shifts and direct response.
+    shift: { ...DEFAULT_ENGINE_SHIFT_PROFILE },
+    shiftDropRpm: 5400,
+    shiftUpRpm: 7400,
+    terminalSpeedKmh: 223,
+    torqueCurve: [
+        { rpm: 1000, torqueScale: 0.25 },
+        { rpm: 2500, torqueScale: 0.38 },
+        { rpm: 3500, torqueScale: 0.52 },
+        { rpm: 4300, torqueScale: 0.56 },
+        { rpm: 5200, torqueScale: 0.82 },
+        { rpm: 6000, torqueScale: 0.94 },
+        { rpm: 6400, torqueScale: 1 },
+        { rpm: 6600, torqueScale: 1 },
+        { rpm: 7000, torqueScale: 0.96 },
+        { rpm: 7400, torqueScale: 0.84 },
+        { rpm: 7800, torqueScale: 0.68 },
+    ],
+    // Keep sixth close enough to fifth that the 225km/h envelope reaches the
+    // 7,750RPM limiter. The old overdrive topped out around 6,000RPM and made
+    // the high-rev red zone presentation unreachable during a normal run.
+    gearRatios: [3.626, 2.188, 1.541, 1.213, 1, 0.97],
+    tireCircumferenceM: 1.964,
+};
+
+export const SEORIN_GT_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1.16,
+    boost: {
+        // Sequential twins: the small primary turbo gives early response,
+        // then the second stage fills the broad 4,500–6,200 rpm plateau.
+        baseTorqueRatio: 0.82,
+        decayRate: 2.8,
+        mainEndRpm: 4700,
+        mainStartRpm: 3900,
+        secondarySpoolRate: 3.2,
+        primaryTorqueShare: 0.8,
+        peakEndRpm: 6400,
+        peakStartRpm: 3600,
+        spoolRate: 5.4,
+        startRpm: 2100,
+    },
+    displayName: 'Seorin GT',
+    displayTopSpeedKmh: 225,
+    fuelCutReturnRpm: 6500,
+    fuelCutStartRpm: 7000,
+    gears: [
+        { label: '1', rpmMax: 6650, rpmMin: 950, speedRatioMax: 0.16, speedRatioMin: 0 },
+        { label: '2', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.3, speedRatioMin: 0.11 },
+        { label: '3', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.45, speedRatioMin: 0.24 },
+        { label: '4', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.61, speedRatioMin: 0.4 },
+        { label: '5', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.77, speedRatioMin: 0.56 },
+        { label: '6', rpmMax: 6650, rpmMin: 3900, speedRatioMax: 0.9, speedRatioMin: 0.72 },
+        { label: '7', rpmMax: 6500, rpmMin: 4000, speedRatioMax: 0.98, speedRatioMin: 0.86 },
+        // Terminal gear must reach the profile limiter; automatic upshifts
+        // still occur at the preceding speed-envelope boundaries.
+        { label: '8', rpmMax: 7000, rpmMin: 4200, speedRatioMax: 1, speedRatioMin: 0.94 },
+    ],
+    id: 'seorin-gt-twin-turbo',
+    idleRpm: 950,
+    induction: 'twin-turbo',
+    maxRpm: 7000,
+    redlineStartRpm: 6500,
+    // Sequential twin: short interruption, early shift, primary stays loaded.
+    shift: {
+        upDurationSec: 0.14, downDurationSec: 0.1,
+        upTorqueCutRatio: 0.24, downTorqueCutRatio: 0.12,
+        upshiftBoostLoadRatio: 0.65, upshiftSpeedMargin: 0.02,
+    },
+    shiftDropRpm: 4400,
+    shiftUpRpm: 6650,
+    terminalSpeedKmh: 225,
+    torqueCurve: [
+        { rpm: 1000, torqueScale: 0.3 },
+        { rpm: 2000, torqueScale: 0.45 },
+        { rpm: 3000, torqueScale: 0.66 },
+        { rpm: 3800, torqueScale: 0.88 },
+        { rpm: 4500, torqueScale: 0.98 },
+        { rpm: 6000, torqueScale: 1 },
+        { rpm: 6400, torqueScale: 0.96 },
+        { rpm: 7000, torqueScale: 0.76 },
+    ],
+};
+
+export const MIRAE_GT_ENGINE_PROFILE: VehicleEngineProfile = {
+    accelerationScale: 1.08,
+    boost: {
+        // A larger single turbo has a more pronounced wait before its
+        // mid-range hit, and retains pressure longer between inputs.
+        baseTorqueRatio: 0.64,
+        decayRate: 1.55,
+        peakEndRpm: 6500,
+        peakStartRpm: 4800,
+        spoolRate: 2.25,
+        startRpm: 3000,
+    },
+    displayName: 'Mirae GT',
+    displayTopSpeedKmh: 218,
+    fuelCutReturnRpm: 6650,
+    fuelCutStartRpm: 7200,
+    gears: [
+        { label: '1', rpmMax: 6850, rpmMin: 1000, speedRatioMax: 0.17, speedRatioMin: 0 },
+        { label: '2', rpmMax: 6850, rpmMin: 4600, speedRatioMax: 0.32, speedRatioMin: 0.13 },
+        { label: '3', rpmMax: 6850, rpmMin: 4600, speedRatioMax: 0.5, speedRatioMin: 0.27 },
+        { label: '4', rpmMax: 6850, rpmMin: 4600, speedRatioMax: 0.7, speedRatioMin: 0.43 },
+        { label: '5', rpmMax: 6700, rpmMin: 4600, speedRatioMax: 0.88, speedRatioMin: 0.62 },
+        // Terminal gear must reach the profile limiter; automatic upshifts
+        // still occur at the preceding speed-envelope boundaries.
+        { label: '6', rpmMax: 7200, rpmMin: 4400, speedRatioMax: 218 / REFERENCE_SPEED_KMH, speedRatioMin: 0.8 },
+    ],
+    id: 'mirae-gt-single-turbo',
+    idleRpm: 1000,
+    induction: 'single-turbo',
+    maxRpm: 7200,
+    redlineStartRpm: 6700,
+    // Large single: hold the high-rev pull, then rebuild load after a shift.
+    shift: {
+        upDurationSec: 0.26, downDurationSec: 0.12,
+        upTorqueCutRatio: 0.5, downTorqueCutRatio: 0.18,
+        upshiftBoostLoadRatio: 0.12, upshiftSpeedMargin: 0.005,
+    },
+    shiftDropRpm: 4600,
+    shiftUpRpm: 6850,
+    terminalSpeedKmh: 218,
+    terminalSpeedCapKmh: 218,
+    torqueCurve: [
+        { rpm: 1000, torqueScale: 0.26 },
+        { rpm: 2400, torqueScale: 0.34 },
+        { rpm: 3200, torqueScale: 0.44 },
+        { rpm: 4000, torqueScale: 0.72 },
+        { rpm: 4800, torqueScale: 0.97 },
+        { rpm: 5600, torqueScale: 1 },
+        { rpm: 6500, torqueScale: 0.9 },
+        { rpm: 7200, torqueScale: 0.68 },
+    ],
+};
+
+export const VEHICLE_ENGINE_PROFILES = {
+    miraeGt: MIRAE_GT_ENGINE_PROFILE,
+    ravenCoupe: RAVEN_COUPE_ENGINE_PROFILE,
+    seorinGt: SEORIN_GT_ENGINE_PROFILE,
+} as const;
+
+export function getInitialGearIndex(profile: VehicleEngineProfile, speedRatio: number) {
+    if (hasPhysicalDrivetrain(profile)) {
+        const firstSustainableGear = profile.gears.findIndex(
+            (_, gearIndex) => getGearRpm(profile, gearIndex, speedRatio) <= profile.shiftUpRpm,
+        );
+
+        return firstSustainableGear < 0 ? profile.gears.length - 1 : firstSustainableGear;
+    }
+
+    const exactGearIndex = profile.gears.findIndex(
+        (gear) => speedRatio >= gear.speedRatioMin && speedRatio <= gear.speedRatioMax,
+    );
+
+    if (exactGearIndex >= 0) return exactGearIndex;
+
+    const nextGearIndex = profile.gears.findIndex((gear) => speedRatio < gear.speedRatioMin);
+
+    return nextGearIndex < 0 ? profile.gears.length - 1 : Math.max(0, nextGearIndex - 1);
+}
+
+export function getPhysicalDownshiftRpm(profile: VehicleEngineProfile, gearIndex: number) {
+    if (!hasPhysicalDrivetrain(profile) || gearIndex <= 0) return profile.idleRpm;
+
+    const currentGearIndex = clamp(Math.round(gearIndex), 1, profile.gearRatios.length - 1);
+    const previousRatio = profile.gearRatios[currentGearIndex - 1];
+    const currentRatio = profile.gearRatios[currentGearIndex];
+
+    // Derive the current-gear threshold so a downshift lands the previous gear
+    // at the profile's existing shiftDropRpm target. Adjacent physical ratios
+    // provide hysteresis without consulting the legacy speed envelope.
+    return Math.max(
+        profile.idleRpm,
+        profile.shiftDropRpm * currentRatio / previousRatio,
+    );
+}
+
+export function getGearRpm(profile: VehicleEngineProfile, gearIndex: number, speedRatio: number) {
+    const gear = profile.gears[clamp(Math.round(gearIndex), 0, profile.gears.length - 1)];
+
+    if (profile.drivetrainModel === 'physical' && profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM) {
+        const speedKmh = clamp(speedRatio, 0, 1) * REFERENCE_SPEED_KMH;
+        const wheelRpm = (speedKmh / 3.6) / profile.tireCircumferenceM * 60;
+        const ratio = profile.gearRatios[clamp(Math.round(gearIndex), 0, profile.gearRatios.length - 1)];
+
+        return clamp(
+            wheelRpm * ratio * profile.finalDriveRatio,
+            profile.idleRpm,
+            profile.maxRpm,
+        );
+    }
+
+    const progress = gear.speedRatioMax <= gear.speedRatioMin
+        ? 1
+        : smoothstep(clamp(
+            (speedRatio - gear.speedRatioMin) / (gear.speedRatioMax - gear.speedRatioMin),
+            0,
+            1,
+        ));
+
+    return lerp(gear.rpmMin, gear.rpmMax, progress);
+}
+
+function hasPhysicalDrivetrain(profile: VehicleEngineProfile): profile is VehicleEngineProfile & {
+    finalDriveRatio: number;
+    gearRatios: number[];
+    tireCircumferenceM: number;
+} {
+    return profile.drivetrainModel === 'physical' &&
+        Boolean(profile.gearRatios?.length && profile.finalDriveRatio && profile.tireCircumferenceM);
+}
+
+export function getTorqueScale(profile: VehicleEngineProfile, rpm: number) {
+    const curve = profile.torqueCurve;
+
+    if (rpm <= curve[0].rpm) return curve[0].torqueScale;
+
+    for (let index = 1; index < curve.length; index += 1) {
+        const previous = curve[index - 1];
+        const next = curve[index];
+
+        if (rpm <= next.rpm) {
+            const progress = clamp((rpm - previous.rpm) / (next.rpm - previous.rpm), 0, 1);
+
+            return lerp(previous.torqueScale, next.torqueScale, progress);
+        }
+    }
+
+    return curve[curve.length - 1].torqueScale;
+}
+
+/**
+ * Returns requested boost for the current engine conditions. The controller
+ * applies spool/decay over time, so this deliberately is not instant pressure.
+ */
+export function getBoostTargetRatio(
+    profile: VehicleEngineProfile,
+    rpm: number,
+    throttle: number,
+    brake: number,
+    cornerIntensity: number,
+    speedRatio: number,
+) {
+    return getEngineBoostTargets(profile, rpm, throttle, brake, cornerIntensity, speedRatio).boostRatio;
+}
+
+export type EngineBoostState = {
+    boostRatio: number;
+    primaryBoostRatio: number;
+    secondaryBoostRatio: number;
+};
+
+export function getEngineBoostTargets(
+    profile: VehicleEngineProfile, rpm: number, throttle: number, brake: number,
+    cornerIntensity: number, speedRatio: number,
+): EngineBoostState {
+    const boost = profile.boost;
+    if (profile.induction === 'na' || !boost || throttle <= 0 || brake > 0) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
+    const primarySpool = smoothstep(clamp(
+        (rpm - boost.startRpm) / Math.max(1, boost.peakStartRpm - boost.startRpm), 0, 1,
+    ));
+    const isTwin = profile.induction === 'twin-turbo';
+    const secondarySpool = isTwin ? smoothstep(clamp(
+        (rpm - (boost.mainStartRpm ?? boost.startRpm)) /
+        Math.max(1, (boost.mainEndRpm ?? boost.peakStartRpm) - (boost.mainStartRpm ?? boost.startRpm)), 0, 1,
+    )) : 0;
+    const redlineDecay = rpm > boost.peakEndRpm
+        ? 1 - smoothstep(clamp((rpm - boost.peakEndRpm) /
+            Math.max(1, profile.fuelCutStartRpm - boost.peakEndRpm), 0, 1)) * 0.28
+        : 1;
+    const cornerPenalty = lerp(1, isTwin ? 0.82 : 0.7, clamp(cornerIntensity, 0, 1));
+    const speedLift = isTwin
+        ? lerp(0.82, 1.08, smoothstep(clamp(speedRatio, 0, 1)))
+        : lerp(0.9, 1.02, smoothstep(clamp(speedRatio, 0, 1)));
+    // Partial throttle must not command full boost. Pressure remains normalized,
+    // not bar/psi, and each needle shows the same state that supplies torque.
+    const load = redlineDecay * cornerPenalty * speedLift * clamp(throttle, 0, 1);
+    const primaryBoostRatio = clamp(primarySpool * load, 0, 1);
+    const secondaryBoostRatio = clamp(primarySpool * secondarySpool * load, 0, 1);
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
+}
+
+function combineEngineBoost(profile: VehicleEngineProfile, primary: number, secondary: number) {
+    if (profile.induction === 'na' || !profile.boost) return 0;
+    if (profile.induction === 'single-turbo') return primary;
+    const share = clamp(profile.boost.primaryTorqueShare ?? 0.8, 0, 1);
+    return primary * share + secondary * (1 - share);
+}
+
+/** Exponential stage response is stable across frame rates for a held target. */
+export function advanceEngineBoost(
+    profile: VehicleEngineProfile, current: EngineBoostState, target: EngineBoostState, seconds: number,
+): EngineBoostState {
+    const boost = profile.boost;
+    if (profile.induction === 'na' || !boost) {
+        return { boostRatio: 0, primaryBoostRatio: 0, secondaryBoostRatio: 0 };
+    }
+    const advance = (value: number, goal: number, spoolRate: number) => {
+        const rate = goal > value ? spoolRate : boost.decayRate;
+        return clamp(lerp(value, goal, 1 - Math.exp(-rate * Math.max(0, seconds))), 0, 1);
+    };
+    const primaryBoostRatio = advance(current.primaryBoostRatio, target.primaryBoostRatio, boost.spoolRate);
+    const secondaryBoostRatio = profile.induction === 'twin-turbo'
+        ? advance(current.secondaryBoostRatio, target.secondaryBoostRatio, boost.secondarySpoolRate ?? boost.spoolRate)
+        : 0;
+    return {
+        primaryBoostRatio, secondaryBoostRatio,
+        boostRatio: combineEngineBoost(profile, primaryBoostRatio, secondaryBoostRatio),
+    };
+}
+
+export function getDisplaySpeedKmh(speed: number, accelSpeed: number, _profile: VehicleEngineProfile) {
+    return clamp(speed / accelSpeed, 0, 1) * REFERENCE_SPEED_KMH;
+}
+
+function clamp(value: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function lerp(start: number, end: number, amount: number) {
+    return start + (end - start) * amount;
+}
+
+function smoothstep(value: number) {
+    return value * value * (3 - 2 * value);
+}
