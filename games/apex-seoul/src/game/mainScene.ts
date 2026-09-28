@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import { getSceneMobileDisplayMetrics } from './mobileDisplay';
 import { MAIN_MENU_HERO_KEY } from './startupAssetManifest';
 import { UI_THEME } from './uiTheme';
 
@@ -12,13 +13,21 @@ export class MainScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
         const graphics = this.add.graphics();
-        const compact = width < 680;
+        const landscapeMobile = getSceneMobileDisplayMetrics(this).layout === 'landscape-mobile';
+        const compact = width < 680 || landscapeMobile;
+        const mobileMenu = landscapeMobile;
         const titleSize = Math.round(
-            Phaser.Math.Clamp(width * (compact ? 0.1 : 0.05), 32, 52),
+            Phaser.Math.Clamp(width * (compact ? 0.1 : 0.05), 32, mobileMenu ? 46 : 52),
         );
-        const menuWidth = compact ? width - 48 : Math.min(380, width * 0.31);
-        const menuX = compact ? 24 : width - menuWidth - 42;
-        const menuY = compact ? height * 0.57 : height * 0.36;
+        const menuWidth = mobileMenu
+            ? Math.min(760, width - 112)
+            : compact ? width - 48 : Math.min(380, width * 0.31);
+        const menuX = mobileMenu
+            ? (width - menuWidth) / 2
+            : compact ? 24 : width - menuWidth - 42;
+        const menuY = mobileMenu ? 256 : compact ? height * 0.57 : height * 0.36;
+        const buttonHeights = mobileMenu ? [88, 84, 84, 84] : [50, 50, 50, 50];
+        const menuGap = mobileMenu ? 12 : 14;
         const menuEntries = ['START', 'RECORDS', 'OPTIONS', 'CREDITS & LICENSES'] as const;
         const menuButtons: Phaser.GameObjects.Rectangle[] = [];
         const menuLabels: Phaser.GameObjects.Text[] = [];
@@ -36,9 +45,9 @@ export class MainScene extends Phaser.Scene {
             .fillStyle(UI_THEME.background, compact ? 0.7 : 0.88)
             .fillRect(
                 compact ? 0 : width * 0.58,
-                compact ? height * 0.48 : 0,
+                mobileMenu ? 200 : compact ? height * 0.48 : 0,
                 compact ? width : width * 0.42,
-                compact ? height * 0.52 : height,
+                mobileMenu ? height - 200 : compact ? height * 0.52 : height,
             );
         graphics
             .fillStyle(UI_THEME.amber, 0.14)
@@ -46,8 +55,9 @@ export class MainScene extends Phaser.Scene {
         graphics.lineStyle(1, UI_THEME.amberHighlight, 0.1);
         for (let y = 0; y < height; y += 3)
             graphics.lineBetween(0, y, compact ? width : width * 0.58, y);
-        graphics.fillStyle(UI_THEME.nightBlue, 0.82).fillRect(0, 0, width, 138);
-        graphics.lineStyle(2, UI_THEME.amber, 0.9).lineBetween(0, 136, width, 136);
+        const headerHeight = mobileMenu ? 118 : 138;
+        graphics.fillStyle(UI_THEME.nightBlue, 0.82).fillRect(0, 0, width, headerHeight);
+        graphics.lineStyle(2, UI_THEME.amber, 0.9).lineBetween(0, headerHeight - 2, width, headerHeight - 2);
 
         const apexX = width / 2 - Math.min(38, width * 0.06);
         const apexY = 26;
@@ -138,10 +148,10 @@ export class MainScene extends Phaser.Scene {
             .text(seoulX, seoulY, 'SEOUL', titleStyle)
             .setOrigin(0.5)
             .setScale(titleScaleX, 1);
-        this.add.text(menuX, menuY - 26, 'BUGAK RIDGE / SEOUL', {
+        this.add.text(menuX, menuY - (mobileMenu ? 32 : 26), 'BUGAK RIDGE / SEOUL', {
             color: UI_THEME.secondaryTextHex,
             fontFamily: 'monospace',
-            fontSize: '11px',
+            fontSize: mobileMenu ? '13px' : '11px',
             letterSpacing: 1,
         });
         const startTimeAttack = () => this.scene.start('vehicle-select');
@@ -167,14 +177,16 @@ export class MainScene extends Phaser.Scene {
             else if (entry === 'OPTIONS') this.scene.start('options');
             else this.scene.start('asset-notices');
         };
+        let rowTop = menuY;
         menuEntries.forEach((entry, index) => {
-            const y = menuY + index * 64;
+            const buttonHeight = buttonHeights[index];
+            const y = rowTop + buttonHeight / 2;
             const button = this.add
                 .rectangle(
                     menuX + menuWidth / 2,
                     y,
                     menuWidth,
-                    50,
+                    buttonHeight,
                     index === 0 ? UI_THEME.amber : UI_THEME.panel,
                 )
                 .setStrokeStyle(
@@ -189,7 +201,7 @@ export class MainScene extends Phaser.Scene {
                             ? UI_THEME.menuSelectedTextHex
                             : UI_THEME.menuTextHex,
                     fontFamily: 'Arial, sans-serif',
-                    fontSize: '21px',
+                    fontSize: mobileMenu ? (index === 0 ? '28px' : '25px') : '21px',
                     fontStyle: 'bold',
                     letterSpacing: 2,
                 })
@@ -201,7 +213,18 @@ export class MainScene extends Phaser.Scene {
             });
             menuButtons.push(button);
             menuLabels.push(label);
+            rowTop += buttonHeight + menuGap;
         });
+        if (mobileMenu) {
+            this.add
+                .text(width / 2, rowTop + 12, 'TAP A MENU ITEM TO CONTINUE', {
+                    color: UI_THEME.secondaryTextHex,
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    letterSpacing: 1,
+                })
+                .setOrigin(0.5);
+        }
         this.input.keyboard?.on('keydown-UP', () => select(selectedIndex - 1));
         this.input.keyboard?.on('keydown-DOWN', () => select(selectedIndex + 1));
         this.input.keyboard?.on('keydown-ENTER', activate);

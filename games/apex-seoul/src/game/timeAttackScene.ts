@@ -293,11 +293,6 @@ const LAUNCH_CONTROL_CONFIG: LaunchControlConfig = {
 // FT86 on-road baseline; it must stay shared to preserve inter-car ratios.
 const CANDIDATE_192_PRESENTATION_SCALE = 0.97;
 
-const URL_PARAMS = getInternalUrlParams();
-const APEX_RUNTIME = createApexSeoulRuntimeConfig(URL_PARAMS);
-const LONGITUDINAL_PROGRESSION = APEX_RUNTIME.longitudinalProgression;
-let ACTIVE_RUN_SETUP = resolveRunSetup(undefined, URL_PARAMS);
-
 function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     return selectRuntimeVehicleAsset(selection, {
     ft86: {
@@ -374,32 +369,6 @@ function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     });
 }
 
-let ACTIVE_RUNTIME_VEHICLE = selectActiveRuntimeVehicle(ACTIVE_RUN_SETUP);
-let LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro' || ACTIVE_RUNTIME_VEHICLE.id === 'raven-coupe';
-let PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
-let PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
-let ACTIVE_ROAD_TRACK_ID = parseRoadTrackId(ACTIVE_RUN_SETUP.trackId);
-const RUNTIME_TUNING = APEX_RUNTIME.tuning;
-const CAMERA_EFFECTS_CONFIG = APEX_RUNTIME.cameraEffects;
-const RUNTIME_QA = APEX_RUNTIME.qa;
-const RUNTIME_TELEMETRY = APEX_RUNTIME.telemetry;
-
-function createRuntimeQaCamera() {
-    const camera = createDefaultCamera();
-
-    camera.z = RUNTIME_QA.initialZ ?? camera.z;
-
-    return camera;
-}
-
-let PLAYER_CONTROLLER_CONFIG = createPlayerVehicleRuntimeConfig(
-    URL_PARAMS,
-    ACTIVE_RUNTIME_VEHICLE.engineProfile,
-    ACTIVE_RUNTIME_VEHICLE.handlingProfile,
-);
-
-let PLAYER_VEHICLE_ATLAS = ACTIVE_RUNTIME_VEHICLE.atlas;
-
 type PlayerVehicleRenderState = {
     anchor: VehicleAnchor;
     displaySize: number;
@@ -462,9 +431,28 @@ type PlayerPhysicsRoadSample = {
 };
 
 export class TimeAttackScene extends Phaser.Scene {
+    private readonly urlParams = getInternalUrlParams();
+    private readonly apexRuntime = createApexSeoulRuntimeConfig(this.urlParams);
+    private readonly longitudinalProgression = this.apexRuntime.longitudinalProgression;
+    private activeRunSetup = resolveRunSetup(undefined, this.urlParams);
+    private activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
+    private launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+    private playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
+    private playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
+    private activeRoadTrackId = parseRoadTrackId(this.activeRunSetup.trackId);
+    private readonly runtimeTuning = this.apexRuntime.tuning;
+    private readonly cameraEffectsConfig = this.apexRuntime.cameraEffects;
+    private readonly runtimeQa = this.apexRuntime.qa;
+    private readonly runtimeTelemetry = this.apexRuntime.telemetry;
+    private playerControllerConfig = createPlayerVehicleRuntimeConfig(
+        this.urlParams,
+        this.activeRuntimeVehicle.engineProfile,
+        this.activeRuntimeVehicle.handlingProfile,
+    );
+    private playerVehicleAtlas = this.activeRuntimeVehicle.atlas;
     private backgroundGraphics!: Phaser.GameObjects.Graphics;
-    private cameraResource: Pseudo3dCamera = createRuntimeQaCamera();
-    private cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
+    private cameraResource: Pseudo3dCamera = this.createRuntimeQaCamera();
+    private cameraEffects = createCameraEffectsState(this.cameraEffectsConfig);
     private cameraManualPitch = 0;
     private cameraTerrainPitch = 0;
     private cameraVelocity = {
@@ -511,8 +499,8 @@ export class TimeAttackScene extends Phaser.Scene {
     private playerSoftShadowCar!: Phaser.GameObjects.Image;
     private playerShadowCar!: Phaser.GameObjects.Image;
     private playerVehicle: PlayerVehicleState = createDefaultPlayerVehicleState(
-        RUNTIME_QA.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
-        ACTIVE_RUNTIME_VEHICLE.engineProfile,
+        this.runtimeQa.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
+        this.activeRuntimeVehicle.engineProfile,
         PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
     );
     private powertrainFeedback: PowertrainFeedbackState = createPowertrainFeedbackState();
@@ -531,8 +519,8 @@ export class TimeAttackScene extends Phaser.Scene {
     private headlightRawRoadAimX = 0;
     private headlightRoadAimX = 0;
     private headlightOpticalState: VehicleHeadlightOpticalState =
-        getVehicleHeadlightOpticalState(PLAYER_VEHICLE_ATLAS, 0);
-    private roadTrack: RoadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
+        getVehicleHeadlightOpticalState(this.playerVehicleAtlas, 0);
+    private roadTrack: RoadTrack = createRoadTrack(this.activeRoadTrackId);
     private playerPhysicsRoadSample: PlayerPhysicsRoadSample = {
         cameraZ: 0,
         contactZ: PLAYER_DEFAULTS.PLAYER_ROAD_CONTACT_DISTANCE,
@@ -560,7 +548,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private speedEffectTime = 0;
     private telemetry: RuntimeTelemetryRecorder | null = null;
     private courseRunConfig: CourseRunConfig = COURSE_RUN_CONFIG;
-    private runState: CourseRunState = createCourseRunState(COURSE_RUN_CONFIG, RUNTIME_QA.enabled);
+    private runState: CourseRunState = createCourseRunState(COURSE_RUN_CONFIG, this.runtimeQa.enabled);
     private recovery = createStuckRecoveryState();
     private bestSnapshot: BestSnapshots = { overall: null, vehicle: null };
     private lastSplitText = '';
@@ -591,36 +579,44 @@ export class TimeAttackScene extends Phaser.Scene {
         super('time-attack');
     }
 
+    private createRuntimeQaCamera() {
+        const camera = createDefaultCamera();
+
+        camera.z = this.runtimeQa.initialZ ?? camera.z;
+
+        return camera;
+    }
+
     init(data?: RunSetup) {
         // A retry does not provide new scene data, so retain the last garage
         // choice for the lifetime of this game instance.
-        if (data) ACTIVE_RUN_SETUP = resolveRunSetup(data, URL_PARAMS);
+        if (data) this.activeRunSetup = resolveRunSetup(data, this.urlParams);
         this.debugHudVisible = IS_INTERNAL_BUILD && (
-            URL_PARAMS.get('debugHud') === '1' || gameSettingsStore.getSettings().debugMode
+            this.urlParams.get('debugHud') === '1' || gameSettingsStore.getSettings().debugMode
         );
 
-        ACTIVE_RUNTIME_VEHICLE = selectActiveRuntimeVehicle(ACTIVE_RUN_SETUP);
-        LAUNCH_CONTROL_ENABLED = ACTIVE_RUNTIME_VEHICLE.id === 'ft86-retro' || ACTIVE_RUNTIME_VEHICLE.id === 'raven-coupe';
-        PLAYER_VEHICLE_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.textureKey;
-        PLAYER_VEHICLE_SHADOW_TEXTURE_KEY = ACTIVE_RUNTIME_VEHICLE.shadowTextureKey;
-        PLAYER_VEHICLE_ATLAS = ACTIVE_RUNTIME_VEHICLE.atlas;
-        ACTIVE_ROAD_TRACK_ID = parseRoadTrackId(ACTIVE_RUN_SETUP.trackId);
-        PLAYER_CONTROLLER_CONFIG = createPlayerVehicleRuntimeConfig(
-            URL_PARAMS,
-            ACTIVE_RUNTIME_VEHICLE.engineProfile,
-            ACTIVE_RUNTIME_VEHICLE.handlingProfile,
+        this.activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
+        this.launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+        this.playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
+        this.playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
+        this.playerVehicleAtlas = this.activeRuntimeVehicle.atlas;
+        this.activeRoadTrackId = parseRoadTrackId(this.activeRunSetup.trackId);
+        this.playerControllerConfig = createPlayerVehicleRuntimeConfig(
+            this.urlParams,
+            this.activeRuntimeVehicle.engineProfile,
+            this.activeRuntimeVehicle.handlingProfile,
         );
 
-        this.cameraResource = createRuntimeQaCamera();
-        this.cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
+        this.cameraResource = this.createRuntimeQaCamera();
+        this.cameraEffects = createCameraEffectsState(this.cameraEffectsConfig);
         this.playerVehicle = createDefaultPlayerVehicleState(
-            RUNTIME_QA.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
-            ACTIVE_RUNTIME_VEHICLE.engineProfile,
+            this.runtimeQa.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
+            this.activeRuntimeVehicle.engineProfile,
             PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
         );
         this.powertrainFeedback = createPowertrainFeedbackState();
-        this.headlightOpticalState = getVehicleHeadlightOpticalState(PLAYER_VEHICLE_ATLAS, 0);
-        this.roadTrack = createRoadTrack(ACTIVE_ROAD_TRACK_ID);
+        this.headlightOpticalState = getVehicleHeadlightOpticalState(this.playerVehicleAtlas, 0);
+        this.roadTrack = createRoadTrack(this.activeRoadTrackId);
     }
 
     create() {
@@ -629,11 +625,11 @@ export class TimeAttackScene extends Phaser.Scene {
             ...COURSE_RUN_CONFIG,
             finishRatio: 1,
         };
-        this.runState = createCourseRunState(this.courseRunConfig, RUNTIME_QA.enabled);
+        this.runState = createCourseRunState(this.courseRunConfig, this.runtimeQa.enabled);
         this.roadObjects = createRoadObjects(this.roadTrack, COURSE_CHECKPOINT_RATIOS);
-        this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
+        this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, this.activeRuntimeVehicle.id).bestRun?.finishTimeSec ?? null;
         this.previousBestTimeSec = this.bestRunTimeSec;
-        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id);
+        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, this.activeRuntimeVehicle.id);
         this.recovery = createStuckRecoveryState();
         this.lastSplitText = '';
         this.recordRunId = crypto.randomUUID();
@@ -644,7 +640,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.lastFinishDeltaSec = null;
         this.checkpointNoticeRemainingSec = 0;
         // Unknown development parameters are conservatively excluded from production PBs.
-        this.recordEligible = !RUNTIME_QA.enabled && [...URL_PARAMS.keys()].every(key =>
+        this.recordEligible = !this.runtimeQa.enabled && [...this.urlParams.keys()].every(key =>
             ['track', 'vehicle', 'vehicleColor', 'debugHud', 'utm_source', 'utm_medium', 'utm_campaign'].includes(key));
         this.applyRuntimeQaOverrides();
         this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
@@ -668,31 +664,31 @@ export class TimeAttackScene extends Phaser.Scene {
             .setVisible(false));
         this.uiGraphics = this.add.graphics().setDepth(RenderDepth.Ui);
         this.playerSoftShadowCar = this.add
-            .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
+            .image(0, 0, this.playerVehicleShadowTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, 'center'))
             .setAlpha(PLAYER_DEFAULTS.PLAYER_SHADOW_SOFT_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
             .setDepth(RenderDepth.PlayerSoftShadow)
             .setOrigin(
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
+                this.playerVehicleAtlas.frames.center.origin.x,
+                this.playerVehicleAtlas.frames.center.origin.y,
             );
         this.playerSoftShadowCar.enableFilters();
         this.playerSoftShadowCar.filters?.internal.addBlur(1, 2.5, 1.4, 1, 0x000000, 2);
         this.playerShadowCar = this.add
-            .image(0, 0, PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
+            .image(0, 0, this.playerVehicleShadowTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, 'center'))
             .setAlpha(PLAYER_DEFAULTS.PLAYER_SILHOUETTE_SHADOW_ALPHA)
             .setBlendMode(Phaser.BlendModes.MULTIPLY)
             .setDepth(RenderDepth.PlayerShadow)
             .setOrigin(
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
+                this.playerVehicleAtlas.frames.center.origin.x,
+                this.playerVehicleAtlas.frames.center.origin.y,
             );
         this.playerCar = this.add
-            .image(0, 0, PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, 'center'))
+            .image(0, 0, this.playerVehicleTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, 'center'))
             .setDepth(RenderDepth.Player)
             .setOrigin(
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.x,
-                PLAYER_VEHICLE_ATLAS.frames.center.origin.y,
+                this.playerVehicleAtlas.frames.center.origin.x,
+                this.playerVehicleAtlas.frames.center.origin.y,
             );
         this.speedEffectShader = createSpeedEffectShader(
             this,
@@ -706,7 +702,7 @@ export class TimeAttackScene extends Phaser.Scene {
         );
         this.collisionDebugText = createCollisionDebugText(this);
         this.hudText = createHudText(this);
-        this.gameplayHud = new GameplayHud(this, ACTIVE_RUNTIME_VEHICLE.engineProfile);
+        this.gameplayHud = new GameplayHud(this, this.activeRuntimeVehicle.engineProfile);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.gameplayHud?.destroy();
             // Phaser destroys scene objects at shutdown, but this scene
@@ -740,7 +736,7 @@ export class TimeAttackScene extends Phaser.Scene {
         );
         this.updateVirtualDriveControls();
         this.telemetry = new RuntimeTelemetryRecorder(
-            RUNTIME_TELEMETRY,
+            this.runtimeTelemetry,
             () => {
                 const viewport = this.getViewport();
 
@@ -807,7 +803,7 @@ export class TimeAttackScene extends Phaser.Scene {
     update(_time: number, delta: number) {
         if (document.hidden || this.focusPaused || this.orientationPaused) return;
         if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
-        const seconds = delta / 1000 * RUNTIME_QA.timeScale;
+        const seconds = delta / 1000 * this.runtimeQa.timeScale;
         const camera = this.cameraResource;
 
         this.elapsedSec += seconds;
@@ -819,7 +815,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.updateRestartHotkey();
         this.playerPhysicsRoadSample = this.samplePlayerPhysicsRoad();
 
-        if (RUNTIME_QA.freeze) {
+        if (this.runtimeQa.freeze) {
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
             camera.fovDegrees = this.cameraEffects.fovDegrees;
@@ -978,7 +974,7 @@ export class TimeAttackScene extends Phaser.Scene {
             ...this.roadObjectStats.wallForestSprites,
         ]);
         this.drawForegroundEdgeOcclusion(viewport);
-        if (RUNTIME_TUNING.debugProjectionGuides) {
+        if (this.runtimeTuning.debugProjectionGuides) {
             this.drawProjectionGuides(viewport);
         }
         const vehicleRenderState = this.getPlayerVehicleRenderState(viewport);
@@ -999,7 +995,7 @@ export class TimeAttackScene extends Phaser.Scene {
             this.uiGraphics.fillRect(0, 0, viewport.width, viewport.height);
         }
         this.renderRunStatus(viewport);
-        if (RUNTIME_TUNING.debugProjectionGuides) {
+        if (this.runtimeTuning.debugProjectionGuides) {
             this.drawHeadlightFootprintGuides();
         }
         this.renderHud();
@@ -1300,7 +1296,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private renderHud() {
         const viewport = this.getViewport();
         this.gameplayHud.update(createGameplayHudState(
-            ACTIVE_RUNTIME_VEHICLE.engineProfile, this.playerVehicle,
+            this.activeRuntimeVehicle.engineProfile, this.playerVehicle,
             PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, this.runState, this.lastSplitText, this.powertrainFeedback,
         ), viewport.width, viewport.height, this.finishPresentationPhase !== 'finish-summary');
         if (!this.debugHudVisible) {
@@ -1332,19 +1328,19 @@ export class TimeAttackScene extends Phaser.Scene {
                 ? 'Up: accel | Space: brake | Left/Right: steer | D: debug HUD | B: flow A/B | R: restart | WASD: camera | Q/E: pitch'
                 : 'Up: accel | Space: brake | Left/Right: steer | D: debug HUD | B: flow A/B | R: restart | debug camera locked',
             cornerIntensity: player.cornerDemand.cornerIntensity,
-            longitudinalProgression: LONGITUDINAL_PROGRESSION,
+            longitudinalProgression: this.longitudinalProgression,
             physicsRoadContactZ: this.playerPhysicsRoadSample.contactZ,
             physicsRoadCurve: this.playerPhysicsRoadSample.currentCurve,
             player,
-            qa: RUNTIME_QA,
+            qa: this.runtimeQa,
             roadStats: stats,
             slopeAcceleration: this.getSlopeAcceleration(),
             speedKmh: this.getPlayerSpeedKmh(),
             steeringRatio: player.speedHandling.visualYawScale,
-            telemetry: RUNTIME_TELEMETRY,
+            telemetry: this.runtimeTelemetry,
             telemetryEventCount: this.telemetry?.getEventCount() ?? 0,
             track: this.roadTrack,
-            tuning: RUNTIME_TUNING,
+            tuning: this.runtimeTuning,
             understeerVisual: {
                 bodyYawAuthority: this.vehicleUndersteerVisualState.bodyYawAuthority,
                 cueIntensity: this.vehicleUndersteerVisualState.cueIntensity,
@@ -1367,11 +1363,11 @@ export class TimeAttackScene extends Phaser.Scene {
         const physicsRoad = this.playerPhysicsRoadSample;
         const drive = this.getDriveCommand();
         const controllerConfig = {
-            ...PLAYER_CONTROLLER_CONFIG,
+            ...this.playerControllerConfig,
             maxRoadOffset: physicsRoad.railCenterLimit,
         };
 
-        const launchForceMultiplier = LAUNCH_CONTROL_ENABLED
+        const launchForceMultiplier = this.launchControlEnabled
             ? updateLaunchControl(
                 this.launchState,
                 drive.accelPressed,
@@ -1387,7 +1383,7 @@ export class TimeAttackScene extends Phaser.Scene {
             {
                 currentCurve: physicsRoad.currentCurve,
                 launchForceMultiplier,
-                longitudinalScale: LONGITUDINAL_PROGRESSION.scale,
+                longitudinalScale: this.longitudinalProgression.scale,
                 previewRoadCurve: physicsRoad.previewRoadCurve,
                 slopeAcceleration: this.getSlopeAcceleration(),
             },
@@ -1397,7 +1393,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.powertrainFeedback = derivePowertrainFeedback(
             this.powertrainFeedback,
             createPowertrainSnapshot(
-                ACTIVE_RUNTIME_VEHICLE.engineProfile.induction,
+                this.activeRuntimeVehicle.engineProfile.induction,
                 this.playerVehicle,
                 drive.accelPressed && !drive.brakePressed ? 1 : 0,
             ),
@@ -1433,7 +1429,7 @@ export class TimeAttackScene extends Phaser.Scene {
         // The current course has roadside colliders only: x=0 is safe at this exact Z.
         // Do not change Z or run progress; a reset must never cross a timing boundary.
         const impacts = this.playerVehicle.guardrailImpactCount;
-        this.playerVehicle = createDefaultPlayerVehicleState(0, ACTIVE_RUNTIME_VEHICLE.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
+        this.playerVehicle = createDefaultPlayerVehicleState(0, this.activeRuntimeVehicle.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
         this.powertrainFeedback = createPowertrainFeedbackState();
         this.playerVehicle.guardrailImpactCount = impacts;
         this.launchState = createLaunchControlState();
@@ -1450,7 +1446,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private getPlayerVehicleRenderState(viewport: Viewport): PlayerVehicleRenderState {
         if (this.vehicleRenderState) return this.vehicleRenderState;
 
-        const baseSize = getPlayerVehicleSpriteSize(viewport, RUNTIME_TUNING);
+        const baseSize = getPlayerVehicleSpriteSize(viewport, this.runtimeTuning);
         const anchor = this.getVehicleAnchor(viewport);
         const roadSpanAtVehicleY = getRoadSpanAtScreenY(
             this.roadTrack,
@@ -1471,11 +1467,11 @@ export class TimeAttackScene extends Phaser.Scene {
             this.getPlayerRoadContactZ(),
         );
         const roadScaleConfig: VehicleRoadScaleConfig = {
-            deadZoneRatio: RUNTIME_TUNING.vehicleRoadScaleDeadZoneRatio,
-            maxScale: RUNTIME_TUNING.vehicleRoadScaleMax,
-            minScale: RUNTIME_TUNING.vehicleRoadScaleMin,
-            responseSeconds: RUNTIME_TUNING.vehicleRoadScaleResponseSeconds,
-            targetRoadRatio: RUNTIME_TUNING.vehicleRoadTargetRatio,
+            deadZoneRatio: this.runtimeTuning.vehicleRoadScaleDeadZoneRatio,
+            maxScale: this.runtimeTuning.vehicleRoadScaleMax,
+            minScale: this.runtimeTuning.vehicleRoadScaleMin,
+            responseSeconds: this.runtimeTuning.vehicleRoadScaleResponseSeconds,
+            targetRoadRatio: this.runtimeTuning.vehicleRoadTargetRatio,
         };
         // R3 keeps vehicle scale independent from local narrowing while
         // telemetry continues to expose the actual screen-road span.
@@ -1504,10 +1500,10 @@ export class TimeAttackScene extends Phaser.Scene {
                 1,
             );
         } else {
-            displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, RUNTIME_TUNING)
-                * ACTIVE_RUNTIME_VEHICLE.presentationScale;
+            displaySize = getTerrainScaledSpriteSize(roadRelativeSize, anchor, this.runtimeTuning)
+                * this.activeRuntimeVehicle.presentationScale;
         }
-        const centerContactProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, 'center');
+        const centerContactProfile = getVehicleShadowProfile(this.playerVehicleAtlas, 'center');
         const guardrailScreenProjection = this.finishPresentationPhase === 'coast'
             ? null
             : roadSpanAtVehicleY
@@ -1516,7 +1512,7 @@ export class TimeAttackScene extends Phaser.Scene {
                 getGuardrailCollisionGeometry(this.getGuardrailCollisionContext()),
                 this.playerVehicle.lateralOffset,
                 displaySize * centerContactProfile.chassis.w,
-                -this.playerPhysicsRoadSample.currentCurve * RUNTIME_TUNING.curveScreenBias,
+                -this.playerPhysicsRoadSample.currentCurve * this.runtimeTuning.curveScreenBias,
             )
             : null;
 
@@ -1543,12 +1539,12 @@ export class TimeAttackScene extends Phaser.Scene {
         const presentation = getPlayerPosePresentation({
             // Strong art normally belongs to drift presentation only. A fixed
             // qaSteer must still enumerate every atlas frame while stationary.
-            allowStrongSteering: RUNTIME_QA.steering !== null || this.playerVehicle.driftState !== 'grip',
-            atlas: PLAYER_VEHICLE_ATLAS,
+            allowStrongSteering: this.runtimeQa.steering !== null || this.playerVehicle.driftState !== 'grip',
+            atlas: this.playerVehicleAtlas,
             driftState: this.playerVehicle.driftState,
-            forcedSteeringState: RUNTIME_QA.pose ?? undefined,
+            forcedSteeringState: this.runtimeQa.pose ?? undefined,
             terrainCue: anchor.terrainCue,
-            tuning: RUNTIME_TUNING,
+            tuning: this.runtimeTuning,
             visualSteering,
         });
 
@@ -1590,10 +1586,10 @@ export class TimeAttackScene extends Phaser.Scene {
         const vehicleBodyWidth = displaySize;
         const finishCoastFade = this.getFinishCoastVehicleFade();
         const visualSteering = poseState.visualSteering;
-        const frame = PLAYER_VEHICLE_ATLAS.frames[poseState.frameId];
+        const frame = this.playerVehicleAtlas.frames[poseState.frameId];
 
         this.playerCar
-            .setTexture(PLAYER_VEHICLE_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
+            .setTexture(this.playerVehicleTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, poseState.frameId))
             .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
             .setPosition(anchor.x + this.cameraEffects.shake.x, anchor.y + this.cameraEffects.shake.y)
@@ -1626,9 +1622,9 @@ export class TimeAttackScene extends Phaser.Scene {
             roadRelativeScale,
             roadRelativeTargetSize,
             roadWidthAtVehicleY,
-            rotationDeg: visualSteering.rotationValue * RUNTIME_TUNING.vehicleRotationDeg,
+            rotationDeg: visualSteering.rotationValue * this.runtimeTuning.vehicleRotationDeg,
             sizeDeltaPerSec,
-            terrainScale: getTerrainScaleMultiplier(anchor, RUNTIME_TUNING),
+            terrainScale: getTerrainScaleMultiplier(anchor, this.runtimeTuning),
             vehicleBodyWidth,
             vehicleRoadRatio: roadWidthAtVehicleY && roadWidthAtVehicleY > 0
                 ? vehicleBodyWidth / roadWidthAtVehicleY
@@ -1650,8 +1646,8 @@ export class TimeAttackScene extends Phaser.Scene {
         const speedRatio = Phaser.Math.Clamp(this.playerVehicle.speed / PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED, 0, 1);
         const terrainIntensity = getContactTerrainCueIntensity(anchor.contactTerrainRatio);
         const visualSteering = poseState.visualSteering;
-        const frame = PLAYER_VEHICLE_ATLAS.frames[poseState.frameId];
-        const shadowProfile = getVehicleShadowProfile(PLAYER_VEHICLE_ATLAS, poseState.frameId);
+        const frame = this.playerVehicleAtlas.frames[poseState.frameId];
+        const shadowProfile = getVehicleShadowProfile(this.playerVehicleAtlas, poseState.frameId);
         const silhouetteScale = getSilhouetteShadowScale(anchor.contactTerrainRatio, speedRatio);
         const chassisCenter = getShadowElementCenter(
             shadowProfile.chassis,
@@ -1675,12 +1671,12 @@ export class TimeAttackScene extends Phaser.Scene {
             shake: this.cameraEffects.shake,
             silhouetteScale,
             slipAngle: this.playerVehicle.slipAngle,
-            vehicleRotationDeg: RUNTIME_TUNING.vehicleRotationDeg,
+            vehicleRotationDeg: this.runtimeTuning.vehicleRotationDeg,
             visualRotationValue: visualSteering.rotationValue,
         });
 
         this.playerSoftShadowCar
-            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
+            .setTexture(this.playerVehicleShadowTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, poseState.frameId))
             .setAlpha(shadowPresentation.soft.alpha * finishCoastFade)
             .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
@@ -1693,7 +1689,7 @@ export class TimeAttackScene extends Phaser.Scene {
             .setRotation(shadowPresentation.soft.rotationRadians);
 
         this.playerShadowCar
-            .setTexture(PLAYER_VEHICLE_SHADOW_TEXTURE_KEY, getVehicleFrameIndex(PLAYER_VEHICLE_ATLAS, poseState.frameId))
+            .setTexture(this.playerVehicleShadowTextureKey, getVehicleFrameIndex(this.playerVehicleAtlas, poseState.frameId))
             .setAlpha(shadowPresentation.silhouette.alpha * finishCoastFade)
             .setFlipX(poseState.flipX)
             .setOrigin(frame.origin.x, frame.origin.y)
@@ -1869,7 +1865,7 @@ export class TimeAttackScene extends Phaser.Scene {
 
     private getVehicleAnchor(viewport: Viewport): VehicleAnchor {
         const player = this.playerVehicle;
-        const anchorZ = this.cameraResource.z + RUNTIME_TUNING.playerRoadAnchorDistance;
+        const anchorZ = this.cameraResource.z + this.runtimeTuning.playerRoadAnchorDistance;
         const contactZ = this.getPlayerRoadContactZ();
         const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
         const anchorElevation = getRoadElevationAt(this.roadTrack, anchorZ);
@@ -1879,7 +1875,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const contactRoadCenterOffset = getRoadCenterOffsetAhead(
             this.roadTrack,
             this.cameraResource.z,
-            RUNTIME_TUNING.playerRoadContactDistance,
+            this.runtimeTuning.playerRoadContactDistance,
         );
         const contactRoadAnchor = projectGroundPoint(
             {
@@ -1891,7 +1887,7 @@ export class TimeAttackScene extends Phaser.Scene {
             viewport,
         );
         const curveScreenBias =
-            -this.playerPhysicsRoadSample.currentCurve * RUNTIME_TUNING.curveScreenBias;
+            -this.playerPhysicsRoadSample.currentCurve * this.runtimeTuning.curveScreenBias;
         const anchor = getPlayerAnchorPresentation({
             contactElevationDelta,
             contactRoadCenterOffset,
@@ -1899,7 +1895,7 @@ export class TimeAttackScene extends Phaser.Scene {
             elevationDelta,
             maxTerrainScreenYShift: PLAYER_DEFAULTS.PLAYER_MAX_TERRAIN_SCREEN_Y_SHIFT,
             projection: contactRoadAnchor,
-            tuning: RUNTIME_TUNING,
+            tuning: this.runtimeTuning,
             viewport,
         });
         if (this.finishPresentationPhase === 'coast') {
@@ -1973,14 +1969,14 @@ export class TimeAttackScene extends Phaser.Scene {
         return getDisplaySpeedKmh(
             this.playerVehicle.speed,
             PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
-            ACTIVE_RUNTIME_VEHICLE.engineProfile,
+            this.activeRuntimeVehicle.engineProfile,
         );
     }
 
     private getWorldTravelSpeed() {
         return getLongitudinalWorldTravelSpeed(
             this.playerVehicle.speed,
-            LONGITUDINAL_PROGRESSION.scale,
+            this.longitudinalProgression.scale,
         );
     }
 
@@ -1989,7 +1985,7 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private getPlayerRoadContactZ() {
-        return this.cameraResource.z + RUNTIME_TUNING.playerRoadContactDistance;
+        return this.cameraResource.z + this.runtimeTuning.playerRoadContactDistance;
     }
 
     private samplePlayerPhysicsRoad(): PlayerPhysicsRoadSample {
@@ -2042,12 +2038,12 @@ export class TimeAttackScene extends Phaser.Scene {
         const smoothSpeed = speedRatio * speedRatio * (3 - 2 * speedRatio);
         const tuningVisualScale = Phaser.Math.Linear(
             1,
-            RUNTIME_TUNING.highSpeedVisualSteeringScale,
+            this.runtimeTuning.highSpeedVisualSteeringScale,
             smoothSpeed,
         );
         const threshold = Phaser.Math.Linear(
-            RUNTIME_TUNING.steerWeakThreshold,
-            RUNTIME_TUNING.highSpeedSteerWeakThreshold,
+            this.runtimeTuning.steerWeakThreshold,
+            this.runtimeTuning.highSpeedSteerWeakThreshold,
             smoothSpeed,
         );
 
@@ -2055,7 +2051,7 @@ export class TimeAttackScene extends Phaser.Scene {
         // particular qaFreeze intentionally skips the vehicle controller, so
         // bypass its speed/understeer response and make every capture map to
         // the requested atlas frame deterministically.
-        const qaSteering = RUNTIME_QA.steering ?? getQaPoseSteeringValue(RUNTIME_QA.pose);
+        const qaSteering = this.runtimeQa.steering ?? getQaPoseSteeringValue(this.runtimeQa.pose);
         if (qaSteering !== null) {
             return {
                 bodyYawAuthority: 1,
@@ -2179,7 +2175,7 @@ export class TimeAttackScene extends Phaser.Scene {
             railImpact: this.playerVehicle.guardrailImpactCue,
             seconds,
             speedKmh: this.getPlayerSpeedKmh(),
-        }, CAMERA_EFFECTS_CONFIG);
+        }, this.cameraEffectsConfig);
     }
 
     private getSpeedEffectShaderUniforms(): SpeedEffectShaderUniforms {
@@ -2282,17 +2278,17 @@ export class TimeAttackScene extends Phaser.Scene {
             seconds,
         );
         this.headlightOpticalState = getVehicleHeadlightOpticalState(
-            PLAYER_VEHICLE_ATLAS,
+            this.playerVehicleAtlas,
             this.headlightCurveIntent,
         );
         this.headlightFrameId = poseState.frameId;
         this.headlightProfileId = getVehicleHeadlightProfileId(
-            PLAYER_VEHICLE_ATLAS,
+            this.playerVehicleAtlas,
             poseState.frameId,
         );
 
         const lampPose = getVehicleHeadlightScreenPose(
-            PLAYER_VEHICLE_ATLAS,
+            this.playerVehicleAtlas,
             poseState.frameId,
             {
                 displaySize,
@@ -2371,10 +2367,10 @@ export class TimeAttackScene extends Phaser.Scene {
         const currentRoadElevation = getRoadElevationAt(this.roadTrack, this.cameraResource.z);
         const anchorElevation = getRoadElevationAt(
             this.roadTrack,
-            this.cameraResource.z + RUNTIME_TUNING.playerRoadAnchorDistance,
+            this.cameraResource.z + this.runtimeTuning.playerRoadAnchorDistance,
         );
 
-        return selectVehicleTerrainCue(RUNTIME_TUNING, anchorElevation - currentRoadElevation);
+        return selectVehicleTerrainCue(this.runtimeTuning, anchorElevation - currentRoadElevation);
     }
 
     private getSlopeAcceleration() {
@@ -2420,13 +2416,13 @@ export class TimeAttackScene extends Phaser.Scene {
         applyRuntimeQaOverridesToState({
             camera: this.cameraResource,
             normalizeZ: (z) => wrapDistance(z, this.roadTrack.length),
-            overrides: RUNTIME_QA,
+            overrides: this.runtimeQa,
             player: this.playerVehicle,
         });
     }
 
     private updateTelemetryHotkey() {
-        if (!RUNTIME_TELEMETRY.enabled) return;
+        if (!this.runtimeTelemetry.enabled) return;
         if (!this.getSceneHotkeys().exportTelemetry) return;
 
         this.telemetry?.downloadJsonl('hotkey');
@@ -2480,7 +2476,7 @@ export class TimeAttackScene extends Phaser.Scene {
         if (!IS_INTERNAL_BUILD) return;
         if (!this.getSceneHotkeys().toggleLongitudinalAb) return;
 
-        const nextScale = getNextLongitudinalUnitScale(LONGITUDINAL_PROGRESSION.scale);
+        const nextScale = getNextLongitudinalUnitScale(this.longitudinalProgression.scale);
         const url = new URL(window.location.href);
 
         url.searchParams.set('longitudinalScale', String(nextScale));
@@ -2497,7 +2493,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private updateRunCountdown(seconds: number) {
         this.playerVehicle.speed = 0;
         const wasStarted = this.runState.started;
-        if (LAUNCH_CONTROL_ENABLED) {
+        if (this.launchControlEnabled) {
             this.playerVehicle.rpm = updatePreLaunchRev(
                 this.launchState,
                 this.getDriveCommand().accelPressed,
@@ -2507,7 +2503,7 @@ export class TimeAttackScene extends Phaser.Scene {
         }
         updateCourseRunCountdown(this.runState, seconds);
 
-        if (LAUNCH_CONTROL_ENABLED && !wasStarted && this.runState.started) {
+        if (this.launchControlEnabled && !wasStarted && this.runState.started) {
             beginLaunch(this.launchState, this.getDriveCommand().accelPressed, LAUNCH_CONTROL_CONFIG);
         }
     }
@@ -2549,12 +2545,12 @@ export class TimeAttackScene extends Phaser.Scene {
             this.previousBestTimeSec = previousBest;
             this.recordStatus = runRecordStore.record({
                 runId: this.recordRunId, finishedAt: new Date().toISOString(),
-                trackId: this.roadTrack.id, vehicleId: ACTIVE_RUNTIME_VEHICLE.id,
-                vehicleColor: ACTIVE_RUNTIME_VEHICLE.color, rulesetVersion: RECORD_RULESET,
+                trackId: this.roadTrack.id, vehicleId: this.activeRuntimeVehicle.id,
+                vehicleColor: this.activeRuntimeVehicle.color, rulesetVersion: RECORD_RULESET,
                 recoveryCount: this.recovery.count,
                 finishTimeSec, checkpointTimesSec: this.runState.checkpointTimesSec as number[],
             }, this.recordEligible);
-            this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id).bestRun?.finishTimeSec ?? null;
+            this.bestRunTimeSec = runRecordStore.getBucket(this.roadTrack.id, this.activeRuntimeVehicle.id).bestRun?.finishTimeSec ?? null;
             this.runFinishedWithBest = this.bestRunTimeSec === finishTimeSec && previousBest !== finishTimeSec;
         }
     }
@@ -2569,14 +2565,14 @@ export class TimeAttackScene extends Phaser.Scene {
             bestTimeSec: this.bestRunTimeSec,
             previousBestTimeSec: this.previousBestTimeSec,
             recordStatus: this.recordStatus,
-            runSetup: { ...ACTIVE_RUN_SETUP },
+            runSetup: { ...this.activeRunSetup },
             checkpointTimesSec: [...this.runState.checkpointTimesSec],
-            color: ACTIVE_RUNTIME_VEHICLE.color,
+            color: this.activeRuntimeVehicle.color,
             courseName: this.roadTrack.name,
             deltaSec: this.lastFinishDeltaSec,
             finishTimeSec,
             isNewBest: this.runFinishedWithBest,
-            vehicleName: ACTIVE_RUNTIME_VEHICLE.id.replaceAll('-', ' '),
+            vehicleName: this.activeRuntimeVehicle.id.replaceAll('-', ' '),
         };
         this.scene.start('result', result);
     }
@@ -2584,13 +2580,13 @@ export class TimeAttackScene extends Phaser.Scene {
     private restartRun() {
         this.recovery = createStuckRecoveryState();
         this.lastSplitText = '';
-        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, ACTIVE_RUNTIME_VEHICLE.id);
+        this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, this.activeRuntimeVehicle.id);
         this.bestRunTimeSec = this.bestSnapshot.vehicle?.finishTimeSec ?? null;
         this.previousBestTimeSec = this.bestRunTimeSec;
         this.recordRunId = crypto.randomUUID();
         this.recordStatus = 'excluded';
-        this.cameraResource.z = RUNTIME_QA.initialZ ?? 0;
-        this.cameraEffects = createCameraEffectsState(CAMERA_EFFECTS_CONFIG);
+        this.cameraResource.z = this.runtimeQa.initialZ ?? 0;
+        this.cameraEffects = createCameraEffectsState(this.cameraEffectsConfig);
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.cameraTerrainPitch = 0;
         this.cameraManualPitch = 0;
@@ -2598,8 +2594,8 @@ export class TimeAttackScene extends Phaser.Scene {
         this.debugGuardrailImpactSide = 0;
         this.debugGuardrailImpactTimer = 0;
         this.playerVehicle = createDefaultPlayerVehicleState(
-            RUNTIME_QA.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
-            ACTIVE_RUNTIME_VEHICLE.engineProfile,
+            this.runtimeQa.initialSpeed ?? PLAYER_DEFAULTS.PLAYER_CRUISE_SPEED,
+            this.activeRuntimeVehicle.engineProfile,
             PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
         );
         this.roadObjectMotionTracker.reset();
@@ -2615,10 +2611,10 @@ export class TimeAttackScene extends Phaser.Scene {
         this.headlightRawRoadAimX = 0;
         this.headlightRoadAimX = 0;
         this.headlightOpticalState = getVehicleHeadlightOpticalState(
-            PLAYER_VEHICLE_ATLAS,
+            this.playerVehicleAtlas,
             0,
         );
-        this.runState = createCourseRunState(this.courseRunConfig, RUNTIME_QA.enabled);
+        this.runState = createCourseRunState(this.courseRunConfig, this.runtimeQa.enabled);
         this.runFinishedWithBest = false;
         this.lastFinishDeltaSec = null;
         this.finishCoastRemainingSec = 0;
@@ -2776,7 +2772,7 @@ export class TimeAttackScene extends Phaser.Scene {
             input: this.getDriveCommand(),
             launch: serializeRuntimeQaLaunch(this.launchState),
             longitudinalProgression: serializeRuntimeQaLongitudinal({
-                config: LONGITUDINAL_PROGRESSION,
+                config: this.longitudinalProgression,
                 defaultRoadHalfWidth: DEFAULT_ROAD_HALF_WIDTH,
                 physicalSpeed: this.playerVehicle.speed,
                 roadSegmentLength: this.roadTrack.segmentLength,
@@ -2796,7 +2792,7 @@ export class TimeAttackScene extends Phaser.Scene {
                     getDisplaySpeedKmh(
                         this.playerVehicle.cornerDemand.targetSpeed,
                         PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED,
-                        ACTIVE_RUNTIME_VEHICLE.engineProfile,
+                        this.activeRuntimeVehicle.engineProfile,
                     ),
                 ),
                 cornerSpeedLoss: serializeRuntimeQaPlayerCornerSpeedLoss(
@@ -2912,8 +2908,8 @@ export class TimeAttackScene extends Phaser.Scene {
                 torqueScale: Number(this.playerVehicle.torqueScale.toFixed(4)),
                 traction: Number(this.playerVehicle.traction.toFixed(4)),
             }),
-            qa: RUNTIME_QA,
-            controller: PLAYER_CONTROLLER_CONFIG,
+            qa: this.runtimeQa,
+            controller: this.playerControllerConfig,
             road: this.roadStats,
             roadObjects: this.roadObjectStats,
             run: serializeRuntimeQaRun(this.runState),
@@ -2934,12 +2930,12 @@ export class TimeAttackScene extends Phaser.Scene {
                 time: this.speedEffectTime,
             }),
             track: serializeRuntimeQaTrack(this.roadTrack),
-            tuning: RUNTIME_TUNING,
+            tuning: this.runtimeTuning,
             vehicle: serializeRuntimeQaVehicle({
                 state: this.lastVehicleQaState,
-                asset: ACTIVE_RUNTIME_VEHICLE.id,
-                color: ACTIVE_RUNTIME_VEHICLE.color,
-                engineProfile: ACTIVE_RUNTIME_VEHICLE.engineProfile,
+                asset: this.activeRuntimeVehicle.id,
+                color: this.activeRuntimeVehicle.color,
+                engineProfile: this.activeRuntimeVehicle.engineProfile,
             }),
             viewport,
         };

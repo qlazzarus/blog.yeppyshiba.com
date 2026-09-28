@@ -93,154 +93,18 @@ export type VehicleAtlas = {
 
 export type VehicleTerrainCue = 'downhill' | 'level' | 'uphill';
 
-export type PlayerDriftState = 'grip' | 'setup' | 'drift' | 'recovery';
-export type PlayerDriftEntryMode = 'none' | 'brake' | 'lift';
-export type PlayerCornerGrade = 'straight' | 'easy' | 'medium' | 'sharp';
-export type PlayerCornerSpeedLossZone = 'within-budget' | 'overspeed' | 'severe-overspeed';
-
-export type PlayerCornerDemandSample = {
-    baseTargetSpeed: number;
-    cornerIntensity: number;
-    downhillCarryRatio: number;
-    grade: PlayerCornerGrade;
-    lateralDemand: number;
-    lineQuality: number;
-    lineSpeedAdjustment: number;
-    overspeedRatio: number;
-    safetyMarginRatio: number;
-    severeOverspeedRatio: number;
-    speedOverBudget: number;
-    speedLossZone: PlayerCornerSpeedLossZone;
-    speedRatioToBudget: number;
-    targetSpeed: number;
-};
-
-export type PlayerCornerSpeedLossSample = {
-    counterRoadScrubForce: number;
-    downhillScrubForce: number;
-    lineSafetyScrubForce: number;
-    overspeedTireScrubForce: number;
-    severeOverspeedScrubForce: number;
-    steeringScrubForce: number;
-    totalForce: number;
-    trajectoryScrubRatio: number;
-    zone: PlayerCornerSpeedLossZone;
-};
-
-export type PlayerSpeedHandlingState = {
-    centeringScale: number;
-    gripAngleCap: number;
-    inputResponseScale: number;
-    lateralAuthority: number;
-    lateralVelocityCap: number;
-    neutralReturnVelocityCap: number;
-    speedRatio: number;
-    steeringForceScale: number;
-    steeringSlewRate: number;
-    visualAuthority: number;
-    visualYawScale: number;
-};
-
-export type PlayerLongitudinalForceSample = {
-    aeroDrag: number;
-    brakeForce: number;
-    cornerLossForce: number;
-    engineBrakeForce: number;
-    engineForce: number;
-    engineTorqueScale: number;
-    gearIndex: number;
-    netAcceleration: number;
-    rollingResistance: number;
-    rpm: number;
-    slopeAcceleration: number;
-    speed: number;
-    speedRatio: number;
-};
-
-export type GuardrailContactPhase = 'clear' | 'enter' | 'stay' | 'exit';
-
-export type PlayerVehicleState = {
-    brakePressure: number;
-    /** Actual turbo pressure after the profile's spool and decay response. */
-    boostRatio: number;
-    primaryBoostRatio: number;
-    secondaryBoostRatio: number;
-    cornerInsideHeadingAllowance: number;
-    cornerInsideHeadingLimited: boolean;
-    cornerDemand: PlayerCornerDemandSample;
-    cornerInertiaLateralVelocity: number;
-    cornerSpeedLoss: PlayerCornerSpeedLossSample;
-    counterSteerTimer: number;
-    counterSteerLateralVelocity: number;
-    counterSteerEntryDriftVelocity: number;
-    counterTrimRatio: number;
-    engineTorqueScale: number;
-    driftDirection: -1 | 0 | 1;
-    driftBaseLateralVelocity: number;
-    driftEntryLateralTarget: number;
-    driftEntryMode: PlayerDriftEntryMode;
-    driftExitThrottleDelay: number;
-    driftLateralVelocity: number;
-    driftRatio: number;
-    driftState: PlayerDriftState;
-    driftStateTimer: number;
-    driftThrottleLiftTimer: number;
-    driftTransitionArmed: boolean;
-    driftTransitionDirection: -1 | 0 | 1;
-    driftTransitionAwaitingCounter: boolean;
-    driftTransitionLiftTimer: number;
-    fuelCutActive: boolean;
-    fuelCutTimer: number;
-    gearIndex: number;
-    guardrailBounceVelocity: number;
-    guardrailContactActive: boolean;
-    guardrailContactAnchorOffset: number;
-    guardrailContactClearTimer: number;
-    guardrailContactInset: number;
-    guardrailContactDirection: -1 | 0 | 1;
-    guardrailContactPhase: GuardrailContactPhase;
-    guardrailContactTimer: number;
-    guardrailImpactCount: number;
-    guardrailImpactCue: number;
-    guardrailShoulderRatio: number;
-    gripCounterRoadLateralVelocity: number;
-    gripCounterRoadRatio: number;
-    gripFollowAuthority: number;
-    gripHeadingCommitTimer: number;
-    gripSteerAngleLimit: number;
-    lateralOffset: number;
-    lowSpeedLateralAuthority: number;
-    lowSpeedVisualSteeringAuthority: number;
-    centeringCounterHoldTimer: number;
-    centeringForce: number;
-    centeringReleaseStartScale: number;
-    centeringReleaseTimer: number;
-    lateralCenteringScale: number;
-    lateralCenteringTargetScale: number;
-    longitudinalForce: PlayerLongitudinalForceSample;
-    overspeedUndersteerRatio: number;
-    overspeedUndersteerTargetRatio: number;
-    overspeedUndersteerSteerDemandRatio: number;
-    overspeedUndersteerLoadTransferScale: number;
-    overspeedUndersteerLateralVelocity: number;
-    physicalSteeringCommand: number;
-    rpm: number;
-    passiveGripYawRate: number;
-    requiredRoadYawRate: number;
-    residualRoadYawRate: number;
-    shiftCutRatio: number;
-    shiftDirection: -1 | 0 | 1;
-    shiftTimer: number;
-    speed: number;
-    speedHandling: PlayerSpeedHandlingState;
-    slipAngle: number;
-    steering: number;
-    steeringVelocity: number;
-    torqueScale: number;
-    traction: number;
-    throttleWasPressed: boolean;
-    vehicleHeadingError: number;
-};
+export type {
+    GuardrailContactPhase,
+    PlayerCornerDemandSample,
+    PlayerCornerGrade,
+    PlayerCornerSpeedLossSample,
+    PlayerCornerSpeedLossZone,
+    PlayerDriftEntryMode,
+    PlayerDriftState,
+    PlayerLongitudinalForceSample,
+    PlayerSpeedHandlingState,
+    PlayerVehicleState,
+} from './core/vehicleState.ts';
 
 export type VehicleAnchor = {
     contactElevationDelta: number;

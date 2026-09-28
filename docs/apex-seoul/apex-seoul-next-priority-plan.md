@@ -26,10 +26,10 @@ phaser/racing         scene lifecycle, renderers, HUD, shaders, asset loading
 | 우선순위 | 상태 | 작업 | 완료 기준 | 검증 |
 | --- | --- | --- | --- | --- |
 | R0 | 완료 | 타입 안전성 release gate | `build`가 typecheck를 선행하고 strict TS 오류가 0건이다. JS 모듈 공개 계약도 선언한다. | `npm run typecheck`, build, catalog/settings/save/runtime-QA |
-| R1 | 진행 중 | runtime composition root·internal surface | URL·선택·런타임 mutable state를 module scope에서 제거하고 Scene 생성 시 의존성으로 주입한다. internal build 외의 debug/QA 진입점은 차단한다. | 두 game instance/fixture가 상태를 공유하지 않고, production bundle에는 debug UI/QA 전역 상태가 없다. |
-| R2 | 대기 | 순수 pseudo-3D core | camera/road projection과 collision geometry를 Phaser renderer 밖 API로 고정한다. | Phaser 없는 fixture에서 projection/geometry contract를 실행한다. |
-| R3 | 대기 | 차량 simulation slice | powertrain, steering, drift, corner-demand reducer와 조합 `stepVehicle`을 만든다. | 기존 handling QA와 30/60/120Hz 계약이 동일하다. |
-| R4 | 대기 | browser/phaser adapter 정리 | input, storage, PWA, renderer/HUD/shader의 의존성 역전을 완료한다. | core가 browser/Phaser import 없이 build·fixture를 통과한다. |
+| R1 | 완료 | runtime composition root·internal surface | URL·선택·런타임 mutable state를 module scope에서 제거하고 Scene 생성 시 의존성으로 주입한다. internal build 외의 debug/QA 진입점은 차단한다. | 두 game instance/fixture가 상태를 공유하지 않고, production bundle에는 debug UI/QA 전역 상태가 없다. |
+| R2 | 완료 | 순수 pseudo-3D core | camera/road projection과 collision geometry를 Phaser renderer 밖 API로 고정한다. | Phaser 없는 fixture에서 projection/geometry contract를 실행한다. |
+| R3 | 완료 | 차량 simulation slice | powertrain, steering, drift, corner-demand reducer와 조합 `stepVehicle`을 만든다. | 기존 handling QA와 30/60/120Hz 계약이 동일하다. |
+| R4 | 완료 | browser/phaser adapter 정리 | input, storage, PWA, renderer/HUD/shader의 의존성 역전을 완료한다. | core가 browser/Phaser import 없이 build·fixture를 통과한다. |
 
 ### R0 완료 기록 (2026-09-23)
 
@@ -45,7 +45,24 @@ R1을 시작할 때는 `TimeAttackScene`의 module-level `URL_PARAMS`, `ACTIVE_*
 - `buildFlavor`가 Vite의 `DEV`로 internal build를 결정한다. production은 URL을 읽지 않아 `track`, `vehicle`, tuning, QA override, telemetry, `launch=time-attack` 모두 주소창으로 활성화할 수 없다.
 - production Options에서는 `DEBUG MODE` 행을 만들지 않으며, 기존 localStorage 값도 false로 정규화한다.
 - `D` debug HUD, `B` longitudinal A/B, `L` telemetry export는 internal build에서만 단축키 입력을 읽는다. `__apexSeoulQaReady`/`__apexSeoulQaState` browser QA 전역 상태도 production에서는 publish하지 않는다.
-- R1의 남은 범위는 module-level runtime state를 Scene 인스턴스의 composition root로 옮기는 구조 변경이다. 위 surface 차단과 혼합하지 않고 다음 pass로 진행한다.
+- R1은 module-level runtime state를 Scene 인스턴스의 composition root로 옮기는 구조 변경으로 완료했다. internal surface 차단과 별도 pass로 적용했다.
+
+### R1 완료 (2026-09-28)
+
+`TimeAttackScene`은 URL params, URL에서 파생한 runtime config, run setup, active vehicle, atlas/texture key, road track ID와 controller config를 Scene 인스턴스 필드로 소유한다. `init()`은 같은 Scene 인스턴스의 retry 선택만 갱신하고, module import 시점에 두 game instance가 공유할 mutable runtime state는 남기지 않는다. 기존 query 이름·asset key 형식·QA schema·update 순서는 유지했다.
+
+### R2 완료 (2026-09-28)
+
+`src/game/core`에 camera projection, road track/geometry, guardrail geometry와 guardrail screen projection을 Phaser·DOM·storage 의존성 없이 고정했다. 기존 `src/game` 경로는 호환 re-export로 유지해 renderer와 QA의 공개 동작을 바꾸지 않았다. `qa:pseudo3d-core` fixture는 Phaser 없이 projection·road·collision geometry 계약과 core의 platform 의존성 부재를 검사한다.
+
+### R3 완료 (2026-09-28)
+
+`src/game/core/vehicleSimulation.ts`이 powertrain, steering, drift와 corner-demand를 단일 `stepVehicle()` reducer로 조합한다. state와 engine profile도 core로 이동했고, 기존 controller·engine profile·vehicle state 경로는 호환 re-export로 유지했다. `qa:vehicle-simulation-core`는 reducer의 입력 비변이, mutable compatibility sequence 일치와 30/60/120Hz speed/lateral 계약을 검사한다.
+
+### R4 완료 (2026-09-28)
+
+`platform/`은 URL build flavor, storage, device-motion, display, PWA와 telemetry를 소유하고, `phaser/`는 keyboard/touch 입력 및 road·HUD·shader draw adapter를 소유한다. platform-neutral `DriveCommand`는 `core/`에서 정의하며 renderer/입력은 이를 통해 vehicle simulation과 만난다. 기존 `src/game` 경로는 facade로 보존했다. `qa:adapter-boundaries`는 core의 browser/Phaser 의존성 부재, platform의 Phaser 독립성, adapter 존재 및 DriveCommand 병합 계약을 검사한다.
+
 
 ## 2026-09-16 차량 비교 전 공통 주행 수정
 
