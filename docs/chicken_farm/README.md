@@ -28,6 +28,7 @@
 
 ### 범위별 PoC 문서
 
+- [프로토타입 UI 개선·2D 에셋 배치 계획](./chicken_farm_ui_asset_placement_plan_2026-09-28.md) — 현재 실행 우선순위. Terra medium 작업 패킷, UI 사용성, 향후 3080 정적 에셋·8way spritesheet 배치 계약. 에셋은 아직 생성 전.
 - [Construction Placement](./chicken_farm_construction_poc_plan.md), [Construction Visibility](./chicken_farm_construction_visibility_poc_plan.md)
 - [Command Queue](./chicken_farm_command_queue_poc_plan.md)
 - [Playtest Telemetry](./chicken_farm_playtest_telemetry_plan.md)

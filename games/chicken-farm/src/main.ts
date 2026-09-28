@@ -197,10 +197,12 @@ class FarmScene extends Phaser.Scene {
     private debugPanel!: Phaser.GameObjects.Rectangle;
     private debugText!: Phaser.GameObjects.Text;
     private debugToggleText!: Phaser.GameObjects.Text;
-    private debugOverlayVisible = true;
+    private debugOverlayVisible = false;
     private keys!: FarmInputKeys;
     private buildGridGraphics?: Phaser.GameObjects.Graphics;
-    private buildGridVisible = true;
+    // The grid is useful while placing a building, but it competes with the
+    // farm and unit silhouettes during normal play. G still exposes it.
+    private buildGridVisible = false;
     private inventoryDrag?: InventoryDragState;
     private inventorySlots: readonly InventorySlotView[] = [];
     private renderedInventoryId?: string;
@@ -317,6 +319,7 @@ class FarmScene extends Phaser.Scene {
             worldObjects: this.worldObjects,
             worldScale: this.worldScale,
         });
+        this.buildGridGraphics.setVisible(this.buildGridVisible);
         const wpmGrid = this.cache.json.get(WPM_PATHING_GRID_KEY) as WpmPathingGrid;
         this.terrainBlocker = new TerrainBlocker(wpmGrid);
         this.terrainOverlayGraphics = this.add.graphics().setDepth(22).setVisible(false);
@@ -385,6 +388,8 @@ class FarmScene extends Phaser.Scene {
         this.debugPanel = hud.debugPanel;
         this.debugText = hud.debugText;
         this.debugToggleText = hud.debugToggleText;
+        this.debugPanel.setVisible(this.debugOverlayVisible);
+        this.debugText.setVisible(this.debugOverlayVisible);
         this.minimapGraphics = hud.minimapGraphics;
         this.resourceText = hud.resourceText;
         this.inventorySlots = hud.inventorySlots;
@@ -2671,16 +2676,13 @@ class FarmScene extends Phaser.Scene {
         if (!this.resourceText) return;
 
         const economy = this.buildingSystem?.economy;
-        const economyPoc = this.economyState
-            ? `  Farm C:${this.economyState.chickens.length} Egg:${this.economyState.fieldEggs.length} Inv:${this.getTotalFarmerEggInventory()} Hatch:${this.economyState.hatchJobs.length}`
-            : '';
         if (!economy) {
-            this.resourceText.setText(`Gold - | Lumber - | Supply - | Eggs -${economyPoc}`);
+            this.resourceText.setText('Gold - | Lumber - | Supply -');
             return;
         }
 
         this.resourceText.setText(
-            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}${economyPoc}`,
+            `Gold ${economy.gold}  Lumber ${economy.lumber}  Supply ${economy.supplyUsed}/${economy.supplyCap}`,
         );
     }
 
@@ -2789,11 +2791,11 @@ class FarmScene extends Phaser.Scene {
             return;
         }
 
-        this.selectionInfoPortrait.setFillStyle(0x25291f, 1);
-        this.selectionInfoNameText.setText('No Selection');
-        this.selectionInfoStatsText.setText('Select a farmer, dog, or building.');
-        this.selectionInfoStatusText.setText('');
-        this.selectionInfoBodyText.setText('');
+        this.selectionInfoPortrait.setFillStyle(0x343827, 1);
+        this.selectionInfoNameText.setText('선택 없음');
+        this.selectionInfoStatsText.setText('농부, 개 또는 건물을 선택하세요.');
+        this.selectionInfoStatusText.setText('시작: 농부 선택 → B로 건설 메뉴');
+        this.selectionInfoBodyText.setText('농부를 선택한 뒤 C로 닭장을 지을 수 있습니다.');
         this.clearInventorySlots();
     }
 
