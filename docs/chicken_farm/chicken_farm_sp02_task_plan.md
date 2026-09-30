@@ -1,6 +1,6 @@
 # SP-02 플레이 검증 경로 확보 — 세부 실행 계획
 
-> 전략: **계획·범위 조정은 Astra light → ID별 실행·검증은 Terra medium**. 요청한 운영 설정이며 실제 모델 전환이나 사용량을 자동 확인했다는 뜻은 아니다.
+> 전략: **계획·범위 조정은 Astra light → ID별 실행·검증은 Terra medium**. 요청한 운영 설정이며 실제 모델 전환이나 사용량을 자동 확인했다는 뜻은 아니다. 2026-09-30 이후 닭농장 검증 명령은 `npm run chicken:<name> --workspace @games/chicken-farm`으로 실행한다. 아래 기존 결과의 루트 명령 표기는 당시 실행 기록이다.
 
 ## 목표와 현재 actual
 

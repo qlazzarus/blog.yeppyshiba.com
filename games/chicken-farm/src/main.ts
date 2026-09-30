@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { CHICKEN_FARM_BALANCE, getStartingGold } from './game/balance';
+import { CHICKEN_FARM_BALANCE } from './game/balance';
 import {
     CAMERA_ZOOM,
     CANVAS_HEIGHT,
@@ -14,6 +14,14 @@ import {
     WPM_PATHING_GRID_KEY,
 } from './game/config';
 import type { PlayerStart, WorldMarker } from './game/ecs/components';
+import {
+    INITIAL_PLACEMENT_MANIFEST,
+    type InitialPlacementRole,
+} from './game/initialPlacementManifest';
+import {
+    resolveStartSession,
+    type ResolvedStartSession,
+} from './game/startSessionConfig';
 import { COMBAT_POC_LAYOUT } from './game/poc/combatPocLayout';
 import { createBuildGrid } from './game/rendering/buildGridRenderer';
 import { createOpenGameArtTerrainLayer } from './game/rendering/openGameArtTerrainRenderer';
@@ -74,6 +82,8 @@ import {
     PlayerControlSystem,
 } from './game/systems/playerControlSystem';
 import { PerformanceProfiler } from './game/systems/performanceProfiler';
+import { InitialPlacementRegistry } from './game/systems/initialPlacementRegistry';
+import { InitialPlacementViewSystem } from './game/systems/initialPlacementViewSystem';
 import { TerrainPathingPocSystem } from './game/systems/terrainPathingPocSystem';
 import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlocker';
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
@@ -91,7 +101,11 @@ declare global {
                 x: number,
                 y: number,
             ) => string | null;
+            disposeRunForTest: () => RunCleanupSnapshot | null;
+            ensureStartEconomyForTest: () => void;
             grantFarmerEggStack: (quantity: number) => number | null;
+            removeInitialPlacementFixture: (id: string) => boolean;
+            restoreInitialPlacementFixtures: () => void;
             getState: () => {
                 readonly buildingCount: number;
                 readonly commandPage: string;
@@ -114,6 +128,15 @@ declare global {
                     readonly inventorySlotCount: number;
                     readonly resourceText: string;
                 };
+                readonly initialPlacementViewCount: number;
+                readonly initialPlacements: readonly {
+                    readonly id: string;
+                    readonly owner: string;
+                    readonly rawcode: string;
+                    readonly role: InitialPlacementRole;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
                 readonly placingBuildingId: string | null;
                 readonly selectedBuildingId: string | null;
                 readonly primaryUnit:
@@ -124,6 +147,16 @@ declare global {
                       }
                     | null;
                 readonly selectedUnitCount: number;
+                readonly debugPoc: {
+                    readonly combatActive: boolean;
+                    readonly fixturesEnabled: boolean;
+                    readonly terrainProbeCount: number;
+                };
+                readonly units: readonly {
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly templateId: string;
+                }[];
                 readonly wallet: {
                     readonly gold: number;
                     readonly lumber: number;
@@ -199,6 +232,23 @@ type StartItemPlacementState = {
     readonly templateId: 'campfire' | 'market';
 };
 
+type RunCleanupSnapshot = {
+    readonly after: RunCleanupCounts;
+    readonly alreadyDisposed: boolean;
+    readonly before: RunCleanupCounts;
+};
+
+type RunCleanupCounts = {
+    readonly buildingCount: number;
+    readonly economyEntityCount: number;
+    readonly initialPlacementCount: number;
+    readonly initialPlacementViewCount: number;
+    readonly selectedUnitCount: number;
+    readonly unitCount: number;
+    readonly uiObjectCount: number;
+    readonly worldObjectCount: number;
+};
+
 class FarmScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private debugPanel!: Phaser.GameObjects.Rectangle;
@@ -216,6 +266,8 @@ class FarmScene extends Phaser.Scene {
     private attackTargetingActive = false;
     private farmerFeedAutocast = false;
     private herdTargetingActive = false;
+    private initialPlacementRegistry = new InitialPlacementRegistry();
+    private initialPlacementViews?: InitialPlacementViewSystem;
     private cameraControl!: CameraControlSystem;
     private buildingSystem?: BuildingSystem;
     private commandCard?: CommandCardSystem;
@@ -241,6 +293,12 @@ class FarmScene extends Phaser.Scene {
     private nextFogUpdateSec = 0;
     private nextMinimapUpdateSec = 0;
     private resourceText!: Phaser.GameObjects.Text;
+    private runDisposed = false;
+    private lastRunCleanupSnapshot?: RunCleanupSnapshot;
+    private readonly startSession: ResolvedStartSession = resolveStartSession({
+        debugEconomy: CHICKEN_FARM_POC_FLAGS.debugEconomy,
+        startId: CHICKEN_FARM_POC_FLAGS.startId,
+    });
     private selectedBuildingId?: string;
     private selectedBuildingRangeGraphics?: Phaser.GameObjects.Graphics;
     private selectedEconomyEntity?: EconomyHitTarget;
@@ -288,6 +346,9 @@ class FarmScene extends Phaser.Scene {
     }
 
     create() {
+        this.runDisposed = false;
+        this.lastRunCleanupSnapshot = undefined;
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.disposeRun, this);
         this.cameras.main.setBackgroundColor('#0b0f0a');
         this.worldCamera = this.cameras.main;
         this.worldCamera.setViewport(
@@ -333,7 +394,11 @@ class FarmScene extends Phaser.Scene {
         this.terrainBlocker.drawDebugOverlay(this.terrainOverlayGraphics);
         this.worldObjects.push(this.terrainOverlayGraphics);
         this.renderTilemapObjects(map, 'farm_zones');
-        this.renderTilemapObjects(map, 'spawns');
+        this.renderTilemapObjects(
+            map,
+            'spawns',
+            new Set(INITIAL_PLACEMENT_MANIFEST.map((placement) => placement.role)),
+        );
         this.telemetry = new TelemetryRecorder({
             gameId: 'chicken-farm-poc',
             getTimeSec: () => this.elapsedSec,
@@ -344,6 +409,7 @@ class FarmScene extends Phaser.Scene {
             mapWidth: map.width,
             worldScale: this.worldScale,
         });
+        this.initializeInitialPlacementRegistry();
         this.visibility = new VisibilitySystem({
             scene: this,
             worldObjects: this.worldObjects,
@@ -377,7 +443,7 @@ class FarmScene extends Phaser.Scene {
         });
         this.playerControl = new PlayerControlSystem({
             camera: this.worldCamera,
-            keys: this.keys,
+            initialStartId: this.startSession.startId,
             onPlayerStartChanged: (start) => this.handlePlayerStartChanged(start),
             playerStarts: this.playerStarts,
             scene: this,
@@ -539,10 +605,10 @@ class FarmScene extends Phaser.Scene {
     }
 
     update(_time: number, delta: number) {
+        if (this.runDisposed) return;
         this.performanceProfiler.beginFrame(delta);
         this.elapsedSec += delta / 1000;
         this.performanceProfiler.measure('update.hotkeys', () => {
-            this.playerControl.updateSlotHotkeys();
             const commandConsumed = this.updateCommandHotkeys();
             if (commandConsumed) return;
             this.updateBuildGridHotkey();
@@ -595,8 +661,13 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.endFrame(this.elapsedSec);
     }
 
-    private renderTilemapObjects(map: Phaser.Tilemaps.Tilemap, layerName: string) {
+    private renderTilemapObjects(
+        map: Phaser.Tilemaps.Tilemap,
+        layerName: string,
+        hiddenMarkerTypes?: ReadonlySet<string>,
+    ) {
         renderObjectLayer({
+            hiddenMarkerTypes,
             layerName,
             map,
             playerStarts: this.playerStarts,
@@ -626,6 +697,101 @@ class FarmScene extends Phaser.Scene {
         this.combatPoc.create(anchor);
     }
 
+    private initializeInitialPlacementRegistry() {
+        const created = this.initialPlacementRegistry.initialize(
+            INITIAL_PLACEMENT_MANIFEST,
+        );
+        this.initialPlacementViews ??= new InitialPlacementViewSystem(this, this.worldObjects);
+        this.initialPlacementViews.sync(this.initialPlacementRegistry);
+        this.telemetry.record('initial_placement_registry_initialized', {
+            created,
+            total: this.initialPlacementRegistry.size,
+        });
+    }
+
+    private getRunCleanupCounts(): RunCleanupCounts {
+        const economyEntityCount = this.economyState
+            ? this.economyState.chickens.length +
+              this.economyState.coops.length +
+              this.economyState.fieldEggs.length +
+              this.economyState.wells.length
+            : 0;
+        return {
+            buildingCount: this.buildingSystem?.getBuildingCount() ?? 0,
+            economyEntityCount,
+            initialPlacementCount: this.initialPlacementRegistry.size,
+            initialPlacementViewCount: this.initialPlacementViews?.size ?? 0,
+            selectedUnitCount: this.controllableUnits?.getSelectedUnits().length ?? 0,
+            unitCount: this.controllableUnits?.getUnits().length ?? 0,
+            uiObjectCount: this.uiObjects.length,
+            worldObjectCount: this.worldObjects.length,
+        };
+    }
+
+    private disposeRun(): RunCleanupSnapshot {
+        if (this.runDisposed) {
+            const snapshot = this.lastRunCleanupSnapshot ?? {
+                after: this.getRunCleanupCounts(),
+                alreadyDisposed: false,
+                before: this.getRunCleanupCounts(),
+            };
+            return { ...snapshot, alreadyDisposed: true };
+        }
+
+        const before = this.getRunCleanupCounts();
+        this.runDisposed = true;
+        this.input.removeAllListeners();
+        this.input.keyboard?.removeAllListeners();
+        this.tweens.killAll();
+        this.inventoryDrag?.ghost.destroy();
+        this.inventoryDrag = undefined;
+        this.dragSelectionInput = undefined;
+        this.constructionPlacement?.dispose();
+        this.constructionPlacement = undefined;
+        this.buildingSystem?.dispose();
+        this.buildingSystem = undefined;
+        this.controllableUnits?.dispose();
+        this.initialPlacementViews?.dispose();
+        this.initialPlacementViews = undefined;
+        this.initialPlacementRegistry.clear();
+        this.visibility?.dispose();
+        this.combatPoc = undefined;
+        this.terrainPathingPoc = undefined;
+        this.economyState = undefined;
+        this.economyEventLog = [];
+        this.economyLabels.clear();
+        this.economyChickenHpFills.clear();
+        this.economyViewObjects.clear();
+        this.economyViewPositions.clear();
+        this.economyWorkerTasks.clear();
+        this.selectedBuildingId = undefined;
+        this.selectedEconomyEntity = undefined;
+        this.startItemPlacement = undefined;
+        this.startItemPlacementGraphics = undefined;
+        this.attackTargetingActive = false;
+        this.herdTargetingActive = false;
+        this.farmerFeedAutocast = false;
+        this.elapsedSec = 0;
+        this.nextFarmerFeedAtSec = 0;
+        this.nextFogUpdateSec = 0;
+        this.nextMinimapUpdateSec = 0;
+        this.nextTelemetrySampleSec = 0;
+        this.playerStarts = [];
+        this.worldMarkers = [];
+        this.children.removeAll(true);
+        this.uiObjects = [];
+        this.worldObjects = [];
+        window.__chickenFarmDebug = undefined;
+
+        const snapshot = {
+            after: this.getRunCleanupCounts(),
+            alreadyDisposed: false,
+            before,
+        };
+        this.lastRunCleanupSnapshot = snapshot;
+        return snapshot;
+    }
+
     private createCombatSmokePoc() {
         const player = this.playerControl.player;
         if (!player || !this.combatPoc) return;
@@ -645,23 +811,16 @@ class FarmScene extends Phaser.Scene {
     }
 
     private createEconomyPoc() {
-        const player = this.playerControl.player;
-        if (!player) return;
-        const debugEconomy = CHICKEN_FARM_POC_FLAGS.debugEconomy;
-        const startingResource = debugEconomy ? 10000 : undefined;
+        if (this.economyState || !this.playerControl.player) return;
 
         this.economyState = createChickenFarmEconomyState({
             players: [
                 {
-                    gold: startingResource ?? getStartingGold(),
-                    id: 3,
-                    lumber:
-                        startingResource ??
-                        CHICKEN_FARM_BALANCE.economy.startingLumber,
-                    supplyCap:
-                        startingResource ??
-                        CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
-                    supplyUsed: 0,
+                    gold: this.startSession.startingGold,
+                    id: this.startSession.ownerPlayerId,
+                    lumber: this.startSession.startingLumber,
+                    supplyCap: this.startSession.startingSupplyCap,
+                    supplyUsed: this.startSession.startingSupplyUsed,
                 },
             ],
         });
@@ -669,7 +828,11 @@ class FarmScene extends Phaser.Scene {
         const farmer =
             this.controllableUnits
                 .getUnits()
-                .find((unit) => unit.templateId === 'farmer' && unit.hp > 0) ?? null;
+                .find(
+                    (unit) =>
+                        unit.id === `p${this.startSession.ownerPlayerId}-farmer` &&
+                        unit.hp > 0,
+                ) ?? null;
         if (farmer) {
             grantEconomyInventoryItem(this.economyState, {
                 inventoryId: farmer.id,
@@ -697,9 +860,11 @@ class FarmScene extends Phaser.Scene {
     }
 
     private getSharedPlayerEconomy(): PlayerEconomyState {
-        const player = this.economyState?.players.find((candidate) => candidate.id === 3);
+        const player = this.economyState?.players.find(
+            (candidate) => candidate.id === this.startSession.ownerPlayerId,
+        );
         if (!player) {
-            throw new Error('Economy player 3 must exist before construction starts');
+            throw new Error('The configured player wallet must exist before construction starts');
         }
 
         // `player` is the shared canonical gold/lumber/supply wallet.
@@ -1423,7 +1588,11 @@ class FarmScene extends Phaser.Scene {
         if (!this.economyState) return 0;
         return this.controllableUnits
             .getUnits()
-            .filter((unit) => unit.templateId === 'farmer')
+            .filter(
+                (unit) =>
+                    unit.templateId === 'farmer' &&
+                    unit.ownerPlayerId === this.startSession.ownerPlayerId,
+            )
             .reduce(
                 (total, unit) =>
                     total + countInventoryItem(this.economyState!, unit.id, 'I006'),
@@ -1842,7 +2011,10 @@ class FarmScene extends Phaser.Scene {
             y: Number(start.y.toFixed(1)),
         });
         if (start.id > 0) {
-            this.controllableUnits?.createForStart(start);
+            this.controllableUnits?.createForStart(
+                start,
+                this.startSession.ownerPlayerId,
+            );
             this.ensureFarmerInventories();
         }
         this.visibility.revealAroundSources(this.getVisionSources(), this.worldSize);
@@ -2140,28 +2312,20 @@ class FarmScene extends Phaser.Scene {
             c: Phaser.Input.Keyboard.KeyCodes.C,
             d: Phaser.Input.Keyboard.KeyCodes.D,
             down: Phaser.Input.Keyboard.KeyCodes.DOWN,
-            eight: Phaser.Input.Keyboard.KeyCodes.EIGHT,
             escape: Phaser.Input.Keyboard.KeyCodes.ESC,
             f: Phaser.Input.Keyboard.KeyCodes.F,
-            five: Phaser.Input.Keyboard.KeyCodes.FIVE,
-            four: Phaser.Input.Keyboard.KeyCodes.FOUR,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             h: Phaser.Input.Keyboard.KeyCodes.H,
             left: Phaser.Input.Keyboard.KeyCodes.A,
             m: Phaser.Input.Keyboard.KeyCodes.M,
             microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
-            one: Phaser.Input.Keyboard.KeyCodes.ONE,
             right: Phaser.Input.Keyboard.KeyCodes.D,
             s: Phaser.Input.Keyboard.KeyCodes.S,
-            seven: Phaser.Input.Keyboard.KeyCodes.SEVEN,
             shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
-            six: Phaser.Input.Keyboard.KeyCodes.SIX,
             stop: Phaser.Input.Keyboard.KeyCodes.S,
             t: Phaser.Input.Keyboard.KeyCodes.T,
             telemetryExport: Phaser.Input.Keyboard.KeyCodes.L,
             terrainOverlay: Phaser.Input.Keyboard.KeyCodes.T,
-            three: Phaser.Input.Keyboard.KeyCodes.THREE,
-            two: Phaser.Input.Keyboard.KeyCodes.TWO,
             up: Phaser.Input.Keyboard.KeyCodes.W,
             w: Phaser.Input.Keyboard.KeyCodes.W,
             x: Phaser.Input.Keyboard.KeyCodes.X,
@@ -2574,6 +2738,8 @@ class FarmScene extends Phaser.Scene {
     private exposeDebugAutomation() {
         window.__chickenFarmDebug = {
             createEconomyBuildingFixture: (templateId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
+                if (this.runDisposed) return null;
                 const builder = this.controllableUnits
                     .getUnits()
                     .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
@@ -2587,7 +2753,18 @@ class FarmScene extends Phaser.Scene {
                 });
                 return building?.id ?? null;
             },
+            disposeRunForTest: () => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
+                return this.disposeRun();
+            },
+            ensureStartEconomyForTest: () => {
+                if (CHICKEN_FARM_POC_FLAGS.debugFixtures && !this.runDisposed) {
+                    this.createEconomyPoc();
+                }
+            },
             grantFarmerEggStack: (quantity) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
+                if (this.runDisposed) return null;
                 const state = this.economyState;
                 const farmer = this.controllableUnits
                     .getUnits()
@@ -2599,6 +2776,19 @@ class FarmScene extends Phaser.Scene {
                     quantity,
                 });
             },
+            removeInitialPlacementFixture: (id) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return false;
+                if (this.runDisposed) return false;
+                const removed = this.initialPlacementRegistry.remove(id);
+                this.initialPlacementViews?.sync(this.initialPlacementRegistry);
+                return removed !== null;
+            },
+            restoreInitialPlacementFixtures: () => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return;
+                if (this.runDisposed) return;
+                this.initialPlacementRegistry.initialize(INITIAL_PLACEMENT_MANIFEST);
+                this.initialPlacementViews?.sync(this.initialPlacementRegistry);
+            },
             getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
             getState: () => {
                 const primaryUnit = this.controllableUnits.getPrimaryUnit();
@@ -2609,6 +2799,11 @@ class FarmScene extends Phaser.Scene {
                 return {
                     buildingCount: this.buildingSystem?.getBuildingCount() ?? 0,
                     commandPage: this.commandCard?.getPage() ?? 'off',
+                    debugPoc: {
+                        combatActive: Boolean(this.combatPoc),
+                        fixturesEnabled: CHICKEN_FARM_POC_FLAGS.debugFixtures,
+                        terrainProbeCount: this.terrainPathingPoc?.getProbeCount() ?? 0,
+                    },
                     economyPoc: this.economyState
                         ? {
                               chickens: this.economyState.chickens.length,
@@ -2636,6 +2831,15 @@ class FarmScene extends Phaser.Scene {
                         inventorySlotCount: this.inventorySlots.length,
                         resourceText: this.resourceText.text,
                     },
+                    initialPlacementViewCount: this.initialPlacementViews?.size ?? 0,
+                    initialPlacements: this.initialPlacementRegistry.list().map((entity) => ({
+                        id: entity.id,
+                        owner: entity.owner,
+                        rawcode: entity.rawcode,
+                        role: entity.role,
+                        x: entity.worldPosition.x,
+                        y: entity.worldPosition.y,
+                    })),
                     placingBuildingId:
                         this.constructionPlacement?.getActiveBuildingId() ?? null,
                     primaryUnit: primaryUnit
@@ -2647,6 +2851,11 @@ class FarmScene extends Phaser.Scene {
                         : null,
                     selectedBuildingId: this.selectedBuildingId ?? null,
                     selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
+                    units: this.controllableUnits.getUnits().map((unit) => ({
+                        id: unit.id,
+                        ownerPlayerId: unit.ownerPlayerId,
+                        templateId: unit.templateId,
+                    })),
                     wallet: this.economyState
                         ? {
                               gold: this.economyState.players[0]?.gold ?? 0,

@@ -157,6 +157,11 @@ export class BuildingSystem {
         return this.buildings.length;
     }
 
+    dispose() {
+        this.buildings.forEach((building) => this.destroyView(building.id));
+        this.buildings.splice(0);
+    }
+
     getDynamicBlockedRects(): readonly GridPathRect[] {
         return this.buildings
             .filter((building) => building.blocksPath && building.state === 'complete')

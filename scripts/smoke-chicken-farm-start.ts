@@ -17,6 +17,16 @@ type SmokeState = {
     };
     readonly primaryUnit: { readonly id: string; readonly x: number; readonly y: number } | null;
     readonly selectedUnitCount: number;
+    readonly debugPoc: {
+        readonly combatActive: boolean;
+        readonly fixturesEnabled: boolean;
+        readonly terrainProbeCount: number;
+    };
+    readonly units: readonly {
+        readonly id: string;
+        readonly ownerPlayerId: number;
+        readonly templateId: string;
+    }[];
     readonly wallet: { readonly gold: number; readonly lumber: number } | null;
 };
 
@@ -44,7 +54,14 @@ function startDevServer() {
         ['--host', host, '--port', String(port), '--strictPort'],
         {
             cwd: path.join(rootDir, 'games/chicken-farm'),
-            env: process.env,
+            env: {
+                ...process.env,
+                VITE_CHICKEN_FARM_COMBAT_POC: 'false',
+                VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
+                VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'false',
+                VITE_CHICKEN_FARM_DEBUG_FIXTURES: 'false',
+                VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG: 'false',
+            },
         },
     );
     server.stderr.on('data', (data) => process.stderr.write(String(data)));
@@ -100,6 +117,21 @@ async function runSmokeLoad(
         const initial = await getState(page);
         assertStartState(initial);
 
+        for (const key of ['1', '2', '3', '4', '5', '6', '7', '8']) {
+            await page.keyboard.press(key);
+            await page.evaluate(
+                () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+            );
+            const afterNumberKey = await getState(page);
+            assertStartState(afterNumberKey);
+            if (
+                afterNumberKey.primaryUnit!.x !== initial.primaryUnit!.x ||
+                afterNumberKey.primaryUnit!.y !== initial.primaryUnit!.y
+            ) {
+                throw new Error(`Numeric key ${key} changed the active run start location`);
+            }
+        }
+
         await page.mouse.click(WORLD_VIEW_CENTER.x, WORLD_VIEW_CENTER.y);
         await page.waitForFunction(
             () => window.__chickenFarmDebug!.getState().selectedUnitCount === 1,
@@ -153,6 +185,13 @@ async function getState(
 
 function assertStartState(state: SmokeState) {
     if (!state.primaryUnit) throw new Error('Missing starting farmer');
+    if (
+        state.debugPoc.combatActive ||
+        state.debugPoc.fixturesEnabled ||
+        state.debugPoc.terrainProbeCount !== 0
+    ) {
+        throw new Error(`Normal start contains debug state: ${JSON.stringify(state.debugPoc)}`);
+    }
     if (state.wallet?.gold !== 1500 || state.wallet.lumber !== 0) {
         throw new Error(`Expected normal wallet 1500/0, got ${JSON.stringify(state.wallet)}`);
     }
@@ -172,6 +211,16 @@ function assertStartState(state: SmokeState) {
                 `Expected ${itemRawcode} x${quantity}, got ${JSON.stringify(state.farmerInventory)}`,
             );
         }
+    }
+    const unitOwners = new Map(
+        state.units.map((unit) => [unit.templateId, unit.ownerPlayerId]),
+    );
+    if (
+        state.units.length !== 2 ||
+        unitOwners.get('farmer') !== 3 ||
+        unitOwners.get('dog') !== 3
+    ) {
+        throw new Error(`Expected one P3 farmer and dog, got ${JSON.stringify(state.units)}`);
     }
 }
 

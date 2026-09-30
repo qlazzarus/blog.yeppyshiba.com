@@ -59,6 +59,10 @@ export class TerrainPathingPocSystem {
         return { x, y };
     }
 
+    getProbeCount() {
+        return this.probes.length;
+    }
+
     update(deltaSec: number) {
         const speed = CHICKEN_FARM_BALANCE.enemies.timber_wolf.speedPxPerSec;
 

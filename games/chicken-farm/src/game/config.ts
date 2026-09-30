@@ -1,3 +1,7 @@
+import { DEFAULT_START_ID } from './startSessionConfig';
+
+const configuredStartId = import.meta.env.VITE_CHICKEN_FARM_START_ID;
+
 export const CANVAS_WIDTH = 960;
 export const CANVAS_HEIGHT = 720;
 export const UI_HEIGHT = 180;
@@ -19,14 +23,17 @@ export const MINIMAP_X = 14;
 export const MINIMAP_Y = WORLD_VIEW_HEIGHT + 20;
 export const PLAYER_SPEED_PX_PER_SEC = 240 * 2;
 export const BUILD_GRID_MAJOR_EVERY = MAJOR_TILE_MINOR_SIZE;
-export const POC_FIXED_PLAYER_SLOT_ID: number | null = 3;
+export const POC_FIXED_PLAYER_SLOT_ID: number | null = DEFAULT_START_ID;
 export const CHICKEN_FARM_POC_FLAGS = {
-    combat: false,
-    combatSmoke: false,
+    combat: import.meta.env.VITE_CHICKEN_FARM_COMBAT_POC === 'true',
+    combatSmoke: import.meta.env.VITE_CHICKEN_FARM_COMBAT_SMOKE === 'true',
     construction: true,
     debugEconomy: import.meta.env.VITE_CHICKEN_FARM_DEBUG_ECONOMY === 'true',
+    debugFixtures: import.meta.env.VITE_CHICKEN_FARM_DEBUG_FIXTURES === 'true',
     playerDebugMarker: false,
-    terrainPathingDebug: true,
+    startId: configuredStartId === undefined ? undefined : Number(configuredStartId),
+    terrainPathingDebug:
+        import.meta.env.VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG === 'true',
 } as const;
 
 export type VisibilityOverlayConfig = {

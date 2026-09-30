@@ -4,7 +4,8 @@
 
 - **최종 업데이트:** 2026-09-30
 - **현재 목표:** 기존 도형으로 **시작 → 농장 경제 → 방어 → 늑대 웨이브 → 승리/패배 → 재시작**이 이어지는 싱글플레이 완성.
-- **이번 변경:** Terra medium으로 SP-01-01~06의 정적 대조와 단일 싱글 계약을 기록하고 W3X 설정을 반영했다. normal 시작은 1500 gold/0 lumber/supply 3, I003 5회·I009/I00F 각 1회, 원본 중립 배치·`n006` 부활 좌표, 120~3000초 wave milestone을 기준으로 둔다. 10000은 명시적 debug mode 전용이다. SP-02는 type/build·dev/preview 부팅·normal smoke·순수 측정 4종·browser fixture를 통과해 완료했다. 난이도 data는 원본 8단계의 알려진 스탯 보정으로 확장했지만 선택 UI·실제 적 적용·Unlimited 보스 능력, mode 선택/전이, 18티어 wave와 runtime 검증은 남아 SP-01은 진행 중이다.
+- **SP-03 진행:** SP-03-07에서 scene shutdown cleanup을 연결했다. input/tween/debug API와 현재 unit·building·placement·initial placement·fog·economy view state를 정리하며, 두 번 호출도 안전하다. 같은 page 새 run orchestration은 아직 없으며 다음 실행은 **SP-03-08**이다.
+- **직전 구현 결과:** Terra medium으로 SP-01-01~06의 정적 대조와 단일 싱글 계약을 기록하고 W3X 설정을 반영했다. normal 시작은 1500 gold/0 lumber/supply 3, I003 5회·I009/I00F 각 1회, 원본 중립 배치·`n006` 부활 좌표, 120~3000초 wave milestone을 기준으로 둔다. 10000은 명시적 debug mode 전용이다. SP-02는 type/build·dev/preview 부팅·normal smoke·순수 측정 4종·browser fixture를 통과해 완료했다. 난이도 data는 원본 8단계의 알려진 스탯 보정으로 확장했지만 선택 UI·실제 적 적용·Unlimited 보스 능력, mode 선택/전이, 18티어 wave와 runtime 검증은 남아 SP-01은 진행 중이다.
 - **진행률:** 새 싱글플레이 목록은 완료 기준 대조 전이므로 **미산정**. 기존 UI 스프린트 21%를 게임 완성도로 사용하지 않는다. 아래 `연결 있음`은 통합 검증 완료를 뜻하지 않는다.
 - **개발 기준:** 계획·범위 조정은 **Astra light**, ID별 실행·검증은 **Terra medium**. 한 번에 소작업 하나를 수행한다. 기존 모델별 한도 기록은 과거 참고값이며 현재 소비량으로 환산하지 않는다. 추가 크레딧·API 지출 목표 $0.
 - **후순위:** UI 디자인·반응형 재배치·에셋 생성/교체·SFX/VFX 강화·8way adapter·멀티플레이·serverless DB/WebRTC. 조작을 막는 입력 오류와 필수 상태 표시는 게임 task 안에서 처리한다.
@@ -15,7 +16,7 @@
 | ---: | --- | --- | --- | --- |
 | 1 | SP-01 | 한 판의 목표·승패 규칙 확정 | W3X 목표 규칙과 현재 코드 actual을 대조했으며, 8단계 난이도 선택·실제 적 적용·Unlimited 능력, mode 선택/전이·18티어 wave/final lifecycle이 남아 **상위 SP-01 진행 중** | [SP-01 목표와 current actual](./chicken_farm_sp01_task_plan.md)을 기준으로 SP-03/08/10/11/12/15가 남은 항목을 구현·검증한 뒤 SP-01 완료 여부를 재판정 |
 | 2 | SP-02 | 플레이 검증 경로 확보 | [7개 실행 task 계획](./chicken_farm_sp02_task_plan.md) 완료; type/build·dev/preview·normal smoke·순수 측정 4종·browser fixture 통과 | 다음 구현은 SP-03 정상 시작 상태 구성 |
-| 3 | SP-03 | 정상 시작 상태 구성 | 농부·개·인벤토리·debug 자원 존재 | 실제 시작 자원/유닛/아이템, 초기 적·중립 배치와 재시작 초기화 일치 |
+| 3 | SP-03 | 정상 시작 상태 구성 | 기본 자원·유닛·아이템과 SP-02 smoke 근거 있음; [9개 세부 task](./chicken_farm_sp03_task_plan.md) 실행 대기 | 시작 옵션/owner 통합, PoC 격리, 초기 25개 entity, 같은 page 새 run 초기화 |
 | 4 | SP-04 | 선택·이동·경로·기본 명령 검수 | 기존 시스템 있음 | 선택, 우클릭 이동, 정지, Shift 예약, 막힌 길 처리로 기본 플레이가 끊기지 않음 |
 | 5 | SP-05 | 건설 lifecycle 완결 | 건설·경제 adapter 연결 있음 | 비용 차감, 일꾼 이동/착공, 중단/재개, 취소/환불, 파괴 시 footprint·시야·경제 정리 |
 | 6 | SP-06 | 닭·알 경제 한 바퀴 검증 | 수집·입고·부화·시장 판매 경로 있음 | 우물/닭장 건설 → 산란 → 수집 → 입고/부화 또는 시장 판매 → 같은 wallet 반영 |
@@ -43,7 +44,7 @@ task별 세부 점검 항목은 [Implementation Backlog의 싱글플레이 task 
 
 ## SP-01 결과와 다음 실행
 
-[SP-01 목표와 current actual](./chicken_farm_sp01_task_plan.md)은 확정된 W3X 기준 목표와 현재 코드 상태를 기록한다. SP-02 검증 경로를 완료했으며 다음 실행 ID는 **SP-03**이다. 기본 협동 늑대 방어를 구현하고 8단계 난이도·mode 선택/전이·18티어 wave/final lifecycle을 검증한 뒤 SP-01 완료 여부를 다시 판정한다. task 수를 게임 진행률로 환산하지 않는다.
+[SP-01 목표와 current actual](./chicken_farm_sp01_task_plan.md)은 확정된 W3X 기준 목표와 현재 코드 상태를 기록한다. SP-02 검증 경로와 SP-03-01~07 시작 계약·runtime·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup을 완료했으며 다음 실행 ID는 **SP-03-08**이다. [SP-03 세부 계획](./chicken_farm_sp03_task_plan.md)의 08 → 09 순으로 한 ID씩 수행한다. 기본 협동 늑대 방어를 구현하고 8단계 난이도·mode 선택/전이·18티어 wave/final lifecycle을 검증한 뒤 SP-01 완료 여부를 다시 판정한다. task 수를 게임 진행률로 환산하지 않는다.
 
 ## 구현 증거와 재사용 대상
 

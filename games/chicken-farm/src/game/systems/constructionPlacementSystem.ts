@@ -212,6 +212,23 @@ export class ConstructionPlacementSystem {
         return Boolean(this.activeBuildingId);
     }
 
+    dispose() {
+        this.pendingOrders.forEach((order) => {
+            if (order.runtimeBuildingId) {
+                this.clearBuilderBuildCommand(order.builderUnitId, order.runtimeBuildingId);
+            }
+        });
+        this.pendingOrders.splice(0);
+        this.activeBuildingId = undefined;
+        this.currentFootprint = undefined;
+        this.currentValidation = { reason: 'disposed', valid: false };
+        [this.ghost, this.pendingGraphics].forEach((graphics) => {
+            graphics.destroy();
+            const index = this.worldObjects.indexOf(graphics);
+            if (index >= 0) this.worldObjects.splice(index, 1);
+        });
+    }
+
     /** Shared by charged item targeting: same snap and world/pathing checks,
      * without requiring the normal builder selection or resource payment. */
     getItemPlacementPreview(buildingId: MvpBuildingId, worldX: number, worldY: number) {

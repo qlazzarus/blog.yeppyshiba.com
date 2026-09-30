@@ -137,9 +137,9 @@ export class ControllableUnitSystem {
         this.worldSize = config.worldSize;
     }
 
-    createForStart(start: PlayerStart) {
-        this.upsertUnit('farmer', start, start.id);
-        this.upsertUnit('dog', start, start.id);
+    createForStart(start: PlayerStart, ownerPlayerId: number) {
+        this.upsertUnit('farmer', start, ownerPlayerId);
+        this.upsertUnit('dog', start, ownerPlayerId);
     }
 
     getPrimaryUnitObject() {
@@ -280,6 +280,16 @@ export class ControllableUnitSystem {
             unit.selected = false;
             this.updateView(unit);
         });
+    }
+
+    dispose() {
+        this.views.forEach((view) => {
+            view.body.destroy();
+            const index = this.worldObjects.indexOf(view.body);
+            if (index >= 0) this.worldObjects.splice(index, 1);
+        });
+        this.views.clear();
+        this.units.splice(0);
     }
 
     getSelectedUnits() {
