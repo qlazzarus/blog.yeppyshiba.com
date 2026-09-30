@@ -47,7 +47,7 @@ type RuntimeState = {
 
     // Session config
     maxPlayers: 8;
-    difficulty: 'easy' | 'normal' | 'hard' | 'crazy';
+    difficulty: 'easy' | 'normal' | 'hard' | 'special' | 'crazy' | 'mad' | 'impossible' | 'unlimited';
     rngSeed: number;
 
     // Host authoritative metadata
@@ -95,7 +95,7 @@ P2P 복구와 향후 방장 이관을 위해 렌더링 상태와 복구 상태�
 type SerializedGameState = {
     tick: number;
     elapsedSec: number;
-    difficulty: 'easy' | 'normal' | 'hard' | 'crazy';
+    difficulty: 'easy' | 'normal' | 'hard' | 'special' | 'crazy' | 'mad' | 'impossible' | 'unlimited';
     rngSeed: number;
 
     hostId: string;
@@ -251,9 +251,9 @@ type WaveRuntime = {
 - 일반 늑대: 10/15/20점.
 - 보스: 40/70/100/140/200점.
 - 10초 생존마다 5점.
-- 기본 승리 조건은 `archimonde`와 남은 적 처치다.
-- `nether_dragon`은 정적 분석상 후속 변환 보스 후보이므로, MVP 데이터에 포함하되 실제 사용 여부는 보스 변환 함수 추가 추적으로 확정한다.
-- 모든 플레이어 핵심 농장 또는 플레이어 영웅이 사망 상태이면 패배.
+- 기본 승리 조건은 `archimonde`와 남은 적 처치다. 싱글에서는 실제 spawn된 아키몬드와 추적 wave 적·연결 소환체의 정리로 해석하며, 시간·점수는 종료 조건이 아니다. 자세한 범위는 [SP-01 단일 계약](./chicken_farm_sp01_task_plan.md)을 따른다.
+- `nether_dragon`은 정적 분석상 후속 변환 보스 후보이므로, MVP 데이터에 포함하되 실제 사용 여부는 보스 변환 함수 추가 추적으로 확정한다. 확인 전에는 싱글 승리 조건이나 잔여 적에 넣지 않는다.
+- 모든 플레이어 핵심 농장 또는 플레이어 영웅 사망은 기존 다인/초기 MVP 제안이다. 현재 싱글은 농부의 부활 2회가 모두 소진된 뒤 사망할 때만 패배하며, 핵심 농장·개·닭·일반 건물은 단독 패배 대상이 아니다. [SP-01 단일 계약](./chicken_farm_sp01_task_plan.md)을 우선한다.
 
 ---
 

@@ -531,17 +531,7 @@ function createCombatLayout(anchor: PlayerStart, worldSize: GridPathPoint) {
     addBuilding('tower_a', layout.towerA, towerTemplate.blocksPath);
     addBuilding('tower_b', layout.towerB, towerTemplate.blocksPath);
 
-    layout.fenceRows.forEach((row) => {
-        for (let cellX = row.fromX; cellX <= row.toX; cellX += 2) {
-            addBuilding(`${row.id}_${cellX}`, { h: 1, w: 2, x: cellX, y: row.y }, fenceTemplate.blocksPath);
-        }
-    });
-    layout.fenceColumns.forEach((column) => {
-        for (let cellY = column.fromY; cellY <= column.toY; cellY += 1) {
-            addBuilding(`${column.id}_${cellY}`, { h: 1, w: 2, x: column.x, y: cellY }, fenceTemplate.blocksPath);
-        }
-    });
-    layout.fenceSingles.forEach((fence) =>
+    layout.fences.forEach((fence) =>
         addBuilding(fence.id, { h: 1, w: 2, x: fence.x, y: fence.y }, fenceTemplate.blocksPath),
     );
     layout.stoneRows.forEach((row) => {

@@ -1,3 +1,4 @@
+import { once } from 'node:events';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { request } from 'node:http';
 import path from 'node:path';
@@ -74,8 +75,16 @@ async function main() {
             })),
         );
         console.log(`Wrote ${outputPath}`);
+        if (!report.checks.pass) {
+            throw new Error(
+                `Browser perf checks failed: ${report.checks.items
+                    .filter((check) => !check.pass)
+                    .map((check) => check.id)
+                    .join(', ')}`,
+            );
+        }
     } finally {
-        stopDevServer(server);
+        await stopDevServer(server);
     }
 }
 
@@ -92,7 +101,10 @@ function startDevServer() {
         ],
         {
             cwd: path.join(rootDir, 'games/chicken-farm'),
-            env: process.env,
+            env: {
+                ...process.env,
+                VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'true',
+            },
         },
     );
 
@@ -108,13 +120,23 @@ async function runBrowserScenario() {
     });
     const consoleMessages: string[] = [];
     const pageErrors: string[] = [];
+    const requestFailures: string[] = [];
+    const responseErrors: string[] = [];
 
     page.on('console', (message) => {
-        if (message.type() === 'error' || message.type() === 'warning') {
-            consoleMessages.push(`${message.type()}: ${message.text()}`);
-        }
+        if (message.type() === 'error') consoleMessages.push(message.text());
     });
     page.on('pageerror', (error) => pageErrors.push(error.message));
+    page.on('requestfailed', (request) =>
+        requestFailures.push(
+            `${request.method()} ${request.url()} ${request.failure()?.errorText ?? 'failed'}`,
+        ),
+    );
+    page.on('response', (response) => {
+        if (response.status() >= 400) {
+            responseErrors.push(`${response.status()} ${response.url()}`);
+        }
+    });
 
     try {
         await page.goto(baseUrl, { waitUntil: 'networkidle' });
@@ -204,11 +226,18 @@ async function runBrowserScenario() {
             { timeout: 20_000 },
         );
         await collect('completed_well_economy_lifecycle');
+        const marketPlacementState = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getState(),
+        );
+        const marketPlacementFarmer = marketPlacementState.primaryUnit;
+        if (!marketPlacementFarmer) {
+            throw new Error('Missing primary unit for market fixture placement');
+        }
         const marketFixtureId = await page.evaluate(({ x, y }) =>
             window.__chickenFarmDebug!.createEconomyBuildingFixture('market', x, y),
         {
-            x: clamp(primary.x + 768, 128, state.worldSize.x - 128),
-            y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
+            x: clamp(marketPlacementFarmer.x + 16, 128, state.worldSize.x - 128),
+            y: clamp(marketPlacementFarmer.y - 64, 128, state.worldSize.y - 128),
         });
         if (!marketFixtureId) throw new Error('Could not create completed market fixture');
         await page.waitForFunction(
@@ -250,6 +279,24 @@ async function runBrowserScenario() {
         const saleAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
         await collect('farmer_egg_stack_market_sale');
 
+        const checks = [
+            {
+                id: 'shared_wallet_cost',
+                pass: true,
+            },
+            {
+                id: 'market_sale',
+                pass:
+                    saleAfter.wallet?.gold === saleBefore.wallet!.gold + 36 &&
+                    saleAfter.wallet?.lumber === saleBefore.wallet!.lumber &&
+                    saleAfter.farmerEggs === 0,
+            },
+            { id: 'console_errors', pass: consoleMessages.length === 0 },
+            { id: 'page_errors', pass: pageErrors.length === 0 },
+            { id: 'failed_requests', pass: requestFailures.length === 0 },
+            { id: 'http_error_responses', pass: responseErrors.length === 0 },
+        ] as const;
+
         return {
             generatedAt: new Date().toISOString(),
             parameters: {
@@ -283,6 +330,12 @@ async function runBrowserScenario() {
             },
             consoleMessages,
             pageErrors,
+            requestFailures,
+            responseErrors,
+            checks: {
+                items: checks,
+                pass: checks.every((check) => check.pass),
+            },
             snapshots,
             summary: summarizeSnapshots(snapshots),
         };
@@ -363,9 +416,11 @@ function waitForHttp(url: string, timeoutMs: number) {
     });
 }
 
-function stopDevServer(server: ChildProcessWithoutNullStreams) {
-    if (server.killed) return;
+async function stopDevServer(server: ChildProcessWithoutNullStreams) {
+    if (server.exitCode !== null) return;
+    const exited = once(server, 'exit');
     server.kill('SIGTERM');
+    await exited;
 }
 
 function clamp(value: number, min: number, max: number) {

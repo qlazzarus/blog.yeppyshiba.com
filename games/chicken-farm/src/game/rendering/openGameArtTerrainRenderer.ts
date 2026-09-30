@@ -34,7 +34,7 @@ export function createOpenGameArtTerrainLayer(config: OpenGameArtTerrainConfig) 
         tileHeight: SOURCE_TILE_SIZE,
         tileWidth: SOURCE_TILE_SIZE,
     });
-    const terrainTexture = createTerrainTexture(config);
+    createTerrainTexture(config);
     const terrainTileset = terrainMap.addTilesetImage(
         TERRAIN_TEXTURE_KEY,
         TERRAIN_TEXTURE_KEY,
@@ -68,17 +68,26 @@ function createTerrainTexture(config: OpenGameArtTerrainConfig) {
         SOURCE_TILE_SIZE * 2,
         SOURCE_TILE_SIZE,
     );
+    if (!texture) {
+        throw new Error('Failed to create OpenGameArt terrain texture');
+    }
     const context = texture.context;
     context.imageSmoothingEnabled = false;
+    const grassSource = config.scene.textures.get(config.grassTextureKey).source[0]
+        ?.image;
+    const dirtSource = config.scene.textures.get(config.dirtTextureKey).source[0]?.image;
+    if (!grassSource || !dirtSource) {
+        throw new Error('Missing OpenGameArt terrain source image');
+    }
     drawSourceFrame(
         context,
-        config.scene.textures.get(config.grassTextureKey).getSourceImage(),
+        grassSource,
         GRASS_SOURCE_FRAME,
         0,
     );
     drawSourceFrame(
         context,
-        config.scene.textures.get(config.dirtTextureKey).getSourceImage(),
+        dirtSource,
         DIRT_SOURCE_FRAME,
         SOURCE_TILE_SIZE,
     );

@@ -57,7 +57,7 @@ type UnitView = {
 
 export type ExternalUnitCollisionBody = {
     readonly id: string;
-    position: Point;
+    position: { x: number; y: number };
     readonly radius: number;
 };
 
@@ -1076,6 +1076,7 @@ export class ControllableUnitSystem {
         }
 
         const targetPoint = command.targetPoint;
+        if (!targetPoint) return;
         const marker = this.scene.add
             .circle(targetPoint.x, targetPoint.y, 11, 0xf1c65c, 0.5)
             .setStrokeStyle(3, 0xfff0aa, 0.98)

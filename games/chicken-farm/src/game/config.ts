@@ -24,6 +24,7 @@ export const CHICKEN_FARM_POC_FLAGS = {
     combat: false,
     combatSmoke: false,
     construction: true,
+    debugEconomy: import.meta.env.VITE_CHICKEN_FARM_DEBUG_ECONOMY === 'true',
     playerDebugMarker: false,
     terrainPathingDebug: true,
 } as const;

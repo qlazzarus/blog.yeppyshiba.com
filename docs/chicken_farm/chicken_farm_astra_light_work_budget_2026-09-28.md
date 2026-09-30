@@ -1,5 +1,7 @@
 # 닭농장 Astra light 개발 작업량·한도 예산
 
+> 현재 운영 전략: **계획·범위 조정 Astra light → ID별 실행·검증 Terra medium**. [SP-02 실행 계획](./chicken_farm_sp02_task_plan.md)을 따른다. 아래 Astra 중심 소비량·기간 추정은 이전 참고값이며 Terra 실행 예산으로 전용하지 않는다.
+
 > **우선순위 갱신 — 2026-09-28 16:16 KST:** 현재 실행 대상은 [싱글플레이 SP-01~16](./chicken_farm_current_context.md)이다. 아래 S/M 분해와 45~78개 추정·주수 예시는 UI/표현/멀티를 포함한 **이전 범위의 참고값**이다. 새 싱글 목록의 비용·완료일로 사용하지 않는다. 이번은 task 목록만 정리했으므로 새 견적은 미산정이며, 한도 측정 규칙과 기존 사용자 보고는 유지한다.
 
 최종 업데이트: 2026-09-28 16:16 KST. 최신 작업 순서는 [Current Context](./chicken_farm_current_context.md)를 따른다.

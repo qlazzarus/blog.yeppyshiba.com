@@ -1,4 +1,12 @@
-export type DifficultyId = 'easy' | 'normal' | 'hard' | 'crazy';
+export type DifficultyId =
+    | 'easy'
+    | 'normal'
+    | 'hard'
+    | 'special'
+    | 'crazy'
+    | 'mad'
+    | 'impossible'
+    | 'unlimited';
 
 export type EnemyId =
     | 'timber_wolf'
@@ -30,9 +38,9 @@ export type DefenseBuildingId =
     | 'tower_arcane_medium'
     | 'tower_arcane_large'
     | 'tower_arcane_grand'
-    | 'campfire'
     | 'well_basic';
-export type BuildingId = IncomeBuildingId | DefenseBuildingId;
+export type SupportBuildingId = 'campfire';
+export type BuildingId = IncomeBuildingId | DefenseBuildingId | SupportBuildingId;
 export type CoreBuildingId = 'farm_house' | 'town_hall' | 'family_temple';
 export type EconomyBuildingId =
     | IncomeBuildingId
@@ -50,6 +58,7 @@ export type ResearchBuildingId =
 export type MvpBuildingId =
     | CoreBuildingId
     | DefenseBuildingId
+    | SupportBuildingId
     | EconomyBuildingId
     | MarketBuildingId
     | ProductionBuildingId
@@ -62,8 +71,13 @@ export type SourceTrace = {
 };
 
 export type DifficultyConfig = {
+    readonly bossSpecialAbilitiesEnabled: boolean;
+    readonly enemyArmorBonus: number;
+    readonly enemyArmorMultiplier: number;
+    readonly enemyAttackSpeedMultiplier: number;
     readonly enemyDamageMultiplier: number;
     readonly enemyHpMultiplier: number;
+    readonly enemyMoveSpeedMultiplier: number;
     readonly id: DifficultyId;
     readonly label: string;
     readonly startingGoldBonus: number;

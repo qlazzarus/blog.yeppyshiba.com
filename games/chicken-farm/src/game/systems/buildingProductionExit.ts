@@ -22,7 +22,7 @@ export function resolveBuildingProductionExit(config: {
     readonly templateId: MvpBuildingId;
     readonly unitRadiusPx: number;
 }): BuildingProductionExitResult {
-    const template = BUILDING_TEMPLATES[config.templateId];
+    const template: BuildingTemplateConfig = BUILDING_TEMPLATES[config.templateId];
     const exit = template.productionExit ?? {
         clearancePx: DEFAULT_EXIT_CLEARANCE_PX,
         side: 'south' as const,

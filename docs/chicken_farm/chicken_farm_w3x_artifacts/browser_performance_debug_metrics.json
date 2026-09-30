@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-22T00:22:11.376Z",
+  "generatedAt": "2026-09-30T06:17:12.406Z",
   "parameters": {
     "baseUrl": "http://127.0.0.1:4174/game-assets/chicken-farm/",
     "browser": "playwright.chromium",
@@ -8,67 +8,240 @@
       "width": 960
     }
   },
-  "consoleMessages": [
-    "warning: [.WebGL-0x12400534800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
-  ],
+  "economyLifecycle": {
+    "coopFixtureId": "player-building-1",
+    "wellFixtureId": "player-building-2",
+    "marketFixtureId": "player-building-3",
+    "before": {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 8.385943333333325,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3542.242096465423,
+        "y": 8980.708315289918
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 2,
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "after": {
+      "buildingCount": 3,
+      "commandPage": "root",
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 1,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 1
+      },
+      "elapsedSec": 14.680973333333322,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 9832  Lumber 9948  Supply 0/10000"
+      },
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3954.1152752200524,
+        "y": 9081.38842565214
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 2,
+      "wallet": {
+        "gold": 9832,
+        "lumber": 9948
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "sharedWalletCostCheck": {
+      "expectedGold": 9832,
+      "expectedLumber": 9948,
+      "pass": true
+    },
+    "marketSaleCheck": {
+      "farmerEggsAfter": 0,
+      "farmerEggsBefore": 0,
+      "goldAfter": 9868,
+      "goldBefore": 9832,
+      "lumberAfter": 9948,
+      "lumberBefore": 9948,
+      "pass": true
+    }
+  },
+  "consoleMessages": [],
   "pageErrors": [],
+  "requestFailures": [],
+  "responseErrors": [],
+  "checks": {
+    "items": [
+      {
+        "id": "shared_wallet_cost",
+        "pass": true
+      },
+      {
+        "id": "market_sale",
+        "pass": true
+      },
+      {
+        "id": "console_errors",
+        "pass": true
+      },
+      {
+        "id": "page_errors",
+        "pass": true
+      },
+      {
+        "id": "failed_requests",
+        "pass": true
+      },
+      {
+        "id": "http_error_responses",
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
   "snapshots": [
     {
       "perf": {
-        "frameAvgMs": 16.427698550679303,
-        "frameCount": 92,
+        "frameAvgMs": 16.513553113553126,
+        "frameCount": 91,
         "frameMaxMs": 16.666666666666664,
         "hotLabels": [
           {
-            "avgMs": 1.666304347631724,
-            "count": 92,
-            "label": "update.combat",
-            "maxMs": 73.7999999821186,
-            "totalMs": 153.2999999821186
-          },
-          {
-            "avgMs": 13.116666669646898,
-            "count": 6,
-            "label": "path.wolf.refresh",
-            "maxMs": 27.899999976158142,
-            "totalMs": 78.7000000178814
-          },
-          {
-            "avgMs": 12.833333333333334,
-            "count": 6,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 27.5,
-            "totalMs": 77
-          },
-          {
-            "avgMs": 0.511956521998281,
-            "count": 92,
+            "avgMs": 0.5032966975327376,
+            "count": 91,
             "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 47.10000002384186
+            "maxMs": 5.3999998569488525,
+            "totalMs": 45.799999475479126
           },
           {
-            "avgMs": 0.2054347829974216,
-            "count": 92,
+            "avgMs": 0.20769230612031706,
+            "count": 91,
+            "label": "update.selectionInfo",
+            "maxMs": 18.799999952316284,
+            "totalMs": 18.899999856948853
+          },
+          {
+            "avgMs": 0.1978022004221822,
+            "count": 91,
             "label": "update.minimap",
-            "maxMs": 4.100000023841858,
-            "totalMs": 18.900000035762787
+            "maxMs": 3.799999952316284,
+            "totalMs": 18.00000023841858
+          },
+          {
+            "avgMs": 0.024175829939789825,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 0.20000004768371582,
+            "totalMs": 2.200000524520874
+          },
+          {
+            "avgMs": 0.014285708521748637,
+            "count": 91,
+            "label": "update.debugText",
+            "maxMs": 0.20000004768371582,
+            "totalMs": 1.299999475479126
           }
         ],
-        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.50 max 5.40 | update.selectionInfo avg 0.21 max 18.80 | update.minimap avg 0.20 max 3.80 | update.hotkeys avg 0.02 max 0.20 | update.debugText avg 0.01 max 0.20"
       },
       "scenario": "baseline_idle",
       "state": {
-        "elapsedSec": 1.5280149333291573,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 1.5193999999999963,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2692,
-          "y": 8368
+          "x": 3392,
+          "y": 8928
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 0,
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -77,57 +250,91 @@
     },
     {
       "perf": {
-        "frameAvgMs": 16.427698550679303,
-        "frameCount": 92,
+        "frameAvgMs": 16.513553113553126,
+        "frameCount": 91,
         "frameMaxMs": 16.666666666666664,
         "hotLabels": [
           {
-            "avgMs": 1.666304347631724,
-            "count": 92,
-            "label": "update.combat",
-            "maxMs": 73.7999999821186,
-            "totalMs": 153.2999999821186
-          },
-          {
-            "avgMs": 13.116666669646898,
-            "count": 6,
-            "label": "path.wolf.refresh",
-            "maxMs": 27.899999976158142,
-            "totalMs": 78.7000000178814
-          },
-          {
-            "avgMs": 12.833333333333334,
-            "count": 6,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 27.5,
-            "totalMs": 77
-          },
-          {
-            "avgMs": 0.511956521998281,
-            "count": 92,
+            "avgMs": 0.5032966975327376,
+            "count": 91,
             "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 47.10000002384186
+            "maxMs": 5.3999998569488525,
+            "totalMs": 45.799999475479126
           },
           {
-            "avgMs": 0.2054347829974216,
-            "count": 92,
+            "avgMs": 0.20769230612031706,
+            "count": 91,
+            "label": "update.selectionInfo",
+            "maxMs": 18.799999952316284,
+            "totalMs": 18.899999856948853
+          },
+          {
+            "avgMs": 0.1978022004221822,
+            "count": 91,
             "label": "update.minimap",
-            "maxMs": 4.100000023841858,
-            "totalMs": 18.900000035762787
+            "maxMs": 3.799999952316284,
+            "totalMs": 18.00000023841858
+          },
+          {
+            "avgMs": 0.024175829939789825,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 0.20000004768371582,
+            "totalMs": 2.200000524520874
+          },
+          {
+            "avgMs": 0.014285708521748637,
+            "count": 91,
+            "label": "update.debugText",
+            "maxMs": 0.20000004768371582,
+            "totalMs": 1.299999475479126
           }
         ],
-        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.50 max 5.40 | update.selectionInfo avg 0.21 max 18.80 | update.minimap avg 0.20 max 3.80 | update.hotkeys avg 0.02 max 0.20 | update.debugText avg 0.01 max 0.20"
       },
       "scenario": "select_all_units_2",
       "state": {
-        "elapsedSec": 2.1745249333291548,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 2.4877033333333274,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2692,
-          "y": 8368
+          "x": 3392,
+          "y": 8928
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -136,57 +343,91 @@
     },
     {
       "perf": {
-        "frameAvgMs": 34.55459259259259,
-        "frameCount": 45,
-        "frameMaxMs": 71.7699999999999,
+        "frameAvgMs": 29.552692307692293,
+        "frameCount": 52,
+        "frameMaxMs": 51.65999999999995,
         "hotLabels": [
           {
-            "avgMs": 1.3000000006622738,
-            "count": 45,
-            "label": "update.combat",
-            "maxMs": 34.599999994039536,
-            "totalMs": 58.50000002980232
-          },
-          {
-            "avgMs": 1.0000000006622738,
-            "count": 45,
+            "avgMs": 0.8980769148239722,
+            "count": 52,
             "label": "update.fog",
-            "maxMs": 6.300000011920929,
-            "totalMs": 45.00000002980232
+            "maxMs": 5.900000095367432,
+            "totalMs": 46.69999957084656
           },
           {
-            "avgMs": 11.466666668653488,
-            "count": 3,
-            "label": "path.wolf.refresh",
-            "maxMs": 34.20000001788139,
-            "totalMs": 34.400000005960464
-          },
-          {
-            "avgMs": 1.7,
-            "count": 20,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 34,
-            "totalMs": 34
-          },
-          {
-            "avgMs": 0.4977777772479587,
-            "count": 45,
+            "avgMs": 0.4076923131942749,
+            "count": 52,
             "label": "update.minimap",
-            "maxMs": 4.299999982118607,
-            "totalMs": 22.399999976158142
+            "maxMs": 3.799999952316284,
+            "totalMs": 21.200000286102295
+          },
+          {
+            "avgMs": 0.39423078298568726,
+            "count": 52,
+            "label": "update.hotkeys",
+            "maxMs": 1.4000000953674316,
+            "totalMs": 20.500000715255737
+          },
+          {
+            "avgMs": 0.06730768772271964,
+            "count": 52,
+            "label": "update.debugText",
+            "maxMs": 0.6999998092651367,
+            "totalMs": 3.499999761581421
+          },
+          {
+            "avgMs": 0.04807692307692308,
+            "count": 52,
+            "label": "update.selectionInfo",
+            "maxMs": 1.6000001430511475,
+            "totalMs": 2.5
           }
         ],
-        "summary": "perf frame avg 34.6ms max 71.8ms slow max 71.8ms | update.combat avg 1.30 max 34.60 | update.fog avg 1.00 max 6.30 | path.wolf.refresh avg 11.47 max 34.20 | path.wolf.findGridPath avg 1.70 max 34.00 | update.minimap avg 0.50 max 4.30"
+        "summary": "perf frame avg 29.6ms max 51.7ms slow max 51.7ms | update.fog avg 0.90 max 5.90 | update.minimap avg 0.41 max 3.80 | update.hotkeys avg 0.39 max 1.40 | update.debugText avg 0.07 max 0.70 | update.selectionInfo avg 0.05 max 1.60"
       },
       "scenario": "smart_command_short_defense_move",
       "state": {
-        "elapsedSec": 4.227924933329154,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 4.4943533333333265,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2799.222409939195,
-          "y": 8335.637138463462
+          "x": 3537.516127774622,
+          "y": 8884.078973628984
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -195,57 +436,91 @@
     },
     {
       "perf": {
-        "frameAvgMs": 68.47863636363638,
-        "frameCount": 22,
-        "frameMaxMs": 71.67999999999992,
+        "frameAvgMs": 50.058,
+        "frameCount": 30,
+        "frameMaxMs": 51.76000000000003,
         "hotLabels": [
           {
-            "avgMs": 1.986363637176427,
-            "count": 22,
+            "avgMs": 1.603333346048991,
+            "count": 30,
             "label": "update.fog",
-            "maxMs": 5.699999988079071,
-            "totalMs": 43.70000001788139
+            "maxMs": 5.6000001430511475,
+            "totalMs": 48.10000038146973
           },
           {
-            "avgMs": 1.0181818184527485,
-            "count": 22,
+            "avgMs": 0.6699999968210856,
+            "count": 30,
             "label": "update.minimap",
-            "maxMs": 4,
-            "totalMs": 22.400000005960464
+            "maxMs": 3.700000047683716,
+            "totalMs": 20.09999990463257
           },
           {
-            "avgMs": 0.49999999729069794,
-            "count": 22,
-            "label": "update.combat",
-            "maxMs": 0.5999999940395355,
-            "totalMs": 10.999999940395355
+            "avgMs": 0.3633333126703898,
+            "count": 30,
+            "label": "update.hotkeys",
+            "maxMs": 0.5,
+            "totalMs": 10.899999380111694
           },
           {
-            "avgMs": 0.222727278416807,
-            "count": 22,
+            "avgMs": 0.23333333333333334,
+            "count": 30,
             "label": "update.debugText",
-            "maxMs": 0.30000001192092896,
-            "totalMs": 4.900000125169754
+            "maxMs": 0.2999999523162842,
+            "totalMs": 7
           },
           {
-            "avgMs": 0.02727272700179707,
-            "count": 22,
-            "label": "update.units",
-            "maxMs": 0.10000002384185791,
-            "totalMs": 0.5999999940395355
+            "avgMs": 0.7999999523162842,
+            "count": 1,
+            "label": "command.smart.total",
+            "maxMs": 0.7999999523162842,
+            "totalMs": 0.7999999523162842
           }
         ],
-        "summary": "perf frame avg 68.5ms max 71.7ms slow max 71.7ms | update.fog avg 1.99 max 5.70 | update.minimap avg 1.02 max 4.00 | update.combat avg 0.50 max 0.60 | update.debugText avg 0.22 max 0.30 | update.units avg 0.03 max 0.10"
+        "summary": "perf frame avg 50.1ms max 51.8ms slow max 51.8ms | update.fog avg 1.60 max 5.60 | update.minimap avg 0.67 max 3.70 | update.hotkeys avg 0.36 max 0.50 | update.debugText avg 0.23 max 0.30 | command.smart.total avg 0.80 max 0.80"
       },
       "scenario": "smart_command_blocker_edge_move",
       "state": {
-        "elapsedSec": 6.2228249333291545,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 6.436103333333323,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2699.614644050808,
-          "y": 8377.431974480745
+          "x": 3402.1383885309338,
+          "y": 8943.959050187661
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -254,57 +529,463 @@
     },
     {
       "perf": {
-        "frameAvgMs": 69.2509090909091,
-        "frameCount": 22,
-        "frameMaxMs": 71.66999999999989,
+        "frameAvgMs": 50.60833333333333,
+        "frameCount": 30,
+        "frameMaxMs": 58.430000000000106,
         "hotLabels": [
           {
-            "avgMs": 1.9181818203492598,
-            "count": 22,
+            "avgMs": 1.4933333158493043,
+            "count": 30,
             "label": "update.fog",
-            "maxMs": 6.5999999940395355,
-            "totalMs": 42.200000047683716
+            "maxMs": 7.299999952316284,
+            "totalMs": 44.799999475479126
           },
           {
-            "avgMs": 0.8727272708307613,
-            "count": 22,
+            "avgMs": 0.5266666730244954,
+            "count": 30,
             "label": "update.minimap",
-            "maxMs": 4.899999976158142,
-            "totalMs": 19.19999995827675
+            "maxMs": 3.3000001907348633,
+            "totalMs": 15.800000190734863
           },
           {
-            "avgMs": 0.5090909085490487,
-            "count": 22,
-            "label": "update.combat",
-            "maxMs": 0.6000000238418579,
-            "totalMs": 11.199999988079071
+            "avgMs": 0.34000001748402914,
+            "count": 30,
+            "label": "update.hotkeys",
+            "maxMs": 0.5,
+            "totalMs": 10.200000524520874
           },
           {
-            "avgMs": 0.25454545562917535,
-            "count": 22,
+            "avgMs": 0.21333332856496176,
+            "count": 30,
             "label": "update.debugText",
-            "maxMs": 0.4000000059604645,
-            "totalMs": 5.600000023841858
+            "maxMs": 0.3000001907348633,
+            "totalMs": 6.3999998569488525
           },
           {
-            "avgMs": 0.5,
+            "avgMs": 0.7000000476837158,
             "count": 1,
             "label": "command.smart.total",
-            "maxMs": 0.5,
-            "totalMs": 0.5
+            "maxMs": 0.7000000476837158,
+            "totalMs": 0.7000000476837158
           }
         ],
-        "summary": "perf frame avg 69.3ms max 71.7ms slow max 71.7ms | update.fog avg 1.92 max 6.60 | update.minimap avg 0.87 max 4.90 | update.combat avg 0.51 max 0.60 | update.debugText avg 0.25 max 0.40 | command.smart.total avg 0.50 max 0.50"
+        "summary": "perf frame avg 50.6ms max 58.4ms slow max 58.4ms | update.fog avg 1.49 max 7.30 | update.minimap avg 0.53 max 3.30 | update.hotkeys avg 0.34 max 0.50 | update.debugText avg 0.21 max 0.30 | command.smart.total avg 0.70 max 0.70"
       },
       "scenario": "smart_command_wide_move",
       "state": {
-        "elapsedSec": 8.224264933329154,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 8.335973333333325,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2803.5204490407295,
-          "y": 8410.050367471713
+          "x": 3538.356500439436,
+          "y": 8979.758502928009
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 52.474827586206885,
+        "frameCount": 29,
+        "frameMaxMs": 55.1,
+        "hotLabels": [
+          {
+            "avgMs": 1.7517241362867684,
+            "count": 29,
+            "label": "update.fog",
+            "maxMs": 7.200000047683716,
+            "totalMs": 50.799999952316284
+          },
+          {
+            "avgMs": 0.672413784882118,
+            "count": 29,
+            "label": "update.minimap",
+            "maxMs": 3.5,
+            "totalMs": 19.49999976158142
+          },
+          {
+            "avgMs": 0.37586213802469187,
+            "count": 29,
+            "label": "update.hotkeys",
+            "maxMs": 0.5,
+            "totalMs": 10.900002002716064
+          },
+          {
+            "avgMs": 0.22068966668227624,
+            "count": 29,
+            "label": "update.debugText",
+            "maxMs": 0.3000001907348633,
+            "totalMs": 6.400000333786011
+          },
+          {
+            "avgMs": 0.02068966010521198,
+            "count": 29,
+            "label": "update.buildings",
+            "maxMs": 0.19999980926513672,
+            "totalMs": 0.6000001430511475
+          }
+        ],
+        "summary": "perf frame avg 52.5ms max 55.1ms slow max 55.1ms | update.fog avg 1.75 max 7.20 | update.minimap avg 0.67 max 3.50 | update.hotkeys avg 0.38 max 0.50 | update.debugText avg 0.22 max 0.30 | update.buildings avg 0.02 max 0.20"
+      },
+      "scenario": "completed_coop_economy_lifecycle",
+      "state": {
+        "buildingCount": 1,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 10.46938333333333,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9880  Lumber 9948  Supply 0/10000"
+        },
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3697.6659375049057,
+          "y": 9018.700809766227
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 9880,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 53.63071428571432,
+        "frameCount": 28,
+        "frameMaxMs": 58.370000000000076,
+        "hotLabels": [
+          {
+            "avgMs": 2.053571445601327,
+            "count": 28,
+            "label": "update.fog",
+            "maxMs": 7,
+            "totalMs": 57.50000047683716
+          },
+          {
+            "avgMs": 0.7357142993382045,
+            "count": 28,
+            "label": "update.minimap",
+            "maxMs": 3.700000047683716,
+            "totalMs": 20.600000381469727
+          },
+          {
+            "avgMs": 0.37142860889434814,
+            "count": 28,
+            "label": "update.hotkeys",
+            "maxMs": 0.5,
+            "totalMs": 10.400001049041748
+          },
+          {
+            "avgMs": 0.22142853055681502,
+            "count": 28,
+            "label": "update.debugText",
+            "maxMs": 0.2999999523162842,
+            "totalMs": 6.19999885559082
+          },
+          {
+            "avgMs": 0.0249999931880406,
+            "count": 28,
+            "label": "update.economyPoc",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.6999998092651367
+          }
+        ],
+        "summary": "perf frame avg 53.6ms max 58.4ms slow max 58.4ms | update.fog avg 2.05 max 7.00 | update.minimap avg 0.74 max 3.70 | update.hotkeys avg 0.37 max 0.50 | update.debugText avg 0.22 max 0.30 | update.economyPoc avg 0.02 max 0.10"
+      },
+      "scenario": "completed_well_economy_lifecycle",
+      "state": {
+        "buildingCount": 2,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 12.571073333333327,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9850  Lumber 9948  Supply 0/10000"
+        },
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3849.2041825184015,
+          "y": 9055.74349188063
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 9850,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 64.78958333333331,
+        "frameCount": 24,
+        "frameMaxMs": 90.03999999999978,
+        "hotLabels": [
+          {
+            "avgMs": 3.05416668454806,
+            "count": 24,
+            "label": "update.fog",
+            "maxMs": 10.5,
+            "totalMs": 73.30000042915344
+          },
+          {
+            "avgMs": 0.8916666507720947,
+            "count": 24,
+            "label": "update.minimap",
+            "maxMs": 5.299999952316284,
+            "totalMs": 21.399999618530273
+          },
+          {
+            "avgMs": 0.7291666666666666,
+            "count": 24,
+            "label": "update.debugText",
+            "maxMs": 11.200000047683716,
+            "totalMs": 17.5
+          },
+          {
+            "avgMs": 0.38749997814496356,
+            "count": 24,
+            "label": "update.hotkeys",
+            "maxMs": 1,
+            "totalMs": 9.299999475479126
+          },
+          {
+            "avgMs": 0.02916666865348816,
+            "count": 24,
+            "label": "update.units",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.7000000476837158
+          }
+        ],
+        "summary": "perf frame avg 64.8ms max 90.0ms slow max 90.0ms | update.fog avg 3.05 max 10.50 | update.minimap avg 0.89 max 5.30 | update.debugText avg 0.73 max 11.20 | update.hotkeys avg 0.39 max 1.00 | update.units avg 0.03 max 0.10"
+      },
+      "scenario": "completed_market_sale_fixture",
+      "state": {
+        "buildingCount": 3,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 14.597503333333322,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9832  Lumber 9948  Supply 0/10000"
+        },
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3950.2296791940653,
+          "y": 9080.438613290233
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 9832,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 59.68923076923075,
+        "frameCount": 26,
+        "frameMaxMs": 73.42999999999992,
+        "hotLabels": [
+          {
+            "avgMs": 2.5153846007127028,
+            "count": 26,
+            "label": "update.fog",
+            "maxMs": 8.099999904632568,
+            "totalMs": 65.39999961853027
+          },
+          {
+            "avgMs": 0.661538472542396,
+            "count": 26,
+            "label": "update.minimap",
+            "maxMs": 3.6000001430511475,
+            "totalMs": 17.200000286102295
+          },
+          {
+            "avgMs": 0.3961538259799664,
+            "count": 26,
+            "label": "update.hotkeys",
+            "maxMs": 0.5,
+            "totalMs": 10.299999475479126
+          },
+          {
+            "avgMs": 0.04230769780965952,
+            "count": 26,
+            "label": "update.debugText",
+            "maxMs": 0.19999980926513672,
+            "totalMs": 1.1000001430511475
+          },
+          {
+            "avgMs": 0.019230769230769232,
+            "count": 26,
+            "label": "update.buildings",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.5
+          }
+        ],
+        "summary": "perf frame avg 59.7ms max 73.4ms slow max 73.4ms | update.fog avg 2.52 max 8.10 | update.minimap avg 0.66 max 3.60 | update.hotkeys avg 0.40 max 0.50 | update.debugText avg 0.04 max 0.20 | update.buildings avg 0.02 max 0.10"
+      },
+      "scenario": "farmer_egg_stack_market_sale",
+      "state": {
+        "buildingCount": 3,
+        "commandPage": "root",
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 17.166433333333313,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9868  Lumber 9948  Supply 0/10000"
+        },
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3965.7720632980136,
+          "y": 9084.237862737864
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "wallet": {
+          "gold": 9868,
+          "lumber": 9948
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -313,56 +994,62 @@
     }
   ],
   "summary": {
-    "frameAvgMs": 41.03,
-    "frameMaxMs": 71.77,
+    "frameAvgMs": 43.76,
+    "frameMaxMs": 90.04,
     "hotLabels": [
       {
-        "avgMs": 1.13,
-        "label": "update.combat",
-        "maxMs": 73.8,
-        "totalMs": 387.3
-      },
-      {
-        "avgMs": 1.19,
+        "avgMs": 1.6,
         "label": "update.fog",
-        "maxMs": 6.6,
-        "totalMs": 225.1
+        "maxMs": 10.5,
+        "totalMs": 478.2
       },
       {
-        "avgMs": 12.57,
-        "label": "path.wolf.refresh",
-        "maxMs": 34.2,
-        "totalMs": 191.8
-      },
-      {
-        "avgMs": 9.12,
-        "label": "path.wolf.findGridPath",
-        "maxMs": 34,
-        "totalMs": 188
-      },
-      {
-        "avgMs": 0.56,
+        "avgMs": 0.55,
         "label": "update.minimap",
-        "maxMs": 4.9,
-        "totalMs": 101.8
+        "maxMs": 5.3,
+        "totalMs": 171.8
       },
       {
-        "avgMs": 0.24,
+        "avgMs": 0.3,
+        "label": "update.hotkeys",
+        "maxMs": 1.4,
+        "totalMs": 86.9
+      },
+      {
+        "avgMs": 0.2,
         "label": "update.debugText",
-        "maxMs": 0.4,
-        "totalMs": 10.5
+        "maxMs": 11.2,
+        "totalMs": 50.7
+      },
+      {
+        "avgMs": 0.15,
+        "label": "update.selectionInfo",
+        "maxMs": 18.8,
+        "totalMs": 40.3
+      },
+      {
+        "avgMs": 0.75,
+        "label": "command.smart.total",
+        "maxMs": 0.8,
+        "totalMs": 1.5
+      },
+      {
+        "avgMs": 0.02,
+        "label": "update.buildings",
+        "maxMs": 0.2,
+        "totalMs": 1.1
+      },
+      {
+        "avgMs": 0.02,
+        "label": "update.economyPoc",
+        "maxMs": 0.1,
+        "totalMs": 0.7
       },
       {
         "avgMs": 0.03,
         "label": "update.units",
         "maxMs": 0.1,
-        "totalMs": 0.6
-      },
-      {
-        "avgMs": 0.5,
-        "label": "command.smart.total",
-        "maxMs": 0.5,
-        "totalMs": 0.5
+        "totalMs": 0.7
       }
     ]
   }

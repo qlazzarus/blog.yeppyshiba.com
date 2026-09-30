@@ -1,12 +1,11 @@
 import Phaser from 'phaser';
 
-import { CHICKEN_FARM_BALANCE } from './game/balance';
+import { CHICKEN_FARM_BALANCE, getStartingGold } from './game/balance';
 import {
     CAMERA_ZOOM,
     CANVAS_HEIGHT,
     CANVAS_WIDTH,
     CHICKEN_FARM_POC_FLAGS,
-    MAJOR_TILE_PX,
     OPEN_GAME_ART_DIRT_TILESET_KEY,
     OPEN_GAME_ART_GRASS_TILESET_KEY,
     TILEMAP_KEY,
@@ -106,7 +105,15 @@ declare global {
                       }
                     | null;
                 readonly elapsedSec: number;
+                readonly farmerInventory: readonly {
+                    readonly itemRawcode: string;
+                    readonly quantity: number;
+                }[];
                 readonly farmerEggs: number;
+                readonly hud: {
+                    readonly inventorySlotCount: number;
+                    readonly resourceText: string;
+                };
                 readonly placingBuildingId: string | null;
                 readonly selectedBuildingId: string | null;
                 readonly primaryUnit:
@@ -640,14 +647,20 @@ class FarmScene extends Phaser.Scene {
     private createEconomyPoc() {
         const player = this.playerControl.player;
         if (!player) return;
+        const debugEconomy = CHICKEN_FARM_POC_FLAGS.debugEconomy;
+        const startingResource = debugEconomy ? 10000 : undefined;
 
         this.economyState = createChickenFarmEconomyState({
             players: [
                 {
-                    gold: CHICKEN_FARM_BALANCE.economy.startingGold,
+                    gold: startingResource ?? getStartingGold(),
                     id: 3,
-                    lumber: CHICKEN_FARM_BALANCE.economy.startingLumber,
-                    supplyCap: CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
+                    lumber:
+                        startingResource ??
+                        CHICKEN_FARM_BALANCE.economy.startingLumber,
+                    supplyCap:
+                        startingResource ??
+                        CHICKEN_FARM_BALANCE.economy.startingSupplyCap,
                     supplyUsed: 0,
                 },
             ],
@@ -717,27 +730,13 @@ class FarmScene extends Phaser.Scene {
 
         this.destroyEconomyView(buildingId);
         if (this.selectedEconomyEntity?.id === buildingId) {
-            this.selectedEconomyEntity = null;
+            this.selectedEconomyEntity = undefined;
         }
         this.refreshEconomyLabels();
         this.recordEconomyEvent('economy_building_detached', {
             buildingId,
             kind: removedKind,
         });
-    }
-
-    private getEconomyBuildingCenter(
-        templateId: typeof ECONOMY_POC_COOP_TEMPLATE_ID | typeof ECONOMY_POC_WELL_TEMPLATE_ID,
-        worldX: number,
-        worldY: number,
-    ): EconomyPoint {
-        const topLeft = snapBuildingTopLeft(templateId, worldX, worldY);
-        const footprint = getBuildingFootprint(templateId, topLeft.x, topLeft.y);
-
-        return {
-            x: footprint.x + footprint.width / 2,
-            y: footprint.y + footprint.height / 2,
-        };
     }
 
     private getEconomyBuildingFootprint(
@@ -1279,9 +1278,21 @@ class FarmScene extends Phaser.Scene {
                 x: market.footprint.x + market.footprint.width / 2,
                 y: market.footprint.y + market.footprint.height / 2,
             };
+            const marketApproachPoint = this.getBuildingInteractionApproachPoint(
+                market.footprint,
+                selectedFarmer.position,
+            );
+            if (!marketApproachPoint) {
+                this.recordEconomyEvent('economy_farmer_market_sale_rejected', {
+                    farmerId: selectedFarmer.id,
+                    marketId: market.id,
+                    reason: 'no_occupiable_market_approach',
+                });
+                return false;
+            }
             this.controllableUnits.issueMoveCommandToUnits(
                 [selectedFarmer.id],
-                marketCenter,
+                marketApproachPoint,
                 this.isQueueCommandMode() ? 'append' : 'replace',
             );
             this.economyWorkerTasks.set(selectedFarmer.id, {
@@ -1292,6 +1303,8 @@ class FarmScene extends Phaser.Scene {
             this.recordEconomyEvent('economy_farmer_market_sale_ordered', {
                 farmerId: selectedFarmer.id,
                 marketId: market.id,
+                marketApproachPoint,
+                marketCenter,
             });
             return true;
         }
@@ -1319,6 +1332,37 @@ class FarmScene extends Phaser.Scene {
         }
 
         return false;
+    }
+
+    private getBuildingInteractionApproachPoint(
+        footprint: { readonly height: number; readonly width: number; readonly x: number; readonly y: number },
+        from: EconomyPoint,
+    ): EconomyPoint | null {
+        const center = {
+            x: footprint.x + footprint.width / 2,
+            y: footprint.y + footprint.height / 2,
+        };
+        const approachOffset = 16;
+        const candidates = [
+            { x: footprint.x - approachOffset, y: center.y },
+            { x: footprint.x + footprint.width + approachOffset, y: center.y },
+            { x: center.x, y: footprint.y - approachOffset },
+            { x: center.x, y: footprint.y + footprint.height + approachOffset },
+        ].sort(
+            (left, right) =>
+                Phaser.Math.Distance.Between(left.x, left.y, from.x, from.y) -
+                Phaser.Math.Distance.Between(right.x, right.y, from.x, from.y),
+        );
+
+        return (
+            candidates.find((candidate) =>
+                canOccupyPoint(candidate, {
+                    dynamicBlockedRects: this.getDynamicBlockedRects(),
+                    terrainBlocker: this.terrainBlocker,
+                    worldSize: this.worldSize,
+                }),
+            ) ?? null
+        );
     }
 
     private hitTestEconomyEntity(worldX: number, worldY: number): EconomyHitTarget | null {
@@ -2329,9 +2373,13 @@ class FarmScene extends Phaser.Scene {
             worldPoint.y,
         );
         if (!preview || !preview.valid.valid) {
+            const reason =
+                preview && !preview.valid.valid
+                    ? preview.valid.reason
+                    : 'placement_unavailable';
             this.recordEconomyEvent('start_item_placement_rejected', {
                 itemRawcode: placement.itemRawcode,
-                reason: preview?.valid.valid ? 'placement_unavailable' : preview?.valid.reason,
+                reason,
             });
             return true;
         }
@@ -2530,6 +2578,7 @@ class FarmScene extends Phaser.Scene {
                     .getUnits()
                     .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
                 const building = this.buildingSystem?.createBuilding({
+                    completeImmediately: true,
                     ownerPlayerId: builder?.ownerPlayerId ?? 3,
                     templateId,
                     workerUnitId: builder?.id,
@@ -2553,6 +2602,10 @@ class FarmScene extends Phaser.Scene {
             getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
             getState: () => {
                 const primaryUnit = this.controllableUnits.getPrimaryUnit();
+                const farmerInventory =
+                    primaryUnit && this.economyState
+                        ? getEconomyInventory(this.economyState, primaryUnit.id)
+                        : null;
                 return {
                     buildingCount: this.buildingSystem?.getBuildingCount() ?? 0,
                     commandPage: this.commandCard?.getPage() ?? 'off',
@@ -2566,6 +2619,11 @@ class FarmScene extends Phaser.Scene {
                           }
                         : null,
                     elapsedSec: this.elapsedSec,
+                    farmerInventory: (farmerInventory?.slots ?? []).flatMap((slot) =>
+                        slot
+                            ? [{ itemRawcode: slot.itemRawcode, quantity: slot.quantity }]
+                            : [],
+                    ),
                     farmerEggs: this.controllableUnits
                         .getUnits()
                         .filter((unit) => unit.templateId === 'farmer' && unit.hp > 0)
@@ -2574,6 +2632,10 @@ class FarmScene extends Phaser.Scene {
                                 total + this.getFarmerEggInventory(farmer.id),
                             0,
                         ),
+                    hud: {
+                        inventorySlotCount: this.inventorySlots.length,
+                        resourceText: this.resourceText.text,
+                    },
                     placingBuildingId:
                         this.constructionPlacement?.getActiveBuildingId() ?? null,
                     primaryUnit: primaryUnit
