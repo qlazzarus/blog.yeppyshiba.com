@@ -11,6 +11,7 @@
         "chicken:pathing:measure": "tsx ../../scripts/measure-chicken-farm-terrain-pathing.ts",
         "chicken:perf:measure": "tsx ../../scripts/measure-chicken-farm-runtime-perf.ts",
         "chicken:smoke": "tsx ../../scripts/smoke-chicken-farm-start.ts",
+        "chicken:start-regression:check": "tsx ../../scripts/check-chicken-farm-start-regression.ts",
         "chicken:start-session:check": "tsx ../../scripts/check-chicken-farm-start-session.ts",
         "chicken:wolfai:measure": "tsx ../../scripts/measure-chicken-farm-wolf-ai.ts",
         "dev": "vite --host 0.0.0.0",

@@ -1,6 +1,8 @@
 import { DEFAULT_START_ID } from './startSessionConfig';
+import type { DifficultyId } from './balanceTypes';
 
 const configuredStartId = import.meta.env.VITE_CHICKEN_FARM_START_ID;
+const configuredDifficulty = import.meta.env.VITE_CHICKEN_FARM_DIFFICULTY;
 
 export const CANVAS_WIDTH = 960;
 export const CANVAS_HEIGHT = 720;
@@ -30,6 +32,7 @@ export const CHICKEN_FARM_POC_FLAGS = {
     construction: true,
     debugEconomy: import.meta.env.VITE_CHICKEN_FARM_DEBUG_ECONOMY === 'true',
     debugFixtures: import.meta.env.VITE_CHICKEN_FARM_DEBUG_FIXTURES === 'true',
+    difficulty: configuredDifficulty as DifficultyId | undefined,
     playerDebugMarker: false,
     startId: configuredStartId === undefined ? undefined : Number(configuredStartId),
     terrainPathingDebug:

@@ -106,6 +106,7 @@ declare global {
             grantFarmerEggStack: (quantity: number) => number | null;
             removeInitialPlacementFixture: (id: string) => boolean;
             restoreInitialPlacementFixtures: () => void;
+            restartRunForTest: () => boolean;
             getState: () => {
                 readonly buildingCount: number;
                 readonly commandPage: string;
@@ -119,6 +120,7 @@ declare global {
                       }
                     | null;
                 readonly elapsedSec: number;
+                readonly runId: number;
                 readonly farmerInventory: readonly {
                     readonly itemRawcode: string;
                     readonly quantity: number;
@@ -294,9 +296,11 @@ class FarmScene extends Phaser.Scene {
     private nextMinimapUpdateSec = 0;
     private resourceText!: Phaser.GameObjects.Text;
     private runDisposed = false;
+    private runId = 0;
     private lastRunCleanupSnapshot?: RunCleanupSnapshot;
     private readonly startSession: ResolvedStartSession = resolveStartSession({
         debugEconomy: CHICKEN_FARM_POC_FLAGS.debugEconomy,
+        difficulty: CHICKEN_FARM_POC_FLAGS.difficulty,
         startId: CHICKEN_FARM_POC_FLAGS.startId,
     });
     private selectedBuildingId?: string;
@@ -347,6 +351,7 @@ class FarmScene extends Phaser.Scene {
 
     create() {
         this.runDisposed = false;
+        this.runId += 1;
         this.lastRunCleanupSnapshot = undefined;
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.disposeRun, this);
         this.cameras.main.setBackgroundColor('#0b0f0a');
@@ -2789,6 +2794,13 @@ class FarmScene extends Phaser.Scene {
                 this.initialPlacementRegistry.initialize(INITIAL_PLACEMENT_MANIFEST);
                 this.initialPlacementViews?.sync(this.initialPlacementRegistry);
             },
+            restartRunForTest: () => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) {
+                    return false;
+                }
+                this.scene.restart();
+                return true;
+            },
             getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
             getState: () => {
                 const primaryUnit = this.controllableUnits.getPrimaryUnit();
@@ -2814,6 +2826,7 @@ class FarmScene extends Phaser.Scene {
                           }
                         : null,
                     elapsedSec: this.elapsedSec,
+                    runId: this.runId,
                     farmerInventory: (farmerInventory?.slots ?? []).flatMap((slot) =>
                         slot
                             ? [{ itemRawcode: slot.itemRawcode, quantity: slot.quantity }]

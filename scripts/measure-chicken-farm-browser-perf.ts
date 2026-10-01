@@ -22,6 +22,7 @@ type BrowserPerfSnapshot = {
 };
 
 type BrowserDebugState = {
+    readonly buildingCount: number;
     readonly economyPoc: {
         readonly chickens: number;
         readonly coops: number;
@@ -31,6 +32,10 @@ type BrowserDebugState = {
     } | null;
     readonly elapsedSec: number;
     readonly farmerEggs: number;
+    readonly farmerInventory: readonly {
+        readonly itemRawcode: string;
+        readonly quantity: number;
+    }[];
     readonly initialPlacementViewCount: number;
     readonly initialPlacements: readonly {
         readonly id: string;
@@ -45,7 +50,13 @@ type BrowserDebugState = {
         readonly x: number;
         readonly y: number;
     } | null;
+    readonly runId: number;
     readonly selectedUnitCount: number;
+    readonly units: readonly {
+        readonly id: string;
+        readonly ownerPlayerId: number;
+        readonly templateId: string;
+    }[];
     readonly wallet: {
         readonly gold: number;
         readonly lumber: number;
@@ -341,6 +352,63 @@ async function runBrowserScenario() {
         );
         const saleAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
         await collect('farmer_egg_stack_market_sale');
+        const restartStates: BrowserDebugState[] = [];
+        const expectedStart = initialPlacementsBefore.primaryUnit;
+        for (let restart = 1; restart <= 2; restart += 1) {
+            const previousRunId = await page.evaluate(
+                () => window.__chickenFarmDebug!.getState().runId,
+            );
+            const restarted = await page.evaluate(() =>
+                window.__chickenFarmDebug!.restartRunForTest(),
+            );
+            if (!restarted) throw new Error(`Could not start same-page run ${restart}`);
+            await page.waitForFunction(
+                (runId) => window.__chickenFarmDebug?.getState().runId > runId,
+                previousRunId,
+                { timeout: 10_000 },
+            );
+            const stateAfterRestart = await page.evaluate(() =>
+                window.__chickenFarmDebug!.getState(),
+            );
+            const inventory = new Map(
+                stateAfterRestart.farmerInventory.map((slot) => [
+                    slot.itemRawcode,
+                    slot.quantity,
+                ]),
+            );
+            const freshRunMatches =
+                stateAfterRestart.buildingCount === 0 &&
+                stateAfterRestart.economyPoc?.chickens === 0 &&
+                stateAfterRestart.economyPoc?.coops === 0 &&
+                stateAfterRestart.economyPoc?.fieldEggs === 0 &&
+                stateAfterRestart.economyPoc?.wells === 0 &&
+                stateAfterRestart.initialPlacements.length === 25 &&
+                stateAfterRestart.initialPlacementViewCount === 25 &&
+                stateAfterRestart.selectedUnitCount === 0 &&
+                stateAfterRestart.units.length === 2 &&
+                stateAfterRestart.wallet?.gold === 10_000 &&
+                stateAfterRestart.wallet?.lumber === 10_000 &&
+                inventory.get('I003') === 5 &&
+                inventory.get('I009') === 1 &&
+                inventory.get('I00F') === 1 &&
+                stateAfterRestart.elapsedSec < 3 &&
+                stateAfterRestart.primaryUnit?.x === expectedStart?.x &&
+                stateAfterRestart.primaryUnit?.y === expectedStart?.y;
+            if (!freshRunMatches) {
+                throw new Error(`Same-page run ${restart} did not restore initial state`);
+            }
+            restartStates.push(stateAfterRestart);
+
+            if (restart === 1) {
+                const fixtureId = await page.evaluate(({ x, y }) =>
+                    window.__chickenFarmDebug!.createEconomyBuildingFixture('coop_basic', x, y),
+                {
+                    x: clamp(stateAfterRestart.primaryUnit!.x + 384, 128, state.worldSize.x - 128),
+                    y: clamp(stateAfterRestart.primaryUnit!.y + 128, 128, state.worldSize.y - 128),
+                });
+                if (!fixtureId) throw new Error('Could not mutate first restarted run');
+            }
+        }
         const runCleanup = await page.evaluate(() => {
             const debug = window.__chickenFarmDebug!;
             const first = debug.disposeRunForTest();
@@ -365,6 +433,7 @@ async function runBrowserScenario() {
             runCleanup.first.after.worldObjectCount === 0 &&
             runCleanup.first.after.uiObjectCount === 0 &&
             runCleanup.second?.alreadyDisposed === true;
+        const samePageRestartPass = restartStates.length === 2;
         await page.mouse.click(480, 270, { button: 'right' });
         await page.keyboard.press('s');
         await page.waitForTimeout(200);
@@ -389,6 +458,7 @@ async function runBrowserScenario() {
                     initialPlacementRestoreMatches,
             },
             { id: 'run_cleanup_lifecycle', pass: cleanupPass },
+            { id: 'same_page_restart_lifecycle', pass: samePageRestartPass },
             { id: 'console_errors', pass: consoleMessages.length === 0 },
             { id: 'page_errors', pass: pageErrors.length === 0 },
             { id: 'failed_requests', pass: requestFailures.length === 0 },
@@ -435,6 +505,7 @@ async function runBrowserScenario() {
                 restoreMatches: initialPlacementRestoreMatches,
             },
             runCleanup,
+            samePageRestarts: restartStates,
             consoleMessages,
             pageErrors,
             requestFailures,

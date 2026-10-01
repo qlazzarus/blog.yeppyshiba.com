@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T08:00:28.024Z",
+  "generatedAt": "2026-10-01T00:30:43.284Z",
   "parameters": {
     "baseUrl": "http://127.0.0.1:4174/game-assets/chicken-farm/",
     "browser": "playwright.chromium",
@@ -27,7 +27,8 @@
         "hatchJobs": 0,
         "wells": 0
       },
-      "elapsedSec": 8.43910613333333,
+      "elapsedSec": 8.577513333333329,
+      "runId": 1,
       "farmerInventory": [
         {
           "itemRawcode": "I003",
@@ -253,8 +254,8 @@
       "placingBuildingId": null,
       "primaryUnit": {
         "id": "p3-farmer",
-        "x": 3542.154856566387,
-        "y": 8980.362791307236
+        "x": 3547.886959551092,
+        "y": 8983.053173139288
       },
       "selectedBuildingId": null,
       "selectedUnitCount": 2,
@@ -294,7 +295,8 @@
         "hatchJobs": 0,
         "wells": 1
       },
-      "elapsedSec": 14.541896133333333,
+      "elapsedSec": 14.888893333333344,
+      "runId": 1,
       "farmerInventory": [
         {
           "itemRawcode": "I003",
@@ -520,8 +522,8 @@
       "placingBuildingId": null,
       "primaryUnit": {
         "id": "p3-farmer",
-        "x": 3961.7992273729906,
-        "y": 9082.942526393274
+        "x": 3993.6583403893696,
+        "y": 9111.831572048117
       },
       "selectedBuildingId": null,
       "selectedUnitCount": 2,
@@ -577,7 +579,8 @@
         "hatchJobs": 0,
         "wells": 0
       },
-      "elapsedSec": 1.5715594666666628,
+      "elapsedSec": 1.5693999999999961,
+      "runId": 1,
       "farmerInventory": [
         {
           "itemRawcode": "I003",
@@ -836,7 +839,8 @@
         "hatchJobs": 0,
         "wells": 0
       },
-      "elapsedSec": 1.604892799999996,
+      "elapsedSec": 1.6027333333333293,
+      "runId": 1,
       "farmerInventory": [
         {
           "itemRawcode": "I003",
@@ -1103,7 +1107,8 @@
         "hatchJobs": 0,
         "wells": 0
       },
-      "elapsedSec": 1.5382261333333296,
+      "elapsedSec": 1.536066666666663,
+      "runId": 1,
       "farmerInventory": [
         {
           "itemRawcode": "I003",
@@ -1374,14 +1379,14 @@
       },
       "alreadyDisposed": false,
       "before": {
-        "buildingCount": 3,
-        "economyEntityCount": 2,
+        "buildingCount": 0,
+        "economyEntityCount": 0,
         "initialPlacementCount": 25,
         "initialPlacementViewCount": 25,
-        "selectedUnitCount": 2,
+        "selectedUnitCount": 0,
         "unitCount": 2,
         "uiObjectCount": 72,
-        "worldObjectCount": 119
+        "worldObjectCount": 83
       }
     },
     "second": {
@@ -1397,17 +1402,555 @@
       },
       "alreadyDisposed": true,
       "before": {
-        "buildingCount": 3,
-        "economyEntityCount": 2,
+        "buildingCount": 0,
+        "economyEntityCount": 0,
         "initialPlacementCount": 25,
         "initialPlacementViewCount": 25,
-        "selectedUnitCount": 2,
+        "selectedUnitCount": 0,
         "unitCount": 2,
         "uiObjectCount": 72,
-        "worldObjectCount": 119
+        "worldObjectCount": 83
       }
     }
   },
+  "samePageRestarts": [
+    {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.18332000000000007,
+      "runId": 2,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.21002000000000004,
+      "runId": 3,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    }
+  ],
   "consoleMessages": [],
   "pageErrors": [],
   "requestFailures": [],
@@ -1428,6 +1971,10 @@
       },
       {
         "id": "run_cleanup_lifecycle",
+        "pass": true
+      },
+      {
+        "id": "same_page_restart_lifecycle",
         "pass": true
       },
       {
@@ -1452,47 +1999,47 @@
   "snapshots": [
     {
       "perf": {
-        "frameAvgMs": 16.53728351648353,
+        "frameAvgMs": 16.513553113553126,
         "frameCount": 91,
         "frameMaxMs": 16.666666666666664,
         "hotLabels": [
           {
-            "avgMs": 0.5439560491960127,
+            "avgMs": 0.5175824139144395,
             "count": 91,
             "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 49.50000047683716
+            "maxMs": 5.599999904632568,
+            "totalMs": 47.09999966621399
           },
           {
-            "avgMs": 0.4494505478785588,
-            "count": 91,
-            "label": "update.selectionInfo",
-            "maxMs": 40.40000009536743,
-            "totalMs": 40.89999985694885
-          },
-          {
-            "avgMs": 0.18681318681318682,
+            "avgMs": 0.18571428938226386,
             "count": 91,
             "label": "update.minimap",
-            "maxMs": 3.5999999046325684,
-            "totalMs": 17
+            "maxMs": 3.5,
+            "totalMs": 16.90000033378601
           },
           {
-            "avgMs": 0.014285716381701794,
+            "avgMs": 0.1802197786477896,
             "count": 91,
-            "label": "update.economyPoc",
-            "maxMs": 0.2999999523162842,
-            "totalMs": 1.3000001907348633
+            "label": "update.selectionInfo",
+            "maxMs": 16.09999990463257,
+            "totalMs": 16.399999856948853
           },
           {
-            "avgMs": 0.013186813710810064,
+            "avgMs": 0.028571432763403588,
             "count": 91,
             "label": "update.debugText",
-            "maxMs": 0.2999999523162842,
-            "totalMs": 1.2000000476837158
+            "maxMs": 0.39999985694885254,
+            "totalMs": 2.6000003814697266
+          },
+          {
+            "avgMs": 0.019780219256222902,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 1.7999999523162842
           }
         ],
-        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.54 max 6.00 | update.selectionInfo avg 0.45 max 40.40 | update.minimap avg 0.19 max 3.60 | update.economyPoc avg 0.01 max 0.30 | update.debugText avg 0.01 max 0.30"
+        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.52 max 5.60 | update.minimap avg 0.19 max 3.50 | update.selectionInfo avg 0.18 max 16.10 | update.debugText avg 0.03 max 0.40 | update.hotkeys avg 0.02 max 0.10"
       },
       "scenario": "baseline_idle",
       "state": {
@@ -1510,7 +2057,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 1.521559466666663,
+        "elapsedSec": 1.5193999999999963,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -1765,47 +2313,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 16.53728351648353,
+        "frameAvgMs": 16.513553113553126,
         "frameCount": 91,
         "frameMaxMs": 16.666666666666664,
         "hotLabels": [
           {
-            "avgMs": 0.5439560491960127,
+            "avgMs": 0.5175824139144395,
             "count": 91,
             "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 49.50000047683716
+            "maxMs": 5.599999904632568,
+            "totalMs": 47.09999966621399
           },
           {
-            "avgMs": 0.4494505478785588,
-            "count": 91,
-            "label": "update.selectionInfo",
-            "maxMs": 40.40000009536743,
-            "totalMs": 40.89999985694885
-          },
-          {
-            "avgMs": 0.18681318681318682,
+            "avgMs": 0.18571428938226386,
             "count": 91,
             "label": "update.minimap",
-            "maxMs": 3.5999999046325684,
-            "totalMs": 17
+            "maxMs": 3.5,
+            "totalMs": 16.90000033378601
           },
           {
-            "avgMs": 0.014285716381701794,
+            "avgMs": 0.1802197786477896,
             "count": 91,
-            "label": "update.economyPoc",
-            "maxMs": 0.2999999523162842,
-            "totalMs": 1.3000001907348633
+            "label": "update.selectionInfo",
+            "maxMs": 16.09999990463257,
+            "totalMs": 16.399999856948853
           },
           {
-            "avgMs": 0.013186813710810064,
+            "avgMs": 0.028571432763403588,
             "count": 91,
             "label": "update.debugText",
-            "maxMs": 0.2999999523162842,
-            "totalMs": 1.2000000476837158
+            "maxMs": 0.39999985694885254,
+            "totalMs": 2.6000003814697266
+          },
+          {
+            "avgMs": 0.019780219256222902,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 1.7999999523162842
           }
         ],
-        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.54 max 6.00 | update.selectionInfo avg 0.45 max 40.40 | update.minimap avg 0.19 max 3.60 | update.economyPoc avg 0.01 max 0.30 | update.debugText avg 0.01 max 0.30"
+        "summary": "perf frame avg 16.5ms max 16.7ms | update.fog avg 0.52 max 5.60 | update.minimap avg 0.19 max 3.50 | update.selectionInfo avg 0.18 max 16.10 | update.debugText avg 0.03 max 0.40 | update.hotkeys avg 0.02 max 0.10"
       },
       "scenario": "select_all_units_2",
       "state": {
@@ -1823,7 +2371,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 2.4773761333333284,
+        "elapsedSec": 2.679463333333329,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -2078,47 +2627,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 30.66557823129252,
-        "frameCount": 49,
-        "frameMaxMs": 55.08999999999996,
+        "frameAvgMs": 52.58655172413794,
+        "frameCount": 29,
+        "frameMaxMs": 55,
         "hotLabels": [
           {
-            "avgMs": 1.05714285616972,
-            "count": 49,
+            "avgMs": 1.9310344827586208,
+            "count": 29,
             "label": "update.fog",
-            "maxMs": 7.299999952316284,
-            "totalMs": 51.799999952316284
+            "maxMs": 7.099999904632568,
+            "totalMs": 56
           },
           {
-            "avgMs": 0.5918367346938775,
-            "count": 49,
+            "avgMs": 0.7172413694447485,
+            "count": 29,
             "label": "update.minimap",
-            "maxMs": 11.700000047683716,
-            "totalMs": 29
+            "maxMs": 4.3999998569488525,
+            "totalMs": 20.799999713897705
           },
           {
-            "avgMs": 0.42653061419117205,
-            "count": 49,
+            "avgMs": 0.3655172463121085,
+            "count": 29,
             "label": "update.hotkeys",
-            "maxMs": 3,
-            "totalMs": 20.90000009536743
+            "maxMs": 0.5,
+            "totalMs": 10.600000143051147
           },
           {
-            "avgMs": 0.08979592031362105,
-            "count": 49,
-            "label": "update.selectionInfo",
-            "maxMs": 3.5,
-            "totalMs": 4.400000095367432
-          },
-          {
-            "avgMs": 0.06326531390754545,
-            "count": 49,
+            "avgMs": 0.22068969134626717,
+            "count": 29,
             "label": "update.debugText",
-            "maxMs": 0.5999999046325684,
-            "totalMs": 3.1000003814697266
+            "maxMs": 0.3000001907348633,
+            "totalMs": 6.400001049041748
+          },
+          {
+            "avgMs": 0.013793098515477675,
+            "count": 29,
+            "label": "update.units",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.39999985694885254
           }
         ],
-        "summary": "perf frame avg 30.7ms max 55.1ms slow max 55.1ms | update.fog avg 1.06 max 7.30 | update.minimap avg 0.59 max 11.70 | update.hotkeys avg 0.43 max 3.00 | update.selectionInfo avg 0.09 max 3.50 | update.debugText avg 0.06 max 0.60"
+        "summary": "perf frame avg 52.6ms max 55.0ms slow max 55.0ms | update.fog avg 1.93 max 7.10 | update.minimap avg 0.72 max 4.40 | update.hotkeys avg 0.37 max 0.50 | update.debugText avg 0.22 max 0.30 | update.units avg 0.01 max 0.10"
       },
       "scenario": "smart_command_short_defense_move",
       "state": {
@@ -2136,7 +2685,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 4.47913613333333,
+        "elapsedSec": 4.674323333333329,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -2391,47 +2941,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 53.44655172413794,
+        "frameAvgMs": 53.15724137931034,
         "frameCount": 29,
-        "frameMaxMs": 56.66999999999989,
+        "frameMaxMs": 61.67000000000007,
         "hotLabels": [
           {
-            "avgMs": 1.7172413858874092,
+            "avgMs": 1.8896551625481968,
             "count": 29,
             "label": "update.fog",
-            "maxMs": 6.799999952316284,
-            "totalMs": 49.80000019073486
+            "maxMs": 6.1000001430511475,
+            "totalMs": 54.799999713897705
           },
           {
-            "avgMs": 0.610344804566482,
+            "avgMs": 0.7206896584609459,
             "count": 29,
             "label": "update.minimap",
-            "maxMs": 3.6999998092651367,
-            "totalMs": 17.69999933242798
+            "maxMs": 3.9000000953674316,
+            "totalMs": 20.90000009536743
           },
           {
-            "avgMs": 0.33793102461716223,
+            "avgMs": 0.3620689655172414,
             "count": 29,
             "label": "update.hotkeys",
             "maxMs": 0.40000009536743164,
-            "totalMs": 9.799999713897705
+            "totalMs": 10.5
           },
           {
-            "avgMs": 0.21379310509254193,
+            "avgMs": 0.22413793925581307,
             "count": 29,
             "label": "update.debugText",
             "maxMs": 0.40000009536743164,
-            "totalMs": 6.200000047683716
+            "totalMs": 6.500000238418579
           },
           {
-            "avgMs": 0.7000000476837158,
+            "avgMs": 0.7999999523162842,
             "count": 1,
             "label": "command.smart.total",
-            "maxMs": 0.7000000476837158,
-            "totalMs": 0.7000000476837158
+            "maxMs": 0.7999999523162842,
+            "totalMs": 0.7999999523162842
           }
         ],
-        "summary": "perf frame avg 53.4ms max 56.7ms slow max 56.7ms | update.fog avg 1.72 max 6.80 | update.minimap avg 0.61 max 3.70 | update.hotkeys avg 0.34 max 0.40 | update.debugText avg 0.21 max 0.40 | command.smart.total avg 0.70 max 0.70"
+        "summary": "perf frame avg 53.2ms max 61.7ms slow max 61.7ms | update.fog avg 1.89 max 6.10 | update.minimap avg 0.72 max 3.90 | update.hotkeys avg 0.36 max 0.40 | update.debugText avg 0.22 max 0.40 | command.smart.total avg 0.80 max 0.80"
       },
       "scenario": "smart_command_blocker_edge_move",
       "state": {
@@ -2449,7 +2999,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 6.449166133333331,
+        "elapsedSec": 6.5943133333333295,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -2675,8 +3226,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3402.044532047736,
-          "y": 8943.598519219204
+          "x": 3409.3579889334774,
+          "y": 8940.356089824383
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -2704,37 +3255,37 @@
     },
     {
       "perf": {
-        "frameAvgMs": 52.1806896551724,
-        "frameCount": 29,
-        "frameMaxMs": 55.01999999999989,
+        "frameAvgMs": 54.57607142857143,
+        "frameCount": 28,
+        "frameMaxMs": 61.740000000000144,
         "hotLabels": [
           {
-            "avgMs": 1.8448275862068966,
-            "count": 29,
+            "avgMs": 1.7249999982970101,
+            "count": 28,
             "label": "update.fog",
-            "maxMs": 6.200000047683716,
-            "totalMs": 53.5
+            "maxMs": 6.699999809265137,
+            "totalMs": 48.299999952316284
           },
           {
-            "avgMs": 0.703448279150601,
-            "count": 29,
+            "avgMs": 0.617857141154153,
+            "count": 28,
             "label": "update.minimap",
-            "maxMs": 4.5,
-            "totalMs": 20.40000009536743
+            "maxMs": 4,
+            "totalMs": 17.299999952316284
           },
           {
-            "avgMs": 0.3482758916657546,
-            "count": 29,
+            "avgMs": 0.3607142908232553,
+            "count": 28,
             "label": "update.hotkeys",
-            "maxMs": 0.40000009536743164,
-            "totalMs": 10.100000858306885
+            "maxMs": 0.5,
+            "totalMs": 10.100000143051147
           },
           {
-            "avgMs": 0.2275862118293499,
-            "count": 29,
+            "avgMs": 0.20357140472957067,
+            "count": 28,
             "label": "update.debugText",
-            "maxMs": 0.40000009536743164,
-            "totalMs": 6.6000001430511475
+            "maxMs": 0.3000001907348633,
+            "totalMs": 5.6999993324279785
           },
           {
             "avgMs": 0.6000001430511475,
@@ -2744,7 +3295,7 @@
             "totalMs": 0.6000001430511475
           }
         ],
-        "summary": "perf frame avg 52.2ms max 55.0ms slow max 55.0ms | update.fog avg 1.84 max 6.20 | update.minimap avg 0.70 max 4.50 | update.hotkeys avg 0.35 max 0.40 | update.debugText avg 0.23 max 0.40 | command.smart.total avg 0.60 max 0.60"
+        "summary": "perf frame avg 54.6ms max 61.7ms slow max 61.7ms | update.fog avg 1.72 max 6.70 | update.minimap avg 0.62 max 4.00 | update.hotkeys avg 0.36 max 0.50 | update.debugText avg 0.20 max 0.30 | command.smart.total avg 0.60 max 0.60"
       },
       "scenario": "smart_command_wide_move",
       "state": {
@@ -2762,7 +3313,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 8.385786133333331,
+        "elapsedSec": 8.524183333333328,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -2988,8 +3540,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3538.2692605404,
-          "y": 8979.412978945327
+          "x": 3544.0441028197274,
+          "y": 8981.943014528004
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -3017,47 +3569,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 54.46464285714287,
+        "frameAvgMs": 53.75428571428573,
         "frameCount": 28,
-        "frameMaxMs": 58.33999999999996,
+        "frameMaxMs": 58.35,
         "hotLabels": [
           {
-            "avgMs": 1.7821428520338876,
+            "avgMs": 1.7714285680225916,
             "count": 28,
             "label": "update.fog",
-            "maxMs": 6.599999904632568,
-            "totalMs": 49.89999985694885
+            "maxMs": 6.5,
+            "totalMs": 49.59999990463257
           },
           {
-            "avgMs": 0.6821428707667759,
+            "avgMs": 0.7500000085149493,
             "count": 28,
             "label": "update.minimap",
-            "maxMs": 3.5,
-            "totalMs": 19.100000381469727
+            "maxMs": 4.5,
+            "totalMs": 21.00000023841858
           },
           {
-            "avgMs": 0.3821428673607962,
+            "avgMs": 0.35357138940266203,
             "count": 28,
             "label": "update.hotkeys",
             "maxMs": 0.5,
-            "totalMs": 10.700000286102295
+            "totalMs": 9.899998903274536
           },
           {
-            "avgMs": 0.21428571428571427,
+            "avgMs": 0.20357143027441843,
             "count": 28,
             "label": "update.debugText",
             "maxMs": 0.40000009536743164,
-            "totalMs": 6
+            "totalMs": 5.700000047683716
           },
           {
-            "avgMs": 0.017857151372092112,
+            "avgMs": 0.021428585052490234,
             "count": 28,
-            "label": "update.selectionInfo",
-            "maxMs": 0.20000004768371582,
-            "totalMs": 0.5000002384185791
+            "label": "update.units",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.6000003814697266
           }
         ],
-        "summary": "perf frame avg 54.5ms max 58.3ms slow max 58.3ms | update.fog avg 1.78 max 6.60 | update.minimap avg 0.68 max 3.50 | update.hotkeys avg 0.38 max 0.50 | update.debugText avg 0.21 max 0.40 | update.selectionInfo avg 0.02 max 0.20"
+        "summary": "perf frame avg 53.8ms max 58.4ms slow max 58.4ms | update.fog avg 1.77 max 6.50 | update.minimap avg 0.75 max 4.50 | update.hotkeys avg 0.35 max 0.50 | update.debugText avg 0.20 max 0.40 | update.units avg 0.02 max 0.10"
       },
       "scenario": "completed_coop_economy_lifecycle",
       "state": {
@@ -3075,7 +3627,8 @@
           "hatchJobs": 0,
           "wells": 0
         },
-        "elapsedSec": 10.530576133333334,
+        "elapsedSec": 10.692493333333335,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -3301,8 +3854,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3693.6931015798828,
-          "y": 9017.405473421639
+          "x": 3697.758372074306,
+          "y": 9026.349358979349
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -3330,47 +3883,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 57.74076923076921,
-        "frameCount": 26,
-        "frameMaxMs": 63.44999999999982,
+        "frameAvgMs": 55.17607142857144,
+        "frameCount": 28,
+        "frameMaxMs": 60,
         "hotLabels": [
           {
-            "avgMs": 2.419230763728802,
-            "count": 26,
+            "avgMs": 2.4107142857142856,
+            "count": 28,
             "label": "update.fog",
-            "maxMs": 8.5,
-            "totalMs": 62.89999985694885
+            "maxMs": 16.700000047683716,
+            "totalMs": 67.5
           },
           {
-            "avgMs": 0.6961538333159226,
-            "count": 26,
+            "avgMs": 0.6071428401129586,
+            "count": 28,
             "label": "update.minimap",
-            "maxMs": 4.299999952316284,
-            "totalMs": 18.09999966621399
+            "maxMs": 3.5999999046325684,
+            "totalMs": 16.999999523162842
           },
           {
-            "avgMs": 0.38461541212522066,
-            "count": 26,
+            "avgMs": 0.3750000170298985,
+            "count": 28,
             "label": "update.hotkeys",
-            "maxMs": 0.9000000953674316,
-            "totalMs": 10.000000715255737
+            "maxMs": 0.8000001907348633,
+            "totalMs": 10.500000476837158
           },
           {
-            "avgMs": 0.23461541762718788,
-            "count": 26,
+            "avgMs": 0.2249999897820609,
+            "count": 28,
             "label": "update.debugText",
-            "maxMs": 0.40000009536743164,
-            "totalMs": 6.100000858306885
+            "maxMs": 0.5,
+            "totalMs": 6.299999713897705
           },
           {
-            "avgMs": 0.015384619052593525,
-            "count": 26,
-            "label": "update.selectionInfo",
+            "avgMs": 0.021428585052490234,
+            "count": 28,
+            "label": "update.buildings",
             "maxMs": 0.10000014305114746,
-            "totalMs": 0.40000009536743164
+            "totalMs": 0.6000003814697266
           }
         ],
-        "summary": "perf frame avg 57.7ms max 63.4ms slow max 63.4ms | update.fog avg 2.42 max 8.50 | update.minimap avg 0.70 max 4.30 | update.hotkeys avg 0.38 max 0.90 | update.debugText avg 0.23 max 0.40 | update.selectionInfo avg 0.02 max 0.10"
+        "summary": "perf frame avg 55.2ms max 60.0ms slow max 60.0ms | update.fog avg 2.41 max 16.70 | update.minimap avg 0.61 max 3.60 | update.hotkeys avg 0.38 max 0.80 | update.debugText avg 0.22 max 0.50 | update.buildings avg 0.02 max 0.10"
       },
       "scenario": "completed_well_economy_lifecycle",
       "state": {
@@ -3388,7 +3941,8 @@
           "hatchJobs": 0,
           "wells": 1
         },
-        "elapsedSec": 12.358406133333334,
+        "elapsedSec": 12.732263333333336,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -3614,8 +4168,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3818.032174411469,
-          "y": 9047.799469002686
+          "x": 3839.944071134791,
+          "y": 9067.425227596812
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -3643,47 +4197,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 56.73555555555554,
-        "frameCount": 27,
-        "frameMaxMs": 70,
+        "frameAvgMs": 54.34107142857141,
+        "frameCount": 28,
+        "frameMaxMs": 58.32999999999993,
         "hotLabels": [
           {
-            "avgMs": 2.4296296349278204,
-            "count": 27,
+            "avgMs": 2.3249999965940202,
+            "count": 28,
             "label": "update.fog",
-            "maxMs": 7.900000095367432,
-            "totalMs": 65.60000014305115
+            "maxMs": 7,
+            "totalMs": 65.09999990463257
           },
           {
-            "avgMs": 0.8111111058129205,
-            "count": 27,
+            "avgMs": 0.7321428486279079,
+            "count": 28,
             "label": "update.minimap",
-            "maxMs": 4.299999952316284,
-            "totalMs": 21.899999856948853
+            "maxMs": 4,
+            "totalMs": 20.49999976158142
           },
           {
-            "avgMs": 0.36296297002721717,
-            "count": 27,
+            "avgMs": 0.37857140813555035,
+            "count": 28,
             "label": "update.hotkeys",
-            "maxMs": 0.5999999046325684,
-            "totalMs": 9.800000190734863
+            "maxMs": 1.1999998092651367,
+            "totalMs": 10.59999942779541
           },
           {
-            "avgMs": 0.23703703173884638,
-            "count": 27,
+            "avgMs": 0.2178571309362139,
+            "count": 28,
             "label": "update.debugText",
-            "maxMs": 0.40000009536743164,
-            "totalMs": 6.3999998569488525
+            "maxMs": 0.39999985694885254,
+            "totalMs": 6.099999666213989
           },
           {
-            "avgMs": 0.025925910031353985,
-            "count": 27,
-            "label": "update.units",
+            "avgMs": 0.017857159887041365,
+            "count": 28,
+            "label": "update.buildings",
             "maxMs": 0.10000014305114746,
-            "totalMs": 0.6999995708465576
+            "totalMs": 0.5000004768371582
           }
         ],
-        "summary": "perf frame avg 56.7ms max 70.0ms slow max 70.0ms | update.fog avg 2.43 max 7.90 | update.minimap avg 0.81 max 4.30 | update.hotkeys avg 0.36 max 0.60 | update.debugText avg 0.24 max 0.40 | update.units avg 0.03 max 0.10"
+        "summary": "perf frame avg 54.3ms max 58.3ms slow max 58.3ms | update.fog avg 2.32 max 7.00 | update.minimap avg 0.73 max 4.00 | update.hotkeys avg 0.38 max 1.20 | update.debugText avg 0.22 max 0.40 | update.buildings avg 0.02 max 0.10"
       },
       "scenario": "completed_market_sale_fixture",
       "state": {
@@ -3701,7 +4255,8 @@
           "hatchJobs": 0,
           "wells": 1
         },
-        "elapsedSec": 14.483566133333333,
+        "elapsedSec": 14.835563333333344,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -3927,8 +4482,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3957.9136313470035,
-          "y": 9081.992714031367
+          "x": 3989.815483658005,
+          "y": 9110.721413436835
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -3956,47 +4511,47 @@
     },
     {
       "perf": {
-        "frameAvgMs": 64.71541666666668,
-        "frameCount": 24,
-        "frameMaxMs": 71.7,
+        "frameAvgMs": 56.84703703703706,
+        "frameCount": 27,
+        "frameMaxMs": 64.96000000000022,
         "hotLabels": [
           {
-            "avgMs": 2.358333339293798,
-            "count": 24,
+            "avgMs": 2.340740751337122,
+            "count": 27,
             "label": "update.fog",
-            "maxMs": 7.900000095367432,
-            "totalMs": 56.60000014305115
+            "maxMs": 8.599999904632568,
+            "totalMs": 63.200000286102295
           },
           {
-            "avgMs": 0.7458333174387614,
-            "count": 24,
+            "avgMs": 0.6518518659803603,
+            "count": 27,
             "label": "update.minimap",
-            "maxMs": 3.9000000953674316,
-            "totalMs": 17.899999618530273
+            "maxMs": 3.8000001907348633,
+            "totalMs": 17.600000381469727
           },
           {
-            "avgMs": 0.32083334525426227,
-            "count": 24,
+            "avgMs": 0.33703703350490993,
+            "count": 27,
             "label": "update.hotkeys",
             "maxMs": 0.40000009536743164,
-            "totalMs": 7.700000286102295
+            "totalMs": 9.099999904632568
           },
           {
-            "avgMs": 0.17916669448216757,
-            "count": 24,
+            "avgMs": 0.018518527348836262,
+            "count": 27,
             "label": "update.debugText",
-            "maxMs": 0.2999999523162842,
-            "totalMs": 4.3000006675720215
+            "maxMs": 0.3000001907348633,
+            "totalMs": 0.5000002384185791
           },
           {
-            "avgMs": 0.03749999403953552,
-            "count": 24,
-            "label": "update.selectionInfo",
-            "maxMs": 0.40000009536743164,
-            "totalMs": 0.8999998569488525
+            "avgMs": 0.007407418003788701,
+            "count": 27,
+            "label": "update.economyPoc",
+            "maxMs": 0.10000014305114746,
+            "totalMs": 0.20000028610229492
           }
         ],
-        "summary": "perf frame avg 64.7ms max 71.7ms slow max 71.7ms | update.fog avg 2.36 max 7.90 | update.minimap avg 0.75 max 3.90 | update.hotkeys avg 0.32 max 0.40 | update.debugText avg 0.18 max 0.30 | update.selectionInfo avg 0.04 max 0.40"
+        "summary": "perf frame avg 56.8ms max 65.0ms slow max 65.0ms | update.fog avg 2.34 max 8.60 | update.minimap avg 0.65 max 3.80 | update.hotkeys avg 0.34 max 0.40 | update.debugText avg 0.02 max 0.30 | update.economyPoc avg 0.01 max 0.10"
       },
       "scenario": "farmer_egg_stack_market_sale",
       "state": {
@@ -4014,7 +4569,8 @@
           "hatchJobs": 0,
           "wells": 1
         },
-        "elapsedSec": 16.71499613333334,
+        "elapsedSec": 17.210533333333334,
+        "runId": 1,
         "farmerInventory": [
           {
             "itemRawcode": "I003",
@@ -4240,8 +4796,8 @@
         "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 3973.456015450952,
-          "y": 9085.791963478998
+          "x": 4005.186910583463,
+          "y": 9115.162047881966
         },
         "selectedBuildingId": null,
         "selectedUnitCount": 2,
@@ -4269,56 +4825,62 @@
     }
   ],
   "summary": {
-    "frameAvgMs": 44.78,
-    "frameMaxMs": 71.7,
+    "frameAvgMs": 45.94,
+    "frameMaxMs": 64.96,
     "hotLabels": [
       {
-        "avgMs": 1.63,
+        "avgMs": 1.71,
         "label": "update.fog",
-        "maxMs": 8.5,
-        "totalMs": 489.1
+        "maxMs": 16.7,
+        "totalMs": 498.7
       },
       {
-        "avgMs": 0.58,
+        "avgMs": 0.57,
         "label": "update.minimap",
-        "maxMs": 11.7,
-        "totalMs": 178.1
+        "maxMs": 4.5,
+        "totalMs": 168.9
+      },
+      {
+        "avgMs": 0.29,
+        "label": "update.hotkeys",
+        "maxMs": 1.2,
+        "totalMs": 74.9
+      },
+      {
+        "avgMs": 0.15,
+        "label": "update.debugText",
+        "maxMs": 0.5,
+        "totalMs": 42.4
       },
       {
         "avgMs": 0.18,
         "label": "update.selectionInfo",
-        "maxMs": 40.4,
-        "totalMs": 88
+        "maxMs": 16.1,
+        "totalMs": 32.8
       },
       {
-        "avgMs": 0.37,
-        "label": "update.hotkeys",
-        "maxMs": 3,
-        "totalMs": 79
+        "avgMs": 0.7,
+        "label": "command.smart.total",
+        "maxMs": 0.8,
+        "totalMs": 1.4
       },
       {
-        "avgMs": 0.16,
-        "label": "update.debugText",
-        "maxMs": 0.6,
-        "totalMs": 41.1
+        "avgMs": 0.02,
+        "label": "update.buildings",
+        "maxMs": 0.1,
+        "totalMs": 1.1
+      },
+      {
+        "avgMs": 0.02,
+        "label": "update.units",
+        "maxMs": 0.1,
+        "totalMs": 1
       },
       {
         "avgMs": 0.01,
         "label": "update.economyPoc",
-        "maxMs": 0.3,
-        "totalMs": 2.6
-      },
-      {
-        "avgMs": 0.65,
-        "label": "command.smart.total",
-        "maxMs": 0.7,
-        "totalMs": 1.3
-      },
-      {
-        "avgMs": 0.03,
-        "label": "update.units",
         "maxMs": 0.1,
-        "totalMs": 0.7
+        "totalMs": 0.2
       }
     ]
   }

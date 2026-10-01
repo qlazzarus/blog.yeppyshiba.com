@@ -43,16 +43,16 @@ W3X `닭농장1.3a`의 기본 협동 늑대 방어를 웹의 단일 플레이 �
 
 | 영역 | 현재 코드 actual | 목표와의 차이 | 다음 작업 |
 | --- | --- | --- | --- |
-| 시작 wallet | `CHICKEN_FARM_BALANCE.economy`는 `1500 / 0 / 3`을 가진다. `getStartingGold()`은 기본 normal을 반환하며 easy bonus는 `+200`이다. `FarmScene#createEconomyPoc()`은 현재 난이도 선택값을 넘기지 않아 실제 새 판은 normal로 시작한다. | 난이도 선택·저장·UI가 없다. | SP-03, SP-15 |
-| debug wallet | `CHICKEN_FARM_POC_FLAGS.debugEconomy`는 기본 `false`다. true이면 `createEconomyPoc()`이 gold/lumber/supply cap 각각 10000으로 덮어쓴다. | 명시적 개발 flag뿐이며 debug 전환 UI·telemetry 분리는 없다. | SP-03, SP-15 |
-| 시작 유닛·아이템 | 현재 시작 생성 경로는 농부 1기와 개 1기를 만들고, 살아 있는 농부에게 I003 5회·I009 1회·I00F 1회를 지급한다. | 선택 start와 새 run 초기화가 단일 정상 preset으로 정리되지 않았다. | SP-03 |
+| 시작 wallet | `CHICKEN_FARM_BALANCE.economy`는 `1500 / 0 / 3`을 가진다. `VITE_CHICKEN_FARM_DIFFICULTY`는 resolver를 거쳐 새 run wallet에 적용되며 easy bonus는 `+200`이다. | 난이도 선택·저장·UI가 없다. | SP-15 |
+| debug wallet | `CHICKEN_FARM_POC_FLAGS.debugEconomy`는 기본 `false`다. true이면 gold/lumber/supply cap을 각각 10000으로 덮어쓴다. | 명시적 개발 flag뿐이며 debug 전환 UI·telemetry 분리는 없다. | SP-15 |
+| 시작 유닛·아이템 | 단일 startSession 경로가 농부 1기와 개 1기를 만들고, 살아 있는 농부에게 I003 5회·I009 1회·I00F 1회를 지급한다. | 원본 model/stat와 I003의 난이도·분기별 5/6/7 수량 후보는 아직 대조·구현하지 않았다. | SP-04~06, SP-15 |
 | 원본 중립·중앙 배치 | 25개 manifest/registry와 ID·좌표 geometric view가 있다. | 목표의 중립 유닛, 중앙 NPC, 늑대의 돌이 실제 gameplay entity·전투·상호작용으로 생성되지 않았다. | SP-07, SP-08, SP-12 |
 | 전투 | `combat`과 `combatSmoke` flag는 기본 `false`다. Combat PoC와 관련 데이터는 존재한다. | 기본 한 판의 실제 공격·피해·사망·경로 연결이 없다. | SP-07 |
 | 웨이브 | `balance.ts`는 원본 시간표와 보스 rawcode에 맞춘 timeline 데이터를 가진다. | 웨이브 생성, 적 registry, 보충, final 전이와 18티어 population은 runtime에 연결되지 않았다. | SP-08, SP-10 |
 | 난이도 스탯 | 타입·balance 데이터는 8단계다. `getScaledEnemyStats()`은 원본의 공격력·공격속도·이동속도·방어력 보정을 적용한다. | 난이도 선택과 실제 적 생성 경로가 없으며, Unlimited의 보스 특수 능력은 flag만 있고 실행하지 않는다. | SP-08, SP-10, SP-15 |
 | 부활·패배·승리 | `reviveResourceLossPct: 40` 데이터만 있다. `FarmScene#update()`은 매 프레임 기존 시스템을 계속 갱신한다. | 부활 횟수·중앙 귀환·무적·종료 판정·동시 판정 우선순위·게임플레이 정지가 구현되지 않았다. | SP-07, SP-11 |
-| 재시작·pause | scene shutdown cleanup은 input/tween/debug API와 현재 unit/building/placement/initial entity/fog/economy view state를 비운다. | 같은 page 새 run orchestration, 종료 상태, wave/결과 state와 hidden pause의 논리 시간 정책은 없다. | SP-03, SP-11, SP-13, SP-16 |
-| 검증 | `npm run build --workspace @games/chicken-farm`은 통과했다. | 브라우저 smoke와 정상 속도 한 판 검증은 아직 하지 않았다. 전체 `build:games`는 chicken-farm 이전의 apex-seoul TypeScript 오류로 통과하지 못한다. | SP-02, SP-16 |
+| 재시작·pause | scene shutdown cleanup 뒤 `scene.restart()`가 같은 page에서 startSession 초기 상태를 다시 만든다. | 종료 상태, wave/결과 state와 hidden pause의 논리 시간 정책은 없다. | SP-11, SP-13, SP-16 |
+| 검증 | `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, 시작 회귀(normal/easy/debug 각 2 load), debug fixture same-page restart browser-perf가 통과했다. | 정상 속도 한 판의 경제·방어·승패 검증은 아직 하지 않았다. 전체 `build:games`는 chicken-farm 이전의 apex-seoul TypeScript 오류로 통과하지 못한다. | SP-04~16 |
 
 ## 모드 범위
 

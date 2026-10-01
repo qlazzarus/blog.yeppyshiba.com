@@ -16,6 +16,8 @@ type SmokeState = {
         readonly resourceText: string;
     };
     readonly primaryUnit: { readonly id: string; readonly x: number; readonly y: number } | null;
+    readonly initialPlacementViewCount: number;
+    readonly initialPlacements: readonly unknown[];
     readonly selectedUnitCount: number;
     readonly debugPoc: {
         readonly combatActive: boolean;
@@ -35,6 +37,31 @@ const host = '127.0.0.1';
 const port = 4175;
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const WORLD_VIEW_CENTER = { x: 480, y: 270 };
+const smokeProfile = process.env.CHICKEN_FARM_SMOKE_PROFILE;
+const profileConfig = {
+    debug_p3: { debugEconomy: true, difficulty: 'normal', startId: 3 },
+    easy_p4: { debugEconomy: false, difficulty: 'easy', startId: 4 },
+    normal_p3: { debugEconomy: false, difficulty: 'normal', startId: 3 },
+} as const;
+const profile = smokeProfile
+    ? profileConfig[smokeProfile as keyof typeof profileConfig]
+    : undefined;
+
+if (smokeProfile && !profile) {
+    throw new Error(`Unknown CHICKEN_FARM_SMOKE_PROFILE: ${smokeProfile}`);
+}
+
+const expectedStartId = profile?.startId ?? Number(process.env.VITE_CHICKEN_FARM_START_ID ?? 3);
+const expectedGold = profile?.debugEconomy
+    ? 10_000
+    : (profile?.difficulty ?? process.env.VITE_CHICKEN_FARM_DIFFICULTY) === 'easy'
+      ? 1700
+      : 1500;
+const expectedLumber = profile?.debugEconomy ? 10_000 : 0;
+const expectedStartPositionById: Record<number, { readonly x: number; readonly y: number }> = {
+    3: { x: 3392, y: 8928 },
+    4: { x: 9024, y: 3232 },
+};
 
 async function main() {
     const server = startDevServer();
@@ -49,19 +76,27 @@ async function main() {
 
 function startDevServer() {
     const viteBin = path.join(rootDir, 'node_modules/.bin/vite');
+    const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        VITE_CHICKEN_FARM_COMBAT_POC: 'false',
+        VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
+        VITE_CHICKEN_FARM_DEBUG_ECONOMY: String(profile?.debugEconomy ?? false),
+        VITE_CHICKEN_FARM_DEBUG_FIXTURES: 'false',
+        VITE_CHICKEN_FARM_START_ID: String(expectedStartId),
+        VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG: 'false',
+    };
+    const difficulty = profile?.difficulty ?? process.env.VITE_CHICKEN_FARM_DIFFICULTY;
+    if (difficulty) {
+        env.VITE_CHICKEN_FARM_DIFFICULTY = difficulty;
+    } else {
+        delete env.VITE_CHICKEN_FARM_DIFFICULTY;
+    }
     const server = spawn(
         viteBin,
         ['--host', host, '--port', String(port), '--strictPort'],
         {
             cwd: path.join(rootDir, 'games/chicken-farm'),
-            env: {
-                ...process.env,
-                VITE_CHICKEN_FARM_COMBAT_POC: 'false',
-                VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
-                VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'false',
-                VITE_CHICKEN_FARM_DEBUG_FIXTURES: 'false',
-                VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG: 'false',
-            },
+            env,
         },
     );
     server.stderr.on('data', (data) => process.stderr.write(String(data)));
@@ -192,11 +227,26 @@ function assertStartState(state: SmokeState) {
     ) {
         throw new Error(`Normal start contains debug state: ${JSON.stringify(state.debugPoc)}`);
     }
-    if (state.wallet?.gold !== 1500 || state.wallet.lumber !== 0) {
-        throw new Error(`Expected normal wallet 1500/0, got ${JSON.stringify(state.wallet)}`);
+    if (state.wallet?.gold !== expectedGold || state.wallet.lumber !== expectedLumber) {
+        throw new Error(
+            `Expected starting wallet ${expectedGold}/${expectedLumber}, got ${JSON.stringify(state.wallet)}`,
+        );
     }
-    if (state.hud.inventorySlotCount <= 0 || !state.hud.resourceText.includes('Gold 1500')) {
+    if (
+        state.hud.inventorySlotCount <= 0 ||
+        !state.hud.resourceText.includes(`Gold ${expectedGold}`)
+    ) {
         throw new Error(`Missing initial HUD state: ${JSON.stringify(state.hud)}`);
+    }
+    const expectedStartPosition = expectedStartPositionById[expectedStartId];
+    if (
+        expectedStartPosition &&
+        (state.primaryUnit.x !== expectedStartPosition.x ||
+            state.primaryUnit.y !== expectedStartPosition.y)
+    ) {
+        throw new Error(
+            `Expected P${expectedStartId} at ${JSON.stringify(expectedStartPosition)}, got ${JSON.stringify(state.primaryUnit)}`,
+        );
     }
     const inventory = new Map(
         state.farmerInventory.map((slot) => [slot.itemRawcode, slot.quantity]),
@@ -221,6 +271,14 @@ function assertStartState(state: SmokeState) {
         unitOwners.get('dog') !== 3
     ) {
         throw new Error(`Expected one P3 farmer and dog, got ${JSON.stringify(state.units)}`);
+    }
+    if (state.initialPlacements.length !== 25 || state.initialPlacementViewCount !== 25) {
+        throw new Error(
+            `Expected 25 initial placements and views, got ${JSON.stringify({
+                placements: state.initialPlacements.length,
+                views: state.initialPlacementViewCount,
+            })}`,
+        );
     }
 }
 

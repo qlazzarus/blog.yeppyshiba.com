@@ -25,7 +25,7 @@
 | SP-15 | debug 자원 없이 첫 건설/알/판매 가능; 첫 적 대응 시간; 자원 수입·생산·방어 성장; 후반 진행/막힘; 정상 속도 한 판 검수 | SP-09~14 |
 | SP-16 | 승리와 패배 양 경로; 반복 재시작; 장시간 실행; 개체 수 증가; 경로 정합; 프레임/메모리; 경제·전투·건설 회귀 | SP-15 |
 
-SP-03-01~07의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup을 구현·검증했으며 현재 실행 후보는 SP-03-08이다. 하나의 소작업씩 착수한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
+SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. 다음 실행 후보는 SP-04이며 하나의 소작업씩 착수한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
 
 ## SP-01 세부 실행 계획
 
@@ -48,7 +48,7 @@ SP-03-01~07의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격�
 
 ## SP-03 세부 실행 계획
 
-2026-09-30: [SP-03 정상 시작 상태 구성](./chicken_farm_sp03_task_plan.md)을 Terra medium 실행용 9개 task로 분해했다. SP-03-01~07의 시작 resolver·owner 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup을 완료했고, 기본 자원·유닛·아이템과 SP-02 smoke를 재사용해 SP-03-08부터 순서대로 실행한다.
+2026-10-01: [SP-03 정상 시작 상태 구성](./chicken_farm_sp03_task_plan.md)을 Terra medium 실행용 9개 task로 분해해 모두 완료했다. SP-03-09는 기본 자원·유닛·아이템과 SP-02 smoke를 재사용해 normal/easy/debug 시작 회귀와 same-page restart 근거를 확정했다.
 
 닭농장 검증 script는 루트 `package.json`에서 `games/chicken-farm/package.json`으로 이전했다. 현재 실행 형식은 `npm run chicken:<name> --workspace @games/chicken-farm`이다.
 
@@ -64,7 +64,7 @@ SP-03-01~07의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격�
 | SP-03-08 | 같은 page에서 새 run 생성 | 07 |
 | SP-03-09 | 시작/재초기화 회귀·후속 SP 인계 | 01~08 |
 
-SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP-03-02에서 이를 runtime wallet·unit·inventory 생성에 연결했으며 SP-03-03에서 normal PoC/fixture 자동 생성을 차단했다. SP-03-04는 25개 초기 배치를 source TSV·tilemap·world 좌표로 대조했고, SP-03-05는 이를 run registry에 등록했으며 SP-03-06은 같은 registry ID·좌표의 view와 관찰 API를 연결했다. SP-03-07은 shutdown cleanup과 idempotent browser 회귀를 연결했다. 다음 실행은 **SP-03-08**이다. 전투·wave·NPC 기능은 SP-07/08/12, 종료 뒤 재시작과 새로 추가될 상태 정리는 SP-11에서 연결한다. 세부 카드의 읽기 범위·완료 조건·검증과 실행 요청 템플릿을 따른다.
+SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP-03-02에서 이를 runtime wallet·unit·inventory 생성에 연결했으며 SP-03-03에서 normal PoC/fixture 자동 생성을 차단했다. SP-03-04는 25개 초기 배치를 source TSV·tilemap·world 좌표로 대조했고, SP-03-05는 이를 run registry에 등록했으며 SP-03-06은 같은 registry ID·좌표의 view와 관찰 API를 연결했다. SP-03-07은 shutdown cleanup과 idempotent browser 회귀를 연결했고 SP-03-08은 same-page restart를 연결했다. SP-03-09는 normal/easy/debug 시작 profile과 browser-perf 재초기화 회귀를 확정했다. 다음 실행은 **SP-04**이다. 전투·wave·NPC 기능은 SP-07/08/12, 종료 뒤 재시작과 새로 추가될 상태 정리는 SP-11에서 연결한다. 세부 카드의 읽기 범위·완료 조건·검증과 실행 요청 템플릿을 따른다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 

@@ -1,10 +1,10 @@
 # SP-03 정상 시작 상태 구성 — 세부 실행 계획
 
-> 갱신: 2026-09-30. Terra medium에서 **한 요청에 한 ID**를 실행하기 위한 계획이다. 이번 변경은 소스 정적 확인과 작업 분해이며 모델 전환·기능 구현·새 runtime 검증을 수행한 결과가 아니다. 닭농장 검증 명령은 `npm run chicken:<name> --workspace @games/chicken-farm`으로 실행한다.
+> 갱신: 2026-10-01. Terra medium에서 **한 요청에 한 ID**를 실행하기 위한 계획이다. SP-03-01~09는 완료됐으며, 닭농장 검증 명령은 `npm run chicken:<name> --workspace @games/chicken-farm`으로 실행한다.
 
 ## 진행사항과 근거
 
-SP-03 전용 구현은 아직 착수 전이다. 기존 구현을 재사용하고 아래 차이를 해소한다. SP-02의 통과 기록은 이전 검증 증거이며 이번에 재실행한 것으로 취급하지 않는다.
+SP-03은 기존 구현을 재사용해 정상 시작과 새 run 초기화를 완료했다. 아래 표는 착수 전 근거이고, 현재 원본과의 남은 차이는 다음 기록을 따른다.
 
 | 영역 | 확인된 현재 상태 | 남은 일 |
 | --- | --- | --- |
@@ -14,6 +14,21 @@ SP-03 전용 구현은 아직 착수 전이다. 기존 구현을 재사용하고
 | PoC 분리 | combat/combatSmoke는 off. `terrainPathingDebug`는 true이며 별도 probe agent를 생성 | 정상 판에서 probe/fixture 자동 생성 차단, 명시 debug 측정 유지 |
 | 중립·중앙 배치 | `tilemapObjectRenderer.ts`의 marker와 원본 위치 artifact 존재 | marker와 별개인 실제 entity의 ID·위치·소유자·생성/제거 수명 확보 |
 | 초기화 | 종료/새 run lifecycle 없음. 기존 smoke는 새 page/load 2회 | 같은 page에서 현재 시스템 상태를 정리하고 초기 상태로 돌아가는 경로 검증 |
+
+## W3X 원본과의 남은 차이 기록
+
+SP-03 검증에서 normal 시작 자원, 기본 농부/개·아이템, P3/P4 좌표와 25개 초기 배치의 rawcode·owner·좌표는 원본 artifact와 대조했다. 아래는 의도적으로 남겼거나 후속 task가 맡을 차이다.
+
+| 영역 | W3X 원본 | 현재 SP-03 | 영향 / 후속 |
+| --- | --- | --- | --- |
+| 시작 슬롯과 무작위 배정 | 10인 협동 시작 슬롯에서 참여자별 시작 위치를 배정한다. | 싱글플레이 P3 기본값과 `VITE_CHICKEN_FARM_START_ID`만 지원하며 P3/P4를 회귀 검증했다. 명시적 random 선택·선택 결과 저장은 없다. 존재하지 않는 positive start ID는 `PlayerControlSystem` fallback에서 임의의 현재 map start를 고를 수 있어 제품 계약으로 쓰면 안 된다. | random mode를 추가할 때 run 시작 전에 유효 start ID를 한 번 선택해 `ResolvedStartSession`에 저장하고, 재시작에도 같은 값을 전달한다. SP-15 또는 별도 start-selection task. |
+| 시작 위치 수와 맵 형태 | 원본은 10개 사용자 시작 슬롯과 비대칭 농장 주변 지형을 가진다. | 현재 Phaser 대조 artifact는 P1~P8 중심만 보존하며 웹은 하나의 P3 owner로 실행한다. | 멀티플레이 재현은 범위 밖이다. 싱글 공정성·지원 start ID 범위는 start-selection 기능화 시 확정한다. |
+| 초기 중립·중앙 개체 | 늑대의 돌·거미·시장·상인·이벤트 NPC는 실제 Warcraft unit/structure이며 facing·전투·거래·이벤트를 가진다. | 25개 registry와 도형 marker view만 생성한다. rawcode·owner·좌표는 보존하지만 facing과 gameplay component는 없다. | 거미/돌 전투·wave 연결은 SP-07/08, 시장/NPC 상호작용은 SP-12. |
+| 시작 유닛 표현과 세부 분기 | `H000` 농부와 `n002` 개의 원본 model/stat/명령, I003 수량은 분기에 따라 5/6/7 후보가 있다. | 내부 template `farmer`/`dog`와 도형 view를 사용하고 기본 분기의 I003×5로 고정한다. | 표현·정확한 stat/분기와 item 사용 효과는 전투·경제·UI 관련 후속 task에서 대조한다. |
+| 난이도와 진행 시작 | 원본 난이도 선택 뒤 늑대 생성과 스탯 보정이 시작된다. | 8단계 데이터와 easy 시작 gold만 resolver에 연결했다. UI 선택·저장·실제 적 생성/보정은 없다. | SP-08, SP-10, SP-15. |
+| 새 판의 종료 원인 | 원본은 사망·부활·승패 trigger 흐름에서 다음 판으로 이어진다. | `scene.restart()`가 현재 앱 소유 상태를 초기화하지만, 종료 화면·부활·승패 상태는 없다. | SP-11, SP-13, SP-16. |
+
+근거: `chicken_farm_w3x_artifacts/map_start_locations.tsv`, `initial_farmer_inventory_reference.tsv`, `key_unit_placement_reference.tsv`, `phaser_object_position_crosscheck.tsv`, `jass_wolf_*` 및 [SP-01 current actual](./chicken_farm_sp01_task_plan.md).
 
 ## 범위와 실행 원칙
 
@@ -161,6 +176,15 @@ SP-03 전용 구현은 아직 착수 전이다. 기존 구현을 재사용하고
 - 변경 범위: run orchestration과 최소 검증 진입점. 승패 화면/부활/결과 처리 제외.
 - 완료/검증: 같은 page에서 자원 소비·이동·선택·건설 또는 inventory 변경 뒤 새 run 2회. 초기 자원/아이템/위치/25개 초기 entity가 복원되고 선택·예약·건물·경과 시간·시야의 이전 상태가 남지 않음. page reload로 대체하지 않음.
 
+#### 결과
+
+- `FarmScene`은 `scene.restart()`를 새 run orchestration으로 사용한다. restart의 shutdown은 SP-03-07 `disposeRun()`을 거치고, 같은 scene instance의 immutable `startSession`을 다시 `create()`에 전달한다. 따라서 default/easy/debug와 `VITE_CHICKEN_FARM_START_ID` 선택은 기존 resolver→unit/wallet 초기화 경로를 그대로 재사용한다.
+- `VITE_CHICKEN_FARM_DIFFICULTY`를 runtime resolver 입력에 연결했다. 값 검증과 easy/normal/debug 자원 우선순위는 SP-03-01 `resolveStartSession()`이 담당하며, 선택 UI·저장은 여전히 SP-15 범위다.
+- debug fixture 전용 `restartRunForTest()`와 read-only `runId`를 추가했다. 일반 게임 UI에는 재시작 버튼을 추가하지 않았고, SP-11의 종료 결과 화면이 이 lifecycle을 호출할 계약만 확보했다.
+- 변경: `games/chicken-farm/src/game/config.ts`, `games/chicken-farm/src/main.ts`, `scripts/measure-chicken-farm-browser-perf.ts`.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run chicken:browser-perf:measure --workspace @games/chicken-farm` → 종료 코드 0, 같은 page에서 run ID `1 → 2 → 3`으로 두 번 restart했다. 첫 run의 3개 건설·wallet 소비·이동·선택·egg 판매 뒤, 두 새 run은 debug wallet `10000/10000`, P3 `(3392,8928)`, farmer/dog 2기, I003×5/I009×1/I00F×1, 25 placement/view, building/economy entity/selection 0, elapsed 약 0.2초로 복원됐고 9개 check와 오류 0건을 통과했다. `VITE_CHICKEN_FARM_START_ID=4 VITE_CHICKEN_FARM_DIFFICULTY=easy npm run chicken:smoke --workspace @games/chicken-farm`도 종료 코드 0으로 P4 `(9024,3232)`, P3 owner, easy gold 1700을 새 page/load 2회에서 확인했다. SP-03-01 순수 검사는 easy start 및 debug 우선순위를 포함한 13 assertion으로 통과한다.
+- blocker 없음. 승패/부활/결과 화면과 일반 사용자 재시작 버튼은 SP-11에 남긴다.
+
 ### SP-03-09 — 시작·재초기화 회귀와 인계
 
 - 선행: 01~08, 추가 하위 카드 전부.
@@ -169,6 +193,14 @@ SP-03 전용 구현은 아직 착수 전이다. 기존 구현을 재사용하고
 - 완료/검증: typecheck·개별 build·기본 smoke·새 시작/재초기화 회귀 통과, debug fixture 영향 시 browser-perf도 확인. 필수 assertion 실패는 nonzero, console/pageerror/request 오류 수집, 본인 서버/브라우저 정리. dev/preview 중 초기화 연결을 바꾼 경로를 최종 build에서도 확인.
 - 변경 범위: 해당 harness/명령 등록/필요한 관찰 API, 이 문서·Current Context·backlog·SP-01 actual의 관련 행. 전체 게임 build와 무관한 성능 측정 반복은 제외.
 - 인계: SP-04 선택/경로, SP-07 초기 entity 전투, SP-08 돌/rect 기반 wave, SP-11 종료 뒤 새 run 호출 및 앞으로 추가될 상태 정리, SP-12 NPC 기능, SP-15 난이도 선택/밸런스. SP-03 통과를 한 판 완성이나 SP-11 완료로 올려 쓰지 않는다.
+
+#### 결과
+
+- `scripts/smoke-chicken-farm-start.ts`에 고정 profile (`normal_p3`, `easy_p4`, `debug_p3`)을 추가하고, `scripts/check-chicken-farm-start-regression.ts` 및 `chicken:start-regression:check`로 순차 실행한다. profile이 있는 normal/easy는 부모 shell의 combat·fixture·terrain debug·debug economy 변수를 모두 덮어쓰며, debug profile만 명시적으로 debug wallet을 허용한다.
+- 각 profile은 새 브라우저 page 두 번에서 farmer/dog 2기(P3 owner), I003×5/I009×1/I00F×1, 선택 시작 위치(P3 또는 P4), HUD/wallet, 25개 initial placement와 view를 assertion한다. console/page error·실패 request·4xx 응답도 실패로 처리하고, 각 smoke가 생성한 Vite server와 browser는 `finally`에서 종료한다. 상태 오염 뒤 같은 page restart는 browser-perf fixture가 별도로 수행한다.
+- 변경: `scripts/smoke-chicken-farm-start.ts`, `scripts/check-chicken-farm-start-regression.ts`, `games/chicken-farm/package.json`, `docs/chicken_farm/{chicken_farm_sp03_task_plan,chicken_farm_current_context,chicken_farm_implementation_backlog,chicken_farm_sp01_task_plan}.md`.
+- 검증: `npm run chicken:start-regression:check --workspace @games/chicken-farm` → 종료 코드 0: normal P3 `1500/0`, easy P4 `1700/0`, debug P3 `10000/10000`을 각 2 load에서 확인. `npm run chicken:browser-perf:measure --workspace @games/chicken-farm` → 종료 코드 0: 오염 뒤 same-page run ID `1 → 2 → 3`과 9개 check 통과. `npm run typecheck --workspace @games/chicken-farm` 및 `npm run build --workspace @games/chicken-farm` → 종료 코드 0; build에는 기존 500KB chunk 경고만 있다.
+- blocker 없음. SP-03의 정상 시작 상태 구성은 완료이며 다음 ID는 SP-04다. 이 회귀는 정상 시작과 새 run 초기화까지만 보장하고, 종료 화면·승패 판정은 SP-11에 남긴다.
 
 ## 실행 현황
 
@@ -181,10 +213,10 @@ SP-03 전용 구현은 아직 착수 전이다. 기존 구현을 재사용하고
 | SP-03-05 | 완료 | data-only initial registry와 scene 초기화 연결. 생성 25·중복 없음·조회/remove/clear/재생성 통과; combat/NPC/view 미구현을 유지. typecheck·build·normal smoke 통과; blocker 없음. 다음 SP-03-06 |
 | SP-03-06 | 완료 | registry 기반 25개 도형 view·read-only snapshot 연결. minimap marker 유지, fog/UI camera 규칙 적용, debug fixture 제거 후 24 view·복구 25 view 확인. typecheck·registry/placement assertion·browser-perf·build·normal smoke 통과; blocker 없음. 다음 SP-03-07 |
 | SP-03-07 | 완료 | 07-a/b/c로 분해해 scene shutdown·input/debug 해제와 unit/building/placement/initial/fog state·view 정리를 연결. 두 번 dispose 시 idempotent, 정리 후 관찰 개수 0·오류 0 확인; blocker 없음. 다음 SP-03-08 |
-| SP-03-08 | 대기 | 07 뒤 같은 page 새 run |
-| SP-03-09 | 대기 | 전체 회귀·증거·인계 |
+| SP-03-08 | 완료 | scene restart로 shutdown→동일 startSession 초기화 경로를 연결하고 difficulty env/runtime input·fixture restart/runId를 추가. 같은 page 두 restart에서 초기 wallet/item/P3/unit/25 placement 복원 및 이전 건설·선택·경제 상태 제거 확인; blocker 없음. 다음 SP-03-09 |
+| SP-03-09 | 완료 | 변경: `smoke-chicken-farm-start.ts` profile/initial-placement assertion, `check-chicken-farm-start-regression.ts`, workspace script. 명령: start-regression·browser-perf·typecheck·build 모두 종료 코드 0. assertion: normal/easy/debug wallet·P3/P4 위치·2 load·25 placement/view, same-page restart 2회·오류 0. blocker 없음. 다음 SP-04 |
 
-각 완료 행에는 변경 파일/심볼, 실행 명령·종료 코드, 핵심 assertion, 남은 blocker, 다음 ID를 짧게 기록한다. 현재는 정적 조사만 했으며 위 카드의 구현 완료 수는 0이다.
+각 완료 행에는 변경 파일/심볼, 실행 명령·종료 코드, 핵심 assertion, 남은 blocker, 다음 ID를 짧게 기록한다. SP-03-01~09가 완료됐으며, 후속 구현은 SP-04부터 시작한다.
 
 ## Terra medium 실행 요청 예시
 
