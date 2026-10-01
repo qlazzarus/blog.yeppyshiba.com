@@ -176,7 +176,7 @@ async function runBrowserScenario() {
         const collect = async (scenario: string) => {
             await page.waitForTimeout(1_700);
             await page.waitForFunction(
-                () => window.__chickenFarmDebug!.getPerfSnapshot().frameCount > 0,
+                () => window.__chickenFarmDebug!.getState().elapsedSec > 0,
                 null,
                 { timeout: 10_000 },
             );

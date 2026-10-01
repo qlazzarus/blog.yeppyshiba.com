@@ -158,12 +158,31 @@
 - 완료: 도착 순서와 command/queue 전이 일치, replace 이후 과거 목적지 재개 0, 실패 예약에서 무한 대기 0. 실패 정책은 01 계약을 따른다.
 - 검증: controls의 queue 사례 + typecheck. 미지원 상호작용 예약을 이번에 일괄 구현하지 않는다.
 
+#### SP-04-06 결과
+
+- 상태: **완료**. 실제 Shift 입력으로 A→B→C 이동 예약, Shift 없는 D의 replace, Stop queue 비우기와 막힌 B 뒤 유효 C 진행을 `queue` controls 사례로 통과했다.
+- 변경 파일: `games/chicken-farm/src/game/systems/controllableUnitSystem.ts#pollNextQueuedCommand`, `scripts/check-chicken-farm-controls.ts`. path를 찾지 못한 예약 이동은 current/path 상태를 정리하고 FIFO의 다음 명령을 즉시 시작하도록 수정했다. replace는 기존 queue를 비우며, Stop은 queue/path를 비운다.
+- assertion: queue snapshot에서 A는 current, B/C는 FIFO queue임을 확인하고 A→B→C 도착 순서와 C의 grid endpoint 위치를 대조한다. 새 D 후에는 이전 B가 남지 않는지, Stop 후 queue/path가 0인지, `(4816,10384)`의 막힌 B가 queue에 남지 않고 `(3056,9552)` C가 실행·도착하는지를 확인한다. browser input의 최대 3px 변환 오차와 32px grid endpoint의 최대 24px 보정을 assertion에 반영했다.
+- 예약 범위: move/attack/attack-move command만 queue 기록을 지원한다. 경제 worker task와 building resume의 Shift 전달은 기존 호출부 범위이고, 상호작용 완료 수량·건설 lifecycle은 각각 SP-06·SP-05에서 검수한다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0, `npm run build --workspace @games/chicken-farm` → 종료 코드 0, `CHICKEN_FARM_CONTROL_CASE=queue npm run chicken:controls:check --workspace @games/chicken-farm` → 종료 코드 0. normal P3, fixture/combat/terrain probe off, console/page/request/HTTP 오류 0에서 실제 Playwright mouse·keyboard를 발행했다. Linux Chromium 의존성은 `npx playwright install --with-deps chromium`으로 설치했다.
+- 남은 결함: 동적 blocker 재경로는 SP-04-08, player 지형·통로 검증은 SP-04-07에 남는다.
+- 다음 ID: **SP-04-07**.
+
 ### SP-04-07 — 정적 지형·좌표·좁은 통로
 
 - 읽기: `terrainBlocker.ts`, `pathing.ts`, `movementGuards.ts`, `controllableUnitSystem.ts#findMovePath/getMovePathBounds`, 기존 pathing 측정.
 - 작업: player 설정으로 별도 사례를 추가한다. 월드/WPM 경계, 막힌 목표, 통로 입구, 통과 가능한 좁은 통로, clearance상 통과 불가 통로, 다중 유닛 목적지 offset을 확인한다. smoothing 선분도 검사한다.
 - 완료: 허용 통로 도착, 불가 목표 유한 시간 종료와 다음 입력 수용, 지형/월드 밖 관통 0. 지역 bounds 때문에 도달 가능한 목적지가 실패하는 사례는 재현 후 제한된 수정으로 해결하거나 하위 ID로 분리한다.
 - 검증: player 순수 경로 사례 + controls 실제 이동 + 기존 `chicken:pathing:measure` + typecheck. wolf 측정 통과만으로 완료하지 않는다.
+
+#### SP-04-07 결과
+
+- 상태: **완료**. player clearance(8px) 기준의 정적 WPM 경로 검사를 추가하고 normal P3에서 실제 Playwright 우클릭 이동·도착을 확인했다.
+- 변경 파일: `scripts/check-chicken-farm-player-pathing.ts`, `games/chicken-farm/package.json`, `scripts/check-chicken-farm-controls.ts#runTerrainCase`, `games/chicken-farm/src/game/systems/movementGuards.ts`. `movementGuards`는 Phaser runtime 의존 없이 동일한 clamp 연산을 사용하도록 순수화해 Node 경로 검사에서 실제 offset 함수를 검증한다.
+- assertion: 월드 밖 좌표와 `(4816,10384)` blocked goal 거절, WPM `(3776,3392) → (6336,3392)` player route·smoothing 선분 관통 0, 64px 통로의 8px clearance 통과와 32px clearance 거절, 4-unit destination offset의 고유성·월드 경계, normal P3 farmer의 실제 target 도착(24px grid endpoint 보정)을 확인한다.
+- 검증: `npm run chicken:player-pathing:check --workspace @games/chicken-farm` → 종료 코드 0 ([artifact](./chicken_farm_w3x_artifacts/player_pathing_check.json)), `CHICKEN_FARM_CONTROL_CASE=terrain npm run chicken:controls:check --workspace @games/chicken-farm` → 종료 코드 0, `npm run chicken:pathing:measure --workspace @games/chicken-farm` → 종료 코드 0, `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. controls는 fixture/combat/terrain probe off인 normal P3에서 console/page/request/HTTP 오류 0이었다.
+- 남은 결함: 이동 중 dynamic blocker 추가·제거와 재경로 정책은 SP-04-08에서 검증한다.
+- 다음 ID: **SP-04-08**.
 
 ### SP-04-08 — 이동 중 동적 blocker 변경
 
@@ -172,12 +191,31 @@
 - 완료: 새 footprint 관통 0, 가능하면 우회 도착, 완전 차단 시 유한 종료·후속 입력 정상. 매 프레임 무제한 path 검색 금지; 재시도 상한/주기를 기록한다.
 - 검증: controls의 dynamic-blocker 사례 + 정적 경로 회귀 + typecheck. 건물 생성/철거 lifecycle 자체의 완료 판정은 SP-05다.
 
+#### SP-04-08 결과
+
+- 상태: **완료**. 이동 중 새 dynamic building blocker를 선분 단위로 감지해 우회 경로를 다시 계산하고, 경로가 없으면 현재 명령을 유한 종료한다.
+- 변경 파일: `games/chicken-farm/src/game/systems/controllableUnitSystem.ts#updateMoveCommand`, `games/chicken-farm/src/game/systems/buildingSystem.ts#removeCompletedBuilding`, `games/chicken-farm/src/main.ts`, `scripts/check-chicken-farm-controls.ts#runDynamicBlockerCase`.
+- 정책: 다음 이동 위치까지 8px 간격으로 occupancy를 검사한다. 새 blocker가 경로를 막을 때만 재탐색하며 매 frame path search는 하지 않는다. 재탐색 실패는 path/current command를 비우고 FIFO의 다음 명령을 시작한다.
+- assertion: 실제 command 발행 뒤 완성 coop fixture를 교차 경로에 추가해 우회 도착, 목표를 footprint로 막아 유한 종료, fixture 제거 뒤 같은 목표의 새 command 도착을 확인한다. fixture는 debug 전용이며 cost를 소비하지 않는다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0, `CHICKEN_FARM_CONTROL_CASE=dynamic_blocker npm run chicken:controls:check --workspace @games/chicken-farm` → 종료 코드 0. debug fixture를 제외한 combat/terrain probe는 off이며 browser console/page/request/HTTP 오류 0이다.
+- 남은 결함: restart 뒤 이전 command/fixture 격리는 SP-04-09에서 검증한다. building의 사용자 lifecycle은 SP-05 범위다.
+- 다음 ID: **SP-04-09**.
+
 ### SP-04-09 — restart 뒤 입력·명령 격리
 
 - 읽기: `main.ts#disposeRun`과 restart/debug 등록부, browser-perf의 same-page restart 사례, 새 controls harness.
 - 작업: 이동+예약+선택 상태에서 같은 page restart 후 실제 클릭·우클릭·S를 다시 입력한다. 두 번 restart한다.
 - 완료: 이전 queue/path/선택 제거, 이전 좌표로 자동 이동 0, 한 입력의 command 발행 횟수 중복 0, 새 run 농부/개 정상 조작. 새 관찰/fixture도 dispose된다.
 - 검증: controls의 restart 사례 + 기존 browser-perf + typecheck. 승패 화면에서 restart는 SP-11 범위다.
+
+#### SP-04-09 결과
+
+- 상태: **완료**. same-page에서 이동·Shift queue·선택·path blocker fixture가 있는 run을 두 번 restart하고, 매 새 run에서 실제 click/right-click/S를 다시 입력했다.
+- 변경 파일: `scripts/check-chicken-farm-controls.ts#runRestartCase`, `games/chicken-farm/src/main.ts#createPathBlockerFixture`, `scripts/measure-chicken-farm-browser-perf.ts`.
+- assertion: 각 restart 후 runId 증가, selected unit/building/command/queue/path 0을 확인한다. 첫 run의 blocker fixture와 첫 restart의 move는 다음 run에 남지 않으며, 새 farmer의 click·right-click·Stop을 실제 입력했다.
+- 검증: `CHICKEN_FARM_CONTROL_CASE=restart npm run chicken:controls:check --workspace @games/chicken-farm` → 종료 코드 0, `npm run chicken:browser-perf:measure --workspace @games/chicken-farm` → 종료 코드 0, `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. browser-perf의 준비 대기는 simulation elapsed time 기준이며 기존 economy fixture 비용 계약은 유지한다.
+- 남은 결함: SP-04 조작 경로의 연속 통합 검수와 SP-05 인계는 SP-04-10에서 수행한다.
+- 다음 ID: **SP-04-10**.
 
 ### SP-04-10 — 통합 검수와 후속 인계
 
@@ -186,6 +224,13 @@
 - 완료: 01~09의 모든 필수 assertion 통과, normal fixture 유입 0, console/page error 0. 기본 조작 blocker가 남으면 SP-04를 완료 처리하지 않는다.
 - 검증: typecheck, build, controls 전체, normal smoke, pathing 측정. start resolver/초기화도 수정했다면 start-regression을 추가한다. 09 이후 변경이 없으면 browser-perf 결과를 재사용한다.
 - 인계: SP-05 건설 중단/재개·blocker lifecycle, SP-06 상호작용 수량, SP-07 전투 명령, SP-14 추가 피드백. 다음 ID와 현황 문서를 동기화한다.
+
+#### SP-04-10 결과
+
+- 상태: **완료**. SP-04-01~09의 selection, right-click/Stop, queue, static/dynamic pathing, same-page restart controls와 normal start/pathing 회귀를 통합 대조했다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `npm run chicken:smoke --workspace @games/chicken-farm`, `npm run chicken:pathing:measure --workspace @games/chicken-farm`, `CHICKEN_FARM_CONTROL_CASE=restart npm run chicken:controls:check --workspace @games/chicken-farm` 모두 종료 코드 0. normal smoke는 두 load에서 fixture/combat/terrain probe off와 farmer 이동을 확인했고, WPM smoothing segment blocker hit은 0이었다.
+- 인계: 이동 중 building blocker의 path 관통 방지와 debug fixture 제거는 SP-04에서 검증했으며, 실제 건설 취소/완료/재개 lifecycle은 **SP-05**에서 검수한다. 상호작용 수량은 SP-06, 전투 명령은 SP-07, 추가 실패 UX는 SP-14 범위다.
+- 다음 ID: **SP-05-01** (건설 lifecycle 세부 계획 기준).
 
 ## 검증 명령과 결과 기록
 
@@ -200,11 +245,11 @@
 | SP-04-03 | 완료 | click·양방향 drag·HUD 경계·camera pan 선택 회귀 |
 | SP-04-04 | 완료 | normal 우클릭·취소와 economy/construction fixture 분기 회귀; 중복 worker task 정리 |
 | SP-04-05 | 완료 | S·command-card Stop, economy task 정리, construction pause callback 회귀 |
-| SP-04-06 | 대기 | Shift/replace/실패 예약 회귀 |
-| SP-04-07 | 대기 | player 정적 경로 회귀 |
-| SP-04-08 | 대기 | 동적 blocker 회귀 |
-| SP-04-09 | 대기 | restart 입력 격리 회귀 |
-| SP-04-10 | 대기 | 통합 결과·SP-05 인계 |
+| SP-04-06 | 완료 | Shift/replace/실패 진행; 실제 browser queue 회귀 통과 |
+| SP-04-07 | 완료 | player WPM/통로/offset/smoothing 순수 경로와 normal P3 실제 이동 회귀 |
+| SP-04-08 | 완료 | 동적 blocker 우회·유한 실패·제거 뒤 새 이동 회귀 |
+| SP-04-09 | 완료 | same-page 두 restart의 선택·명령·fixture 격리 및 새 입력 회귀 |
+| SP-04-10 | 완료 | controls·normal smoke·WPM pathing 통합 검수 및 SP-05 인계 |
 
 ## Terra medium 실행 요청
 

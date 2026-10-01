@@ -399,6 +399,24 @@ export class BuildingSystem {
         return { building, refund };
     }
 
+    removeCompletedBuilding(buildingId: string, reason: string) {
+        const buildingIndex = this.buildings.findIndex(
+            (building) => building.id === buildingId && building.state === 'complete',
+        );
+        const building = this.buildings[buildingIndex];
+        if (!building) return false;
+
+        this.destroyView(building.id);
+        this.buildings.splice(buildingIndex, 1);
+        this.onBuildingRemoved?.(building, reason);
+        this.recordTelemetry?.('building_removed', {
+            buildingId,
+            reason,
+            templateId: building.templateId,
+        });
+        return true;
+    }
+
     isBuildingComplete(buildingId: string) {
         return this.buildings.some(
             (building) => building.id === buildingId && building.state === 'complete',

@@ -144,7 +144,7 @@ async function runSmokeLoad(
             timeout: 15_000,
         });
         await page.waitForFunction(
-            () => window.__chickenFarmDebug!.getPerfSnapshot().frameCount > 0,
+            () => window.__chickenFarmDebug!.getState().elapsedSec > 0,
             null,
             { timeout: 10_000 },
         );

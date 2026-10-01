@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 
 import type { GridPathRect } from './pathing';
 import type { Point } from './playerCommandTypes';
@@ -37,12 +37,12 @@ export function getOffsetTargetPoint(config: {
 
     const angle = -Math.PI / 2 + (Math.PI * 2 * config.unitIndex) / config.unitCount;
     const offsetTarget = {
-        x: Phaser.Math.Clamp(
+        x: clamp(
             config.targetPoint.x + Math.cos(angle) * config.offsetPx,
             0,
             config.worldSize.x,
         ),
-        y: Phaser.Math.Clamp(
+        y: clamp(
             config.targetPoint.y + Math.sin(angle) * config.offsetPx,
             0,
             config.worldSize.y,
@@ -72,4 +72,8 @@ export function isPointInsideExpandedRect(
         point.y >= rect.y - clearancePx &&
         point.y <= rect.y + rect.height + clearancePx
     );
+}
+
+function clamp(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value));
 }

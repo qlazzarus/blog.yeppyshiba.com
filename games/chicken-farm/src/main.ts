@@ -150,6 +150,8 @@ declare global {
                 x: number,
                 y: number,
             ) => string | null;
+            createPathBlockerFixture: (x: number, y: number) => string | null;
+            removeCompletedBuildingFixture: (buildingId: string) => boolean;
             disposeRunForTest: () => RunCleanupSnapshot | null;
             ensureStartEconomyForTest: () => void;
             grantFarmerEggStack: (quantity: number) => number | null;
@@ -2836,6 +2838,26 @@ class FarmScene extends Phaser.Scene {
                     y,
                 });
                 return building?.id ?? null;
+            },
+            createPathBlockerFixture: (x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                const builder = this.controllableUnits
+                    .getUnits()
+                    .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                const building = this.buildingSystem?.createBuilding({
+                    completeImmediately: true,
+                    ownerPlayerId: builder?.ownerPlayerId ?? 3,
+                    skipCost: true,
+                    templateId: 'coop_basic',
+                    workerUnitId: builder?.id,
+                    x,
+                    y,
+                });
+                return building?.id ?? null;
+            },
+            removeCompletedBuildingFixture: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.buildingSystem?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
             },
             disposeRunForTest: () => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;

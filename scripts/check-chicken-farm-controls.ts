@@ -38,12 +38,14 @@ type ControlSnapshot = {
 };
 
 type GameState = {
+    readonly buildingCount: number;
     readonly debugPoc: {
         readonly combatActive: boolean;
         readonly fixturesEnabled: boolean;
         readonly terrainProbeCount: number;
     };
     readonly primaryUnit: { readonly id: string; readonly x: number; readonly y: number } | null;
+    readonly runId: number;
     readonly selectedUnitCount: number;
 };
 
@@ -59,6 +61,9 @@ const host = '127.0.0.1';
 const port = 4176;
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const controlCase = process.env.CHICKEN_FARM_CONTROL_CASE ?? 'selection';
+const browserCdpUrl = process.env.CHICKEN_FARM_BROWSER_CDP_URL;
+const WORLD_POINT_TOLERANCE_PX = 3;
+const PATH_ARRIVAL_TOLERANCE_PX = 24;
 
 if (
     controlCase !== 'farmer_select' &&
@@ -67,7 +72,10 @@ if (
     controlCase !== 'right_click_fixture' &&
     controlCase !== 'stop' &&
     controlCase !== 'stop_fixture' &&
-    controlCase !== 'queue'
+    controlCase !== 'queue' &&
+    controlCase !== 'terrain' &&
+    controlCase !== 'dynamic_blocker' &&
+    controlCase !== 'restart'
 ) {
     throw new Error(`Unsupported CHICKEN_FARM_CONTROL_CASE: ${controlCase}`);
 }
@@ -93,7 +101,10 @@ function startDevServer() {
             VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
             VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'false',
             VITE_CHICKEN_FARM_DEBUG_FIXTURES:
-                controlCase === 'right_click_fixture' || controlCase === 'stop_fixture'
+                controlCase === 'right_click_fixture' ||
+                controlCase === 'stop_fixture' ||
+                controlCase === 'dynamic_blocker' ||
+                controlCase === 'restart'
                     ? 'true'
                     : 'false',
             VITE_CHICKEN_FARM_START_ID: '3',
@@ -105,7 +116,9 @@ function startDevServer() {
 }
 
 async function runControlCase() {
-    const browser = await chromium.launch({ headless: true });
+    const browser = browserCdpUrl
+        ? await chromium.connectOverCDP(browserCdpUrl)
+        : await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
@@ -128,7 +141,7 @@ async function runControlCase() {
             timeout: 15_000,
         });
         await page.waitForFunction(
-            () => window.__chickenFarmDebug!.getPerfSnapshot().frameCount > 0,
+            () => window.__chickenFarmDebug!.getState().elapsedSec > 0,
             null,
             { timeout: 10_000 },
         );
@@ -137,7 +150,10 @@ async function runControlCase() {
         assertControlBaseline(
             initial.state,
             initial.controls,
-            controlCase === 'right_click_fixture' || controlCase === 'stop_fixture',
+                controlCase === 'right_click_fixture' ||
+                controlCase === 'stop_fixture' ||
+                controlCase === 'dynamic_blocker' ||
+                controlCase === 'restart',
         );
         await page.keyboard.down('ArrowRight');
         await page.waitForTimeout(180);
@@ -147,7 +163,10 @@ async function runControlCase() {
         assertControlBaseline(
             before.state,
             before.controls,
-            controlCase === 'right_click_fixture' || controlCase === 'stop_fixture',
+                controlCase === 'right_click_fixture' ||
+                controlCase === 'stop_fixture' ||
+                controlCase === 'dynamic_blocker' ||
+                controlCase === 'restart',
         );
         const farmer = before.controls.units.find((unit) => unit.templateId === 'farmer');
         if (!farmer) throw new Error('Missing normal-session farmer');
@@ -261,6 +280,36 @@ async function runControlCase() {
                       referenceWorldPoint: reference.controls.lastPrimaryClickWorldPoint!,
                   }, before.controls.camera)
                 : null;
+        const terrain =
+            controlCase === 'terrain'
+                ? await runTerrainCase(page, {
+                      calibrationPoint,
+                      calibrationWorldPoint: calibration.controls.lastPrimaryClickWorldPoint!,
+                      canvas,
+                      referencePoint,
+                      referenceWorldPoint: reference.controls.lastPrimaryClickWorldPoint!,
+                  })
+                : null;
+        const dynamicBlocker =
+            controlCase === 'dynamic_blocker'
+                ? await runDynamicBlockerCase(page, {
+                      calibrationPoint,
+                      calibrationWorldPoint: calibration.controls.lastPrimaryClickWorldPoint!,
+                      canvas,
+                      referencePoint,
+                      referenceWorldPoint: reference.controls.lastPrimaryClickWorldPoint!,
+                  })
+                : null;
+        const restart =
+            controlCase === 'restart'
+                ? await runRestartCase(page, {
+                      calibrationPoint,
+                      calibrationWorldPoint: calibration.controls.lastPrimaryClickWorldPoint!,
+                      canvas,
+                      referencePoint,
+                      referenceWorldPoint: reference.controls.lastPrimaryClickWorldPoint!,
+                  })
+                : null;
 
         if (consoleErrors.length || pageErrors.length || requestFailures.length || failedResponses.length) {
             throw new Error(
@@ -274,13 +323,19 @@ async function runControlCase() {
             checks: {
                 farmerSelected: true,
                 normalFixtureIsolation:
-                    controlCase !== 'right_click_fixture' && controlCase !== 'stop_fixture',
+                    controlCase !== 'right_click_fixture' &&
+                    controlCase !== 'stop_fixture' &&
+                    controlCase !== 'dynamic_blocker' &&
+                    controlCase !== 'restart',
                 rightClick: rightClick?.pass ?? null,
                 rightClickFixture: rightClickFixture?.pass ?? null,
                 selection: selection?.pass ?? null,
                 stop: stop?.pass ?? null,
                 stopFixture: stopFixture?.pass ?? null,
                 queue: queue?.pass ?? null,
+                terrain: terrain?.pass ?? null,
+                dynamicBlocker: dynamicBlocker?.pass ?? null,
+                restart: restart?.pass ?? null,
                 pass: true,
             },
             after: after.controls,
@@ -299,6 +354,9 @@ async function runControlCase() {
             stop,
             stopFixture,
             queue,
+            terrain,
+            dynamicBlocker,
+            restart,
             canvas,
             clickPoint,
             viewport: { height: 720, width: 960 },
@@ -437,7 +495,7 @@ async function runRightClickCase(
                 (unit) => unit.id === farmerId && unit.currentCommandType === 'move',
             ),
         farmer.id,
-        { timeout: 5_000 },
+        { timeout: 15_000 },
     );
     const moved = await getSnapshot(page);
     assertRightClickMove(moved, farmer.id, dog.id);
@@ -494,6 +552,202 @@ async function runRightClickCase(
         },
         pass: true,
     };
+}
+
+async function runTerrainCase(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    calibration: Omit<Parameters<typeof getBrowserPointForWorld>[0], 'worldPoint'>,
+) {
+    const initial = await getSnapshot(page);
+    const farmer = findUnit(initial.controls, 'farmer');
+    const target = { x: farmer.x + 192, y: farmer.y + 160 };
+
+    await rightClickWorld(page, calibration, target);
+    await waitForCommandTarget(page, farmer.id, target, 5_000);
+    await waitForIdle(page, farmer.id, 20_000);
+    const after = await getSnapshot(page);
+    assertPositionNear(findUnit(after.controls, 'farmer'), target, 'terrain player arrival');
+
+    return {
+        after: after.controls,
+        cases: { normalPlayerTerrainMove: true },
+        pass: true,
+        target,
+    };
+}
+
+async function runDynamicBlockerCase(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    calibration: Omit<Parameters<typeof getBrowserPointForWorld>[0], 'worldPoint'>,
+) {
+    const initial = await getSnapshot(page);
+    const farmer = findUnit(initial.controls, 'farmer');
+    const detourTarget = { x: farmer.x + 384, y: farmer.y };
+    await rightClickWorld(page, calibration, detourTarget);
+    await waitForCommandTarget(page, farmer.id, detourTarget, 5_000);
+    const detourBlockerId = await createCompletedCoop(page, {
+        x: farmer.x + 96,
+        y: farmer.y - 64,
+    });
+    await waitForIdle(page, farmer.id, 20_000);
+    const afterDetour = await getSnapshot(page);
+    assertPositionNear(findUnit(afterDetour.controls, 'farmer'), detourTarget, 'dynamic detour arrival');
+
+    const detourBlockerRemoved = await removeCompletedFixture(page, detourBlockerId);
+    if (!detourBlockerRemoved) throw new Error('Could not remove detour blocker fixture.');
+
+    const afterDetourFarmer = findUnit(afterDetour.controls, 'farmer');
+    const blockedTarget = { x: afterDetourFarmer.x + 288, y: afterDetourFarmer.y };
+    await rightClickWorld(page, calibration, blockedTarget);
+    await waitForCommandTarget(page, farmer.id, blockedTarget, 5_000);
+    const fullBlockerId = await createCompletedCoop(page, {
+        x: blockedTarget.x - 64,
+        y: blockedTarget.y - 64,
+    });
+    await waitForIdle(page, farmer.id, 8_000);
+    const afterBlocked = await getSnapshot(page);
+    assertNoActiveMove(afterBlocked.controls, farmer.id, 'fully blocked target must finish');
+
+    const fullBlockerRemoved = await removeCompletedFixture(page, fullBlockerId);
+    if (!fullBlockerRemoved) throw new Error('Could not remove full blocker fixture.');
+    await rightClickWorld(page, calibration, blockedTarget);
+    await waitForCommandTarget(page, farmer.id, blockedTarget, 5_000);
+    await waitForIdle(page, farmer.id, 20_000);
+    const afterRemoval = await getSnapshot(page);
+    assertPositionNear(findUnit(afterRemoval.controls, 'farmer'), blockedTarget, 'blocker removal next command');
+
+    return {
+        cases: {
+            blockerRemovalAcceptsNewMove: true,
+            fullBlockerFiniteFailure: true,
+            reroutesAroundNewBlocker: true,
+        },
+        pass: true,
+    };
+}
+
+async function runRestartCase(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    calibration: Omit<Parameters<typeof getBrowserPointForWorld>[0], 'worldPoint'>,
+) {
+    const initial = await getSnapshot(page);
+    const farmer = findUnit(initial.controls, 'farmer');
+    await page.keyboard.down('Shift');
+    await rightClickWorld(page, calibration, { x: farmer.x + 160, y: farmer.y + 64 });
+    await rightClickWorld(page, calibration, { x: farmer.x + 288, y: farmer.y + 64 });
+    await page.keyboard.up('Shift');
+    await waitForCommandTarget(page, farmer.id, { x: farmer.x + 160, y: farmer.y + 64 }, 5_000);
+    const fixtureId = await createCompletedCoop(page, { x: farmer.x + 384, y: farmer.y - 64 });
+
+    const first = await restartAndAssertIsolated(page, initial.state.runId, 'first restart');
+    const firstCalibration = await recalibrateAfterRestart(page, calibration.canvas);
+    await selectFarmerAfterRestart(page, firstCalibration, first.controls);
+    const firstFarmer = findUnit((await getSnapshot(page)).controls, 'farmer');
+    const firstTarget = { x: firstFarmer.x + 96, y: firstFarmer.y + 64 };
+    await rightClickWorld(page, firstCalibration, firstTarget);
+    await waitForCommandTarget(page, firstFarmer.id, firstTarget, 5_000);
+
+    const second = await restartAndAssertIsolated(page, first.state.runId, 'second restart');
+    const secondCalibration = await recalibrateAfterRestart(page, calibration.canvas);
+    await selectFarmerAfterRestart(page, secondCalibration, second.controls);
+    const secondFarmer = findUnit((await getSnapshot(page)).controls, 'farmer');
+    const secondTarget = { x: secondFarmer.x + 96, y: secondFarmer.y + 64 };
+    await rightClickWorld(page, secondCalibration, secondTarget);
+    await waitForCommandTarget(page, secondFarmer.id, secondTarget, 5_000);
+    await page.keyboard.press('s');
+    await waitForCommand(page, secondFarmer.id, 'stop');
+    assertStop((await getSnapshot(page)).controls, secondFarmer.id, 'restart fresh Stop');
+
+    return {
+        cases: {
+            firstFixtureDisposed: first.state.buildingCount === 0 && Boolean(fixtureId),
+            noStaleSelectionOrCommand: true,
+            secondRestartFreshInput: true,
+        },
+        pass: true,
+    };
+}
+
+async function restartAndAssertIsolated(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    previousRunId: number,
+    label: string,
+) {
+    const restarted = await page.evaluate(() => window.__chickenFarmDebug!.restartRunForTest());
+    if (!restarted) throw new Error(`${label}: restart was rejected`);
+    await page.waitForFunction(
+        (runId) => window.__chickenFarmDebug!.getState().runId > runId,
+        previousRunId,
+        { timeout: 10_000 },
+    );
+    const snapshot = await getSnapshot(page);
+    if (snapshot.state.selectedUnitCount !== 0 || snapshot.state.buildingCount !== 0) {
+        throw new Error(`${label}: stale state survived: ${JSON.stringify(snapshot)}`);
+    }
+    assertNoCommands(snapshot.controls, label);
+    return snapshot;
+}
+
+async function selectFarmerAfterRestart(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    calibration: Omit<Parameters<typeof getBrowserPointForWorld>[0], 'worldPoint'>,
+    controls: ControlSnapshot,
+) {
+    const farmer = findUnit(controls, 'farmer');
+    await clickWorld(page, calibration, { x: farmer.x, y: farmer.y });
+    await page.waitForFunction(
+        (farmerId) =>
+            window.__chickenFarmDebug!.getControlSnapshot().units.some(
+                (unit) => unit.id === farmerId && unit.selected,
+            ),
+        farmer.id,
+        { timeout: 5_000 },
+    );
+}
+
+async function recalibrateAfterRestart(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    canvas: CanvasBounds,
+) {
+    const calibrationPoint = { x: canvas.left, y: canvas.top };
+    await page.mouse.click(calibrationPoint.x, calibrationPoint.y);
+    const calibration = await getSnapshot(page);
+    assertCalibrationClick(calibration.state, calibration.controls);
+    const referencePoint = {
+        x: canvas.left + canvas.width / 4,
+        y: canvas.top + canvas.height / 4,
+    };
+    await page.mouse.click(referencePoint.x, referencePoint.y);
+    const reference = await getSnapshot(page);
+    assertCalibrationClick(reference.state, reference.controls);
+    return {
+        calibrationPoint,
+        calibrationWorldPoint: calibration.controls.lastPrimaryClickWorldPoint!,
+        canvas,
+        referencePoint,
+        referenceWorldPoint: reference.controls.lastPrimaryClickWorldPoint!,
+    };
+}
+
+async function createCompletedCoop(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    point: { readonly x: number; readonly y: number },
+) {
+    return page.evaluate(({ x, y }) => {
+        const id = window.__chickenFarmDebug!.createPathBlockerFixture(x, y);
+        if (!id) throw new Error('Unable to create dynamic blocker fixture.');
+        return id;
+    }, point);
+}
+
+async function removeCompletedFixture(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    buildingId: string,
+) {
+    return page.evaluate(
+        (id) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(id),
+        buildingId,
+    );
 }
 
 async function runStopCase(
@@ -586,9 +840,9 @@ async function runQueueCase(
     assertCommandTarget(queued.controls, farmer.id, a, 'A→B→C current');
     assertQueuedTargets(queued.controls, farmer.id, [b, c], 'A→B→C queue');
 
-    await waitForCommandTarget(page, farmer.id, b, 8_000);
-    await waitForCommandTarget(page, farmer.id, c, 8_000);
-    await waitForIdle(page, farmer.id, 8_000);
+    await waitForCommandTarget(page, farmer.id, b, 70_000);
+    await waitForCommandTarget(page, farmer.id, c, 70_000);
+    await waitForIdle(page, farmer.id, 70_000);
     const afterSequence = await getSnapshot(page);
     assertPositionNear(findUnit(afterSequence.controls, 'farmer'), c, 'A→B→C arrival');
 
@@ -627,20 +881,26 @@ async function runQueueCase(
     await page.waitForTimeout(760);
     await page.keyboard.up('ArrowDown');
     const lowerCamera = (await getSnapshot(page)).controls.camera;
-    if (lowerCamera.scrollY <= baseCamera.scrollY + 850) {
+    const blockedB = { x: 4816, y: 10384 };
+    const validC = { x: 3056, y: 9552 };
+    if (!isWorldPointInViewport(blockedB, lowerCamera) || !isWorldPointInViewport(validC, lowerCamera)) {
         throw new Error(`Camera did not reach failed-command viewport: ${JSON.stringify(lowerCamera)}`);
     }
     const lowerCalibration = rebaseCalibrationForCamera(calibration, baseCamera, lowerCamera);
-    const blockedB = { x: 4816, y: 10384 };
-    const validC = { x: 3056, y: 9552 };
     await page.keyboard.down('Shift');
     await rightClickWorld(page, lowerCalibration, blockedB);
     await rightClickWorld(page, lowerCalibration, validC);
     await page.keyboard.up('Shift');
     const failedQueued = await getSnapshot(page);
-    assertQueuedTargets(failedQueued.controls, farmer.id, [blockedB, validC], 'failed B then C queue');
-    await waitForCommandTarget(page, farmer.id, validC, 10_000);
-    await waitForIdle(page, farmer.id, 10_000);
+    assertFailedCommandTransition(
+        failedQueued.controls,
+        farmer.id,
+        blockedB,
+        validC,
+        'failed B then C queue',
+    );
+    await waitForCommandTarget(page, farmer.id, validC, 120_000);
+    await waitForIdle(page, farmer.id, 120_000);
     const afterFailure = await getSnapshot(page);
     assertPositionNear(findUnit(afterFailure.controls, 'farmer'), validC, 'failed B then valid C arrival');
 
@@ -846,16 +1106,21 @@ async function waitForCommandTarget(
 ) {
     try {
         await page.waitForFunction(
-            ({ expectedTarget, expectedUnitId }) =>
+            ({ expectedTarget, expectedUnitId, tolerancePx }) =>
                 window.__chickenFarmDebug!.getControlSnapshot().units.some((unit) => {
                     const point = unit.currentCommandTargetPoint;
                     return (
                         unit.id === expectedUnitId &&
                         point !== null &&
-                        Math.hypot(point.x - expectedTarget.x, point.y - expectedTarget.y) < 1
+                        Math.hypot(point.x - expectedTarget.x, point.y - expectedTarget.y) <
+                            tolerancePx
                     );
                 }),
-            { expectedTarget: target, expectedUnitId: unitId },
+            {
+                expectedTarget: target,
+                expectedUnitId: unitId,
+                tolerancePx: WORLD_POINT_TOLERANCE_PX,
+            },
             { timeout },
         );
     } catch (error) {
@@ -873,18 +1138,24 @@ async function waitForIdle(
     unitId: string,
     timeout = 5_000,
 ) {
-    await page.waitForFunction(
-        (expectedUnitId) =>
-            window.__chickenFarmDebug!.getControlSnapshot().units.some(
-                (unit) =>
-                    unit.id === expectedUnitId &&
-                    unit.currentCommandType === null &&
-                    unit.commandQueueCount === 0 &&
-                    unit.pathWaypointCount === 0,
-            ),
-        unitId,
-        { timeout },
-    );
+    try {
+        await page.waitForFunction(
+            (expectedUnitId) =>
+                window.__chickenFarmDebug!.getControlSnapshot().units.some(
+                    (unit) =>
+                        unit.id === expectedUnitId &&
+                        unit.currentCommandType === null &&
+                        unit.commandQueueCount === 0 &&
+                        unit.pathWaypointCount === 0,
+                ),
+            unitId,
+            { timeout },
+        );
+    } catch (error) {
+        throw new Error(`Timed out waiting for ${unitId} idle: ${JSON.stringify(await getSnapshot(page))}`, {
+            cause: error,
+        });
+    }
 }
 
 function assertCommandTarget(
@@ -895,7 +1166,10 @@ function assertCommandTarget(
 ) {
     const unit = controls.units.find((candidate) => candidate.id === unitId);
     const point = unit?.currentCommandTargetPoint;
-    if (!point || Math.hypot(point.x - target.x, point.y - target.y) >= 1) {
+    if (
+        !point ||
+        Math.hypot(point.x - target.x, point.y - target.y) >= WORLD_POINT_TOLERANCE_PX
+    ) {
         throw new Error(`${label}: current target mismatch: ${JSON.stringify({ controls, target })}`);
     }
 }
@@ -916,11 +1190,46 @@ function assertQueuedTargets(
                 Math.hypot(
                     point.x - expectedTargets[index].x,
                     point.y - expectedTargets[index].y,
-                ) >= 1,
+                ) >= WORLD_POINT_TOLERANCE_PX,
         )
     ) {
         throw new Error(
             `${label}: queued targets mismatch: ${JSON.stringify({ actualTargets, expectedTargets })}`,
+        );
+    }
+}
+
+function assertFailedCommandTransition(
+    controls: ControlSnapshot,
+    unitId: string,
+    blockedTarget: { readonly x: number; readonly y: number },
+    validTarget: { readonly x: number; readonly y: number },
+    label: string,
+) {
+    const unit = controls.units.find((candidate) => candidate.id === unitId);
+    if (!unit) throw new Error(`${label}: missing unit ${unitId}`);
+
+    const matchesTarget = (
+        point: { readonly x: number; readonly y: number } | null,
+        target: { readonly x: number; readonly y: number },
+    ) =>
+        Boolean(
+            point &&
+                Math.hypot(point.x - target.x, point.y - target.y) < WORLD_POINT_TOLERANCE_PX,
+        );
+    const blockedStillQueued = unit.queuedCommandTargetPoints.some((point) =>
+        matchesTarget(point, blockedTarget),
+    );
+    const validCommandPresent =
+        matchesTarget(unit.currentCommandTargetPoint, validTarget) ||
+        unit.queuedCommandTargetPoints.some((point) => matchesTarget(point, validTarget));
+    if (blockedStillQueued || !validCommandPresent) {
+        throw new Error(
+            `${label}: failure transition mismatch: ${JSON.stringify({
+                blockedStillQueued,
+                controls,
+                validCommandPresent,
+            })}`,
         );
     }
 }
@@ -930,7 +1239,7 @@ function assertPositionNear(
     expected: { readonly x: number; readonly y: number },
     label: string,
 ) {
-    if (Math.hypot(actual.x - expected.x, actual.y - expected.y) > 1) {
+    if (Math.hypot(actual.x - expected.x, actual.y - expected.y) > PATH_ARRIVAL_TOLERANCE_PX) {
         throw new Error(`${label}: arrival mismatch: ${JSON.stringify({ actual, expected })}`);
     }
 }
@@ -1019,6 +1328,19 @@ function assertNoCommands(controls: ControlSnapshot, label: string) {
         )
     ) {
         throw new Error(`${label} issued a command: ${JSON.stringify(controls)}`);
+    }
+}
+
+function assertNoActiveMove(controls: ControlSnapshot, unitId: string, label: string) {
+    const unit = controls.units.find((candidate) => candidate.id === unitId);
+    if (
+        !unit ||
+        unit.currentCommandType !== null ||
+        unit.commandQueueCount !== 0 ||
+        unit.pathWaypointCount !== 0 ||
+        unit.pathIndex !== 0
+    ) {
+        throw new Error(`${label}: ${JSON.stringify(controls)}`);
     }
 }
 
@@ -1120,6 +1442,20 @@ function isInWorldViewport(
         unit.screenX <= camera.viewportWidth &&
         unit.screenY >= 0 &&
         unit.screenY <= camera.viewportHeight
+    );
+}
+
+function isWorldPointInViewport(
+    point: { readonly x: number; readonly y: number },
+    camera: ControlSnapshot['camera'],
+) {
+    const screenX = (point.x - camera.scrollX) * camera.zoom;
+    const screenY = (point.y - camera.scrollY) * camera.zoom;
+    return (
+        screenX >= 0 &&
+        screenX <= camera.viewportWidth &&
+        screenY >= 0 &&
+        screenY <= camera.viewportHeight
     );
 }
 

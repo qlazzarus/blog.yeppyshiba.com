@@ -863,6 +863,32 @@ export class ControllableUnitSystem {
         );
         const step = unit.speedPxPerSec * deltaSec;
 
+        const nextPosition =
+            distance <= Math.max(1, step)
+                ? waypoint
+                : {
+                      x: unit.position.x + ((waypoint.x - unit.position.x) / distance) * step,
+                      y: unit.position.y + ((waypoint.y - unit.position.y) / distance) * step,
+                  };
+        if (!this.canTraverseMoveSegment(unit.position, nextPosition)) {
+            const target =
+                unit.currentCommand?.type === 'move'
+                    ? unit.currentCommand.targetPoint
+                    : undefined;
+            const path = target ? this.findMovePath(unit.position, target) : null;
+            if (!path?.length) {
+                this.failMoveCommand(unit);
+                return;
+            }
+
+            // A building can appear after a command has already been smoothed.
+            // Replan once at the first blocked segment; never search every frame.
+            unit.path = path;
+            unit.pathIndex = 0;
+            this.updateView(unit);
+            return;
+        }
+
         if (distance <= Math.max(1, step)) {
             unit.position = { x: waypoint.x, y: waypoint.y };
             unit.pathIndex += 1;
@@ -876,16 +902,32 @@ export class ControllableUnitSystem {
             return;
         }
 
-        const direction = new Phaser.Math.Vector2(
-            waypoint.x - unit.position.x,
-            waypoint.y - unit.position.y,
-        )
-            .normalize()
-            .scale(step);
-        unit.position = {
-            x: unit.position.x + direction.x,
-            y: unit.position.y + direction.y,
-        };
+        unit.position = nextPosition;
+        this.updateView(unit);
+    }
+
+    private canTraverseMoveSegment(from: Point, to: Point) {
+        const distance = Phaser.Math.Distance.Between(from.x, from.y, to.x, to.y);
+        const steps = Math.max(1, Math.ceil(distance / 8));
+        for (let step = 1; step <= steps; step += 1) {
+            const ratio = step / steps;
+            if (
+                !this.canUnitOccupyPoint({
+                    x: from.x + (to.x - from.x) * ratio,
+                    y: from.y + (to.y - from.y) * ratio,
+                })
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private failMoveCommand(unit: ControllableUnitState) {
+        unit.currentCommand = undefined;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.pollNextQueuedCommand(unit);
         this.updateView(unit);
     }
 
@@ -1024,13 +1066,21 @@ export class ControllableUnitSystem {
     }
 
     private pollNextQueuedCommand(unit: ControllableUnitState) {
-        const command = unit.commandQueue.shift();
-        if (!command) {
-            this.updateView(unit);
-            return false;
-        }
+        while (true) {
+            const command = unit.commandQueue.shift();
+            if (!command) {
+                this.updateView(unit);
+                return false;
+            }
 
-        return this.startUnitCommand(unit, command, 'queued');
+            if (this.startUnitCommand(unit, command, 'queued')) return true;
+
+            // A queued movement command can fail pathfinding after the prior command
+            // reaches its target. Drop that one command and keep the FIFO moving.
+            unit.currentCommand = undefined;
+            unit.path = [];
+            unit.pathIndex = 0;
+        }
     }
 
     private startUnitCommand(

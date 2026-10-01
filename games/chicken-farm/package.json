@@ -9,6 +9,7 @@
         "chicken:economy:measure": "tsx ../../scripts/measure-chicken-farm-economy.ts",
         "chicken:initial-placements:check": "tsx ../../scripts/check-chicken-farm-initial-placements.ts",
         "chicken:initial-registry:check": "tsx ../../scripts/check-chicken-farm-initial-placement-registry.ts",
+        "chicken:player-pathing:check": "tsx ../../scripts/check-chicken-farm-player-pathing.ts",
         "chicken:pathing:measure": "tsx ../../scripts/measure-chicken-farm-terrain-pathing.ts",
         "chicken:perf:measure": "tsx ../../scripts/measure-chicken-farm-runtime-perf.ts",
         "chicken:smoke": "tsx ../../scripts/smoke-chicken-farm-start.ts",

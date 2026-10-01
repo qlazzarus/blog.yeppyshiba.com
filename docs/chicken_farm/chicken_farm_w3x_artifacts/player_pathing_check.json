@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "blockedGoal": true,
+    "bounds": true,
+    "multiUnitOffsets": true,
+    "passableCorridor": true,
+    "rejectedClearanceCorridor": true,
+    "smoothingSegments": true,
+    "terrainRoute": true
+  },
+  "terrainWaypointCount": 3
+}
