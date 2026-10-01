@@ -49,6 +49,7 @@ import {
 import { ConstructionPlacementSystem } from './game/systems/constructionPlacementSystem';
 import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
 import { DragSelectionInputSystem } from './game/systems/dragSelectionInputSystem';
+import type { UnitCommand } from './game/systems/playerCommandTypes';
 import { canOccupyPoint } from './game/systems/movementGuards';
 import {
     addEconomyChicken,
@@ -96,6 +97,54 @@ declare global {
     interface Window {
         __chickenFarmDebug?: {
             getPerfSnapshot: () => ReturnType<PerformanceProfiler['getSnapshot']>;
+            getControlSnapshot: () => {
+                readonly camera: {
+                    readonly scrollX: number;
+                    readonly scrollY: number;
+                    readonly viewportHeight: number;
+                    readonly viewportWidth: number;
+                    readonly zoom: number;
+                };
+                readonly lastPrimaryClickWorldPoint: {
+                    readonly x: number;
+                    readonly y: number;
+                } | null;
+                readonly targeting: {
+                    readonly attack: boolean;
+                    readonly herd: boolean;
+                };
+                readonly units: readonly {
+                    readonly commandQueueCount: number;
+                    readonly currentCommandTargetPoint: {
+                        readonly x: number;
+                        readonly y: number;
+                    } | null;
+                    readonly currentCommandType: UnitCommand['type'] | null;
+                    readonly economyTaskType: EconomyWorkerTask['type'] | null;
+                    readonly id: string;
+                    readonly pathIndex: number;
+                    readonly pathWaypointCount: number;
+                    readonly queuedCommandTargetPoints: readonly ({
+                        readonly x: number;
+                        readonly y: number;
+                    } | null)[];
+                    readonly screenX: number;
+                    readonly screenY: number;
+                    readonly selected: boolean;
+                    readonly templateId: string;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+            };
+            createPausedConstructionFixture: (
+                templateId: 'coop_basic' | 'market' | 'well_basic',
+                x: number,
+                y: number,
+            ) => string | null;
+            getBuildingConstructionSnapshot: (buildingId: string) => {
+                readonly activeWorkerUnitId: string | null;
+                readonly state: 'complete' | 'constructing';
+            } | null;
             createEconomyBuildingFixture: (
                 templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
@@ -298,6 +347,7 @@ class FarmScene extends Phaser.Scene {
     private runDisposed = false;
     private runId = 0;
     private lastRunCleanupSnapshot?: RunCleanupSnapshot;
+    private lastPrimaryClickWorldPoint?: { readonly x: number; readonly y: number };
     private readonly startSession: ResolvedStartSession = resolveStartSession({
         debugEconomy: CHICKEN_FARM_POC_FLAGS.debugEconomy,
         difficulty: CHICKEN_FARM_POC_FLAGS.difficulty,
@@ -353,6 +403,7 @@ class FarmScene extends Phaser.Scene {
         this.runDisposed = false;
         this.runId += 1;
         this.lastRunCleanupSnapshot = undefined;
+        this.lastPrimaryClickWorldPoint = undefined;
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.disposeRun, this);
         this.cameras.main.setBackgroundColor('#0b0f0a');
         this.worldCamera = this.cameras.main;
@@ -2353,6 +2404,10 @@ class FarmScene extends Phaser.Scene {
         this.dragSelectionInput = new DragSelectionInputSystem({
             camera: this.worldCamera,
             onClick: (worldPoint) => {
+                this.lastPrimaryClickWorldPoint = {
+                    x: worldPoint.x,
+                    y: worldPoint.y,
+                };
                 if (this.startItemPlacement && this.placeStartItem(worldPoint)) return;
                 if (this.herdTargetingActive) {
                     this.issueHerdTargetingCommand(worldPoint);
@@ -2487,6 +2542,7 @@ class FarmScene extends Phaser.Scene {
                         this.isQueueCommandMode() ? 'append' : 'replace',
                     )
                 ) {
+                    this.economyWorkerTasks.delete(selectedBuilder.id);
                     this.telemetry.record('building_resume_command_issued', {
                         buildingId: targetBuilding.id,
                         builderUnitId: selectedBuilder.id,
@@ -2742,6 +2798,29 @@ class FarmScene extends Phaser.Scene {
 
     private exposeDebugAutomation() {
         window.__chickenFarmDebug = {
+            createPausedConstructionFixture: (templateId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
+                if (this.runDisposed) return null;
+                const builder = this.controllableUnits
+                    .getUnits()
+                    .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                const building = this.buildingSystem?.createBuilding({
+                    ownerPlayerId: builder?.ownerPlayerId ?? 3,
+                    skipCost: true,
+                    templateId,
+                    x,
+                    y,
+                });
+                return building?.id ?? null;
+            },
+            getBuildingConstructionSnapshot: (buildingId) => {
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                if (!building) return null;
+                return {
+                    activeWorkerUnitId: building.activeWorkerUnitId ?? null,
+                    state: building.state,
+                };
+            },
             createEconomyBuildingFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
                 if (this.runDisposed) return null;
@@ -2802,6 +2881,48 @@ class FarmScene extends Phaser.Scene {
                 return true;
             },
             getPerfSnapshot: () => this.performanceProfiler.getSnapshot(),
+            getControlSnapshot: () => ({
+                camera: {
+                    scrollX: this.worldCamera.scrollX,
+                    scrollY: this.worldCamera.scrollY,
+                    viewportHeight: this.worldCamera.height,
+                    viewportWidth: this.worldCamera.width,
+                    zoom: this.worldCamera.zoom,
+                },
+                lastPrimaryClickWorldPoint: this.lastPrimaryClickWorldPoint ?? null,
+                targeting: {
+                    attack: this.attackTargetingActive,
+                    herd: this.herdTargetingActive,
+                },
+                units: this.controllableUnits.getUnits().map((unit) => {
+                    return {
+                        commandQueueCount: unit.commandQueue.length,
+                        currentCommandTargetPoint:
+                            unit.currentCommand && 'targetPoint' in unit.currentCommand
+                                ? unit.currentCommand.targetPoint ?? null
+                                : null,
+                        currentCommandType: unit.currentCommand?.type ?? null,
+                        economyTaskType: this.economyWorkerTasks.get(unit.id)?.type ?? null,
+                        id: unit.id,
+                        pathIndex: unit.pathIndex,
+                        pathWaypointCount: unit.path.length,
+                        queuedCommandTargetPoints: unit.commandQueue.map(
+                            (command) =>
+                                'targetPoint' in command ? command.targetPoint ?? null : null,
+                        ),
+                        screenX:
+                            (unit.position.x - this.worldCamera.scrollX) *
+                            this.worldCamera.zoom,
+                        screenY:
+                            (unit.position.y - this.worldCamera.scrollY) *
+                            this.worldCamera.zoom,
+                        selected: unit.selected,
+                        templateId: unit.templateId,
+                        x: unit.position.x,
+                        y: unit.position.y,
+                    };
+                }),
+            }),
             getState: () => {
                 const primaryUnit = this.controllableUnits.getPrimaryUnit();
                 const farmerInventory =

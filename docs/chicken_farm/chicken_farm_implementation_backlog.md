@@ -25,7 +25,7 @@
 | SP-15 | debug 자원 없이 첫 건설/알/판매 가능; 첫 적 대응 시간; 자원 수입·생산·방어 성장; 후반 진행/막힘; 정상 속도 한 판 검수 | SP-09~14 |
 | SP-16 | 승리와 패배 양 경로; 반복 재시작; 장시간 실행; 개체 수 증가; 경로 정합; 프레임/메모리; 경제·전투·건설 회귀 | SP-15 |
 
-SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. 다음 실행 후보는 SP-04이며 하나의 소작업씩 착수한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
+SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01은 조작 계약·재현 좌표를 정적 대조로, SP-04-02~05는 normal P3 actual click/drag/HUD selection·우클릭·Stop과 경제/건설 분기 회귀를 완료했으며 다음 실행 후보는 SP-04-06이다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
 
 ## SP-01 세부 실행 계획
 
@@ -64,7 +64,26 @@ SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격�
 | SP-03-08 | 같은 page에서 새 run 생성 | 07 |
 | SP-03-09 | 시작/재초기화 회귀·후속 SP 인계 | 01~08 |
 
-SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP-03-02에서 이를 runtime wallet·unit·inventory 생성에 연결했으며 SP-03-03에서 normal PoC/fixture 자동 생성을 차단했다. SP-03-04는 25개 초기 배치를 source TSV·tilemap·world 좌표로 대조했고, SP-03-05는 이를 run registry에 등록했으며 SP-03-06은 같은 registry ID·좌표의 view와 관찰 API를 연결했다. SP-03-07은 shutdown cleanup과 idempotent browser 회귀를 연결했고 SP-03-08은 same-page restart를 연결했다. SP-03-09는 normal/easy/debug 시작 profile과 browser-perf 재초기화 회귀를 확정했다. 다음 실행은 **SP-04**이다. 전투·wave·NPC 기능은 SP-07/08/12, 종료 뒤 재시작과 새로 추가될 상태 정리는 SP-11에서 연결한다. 세부 카드의 읽기 범위·완료 조건·검증과 실행 요청 템플릿을 따른다.
+SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP-03-02에서 이를 runtime wallet·unit·inventory 생성에 연결했으며 SP-03-03에서 normal PoC/fixture 자동 생성을 차단했다. SP-03-04는 25개 초기 배치를 source TSV·tilemap·world 좌표로 대조했고, SP-03-05는 이를 run registry에 등록했으며 SP-03-06은 같은 registry ID·좌표의 view와 관찰 API를 연결했다. SP-03-07은 shutdown cleanup과 idempotent browser 회귀를 연결했고 SP-03-08은 same-page restart를 연결했다. SP-03-09는 normal/easy/debug 시작 profile과 browser-perf 재초기화 회귀를 확정했다. SP-04-01은 조작 계약·재현 좌표 정적 대조를, SP-04-02~05는 normal P3 actual click/drag/HUD selection·우클릭·Stop과 경제/건설 분기 회귀를 완료했으며 다음 실행은 **SP-04-06**이다. 전투·wave·NPC 기능은 SP-07/08/12, 종료 뒤 재시작과 새로 추가될 상태 정리는 SP-11에서 연결한다. 세부 카드의 읽기 범위·완료 조건·검증과 실행 요청 템플릿을 따른다.
+
+## SP-04 세부 실행 계획
+
+2026-10-01: [SP-04 선택·이동·경로·기본 명령](./chicken_farm_sp04_task_plan.md)을 Terra medium용 10개 task로 분해했다. SP-04-01은 normal P3의 11개 조작 사례와 WPM 통과/막힌 목표 좌표, 실패 예약 정책을 정적 대조로 완료했고, SP-04-02~05는 read-only controls snapshot, actual camera pan 뒤 click/양방향 drag/HUD selection·우클릭·Stop·경제/건설 fixture 회귀를 통과했다. Stop은 selected farmer의 queue/path/task를 비우고, construction callback으로 active worker를 해제한다. 다음 ID는 **SP-04-06**다. 기존 코드가 있다는 사실과 runtime 검수 통과를 구분한다.
+
+| ID | 산출물 | 선행 |
+| --- | --- | --- |
+| SP-04-01 | 조작 계약·재현 좌표 — 완료, static WPM assertion 통과 | SP-03 |
+| SP-04-02 | 조작 전용 최소 browser harness — 완료, typecheck·controls 통과 | 01 |
+| SP-04-03 | 클릭/drag 선택·HUD 경계 — 완료, camera pan selection 통과 | 02 |
+| SP-04-04 | 우클릭 이동·취소·상호작용 분기 — 완료, normal/fixture controls 통과와 중복 worker task 정리 | 03 |
+| SP-04-05 | Stop과 현재 명령 정리 — 완료, S/card Stop·economy task clear·construction pause callback 회귀 | 04 |
+| SP-04-06 | Shift 예약·replace·실패 진행 | 05 |
+| SP-04-07 | player 정적 지형·좌표·통로 | 06 |
+| SP-04-08 | 이동 중 동적 blocker 변경 | 07 |
+| SP-04-09 | restart 뒤 입력·예약 격리 | 08 |
+| SP-04-10 | 통합 검수·SP-05 인계 | 01~09 |
+
+각 요청은 한 ID만 수행하며 읽을 함수·완료 조건·검증은 세부 카드를 따른다. 기존 wolf 경로 측정과 debug 직접 명령 호출만으로 농부/개의 실제 입력·경로를 완료 처리하지 않는다. 건설 비용/환불은 SP-05, 경제 수량은 SP-06, 전투는 SP-07에 유지한다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 
