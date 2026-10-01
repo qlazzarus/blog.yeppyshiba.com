@@ -1,6 +1,6 @@
 # SP-04 선택·이동·경로·기본 명령 — 세부 실행 계획
 
-> 2026-10-01. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-04-01~05는 완료했고 다음 ID는 SP-04-06이다.
+> 2026-10-01. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-04-01~10과 SP-05-01~03은 완료 기록이 있으며 다음은 [SP-05-04](./chicken_farm_sp05_task_plan.md)다.
 
 ## 진행 상태와 확인 근거
 
@@ -234,7 +234,7 @@
 
 ## 검증 명령과 결과 기록
 
-모든 npm 명령은 저장소 루트에서 `--workspace @games/chicken-farm`을 붙인다. 기존 명령: `typecheck`, `build`, `chicken:smoke`, `chicken:pathing:measure`, `chicken:browser-perf:measure`, `chicken:start-regression:check`. **`chicken:controls:check`는 02에서 신설할 예정이며 현재 존재하지 않는다.** 사례 선택 문법과 player 경로 검증 진입점은 구현한 ID의 결과에 기록한다.
+모든 npm 명령은 저장소 루트에서 `--workspace @games/chicken-farm`을 붙인다. 기존 명령: `typecheck`, `build`, `chicken:smoke`, `chicken:pathing:measure`, `chicken:browser-perf:measure`, `chicken:start-regression:check`. `chicken:controls:check`와 `chicken:player-pathing:check`는 구현돼 있다. 사례 선택 문법과 player 경로 검증 진입점은 구현한 ID의 결과에 기록한다.
 
 각 ID마다 이 문서에 상태(대기/진행/완료/차단), 변경 파일·심볼, 실행 명령/종료 코드, 핵심 assertion, artifact 경로, 남은 결함, 다음 ID를 기록한다. 새 artifact에는 사례별 입력·기대값·실제값·통과 여부를 남긴다. 문서만 바뀐 요청에서 게임 전체 테스트를 반복하지 않는다.
 

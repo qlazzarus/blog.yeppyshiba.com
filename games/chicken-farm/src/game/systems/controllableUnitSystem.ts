@@ -927,6 +927,7 @@ export class ControllableUnitSystem {
         unit.currentCommand = undefined;
         unit.path = [];
         unit.pathIndex = 0;
+        this.onPendingBuildOrdersInterrupted?.(unit.id, 'path_missing');
         this.pollNextQueuedCommand(unit);
         this.updateView(unit);
     }

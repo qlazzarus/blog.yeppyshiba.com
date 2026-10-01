@@ -126,6 +126,18 @@ export class ConstructionPlacementSystem {
         return this.activeBuildingId ?? null;
     }
 
+    /** Detached pending-order data for browser lifecycle assertions. */
+    getPendingBuildOrderSnapshots() {
+        return this.pendingOrders.map((order) => ({
+            builderUnitId: order.builderUnitId,
+            footprint: { ...order.footprint },
+            id: order.id,
+            runtimeBuildingId: order.runtimeBuildingId ?? null,
+            targetPoint: { ...order.targetPoint },
+            templateId: order.templateId,
+        }));
+    }
+
     cancelConstruction(buildingId: string, reason = 'cancelled') {
         const orderIndex = this.pendingOrders.findIndex(
             (order) => order.runtimeBuildingId === buildingId,

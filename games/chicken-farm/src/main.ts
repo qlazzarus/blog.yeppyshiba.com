@@ -145,6 +145,58 @@ declare global {
                 readonly activeWorkerUnitId: string | null;
                 readonly state: 'complete' | 'constructing';
             } | null;
+            getConstructionLifecycleSnapshot: () => {
+                readonly activePlacementTemplateId: string | null;
+                readonly buildings: readonly {
+                    readonly activeWorkerUnitId: string | null;
+                    readonly footprint: {
+                        readonly height: number;
+                        readonly width: number;
+                        readonly x: number;
+                        readonly y: number;
+                    };
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly progress: number;
+                    readonly state: 'complete' | 'constructing';
+                    readonly templateId: string;
+                }[];
+                readonly dynamicBlockerBuildingIds: readonly string[];
+                readonly economyBuildingIds: readonly string[];
+                readonly pendingOrders: readonly {
+                    readonly builderUnitId: string;
+                    readonly footprint: {
+                        readonly height: number;
+                        readonly width: number;
+                        readonly x: number;
+                        readonly y: number;
+                    };
+                    readonly id: string;
+                    readonly runtimeBuildingId: string | null;
+                    readonly targetPoint: { readonly x: number; readonly y: number };
+                    readonly templateId: string;
+                }[];
+                readonly runId: number;
+                readonly selectedBuildingId: string | null;
+                readonly selectedUnitIds: readonly string[];
+                readonly visionSourceBuildingIds: readonly string[];
+                readonly wallet: { readonly gold: number; readonly lumber: number } | null;
+            };
+            getConstructionPlacementPreview: (
+                templateId: 'coop_basic' | 'fence_wood',
+                x: number,
+                y: number,
+            ) => {
+                readonly footprint: {
+                    readonly height: number;
+                    readonly width: number;
+                    readonly x: number;
+                    readonly y: number;
+                };
+                readonly valid: { readonly valid: true } | { readonly reason: string; readonly valid: false };
+            } | null;
+            setConstructionWalletForTest: (gold: number, lumber: number) => boolean;
+            damageControllableUnitForTest: (unitId: string, damage: number) => boolean;
             createEconomyBuildingFixture: (
                 templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
@@ -2822,6 +2874,50 @@ class FarmScene extends Phaser.Scene {
                     activeWorkerUnitId: building.activeWorkerUnitId ?? null,
                     state: building.state,
                 };
+            },
+            getConstructionLifecycleSnapshot: () => ({
+                activePlacementTemplateId:
+                    this.constructionPlacement?.getActiveBuildingId() ?? null,
+                buildings: this.buildingSystem?.getLifecycleSnapshots() ?? [],
+                dynamicBlockerBuildingIds:
+                    this.buildingSystem?.getDynamicBlockedBuildingIds() ?? [],
+                economyBuildingIds: this.economyState
+                    ? [
+                          ...this.economyState.coops.map((coop) => coop.id),
+                          ...this.economyState.wells.map((well) => well.id),
+                      ]
+                    : [],
+                pendingOrders:
+                    this.constructionPlacement?.getPendingBuildOrderSnapshots() ?? [],
+                runId: this.runId,
+                selectedBuildingId: this.selectedBuildingId ?? null,
+                selectedUnitIds: this.controllableUnits
+                    .getSelectedUnits()
+                    .map((unit) => unit.id),
+                visionSourceBuildingIds:
+                    this.buildingSystem?.getVisionSourceBuildingIds() ?? [],
+                wallet: this.economyState
+                    ? {
+                          gold: this.economyState.players[0]?.gold ?? 0,
+                          lumber: this.economyState.players[0]?.lumber ?? 0,
+                      }
+                    : null,
+            }),
+            getConstructionPlacementPreview: (templateId, x, y) =>
+                this.constructionPlacement?.getItemPlacementPreview(templateId, x, y) ??
+                null,
+            setConstructionWalletForTest: (gold, lumber) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(gold) || !Number.isFinite(lumber)) return false;
+                const wallet = this.getSharedPlayerEconomy();
+                wallet.gold = Math.max(0, Math.floor(gold));
+                wallet.lumber = Math.max(0, Math.floor(lumber));
+                this.refreshEconomyLabels();
+                return true;
+            },
+            damageControllableUnitForTest: (unitId, damage) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.controllableUnits.damageUnit(unitId, damage);
             },
             createEconomyBuildingFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;

@@ -62,6 +62,16 @@ export type BuildingSelectionSummary = {
     readonly workerUnitId: string | null;
 };
 
+export type BuildingLifecycleSnapshot = {
+    readonly activeWorkerUnitId: string | null;
+    readonly footprint: GridPathRect;
+    readonly id: string;
+    readonly ownerPlayerId: number;
+    readonly progress: number;
+    readonly state: PlayerBuilding['state'];
+    readonly templateId: MvpBuildingId;
+};
+
 type BuildingSystemConfig = {
     readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
     /** Shared player wallet; when omitted the system creates an isolated PoC wallet. */
@@ -170,6 +180,31 @@ export class BuildingSystem {
 
     getAllFootprints(): readonly GridPathRect[] {
         return this.buildings.map((building) => building.footprint);
+    }
+
+    /** Read-only data for lifecycle checks; callers receive detached records. */
+    getLifecycleSnapshots(): readonly BuildingLifecycleSnapshot[] {
+        return this.buildings.map((building) => ({
+            activeWorkerUnitId: building.activeWorkerUnitId ?? null,
+            footprint: { ...building.footprint },
+            id: building.id,
+            ownerPlayerId: building.ownerPlayerId,
+            progress: this.getConstructionProgress(building),
+            state: building.state,
+            templateId: building.templateId,
+        }));
+    }
+
+    getDynamicBlockedBuildingIds() {
+        return this.buildings
+            .filter((building) => building.blocksPath && building.state === 'complete')
+            .map((building) => building.id);
+    }
+
+    getVisionSourceBuildingIds() {
+        return this.buildings
+            .filter((building) => this.getBuildingVisionRadius(building) > 0)
+            .map((building) => building.id);
     }
 
     getVisionSources(): readonly VisionSource[] {

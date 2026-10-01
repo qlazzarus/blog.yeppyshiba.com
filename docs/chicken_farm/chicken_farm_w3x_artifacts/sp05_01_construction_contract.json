@@ -1,0 +1,40 @@
+{
+  "taskId": "SP-05-01",
+  "status": "static-contract",
+  "normalP3": {
+    "ownerPlayerId": 3,
+    "farmer": { "x": 3392, "y": 8928 },
+    "wallet": { "gold": 1500, "lumber": 0, "supplyCap": 3, "supplyUsed": 0 }
+  },
+  "replayCases": {
+    "buildableFence": {
+      "templateId": "fence_wood",
+      "input": { "x": 3584, "y": 8896 },
+      "snappedFootprint": { "x": 3520, "y": 8832, "width": 128, "height": 128 },
+      "cost": { "gold": 8, "lumber": 0 },
+      "buildTimeSec": 1
+    },
+    "terrainRejected": {
+      "templateId": "fence_wood",
+      "input": { "x": 4816, "y": 10384 },
+      "snappedFootprint": { "x": 4736, "y": 10304, "width": 128, "height": 128 },
+      "reason": "terrain_build_blocked"
+    },
+    "outOfBounds": {
+      "templateId": "fence_wood",
+      "input": { "x": -1, "y": 0 },
+      "reason": "outside_world_bounds"
+    },
+    "normalResourceRejected": {
+      "templateId": "coop_basic",
+      "cost": { "gold": 120, "lumber": 52 },
+      "reason": "insufficient_resources"
+    }
+  },
+  "refundPolicy": {
+    "pending": { "refund": { "gold": 0, "lumber": 0 } },
+    "paidConstructing": { "ratio": 0.75, "rounding": "floor-per-resource" },
+    "completedDestruction": { "refund": { "gold": 0, "lumber": 0 } },
+    "freeFixture": "must never create wallet resources"
+  }
+}

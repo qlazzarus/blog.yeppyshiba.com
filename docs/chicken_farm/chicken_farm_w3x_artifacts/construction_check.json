@@ -1,0 +1,83 @@
+{
+  "case": "start_rejection",
+  "checks": {
+    "builderRemovalNoCharge": true,
+    "pass": true,
+    "resourceDepletionNoCharge": true,
+    "startOverlapNoCharge": true
+  },
+  "snapshots": {
+    "builderRemoved": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0
+      }
+    },
+    "footprintRejected": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": "p3-farmer",
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 4224,
+            "y": 8768
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 1,
+          "state": "complete",
+          "templateId": "coop_basic"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [
+        "player-building-1"
+      ],
+      "economyBuildingIds": [
+        "player-building-1"
+      ],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-1"
+      ],
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0
+      }
+    },
+    "resourceRejected": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 0,
+        "lumber": 0
+      }
+    }
+  }
+}

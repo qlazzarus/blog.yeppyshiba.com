@@ -6,6 +6,7 @@
     "scripts": {
         "chicken:browser-perf:measure": "tsx ../../scripts/measure-chicken-farm-browser-perf.ts",
         "chicken:controls:check": "tsx ../../scripts/check-chicken-farm-controls.ts",
+        "chicken:construction:check": "tsx ../../scripts/check-chicken-farm-construction.ts",
         "chicken:economy:measure": "tsx ../../scripts/measure-chicken-farm-economy.ts",
         "chicken:initial-placements:check": "tsx ../../scripts/check-chicken-farm-initial-placements.ts",
         "chicken:initial-registry:check": "tsx ../../scripts/check-chicken-farm-initial-placement-registry.ts",
