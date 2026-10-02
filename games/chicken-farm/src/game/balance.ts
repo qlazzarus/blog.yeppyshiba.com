@@ -193,7 +193,9 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
     economy: {
         easyBonusGold: 200,
         eggSellValueGold: 12,
-        exchangeEnabled: false,
+        exchangeEnabled: true,
+        marketExchangeGoldCost: 100,
+        marketExchangeLumberGain: 70,
         reviveResourceLossPct: 40,
         startingGold: 1500,
         startingLumber: 0,

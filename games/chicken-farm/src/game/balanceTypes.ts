@@ -221,6 +221,8 @@ export type EconomyBalance = {
     readonly easyBonusGold: number;
     readonly eggSellValueGold: number;
     readonly exchangeEnabled: boolean;
+    readonly marketExchangeGoldCost: number;
+    readonly marketExchangeLumberGain: number;
     readonly reviveResourceLossPct: number;
     readonly startingGold: number;
     readonly startingLumber: number;

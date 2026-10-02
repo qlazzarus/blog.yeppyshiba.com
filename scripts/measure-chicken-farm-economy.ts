@@ -15,6 +15,7 @@ import {
     feedNearestEconomyChicken,
     herdEconomyChickens,
     pickupFieldEgg,
+    removeEconomyBuilding,
     sellEconomyInventoryEggStack,
     startCoopHatch,
     upgradeEconomyWellToWindmill,
@@ -368,6 +369,64 @@ async function main() {
     const windmillAttractedCount = windmillCapacityState.chickens.filter(
         (chicken) => chicken.targetWellId !== null,
     ).length;
+    const wellBoundaryState = createChickenFarmEconomyState();
+    const boundaryWell = addEconomyWell(wellBoundaryState, {
+        id: 'boundary-well',
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const insideChicken = addEconomyChicken(wellBoundaryState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1096, y: 1000 },
+    });
+    const outsideChicken = addEconomyChicken(wellBoundaryState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1097, y: 1000 },
+    });
+    const foreignChicken = addEconomyChicken(wellBoundaryState, {
+        elapsedSec: 0,
+        ownerPlayerId: 4,
+        position: { x: 1000, y: 1000 },
+    });
+    insideChicken.hp = 20;
+    outsideChicken.hp = 20;
+    foreignChicken.hp = 20;
+    updateChickenFarmEconomy(wellBoundaryState, 0.25);
+    const afterWellBoundary = {
+        foreignHp: foreignChicken.hp,
+        insideHp: insideChicken.hp,
+        outsideHp: outsideChicken.hp,
+    };
+    removeEconomyBuilding(wellBoundaryState, boundaryWell.id);
+    updateChickenFarmEconomy(wellBoundaryState, 0.5);
+    const afterWellRemovalHp = insideChicken.hp;
+    const windmillOwnershipState = createChickenFarmEconomyState();
+    addEconomyWell(windmillOwnershipState, {
+        kind: 'windmill',
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const windmillFriendly = addEconomyChicken(windmillOwnershipState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    const windmillForeign = addEconomyChicken(windmillOwnershipState, {
+        elapsedSec: 0,
+        ownerPlayerId: 4,
+        position: { x: 1000, y: 1000 },
+    });
+    const deadChickenState = createChickenFarmEconomyState();
+    const deadChicken = addEconomyChicken(deadChickenState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+    });
+    deadChicken.hp = 0;
+    updateChickenFarmEconomy(deadChickenState, 0.25);
+    updateChickenFarmEconomy(deadChickenState, 60);
     const herdState = createChickenFarmEconomyState();
     for (let index = 0; index < 9; index += 1) {
         addEconomyChicken(herdState, {
@@ -775,10 +834,53 @@ async function main() {
                 pass: basicWellAttractedCount === 8,
             },
             {
+                actual: {
+                    afterRemovalHp: Number(afterWellRemovalHp.toFixed(2)),
+                    foreignHp: Number(afterWellBoundary.foreignHp.toFixed(2)),
+                    insideHp: Number(afterWellBoundary.insideHp.toFixed(2)),
+                    outsideHp: Number(afterWellBoundary.outsideHp.toFixed(2)),
+                },
+                expected: {
+                    afterRemovalHpBelowInsideHp: true,
+                    foreignHp: 19.95,
+                    insideHp: 21,
+                    outsideHp: 19.95,
+                },
+                id: 'basic_well_heals_only_same_owner_inside_radius_and_stops_on_removal',
+                pass:
+                    afterWellBoundary.insideHp === 21 &&
+                    afterWellBoundary.outsideHp === 19.95 &&
+                    afterWellBoundary.foreignHp === 19.95 &&
+                    afterWellRemovalHp < afterWellBoundary.insideHp,
+            },
+            {
                 actual: windmillAttractedCount,
                 expected: 16,
                 id: 'windmill_feeds_up_to_sixteen_chickens',
                 pass: windmillAttractedCount === 16,
+            },
+            {
+                actual: {
+                    foreignNextEggAtSec: windmillForeign.nextEggAtSec,
+                    friendlyNextEggAtSec: windmillFriendly.nextEggAtSec,
+                },
+                expected: {
+                    foreignNextEggAtSec: 30,
+                    friendlyNextEggAtSec: 22.5,
+                },
+                id: 'windmill_accelerates_only_same_owner_chicken',
+                pass:
+                    windmillFriendly.nextEggAtSec === 22.5 &&
+                    windmillForeign.nextEggAtSec === 30,
+            },
+            {
+                actual: {
+                    aiState: deadChicken.aiState,
+                    fieldEggs: deadChickenState.fieldEggs.length,
+                },
+                expected: { aiState: 'dead', fieldEggs: 0 },
+                id: 'dead_chicken_never_drops_eggs',
+                pass: deadChicken.aiState === 'dead' && deadChickenState.fieldEggs.length === 0,
             },
             {
                 actual: {

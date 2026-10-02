@@ -25,7 +25,7 @@
 | SP-15 | debug 자원 없이 첫 건설/알/판매 가능; 첫 적 대응 시간; 자원 수입·생산·방어 성장; 후반 진행/막힘; 정상 속도 한 판 검수 | SP-09~14 |
 | SP-16 | 승리와 패배 양 경로; 반복 재시작; 장시간 실행; 개체 수 증가; 경로 정합; 프레임/메모리; 경제·전투·건설 회귀 | SP-15 |
 
-SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01~10은 normal P3 actual 입력, Stop/queue, pathing과 restart를 완료했다. SP-05-01~12는 pending부터 착공 비용·Stop/재개·handoff·queue·refund·완공/제거·restart까지 검수했고, normal P3 실제 통합 lifecycle과 browser 오류 0도 확인했다. 다음 실행은 **SP-06 세부 계획 수립 후 확정**한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
+SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01~10은 normal P3 actual 입력, Stop/queue, pathing과 restart를 완료했다. SP-05-01~12는 pending부터 착공 비용·Stop/재개·handoff·queue·refund·완공/제거·restart까지 검수했고, normal P3 실제 통합 lifecycle과 browser 오류 0도 확인했다. SP-06-01~04는 정적 경제 계약, normal P3 read-only snapshot/browser baseline, I003 actual/blocked-spawn 원자성, I009/I00F actual 설치와 첫 시장 교환을 완료했고 다음 실행은 **SP-06-05**이다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
 
 ## SP-01 세부 실행 계획
 
@@ -87,7 +87,7 @@ SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP
 
 ## SP-05 세부 실행 계획
 
-2026-10-02: [SP-05 건설 lifecycle](./chicken_farm_sp05_task_plan.md)을 Terra medium용 **12개 task**로 분해해 모두 완료했다. normal P3의 실제 build-card → Stop → 재개 → 완공과 paid refund, 특수 fixture의 pause/queue/removal/restart를 검수했으며 browser 오류 유입은 0이었다. 다음 실행은 **SP-06 세부 계획 수립 후 확정**한다.
+2026-10-02: [SP-05 건설 lifecycle](./chicken_farm_sp05_task_plan.md)을 Terra medium용 **12개 task**로 분해해 모두 완료했다. normal P3의 실제 build-card → Stop → 재개 → 완공과 paid refund, 특수 fixture의 pause/queue/removal/restart를 검수했으며 browser 오류 유입은 0이었다.
 
 SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)를 완료했다. 원본 울타리·닭장 계보와 시작 농장의 열린 WPM pathing은 대조했으며, `requires` runtime 검증은 SP-09, 건물 ID 기반 경제 수량은 SP-06, 적 피해→제거는 SP-07로 유지한다.
 
@@ -107,6 +107,10 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 | SP-05-12 | 정상 시작 통합 검수·SP-06/07 인계 | 01~11 | 완료 — normal lifecycle/browser 오류 0, SP-06/07/09 인계 |
 
 한 요청에 한 ID만 실행한다. 각 카드에 읽을 함수·수정 범위·완료 assertion·검증을 지정했다. 비용은 도착 후 착공 시 차감하는 기존 경로를 기준으로 대조하며, 실제 적 공격 연결은 SP-07, 경제 수량 루프는 SP-06에 인계한다.
+
+## SP-06 세부 실행 계획
+
+2026-10-02: [닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md)을 Terra medium용 **14개 task**로 분해했다. SP-06-01은 [정적 경제 계약](./chicken_farm_w3x_artifacts/sp06_01_economy_contract.json)을, 02는 [normal P3 economy baseline](./chicken_farm_w3x_artifacts/economy_check_baseline.json)을, 03은 [I003 acquisition artifact](./chicken_farm_w3x_artifacts/economy_check_acquisition.json)를, 04는 [bootstrap artifact](./chicken_farm_w3x_artifacts/economy_check_bootstrap.json)를 완료했다. 04는 actual I009/I00F 설치의 cancel/failure/success 원자성과 원본 첫 시장 교환 `100 gold → 70 lumber`를 검수해 normal `1500/0 → 1400/70`으로 coop_basic `120/52` 진입을 열었다. 다음 실행은 **SP-06-05**이다. 이후 우물/산란·수집·입고·부화 시작/출구·시장 판매·주문 취소·제거·restart·정상 통합을 순차 검수한다. 카드별 읽기 범위·수량 assertion·검증을 따르며 fixture 결과로 정상 전체 루프를 완료 처리하지 않는다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 

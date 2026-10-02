@@ -9,6 +9,7 @@ export type CommandCardSelectionKind =
     | 'builder_unit'
     | 'constructing_building'
     | 'economy_coop'
+    | 'market_building'
     | 'generic_unit'
     | 'complete_building'
     | 'none';
@@ -42,6 +43,9 @@ export type CommandCardAction =
       }
     | {
           readonly type: 'start_coop_hatch';
+      }
+    | {
+          readonly type: 'exchange_gold_for_lumber';
       };
 
 type CommandCardButton = {
@@ -132,6 +136,15 @@ const ECONOMY_COOP_PAGE: readonly CommandCardButton[] = [
         hotkey: 'H',
         id: 'hatch',
         label: 'Hatch',
+    },
+];
+
+const MARKET_BUILDING_PAGE: readonly CommandCardButton[] = [
+    {
+        action: { type: 'exchange_gold_for_lumber' },
+        hotkey: 'E',
+        id: 'market_exchange_gold_for_lumber',
+        label: '100g → 70l',
     },
 ];
 
@@ -300,6 +313,7 @@ export class CommandCardSystem {
         if (this.page === 'build' && selectionKind === 'builder_unit') return BUILD_PAGE;
         if (selectionKind === 'constructing_building') return CONSTRUCTING_BUILDING_PAGE;
         if (selectionKind === 'economy_coop') return ECONOMY_COOP_PAGE;
+        if (selectionKind === 'market_building') return MARKET_BUILDING_PAGE;
         if (selectionKind === 'builder_unit') return ROOT_PAGE;
         if (selectionKind === 'generic_unit') return GENERIC_UNIT_PAGE;
 

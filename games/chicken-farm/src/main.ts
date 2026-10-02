@@ -69,10 +69,13 @@ import {
     updateChickenFarmEconomy,
 } from './game/systems/economySystem';
 import type {
+    ChickenAiState,
     ChickenFarmEconomyState,
+    ChickenKind,
     EconomyChickenState,
     EconomyCoopState,
     EconomyEvent,
+    EconomyItemRawcode,
     EconomyInventoryState,
     EconomyPoint,
     EconomyWellState,
@@ -181,6 +184,64 @@ declare global {
                 readonly selectedUnitIds: readonly string[];
                 readonly visionSourceBuildingIds: readonly string[];
                 readonly wallet: { readonly gold: number; readonly lumber: number } | null;
+            };
+            getEconomyLifecycleSnapshot: () => {
+                readonly activeStartItemPlacement: {
+                    readonly inventoryId: string;
+                    readonly itemRawcode: EconomyItemRawcode;
+                    readonly slotIndex: number;
+                    readonly templateId: string;
+                } | null;
+                readonly buildings: readonly {
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly state: 'complete' | 'constructing';
+                    readonly templateId: string;
+                }[];
+                readonly chickens: readonly {
+                    readonly aiState: ChickenAiState;
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly kind: ChickenKind;
+                    readonly nextEggAtSec: number;
+                    readonly ownerPlayerId: number;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+                readonly elapsedSec: number;
+                readonly fieldEggs: readonly {
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly sourceChickenId: string;
+                    readonly stackCount: number;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+                readonly hatchJobs: readonly {
+                    readonly completeAtSec: number;
+                    readonly coopId: string;
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly resultChickenKind: ChickenKind;
+                }[];
+                readonly inventories: readonly {
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly slots: readonly ({ readonly itemRawcode: EconomyItemRawcode; readonly quantity: number } | null)[];
+                }[];
+                readonly runId: number;
+                readonly selected: {
+                    readonly buildingId: string | null;
+                    readonly economyEntityId: string | null;
+                    readonly economyEntityType: EconomyHitTarget['type'] | null;
+                    readonly unitIds: readonly string[];
+                };
+                readonly wallet: { readonly gold: number; readonly lumber: number; readonly supplyCap: number; readonly supplyUsed: number } | null;
+                readonly workerTasks: readonly {
+                    readonly targetId: string | null;
+                    readonly type: EconomyWorkerTask['type'];
+                    readonly unitId: string;
+                }[];
             };
             getConstructionPlacementPreview: (
                 templateId: 'coop_basic' | 'fence_wood',
@@ -1753,7 +1814,17 @@ class FarmScene extends Phaser.Scene {
             const farmer = this.controllableUnits
                 .getUnits()
                 .find((unit) => unit.id === inventory.id && unit.templateId === 'farmer');
-            if (!farmer || consumeEconomyInventoryItem(state, {
+            const spawnPosition = farmer
+                ? { x: farmer.position.x + 42, y: farmer.position.y + 34 }
+                : null;
+            if (!farmer || !spawnPosition || !this.canChickenOccupyPoint(spawnPosition)) {
+                this.recordEconomyEvent('start_item_use_rejected', {
+                    itemRawcode: 'I003',
+                    reason: farmer ? 'spawn_blocked' : 'farmer_missing',
+                });
+                return;
+            }
+            if (consumeEconomyInventoryItem(state, {
                 inventoryId: inventory.id,
                 itemRawcode: 'I003',
                 slotIndex,
@@ -1763,7 +1834,7 @@ class FarmScene extends Phaser.Scene {
             const chicken = addEconomyChicken(state, {
                 elapsedSec: this.elapsedSec,
                 ownerPlayerId: farmer.ownerPlayerId,
-                position: { x: farmer.position.x + 42, y: farmer.position.y + 34 },
+                position: spawnPosition,
             });
             this.createChickenView(chicken);
             this.recordEconomyEvent('start_item_used', {
@@ -2224,6 +2295,11 @@ class FarmScene extends Phaser.Scene {
             return;
         }
 
+        if (action.type === 'exchange_gold_for_lumber') {
+            this.exchangeMarketGoldForLumber();
+            return;
+        }
+
         if (action.type === 'cancel') {
             this.constructionPlacement?.cancelPlacement('command_card');
             return;
@@ -2258,6 +2334,14 @@ class FarmScene extends Phaser.Scene {
 
         const selectedBuilding = this.buildingSystem?.getBuilding(this.selectedBuildingId);
         if (!selectedBuilding) return 'none';
+
+        if (
+            selectedBuilding.state === 'complete' &&
+            (selectedBuilding.templateId === 'market' ||
+                selectedBuilding.templateId === 'grand_market')
+        ) {
+            return 'market_building';
+        }
 
         return selectedBuilding.state === 'constructing'
             ? 'constructing_building'
@@ -2429,6 +2513,7 @@ class FarmScene extends Phaser.Scene {
             c: Phaser.Input.Keyboard.KeyCodes.C,
             d: Phaser.Input.Keyboard.KeyCodes.D,
             down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+            e: Phaser.Input.Keyboard.KeyCodes.E,
             escape: Phaser.Input.Keyboard.KeyCodes.ESC,
             f: Phaser.Input.Keyboard.KeyCodes.F,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
@@ -2676,6 +2761,15 @@ class FarmScene extends Phaser.Scene {
             });
             return true;
         }
+        const sourceInventory = getEconomyInventory(state, placement.inventoryId);
+        const sourceItem = sourceInventory?.slots[placement.slotIndex];
+        if (!sourceItem || sourceItem.itemRawcode !== placement.itemRawcode) {
+            this.recordEconomyEvent('start_item_placement_rejected', {
+                itemRawcode: placement.itemRawcode,
+                reason: 'item_missing',
+            });
+            return true;
+        }
         const building = this.buildingSystem?.createBuilding({
             completeImmediately: true,
             ownerPlayerId: farmer?.ownerPlayerId ?? 3,
@@ -2693,6 +2787,12 @@ class FarmScene extends Phaser.Scene {
                 itemRawcode: placement.itemRawcode,
                 reason: building ? 'item_missing' : 'building_unavailable',
             });
+            if (building) {
+                this.constructionPlacement?.removeCompletedBuilding(
+                    building.id,
+                    'start_item_consume_failed',
+                );
+            }
             return true;
         }
         this.startItemPlacement = undefined;
@@ -2705,6 +2805,48 @@ class FarmScene extends Phaser.Scene {
             y: preview.footprint.y,
         });
         this.updateSelectionInfo();
+        return true;
+    }
+
+    private exchangeMarketGoldForLumber() {
+        const market = this.selectedBuildingId
+            ? this.buildingSystem?.getBuilding(this.selectedBuildingId)
+            : null;
+        const wallet = this.economyState?.players.find(
+            (player) => player.id === this.startSession.ownerPlayerId,
+        );
+        const economy = CHICKEN_FARM_BALANCE.economy;
+        if (
+            !economy.exchangeEnabled ||
+            !market ||
+            market.state !== 'complete' ||
+            (market.templateId !== 'market' && market.templateId !== 'grand_market') ||
+            market.ownerPlayerId !== this.startSession.ownerPlayerId ||
+            !wallet ||
+            wallet.gold < economy.marketExchangeGoldCost
+        ) {
+            this.recordEconomyEvent('market_exchange_rejected', {
+                marketId: market?.id ?? null,
+                reason: !market
+                    ? 'market_missing'
+                    : market.ownerPlayerId !== this.startSession.ownerPlayerId
+                      ? 'owner_mismatch'
+                      : wallet && wallet.gold < economy.marketExchangeGoldCost
+                        ? 'insufficient_gold'
+                        : 'market_unavailable',
+            });
+            return false;
+        }
+        wallet.gold -= economy.marketExchangeGoldCost;
+        wallet.lumber += economy.marketExchangeLumberGain;
+        this.refreshEconomyLabels();
+        this.updateSelectionInfo();
+        this.recordEconomyEvent('market_exchange_completed', {
+            goldCost: economy.marketExchangeGoldCost,
+            lumberGain: economy.marketExchangeLumberGain,
+            marketId: market.id,
+            ownerPlayerId: market.ownerPlayerId,
+        });
         return true;
     }
 
@@ -2916,6 +3058,82 @@ class FarmScene extends Phaser.Scene {
                           lumber: this.economyState.players[0]?.lumber ?? 0,
                       }
                     : null,
+            }),
+            getEconomyLifecycleSnapshot: () => ({
+                activeStartItemPlacement: this.startItemPlacement
+                    ? {
+                          inventoryId: this.startItemPlacement.inventoryId,
+                          itemRawcode: this.startItemPlacement.itemRawcode,
+                          slotIndex: this.startItemPlacement.slotIndex,
+                          templateId: this.startItemPlacement.templateId,
+                      }
+                    : null,
+                buildings: (this.buildingSystem?.getLifecycleSnapshots() ?? []).map((building) => ({
+                    id: building.id,
+                    ownerPlayerId: building.ownerPlayerId,
+                    state: building.state,
+                    templateId: building.templateId,
+                })),
+                chickens: (this.economyState?.chickens ?? []).map((chicken) => ({
+                    aiState: chicken.aiState,
+                    hp: chicken.hp,
+                    id: chicken.id,
+                    kind: chicken.kind,
+                    nextEggAtSec: chicken.nextEggAtSec,
+                    ownerPlayerId: chicken.ownerPlayerId,
+                    x: chicken.position.x,
+                    y: chicken.position.y,
+                })),
+                elapsedSec: this.elapsedSec,
+                fieldEggs: (this.economyState?.fieldEggs ?? []).map((egg) => ({
+                    id: egg.id,
+                    ownerPlayerId: egg.ownerPlayerId,
+                    sourceChickenId: egg.sourceChickenId,
+                    stackCount: egg.stackCount,
+                    x: egg.position.x,
+                    y: egg.position.y,
+                })),
+                hatchJobs: (this.economyState?.hatchJobs ?? []).map((job) => ({
+                    completeAtSec: job.completeAtSec,
+                    coopId: job.coopId,
+                    id: job.id,
+                    ownerPlayerId: job.ownerPlayerId,
+                    resultChickenKind: job.resultChickenKind,
+                })),
+                inventories: (this.economyState?.inventories ?? []).map((inventory) => ({
+                    id: inventory.id,
+                    ownerPlayerId: inventory.ownerPlayerId,
+                    slots: inventory.slots.map((slot) =>
+                        slot ? { itemRawcode: slot.itemRawcode, quantity: slot.quantity } : null,
+                    ),
+                })),
+                runId: this.runId,
+                selected: {
+                    buildingId: this.selectedBuildingId ?? null,
+                    economyEntityId: this.selectedEconomyEntity?.id ?? null,
+                    economyEntityType: this.selectedEconomyEntity?.type ?? null,
+                    unitIds: this.controllableUnits.getSelectedUnits().map((unit) => unit.id),
+                },
+                wallet: this.economyState
+                    ? {
+                          gold: this.economyState.players[0]?.gold ?? 0,
+                          lumber: this.economyState.players[0]?.lumber ?? 0,
+                          supplyCap: this.economyState.players[0]?.supplyCap ?? 0,
+                          supplyUsed: this.economyState.players[0]?.supplyUsed ?? 0,
+                      }
+                    : null,
+                workerTasks: [...this.economyWorkerTasks.values()].map((task) => ({
+                    targetId:
+                        task.type === 'pickup_egg'
+                            ? task.eggId
+                            : task.type === 'deposit_to_coop'
+                              ? task.coopId
+                              : task.type === 'sell_at_market'
+                                ? task.marketId
+                                : null,
+                    type: task.type,
+                    unitId: task.unitId,
+                })),
             }),
             getConstructionPlacementPreview: (templateId, x, y) =>
                 this.constructionPlacement?.getItemPlacementPreview(templateId, x, y) ??

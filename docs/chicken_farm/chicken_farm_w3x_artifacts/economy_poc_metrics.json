@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T05:18:26.659Z",
+  "generatedAt": "2026-10-02T02:57:42.906Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -332,9 +332,49 @@
       "pass": true
     },
     {
+      "actual": {
+        "afterRemovalHp": 20.95,
+        "foreignHp": 19.95,
+        "insideHp": 21,
+        "outsideHp": 19.95
+      },
+      "expected": {
+        "afterRemovalHpBelowInsideHp": true,
+        "foreignHp": 19.95,
+        "insideHp": 21,
+        "outsideHp": 19.95
+      },
+      "id": "basic_well_heals_only_same_owner_inside_radius_and_stops_on_removal",
+      "pass": true
+    },
+    {
       "actual": 16,
       "expected": 16,
       "id": "windmill_feeds_up_to_sixteen_chickens",
+      "pass": true
+    },
+    {
+      "actual": {
+        "foreignNextEggAtSec": 30,
+        "friendlyNextEggAtSec": 22.5
+      },
+      "expected": {
+        "foreignNextEggAtSec": 30,
+        "friendlyNextEggAtSec": 22.5
+      },
+      "id": "windmill_accelerates_only_same_owner_chicken",
+      "pass": true
+    },
+    {
+      "actual": {
+        "aiState": "dead",
+        "fieldEggs": 0
+      },
+      "expected": {
+        "aiState": "dead",
+        "fieldEggs": 0
+      },
+      "id": "dead_chicken_never_drops_eggs",
       "pass": true
     },
     {

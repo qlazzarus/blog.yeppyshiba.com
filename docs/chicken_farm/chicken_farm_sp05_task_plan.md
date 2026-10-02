@@ -1,6 +1,6 @@
 # SP-05 — 건설 lifecycle 세부 실행 계획
 
-> 작성: 2026-10-01. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-05-01~12를 완료했다. 다음 ID는 **SP-06 세부 계획 수립 후 확정**한다.
+> 작성: 2026-10-01. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-05-01~12를 완료했다. 다음 ID는 **SP-06-01**이다.
 
 ## 목표와 범위
 
@@ -258,7 +258,7 @@
 - 검증: `npm run typecheck --workspace @games/chicken-farm` → 0, `npm run build --workspace @games/chicken-farm` → 0, `CHICKEN_FARM_CONSTRUCTION_CASE=integration npm run chicken:construction:check --workspace @games/chicken-farm` → 0, `npm run chicken:smoke --workspace @games/chicken-farm` → 0, `npm run chicken:player-pathing:check --workspace @games/chicken-farm` → 0, `CHICKEN_FARM_CONTROL_CASE=stop npm run chicken:controls:check --workspace @games/chicken-farm` → 0, `CHICKEN_FARM_CONTROL_CASE=dynamic_blocker npm run chicken:controls:check --workspace @games/chicken-farm` → 0. 코드 변경 없는 economy/browser-perf는 SP-05-11의 종료 코드 0 결과를 재사용한다.
 - artifact: [normal 통합](./chicken_farm_w3x_artifacts/construction_check_integration.json), [arrival](./chicken_farm_w3x_artifacts/construction_check_arrival.json), [pause/resume](./chicken_farm_w3x_artifacts/construction_check_pause_resume.json), [queue](./chicken_farm_w3x_artifacts/construction_check_queue.json), [completion](./chicken_farm_w3x_artifacts/construction_check_completion.json), [removal](./chicken_farm_w3x_artifacts/construction_check_removal.json), [restart](./chicken_farm_w3x_artifacts/construction_check_restart.json).
 - 남은 결함: SP-06은 건물 ID/owner와 wallet·inventory 제거 정책을 실제 닭·알 수량 루프에 연결한다. SP-07은 실제 피해를 공용 건물 제거 API에 연결한다. SP-09는 생산·연구 명령을 구현한다.
-- 다음 ID: **SP-06 세부 계획 수립 후 확정**.
+- 다음 ID: **SP-06-01**.
 
 ## 검증 실행과 결과 기록
 
