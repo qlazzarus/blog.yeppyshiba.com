@@ -13,6 +13,7 @@ import {
     dropInventoryEggToField,
     ensureEconomyInventory,
     feedNearestEconomyChicken,
+    grantEconomyInventoryItem,
     herdEconomyChickens,
     pickupFieldEgg,
     removeEconomyBuilding,
@@ -204,6 +205,43 @@ async function main() {
         unitRadiusPx: 20,
     });
 
+    const blockedHatchState = createChickenFarmEconomyState();
+    const blockedHatchCoop = addEconomyCoop(blockedHatchState, {
+        ownerPlayerId: 3,
+        position: { x: 1500, y: 1500 },
+    });
+    grantEconomyInventoryItem(blockedHatchState, {
+        inventoryId: blockedHatchCoop.id,
+        itemRawcode: 'I006',
+        quantity: 1,
+    });
+    const blockedHatchStarted = startCoopHatch(blockedHatchState, {
+        coopId: blockedHatchCoop.id,
+        elapsedSec: 0,
+    });
+    const blockedHatchWallet = { ...blockedHatchState.players[0]! };
+    const blockedHatchBeforeDue = updateChickenFarmEconomy(blockedHatchState, 19.99, {
+        canChickenOccupyPoint: () => false,
+    });
+    const blockedHatchAtDue = updateChickenFarmEconomy(blockedHatchState, 20, {
+        canChickenOccupyPoint: () => false,
+    });
+    const blockedHatchJobsAtDue = blockedHatchState.hatchJobs.length;
+    const blockedHatchAfterRelease = updateChickenFarmEconomy(blockedHatchState, 20.25, {
+        canChickenOccupyPoint: () => true,
+    });
+    updateChickenFarmEconomy(blockedHatchState, 21, { canChickenOccupyPoint: () => true });
+    const orphanHatchState = createChickenFarmEconomyState();
+    orphanHatchState.hatchJobs.push({
+        completeAtSec: 20,
+        coopId: 'removed-coop',
+        id: 'hatch-orphan',
+        ownerPlayerId: 3,
+        resultChickenKind: 'basic',
+        startedAtSec: 0,
+    });
+    updateChickenFarmEconomy(orphanHatchState, 20);
+
     const stackState = createChickenFarmEconomyState({
         players: [{ gold: 120, id: 3, lumber: 0, supplyCap: 0, supplyUsed: 0 }],
     });
@@ -369,6 +407,43 @@ async function main() {
     const windmillAttractedCount = windmillCapacityState.chickens.filter(
         (chicken) => chicken.targetWellId !== null,
     ).length;
+    const pickupBoundaryState = createChickenFarmEconomyState();
+    const fullInventory = ensureEconomyInventory(pickupBoundaryState, {
+        capacity: 1,
+        id: 'full-farmer',
+        ownerPlayerId: 3,
+    });
+    grantEconomyInventoryItem(pickupBoundaryState, {
+        inventoryId: fullInventory.id,
+        itemRawcode: 'I003',
+        quantity: 1,
+    });
+    const fullInventoryEgg = addEconomyFieldEgg(pickupBoundaryState, {
+        droppedAtSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 1000, y: 1000 },
+        sourceChickenId: 'pickup-boundary',
+        stackCount: 1,
+        wellBuffed: false,
+    });
+    const foreignEgg = addEconomyFieldEgg(pickupBoundaryState, {
+        droppedAtSec: 0,
+        ownerPlayerId: 4,
+        position: { x: 1020, y: 1000 },
+        sourceChickenId: 'pickup-foreign',
+        stackCount: 1,
+        wellBuffed: false,
+    });
+    const fullPickup = pickupFieldEgg(pickupBoundaryState, {
+        eggId: fullInventoryEgg.id,
+        ownerPlayerId: 3,
+        targetInventoryId: fullInventory.id,
+    });
+    const foreignPickup = pickupFieldEgg(pickupBoundaryState, {
+        eggId: foreignEgg.id,
+        ownerPlayerId: 3,
+        targetInventoryId: fullInventory.id,
+    });
     const wellBoundaryState = createChickenFarmEconomyState();
     const boundaryWell = addEconomyWell(wellBoundaryState, {
         id: 'boundary-well',
@@ -696,6 +771,33 @@ async function main() {
             },
             {
                 actual: {
+                    chickensAfterRelease: blockedHatchState.chickens.length,
+                    completedOnRelease: blockedHatchAfterRelease.filter((event) => event.type === 'hatch_completed').length,
+                    completedWhileBlocked: blockedHatchAtDue.filter((event) => event.type === 'hatch_completed').length,
+                    jobsWhileBlocked: blockedHatchJobsAtDue,
+                    jobsAfterRelease: blockedHatchState.hatchJobs.length,
+                },
+                expected: 'blocked exit keeps one due job; release completes it once',
+                id: 'blocked_hatch_exit_retries_without_duplicate_chicken',
+                pass:
+                    Boolean(blockedHatchStarted) &&
+                    blockedHatchBeforeDue.length === 0 &&
+                    blockedHatchAtDue.length === 0 &&
+                    blockedHatchJobsAtDue === 1 &&
+                    blockedHatchAfterRelease.filter((event) => event.type === 'hatch_completed').length === 1 &&
+                    blockedHatchState.chickens.length === 1 &&
+                    blockedHatchState.hatchJobs.length === 0 &&
+                    blockedHatchState.players[0]?.gold === blockedHatchWallet.gold &&
+                    blockedHatchState.players[0]?.lumber === blockedHatchWallet.lumber,
+            },
+            {
+                actual: { chickens: orphanHatchState.chickens.length, jobs: orphanHatchState.hatchJobs.length },
+                expected: { chickens: 0, jobs: 0 },
+                id: 'missing_coop_hatch_never_uses_origin_fallback',
+                pass: orphanHatchState.chickens.length === 0 && orphanHatchState.hatchJobs.length === 0,
+            },
+            {
+                actual: {
                     eggs: stackedFarmerEggs,
                     occupiedSlots: stackedFarmerSlots,
                 },
@@ -832,6 +934,26 @@ async function main() {
                 expected: 8,
                 id: 'basic_well_feeds_up_to_eight_chickens',
                 pass: basicWellAttractedCount === 8,
+            },
+            {
+                actual: {
+                    fieldEggIds: pickupBoundaryState.fieldEggs.map((egg) => egg.id),
+                    foreignPickup,
+                    fullPickup,
+                    inventorySlot: fullInventory.slots[0],
+                },
+                expected: {
+                    fieldEggCount: 2,
+                    foreignPickup: null,
+                    fullPickup: null,
+                    inventoryItemRawcode: 'I003',
+                },
+                id: 'pickup_rejects_full_inventory_and_foreign_owner_without_loss',
+                pass:
+                    fullPickup === null &&
+                    foreignPickup === null &&
+                    pickupBoundaryState.fieldEggs.length === 2 &&
+                    fullInventory.slots[0]?.itemRawcode === 'I003',
             },
             {
                 actual: {

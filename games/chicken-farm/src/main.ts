@@ -208,12 +208,19 @@ declare global {
                     readonly x: number;
                     readonly y: number;
                 }[];
+                readonly coops: readonly {
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly storedEggs: number;
+                }[];
                 readonly elapsedSec: number;
                 readonly fieldEggs: readonly {
+                    readonly droppedAtSec: number;
                     readonly id: string;
                     readonly ownerPlayerId: number;
                     readonly sourceChickenId: string;
                     readonly stackCount: number;
+                    readonly wellBuffed: boolean;
                     readonly x: number;
                     readonly y: number;
                 }[];
@@ -265,6 +272,7 @@ declare global {
                 y: number,
                 ownerPlayerId: number,
             ) => boolean;
+            setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
                 templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
@@ -272,6 +280,7 @@ declare global {
             ) => string | null;
             createPathBlockerFixture: (x: number, y: number) => string | null;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
+            advanceEconomyForTest: (targetElapsedSec: number) => boolean;
             disposeRunForTest: () => RunCleanupSnapshot | null;
             ensureStartEconomyForTest: () => void;
             grantFarmerEggStack: (quantity: number) => number | null;
@@ -3084,12 +3093,19 @@ class FarmScene extends Phaser.Scene {
                     x: chicken.position.x,
                     y: chicken.position.y,
                 })),
+                coops: (this.economyState?.coops ?? []).map((coop) => ({
+                    id: coop.id,
+                    ownerPlayerId: coop.ownerPlayerId,
+                    storedEggs: coop.storedEggs,
+                })),
                 elapsedSec: this.elapsedSec,
                 fieldEggs: (this.economyState?.fieldEggs ?? []).map((egg) => ({
+                    droppedAtSec: egg.droppedAtSec,
                     id: egg.id,
                     ownerPlayerId: egg.ownerPlayerId,
                     sourceChickenId: egg.sourceChickenId,
                     stackCount: egg.stackCount,
+                    wellBuffed: egg.wellBuffed,
                     x: egg.position.x,
                     y: egg.position.y,
                 })),
@@ -3159,6 +3175,10 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.controllableUnits.createDebugFarmer(id, x, y, ownerPlayerId);
             },
+            setControllableUnitPositionForTest: (unitId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.controllableUnits.setUnitPositionForTest(unitId, x, y);
+            },
             createEconomyBuildingFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
                 if (this.runDisposed) return null;
@@ -3194,6 +3214,18 @@ class FarmScene extends Phaser.Scene {
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
+            },
+            advanceEconomyForTest: (targetElapsedSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
+                this.elapsedSec = targetElapsedSec;
+                const events = updateChickenFarmEconomy(this.economyState!, this.elapsedSec, {
+                    canChickenOccupyPoint: (point) => this.canChickenOccupyPoint(point),
+                });
+                events.forEach((event) => this.handleEconomyEvent(event));
+                this.syncChickenViews();
+                this.refreshEconomyLabels();
+                return true;
             },
             disposeRunForTest: () => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;

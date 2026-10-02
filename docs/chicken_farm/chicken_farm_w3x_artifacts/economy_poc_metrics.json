@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T02:57:42.906Z",
+  "generatedAt": "2026-10-02T09:26:34.664Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -210,6 +210,30 @@
     },
     {
       "actual": {
+        "chickensAfterRelease": 1,
+        "completedOnRelease": 1,
+        "completedWhileBlocked": 0,
+        "jobsWhileBlocked": 1,
+        "jobsAfterRelease": 0
+      },
+      "expected": "blocked exit keeps one due job; release completes it once",
+      "id": "blocked_hatch_exit_retries_without_duplicate_chicken",
+      "pass": true
+    },
+    {
+      "actual": {
+        "chickens": 0,
+        "jobs": 0
+      },
+      "expected": {
+        "chickens": 0,
+        "jobs": 0
+      },
+      "id": "missing_coop_hatch_never_uses_origin_fallback",
+      "pass": true
+    },
+    {
+      "actual": {
         "eggs": 4,
         "occupiedSlots": 1
       },
@@ -329,6 +353,28 @@
       "actual": 8,
       "expected": 8,
       "id": "basic_well_feeds_up_to_eight_chickens",
+      "pass": true
+    },
+    {
+      "actual": {
+        "fieldEggIds": [
+          "egg-1",
+          "egg-2"
+        ],
+        "foreignPickup": null,
+        "fullPickup": null,
+        "inventorySlot": {
+          "itemRawcode": "I003",
+          "quantity": 1
+        }
+      },
+      "expected": {
+        "fieldEggCount": 2,
+        "foreignPickup": null,
+        "fullPickup": null,
+        "inventoryItemRawcode": "I003"
+      },
+      "id": "pickup_rejects_full_inventory_and_foreign_owner_without_loss",
       "pass": true
     },
     {

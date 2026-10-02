@@ -1,6 +1,6 @@
 # SP-06 — 닭·알 경제 세부 실행 계획
 
-> 작성: 2026-10-02. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-06-01~04를 완료했고 SP-06-05~14는 대기다. 다음 실행은 **SP-06-05**이다.
+> 작성: 2026-10-02. Terra medium에서 **한 요청에 한 ID**를 실행한다. SP-06-01~09를 완료했고 SP-06-10~14는 대기다. 다음 실행은 **SP-06-10**이다.
 
 ## 목표와 범위
 
@@ -34,11 +34,11 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 | SP-06-02 | 경제 관찰 snapshot·browser 검증 진입점 | 01 | 완료 |
 | SP-06-03 | 분양서 사용·닭 생성 원자성 | 02 | 완료 |
 | SP-06-04 | 0 lumber 시작의 경제 진입 경로 | 03 | 완료 |
-| SP-06-05 | 우물 효과·닭 생존·산란 | 04 | 대기 |
-| SP-06-06 | field egg 수집·6-slot 보존 | 05 | 대기 |
-| SP-06-07 | 알 drop·닭장 입고·실패 복구 | 06 | 대기 |
-| SP-06-08 | 명시적 부화 시작·알 예약 | 07 | 대기 |
-| SP-06-09 | 부화 완료·막힌 출구 | 08 | 대기 |
+| SP-06-05 | 우물 효과·닭 생존·산란 | 04 | 완료 |
+| SP-06-06 | field egg 수집·6-slot 보존 | 05 | 완료 |
+| SP-06-07 | 알 drop·닭장 입고·실패 복구 | 06 | 완료 |
+| SP-06-08 | 명시적 부화 시작·알 예약 | 07 | 완료 |
+| SP-06-09 | 부화 완료·막힌 출구 | 08 | 완료 |
 | SP-06-10 | 완성 시장 도착 판매·공용 wallet | 07 | 대기 |
 | SP-06-11 | 경제 주문 취소·교체·경로 실패 | 06/07/10 | 대기 |
 | SP-06-12 | 건물 제거·알/부화 예약 정리 | 09/10/11 | 대기 |
@@ -71,7 +71,7 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 현재 흐름과 막힘: `I009`/`I00F`는 `skipCost`·즉시 완공으로 각각 basic feeding well/campfire와 market을 만들며, `I003`은 기본 닭 한 마리를 만든다. 기본 닭은 살아 있을 때 30초마다 I006 한 개를 낳고 시장은 한 egg당 gold 12를 준다. 그러나 `coop_basic`은 `120 gold / 52 lumber`이고 normal은 lumber 0이다. `exchangeEnabled: false`이며 lumber mill의 wallet 수입 write가 없어, 현재 코드만으로는 정상 닭장·부화 경로에 도달하지 못한다.
 - 결정: SP-06-04는 완성된 같은 owner 시장에서 원본 첫 교환 tier인 `100 gold → 70 lumber`를 최소 범위로 구현한다. `jass_economy_events.tsv` 3185–3186과 `web_mvp_balance_reference.json`의 원본 tier를 근거로 하며, 시작 자원/디버그 지급을 늘리거나 모든 lumber mill·상위 교환을 구현하지 않는다. 현재 runtime의 building `requires`는 아직 enforce하지 않으므로 SP-09에서 고정한다.
 - 수량·소유권 계약: field/farmer/coop I006와 6-slot inventory가 알의 기준이고 `storedEggs`는 파생값이다. pickup·deposit·sale은 전체 stack 단위로 성공하거나 source/wallet을 보존한다. coop/market/actor/item owner는 같아야 하며 market owner 검증은 SP-06-10에서 보완한다. 부화는 egg 1개와 job 1개를 원자적으로 교환하고, basic/mid/high는 각각 `1/20초/basic`, `2/17초/mid`, `3/14초/giant`다. economy chicken은 SP-09 전까지 supply를 예약·소비하지 않는다.
-- 제거·출구 정책: coop 제거는 refund 없이 stored egg를 폐기하고 hatch job을 취소하며 새 닭을 만들지 않는다. market 제거는 판매 task만 취소하고 farmer egg를 보존한다. farmer 제거는 task와 inventory를 한 번만 폐기한다. well 제거는 egg를 폐기하지 않고 효과만 끈다. 막힌 hatch exit은 job을 보존해 재시도하며 현재 missing-coop `(0,0)` fallback은 SP-06-09에서 제거한다.
+- 제거·출구 정책: coop 제거는 refund 없이 stored egg를 폐기하고 hatch job을 취소하며 새 닭을 만들지 않는다. market 제거는 판매 task만 취소하고 farmer egg를 보존한다. farmer 제거는 task와 inventory를 한 번만 폐기한다. well 제거는 egg를 폐기하지 않고 효과만 끈다. 막힌 hatch exit은 job을 보존해 재시도하며 missing-coop job은 닭을 만들지 않고 정리한다.
 - 후속 배정: I003 spawn 원자성은 03, `100 → 70` 교환은 04, basic well/풍차의 급수·산란 역할은 05, stack 이동은 06/07, hatch start/exit은 08/09, market owner는 10, farmer task/제거는 11/12, restart/통합은 13/14다.
 - 검증: `node --input-type=module`로 WPM grid의 세 footprint 4×4 ground 허용을 확인했다(종료 코드 0). `git diff --check` → 종료 코드 0. TypeScript, build, economy measure, browser는 이 문서/JSON 변경만 있으므로 **미실행**이다.
 - 다음 ID: **SP-06-02**.
@@ -139,6 +139,15 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 완료 조건: 기본/가속 산란량과 시각이 config와 일치, dead 닭 산란 0, field egg의 source/owner/quantity 정확, 같은 시각 반복 update 중복 산란 0. 급수와 산란 가속 적용 대상을 구분해 기록한다.
 - 검증: typecheck + economy 순수 측정 + laying browser 사례. pause/hidden 전체 정책은 SP-13.
 
+#### SP-06-05 결과
+
+- 상태: **완료**. 우물의 급식과 산란 가속은 같은 판정이 아니다. complete basic well/campfire는 같은 owner의 가까운 닭을 attract 범위에서 최대 8마리까지 배정하고, feeding radius 안에서만 HP를 회복시키며 egg interval은 기본값 `30초`로 유지한다. complete windmill만 같은 owner의 attract range 안 닭에 `0.75×`를 적용해 basic 첫 산란을 `22.5초`로 앞당긴다.
+- 순수 경계: basic well의 정확히 `96px` 안쪽 닭은 0.25초에 HP `20 → 21`로 회복했다. `97px` 밖과 다른 owner 닭은 각각 `20 → 19.95`로 감소했고, well 제거 뒤에는 안쪽 닭도 `21 → 20.95`로 감소했다. basic/windmill capacity는 각각 8/16이며, 다른 owner의 windmill 인접 닭은 next egg `30초`, 같은 owner는 `22.5초`다. HP 0 dead 닭은 60초 update에도 field egg 0이다.
+- 산란 수량: I009 campfire + I003 basic chicken actual inventory/world input 뒤 fixture time을 first due time까지 전진했다. `egg-1`은 owner 3/source `chicken-1`/stack 1, `wellBuffed: false`, `droppedAtSec = 30.64…`에 한 번 생겼고 다음 시각은 `60.64…`였다. 같은 시각 뒤 0.3초 snapshot에도 egg 수는 1로 유지했다. 시간 전진은 30초 wall-clock 대기를 피하기 위한 debug fixture이며, actual input 증거와 분리했다.
+- artifact: [laying browser artifact](./chicken_farm_w3x_artifacts/economy_check_laying.json), [economy pure metrics](./chicken_farm_w3x_artifacts/economy_poc_metrics.json).
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run chicken:economy:measure --workspace @games/chicken-farm` → 29개 사례 모두 통과. `CHICKEN_FARM_ECONOMY_CASE=laying npm run chicken:economy:check --workspace @games/chicken-farm` → 종료 코드 0, console/page/request/HTTP 오류 0. `git diff --check` → 종료 코드 0.
+- 다음 ID: **SP-06-06**.
+
 ### SP-06-06 — field egg 수집·6-slot 보존
 
 - 선행: 05.
@@ -146,6 +155,15 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 작업: actual 우클릭→농부 이동→도착 pickup을 연결한다. stack 병합, 빈 slot 없음, target 선점/소멸, owner 불일치, 도달 실패를 검증한다.
 - 완료 조건: 도착 전 이동량 0; 성공 때 field 감소=inventory 증가; 실패 때 총 알 불변. 동일 egg를 두 농부가 요청해도 수집 1회, 비알 slot 보존, 유한 시간에 task 종료.
 - 검증: typecheck + economy 순수 측정 + pickup browser 사례.
+
+#### SP-06-06 결과
+
+- 상태: **완료**. farmer가 선택된 상태에서 field egg를 actual 우클릭하면 move order와 `pickup_egg` task를 만들고, interaction radius `54px`에 도달한 update에서만 `pickupFieldEgg`를 실행한다. 성공은 field egg 하나를 제거하고 owner 3 farmer의 기존 6-slot inventory에서 I006 stack 하나를 늘린 뒤 command/task를 정리한다.
+- actual contention: fixture time으로 만든 `egg-1`에 멀리 있는 owner 3 contender가 먼저 actual 우클릭했다. 도착 전에는 field egg 1, farmer I006 0, contender task 1이었다. 이어 p3-farmer가 같은 egg를 actual 우클릭해 I006 `1`을 얻었고 field egg는 0이 됐다. contender의 늦은 task는 target missing으로 유한하게 제거되어 duplicate pickup 0이다.
+- 보존 경계: 순수 측정에서 capacity 1이 I003으로 찬 inventory와 다른 owner egg의 pickup은 모두 null을 반환했다. field egg 두 개와 비알 I003 slot은 그대로여서 실패 시 총 알·다른 아이템을 보존한다. 기존 4개 field egg 수집은 하나의 I006 stack/slot으로 병합됨도 계속 통과한다.
+- artifact: [pickup browser artifact](./chicken_farm_w3x_artifacts/economy_check_pickup.json), [economy pure metrics](./chicken_farm_w3x_artifacts/economy_poc_metrics.json).
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run chicken:economy:measure --workspace @games/chicken-farm` → 30개 사례 모두 통과. `CHICKEN_FARM_ECONOMY_CASE=pickup npm run chicken:economy:check --workspace @games/chicken-farm` → 종료 코드 0, console/page/request/HTTP 오류 0. `git diff --check` → 종료 코드 0.
+- 다음 ID: **SP-06-07**.
 
 ### SP-06-07 — 알 drop·닭장 입고·실패 복구
 
@@ -155,6 +173,14 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 완료 조건: field+farmer+coop 총 알 보존, 입고 실패 rollback 정확, 다른 아이템 보존, storedEggs=coop I006 합계. target 소멸 시 공중 소실·중복 입고 0.
 - 검증: typecheck + economy 순수 측정 + transfer browser 사례.
 
+#### SP-06-07 결과
+
+- 상태: **완료**. farmer I006 inventory drag를 ground에 놓으면 `drop_to_field` 주문이 source slot을 보존한 채 이동하고, 도달 후 field egg를 만든다. 같은 egg actual 우클릭 재수집은 I006 stack을 복구해 field/farmer 총알 1을 보존했다.
+- coop 입고: complete coop에 actual I006 drag는 `deposit_to_coop` task와 source 보존을 먼저 만들고, fixture의 farmer 도착 보조 후 farmer I006은 0, coop inventory I006은 1, `storedEggs`는 1이 됐다. coop inventory가 수량 기준이고 storedEggs는 동기화된 파생값임을 snapshot에 노출했다.
+- 경계: existing pure measurement의 coop full rollback/owner 검사와 6-slot stack 사례를 재실행했다. field drop/재수집과 complete coop 입고 browser 증거는 [transfer artifact](./chicken_farm_w3x_artifacts/economy_check_transfer.json), [deposit artifact](./chicken_farm_w3x_artifacts/economy_check_deposit.json)에 분리했다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run chicken:economy:measure --workspace @games/chicken-farm` → 30개 사례 모두 통과. transfer/deposit browser 사례 → 종료 코드 0, browser 오류 0. `git diff --check` → 종료 코드 0.
+- 다음 ID: **SP-06-08**.
+
 ### SP-06-08 — 명시적 부화 시작·알 예약
 
 - 선행: 07.
@@ -163,6 +189,14 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 완료 조건: 성공당 알 1개 소비, 부화는 gold/lumber 불변. 실패 시 알/job 변화 0, 자동 부화 없음. supply 예약 정책은 01에서 결정한 규칙과 일치한다.
 - 검증: typecheck + economy 순수 측정 + hatch_start browser 사례.
 
+#### SP-06-08 결과
+
+- 상태: **완료**. actual complete coop 선택 뒤 `H` 명령은 coop I006 한 개를 소비하고 owner 3 basic `hatch-1` job 한 개를 만든다. basic job의 `completeAtSec`은 시작 시각 + 20초이며 gold/lumber/supply는 변하지 않는다.
+- 실패 경계: 빈 coop에서 같은 `H`를 반복해도 egg/job 변화가 없다. existing pure measurement는 basic/mid/high capacity와 explicit hatch 전후 inventory를 대조하며, runtime command 사례는 basic complete coop을 사용한다.
+- artifact: [hatch-start browser artifact](./chicken_farm_w3x_artifacts/economy_check_hatch_start.json).
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `CHICKEN_FARM_ECONOMY_CASE=hatch_start npm run chicken:economy:check --workspace @games/chicken-farm` → 종료 코드 0, browser 오류 0. 이전 SP-06-07 economy 측정 30개 사례는 유지 통과. `git diff --check` → 종료 코드 0.
+- 다음 ID: **SP-06-09**.
+
 ### SP-06-09 — 부화 완료·막힌 출구
 
 - 선행: 08.
@@ -170,6 +204,15 @@ SP-06은 정상 경제 진입에 필요한 최소 자원 경로까지 포함한�
 - 작업: 시간 도달 시 같은 owner 닭/view를 한 번 생성한다. footprint 밖 WPM·dynamic blocker 허용점을 확인하고 전 출구가 막히면 01의 대기/재시도 정책을 적용한다. coop이 없는 job의 (0,0) fallback도 차단한다.
 - 완료 조건: 완료 전 생성 0, 완료 후 job 1개 제거·닭 1마리 증가; 반복 update 중복 0. 막힌 동안 유실/벽 속 생성 0, 해제 뒤 한 번 완료. wallet 불변.
 - 검증: typecheck + economy 순수 측정 + hatch_exit browser 사례.
+
+#### SP-06-09 결과
+
+- 상태: **완료**. due hatch는 coop footprint 밖의 사용 가능한 production exit에 같은 owner 닭을 한 번만 만들고 job을 제거한다. 모든 candidate가 막히면 egg를 다시 소비하거나 닭을 만들지 않고 due job을 유지하며, 다음 update에서 출구를 다시 탐색한다.
+- 구현: `completeHatches`는 missing coop job을 생성 없이 제거해 `(0,0)` fallback을 없앴고, `resolveBuildingProductionExit(...).resolved === false`이면 job을 보존한다. 해제 뒤 `resolved` exit에서만 `hatch_completed` event와 chicken view를 만든다.
+- 순수 측정: 차단 상태의 `20초` update는 completed event 0/job 1/chicken 0이고, 허용 상태 `20.25초` update는 completed event 1/job 0/chicken 1이다. 후속 update도 중복 생성하지 않으며 gold/lumber는 불변이다. orphan hatch job은 chicken 0/job 0으로 정리된다.
+- browser: actual farmer I006 drag→complete coop 입고→coop 선택→`H` 입력 뒤 [hatch-exit artifact](./chicken_farm_w3x_artifacts/economy_check_hatch_exit.json)는 완료 1초 전 chicken 0/job 1, 완료 뒤 owner 3 basic `chicken-1` 한 마리/job 0, footprint 밖 spawn 및 반복 update 중복 0을 기록한다. console/page/request/HTTP 오류도 0이다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run chicken:economy:measure --workspace @games/chicken-farm` → 32개 사례 모두 통과. `CHICKEN_FARM_ECONOMY_CASE=hatch_exit npm run chicken:economy:check --workspace @games/chicken-farm` → 종료 코드 0. `git diff --check` → 종료 코드 0.
+- 다음 ID: **SP-06-10**.
 
 ### SP-06-10 — 완성 시장 도착 판매·공용 wallet
 
@@ -225,6 +268,12 @@ npm run build --workspace @games/chicken-farm
 
 ```bash
 CHICKEN_FARM_ECONOMY_CASE=baseline npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=laying npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=pickup npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=transfer npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=deposit npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=hatch_start npm run chicken:economy:check --workspace @games/chicken-farm
+CHICKEN_FARM_ECONOMY_CASE=hatch_exit npm run chicken:economy:check --workspace @games/chicken-farm
 CHICKEN_FARM_ECONOMY_CASE=all npm run chicken:economy:check --workspace @games/chicken-farm
 ```
 
@@ -233,12 +282,12 @@ CHICKEN_FARM_ECONOMY_CASE=all npm run chicken:economy:check --workspace @games/c
 ## Terra medium 실행 요청
 
 ```text
-닭농장 SP-06-05를 Terra medium으로 진행해.
+닭농장 SP-06-10을 Terra medium으로 진행해.
 docs/chicken_farm/chicken_farm_current_context.md와
 docs/chicken_farm/chicken_farm_sp06_task_plan.md의 해당 카드부터 읽어.
-이번 요청에서는 SP-06-05만 수행하고, 같은 owner의 완성 우물 범위 안/밖과
-수용 한도·제거가 닭 생존과 산란 주기에 미치는 영향을 구현·검증해.
-normal 산란 증거와 특수 경계 fixture를 분리하고 결과·남은 결함·다음 ID를 기록해.
+이번 요청에서는 SP-06-10만 수행하고, complete market 도착 판매와 공용 wallet 전이를
+구현·검증해.
+normal 명령 증거와 특수 실패 fixture를 분리하고 결과·남은 결함·다음 ID를 기록해.
 ```
 
 다음 요청은 ID와 해당 카드 목표만 바꾼다. Terra medium 선택은 실행 환경에서 사용자가 설정하며 이 문서가 모델을 전환하거나 구현을 자동 실행하지 않는다.

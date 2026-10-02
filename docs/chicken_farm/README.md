@@ -32,7 +32,7 @@
 - [SP-01 목표와 현재 actual](./chicken_farm_sp01_task_plan.md) — 원본 기준 목표, 현재 구현 상태와 남은 항목.
 - [SP-02 Terra medium 실행 계획](./chicken_farm_sp02_task_plan.md) — Astra light 계획 → Terra medium 실행으로 완료한 기준선·타입·부팅·smoke·측정·인계 7개 task와 재현 명령.
 - [SP-05 건설 lifecycle 실행 계획](./chicken_farm_sp05_task_plan.md) — Terra medium용 12개 task, 상태 전이·비용/환불·일꾼·완공/제거·restart 검수 완료.
-- [SP-06 닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md) — Terra medium용 14개 task. SP-06-01~04 완료; I009/I00F actual 설치와 첫 시장 교환 `100 gold → 70 lumber`를 검수했으며, 다음은 SP-06-05.
+- [SP-06 닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md) — Terra medium용 14개 task. SP-06-01~09 완료; actual coop `H` 부화와 차단 출구 재시도를 검수했으며, 다음은 SP-06-10.
 - [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md) — 원본 건물·pathing 기준과 웹 lifecycle의 일치점, 변환값, SP-06/07/09 인계 차이.
 - [W3X 건설 Warsmash 검증 계획](./chicken_farm_w3x_warsmash_construction_validation_plan.md) — build time·pathTex·취소 환불·벽/결계·대문 상태를 실제 원본 맵에서 관찰하는 절차.
 - [Astra light 개발 작업량·한도 예산](./chicken_farm_astra_light_work_budget_2026-09-28.md) — Plus 5시간·주간 한도 실측 기록과 계산 기준. 이전 싱글/멀티 통합 견적은 참고값이며 새 싱글 범위는 재산정 전.

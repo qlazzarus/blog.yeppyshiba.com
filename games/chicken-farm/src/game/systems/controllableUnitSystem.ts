@@ -150,6 +150,15 @@ export class ControllableUnitSystem {
         return true;
     }
 
+    setUnitPositionForTest(unitId: string, x: number, y: number) {
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit) return false;
+        unit.position = { x, y };
+        this.clearUnitCommand(unitId);
+        return true;
+    }
+
     getPrimaryUnitObject() {
         return this.views.get(this.getPrimaryUnit()?.id ?? '')?.body;
     }

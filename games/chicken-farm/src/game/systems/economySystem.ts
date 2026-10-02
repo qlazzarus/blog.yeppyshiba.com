@@ -840,16 +840,21 @@ function completeHatches(
         if (elapsedSec < job.completeAtSec) continue;
 
         const coop = state.coops.find((candidate) => candidate.id === job.coopId);
-        const position = coop?.position ?? { x: 0, y: 0 };
-        const templateId = coop
-            ? state.config.coopRules[coop.kind].templateId
-            : 'coop_basic';
+        // A removed coop normally removes its jobs through removeEconomyBuilding.
+        // This also protects malformed/restored state from creating a chicken at (0, 0).
+        if (!coop) {
+            state.hatchJobs.splice(index, 1);
+            continue;
+        }
         const productionExit = resolveBuildingProductionExit({
-            buildingCenter: position,
+            buildingCenter: coop.position,
             isPositionAvailable: options?.canChickenOccupyPoint,
-            templateId,
+            templateId: state.config.coopRules[coop.kind].templateId,
             unitRadiusPx: CHICKEN_COLLISION_RADIUS_PX,
         });
+        // Keep the paid hatch reservation until an exit becomes available. The
+        // next update retries it without consuming another egg or duplicating a chicken.
+        if (!productionExit.resolved) continue;
         const chicken = addEconomyChicken(state, {
             elapsedSec,
             kind: job.resultChickenKind,

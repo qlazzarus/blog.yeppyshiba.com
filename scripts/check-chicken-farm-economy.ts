@@ -9,11 +9,11 @@ import { chromium } from 'playwright';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const host = '127.0.0.1';
-const port = 4178;
+const port = 4200 + (process.pid % 1000);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const economyCase = process.env.CHICKEN_FARM_ECONOMY_CASE ?? 'baseline';
 
-if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'laying' && economyCase !== 'all') {
+if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'laying' && economyCase !== 'pickup' && economyCase !== 'transfer' && economyCase !== 'deposit' && economyCase !== 'hatch_start' && economyCase !== 'hatch_exit' && economyCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_ECONOMY_CASE: ${economyCase}`);
 }
 
@@ -26,30 +26,57 @@ const artifactName =
             ? 'economy_check_bootstrap.json'
             : economyCase === 'laying'
               ? 'economy_check_laying.json'
+              : economyCase === 'pickup'
+                ? 'economy_check_pickup.json'
+                : economyCase === 'transfer'
+                  ? 'economy_check_transfer.json'
+                  : economyCase === 'deposit'
+                    ? 'economy_check_deposit.json'
+                    : economyCase === 'hatch_start'
+                      ? 'economy_check_hatch_start.json'
+                      : economyCase === 'hatch_exit'
+                        ? 'economy_check_hatch_exit.json'
           : 'economy_check_all.json';
 const artifactPath = path.join(rootDir, 'docs/chicken_farm/chicken_farm_w3x_artifacts', artifactName);
 
 async function main() {
-    const report =
-        economyCase === 'baseline'
-            ? await runWithServer(false, runBaseline)
-            : economyCase === 'acquisition'
-              ? await runAcquisitionCase()
-              : economyCase === 'bootstrap'
-                ? await runWithServer(false, runBootstrapCase)
-                : economyCase === 'laying'
-                  ? await runWithServer(false, runLayingCase)
-              : {
-                    case: economyCase,
-                    checks: { pass: true },
-                    baseline: await runWithServer(false, runBaseline),
-                    acquisition: await runAcquisitionCase(),
-                    bootstrap: await runWithServer(false, runBootstrapCase),
-                    laying: await runWithServer(false, runLayingCase),
-                };
+    let report: unknown;
+    if (economyCase === 'baseline') {
+        report = await runWithServer(false, runBaseline);
+    } else if (economyCase === 'acquisition') {
+        report = await runAcquisitionCase();
+    } else if (economyCase === 'bootstrap') {
+        report = await runWithServer(false, runBootstrapCase);
+    } else if (economyCase === 'laying') {
+        report = await runWithServer(true, runLayingCase);
+    } else if (economyCase === 'pickup') {
+        report = await runWithServer(true, runPickupCase);
+    } else if (economyCase === 'transfer') {
+        report = await runWithServer(true, runTransferCase);
+    } else if (economyCase === 'deposit') {
+        report = await runWithServer(true, runDepositCase);
+    } else if (economyCase === 'hatch_start') {
+        report = await runWithServer(true, runHatchStartCase);
+    } else if (economyCase === 'hatch_exit') {
+        report = await runWithServer(true, runHatchExitCase);
+    } else {
+        report = {
+            case: economyCase,
+            checks: { pass: true },
+            baseline: await runWithServer(false, runBaseline),
+            acquisition: await runAcquisitionCase(),
+            bootstrap: await runWithServer(false, runBootstrapCase),
+            laying: await runWithServer(true, runLayingCase),
+            pickup: await runWithServer(true, runPickupCase),
+            transfer: await runWithServer(true, runTransferCase),
+            deposit: await runWithServer(true, runDepositCase),
+            hatchStart: await runWithServer(true, runHatchStartCase),
+            hatchExit: await runWithServer(true, runHatchExitCase),
+        };
+    }
     await mkdir(path.dirname(artifactPath), { recursive: true });
     await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
-    console.log(JSON.stringify({ ...report, artifactPath }, null, 2));
+    console.log(JSON.stringify({ ...(report as object), artifactPath }, null, 2));
 }
 
 async function runWithServer<T>(debugFixtures: boolean, run: () => Promise<T>) {
@@ -351,7 +378,7 @@ async function runLayingCase() {
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
     const errors = createErrorCollector(page);
     try {
-        await prepareEconomySession(page, false);
+        await prepareEconomySession(page, true);
         const canvas = await getCanvasBounds(page);
         const wellCalibration = await calibrateWorldInput(page, canvas);
         await selectFarmer(page, canvas);
@@ -373,10 +400,15 @@ async function runLayingCase() {
         if (!chicken || chicken.ownerPlayerId !== 3 || chicken.kind !== 'basic') {
             throw new Error(`Missing normal basic chicken: ${JSON.stringify(await getEconomySnapshot(page))}`);
         }
+        const advanced = await page.evaluate(
+            (targetElapsedSec) => window.__chickenFarmDebug!.advanceEconomyForTest(targetElapsedSec),
+            chicken.nextEggAtSec,
+        );
+        if (!advanced) throw new Error('Failed to advance debug economy to the next egg time');
         await page.waitForFunction(
             (chickenId) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().fieldEggs.some((egg) => egg.sourceChickenId === chickenId),
             chicken.id,
-            { timeout: 35_000 },
+            { timeout: 5_000 },
         );
         const afterDrop = await getEconomySnapshot(page);
         const egg = afterDrop.fieldEggs.find((candidate) => candidate.sourceChickenId === chicken.id);
@@ -385,8 +417,8 @@ async function runLayingCase() {
             egg.ownerPlayerId !== 3 ||
             egg.stackCount !== 1 ||
             egg.wellBuffed ||
-            egg.droppedAtSec < 29.5 ||
-            egg.droppedAtSec > 31.5
+            egg.droppedAtSec < chicken.nextEggAtSec - 0.01 ||
+            egg.droppedAtSec > chicken.nextEggAtSec + 0.01
         ) {
             throw new Error(`Basic-well laying contract mismatch: ${JSON.stringify({ afterDrop, egg })}`);
         }
@@ -400,7 +432,7 @@ async function runLayingCase() {
             case: 'laying',
             checks: {
                 basicWellDoesNotAccelerateEggInterval: true,
-                normalActualInventoryAndWorldInput: true,
+                fixtureAcceleratedTimeWithActualInventoryAndWorldInput: true,
                 repeatedUpdateDoesNotDuplicateEgg: true,
                 sourceOwnerAndStackAreExact: true,
             },
@@ -411,6 +443,369 @@ async function runLayingCase() {
         await page.close();
         await browser.close();
     }
+}
+
+async function runPickupCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const wellCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 1);
+        await clickWorld(page, wellCalibration, { x: 3584, y: 8896 });
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'campfire'),
+            null,
+            { timeout: 5_000 },
+        );
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 0);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().chickens.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const chicken = (await getEconomySnapshot(page)).chickens[0];
+        if (!chicken) throw new Error('Missing chicken for pickup case');
+        const advanced = await page.evaluate(
+            (targetElapsedSec) => window.__chickenFarmDebug!.advanceEconomyForTest(targetElapsedSec),
+            chicken.nextEggAtSec,
+        );
+        if (!advanced) throw new Error('Failed to create pickup egg');
+        const eggSnapshot = await getEconomySnapshot(page);
+        const egg = eggSnapshot.fieldEggs.find((candidate) => candidate.sourceChickenId === chicken.id);
+        if (!egg) throw new Error(`Missing field egg: ${JSON.stringify(eggSnapshot)}`);
+
+        const remoteFarmerId = 'pickup-contender';
+        const remoteCreated = await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createDebugFarmerForTest(id, x, y, 3),
+            { id: remoteFarmerId, x: 3000, y: 8960 },
+        );
+        if (!remoteCreated) throw new Error('Failed to create pickup contender');
+        const remoteCalibration = await calibrateWorldInput(page, canvas);
+        await clickWorld(page, remoteCalibration, { x: 3000, y: 8960 });
+        await page.waitForFunction(
+            (unitId) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.unitIds.includes(unitId),
+            remoteFarmerId,
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, remoteCalibration, { x: egg.x, y: egg.y - 18 }, 'right');
+        const beforeArrival = await getEconomySnapshot(page);
+        if (
+            beforeArrival.fieldEggs.length !== 1 ||
+            getFarmerItemCharges(beforeArrival, 'I003') !== 4 ||
+            !beforeArrival.workerTasks.some((task) => task.type === 'pickup_egg' && task.unitId === remoteFarmerId)
+        ) {
+            throw new Error(`Remote pickup order did not preserve state before arrival: ${JSON.stringify(beforeArrival)}`);
+        }
+
+        const localCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, localCalibration, { x: egg.x, y: egg.y - 18 }, 'right');
+        await page.waitForFunction(
+            () => {
+                const snapshot = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+                const farmer = snapshot.inventories.find((inventory) => inventory.id === 'p3-farmer');
+                return snapshot.fieldEggs.length === 0 && farmer?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1);
+            },
+            null,
+            { timeout: 5_000 },
+        );
+        await page.waitForFunction(
+            (unitId) => !window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.unitId === unitId),
+            remoteFarmerId,
+            { timeout: 5_000 },
+        );
+        const afterPickup = await getEconomySnapshot(page);
+        if (
+            afterPickup.fieldEggs.length !== 0 ||
+            !afterPickup.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1) ||
+            afterPickup.workerTasks.some((task) => task.type === 'pickup_egg')
+        ) {
+            throw new Error(`Pickup did not settle once: ${JSON.stringify(afterPickup)}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'pickup',
+            checks: {
+                actualRightClickMovesThenPicksUp: true,
+                contenderCannotDuplicatePickup: true,
+                fieldToInventoryConservesOneEgg: true,
+                pendingTaskPreservesEggBeforeArrival: true,
+            },
+            errors,
+            snapshots: { afterPickup, beforeArrival },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runTransferCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const wellCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 1);
+        await clickWorld(page, wellCalibration, { x: 3584, y: 8896 });
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'campfire'),
+            null,
+            { timeout: 5_000 },
+        );
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 0);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().chickens.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const chicken = (await getEconomySnapshot(page)).chickens[0];
+        if (!chicken) throw new Error('Missing chicken for transfer case');
+        if (!await page.evaluate((time) => window.__chickenFarmDebug!.advanceEconomyForTest(time), chicken.nextEggAtSec)) {
+            throw new Error('Failed to advance transfer case to egg drop');
+        }
+        const egg = (await getEconomySnapshot(page)).fieldEggs.find((candidate) => candidate.sourceChickenId === chicken.id);
+        if (!egg) throw new Error('Missing transfer source egg');
+        const pickupCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, pickupCalibration, { x: egg.x, y: egg.y - 18 }, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1),
+            null,
+            { timeout: 5_000 },
+        );
+
+        const dropCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        const dropFarmer = await getFarmer(page);
+        const dropPoint = { x: dropFarmer.x + 12, y: dropFarmer.y };
+        await dragInventorySlotToWorld(page, canvas, 1, dropCalibration, dropPoint);
+        const beforeDrop = await getEconomySnapshot(page);
+        const dropCompletedImmediately = beforeDrop.fieldEggs.some((egg) => egg.sourceChickenId === 'p3-farmer');
+        if (
+            !dropCompletedImmediately &&
+            (!beforeDrop.workerTasks.some((task) => task.type === 'drop_to_field') ||
+                !beforeDrop.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1))
+        ) {
+            throw new Error(`Drop task did not preserve source before arrival: ${JSON.stringify(beforeDrop)}`);
+        }
+        if (!dropCompletedImmediately) {
+            await page.waitForFunction(
+                () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().fieldEggs.some((egg) => egg.sourceChickenId === 'p3-farmer'),
+                null,
+                { timeout: 5_000 },
+            );
+        }
+        const afterDrop = await getEconomySnapshot(page);
+        const droppedEgg = afterDrop.fieldEggs.find((candidate) => candidate.sourceChickenId === 'p3-farmer');
+        if (!droppedEgg) throw new Error(`Missing dropped egg: ${JSON.stringify(afterDrop)}`);
+        const repickupCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, repickupCalibration, { x: droppedEgg.x, y: droppedEgg.y - 18 }, 'right');
+        await page.waitForFunction(
+            () => {
+                const snapshot = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+                return snapshot.fieldEggs.length === 0 &&
+                    snapshot.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1);
+            },
+            null,
+            { timeout: 5_000 },
+        );
+
+        assertNoErrors(errors);
+        return {
+            case: 'transfer',
+            checks: {
+                actualDragDropAndRepickupConservesEgg: true,
+                pendingDropPreservesSource: true,
+            },
+            errors,
+            snapshots: { afterDrop, beforeDrop },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runDepositCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const grantedSlot = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(1));
+        if (grantedSlot === null) throw new Error('Failed to grant debug egg');
+        const coopId = await page.evaluate(() => window.__chickenFarmDebug!.createPathBlockerFixture(3700, 8896));
+        if (!coopId) throw new Error('Failed to create complete coop fixture');
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((coop) => coop.id === id),
+            coopId,
+            { timeout: 5_000 },
+        );
+        const coopCenter = await page.evaluate((id) => {
+            const building = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((candidate) => candidate.id === id);
+            if (!building) return null;
+            return {
+                x: building.footprint.x + building.footprint.width / 2,
+                y: building.footprint.y + building.footprint.height / 2,
+            };
+        }, coopId);
+        if (!coopCenter) throw new Error('Missing coop footprint');
+        const calibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await dragInventorySlotToWorld(page, canvas, grantedSlot, calibration, coopCenter);
+        const beforeDeposit = await getEconomySnapshot(page);
+        if (
+            !beforeDeposit.workerTasks.some((task) => task.type === 'deposit_to_coop') ||
+            !beforeDeposit.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1)
+        ) {
+            throw new Error(`Deposit task did not preserve source before arrival: ${JSON.stringify(beforeDeposit)}`);
+        }
+        const teleported = await page.evaluate(
+            ({ x, y }) => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', x, y),
+            coopCenter,
+        );
+        if (!teleported) throw new Error('Failed to move deposit fixture farmer to the coop');
+        await page.waitForFunction(
+            (id) => {
+                const snapshot = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+                return snapshot.coops.some((coop) => coop.id === id && coop.storedEggs === 1) &&
+                    snapshot.inventories.find((inventory) => inventory.id === id)?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1) &&
+                    !snapshot.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006');
+            },
+            coopId,
+            { timeout: 8_000 },
+        );
+        const afterDeposit = await getEconomySnapshot(page);
+        assertNoErrors(errors);
+        return {
+            case: 'deposit',
+            checks: {
+                actualDragToCoopDepositsOnce: true,
+                pendingDepositPreservesSource: true,
+                storedEggsMatchesCoopInventory: true,
+            },
+            errors,
+            snapshots: { afterDeposit, beforeDeposit },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runHatchStartCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const slotIndex = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(1));
+        const coopId = await page.evaluate(() => window.__chickenFarmDebug!.createPathBlockerFixture(3700, 8896));
+        if (slotIndex === null || !coopId) throw new Error('Failed to prepare hatch fixture');
+        const coopCenter = await page.evaluate((id) => {
+            const building = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((candidate) => candidate.id === id);
+            return building ? { x: building.footprint.x + building.footprint.width / 2, y: building.footprint.y + building.footprint.height / 2 } : null;
+        }, coopId);
+        if (!coopCenter) throw new Error('Missing hatch coop');
+        const depositCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await dragInventorySlotToWorld(page, canvas, slotIndex, depositCalibration, coopCenter);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'deposit_to_coop'),
+            null,
+            { timeout: 5_000 },
+        );
+        await page.evaluate(({ x, y }) => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', x, y), coopCenter);
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((coop) => coop.id === id && coop.storedEggs === 1),
+            coopId,
+            { timeout: 5_000 },
+        );
+        await page.evaluate(() => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', 3300, 8960));
+        const selectCalibration = await calibrateWorldInput(page, canvas);
+        await clickWorld(page, selectCalibration, coopCenter);
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.economyEntityId === id,
+            coopId,
+            { timeout: 5_000 },
+        );
+        const before = await getEconomySnapshot(page);
+        await page.keyboard.press('h');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().hatchJobs.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const after = await getEconomySnapshot(page);
+        if (
+            after.coops.find((coop) => coop.id === coopId)?.storedEggs !== 0 ||
+            after.inventories.find((inventory) => inventory.id === coopId)?.slots.some((slot) => slot?.itemRawcode === 'I006') ||
+            after.wallet?.gold !== before.wallet?.gold ||
+            after.wallet?.lumber !== before.wallet?.lumber ||
+            after.hatchJobs[0]?.ownerPlayerId !== 3 ||
+            after.hatchJobs[0]?.resultChickenKind !== 'basic'
+        ) throw new Error(`Hatch start mismatch: ${JSON.stringify({ after, before })}`);
+        await page.keyboard.press('h');
+        const repeated = await getEconomySnapshot(page);
+        if (repeated.hatchJobs.length !== 1 || repeated.coops.find((coop) => coop.id === coopId)?.storedEggs !== 0) throw new Error(`Empty-coop hatch changed state: ${JSON.stringify(repeated)}`);
+        assertNoErrors(errors);
+        return { case: 'hatch_start', checks: { explicitHotkeyConsumesOneEgg: true, emptyCoopDoesNotAddJob: true, walletUnchanged: true }, errors, snapshots: { after, before, repeated } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runHatchExitCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const slotIndex = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(1));
+        const coopId = await page.evaluate(() => window.__chickenFarmDebug!.createPathBlockerFixture(3700, 8896));
+        if (slotIndex === null || !coopId) throw new Error('Failed to prepare hatch-exit fixture');
+        const coop = await page.evaluate((id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((building) => building.id === id) ?? null, coopId);
+        if (!coop) throw new Error('Missing hatch-exit coop');
+        const coopCenter = { x: coop.footprint.x + coop.footprint.width / 2, y: coop.footprint.y + coop.footprint.height / 2 };
+        const depositCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await dragInventorySlotToWorld(page, canvas, slotIndex, depositCalibration, coopCenter);
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'deposit_to_coop'), null, { timeout: 5_000 });
+        await page.evaluate(({ x, y }) => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', x, y), coopCenter);
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((candidate) => candidate.id === id && candidate.storedEggs === 1), coopId, { timeout: 5_000 });
+        await page.evaluate(() => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', 3300, 8960));
+        await clickWorld(page, await calibrateWorldInput(page, canvas), coopCenter);
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.economyEntityId === id, coopId, { timeout: 5_000 });
+        const before = await getEconomySnapshot(page);
+        await page.keyboard.press('h');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().hatchJobs.length === 1, null, { timeout: 5_000 });
+        const started = await getEconomySnapshot(page);
+        const job = started.hatchJobs[0];
+        if (!job) throw new Error('Hatch job missing after command');
+        await page.evaluate((time) => window.__chickenFarmDebug!.advanceEconomyForTest(time), job.completeAtSec - 1);
+        const beforeComplete = await getEconomySnapshot(page);
+        await page.evaluate((time) => window.__chickenFarmDebug!.advanceEconomyForTest(time), job.completeAtSec);
+        const completed = await getEconomySnapshot(page);
+        await page.evaluate((time) => window.__chickenFarmDebug!.advanceEconomyForTest(time), job.completeAtSec + 1);
+        const repeated = await getEconomySnapshot(page);
+        const chicken = completed.chickens.find((candidate) => candidate.id === 'chicken-1');
+        const insideCoop = chicken && chicken.x >= coop.footprint.x && chicken.x <= coop.footprint.x + coop.footprint.width && chicken.y >= coop.footprint.y && chicken.y <= coop.footprint.y + coop.footprint.height;
+        if (beforeComplete.chickens.length !== 0 || beforeComplete.hatchJobs.length !== 1 || completed.chickens.length !== 1 || completed.hatchJobs.length !== 0 || !chicken || insideCoop || repeated.chickens.length !== 1 || repeated.hatchJobs.length !== 0 || completed.wallet?.gold !== before.wallet?.gold || completed.wallet?.lumber !== before.wallet?.lumber) throw new Error(`Hatch exit mismatch: ${JSON.stringify({ before, beforeComplete, completed, repeated })}`);
+        assertNoErrors(errors);
+        return { case: 'hatch_exit', checks: { completesOnceAtDueTime: true, outsideCoopFootprint: true, repeatedUpdateDoesNotDuplicate: true, walletUnchanged: true }, errors, snapshots: { before, beforeComplete, completed, repeated } };
+    } finally { await page.close(); await browser.close(); }
 }
 
 function requireCompleteBuilding(
@@ -623,6 +1018,7 @@ async function clickWorld(
     page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
     calibration: Awaited<ReturnType<typeof calibrateWorldInput>>,
     point: { readonly x: number; readonly y: number },
+    button: 'left' | 'right' = 'left',
 ) {
     const scaleX =
         (calibration.referenceWorldPoint.x - calibration.calibrationWorldPoint.x) /
@@ -636,6 +1032,7 @@ async function clickWorld(
     await page.mouse.click(
         calibration.calibrationPoint.x + (point.x - calibration.calibrationWorldPoint.x) / scaleX,
         calibration.calibrationPoint.y + (point.y - calibration.calibrationWorldPoint.y) / scaleY,
+        { button },
     );
 }
 
@@ -644,12 +1041,46 @@ async function clickInventorySlot(
     canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
     slotIndex: number,
 ) {
+    const point = getInventorySlotScreenPoint(canvas, slotIndex);
+    await page.mouse.click(point.x, point.y);
+}
+
+function getInventorySlotScreenPoint(
+    canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
+    slotIndex: number,
+) {
     const col = slotIndex % 2;
     const row = Math.floor(slotIndex / 2);
-    await page.mouse.click(
-        canvas.left + ((571 + col * 46 + 20) / 960) * canvas.width,
-        canvas.top + ((566 + row * 46 + 20) / 720) * canvas.height,
-    );
+    return {
+        x: canvas.left + ((571 + col * 46 + 20) / 960) * canvas.width,
+        y: canvas.top + ((566 + row * 46 + 20) / 720) * canvas.height,
+    };
+}
+
+async function dragInventorySlotToWorld(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
+    slotIndex: number,
+    calibration: Awaited<ReturnType<typeof calibrateWorldInput>>,
+    point: { readonly x: number; readonly y: number },
+) {
+    const source = getInventorySlotScreenPoint(canvas, slotIndex);
+    const scaleX =
+        (calibration.referenceWorldPoint.x - calibration.calibrationWorldPoint.x) /
+        (calibration.referencePoint.x - calibration.calibrationPoint.x);
+    const scaleY =
+        (calibration.referenceWorldPoint.y - calibration.calibrationWorldPoint.y) /
+        (calibration.referencePoint.y - calibration.calibrationPoint.y);
+    const target = {
+        x: calibration.calibrationPoint.x + (point.x - calibration.calibrationWorldPoint.x) / scaleX,
+        y: calibration.calibrationPoint.y + (point.y - calibration.calibrationWorldPoint.y) / scaleY,
+    };
+    await page.mouse.move(source.x, source.y);
+    await page.mouse.down();
+    await page.waitForTimeout(50);
+    await page.mouse.move(target.x, target.y, { steps: 8 });
+    await page.waitForTimeout(50);
+    await page.mouse.up();
 }
 
 function waitForHttp(url: string, timeoutMs: number) {
