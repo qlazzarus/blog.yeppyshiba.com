@@ -1,0 +1,103 @@
+{
+  "case": "integration",
+  "checks": {
+    "browserErrorsZero": true,
+    "normalBuildStopResumeComplete": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "snapshots": {
+    "active": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": "p3-farmer",
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 3520,
+            "y": 8832
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0,
+          "state": "constructing",
+          "templateId": "fence_wood"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 3520,
+            "y": 8832
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": "player-building-1",
+          "targetPoint": {
+            "x": 3490,
+            "y": 8896
+          },
+          "templateId": "fence_wood"
+        }
+      ],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-1"
+      ],
+      "wallet": {
+        "gold": 1492,
+        "lumber": 0
+      }
+    },
+    "complete": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": null,
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 3520,
+            "y": 8832
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 1,
+          "state": "complete",
+          "templateId": "fence_wood"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [
+        "player-building-1"
+      ],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-1"
+      ],
+      "wallet": {
+        "gold": 1492,
+        "lumber": 0
+      }
+    }
+  }
+}

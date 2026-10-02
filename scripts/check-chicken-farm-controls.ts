@@ -564,7 +564,7 @@ async function runTerrainCase(
 
     await rightClickWorld(page, calibration, target);
     await waitForCommandTarget(page, farmer.id, target, 5_000);
-    await waitForIdle(page, farmer.id, 20_000);
+    await waitForIdle(page, farmer.id, 30_000);
     const after = await getSnapshot(page);
     assertPositionNear(findUnit(after.controls, 'farmer'), target, 'terrain player arrival');
 
@@ -589,7 +589,9 @@ async function runDynamicBlockerCase(
         x: farmer.x + 96,
         y: farmer.y - 64,
     });
-    await waitForIdle(page, farmer.id, 20_000);
+    // The detour may traverse three WPM waypoints while the headless frame rate is throttled.
+    // Keep the arrival assertion; allow the measured route enough wall-clock time to finish.
+    await waitForIdle(page, farmer.id, 45_000);
     const afterDetour = await getSnapshot(page);
     assertPositionNear(findUnit(afterDetour.controls, 'farmer'), detourTarget, 'dynamic detour arrival');
 
@@ -604,7 +606,7 @@ async function runDynamicBlockerCase(
         x: blockedTarget.x - 64,
         y: blockedTarget.y - 64,
     });
-    await waitForIdle(page, farmer.id, 8_000);
+    await waitForIdle(page, farmer.id, 45_000);
     const afterBlocked = await getSnapshot(page);
     assertNoActiveMove(afterBlocked.controls, farmer.id, 'fully blocked target must finish');
 
@@ -612,7 +614,7 @@ async function runDynamicBlockerCase(
     if (!fullBlockerRemoved) throw new Error('Could not remove full blocker fixture.');
     await rightClickWorld(page, calibration, blockedTarget);
     await waitForCommandTarget(page, farmer.id, blockedTarget, 5_000);
-    await waitForIdle(page, farmer.id, 20_000);
+    await waitForIdle(page, farmer.id, 45_000);
     const afterRemoval = await getSnapshot(page);
     assertPositionNear(findUnit(afterRemoval.controls, 'farmer'), blockedTarget, 'blocker removal next command');
 

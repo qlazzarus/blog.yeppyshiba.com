@@ -1,0 +1,23 @@
+{
+  "case": "removal",
+  "checks": {
+    "completeRemovalIdempotent": true,
+    "referencesCleared": true,
+    "pass": true
+  },
+  "lifecycle": {
+    "activePlacementTemplateId": null,
+    "buildings": [],
+    "dynamicBlockerBuildingIds": [],
+    "economyBuildingIds": [],
+    "pendingOrders": [],
+    "runId": 1,
+    "selectedBuildingId": null,
+    "selectedUnitIds": [],
+    "visionSourceBuildingIds": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "case": "restart",
+  "checks": {
+    "freshConstructionAfterRestart": true,
+    "pass": true,
+    "staleConstructionCleared": true
+  },
+  "snapshots": {
+    "freshPending": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 3520,
+            "y": 8832
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": null,
+          "targetPoint": {
+            "x": 3490,
+            "y": 8896
+          },
+          "templateId": "fence_wood"
+        }
+      ],
+      "runId": 2,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0
+      }
+    },
+    "restarted": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 2,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0
+      }
+    }
+  }
+}

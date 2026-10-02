@@ -25,7 +25,7 @@
 | SP-15 | debug 자원 없이 첫 건설/알/판매 가능; 첫 적 대응 시간; 자원 수입·생산·방어 성장; 후반 진행/막힘; 정상 속도 한 판 검수 | SP-09~14 |
 | SP-16 | 승리와 패배 양 경로; 반복 재시작; 장시간 실행; 개체 수 증가; 경로 정합; 프레임/메모리; 경제·전투·건설 회귀 | SP-15 |
 
-SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01은 조작 계약·재현 좌표를 정적 대조로, SP-04-02~05는 normal P3 actual click/drag/HUD selection·우클릭·Stop과 경제/건설 분기 회귀를 완료했다. SP-04-06은 Shift queue/replace/Stop과 실패 예약 뒤 FIFO 진행을 실제 browser controls로 검증했고, SP-04-07은 player WPM/통로/offset/smoothing 순수 경로와 normal P3 이동 회귀를 통과했다. SP-04-08~10도 세부 계획의 완료 기록을 반영했고 SP-05-01은 정적 건설 계약·WPM 사례, 02는 actual build-card → pending baseline, 03은 placement/cancel 입력을 완료했다. 다음 실행은 SP-05-04다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
+SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01~10은 normal P3 actual 입력, Stop/queue, pathing과 restart를 완료했다. SP-05-01~12는 pending부터 착공 비용·Stop/재개·handoff·queue·refund·완공/제거·restart까지 검수했고, normal P3 실제 통합 lifecycle과 browser 오류 0도 확인했다. 다음 실행은 **SP-06 세부 계획 수립 후 확정**한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
 
 ## SP-01 세부 실행 계획
 
@@ -68,7 +68,7 @@ SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP
 
 ## SP-04 세부 실행 계획
 
-2026-10-01: [SP-04 선택·이동·경로·기본 명령](./chicken_farm_sp04_task_plan.md)을 Terra medium용 10개 task로 분해했다. SP-04-01은 normal P3의 11개 조작 사례와 WPM 통과/막힌 목표 좌표, 실패 예약 정책을 정적 대조로 완료했고, SP-04-02~05는 read-only controls snapshot, actual camera pan 뒤 click/양방향 drag/HUD selection·우클릭·Stop·경제/건설 fixture 회귀를 통과했다. SP-04-06은 failed queued move를 폐기하고 다음 FIFO 명령을 시작하게 수정했으며 actual Shift queue controls를 통과했다. SP-04-07은 player-only static route 검사를 추가해 WPM/통로/offset/smoothing과 actual normal P3 이동을 확인했다. SP-04-08~10, SP-05-01~03의 완료 기록을 반영했으며 다음 ID는 **SP-05-04**다. 기존 코드가 있다는 사실과 runtime 검수 통과를 구분한다.
+2026-10-02: [SP-04 선택·이동·경로·기본 명령](./chicken_farm_sp04_task_plan.md)을 Terra medium용 10개 task로 분해했다. SP-04-01은 normal P3의 11개 조작 사례와 WPM 통과/막힌 목표 좌표, 실패 예약 정책을 정적 대조로 완료했고, SP-04-02~05는 read-only controls snapshot, actual camera pan 뒤 click/양방향 drag/HUD selection·우클릭·Stop·경제/건설 fixture 회귀를 통과했다. SP-04-06은 failed queued move를 폐기하고 다음 FIFO 명령을 시작하게 수정했으며 actual Shift queue controls를 통과했다. SP-04-07은 player-only static route 검사를 추가해 WPM/통로/offset/smoothing과 actual normal P3 이동을 확인했다. SP-04-08~10, SP-05-01~04의 완료 기록을 반영했으며 다음 ID는 **SP-05-05**다. 기존 코드가 있다는 사실과 runtime 검수 통과를 구분한다.
 
 | ID | 산출물 | 선행 |
 | --- | --- | --- |
@@ -87,22 +87,24 @@ SP-03-01에서 시작 resolver와 순수 검사 13 assertion을 추가했고, SP
 
 ## SP-05 세부 실행 계획
 
-2026-10-01: [SP-05 건설 lifecycle](./chicken_farm_sp05_task_plan.md)을 Terra medium용 **12개 task**로 분해했다. SP-05-01은 상태 전이·비용/환불 계약과 normal P3 WPM 재현 사례를 정적 대조로, 02는 lifecycle snapshot과 actual build-card → pending browser baseline을, 03은 placement/cancel 입력을 완료했다. 다음 실행은 **SP-05-04**다.
+2026-10-02: [SP-05 건설 lifecycle](./chicken_farm_sp05_task_plan.md)을 Terra medium용 **12개 task**로 분해해 모두 완료했다. normal P3의 실제 build-card → Stop → 재개 → 완공과 paid refund, 특수 fixture의 pause/queue/removal/restart를 검수했으며 browser 오류 유입은 0이었다. 다음 실행은 **SP-06 세부 계획 수립 후 확정**한다.
+
+SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)를 완료했다. 원본 울타리·닭장 계보와 시작 농장의 열린 WPM pathing은 대조했으며, `requires` runtime 검증은 SP-09, 건물 ID 기반 경제 수량은 SP-06, 적 피해→제거는 SP-07로 유지한다.
 
 | ID | 작업 | 선행 | 상태 |
 | --- | --- | --- | --- |
 | SP-05-01 | 상태 전이·비용·환불 계약과 재현 사례 | SP-03/04 | 완료 — 정적 계약·WPM 사례, runtime 미검증 |
 | SP-05-02 | 건설 관찰 snapshot과 최소 browser harness | 01 | 완료 — normal actual build-card → pending baseline |
 | SP-05-03 | 배치 허용/거부·취소 입력 | 02 | 완료 — normal actual placement/cancel 및 bounds preview |
-| SP-05-04 | 도착·착공 재검증·비용 단일 차감 | 03 | 대기 |
-| SP-05-05 | 중단·명시적 재개·일꾼 교체 | 04 | 대기 |
-| SP-05-06 | 연속 건설 예약·실패 후 진행 | 05 | 대기 |
-| SP-05-07 | 건설 취소·환불·무료 생성 경계 | 04/05/06 | 대기 |
-| SP-05-08 | 완공 단일 전이·기능 등록 | 05/07 | 대기 |
-| SP-05-09 | 파괴/제거 단일 경로·참조 정리 | 07/08 | 대기 |
-| SP-05-10 | footprint·이동 blocker·시야 전이 | 08/09 | 대기 |
-| SP-05-11 | 건설 상태가 있는 same-page restart | 06~10 | 대기 |
-| SP-05-12 | 정상 시작 통합 검수·SP-06/07 인계 | 01~11 | 대기 |
+| SP-05-04 | 도착·착공 재검증·비용 단일 차감 | 03 | 완료 — actual arrival/cost, start rejection, dynamic blocker controls |
+| SP-05-05 | 중단·명시적 재개·일꾼 교체 | 04 | 완료 — Stop/move/death pause, owner guard, worker handoff |
+| SP-05-06 | 연속 건설 예약·실패 후 진행 | 05 | 완료 — actual Shift FIFO, next-pending handoff fix |
+| SP-05-07 | 건설 취소·환불·무료 생성 경계 | 04/05/06 | 완료 — paid refund once, skipCost refund zero |
+| SP-05-08 | 완공 단일 전이·기능 등록 | 05/07 | 완료 — completion transition and single economy attachment |
+| SP-05-09 | 파괴/제거 단일 경로·참조 정리 | 07/08 | 완료 — idempotent complete removal and reference cleanup |
+| SP-05-10 | footprint·이동 blocker·시야 전이 | 08/09 | 완료 — lifecycle spatial contract and dynamic blocker controls |
+| SP-05-11 | 건설 상태가 있는 same-page restart | 06~10 | 완료 — construction restart isolation and fresh pending |
+| SP-05-12 | 정상 시작 통합 검수·SP-06/07 인계 | 01~11 | 완료 — normal lifecycle/browser 오류 0, SP-06/07/09 인계 |
 
 한 요청에 한 ID만 실행한다. 각 카드에 읽을 함수·수정 범위·완료 assertion·검증을 지정했다. 비용은 도착 후 착공 시 차감하는 기존 경로를 기준으로 대조하며, 실제 적 공격 연결은 SP-07, 경제 수량 루프는 SP-06에 인계한다.
 

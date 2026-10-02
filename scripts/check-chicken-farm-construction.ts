@@ -39,16 +39,24 @@ const host = '127.0.0.1';
 const port = 4177;
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const constructionCase = process.env.CHICKEN_FARM_CONSTRUCTION_CASE ?? 'baseline';
-const artifactPath = path.join(
-    rootDir,
-    'docs/chicken_farm/chicken_farm_w3x_artifacts/construction_check.json',
-);
+const artifactName =
+    constructionCase === 'baseline'
+        ? 'construction_check.json'
+        : `construction_check_${constructionCase}.json`;
+const artifactPath = path.join(rootDir, 'docs/chicken_farm/chicken_farm_w3x_artifacts', artifactName);
 
 if (
     constructionCase !== 'baseline' &&
     constructionCase !== 'placement' &&
     constructionCase !== 'arrival' &&
-    constructionCase !== 'start_rejection'
+    constructionCase !== 'start_rejection' &&
+    constructionCase !== 'pause_resume' &&
+    constructionCase !== 'queue' &&
+    constructionCase !== 'refund' &&
+    constructionCase !== 'completion' &&
+    constructionCase !== 'removal' &&
+    constructionCase !== 'restart' &&
+    constructionCase !== 'integration'
 ) {
     throw new Error(`Unsupported CHICKEN_FARM_CONSTRUCTION_CASE: ${constructionCase}`);
 }
@@ -64,7 +72,21 @@ async function main() {
                   ? await runPlacementCases()
                   : constructionCase === 'arrival'
                     ? await runArrivalCase()
-                    : await runStartRejectionCases();
+                    : constructionCase === 'start_rejection'
+                      ? await runStartRejectionCases()
+                      : constructionCase === 'pause_resume'
+                        ? await runPauseResumeCase()
+                        : constructionCase === 'queue'
+                          ? await runQueueCase()
+                          : constructionCase === 'refund'
+                            ? await runRefundCase()
+                            : constructionCase === 'completion'
+                              ? await runCompletionCase()
+                              : constructionCase === 'removal'
+                                ? await runRemovalCase()
+                                : constructionCase === 'restart'
+                                  ? await runRestartCase()
+                                  : await runIntegrationCase();
         await mkdir(path.dirname(artifactPath), { recursive: true });
         await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
         console.log(JSON.stringify({ ...report, artifactPath }, null, 2));
@@ -83,7 +105,9 @@ function startDevServer() {
             VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
             VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'false',
             VITE_CHICKEN_FARM_DEBUG_FIXTURES:
-                constructionCase === 'start_rejection' ? 'true' : 'false',
+                constructionCase === 'start_rejection' || constructionCase === 'pause_resume' || constructionCase === 'refund' || constructionCase === 'completion' || constructionCase === 'removal' || constructionCase === 'restart'
+                    ? 'true'
+                    : 'false',
             VITE_CHICKEN_FARM_START_ID: '3',
             VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG: 'false',
         },
@@ -494,6 +518,489 @@ async function runArrivalCase() {
     }
 }
 
+async function runIntegrationCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = { console: [] as string[], page: [] as string[], request: [] as string[], response: [] as string[] };
+    page.on('console', (message) => {
+        if (message.type() === 'error') errors.console.push(message.text());
+    });
+    page.on('pageerror', (error) => errors.page.push(error.message));
+    page.on('requestfailed', (failed) =>
+        errors.request.push(`${failed.method()} ${failed.url()} ${failed.failure()?.errorText}`),
+    );
+    page.on('response', (response) => {
+        if (response.status() >= 400) errors.response.push(`${response.status()} ${response.url()}`);
+    });
+    try {
+        const session = await prepareNormalSession(page);
+        const builder = await selectFarmer(page, session);
+        await openPlacement(page, 'f');
+        await clickWorld(page, builder.calibration, { x: 3584, y: 8896 });
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.length === 1, null, { timeout: 30_000 });
+        const active = await getSnapshot(page);
+        const building = active.lifecycle.buildings[0];
+        if (!building) throw new Error('Missing active normal construction');
+        await page.keyboard.press('s');
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((candidate) => candidate.id === id)?.activeWorkerUnitId === null, building.id, { timeout: 5_000 });
+        await clickWorld(page, builder.calibration, { x: building.footprint.x + 64, y: building.footprint.y + 64 }, 'right');
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((candidate) => candidate.id === id)?.state === 'complete', building.id, { timeout: 30_000 });
+        const complete = await getSnapshot(page);
+        if (complete.lifecycle.wallet?.gold !== 1492 || complete.lifecycle.pendingOrders.length !== 0) throw new Error(`Normal lifecycle mismatch: ${JSON.stringify(complete)}`);
+        if (Object.values(errors).some((messages) => messages.length > 0)) {
+            throw new Error(`Normal integration browser errors: ${JSON.stringify(errors)}`);
+        }
+        return { case: constructionCase, checks: { browserErrorsZero: true, normalBuildStopResumeComplete: true, pass: true }, errors, snapshots: { active: active.lifecycle, complete: complete.lifecycle } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runRestartCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    try {
+        const session = await prepareNormalSession(page, true);
+        const builder = await selectFarmer(page, session);
+        await openPlacement(page, 'f');
+        await clickWorld(page, builder.calibration, { x: 3584, y: 8896 });
+        await waitForPendingCount(page, 1);
+        const fixtures = await page.evaluate(() => ({
+            complete: window.__chickenFarmDebug!.createPathBlockerFixture(4352, 8896),
+            paused: window.__chickenFarmDebug!.createPausedConstructionFixture('coop_basic', 4608, 8896),
+            restarted: window.__chickenFarmDebug!.restartRunForTest(),
+        }));
+        if (!fixtures.complete || !fixtures.paused || !fixtures.restarted) throw new Error(`Unable to create restart state: ${JSON.stringify(fixtures)}`);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getState().runId > 1 && window.__chickenFarmDebug!.getState().elapsedSec > 0,
+            null,
+            { timeout: 15_000 },
+        );
+        const restarted = await getSnapshot(page);
+        assertNormalBaseline(restarted, true);
+        const afterSession = { canvas: await getCanvasBounds(page), snapshot: restarted };
+        const afterBuilder = await selectFarmer(page, afterSession);
+        await openPlacement(page, 'f');
+        await clickWorld(page, afterBuilder.calibration, { x: 3584, y: 8896 });
+        await waitForPendingCount(page, 1);
+        const freshPending = await getSnapshot(page);
+        return { case: constructionCase, checks: { freshConstructionAfterRestart: true, pass: true, staleConstructionCleared: true }, snapshots: { freshPending: freshPending.lifecycle, restarted: restarted.lifecycle } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runRemovalCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    try {
+        await prepareNormalSession(page, true);
+        const id = await page.evaluate(() => window.__chickenFarmDebug!
+            .createPathBlockerFixture(4032, 8896));
+        if (!id || !await page.evaluate((buildingId) => window.__chickenFarmDebug!
+            .removeCompletedBuildingFixture(buildingId), id)) throw new Error('Unable to remove complete fixture');
+        const removed = await getSnapshot(page);
+        if (
+            removed.lifecycle.buildings.length || removed.lifecycle.pendingOrders.length ||
+            removed.lifecycle.dynamicBlockerBuildingIds.length || removed.lifecycle.visionSourceBuildingIds.length ||
+            removed.lifecycle.economyBuildingIds.length ||
+            await page.evaluate((buildingId) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(buildingId), id)
+        ) throw new Error(`Removal cleanup/repeat mismatch: ${JSON.stringify(removed)}`);
+        return { case: constructionCase, checks: { completeRemovalIdempotent: true, referencesCleared: true, pass: true }, lifecycle: removed.lifecycle };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runCompletionCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    try {
+        const session = await prepareNormalSession(page, true);
+        const builder = await selectFarmer(page, session);
+        const point = { x: 4032, y: 8896 };
+        const buildingId = await page.evaluate(({ x, y }) => window.__chickenFarmDebug!
+            .createPausedConstructionFixture('coop_basic', x, y), point);
+        if (!buildingId) throw new Error('Unable to create paused coop fixture');
+        await clickWorld(page, builder.calibration, point, 'right');
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot()
+                .buildings.find((building) => building.id === id)?.state === 'complete',
+            buildingId,
+            { timeout: 90_000 },
+        );
+        const completed = await getSnapshot(page);
+        const building = completed.lifecycle.buildings.find((candidate) => candidate.id === buildingId);
+        if (
+            !building || building.activeWorkerUnitId !== null ||
+            completed.lifecycle.pendingOrders.length !== 0 ||
+            completed.lifecycle.economyBuildingIds.filter((id) => id === buildingId).length !== 1
+        ) throw new Error(`Completion/economy mismatch: ${JSON.stringify(completed)}`);
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot()
+                .economyBuildingIds.filter((candidate) => candidate === id).length === 1,
+            buildingId,
+            { timeout: 3_000 },
+        );
+        return { case: constructionCase, checks: { completionSingleTransition: true, economyAttachedOnce: true, pendingAndWorkerCleared: true, pass: true }, lifecycle: completed.lifecycle };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runRefundCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    try {
+        const session = await prepareNormalSession(page, true);
+        const builder = await selectFarmer(page, session);
+        await openPlacement(page, 'h');
+        await clickWorld(page, builder.calibration, { x: 4032, y: 8896 });
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.length === 1,
+            null,
+            { timeout: 30_000 },
+        );
+        const paid = await getSnapshot(page);
+        const paidId = paid.lifecycle.buildings[0]?.id;
+        if (!paidId || !await page.evaluate((id) => window.__chickenFarmDebug!.cancelConstructionForTest(id), paidId)) {
+            throw new Error('Unable to cancel paid construction');
+        }
+        const paidCancelled = await getSnapshot(page);
+        if (
+            paidCancelled.lifecycle.buildings.length !== 0 ||
+            paidCancelled.lifecycle.pendingOrders.length !== 0 ||
+            paidCancelled.lifecycle.wallet?.gold !== 1485 ||
+            await page.evaluate((id) => window.__chickenFarmDebug!.cancelConstructionForTest(id), paidId)
+        ) {
+            throw new Error(`Paid cancellation/refund mismatch: ${JSON.stringify(paidCancelled)}`);
+        }
+        const freeId = await page.evaluate(() => window.__chickenFarmDebug!
+            .createPausedConstructionFixture('market', 4352, 8768));
+        if (!freeId || !await page.evaluate((id) => window.__chickenFarmDebug!.cancelConstructionForTest(id), freeId)) {
+            throw new Error('Unable to cancel free fixture construction');
+        }
+        const freeCancelled = await getSnapshot(page);
+        if (
+            freeCancelled.lifecycle.buildings.length !== 0 ||
+            freeCancelled.lifecycle.pendingOrders.length !== 0 ||
+            freeCancelled.lifecycle.wallet?.gold !== 1485
+        ) {
+            throw new Error(`Free fixture produced a refund: ${JSON.stringify(freeCancelled)}`);
+        }
+        return { case: constructionCase, checks: { paidRefundOnce: true, freeFixtureRefundZero: true, pass: true }, snapshots: { freeCancelled: freeCancelled.lifecycle, paidCancelled: paidCancelled.lifecycle } };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runQueueCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    try {
+        const session = await prepareNormalSession(page);
+        const builder = await selectFarmer(page, session);
+        await openPlacement(page, 'f');
+        await page.keyboard.down('Shift');
+        try {
+            await clickWorld(page, builder.calibration, { x: 3584, y: 8896 });
+            await clickWorld(page, builder.calibration, { x: 3840, y: 8896 });
+        } finally {
+            await page.keyboard.up('Shift');
+        }
+        await waitForPendingCount(page, 2);
+        const queued = await getSnapshot(page);
+        if (
+            queued.lifecycle.pendingOrders.map((order) => order.templateId).join(',') !== 'fence_wood,fence_wood' ||
+            queued.lifecycle.wallet?.gold !== 1500 ||
+            queued.lifecycle.buildings.length !== 0
+        ) {
+            throw new Error(`Shift construction queue mismatch: ${JSON.stringify(queued)}`);
+        }
+        try {
+            await page.waitForFunction(
+                () => {
+                    const snapshot = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot();
+                    return snapshot.buildings.length === 2 && snapshot.buildings.every((building) => building.state === 'complete') && snapshot.pendingOrders.length === 0;
+                },
+                null,
+                { timeout: 45_000 },
+            );
+        } catch (error) {
+            throw new Error(`Queued construction did not finish: ${JSON.stringify(await getSnapshot(page))}`, { cause: error });
+        }
+        const completed = await getSnapshot(page);
+        if (completed.lifecycle.wallet?.gold !== 1484 || completed.lifecycle.wallet.lumber !== 0) {
+            throw new Error(`Queued fence costs were not charged once each: ${JSON.stringify(completed)}`);
+        }
+        return {
+            case: constructionCase,
+            checks: { fifoCompleted: true, pass: true, pendingFreeBeforeStart: true, singleCostPerBuilding: true },
+            snapshots: { completed: completed.lifecycle, queued: queued.lifecycle },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runPauseResumeCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = { console: [] as string[], page: [] as string[], request: [] as string[], response: [] as string[] };
+    page.on('console', (message) => {
+        if (message.type() === 'error') errors.console.push(message.text());
+    });
+    page.on('pageerror', (error) => errors.page.push(error.message));
+    page.on('requestfailed', (failed) =>
+        errors.request.push(`${failed.method()} ${failed.url()} ${failed.failure()?.errorText}`),
+    );
+    page.on('response', (response) => {
+        if (response.status() >= 400) errors.response.push(`${response.status()} ${response.url()}`);
+    });
+
+    try {
+        const session = await prepareNormalSession(page, true);
+        const builder = await selectFarmer(page, session);
+        const template = CHICKEN_FARM_BALANCE.buildingTemplates.farm_house;
+        const walletBefore = (await getSnapshot(page)).lifecycle.wallet;
+        await openPlacement(page, 'h');
+        await clickWorld(page, builder.calibration, { x: 4032, y: 8896 });
+        await page.waitForFunction(
+            ({ templateId, workerId }) => {
+                const building = window.__chickenFarmDebug!
+                    .getConstructionLifecycleSnapshot()
+                    .buildings.find((candidate) => candidate.templateId === templateId);
+                return building?.state === 'constructing' && building.activeWorkerUnitId === workerId;
+            },
+            { templateId: template.id, workerId: builder.farmerId },
+            { timeout: 30_000 },
+        );
+        await page.waitForFunction(
+            (templateId) => {
+                const building = window.__chickenFarmDebug!
+                    .getConstructionLifecycleSnapshot()
+                    .buildings.find((candidate) => candidate.templateId === templateId);
+                return Boolean(building && building.progress > 0);
+            },
+            template.id,
+            { timeout: 10_000 },
+        );
+        const active = await getSnapshot(page);
+        const building = active.lifecycle.buildings.find((candidate) => candidate.templateId === template.id);
+        if (!building || !walletBefore) throw new Error(`Missing active construction: ${JSON.stringify(active)}`);
+
+        await page.keyboard.press('s');
+        await page.waitForFunction(
+            (buildingId) => window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot()
+                .buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === null,
+            building.id,
+            { timeout: 5_000 },
+        );
+        const paused = await getSnapshot(page);
+        const pausedBuilding = paused.lifecycle.buildings.find((candidate) => candidate.id === building.id);
+        if (
+            !pausedBuilding ||
+            pausedBuilding.progress <= 0 ||
+            paused.lifecycle.wallet?.gold !== walletBefore.gold - template.costGold ||
+            paused.lifecycle.wallet.lumber !== walletBefore.lumber - (template.costLumber ?? 0)
+        ) {
+            throw new Error(`Stop did not pause construction correctly: ${JSON.stringify(paused)}`);
+        }
+        await page.waitForFunction(
+            ({ buildingId, elapsedSec, progress }) => {
+                const state = window.__chickenFarmDebug!.getState();
+                const building = window.__chickenFarmDebug!
+                    .getConstructionLifecycleSnapshot()
+                    .buildings.find((candidate) => candidate.id === buildingId);
+                return Boolean(
+                    building &&
+                    state.elapsedSec >= elapsedSec + 2 &&
+                    building.activeWorkerUnitId === null &&
+                    building.progress === progress,
+                );
+            },
+            { buildingId: building.id, elapsedSec: paused.state.elapsedSec, progress: pausedBuilding.progress },
+            { timeout: 20_000 },
+        );
+        const stablePaused = await getSnapshot(page);
+        const buildingCenter = {
+            x: building.footprint.x + building.footprint.width / 2,
+            y: building.footprint.y + building.footprint.height / 2,
+        };
+        await clickWorld(page, builder.calibration, buildingCenter, 'right');
+        await page.waitForFunction(
+            ({ buildingId, workerId }) => window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot()
+                .buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === workerId,
+            { buildingId: building.id, workerId: builder.farmerId },
+            { timeout: 30_000 },
+        );
+        await page.waitForFunction(
+            ({ buildingId, progress }) => {
+                const building = window.__chickenFarmDebug!
+                    .getConstructionLifecycleSnapshot()
+                    .buildings.find((candidate) => candidate.id === buildingId);
+                return Boolean(building && building.progress > progress);
+            },
+            { buildingId: building.id, progress: pausedBuilding.progress },
+            { timeout: 10_000 },
+        );
+        const resumed = await getSnapshot(page);
+        await clickWorld(page, builder.calibration, buildingCenter, 'right');
+        await page.waitForFunction(
+            ({ buildingId, workerId, gold, lumber }) => {
+                const snapshot = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot();
+                const building = snapshot.buildings.find((candidate) => candidate.id === buildingId);
+                return Boolean(
+                    building &&
+                    building.activeWorkerUnitId === workerId &&
+                    snapshot.wallet?.gold === gold &&
+                    snapshot.wallet.lumber === lumber,
+                );
+            },
+            {
+                buildingId: building.id,
+                gold: walletBefore.gold - template.costGold,
+                lumber: walletBefore.lumber - (template.costLumber ?? 0),
+                workerId: builder.farmerId,
+            },
+            { timeout: 5_000 },
+        );
+        const repeatedResume = await getSnapshot(page);
+        await clickWorld(page, builder.calibration, { x: buildingCenter.x + 320, y: buildingCenter.y }, 'right');
+        await page.waitForFunction(
+            (buildingId) => window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot()
+                .buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === null,
+            building.id,
+            { timeout: 5_000 },
+        );
+        const movePaused = await getSnapshot(page);
+        await clickWorld(page, builder.calibration, buildingCenter, 'right');
+        await page.waitForFunction(
+            ({ buildingId, workerId }) => window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot()
+                .buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === workerId,
+            { buildingId: building.id, workerId: builder.farmerId },
+            { timeout: 30_000 },
+        );
+        if (!await page.evaluate((unitId) => window.__chickenFarmDebug!.damageControllableUnitForTest(unitId, 10_000), builder.farmerId)) {
+            throw new Error('Unable to remove active builder through debug fixture');
+        }
+        await page.waitForFunction(
+            (buildingId) => window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot()
+                .buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === null,
+            building.id,
+            { timeout: 5_000 },
+        );
+        const builderRemoved = await getSnapshot(page);
+        const removedBuilding = builderRemoved.lifecycle.buildings.find((candidate) => candidate.id === building.id);
+        if (!removedBuilding) throw new Error(`Builder removal lost construction: ${JSON.stringify(builderRemoved)}`);
+        await page.waitForFunction(
+            ({ buildingId, elapsedSec, progress, gold, lumber }) => {
+                const state = window.__chickenFarmDebug!.getState();
+                const snapshot = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot();
+                const building = snapshot.buildings.find((candidate) => candidate.id === buildingId);
+                return Boolean(
+                    building &&
+                    state.elapsedSec >= elapsedSec + 2 &&
+                    building.activeWorkerUnitId === null &&
+                    building.progress === progress &&
+                    snapshot.wallet?.gold === gold &&
+                    snapshot.wallet.lumber === lumber,
+                );
+            },
+            {
+                buildingId: building.id,
+                elapsedSec: builderRemoved.state.elapsedSec,
+                gold: walletBefore.gold - template.costGold,
+                lumber: walletBefore.lumber - (template.costLumber ?? 0),
+                progress: removedBuilding.progress,
+            },
+            { timeout: 20_000 },
+        );
+        const stableBuilderRemoved = await getSnapshot(page);
+        const helperPositions = {
+            foreign: { x: buildingCenter.x + 320, y: buildingCenter.y },
+            friendly: { x: buildingCenter.x - 320, y: buildingCenter.y },
+        };
+        const farmersCreated = await page.evaluate(({ foreign, friendly }) => ({
+            foreign: window.__chickenFarmDebug!.createDebugFarmerForTest('p4-helper', foreign.x, foreign.y, 4),
+            friendly: window.__chickenFarmDebug!.createDebugFarmerForTest('p3-helper', friendly.x, friendly.y, 3),
+        }), helperPositions);
+        if (!farmersCreated.foreign || !farmersCreated.friendly) {
+            throw new Error(`Unable to create debug handoff farmers: ${JSON.stringify(farmersCreated)}`);
+        }
+        await clickWorld(page, builder.calibration, helperPositions.foreign);
+        await page.waitForFunction(
+            (unitId) => window.__chickenFarmDebug!
+                .getControlSnapshot()
+                .units.some((unit) => unit.id === unitId && unit.selected),
+            'p4-helper',
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, builder.calibration, buildingCenter, 'right');
+        const foreignRejected = await getSnapshot(page);
+        if (
+            foreignRejected.lifecycle.buildings.find((candidate) => candidate.id === building.id)?.activeWorkerUnitId !== null ||
+            foreignRejected.lifecycle.wallet?.gold !== walletBefore.gold - template.costGold
+        ) {
+            throw new Error(`Foreign builder resumed construction: ${JSON.stringify(foreignRejected)}`);
+        }
+        await clickWorld(page, builder.calibration, helperPositions.friendly);
+        await page.waitForFunction(
+            (unitId) => window.__chickenFarmDebug!
+                .getControlSnapshot()
+                .units.some((unit) => unit.id === unitId && unit.selected),
+            'p3-helper',
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, builder.calibration, buildingCenter, 'right');
+        await page.waitForFunction(
+            ({ buildingId, workerId }) => {
+                const lifecycle = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot();
+                return lifecycle.buildings.find((candidate) => candidate.id === buildingId)?.activeWorkerUnitId === workerId &&
+                    lifecycle.pendingOrders.find((candidate) => candidate.runtimeBuildingId === buildingId)?.builderUnitId === workerId;
+            },
+            { buildingId: building.id, workerId: 'p3-helper' },
+            { timeout: 30_000 },
+        );
+        const friendlyHandoff = await getSnapshot(page);
+        if (errors.console.length || errors.page.length || errors.request.length || errors.response.length) {
+            throw new Error(`Browser errors: ${JSON.stringify(errors)}`);
+        }
+
+        return {
+            case: constructionCase,
+            checks: {
+                debugFixtureIsolation: true,
+                builderRemovalPausesWithoutAutoResume: true,
+                foreignOwnerCannotResume: true,
+                friendlyWorkerHandoffRebindsPendingOrder: true,
+                moveCommandPausesActiveConstruction: true,
+                pass: true,
+                pausedProgressStaysFixed: true,
+                repeatedResumeKeepsSingleWorkerAndCost: true,
+                resumeContinuesWithoutAdditionalCost: true,
+                stopPausesActiveConstruction: true,
+            },
+            errors,
+            snapshots: {
+                active: active.lifecycle,
+                builderRemoved: builderRemoved.lifecycle,
+                foreignRejected: foreignRejected.lifecycle,
+                friendlyHandoff: friendlyHandoff.lifecycle,
+                movePaused: movePaused.lifecycle,
+                paused: paused.lifecycle,
+                resumed: resumed.lifecycle,
+                repeatedResume: repeatedResume.lifecycle,
+                stablePaused: stablePaused.lifecycle,
+                stableBuilderRemoved: stableBuilderRemoved.lifecycle,
+            },
+            template: { costGold: template.costGold, costLumber: template.costLumber ?? 0, id: template.id },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
 async function runStartRejectionCases() {
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
@@ -530,6 +1037,20 @@ async function runStartRejectionCases() {
         ) {
             throw new Error(`New-footprint rejection mismatch: ${JSON.stringify(footprintRejected)}`);
         }
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(id), blockerId)) {
+            throw new Error('Unable to remove overlap blocker fixture after rejection');
+        }
+        await openPlacement(page, 'h');
+        await clickWorld(page, footprintBuilder.calibration, { x: 4352, y: 8896 });
+        await waitForPendingCount(page, 1);
+        const followingInput = await getSnapshot(page);
+        if (
+            followingInput.lifecycle.pendingOrders[0]?.templateId !== 'farm_house' ||
+            followingInput.lifecycle.wallet?.gold !== 1500 ||
+            followingInput.lifecycle.buildings.length !== 0
+        ) {
+            throw new Error(`Following build input was blocked after rejection: ${JSON.stringify(followingInput)}`);
+        }
 
         const death = await prepareNormalSession(page, true);
         const deathBuilder = await selectFarmer(page, death);
@@ -547,12 +1068,14 @@ async function runStartRejectionCases() {
             case: constructionCase,
             checks: {
                 builderRemovalNoCharge: true,
+                followingInputAcceptedAfterPathFailure: true,
                 pass: true,
                 resourceDepletionNoCharge: true,
                 startOverlapNoCharge: true,
             },
             snapshots: {
                 builderRemoved: builderRemoved.lifecycle,
+                followingInput: followingInput.lifecycle,
                 footprintRejected: footprintRejected.lifecycle,
                 resourceRejected: resourceRejected.lifecycle,
             },

@@ -142,6 +142,14 @@ export class ControllableUnitSystem {
         this.upsertUnit('dog', start, ownerPlayerId);
     }
 
+    createDebugFarmer(id: string, x: number, y: number, ownerPlayerId: number) {
+        if (!id || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isInteger(ownerPlayerId)) {
+            return false;
+        }
+        this.upsertUnit('farmer', { id: ownerPlayerId, label: id, x, y }, ownerPlayerId, id);
+        return true;
+    }
+
     getPrimaryUnitObject() {
         return this.views.get(this.getPrimaryUnit()?.id ?? '')?.body;
     }
@@ -349,6 +357,10 @@ export class ControllableUnitSystem {
         if (!unit || unit.hp <= 0) return false;
 
         unit.hp = Math.max(0, unit.hp - Math.max(1, damage - unit.armor));
+        if (unit.hp <= 0) {
+            this.interruptBuildCommand(unit, 'death');
+            this.interruptPendingBuildOrders(unit, 'death');
+        }
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
         unit.path = unit.hp > 0 ? unit.path : [];
@@ -552,8 +564,9 @@ export class ControllableUnitSystem {
         templateId: ControllableUnitTemplateId,
         start: PlayerStart,
         ownerPlayerId: number,
+        unitId = `p${ownerPlayerId}-${templateId}`,
     ) {
-        const id = `p${ownerPlayerId}-${templateId}`;
+        const id = unitId;
         const offset = UNIT_OFFSETS[templateId];
         const position = {
             x: start.x + offset.x,

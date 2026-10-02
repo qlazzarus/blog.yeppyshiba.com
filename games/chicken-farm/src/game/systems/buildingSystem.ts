@@ -24,6 +24,7 @@ export type PlayerBuilding = {
     completedAtSec?: number;
     constructionActiveSinceSec?: number;
     constructionProgressSec: number;
+    readonly costPaid: boolean;
     readonly footprint: GridPathRect;
     hp: number;
     readonly id: string;
@@ -323,6 +324,7 @@ export class BuildingSystem {
             constructionActiveSinceSec:
                 request.completeImmediately || !request.workerUnitId ? undefined : startedAtSec,
             constructionProgressSec: request.completeImmediately ? template.buildTimeSec : 0,
+            costPaid: !request.skipCost,
             completedAtSec: request.completeImmediately ? startedAtSec : undefined,
             footprint,
             hp: template.hp,
@@ -414,12 +416,14 @@ export class BuildingSystem {
         if (!building || building.state !== 'constructing') return null;
 
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
-        const refund = {
-            gold: Math.floor(template.costGold * CONSTRUCTION_CANCEL_REFUND_RATIO),
-            lumber: Math.floor(
-                (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
-            ),
-        };
+        const refund = building.costPaid
+            ? {
+                  gold: Math.floor(template.costGold * CONSTRUCTION_CANCEL_REFUND_RATIO),
+                  lumber: Math.floor(
+                      (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
+                  ),
+              }
+            : { gold: 0, lumber: 0 };
         refundWalletCost(this.economy, refund);
         this.destroyView(building.id);
         this.buildings.splice(buildingIndex, 1);

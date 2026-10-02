@@ -1,0 +1,160 @@
+{
+  "case": "arrival",
+  "checks": {
+    "costChargedExactlyOnceAtStart": true,
+    "normalFixtureIsolation": true,
+    "ownerAndWorkerMatch": true,
+    "pendingIsFreeBeforeArrival": true,
+    "progressStartedAfterArrival": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "snapshots": {
+    "pending": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 3904,
+            "y": 8768
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": null,
+          "targetPoint": {
+            "x": 3874,
+            "y": 8896
+          },
+          "templateId": "farm_house"
+        }
+      ],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0
+      }
+    },
+    "progressed": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 3904,
+            "y": 8768
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0.036776666666666576,
+          "state": "constructing",
+          "templateId": "farm_house"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 3904,
+            "y": 8768
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": "player-building-1",
+          "targetPoint": {
+            "x": 3874,
+            "y": 8896
+          },
+          "templateId": "farm_house"
+        }
+      ],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-1"
+      ],
+      "wallet": {
+        "gold": 1440,
+        "lumber": 0
+      }
+    },
+    "started": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 3904,
+            "y": 8768
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0,
+          "state": "constructing",
+          "templateId": "farm_house"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 3904,
+            "y": 8768
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": "player-building-1",
+          "targetPoint": {
+            "x": 3874,
+            "y": 8896
+          },
+          "templateId": "farm_house"
+        }
+      ],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-1"
+      ],
+      "wallet": {
+        "gold": 1440,
+        "lumber": 0
+      }
+    }
+  },
+  "template": {
+    "costGold": 60,
+    "costLumber": 0,
+    "id": "farm_house"
+  }
+}

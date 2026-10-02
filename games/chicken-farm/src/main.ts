@@ -197,6 +197,13 @@ declare global {
             } | null;
             setConstructionWalletForTest: (gold: number, lumber: number) => boolean;
             damageControllableUnitForTest: (unitId: string, damage: number) => boolean;
+            cancelConstructionForTest: (buildingId: string) => boolean;
+            createDebugFarmerForTest: (
+                id: string,
+                x: number,
+                y: number,
+                ownerPlayerId: number,
+            ) => boolean;
             createEconomyBuildingFixture: (
                 templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
@@ -2590,6 +2597,13 @@ class FarmScene extends Phaser.Scene {
                 if (
                     targetBuilding?.state === 'constructing' &&
                     selectedBuilder &&
+                    targetBuilding.activeWorkerUnitId
+                ) {
+                    return;
+                }
+                if (
+                    targetBuilding?.state === 'constructing' &&
+                    selectedBuilder &&
                     this.constructionPlacement?.resumeConstructionWithBuilder(
                         targetBuilding.id,
                         selectedBuilder.id,
@@ -2919,6 +2933,14 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.controllableUnits.damageUnit(unitId, damage);
             },
+            cancelConstructionForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.constructionPlacement?.cancelConstruction(buildingId, 'debug_fixture') ?? false;
+            },
+            createDebugFarmerForTest: (id, x, y, ownerPlayerId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.controllableUnits.createDebugFarmer(id, x, y, ownerPlayerId);
+            },
             createEconomyBuildingFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
                 if (this.runDisposed) return null;
@@ -2953,7 +2975,7 @@ class FarmScene extends Phaser.Scene {
             },
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
-                return this.buildingSystem?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
+                return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
             },
             disposeRunForTest: () => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;

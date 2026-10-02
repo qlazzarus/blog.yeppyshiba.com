@@ -64,7 +64,7 @@ const GHOST_HATCH_SPACING_PX = 22;
 const GHOST_CORNER_TICK_PX = 22;
 
 type PendingBuildOrder = {
-    readonly builderUnitId: string;
+    builderUnitId: string;
     readonly footprint: GridPathRect;
     readonly id: string;
     runtimeBuildingId?: string;
@@ -153,6 +153,20 @@ export class ConstructionPlacementSystem {
         return true;
     }
 
+    removeCompletedBuilding(buildingId: string, reason = 'removed') {
+        const orderIndex = this.pendingOrders.findIndex(
+            (order) => order.runtimeBuildingId === buildingId,
+        );
+        const order = orderIndex >= 0 ? this.pendingOrders[orderIndex] : null;
+        if (!this.buildingSystem.removeCompletedBuilding(buildingId, reason)) return false;
+        if (order) {
+            this.clearBuilderBuildCommand(order.builderUnitId, buildingId);
+            this.pendingOrders.splice(orderIndex, 1);
+            this.issueMoveToNextBuilderOrder(order.builderUnitId);
+        }
+        return true;
+    }
+
     cancelPendingBuildOrdersForBuilder(builderUnitId: string, reason = 'interrupted') {
         const cancelledSiteIds: string[] = [];
         for (let index = this.pendingOrders.length - 1; index >= 0; index -= 1) {
@@ -185,7 +199,15 @@ export class ConstructionPlacementSystem {
     ) {
         const building = this.buildingSystem.getBuilding(buildingId);
         const builder = this.getUnitById(builderUnitId);
-        if (!building || !builder || building.state !== 'constructing') return false;
+        if (
+            !building ||
+            !builder ||
+            building.state !== 'constructing' ||
+            building.activeWorkerUnitId ||
+            builder.ownerPlayerId !== building.ownerPlayerId
+        ) {
+            return false;
+        }
 
         let order = this.pendingOrders.find(
             (candidate) => candidate.runtimeBuildingId === buildingId,
@@ -207,6 +229,10 @@ export class ConstructionPlacementSystem {
             this.nextPendingBuildOrderId += 1;
             this.pendingOrders.push(order);
         } else {
+            if (order.builderUnitId !== builder.id) {
+                this.clearBuilderBuildCommand(order.builderUnitId, building.id);
+                order.builderUnitId = builder.id;
+            }
             order.targetPoint = targetPoint;
         }
 
@@ -583,7 +609,10 @@ export class ConstructionPlacementSystem {
         );
         if (!nextOrder) return false;
 
-        return this.issueBuilderMove(builderUnitId, nextOrder.targetPoint);
+        // The next construction order is already owned by this builder. Start it
+        // through the queued path so ControllableUnitSystem does not treat the
+        // handoff as an unrelated replace command and cancel that pending order.
+        return this.issueBuilderMove(builderUnitId, nextOrder.targetPoint, 'append');
     }
 
     private drawPendingOrders() {
