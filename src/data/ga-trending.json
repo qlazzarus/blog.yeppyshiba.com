@@ -1,11 +1,29 @@
 {
-  "generatedAt": "2026-09-28T09:18:55.547Z",
+  "generatedAt": "2026-10-05T09:58:20.594Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-mobile-controls-motion-pwa",
-      "views": 9,
+      "path": "/article/phaser4-apex-seoul-runtime-sprite-contact-shadow",
+      "views": 4,
       "avgSec": 0,
       "reason": "top_post"
+    },
+    {
+      "path": "/article/apptech-income-august-2026",
+      "views": 3,
+      "avgSec": 664.1,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/apptech-income-may-2026",
+      "views": 3,
+      "avgSec": 82.75,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/apptech-income-june-2026",
+      "views": 1,
+      "avgSec": 66.55,
+      "reason": "amplify"
     }
   ]
 }
