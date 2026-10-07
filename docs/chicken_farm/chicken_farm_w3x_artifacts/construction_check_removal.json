@@ -1,0 +1,39 @@
+{
+  "case": "removal",
+  "checks": {
+    "completeRemovalIdempotent": true,
+    "lumberIncomeStopped": true,
+    "referencesCleared": true,
+    "pass": true
+  },
+  "lifecycle": {
+    "activePlacementTemplateId": null,
+    "buildings": [],
+    "dynamicBlockerBuildingIds": [],
+    "economyBuildingIds": [],
+    "pendingOrders": [],
+    "runId": 1,
+    "selectedBuildingId": null,
+    "selectedUnitIds": [],
+    "visionSourceBuildingIds": [],
+    "wallet": {
+      "gold": 1416,
+      "lumber": 70
+    }
+  },
+  "lumberIncome": {
+    "afterRemoval": {
+      "advanced": true,
+      "afterLumber": 70,
+      "beforeLumber": 70,
+      "targetElapsedSec": 60
+    },
+    "beforeRemoval": {
+      "advanced": true,
+      "afterIncomeLumber": 70,
+      "beforeLumber": 0,
+      "id": "player-building-1",
+      "targetElapsedSec": 30
+    }
+  }
+}

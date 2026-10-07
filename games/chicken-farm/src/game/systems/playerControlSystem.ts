@@ -14,18 +14,10 @@ export type FarmInputKeys = Record<
     | 'h'
     | 'left'
     | 'm'
-    | 'one'
     | 'right'
     | 's'
     | 't'
-    | 'two'
-    | 'three'
-    | 'four'
-    | 'five'
-    | 'six'
-    | 'seven'
     | 'shift'
-    | 'eight'
     | 'grid'
     | 'microPathingFocus'
     | 'stop'
@@ -39,7 +31,7 @@ export type FarmInputKeys = Record<
 
 type PlayerControlSystemConfig = {
     readonly camera: Phaser.Cameras.Scene2D.Camera;
-    readonly keys: FarmInputKeys;
+    readonly initialStartId?: number;
     readonly onPlayerStartChanged: (start: PlayerStart) => void;
     readonly playerStarts: readonly PlayerStart[];
     readonly scene: Phaser.Scene;
@@ -49,7 +41,7 @@ type PlayerControlSystemConfig = {
 
 export class PlayerControlSystem {
     private readonly camera: Phaser.Cameras.Scene2D.Camera;
-    private readonly keys: FarmInputKeys;
+    private readonly initialStartId: number | null;
     private readonly onPlayerStartChanged: (start: PlayerStart) => void;
     private readonly playerStarts: readonly PlayerStart[];
     private readonly scene: Phaser.Scene;
@@ -61,7 +53,7 @@ export class PlayerControlSystem {
 
     constructor(config: PlayerControlSystemConfig) {
         this.camera = config.camera;
-        this.keys = config.keys;
+        this.initialStartId = config.initialStartId ?? POC_FIXED_PLAYER_SLOT_ID;
         this.onPlayerStartChanged = config.onPlayerStartChanged;
         this.playerStarts = config.playerStarts;
         this.scene = config.scene;
@@ -91,36 +83,14 @@ export class PlayerControlSystem {
         if (!this.playerStarts.length) return;
 
         const start =
-            (POC_FIXED_PLAYER_SLOT_ID
-                ? this.getPlayerStartById(POC_FIXED_PLAYER_SLOT_ID)
+            (this.initialStartId
+                ? this.getPlayerStartById(this.initialStartId)
                 : null) ??
             this.playerStarts[
                 Phaser.Math.Between(0, Math.max(0, this.playerStarts.length - 1))
             ];
         this.createPlayerMarker();
         this.moveToStart(start);
-    }
-
-    updateSlotHotkeys() {
-        const slotKeys = [
-            this.keys.one,
-            this.keys.two,
-            this.keys.three,
-            this.keys.four,
-            this.keys.five,
-            this.keys.six,
-            this.keys.seven,
-            this.keys.eight,
-        ];
-
-        slotKeys.forEach((key, index) => {
-            if (!Phaser.Input.Keyboard.JustDown(key)) return;
-
-            const start = this.playerStarts.find(
-                (candidate) => candidate.id === index + 1,
-            );
-            if (start) this.moveToStart(start);
-        });
     }
 
     private getPlayerStartById(id: number) {

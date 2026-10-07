@@ -1,4 +1,4 @@
-import type { MvpBuildingId } from '../balanceTypes';
+import type { LumberMillId, MvpBuildingId } from '../balanceTypes';
 import type { PlayerWallet } from './playerWallet';
 
 export type EconomyPoint = {
@@ -102,6 +102,13 @@ export type EconomyWellState = {
     readonly position: EconomyPoint;
 };
 
+export type EconomyLumberMillState = {
+    readonly activeFromSec: number;
+    readonly id: string;
+    readonly ownerPlayerId: number;
+    readonly templateId: LumberMillId;
+};
+
 export type FieldEggItemState = {
     readonly droppedAtSec: number;
     readonly id: string;
@@ -186,6 +193,12 @@ export type EconomyEvent =
           readonly soldEggs: number;
           readonly totalGold: number;
           readonly type: 'eggs_sold';
+      }
+    | {
+          readonly lumber: number;
+          readonly playerId: number;
+          readonly tickSec: number;
+          readonly type: 'lumber_income_paid';
       };
 
 export type ChickenFarmEconomyState = {
@@ -195,6 +208,9 @@ export type ChickenFarmEconomyState = {
     readonly fieldEggs: FieldEggItemState[];
     readonly hatchJobs: HatchJobState[];
     readonly inventories: EconomyInventoryState[];
+    lastLumberIncomeTickSec: number;
+    lumberIncomeTotalsByPlayerId: Record<number, number>;
+    readonly lumberMills: EconomyLumberMillState[];
     nextChickenId: number;
     nextEggId: number;
     nextHatchJobId: number;

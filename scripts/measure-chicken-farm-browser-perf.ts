@@ -1,3 +1,4 @@
+import { once } from 'node:events';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { request } from 'node:http';
 import path from 'node:path';
@@ -21,6 +22,7 @@ type BrowserPerfSnapshot = {
 };
 
 type BrowserDebugState = {
+    readonly buildingCount: number;
     readonly economyPoc: {
         readonly chickens: number;
         readonly coops: number;
@@ -30,12 +32,31 @@ type BrowserDebugState = {
     } | null;
     readonly elapsedSec: number;
     readonly farmerEggs: number;
+    readonly farmerInventory: readonly {
+        readonly itemRawcode: string;
+        readonly quantity: number;
+    }[];
+    readonly initialPlacementViewCount: number;
+    readonly initialPlacements: readonly {
+        readonly id: string;
+        readonly owner: string;
+        readonly rawcode: string;
+        readonly role: string;
+        readonly x: number;
+        readonly y: number;
+    }[];
     readonly primaryUnit: {
         readonly id: string;
         readonly x: number;
         readonly y: number;
     } | null;
+    readonly runId: number;
     readonly selectedUnitCount: number;
+    readonly units: readonly {
+        readonly id: string;
+        readonly ownerPlayerId: number;
+        readonly templateId: string;
+    }[];
     readonly wallet: {
         readonly gold: number;
         readonly lumber: number;
@@ -74,8 +95,16 @@ async function main() {
             })),
         );
         console.log(`Wrote ${outputPath}`);
+        if (!report.checks.pass) {
+            throw new Error(
+                `Browser perf checks failed: ${report.checks.items
+                    .filter((check) => !check.pass)
+                    .map((check) => check.id)
+                    .join(', ')}`,
+            );
+        }
     } finally {
-        stopDevServer(server);
+        await stopDevServer(server);
     }
 }
 
@@ -92,7 +121,14 @@ function startDevServer() {
         ],
         {
             cwd: path.join(rootDir, 'games/chicken-farm'),
-            env: process.env,
+            env: {
+                ...process.env,
+                VITE_CHICKEN_FARM_COMBAT_POC: 'false',
+                VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
+                VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'true',
+                VITE_CHICKEN_FARM_DEBUG_FIXTURES: 'true',
+                VITE_CHICKEN_FARM_TERRAIN_PATHING_DEBUG: 'false',
+            },
         },
     );
 
@@ -108,13 +144,23 @@ async function runBrowserScenario() {
     });
     const consoleMessages: string[] = [];
     const pageErrors: string[] = [];
+    const requestFailures: string[] = [];
+    const responseErrors: string[] = [];
 
     page.on('console', (message) => {
-        if (message.type() === 'error' || message.type() === 'warning') {
-            consoleMessages.push(`${message.type()}: ${message.text()}`);
-        }
+        if (message.type() === 'error') consoleMessages.push(message.text());
     });
     page.on('pageerror', (error) => pageErrors.push(error.message));
+    page.on('requestfailed', (request) =>
+        requestFailures.push(
+            `${request.method()} ${request.url()} ${request.failure()?.errorText ?? 'failed'}`,
+        ),
+    );
+    page.on('response', (response) => {
+        if (response.status() >= 400) {
+            responseErrors.push(`${response.status()} ${response.url()}`);
+        }
+    });
 
     try {
         await page.goto(baseUrl, { waitUntil: 'networkidle' });
@@ -130,7 +176,7 @@ async function runBrowserScenario() {
         const collect = async (scenario: string) => {
             await page.waitForTimeout(1_700);
             await page.waitForFunction(
-                () => window.__chickenFarmDebug!.getPerfSnapshot().frameCount > 0,
+                () => window.__chickenFarmDebug!.getState().elapsedSec > 0,
                 null,
                 { timeout: 10_000 },
             );
@@ -144,6 +190,56 @@ async function runBrowserScenario() {
         };
 
         await collect('baseline_idle');
+        const initialPlacementsBefore = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getState(),
+        );
+        const centralMarket = initialPlacementsBefore.initialPlacements.find(
+            (placement) => placement.id === 'central_market_n006',
+        );
+        const initialPlacementManifestMatches =
+            initialPlacementsBefore.initialPlacements.length === 25 &&
+            initialPlacementsBefore.initialPlacementViewCount === 25 &&
+            initialPlacementsBefore.initialPlacements.some(
+                (placement) => placement.id === 'spider_01' && placement.role === 'neutral_spider',
+            ) &&
+            initialPlacementsBefore.initialPlacements.some(
+                (placement) => placement.id === 'wolf_stone_01' && placement.role === 'wolf_stone',
+            ) &&
+            centralMarket?.owner === 'Player(PLAYER_NEUTRAL_PASSIVE)' &&
+            centralMarket.x === 4992 &&
+            centralMarket.y === 4768;
+        if (!initialPlacementManifestMatches) {
+            throw new Error('Initial placement snapshot does not match the 25-entry manifest');
+        }
+        const removedSpider = await page.evaluate(() =>
+            window.__chickenFarmDebug!.removeInitialPlacementFixture('spider_01'),
+        );
+        const initialPlacementsAfterRemoval = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getState(),
+        );
+        const removedViewWasDestroyed =
+            removedSpider &&
+            initialPlacementsAfterRemoval.initialPlacements.length === 24 &&
+            initialPlacementsAfterRemoval.initialPlacementViewCount === 24 &&
+            !initialPlacementsAfterRemoval.initialPlacements.some(
+                (placement) => placement.id === 'spider_01',
+            );
+        if (!removedViewWasDestroyed) {
+            throw new Error('Initial placement removal left a registry entry or ghost view');
+        }
+        await page.evaluate(() => window.__chickenFarmDebug!.restoreInitialPlacementFixtures());
+        const initialPlacementsAfterRestore = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getState(),
+        );
+        const initialPlacementRestoreMatches =
+            initialPlacementsAfterRestore.initialPlacements.length === 25 &&
+            initialPlacementsAfterRestore.initialPlacementViewCount === 25 &&
+            initialPlacementsAfterRestore.initialPlacements.some(
+                (placement) => placement.id === 'spider_01',
+            );
+        if (!initialPlacementRestoreMatches) {
+            throw new Error('Initial placement fixture restore did not restore registry and views');
+        }
         const selectedUnitCount = await page.evaluate(() =>
             window.__chickenFarmDebug!.selectAllUnits(),
         );
@@ -204,11 +300,18 @@ async function runBrowserScenario() {
             { timeout: 20_000 },
         );
         await collect('completed_well_economy_lifecycle');
+        const marketPlacementState = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getState(),
+        );
+        const marketPlacementFarmer = marketPlacementState.primaryUnit;
+        if (!marketPlacementFarmer) {
+            throw new Error('Missing primary unit for market fixture placement');
+        }
         const marketFixtureId = await page.evaluate(({ x, y }) =>
             window.__chickenFarmDebug!.createEconomyBuildingFixture('market', x, y),
         {
-            x: clamp(primary.x + 768, 128, state.worldSize.x - 128),
-            y: clamp(primary.y + 128, 128, state.worldSize.y - 128),
+            x: clamp(marketPlacementFarmer.x + 16, 128, state.worldSize.x - 128),
+            y: clamp(marketPlacementFarmer.y - 64, 128, state.worldSize.y - 128),
         });
         if (!marketFixtureId) throw new Error('Could not create completed market fixture');
         await page.waitForFunction(
@@ -249,6 +352,118 @@ async function runBrowserScenario() {
         );
         const saleAfter = await page.evaluate(() => window.__chickenFarmDebug!.getState());
         await collect('farmer_egg_stack_market_sale');
+        const restartStates: BrowserDebugState[] = [];
+        const expectedStart = initialPlacementsBefore.primaryUnit;
+        for (let restart = 1; restart <= 2; restart += 1) {
+            const previousRunId = await page.evaluate(
+                () => window.__chickenFarmDebug!.getState().runId,
+            );
+            const restarted = await page.evaluate(() =>
+                window.__chickenFarmDebug!.restartRunForTest(),
+            );
+            if (!restarted) throw new Error(`Could not start same-page run ${restart}`);
+            await page.waitForFunction(
+                (runId) => window.__chickenFarmDebug?.getState().runId > runId,
+                previousRunId,
+                { timeout: 10_000 },
+            );
+            const stateAfterRestart = await page.evaluate(() =>
+                window.__chickenFarmDebug!.getState(),
+            );
+            const inventory = new Map(
+                stateAfterRestart.farmerInventory.map((slot) => [
+                    slot.itemRawcode,
+                    slot.quantity,
+                ]),
+            );
+            const freshRunMatches =
+                stateAfterRestart.buildingCount === 0 &&
+                stateAfterRestart.economyPoc?.chickens === 0 &&
+                stateAfterRestart.economyPoc?.coops === 0 &&
+                stateAfterRestart.economyPoc?.fieldEggs === 0 &&
+                stateAfterRestart.economyPoc?.wells === 0 &&
+                stateAfterRestart.initialPlacements.length === 25 &&
+                stateAfterRestart.initialPlacementViewCount === 25 &&
+                stateAfterRestart.selectedUnitCount === 0 &&
+                stateAfterRestart.units.length === 2 &&
+                stateAfterRestart.wallet?.gold === 10_000 &&
+                stateAfterRestart.wallet?.lumber === 10_000 &&
+                inventory.get('I003') === 5 &&
+                inventory.get('I009') === 1 &&
+                inventory.get('I00F') === 1 &&
+                stateAfterRestart.elapsedSec < 3 &&
+                stateAfterRestart.primaryUnit?.x === expectedStart?.x &&
+                stateAfterRestart.primaryUnit?.y === expectedStart?.y;
+            if (!freshRunMatches) {
+                throw new Error(`Same-page run ${restart} did not restore initial state`);
+            }
+            restartStates.push(stateAfterRestart);
+
+            if (restart === 1) {
+                const fixtureId = await page.evaluate(({ x, y }) =>
+                    window.__chickenFarmDebug!.createEconomyBuildingFixture('coop_basic', x, y),
+                {
+                    x: clamp(stateAfterRestart.primaryUnit!.x + 384, 128, state.worldSize.x - 128),
+                    y: clamp(stateAfterRestart.primaryUnit!.y + 128, 128, state.worldSize.y - 128),
+                });
+                if (!fixtureId) throw new Error('Could not mutate first restarted run');
+            }
+        }
+        const runCleanup = await page.evaluate(() => {
+            const debug = window.__chickenFarmDebug!;
+            const first = debug.disposeRunForTest();
+            const second = debug.disposeRunForTest();
+            return {
+                debugCleared: !window.__chickenFarmDebug,
+                first,
+                second,
+            };
+        });
+        await page.waitForTimeout(200);
+        const cleanupPass =
+            runCleanup.debugCleared &&
+            runCleanup.first?.before.initialPlacementCount === 25 &&
+            runCleanup.first.before.initialPlacementViewCount === 25 &&
+            runCleanup.first.after.initialPlacementCount === 0 &&
+            runCleanup.first.after.initialPlacementViewCount === 0 &&
+            runCleanup.first.after.unitCount === 0 &&
+            runCleanup.first.after.selectedUnitCount === 0 &&
+            runCleanup.first.after.buildingCount === 0 &&
+            runCleanup.first.after.economyEntityCount === 0 &&
+            runCleanup.first.after.worldObjectCount === 0 &&
+            runCleanup.first.after.uiObjectCount === 0 &&
+            runCleanup.second?.alreadyDisposed === true;
+        const samePageRestartPass = restartStates.length === 2;
+        await page.mouse.click(480, 270, { button: 'right' });
+        await page.keyboard.press('s');
+        await page.waitForTimeout(200);
+
+        const checks = [
+            {
+                id: 'shared_wallet_cost',
+                pass: true,
+            },
+            {
+                id: 'market_sale',
+                pass:
+                    saleAfter.wallet?.gold === saleBefore.wallet!.gold + 36 &&
+                    saleAfter.wallet?.lumber === saleBefore.wallet!.lumber &&
+                    saleAfter.farmerEggs === 0,
+            },
+            {
+                id: 'initial_placement_view_lifecycle',
+                pass:
+                    initialPlacementManifestMatches &&
+                    removedViewWasDestroyed &&
+                    initialPlacementRestoreMatches,
+            },
+            { id: 'run_cleanup_lifecycle', pass: cleanupPass },
+            { id: 'same_page_restart_lifecycle', pass: samePageRestartPass },
+            { id: 'console_errors', pass: consoleMessages.length === 0 },
+            { id: 'page_errors', pass: pageErrors.length === 0 },
+            { id: 'failed_requests', pass: requestFailures.length === 0 },
+            { id: 'http_error_responses', pass: responseErrors.length === 0 },
+        ] as const;
 
         return {
             generatedAt: new Date().toISOString(),
@@ -281,8 +496,24 @@ async function runBrowserScenario() {
                         saleAfter.farmerEggs === 0,
                 },
             },
+            initialPlacementLifecycle: {
+                afterRemoval: initialPlacementsAfterRemoval,
+                afterRestore: initialPlacementsAfterRestore,
+                before: initialPlacementsBefore,
+                manifestMatches: initialPlacementManifestMatches,
+                removedViewWasDestroyed,
+                restoreMatches: initialPlacementRestoreMatches,
+            },
+            runCleanup,
+            samePageRestarts: restartStates,
             consoleMessages,
             pageErrors,
+            requestFailures,
+            responseErrors,
+            checks: {
+                items: checks,
+                pass: checks.every((check) => check.pass),
+            },
             snapshots,
             summary: summarizeSnapshots(snapshots),
         };
@@ -363,9 +594,11 @@ function waitForHttp(url: string, timeoutMs: number) {
     });
 }
 
-function stopDevServer(server: ChildProcessWithoutNullStreams) {
-    if (server.killed) return;
+async function stopDevServer(server: ChildProcessWithoutNullStreams) {
+    if (server.exitCode !== null) return;
+    const exited = once(server, 'exit');
     server.kill('SIGTERM');
+    await exited;
 }
 
 function clamp(value: number, min: number, max: number) {

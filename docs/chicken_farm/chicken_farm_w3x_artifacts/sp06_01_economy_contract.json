@@ -1,0 +1,84 @@
+{
+  "taskId": "SP-06-01",
+  "status": "static-contract",
+  "normalP3": {
+    "ownerPlayerId": 3,
+    "farmer": { "id": "p3-farmer", "x": 3392, "y": 8928 },
+    "wallet": { "gold": 1500, "lumber": 0, "supplyCap": 3, "supplyUsed": 0 },
+    "startingInventory": {
+      "capacity": 6,
+      "items": [
+        { "rawcode": "I003", "quantity": 5 },
+        { "rawcode": "I009", "quantity": 1 },
+        { "rawcode": "I00F", "quantity": 1 }
+      ]
+    }
+  },
+  "staticWpmReplayPoints": {
+    "campfireInput": { "x": 3584, "y": 8896, "snappedFootprint": { "x": 3520, "y": 8832, "width": 128, "height": 128 } },
+    "marketInput": { "x": 4032, "y": 8896, "snappedFootprint": { "x": 3968, "y": 8832, "width": 128, "height": 128 } },
+    "coopInput": { "x": 4160, "y": 8896, "snappedFootprint": { "x": 4096, "y": 8832, "width": 128, "height": 128 } },
+    "assertion": "Each 4x4 footprint is ground-unblocked in games/chicken-farm/assets/data/wpm_pathing_grid.json. Runtime input/pathing remains SP-06-02 and later."
+  },
+  "normalBootstrap": {
+    "currentStaticPath": [
+      "Use I009 once to create a complete, skip-cost campfire/basic feeding well.",
+      "Use I00F once to create a complete, skip-cost market.",
+      "Use I003 up to five times to create owner-3 basic chickens.",
+      "A basic chicken lays one I006 every 30 seconds while alive; the basic well feeds but does not accelerate egg laying.",
+      "Collect an I006 stack, then sell it at the completed market for 12 gold per egg."
+    ],
+    "blocker": "coop_basic costs 120 gold and 52 lumber, while normal starts at 0 lumber. exchangeEnabled is false and no runtime lumber-mill income write exists.",
+    "sp06_04_decision": {
+      "minimumPath": "At a completed owner market, add the original first exchange tier: spend 100 gold and receive 70 lumber. This funds one coop_basic without raising starting resources or debug grants.",
+      "sourceEvidence": [
+        "jass_economy_events.tsv lines 3185-3186: -100 gold, +70 lumber",
+        "web_mvp_balance_reference.json original exchange tier 100 -> 70",
+        "item_catalog_reference.tsv I000 describes the same conversion"
+      ],
+      "outOfScope": "Lumber-mill periodic income, exchange tiers above 100 -> 70, and runtime building requires stay with SP-09 unless SP-06-04 reveals they are necessary for this first loop."
+    }
+  },
+  "ownershipAndInventory": {
+    "owner": "Field pickup, coop deposit/hatch, and market sale require the same owner for actor, item/inventory, and completed target building. Market-owner validation is missing in the current runtime and belongs to SP-06-10.",
+    "slots": "Farmer and coop inventories each have six slots. A matching rawcode merges into one stack with no per-stack cap; a different rawcode needs an empty slot.",
+    "atomicity": {
+      "pickup": "Move the complete field stack or leave field and inventory unchanged.",
+      "deposit": "Move the complete selected I006 stack or restore the exact source stack and leave coop unchanged.",
+      "sale": "Remove and pay for the complete selected I006 stack exactly once, or preserve both stack and wallet.",
+      "hatchStart": "Consume exactly one I006 and create one job, or preserve egg and job count."
+    },
+    "storedEggs": "Derived from the coop I006 inventory total after every supported mutation; it is never an independent wallet or balance source."
+  },
+  "hatchAndSupply": {
+    "basic": { "capacity": 1, "durationSec": 20, "result": "basic" },
+    "mid": { "capacity": 2, "durationSec": 17, "result": "mid" },
+    "high": { "capacity": 3, "durationSec": 14, "result": "giant" },
+    "supply": "Current economy chickens neither reserve nor consume supply. SP-06 preserves this until SP-09 defines production/supply integration; hatch must not fail solely from supply in SP-06."
+  },
+  "removalAndExitPolicy": {
+    "coop": "Completed-coop removal has no refund. Discard its stored I006 inventory, cancel its hatch jobs, and create no completion chicken. Record both quantities in SP-06-12's ledger.",
+    "well": "Completed-well removal discards no eggs and removes feeding/egg effects immediately.",
+    "market": "Completed-market removal discards no carried eggs; it cancels pending sales and prevents future sales until another completed same-owner market exists.",
+    "farmer": "Farmer death/removal cancels economy tasks and discards that farmer's inventory once. This is not yet implemented or verified and belongs to SP-06-11/12.",
+    "hatchExit": "A completed hatch with no valid, unblocked production exit stays pending and retains its job. It must never use the current missing-coop (0,0) fallback or create a chicken inside a blocker."
+  },
+  "knownCurrentGaps": [
+    "I003 is consumed before its spawn point is checked for WPM/building collision; SP-06-03 makes this atomic.",
+    "basic campfire/well feeds chickens but only windmill accelerates eggs; SP-06-05 fixes or explicitly preserves the gameplay mapping.",
+    "completeHatches can create a chicken from a missing coop at (0,0); SP-06-09 replaces it with pending/retry behavior.",
+    "removeEconomyBuilding silently removes coop inventory and hatch jobs; SP-06-12 adds quantity accounting and task cleanup.",
+    "market sale validates completion/type but not market owner; SP-06-10 adds same-owner validation."
+  ],
+  "verification": {
+    "performed": [
+      "Static source and W3X-artifact comparison",
+      "4x4 WPM ground-block checks at the three replay points",
+      "git diff --check"
+    ],
+    "notPerformed": [
+      "Typecheck/build/browser runtime",
+      "Actual input, movement, economy, or wallet assertions"
+    ]
+  }
+}

@@ -8,12 +8,10 @@ import {
 } from '../config';
 import type {
     CombatBuilding,
-    CombatBuildingKind,
     CombatWolf,
     PlayerStart,
 } from '../ecs/components';
 import {
-    COMBAT_POC_LAYOUT,
     POC_TOWER_FOCUS_LOCK_SEC,
     POC_TOWER_ID,
     POC_WOLF_COUNT,
@@ -1138,7 +1136,7 @@ export class CombatPocSystem {
         return !this.canWolfOccupyPoint(point.x, point.y);
     }
 
-    private getCurrentWolfTarget(wolf: CombatWolf) {
+    private getCurrentWolfTarget(wolf: CombatWolf): WolfDirectTarget | null {
         const focusedGoal = this.getWolfGoalBuilding(wolf);
         const allowCleanupFenceTarget =
             focusedGoal !== null && this.isPostObjectiveCleanupTarget(focusedGoal);

@@ -59,12 +59,15 @@ type ConstructionPlacementSystemConfig = {
 
 const BUILDER_TEMPLATE_IDS: readonly ControllableUnitTemplateId[] = ['farmer'];
 const BUILDER_START_DISTANCE_PX = 40;
-const BUILD_TARGET_MARGIN_PX = 30;
+// Construction may begin while the builder is within BUILDER_START_DISTANCE_PX
+// of its assigned point. Keep that point far enough outside the final
+// footprint that the completed building never encloses its builder.
+const BUILD_TARGET_MARGIN_PX = 56;
 const GHOST_HATCH_SPACING_PX = 22;
 const GHOST_CORNER_TICK_PX = 22;
 
 type PendingBuildOrder = {
-    readonly builderUnitId: string;
+    builderUnitId: string;
     readonly footprint: GridPathRect;
     readonly id: string;
     runtimeBuildingId?: string;
@@ -126,6 +129,18 @@ export class ConstructionPlacementSystem {
         return this.activeBuildingId ?? null;
     }
 
+    /** Detached pending-order data for browser lifecycle assertions. */
+    getPendingBuildOrderSnapshots() {
+        return this.pendingOrders.map((order) => ({
+            builderUnitId: order.builderUnitId,
+            footprint: { ...order.footprint },
+            id: order.id,
+            runtimeBuildingId: order.runtimeBuildingId ?? null,
+            targetPoint: { ...order.targetPoint },
+            templateId: order.templateId,
+        }));
+    }
+
     cancelConstruction(buildingId: string, reason = 'cancelled') {
         const orderIndex = this.pendingOrders.findIndex(
             (order) => order.runtimeBuildingId === buildingId,
@@ -137,6 +152,20 @@ export class ConstructionPlacementSystem {
         if (order) {
             this.clearBuilderBuildCommand(order.builderUnitId, buildingId);
             this.pendingOrders.splice(orderIndex, 1);
+        }
+        return true;
+    }
+
+    removeCompletedBuilding(buildingId: string, reason = 'removed') {
+        const orderIndex = this.pendingOrders.findIndex(
+            (order) => order.runtimeBuildingId === buildingId,
+        );
+        const order = orderIndex >= 0 ? this.pendingOrders[orderIndex] : null;
+        if (!this.buildingSystem.removeCompletedBuilding(buildingId, reason)) return false;
+        if (order) {
+            this.clearBuilderBuildCommand(order.builderUnitId, buildingId);
+            this.pendingOrders.splice(orderIndex, 1);
+            this.issueMoveToNextBuilderOrder(order.builderUnitId);
         }
         return true;
     }
@@ -173,7 +202,15 @@ export class ConstructionPlacementSystem {
     ) {
         const building = this.buildingSystem.getBuilding(buildingId);
         const builder = this.getUnitById(builderUnitId);
-        if (!building || !builder || building.state !== 'constructing') return false;
+        if (
+            !building ||
+            !builder ||
+            building.state !== 'constructing' ||
+            building.activeWorkerUnitId ||
+            builder.ownerPlayerId !== building.ownerPlayerId
+        ) {
+            return false;
+        }
 
         let order = this.pendingOrders.find(
             (candidate) => candidate.runtimeBuildingId === buildingId,
@@ -195,6 +232,10 @@ export class ConstructionPlacementSystem {
             this.nextPendingBuildOrderId += 1;
             this.pendingOrders.push(order);
         } else {
+            if (order.builderUnitId !== builder.id) {
+                this.clearBuilderBuildCommand(order.builderUnitId, building.id);
+                order.builderUnitId = builder.id;
+            }
             order.targetPoint = targetPoint;
         }
 
@@ -210,6 +251,23 @@ export class ConstructionPlacementSystem {
 
     isActive() {
         return Boolean(this.activeBuildingId);
+    }
+
+    dispose() {
+        this.pendingOrders.forEach((order) => {
+            if (order.runtimeBuildingId) {
+                this.clearBuilderBuildCommand(order.builderUnitId, order.runtimeBuildingId);
+            }
+        });
+        this.pendingOrders.splice(0);
+        this.activeBuildingId = undefined;
+        this.currentFootprint = undefined;
+        this.currentValidation = { reason: 'disposed', valid: false };
+        [this.ghost, this.pendingGraphics].forEach((graphics) => {
+            graphics.destroy();
+            const index = this.worldObjects.indexOf(graphics);
+            if (index >= 0) this.worldObjects.splice(index, 1);
+        });
     }
 
     /** Shared by charged item targeting: same snap and world/pathing checks,
@@ -554,7 +612,10 @@ export class ConstructionPlacementSystem {
         );
         if (!nextOrder) return false;
 
-        return this.issueBuilderMove(builderUnitId, nextOrder.targetPoint);
+        // The next construction order is already owned by this builder. Start it
+        // through the queued path so ControllableUnitSystem does not treat the
+        // handoff as an unrelated replace command and cancel that pending order.
+        return this.issueBuilderMove(builderUnitId, nextOrder.targetPoint, 'append');
     }
 
     private drawPendingOrders() {

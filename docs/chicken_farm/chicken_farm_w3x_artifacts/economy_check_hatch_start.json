@@ -1,0 +1,248 @@
+{
+  "case": "hatch_start",
+  "checks": {
+    "explicitHotkeyConsumesOneEgg": true,
+    "emptyCoopDoesNotAddJob": true,
+    "walletUnchanged": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "snapshots": {
+    "after": {
+      "activeStartItemPlacement": null,
+      "buildings": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "state": "complete",
+          "templateId": "coop_basic"
+        }
+      ],
+      "chickens": [],
+      "coops": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "storedEggs": 0
+        }
+      ],
+      "elapsedSec": 1.241925266669644,
+      "fieldEggs": [],
+      "hatchJobs": [
+        {
+          "completeAtSec": 21.191925266669646,
+          "coopId": "player-building-1",
+          "id": "hatch-1",
+          "ownerPlayerId": 3,
+          "resultChickenKind": "basic"
+        }
+      ],
+      "inventories": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "slots": [
+            {
+              "itemRawcode": "I003",
+              "quantity": 5
+            },
+            {
+              "itemRawcode": "I009",
+              "quantity": 1
+            },
+            {
+              "itemRawcode": "I00F",
+              "quantity": 1
+            },
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "slots": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "runId": 1,
+      "selected": {
+        "buildingId": null,
+        "economyEntityId": "player-building-1",
+        "economyEntityType": "coop",
+        "unitIds": []
+      },
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0,
+        "supplyCap": 3,
+        "supplyUsed": 0
+      },
+      "workerTasks": []
+    },
+    "before": {
+      "activeStartItemPlacement": null,
+      "buildings": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "state": "complete",
+          "templateId": "coop_basic"
+        }
+      ],
+      "chickens": [],
+      "coops": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "storedEggs": 1
+        }
+      ],
+      "elapsedSec": 1.158591933336311,
+      "fieldEggs": [],
+      "hatchJobs": [],
+      "inventories": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "slots": [
+            {
+              "itemRawcode": "I003",
+              "quantity": 5
+            },
+            {
+              "itemRawcode": "I009",
+              "quantity": 1
+            },
+            {
+              "itemRawcode": "I00F",
+              "quantity": 1
+            },
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "slots": [
+            {
+              "itemRawcode": "I006",
+              "quantity": 1
+            },
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "runId": 1,
+      "selected": {
+        "buildingId": null,
+        "economyEntityId": "player-building-1",
+        "economyEntityType": "coop",
+        "unitIds": []
+      },
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0,
+        "supplyCap": 3,
+        "supplyUsed": 0
+      },
+      "workerTasks": []
+    },
+    "repeated": {
+      "activeStartItemPlacement": null,
+      "buildings": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "state": "complete",
+          "templateId": "coop_basic"
+        }
+      ],
+      "chickens": [],
+      "coops": [
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "storedEggs": 0
+        }
+      ],
+      "elapsedSec": 1.291925266669644,
+      "fieldEggs": [],
+      "hatchJobs": [
+        {
+          "completeAtSec": 21.191925266669646,
+          "coopId": "player-building-1",
+          "id": "hatch-1",
+          "ownerPlayerId": 3,
+          "resultChickenKind": "basic"
+        }
+      ],
+      "inventories": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "slots": [
+            {
+              "itemRawcode": "I003",
+              "quantity": 5
+            },
+            {
+              "itemRawcode": "I009",
+              "quantity": 1
+            },
+            {
+              "itemRawcode": "I00F",
+              "quantity": 1
+            },
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "slots": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "runId": 1,
+      "selected": {
+        "buildingId": null,
+        "economyEntityId": "player-building-1",
+        "economyEntityType": "coop",
+        "unitIds": []
+      },
+      "wallet": {
+        "gold": 1500,
+        "lumber": 0,
+        "supplyCap": 3,
+        "supplyUsed": 0
+      },
+      "workerTasks": []
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-22T00:22:11.376Z",
+  "generatedAt": "2026-10-02T00:55:34.961Z",
   "parameters": {
     "baseUrl": "http://127.0.0.1:4174/game-assets/chicken-farm/",
     "browser": "playwright.chromium",
@@ -8,67 +8,2267 @@
       "width": 960
     }
   },
-  "consoleMessages": [
-    "warning: [.WebGL-0x12400534800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
-    "warning: [.WebGL-0x12400537800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  "economyLifecycle": {
+    "coopFixtureId": "player-building-1",
+    "wellFixtureId": "player-building-2",
+    "marketFixtureId": "player-building-3",
+    "before": {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 1.4627266666666632,
+      "runId": 1,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3448.8466306087084,
+        "y": 8956.093455825856
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 2,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "after": {
+      "buildingCount": 3,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 1,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 1
+      },
+      "elapsedSec": 5.775923333333327,
+      "runId": 1,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 9832  Lumber 9948  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3590.793931754997,
+        "y": 9059.33464081865
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 2,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 9832,
+        "lumber": 9948
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "sharedWalletCostCheck": {
+      "expectedGold": 9832,
+      "expectedLumber": 9948,
+      "pass": true
+    },
+    "marketSaleCheck": {
+      "farmerEggsAfter": 0,
+      "farmerEggsBefore": 0,
+      "goldAfter": 9868,
+      "goldBefore": 9832,
+      "lumberAfter": 9948,
+      "lumberBefore": 9948,
+      "pass": true
+    }
+  },
+  "initialPlacementLifecycle": {
+    "afterRemoval": {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.37939333333333325,
+      "runId": 1,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 24,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "afterRestore": {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.4127266666666666,
+      "runId": 1,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "before": {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.3460599999999999,
+      "runId": 1,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    "manifestMatches": true,
+    "removedViewWasDestroyed": true,
+    "restoreMatches": true
+  },
+  "runCleanup": {
+    "debugCleared": true,
+    "first": {
+      "after": {
+        "buildingCount": 0,
+        "economyEntityCount": 0,
+        "initialPlacementCount": 0,
+        "initialPlacementViewCount": 0,
+        "selectedUnitCount": 0,
+        "unitCount": 0,
+        "uiObjectCount": 0,
+        "worldObjectCount": 0
+      },
+      "alreadyDisposed": false,
+      "before": {
+        "buildingCount": 0,
+        "economyEntityCount": 0,
+        "initialPlacementCount": 25,
+        "initialPlacementViewCount": 25,
+        "selectedUnitCount": 0,
+        "unitCount": 2,
+        "uiObjectCount": 72,
+        "worldObjectCount": 83
+      }
+    },
+    "second": {
+      "after": {
+        "buildingCount": 0,
+        "economyEntityCount": 0,
+        "initialPlacementCount": 0,
+        "initialPlacementViewCount": 0,
+        "selectedUnitCount": 0,
+        "unitCount": 0,
+        "uiObjectCount": 0,
+        "worldObjectCount": 0
+      },
+      "alreadyDisposed": true,
+      "before": {
+        "buildingCount": 0,
+        "economyEntityCount": 0,
+        "initialPlacementCount": 25,
+        "initialPlacementViewCount": 25,
+        "selectedUnitCount": 0,
+        "unitCount": 2,
+        "uiObjectCount": 72,
+        "worldObjectCount": 83
+      }
+    }
+  },
+  "samePageRestarts": [
+    {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.49668000000000034,
+      "runId": 2,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    },
+    {
+      "buildingCount": 0,
+      "commandPage": "root",
+      "debugPoc": {
+        "combatActive": false,
+        "fixturesEnabled": true,
+        "terrainProbeCount": 0
+      },
+      "economyPoc": {
+        "chickens": 0,
+        "coops": 0,
+        "fieldEggs": 0,
+        "hatchJobs": 0,
+        "wells": 0
+      },
+      "elapsedSec": 0.5000300000000011,
+      "runId": 3,
+      "farmerInventory": [
+        {
+          "itemRawcode": "I003",
+          "quantity": 5
+        },
+        {
+          "itemRawcode": "I009",
+          "quantity": 1
+        },
+        {
+          "itemRawcode": "I00F",
+          "quantity": 1
+        }
+      ],
+      "farmerEggs": 0,
+      "hud": {
+        "inventorySlotCount": 6,
+        "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+      },
+      "initialPlacementViewCount": 25,
+      "initialPlacements": [
+        {
+          "id": "wolf_stone_01",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1632,
+          "y": 1216
+        },
+        {
+          "id": "wolf_stone_02",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 8608,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_03",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 5696
+        },
+        {
+          "id": "wolf_stone_04",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 9696,
+          "y": 5440
+        },
+        {
+          "id": "wolf_stone_05",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5472,
+          "y": 1472
+        },
+        {
+          "id": "wolf_stone_06",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7392,
+          "y": 2624
+        },
+        {
+          "id": "wolf_stone_07",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3424,
+          "y": 2112
+        },
+        {
+          "id": "wolf_stone_08",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 5088,
+          "y": 8448
+        },
+        {
+          "id": "wolf_stone_09",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1568,
+          "y": 8512
+        },
+        {
+          "id": "wolf_stone_10",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 1376,
+          "y": 3264
+        },
+        {
+          "id": "wolf_stone_11",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7136,
+          "y": 5888
+        },
+        {
+          "id": "wolf_stone_12",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 3232,
+          "y": 6336
+        },
+        {
+          "id": "wolf_stone_13",
+          "owner": "Player(10)",
+          "rawcode": "n00D",
+          "role": "wolf_stone",
+          "x": 7904,
+          "y": 8640
+        },
+        {
+          "id": "ancient_wolf_stone",
+          "owner": "Player(10)",
+          "rawcode": "n017",
+          "role": "ancient_wolf_stone",
+          "x": 5120,
+          "y": 6752
+        },
+        {
+          "id": "spider_01",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9876,
+          "y": 114
+        },
+        {
+          "id": "spider_02",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4590,
+          "y": 202
+        },
+        {
+          "id": "spider_03",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9776,
+          "y": 4182
+        },
+        {
+          "id": "spider_04",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 4950,
+          "y": 9966
+        },
+        {
+          "id": "spider_05",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 9900,
+          "y": 9986
+        },
+        {
+          "id": "spider_06",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 88,
+          "y": 10104
+        },
+        {
+          "id": "spider_07",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 232,
+          "y": 104
+        },
+        {
+          "id": "spider_08",
+          "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+          "rawcode": "n01D",
+          "role": "neutral_spider",
+          "x": 206,
+          "y": 5086
+        },
+        {
+          "id": "central_market_n006",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n006",
+          "role": "central_market",
+          "x": 4992,
+          "y": 4768
+        },
+        {
+          "id": "central_merchant_h01R",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "h01R",
+          "role": "central_merchant",
+          "x": 4798,
+          "y": 4674
+        },
+        {
+          "id": "central_event_npc_n01J",
+          "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+          "rawcode": "n01J",
+          "role": "central_event_npc",
+          "x": 5044,
+          "y": 4250
+        }
+      ],
+      "placingBuildingId": null,
+      "primaryUnit": {
+        "id": "p3-farmer",
+        "x": 3392,
+        "y": 8928
+      },
+      "selectedBuildingId": null,
+      "selectedUnitCount": 0,
+      "units": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "templateId": "farmer"
+        },
+        {
+          "id": "p3-dog",
+          "ownerPlayerId": 3,
+          "templateId": "dog"
+        }
+      ],
+      "wallet": {
+        "gold": 10000,
+        "lumber": 10000
+      },
+      "worldSize": {
+        "x": 10080,
+        "y": 10528
+      }
+    }
   ],
+  "consoleMessages": [],
   "pageErrors": [],
+  "requestFailures": [],
+  "responseErrors": [],
+  "checks": {
+    "items": [
+      {
+        "id": "shared_wallet_cost",
+        "pass": true
+      },
+      {
+        "id": "market_sale",
+        "pass": true
+      },
+      {
+        "id": "initial_placement_view_lifecycle",
+        "pass": true
+      },
+      {
+        "id": "run_cleanup_lifecycle",
+        "pass": true
+      },
+      {
+        "id": "same_page_restart_lifecycle",
+        "pass": true
+      },
+      {
+        "id": "console_errors",
+        "pass": true
+      },
+      {
+        "id": "page_errors",
+        "pass": true
+      },
+      {
+        "id": "failed_requests",
+        "pass": true
+      },
+      {
+        "id": "http_error_responses",
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
   "snapshots": [
     {
       "perf": {
-        "frameAvgMs": 16.427698550679303,
-        "frameCount": 92,
-        "frameMaxMs": 16.666666666666664,
-        "hotLabels": [
-          {
-            "avgMs": 1.666304347631724,
-            "count": 92,
-            "label": "update.combat",
-            "maxMs": 73.7999999821186,
-            "totalMs": 153.2999999821186
-          },
-          {
-            "avgMs": 13.116666669646898,
-            "count": 6,
-            "label": "path.wolf.refresh",
-            "maxMs": 27.899999976158142,
-            "totalMs": 78.7000000178814
-          },
-          {
-            "avgMs": 12.833333333333334,
-            "count": 6,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 27.5,
-            "totalMs": 77
-          },
-          {
-            "avgMs": 0.511956521998281,
-            "count": 92,
-            "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 47.10000002384186
-          },
-          {
-            "avgMs": 0.2054347829974216,
-            "count": 92,
-            "label": "update.minimap",
-            "maxMs": 4.100000023841858,
-            "totalMs": 18.900000035762787
-          }
-        ],
-        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+        "frameAvgMs": 0,
+        "frameCount": 0,
+        "frameMaxMs": 0,
+        "hotLabels": [],
+        "summary": "perf warming up"
       },
       "scenario": "baseline_idle",
       "state": {
-        "elapsedSec": 1.5280149333291573,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 0.32939333333333326,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          }
+        ],
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2692,
-          "y": 8368
+          "x": 3392,
+          "y": 8928
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 0,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -77,57 +2277,276 @@
     },
     {
       "perf": {
-        "frameAvgMs": 16.427698550679303,
-        "frameCount": 92,
-        "frameMaxMs": 16.666666666666664,
-        "hotLabels": [
-          {
-            "avgMs": 1.666304347631724,
-            "count": 92,
-            "label": "update.combat",
-            "maxMs": 73.7999999821186,
-            "totalMs": 153.2999999821186
-          },
-          {
-            "avgMs": 13.116666669646898,
-            "count": 6,
-            "label": "path.wolf.refresh",
-            "maxMs": 27.899999976158142,
-            "totalMs": 78.7000000178814
-          },
-          {
-            "avgMs": 12.833333333333334,
-            "count": 6,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 27.5,
-            "totalMs": 77
-          },
-          {
-            "avgMs": 0.511956521998281,
-            "count": 92,
-            "label": "update.fog",
-            "maxMs": 6,
-            "totalMs": 47.10000002384186
-          },
-          {
-            "avgMs": 0.2054347829974216,
-            "count": 92,
-            "label": "update.minimap",
-            "maxMs": 4.100000023841858,
-            "totalMs": 18.900000035762787
-          }
-        ],
-        "summary": "perf frame avg 16.4ms max 16.7ms | update.combat avg 1.67 max 73.80 | path.wolf.refresh avg 13.12 max 27.90 | path.wolf.findGridPath avg 12.83 max 27.50 | update.fog avg 0.51 max 6.00 | update.minimap avg 0.21 max 4.10"
+        "frameAvgMs": 0,
+        "frameCount": 0,
+        "frameMaxMs": 0,
+        "hotLabels": [],
+        "summary": "perf warming up"
       },
       "scenario": "select_all_units_2",
       "state": {
-        "elapsedSec": 2.1745249333291548,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 0.662726666666666,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2692,
-          "y": 8368
+          "x": 3392,
+          "y": 8928
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -136,57 +2555,276 @@
     },
     {
       "perf": {
-        "frameAvgMs": 34.55459259259259,
-        "frameCount": 45,
-        "frameMaxMs": 71.7699999999999,
-        "hotLabels": [
-          {
-            "avgMs": 1.3000000006622738,
-            "count": 45,
-            "label": "update.combat",
-            "maxMs": 34.599999994039536,
-            "totalMs": 58.50000002980232
-          },
-          {
-            "avgMs": 1.0000000006622738,
-            "count": 45,
-            "label": "update.fog",
-            "maxMs": 6.300000011920929,
-            "totalMs": 45.00000002980232
-          },
-          {
-            "avgMs": 11.466666668653488,
-            "count": 3,
-            "label": "path.wolf.refresh",
-            "maxMs": 34.20000001788139,
-            "totalMs": 34.400000005960464
-          },
-          {
-            "avgMs": 1.7,
-            "count": 20,
-            "label": "path.wolf.findGridPath",
-            "maxMs": 34,
-            "totalMs": 34
-          },
-          {
-            "avgMs": 0.4977777772479587,
-            "count": 45,
-            "label": "update.minimap",
-            "maxMs": 4.299999982118607,
-            "totalMs": 22.399999976158142
-          }
-        ],
-        "summary": "perf frame avg 34.6ms max 71.8ms slow max 71.8ms | update.combat avg 1.30 max 34.60 | update.fog avg 1.00 max 6.30 | path.wolf.refresh avg 11.47 max 34.20 | path.wolf.findGridPath avg 1.70 max 34.00 | update.minimap avg 0.50 max 4.30"
+        "frameAvgMs": 0,
+        "frameCount": 0,
+        "frameMaxMs": 0,
+        "hotLabels": [],
+        "summary": "perf warming up"
       },
       "scenario": "smart_command_short_defense_move",
       "state": {
-        "elapsedSec": 4.227924933329154,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 0.9127266666666651,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2799.222409939195,
-          "y": 8335.637138463462
+          "x": 3441.781833186055,
+          "y": 8912.974385715179
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -195,57 +2833,276 @@
     },
     {
       "perf": {
-        "frameAvgMs": 68.47863636363638,
-        "frameCount": 22,
-        "frameMaxMs": 71.67999999999992,
-        "hotLabels": [
-          {
-            "avgMs": 1.986363637176427,
-            "count": 22,
-            "label": "update.fog",
-            "maxMs": 5.699999988079071,
-            "totalMs": 43.70000001788139
-          },
-          {
-            "avgMs": 1.0181818184527485,
-            "count": 22,
-            "label": "update.minimap",
-            "maxMs": 4,
-            "totalMs": 22.400000005960464
-          },
-          {
-            "avgMs": 0.49999999729069794,
-            "count": 22,
-            "label": "update.combat",
-            "maxMs": 0.5999999940395355,
-            "totalMs": 10.999999940395355
-          },
-          {
-            "avgMs": 0.222727278416807,
-            "count": 22,
-            "label": "update.debugText",
-            "maxMs": 0.30000001192092896,
-            "totalMs": 4.900000125169754
-          },
-          {
-            "avgMs": 0.02727272700179707,
-            "count": 22,
-            "label": "update.units",
-            "maxMs": 0.10000002384185791,
-            "totalMs": 0.5999999940395355
-          }
-        ],
-        "summary": "perf frame avg 68.5ms max 71.7ms slow max 71.7ms | update.fog avg 1.99 max 5.70 | update.minimap avg 1.02 max 4.00 | update.combat avg 0.50 max 0.60 | update.debugText avg 0.22 max 0.30 | update.units avg 0.03 max 0.10"
+        "frameAvgMs": 0,
+        "frameCount": 0,
+        "frameMaxMs": 0,
+        "hotLabels": [],
+        "summary": "perf warming up"
       },
       "scenario": "smart_command_blocker_edge_move",
       "state": {
-        "elapsedSec": 6.2228249333291545,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 1.1793933333333309,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2699.614644050808,
-          "y": 8377.431974480745
+          "x": 3391.0015655357975,
+          "y": 8936.673896244469
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -254,57 +3111,1532 @@
     },
     {
       "perf": {
-        "frameAvgMs": 69.2509090909091,
-        "frameCount": 22,
-        "frameMaxMs": 71.66999999999989,
-        "hotLabels": [
-          {
-            "avgMs": 1.9181818203492598,
-            "count": 22,
-            "label": "update.fog",
-            "maxMs": 6.5999999940395355,
-            "totalMs": 42.200000047683716
-          },
-          {
-            "avgMs": 0.8727272708307613,
-            "count": 22,
-            "label": "update.minimap",
-            "maxMs": 4.899999976158142,
-            "totalMs": 19.19999995827675
-          },
-          {
-            "avgMs": 0.5090909085490487,
-            "count": 22,
-            "label": "update.combat",
-            "maxMs": 0.6000000238418579,
-            "totalMs": 11.199999988079071
-          },
-          {
-            "avgMs": 0.25454545562917535,
-            "count": 22,
-            "label": "update.debugText",
-            "maxMs": 0.4000000059604645,
-            "totalMs": 5.600000023841858
-          },
-          {
-            "avgMs": 0.5,
-            "count": 1,
-            "label": "command.smart.total",
-            "maxMs": 0.5,
-            "totalMs": 0.5
-          }
-        ],
-        "summary": "perf frame avg 69.3ms max 71.7ms slow max 71.7ms | update.fog avg 1.92 max 6.60 | update.minimap avg 0.87 max 4.90 | update.combat avg 0.51 max 0.60 | update.debugText avg 0.25 max 0.40 | command.smart.total avg 0.50 max 0.50"
+        "frameAvgMs": 0,
+        "frameCount": 0,
+        "frameMaxMs": 0,
+        "hotLabels": [],
+        "summary": "perf warming up"
       },
       "scenario": "smart_command_wide_move",
       "state": {
-        "elapsedSec": 8.224264933329154,
+        "buildingCount": 0,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 0,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 1.4460599999999966,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 10000  Lumber 10000  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
         "primaryUnit": {
           "id": "p3-farmer",
-          "x": 2803.5204490407295,
-          "y": 8410.050367471713
+          "x": 3445.003773877344,
+          "y": 8954.983297214572
         },
+        "selectedBuildingId": null,
         "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 10000,
+          "lumber": 10000
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 16.623369963369978,
+        "frameCount": 91,
+        "frameMaxMs": 16.666666666666664,
+        "hotLabels": [
+          {
+            "avgMs": 2.32087912107562,
+            "count": 91,
+            "label": "update.fog",
+            "maxMs": 24.600000008940697,
+            "totalMs": 211.2000000178814
+          },
+          {
+            "avgMs": 1.0010989020158956,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 6,
+            "totalMs": 91.1000000834465
+          },
+          {
+            "avgMs": 0.7747252747252747,
+            "count": 91,
+            "label": "update.minimap",
+            "maxMs": 10.5,
+            "totalMs": 70.5
+          },
+          {
+            "avgMs": 0.5450549454806926,
+            "count": 91,
+            "label": "update.selectionInfo",
+            "maxMs": 36.5,
+            "totalMs": 49.60000003874302
+          },
+          {
+            "avgMs": 0.3999999994105035,
+            "count": 91,
+            "label": "update.debugText",
+            "maxMs": 1.5,
+            "totalMs": 36.39999994635582
+          }
+        ],
+        "summary": "perf frame avg 16.6ms max 16.7ms | update.fog avg 2.32 max 24.60 | update.hotkeys avg 1.00 max 6.00 | update.minimap avg 0.77 max 10.50 | update.selectionInfo avg 0.55 max 36.50 | update.debugText avg 0.40 max 1.50"
+      },
+      "scenario": "completed_coop_economy_lifecycle",
+      "state": {
+        "buildingCount": 1,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 0
+        },
+        "elapsedSec": 1.7793933333333287,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9880  Lumber 9948  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3521.8609085046332,
+          "y": 8977.186469440245
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 9880,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 16.623369963369978,
+        "frameCount": 91,
+        "frameMaxMs": 16.666666666666664,
+        "hotLabels": [
+          {
+            "avgMs": 2.32087912107562,
+            "count": 91,
+            "label": "update.fog",
+            "maxMs": 24.600000008940697,
+            "totalMs": 211.2000000178814
+          },
+          {
+            "avgMs": 1.0010989020158956,
+            "count": 91,
+            "label": "update.hotkeys",
+            "maxMs": 6,
+            "totalMs": 91.1000000834465
+          },
+          {
+            "avgMs": 0.7747252747252747,
+            "count": 91,
+            "label": "update.minimap",
+            "maxMs": 10.5,
+            "totalMs": 70.5
+          },
+          {
+            "avgMs": 0.5450549454806926,
+            "count": 91,
+            "label": "update.selectionInfo",
+            "maxMs": 36.5,
+            "totalMs": 49.60000003874302
+          },
+          {
+            "avgMs": 0.3999999994105035,
+            "count": 91,
+            "label": "update.debugText",
+            "maxMs": 1.5,
+            "totalMs": 36.39999994635582
+          }
+        ],
+        "summary": "perf frame avg 16.6ms max 16.7ms | update.fog avg 2.32 max 24.60 | update.hotkeys avg 1.00 max 6.00 | update.minimap avg 0.77 max 10.50 | update.selectionInfo avg 0.55 max 36.50 | update.debugText avg 0.40 max 1.50"
+      },
+      "scenario": "completed_well_economy_lifecycle",
+      "state": {
+        "buildingCount": 2,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 2.6460233333333267,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9850  Lumber 9948  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3591.0323296691936,
+          "y": 8997.16932444335
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 9850,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 166.996,
+        "frameCount": 10,
+        "frameMaxMs": 171.66000000000022,
+        "hotLabels": [
+          {
+            "avgMs": 20.130000001192094,
+            "count": 10,
+            "label": "update.fog",
+            "maxMs": 22.299999997019768,
+            "totalMs": 201.30000001192093
+          },
+          {
+            "avgMs": 4.709999999403953,
+            "count": 10,
+            "label": "update.minimap",
+            "maxMs": 10.5,
+            "totalMs": 47.099999994039536
+          },
+          {
+            "avgMs": 1.249999998509884,
+            "count": 10,
+            "label": "update.debugText",
+            "maxMs": 1.5999999940395355,
+            "totalMs": 12.499999985098839
+          },
+          {
+            "avgMs": 1.0900000020861627,
+            "count": 10,
+            "label": "update.hotkeys",
+            "maxMs": 1.4000000059604645,
+            "totalMs": 10.900000020861626
+          },
+          {
+            "avgMs": 0.6,
+            "count": 10,
+            "label": "update.units",
+            "maxMs": 2.2999999970197678,
+            "totalMs": 6
+          }
+        ],
+        "summary": "perf frame avg 167.0ms max 171.7ms slow max 171.7ms | update.fog avg 20.13 max 22.30 | update.minimap avg 4.71 max 10.50 | update.debugText avg 1.25 max 1.60 | update.hotkeys avg 1.09 max 1.40 | update.units avg 0.60 max 2.30"
+      },
+      "scenario": "completed_market_sale_fixture",
+      "state": {
+        "buildingCount": 3,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 5.609263333333327,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9832  Lumber 9948  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3591.57839629555,
+          "y": 9055.412318115887
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 9832,
+          "lumber": 9948
+        },
+        "worldSize": {
+          "x": 10080,
+          "y": 10528
+        }
+      }
+    },
+    {
+      "perf": {
+        "frameAvgMs": 168.1433333333333,
+        "frameCount": 9,
+        "frameMaxMs": 171.6699999999997,
+        "hotLabels": [
+          {
+            "avgMs": 19.377777778440052,
+            "count": 9,
+            "label": "update.fog",
+            "maxMs": 22,
+            "totalMs": 174.40000000596046
+          },
+          {
+            "avgMs": 3.966666665342119,
+            "count": 9,
+            "label": "update.minimap",
+            "maxMs": 9.599999994039536,
+            "totalMs": 35.69999998807907
+          },
+          {
+            "avgMs": 1.2777777794334624,
+            "count": 9,
+            "label": "update.hotkeys",
+            "maxMs": 2,
+            "totalMs": 11.500000014901161
+          },
+          {
+            "avgMs": 0.3777777784400516,
+            "count": 9,
+            "label": "update.units",
+            "maxMs": 0.5,
+            "totalMs": 3.4000000059604645
+          },
+          {
+            "avgMs": 0.2333333326710595,
+            "count": 9,
+            "label": "path.player.findGridPath",
+            "maxMs": 0.3999999910593033,
+            "totalMs": 2.0999999940395355
+          }
+        ],
+        "summary": "perf frame avg 168.1ms max 171.7ms slow max 171.7ms | update.fog avg 19.38 max 22.00 | update.minimap avg 3.97 max 9.60 | update.hotkeys avg 1.28 max 2.00 | update.units avg 0.38 max 0.50 | path.player.findGridPath avg 0.23 max 0.40"
+      },
+      "scenario": "farmer_egg_stack_market_sale",
+      "state": {
+        "buildingCount": 3,
+        "commandPage": "root",
+        "debugPoc": {
+          "combatActive": false,
+          "fixturesEnabled": true,
+          "terrainProbeCount": 0
+        },
+        "economyPoc": {
+          "chickens": 0,
+          "coops": 1,
+          "fieldEggs": 0,
+          "hatchJobs": 0,
+          "wells": 1
+        },
+        "elapsedSec": 9.84574333333333,
+        "runId": 1,
+        "farmerInventory": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          }
+        ],
+        "farmerEggs": 0,
+        "hud": {
+          "inventorySlotCount": 6,
+          "resourceText": "Gold 9868  Lumber 9948  Supply 0/10000"
+        },
+        "initialPlacementViewCount": 25,
+        "initialPlacements": [
+          {
+            "id": "wolf_stone_01",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1632,
+            "y": 1216
+          },
+          {
+            "id": "wolf_stone_02",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 8608,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_03",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 5696
+          },
+          {
+            "id": "wolf_stone_04",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 9696,
+            "y": 5440
+          },
+          {
+            "id": "wolf_stone_05",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5472,
+            "y": 1472
+          },
+          {
+            "id": "wolf_stone_06",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7392,
+            "y": 2624
+          },
+          {
+            "id": "wolf_stone_07",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3424,
+            "y": 2112
+          },
+          {
+            "id": "wolf_stone_08",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 5088,
+            "y": 8448
+          },
+          {
+            "id": "wolf_stone_09",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1568,
+            "y": 8512
+          },
+          {
+            "id": "wolf_stone_10",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 1376,
+            "y": 3264
+          },
+          {
+            "id": "wolf_stone_11",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7136,
+            "y": 5888
+          },
+          {
+            "id": "wolf_stone_12",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 3232,
+            "y": 6336
+          },
+          {
+            "id": "wolf_stone_13",
+            "owner": "Player(10)",
+            "rawcode": "n00D",
+            "role": "wolf_stone",
+            "x": 7904,
+            "y": 8640
+          },
+          {
+            "id": "ancient_wolf_stone",
+            "owner": "Player(10)",
+            "rawcode": "n017",
+            "role": "ancient_wolf_stone",
+            "x": 5120,
+            "y": 6752
+          },
+          {
+            "id": "spider_02",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4590,
+            "y": 202
+          },
+          {
+            "id": "spider_03",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9776,
+            "y": 4182
+          },
+          {
+            "id": "spider_04",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 4950,
+            "y": 9966
+          },
+          {
+            "id": "spider_05",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9900,
+            "y": 9986
+          },
+          {
+            "id": "spider_06",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 88,
+            "y": 10104
+          },
+          {
+            "id": "spider_07",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 232,
+            "y": 104
+          },
+          {
+            "id": "spider_08",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 206,
+            "y": 5086
+          },
+          {
+            "id": "central_market_n006",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n006",
+            "role": "central_market",
+            "x": 4992,
+            "y": 4768
+          },
+          {
+            "id": "central_merchant_h01R",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "h01R",
+            "role": "central_merchant",
+            "x": 4798,
+            "y": 4674
+          },
+          {
+            "id": "central_event_npc_n01J",
+            "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+            "rawcode": "n01J",
+            "role": "central_event_npc",
+            "x": 5044,
+            "y": 4250
+          },
+          {
+            "id": "spider_01",
+            "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+            "rawcode": "n01D",
+            "role": "neutral_spider",
+            "x": 9876,
+            "y": 114
+          }
+        ],
+        "placingBuildingId": null,
+        "primaryUnit": {
+          "id": "p3-farmer",
+          "x": 3596.029667431179,
+          "y": 9044.149705162998
+        },
+        "selectedBuildingId": null,
+        "selectedUnitCount": 2,
+        "units": [
+          {
+            "id": "p3-farmer",
+            "ownerPlayerId": 3,
+            "templateId": "farmer"
+          },
+          {
+            "id": "p3-dog",
+            "ownerPlayerId": 3,
+            "templateId": "dog"
+          }
+        ],
+        "wallet": {
+          "gold": 9868,
+          "lumber": 9948
+        },
         "worldSize": {
           "x": 10080,
           "y": 10528
@@ -313,56 +4645,50 @@
     }
   ],
   "summary": {
-    "frameAvgMs": 41.03,
-    "frameMaxMs": 71.77,
+    "frameAvgMs": 40.93,
+    "frameMaxMs": 171.67,
     "hotLabels": [
       {
-        "avgMs": 1.13,
-        "label": "update.combat",
-        "maxMs": 73.8,
-        "totalMs": 387.3
-      },
-      {
-        "avgMs": 1.19,
+        "avgMs": 11.04,
         "label": "update.fog",
-        "maxMs": 6.6,
-        "totalMs": 225.1
+        "maxMs": 24.6,
+        "totalMs": 798.1
       },
       {
-        "avgMs": 12.57,
-        "label": "path.wolf.refresh",
-        "maxMs": 34.2,
-        "totalMs": 191.8
-      },
-      {
-        "avgMs": 9.12,
-        "label": "path.wolf.findGridPath",
-        "maxMs": 34,
-        "totalMs": 188
-      },
-      {
-        "avgMs": 0.56,
+        "avgMs": 2.56,
         "label": "update.minimap",
-        "maxMs": 4.9,
-        "totalMs": 101.8
+        "maxMs": 10.5,
+        "totalMs": 223.8
       },
       {
-        "avgMs": 0.24,
+        "avgMs": 1.09,
+        "label": "update.hotkeys",
+        "maxMs": 6,
+        "totalMs": 204.6
+      },
+      {
+        "avgMs": 0.55,
+        "label": "update.selectionInfo",
+        "maxMs": 36.5,
+        "totalMs": 99.2
+      },
+      {
+        "avgMs": 0.68,
         "label": "update.debugText",
-        "maxMs": 0.4,
-        "totalMs": 10.5
+        "maxMs": 1.6,
+        "totalMs": 85.3
       },
       {
-        "avgMs": 0.03,
+        "avgMs": 0.49,
         "label": "update.units",
-        "maxMs": 0.1,
-        "totalMs": 0.6
+        "maxMs": 2.3,
+        "totalMs": 9.4
       },
       {
-        "avgMs": 0.5,
-        "label": "command.smart.total",
-        "maxMs": 0.5,
-        "totalMs": 0.5
+        "avgMs": 0.23,
+        "label": "path.player.findGridPath",
+        "maxMs": 0.4,
+        "totalMs": 2.1
       }
     ]
   }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-30T11:07:47.986Z",
+  "generatedAt": "2026-10-07T02:43:45.416Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -44,6 +44,179 @@
       "saleWithoutMarket": false,
       "soldEggs": 3
     },
+    "lumberIncomeValidation": {
+      "beforeTickIncomeEvents": [],
+      "firstTickIncomeEvents": [
+        {
+          "lumber": 350,
+          "playerId": 3,
+          "tickSec": 30,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 140,
+          "playerId": 4,
+          "tickSec": 30,
+          "type": "lumber_income_paid"
+        }
+      ],
+      "largeDeltaIncomeEvents": [
+        {
+          "lumber": 420,
+          "playerId": 3,
+          "tickSec": 90,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 140,
+          "playerId": 4,
+          "tickSec": 90,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 420,
+          "playerId": 3,
+          "tickSec": 120,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 140,
+          "playerId": 4,
+          "tickSec": 120,
+          "type": "lumber_income_paid"
+        }
+      ],
+      "lumberMillCount": 6,
+      "repeatedTickIncomeEvents": [],
+      "secondTickIncomeEvents": [
+        {
+          "lumber": 420,
+          "playerId": 3,
+          "tickSec": 60,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 140,
+          "playerId": 4,
+          "tickSec": 60,
+          "type": "lumber_income_paid"
+        }
+      ],
+      "wallets": [
+        {
+          "gold": 101,
+          "id": 3,
+          "lumber": 1617,
+          "supplyCap": 4,
+          "supplyUsed": 1
+        },
+        {
+          "gold": 202,
+          "id": 4,
+          "lumber": 571,
+          "supplyCap": 6,
+          "supplyUsed": 2
+        }
+      ],
+      "snapshot": {
+        "lastProcessedTickSec": 120,
+        "mills": [
+          {
+            "activeFromSec": 0,
+            "id": "lumber-mill-basic",
+            "ownerPlayerId": 3,
+            "templateId": "lumber_mill"
+          },
+          {
+            "activeFromSec": 0,
+            "id": "lumber-mill-mid",
+            "ownerPlayerId": 3,
+            "templateId": "lumber_mill_mid"
+          },
+          {
+            "activeFromSec": 30,
+            "id": "lumber-mill-high",
+            "ownerPlayerId": 3,
+            "templateId": "lumber_mill_high"
+          },
+          {
+            "activeFromSec": 0,
+            "id": "lumber-mill-owner-four-one",
+            "ownerPlayerId": 4,
+            "templateId": "lumber_mill"
+          },
+          {
+            "activeFromSec": 0,
+            "id": "lumber-mill-owner-four-two",
+            "ownerPlayerId": 4,
+            "templateId": "lumber_mill"
+          },
+          {
+            "activeFromSec": 30.001,
+            "id": "lumber-mill-late-basic",
+            "ownerPlayerId": 3,
+            "templateId": "lumber_mill"
+          }
+        ],
+        "totalsByPlayer": [
+          {
+            "lumber": 1610,
+            "playerId": 3
+          },
+          {
+            "lumber": 560,
+            "playerId": 4
+          }
+        ]
+      },
+      "resetSnapshot": {
+        "lastProcessedTickSec": 0,
+        "mills": [],
+        "totalsByPlayer": [
+          {
+            "lumber": 0,
+            "playerId": 3
+          }
+        ]
+      }
+    },
+    "lumberMillLifecycleValidation": {
+      "incomeAt30": [
+        {
+          "lumber": 70,
+          "playerId": 3,
+          "tickSec": 30,
+          "type": "lumber_income_paid"
+        },
+        {
+          "lumber": 110,
+          "playerId": 4,
+          "tickSec": 30,
+          "type": "lumber_income_paid"
+        }
+      ],
+      "incomeAt60": [
+        {
+          "lumber": 110,
+          "playerId": 4,
+          "tickSec": 60,
+          "type": "lumber_income_paid"
+        }
+      ],
+      "lumberMillIds": [
+        "player-building-45"
+      ],
+      "wallets": [
+        {
+          "id": 3,
+          "lumber": 70
+        },
+        {
+          "id": 4,
+          "lumber": 220
+        }
+      ]
+    },
     "vitalityValidation": {
       "basicWellAttractedCount": 8,
       "finalAiState": "recover",
@@ -82,6 +255,405 @@
     "wellCount": 1
   },
   "checks": [
+    {
+      "actual": {
+        "canonicalRules": {
+          "lumber_mill": {
+            "incomeIntervalSec": 30,
+            "lumberPerTick": 70,
+            "source": {
+              "rawcode": "h00A"
+            },
+            "templateId": "lumber_mill"
+          },
+          "lumber_mill_high": {
+            "incomeIntervalSec": 30,
+            "lumberPerTick": 170,
+            "source": {
+              "rawcode": "h00W"
+            },
+            "templateId": "lumber_mill_high"
+          },
+          "lumber_mill_mid": {
+            "incomeIntervalSec": 30,
+            "lumberPerTick": 110,
+            "source": {
+              "rawcode": "h00J"
+            },
+            "templateId": "lumber_mill_mid"
+          }
+        },
+        "firstTick": [
+          {
+            "lumber": 350,
+            "playerId": 3,
+            "tickSec": 30,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 30,
+            "type": "lumber_income_paid"
+          }
+        ],
+        "firstTickAlsoLaidEgg": true,
+        "largeDelta": [
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 90,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 90,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 120,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 120,
+            "type": "lumber_income_paid"
+          }
+        ],
+        "lumberMillCount": 6,
+        "repeatedTick": [],
+        "secondTick": [
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 60,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 60,
+            "type": "lumber_income_paid"
+          }
+        ],
+        "wallets": [
+          {
+            "gold": 101,
+            "id": 3,
+            "lumber": 1617,
+            "supplyCap": 4,
+            "supplyUsed": 1
+          },
+          {
+            "gold": 202,
+            "id": 4,
+            "lumber": 571,
+            "supplyCap": 6,
+            "supplyUsed": 2
+          }
+        ],
+        "snapshot": {
+          "lastProcessedTickSec": 120,
+          "mills": [
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-basic",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-mid",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill_mid"
+            },
+            {
+              "activeFromSec": 30,
+              "id": "lumber-mill-high",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill_high"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-owner-four-one",
+              "ownerPlayerId": 4,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-owner-four-two",
+              "ownerPlayerId": 4,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 30.001,
+              "id": "lumber-mill-late-basic",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill"
+            }
+          ],
+          "totalsByPlayer": [
+            {
+              "lumber": 1610,
+              "playerId": 3
+            },
+            {
+              "lumber": 560,
+              "playerId": 4
+            }
+          ]
+        },
+        "repeatedSnapshot": {
+          "lastProcessedTickSec": 120,
+          "mills": [
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-basic",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-mid",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill_mid"
+            },
+            {
+              "activeFromSec": 30,
+              "id": "lumber-mill-high",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill_high"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-owner-four-one",
+              "ownerPlayerId": 4,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 0,
+              "id": "lumber-mill-owner-four-two",
+              "ownerPlayerId": 4,
+              "templateId": "lumber_mill"
+            },
+            {
+              "activeFromSec": 30.001,
+              "id": "lumber-mill-late-basic",
+              "ownerPlayerId": 3,
+              "templateId": "lumber_mill"
+            }
+          ],
+          "totalsByPlayer": [
+            {
+              "lumber": 1610,
+              "playerId": 3
+            },
+            {
+              "lumber": 560,
+              "playerId": 4
+            }
+          ]
+        },
+        "resetSnapshot": {
+          "lastProcessedTickSec": 0,
+          "mills": [],
+          "totalsByPlayer": [
+            {
+              "lumber": 0,
+              "playerId": 3
+            }
+          ]
+        }
+      },
+      "expected": {
+        "firstTick": [
+          {
+            "lumber": 350,
+            "playerId": 3,
+            "tickSec": 30
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 30
+          }
+        ],
+        "largeDelta": [
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 90
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 90
+          },
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 120
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 120
+          }
+        ],
+        "lumberMillCount": 6,
+        "repeatedTick": [],
+        "secondTick": [
+          {
+            "lumber": 420,
+            "playerId": 3,
+            "tickSec": 60
+          },
+          {
+            "lumber": 140,
+            "playerId": 4,
+            "tickSec": 60
+          }
+        ],
+        "wallets": [
+          {
+            "gold": 101,
+            "id": 3,
+            "lumber": 1617,
+            "supplyCap": 4,
+            "supplyUsed": 1
+          },
+          {
+            "gold": 202,
+            "id": 4,
+            "lumber": 571,
+            "supplyCap": 6,
+            "supplyUsed": 2
+          }
+        ],
+        "snapshot": {
+          "lastProcessedTickSec": 120,
+          "mills": 6,
+          "totalsByPlayer": [
+            {
+              "lumber": 1610,
+              "playerId": 3
+            },
+            {
+              "lumber": 560,
+              "playerId": 4
+            }
+          ]
+        },
+        "resetSnapshot": {
+          "lastProcessedTickSec": 0,
+          "mills": [],
+          "totalsByPlayer": [
+            {
+              "lumber": 0,
+              "playerId": 3
+            }
+          ]
+        }
+      },
+      "id": "lumber_mills_pay_global_30s_income_without_replacing_chicken_eggs",
+      "pass": true
+    },
+    {
+      "actual": {
+        "constructingAttach": null,
+        "duplicateAttach": null,
+        "foreignAttach": {
+          "activeFromSec": 30,
+          "id": "player-building-45",
+          "ownerPlayerId": 4,
+          "templateId": "lumber_mill_mid"
+        },
+        "incomeAt30": [
+          {
+            "lumber": 70,
+            "playerId": 3,
+            "tickSec": 30,
+            "type": "lumber_income_paid"
+          },
+          {
+            "lumber": 110,
+            "playerId": 4,
+            "tickSec": 30,
+            "type": "lumber_income_paid"
+          }
+        ],
+        "incomeAt60": [
+          {
+            "lumber": 110,
+            "playerId": 4,
+            "tickSec": 60,
+            "type": "lumber_income_paid"
+          }
+        ],
+        "lumberMillIds": [
+          "player-building-45"
+        ],
+        "removed": "lumber_mill",
+        "repeatedRemoval": null,
+        "sourceAttach": {
+          "activeFromSec": 0,
+          "id": "player-building-44",
+          "ownerPlayerId": 3,
+          "templateId": "lumber_mill"
+        },
+        "wallets": [
+          {
+            "id": 3,
+            "lumber": 70
+          },
+          {
+            "id": 4,
+            "lumber": 220
+          }
+        ]
+      },
+      "expected": {
+        "incomeAt30": [
+          {
+            "lumber": 70,
+            "playerId": 3,
+            "tickSec": 30
+          },
+          {
+            "lumber": 110,
+            "playerId": 4,
+            "tickSec": 30
+          }
+        ],
+        "incomeAt60": [
+          {
+            "lumber": 110,
+            "playerId": 4,
+            "tickSec": 60
+          }
+        ],
+        "lumberMillIds": [
+          "player-building-45"
+        ],
+        "removed": "lumber_mill",
+        "wallets": [
+          {
+            "id": 3,
+            "lumber": 70
+          },
+          {
+            "id": 4,
+            "lumber": 220
+          }
+        ]
+      },
+      "id": "completed_lumber_mills_attach_once_pay_owner_and_detach_immediately",
+      "pass": true
+    },
     {
       "actual": {
         "coopInventoryRemoved": true,
@@ -210,6 +782,30 @@
     },
     {
       "actual": {
+        "chickensAfterRelease": 1,
+        "completedOnRelease": 1,
+        "completedWhileBlocked": 0,
+        "jobsWhileBlocked": 1,
+        "jobsAfterRelease": 0
+      },
+      "expected": "blocked exit keeps one due job; release completes it once",
+      "id": "blocked_hatch_exit_retries_without_duplicate_chicken",
+      "pass": true
+    },
+    {
+      "actual": {
+        "chickens": 0,
+        "jobs": 0
+      },
+      "expected": {
+        "chickens": 0,
+        "jobs": 0
+      },
+      "id": "missing_coop_hatch_never_uses_origin_fallback",
+      "pass": true
+    },
+    {
+      "actual": {
         "eggs": 4,
         "occupiedSlots": 1
       },
@@ -262,6 +858,8 @@
         "gold": 156,
         "lumber": 52,
         "rejectedSaleEggs": 3,
+        "foreignOwnerSale": false,
+        "eggsAfterForeignOwnerSale": 3,
         "rejectedSaleGoldAfter": 120,
         "rejectedSaleGold": 120,
         "rejectedSaleLumberAfter": 52,
@@ -275,6 +873,8 @@
         "lumber": 52,
         "remainingFarmerEggs": 0,
         "rejectedSaleEggs": 3,
+        "foreignOwnerSale": false,
+        "eggsAfterForeignOwnerSale": 3,
         "rejectedSaleGoldAfter": 120,
         "rejectedSaleGold": 120,
         "rejectedSaleLumberAfter": 52,
@@ -332,9 +932,71 @@
       "pass": true
     },
     {
+      "actual": {
+        "fieldEggIds": [
+          "egg-1",
+          "egg-2"
+        ],
+        "foreignPickup": null,
+        "fullPickup": null,
+        "inventorySlot": {
+          "itemRawcode": "I003",
+          "quantity": 1
+        }
+      },
+      "expected": {
+        "fieldEggCount": 2,
+        "foreignPickup": null,
+        "fullPickup": null,
+        "inventoryItemRawcode": "I003"
+      },
+      "id": "pickup_rejects_full_inventory_and_foreign_owner_without_loss",
+      "pass": true
+    },
+    {
+      "actual": {
+        "afterRemovalHp": 20.95,
+        "foreignHp": 19.95,
+        "insideHp": 21,
+        "outsideHp": 19.95
+      },
+      "expected": {
+        "afterRemovalHpBelowInsideHp": true,
+        "foreignHp": 19.95,
+        "insideHp": 21,
+        "outsideHp": 19.95
+      },
+      "id": "basic_well_heals_only_same_owner_inside_radius_and_stops_on_removal",
+      "pass": true
+    },
+    {
       "actual": 16,
       "expected": 16,
       "id": "windmill_feeds_up_to_sixteen_chickens",
+      "pass": true
+    },
+    {
+      "actual": {
+        "foreignNextEggAtSec": 30,
+        "friendlyNextEggAtSec": 22.5
+      },
+      "expected": {
+        "foreignNextEggAtSec": 30,
+        "friendlyNextEggAtSec": 22.5
+      },
+      "id": "windmill_accelerates_only_same_owner_chicken",
+      "pass": true
+    },
+    {
+      "actual": {
+        "aiState": "dead",
+        "fieldEggs": 0
+      },
+      "expected": {
+        "aiState": "dead",
+        "fieldEggs": 0
+      },
+      "id": "dead_chicken_never_drops_eggs",
       "pass": true
     },
     {

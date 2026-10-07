@@ -4,6 +4,7 @@ import { MARKER_STYLES } from '../config';
 import type { PlayerStart, WorldMarker } from '../ecs/components';
 
 type ObjectLayerRenderConfig = {
+    readonly hiddenMarkerTypes?: ReadonlySet<string>;
     readonly layerName: string;
     readonly map: Phaser.Tilemaps.Tilemap;
     readonly playerStarts: PlayerStart[];
@@ -139,6 +140,7 @@ function renderWorldMarker(
         x: centerX,
         y: centerY,
     });
+    if (config.hiddenMarkerTypes?.has(object.type ?? '')) return;
 
     graphics.lineStyle(2, 0x101010, 0.9);
     graphics.fillStyle(marker.color, 0.88);

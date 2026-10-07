@@ -1,0 +1,44 @@
+{
+  "case": "refund",
+  "checks": {
+    "paidRefundOnce": true,
+    "freeFixtureRefundZero": true,
+    "pass": true
+  },
+  "snapshots": {
+    "freeCancelled": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1485,
+        "lumber": 0
+      }
+    },
+    "paidCancelled": {
+      "activePlacementTemplateId": null,
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1485,
+        "lumber": 0
+      }
+    }
+  }
+}

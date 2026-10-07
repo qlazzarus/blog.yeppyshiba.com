@@ -48,6 +48,19 @@ export class VisibilitySystem {
         this.worldObjects.push(this.lightingGraphics, this.fogGraphics);
     }
 
+    dispose() {
+        this.currentVisibleFogCells.clear();
+        this.exploredFogCells.clear();
+        [this.lightingGraphics, this.fogGraphics].forEach((graphics) => {
+            if (!graphics) return;
+            graphics.destroy();
+            const index = this.worldObjects.indexOf(graphics);
+            if (index >= 0) this.worldObjects.splice(index, 1);
+        });
+        this.lightingGraphics = undefined;
+        this.fogGraphics = undefined;
+    }
+
     updateLightingOverlay(worldSize: Phaser.Math.Vector2) {
         if (!this.lightingGraphics || worldSize.x <= 0) return;
 

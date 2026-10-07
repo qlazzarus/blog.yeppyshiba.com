@@ -1,6 +1,7 @@
 import type { PlayerBuilding } from './buildingSystem';
 import {
     addEconomyCoop,
+    addEconomyLumberMill,
     addEconomyWell,
     removeEconomyBuilding,
 } from './economySystem';
@@ -15,6 +16,8 @@ export function attachCompletedBuildingEconomy(
     state: ChickenFarmEconomyState,
     building: PlayerBuilding,
 ) {
+    if (building.state !== 'complete') return null;
+
     const position = {
         x: building.footprint.x + building.footprint.width / 2,
         y: building.footprint.y + building.footprint.height / 2,
@@ -50,6 +53,18 @@ export function attachCompletedBuildingEconomy(
             kind: 'basic',
             ownerPlayerId: building.ownerPlayerId,
             position,
+        });
+    }
+    if (
+        building.templateId === 'lumber_mill' ||
+        building.templateId === 'lumber_mill_mid' ||
+        building.templateId === 'lumber_mill_high'
+    ) {
+        return addEconomyLumberMill(state, {
+            activeFromSec: building.completedAtSec ?? building.startedAtSec,
+            id: building.id,
+            ownerPlayerId: building.ownerPlayerId,
+            templateId: building.templateId,
         });
     }
     return null;

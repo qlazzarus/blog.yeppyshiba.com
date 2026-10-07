@@ -412,6 +412,25 @@ def build_unit_crosscheck(mpq: MPQ, jass_summary: dict[str, object]) -> dict[str
         weapons = slk_tables.get("unit_weapons", {}).get(rawcode, {})
         abilities = slk_tables.get("unit_abilities", {}).get(rawcode, {})
         fields = {**ui, **ini}
+        def first_field(
+            candidates: list[str],
+            sources: list[tuple[str, dict[str, str]]],
+        ) -> tuple[str, str]:
+            for source_name, source in sources:
+                for candidate in candidates:
+                    value = source.get(candidate, "")
+                    if value:
+                        return value, f"{source_name}.{candidate}"
+            return "unavailable_in_extracted_tables", "unavailable"
+
+        build_time_raw, build_time_source = first_field(
+            ["builtime", "buildTime", "buildtime"],
+            [("ini", ini), ("unit_balance", balance), ("unit_data", data)],
+        )
+        path_tex, path_tex_source = first_field(
+            ["pathTex", "pathtex", "pathingTex"],
+            [("ini", ini), ("unit_data", data), ("unit_balance", balance)],
+        )
         rows.append(
             {
                 "rawcode": rawcode,
@@ -428,6 +447,10 @@ def build_unit_crosscheck(mpq: MPQ, jass_summary: dict[str, object]) -> dict[str
                 "hero_abil_list": abilities.get("heroAbilList", ""),
                 "art": ini.get("Art") or ui.get("Art", ""),
                 "model": ui.get("file", ""),
+                "build_time_raw": build_time_raw,
+                "build_time_source": build_time_source,
+                "path_tex": path_tex,
+                "path_tex_source": path_tex_source,
                 **{field: balance.get(field, "") for field in balance_fields},
                 **{field: data.get(field, "") for field in data_fields},
                 **{field: weapons.get(field, "") for field in weapon_fields},
@@ -1948,6 +1971,10 @@ def main() -> None:
             "hero_abil_list",
             "art",
             "model",
+            "build_time_raw",
+            "build_time_source",
+            "path_tex",
+            "path_tex_source",
             "level",
             "goldcost",
             "lumbercost",

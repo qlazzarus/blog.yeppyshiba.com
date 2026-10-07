@@ -24,6 +24,7 @@ export type PlayerBuilding = {
     completedAtSec?: number;
     constructionActiveSinceSec?: number;
     constructionProgressSec: number;
+    readonly costPaid: boolean;
     readonly footprint: GridPathRect;
     hp: number;
     readonly id: string;
@@ -60,6 +61,16 @@ export type BuildingSelectionSummary = {
     readonly state: PlayerBuilding['state'];
     readonly templateId: MvpBuildingId;
     readonly workerUnitId: string | null;
+};
+
+export type BuildingLifecycleSnapshot = {
+    readonly activeWorkerUnitId: string | null;
+    readonly footprint: GridPathRect;
+    readonly id: string;
+    readonly ownerPlayerId: number;
+    readonly progress: number;
+    readonly state: PlayerBuilding['state'];
+    readonly templateId: MvpBuildingId;
 };
 
 type BuildingSystemConfig = {
@@ -157,6 +168,11 @@ export class BuildingSystem {
         return this.buildings.length;
     }
 
+    dispose() {
+        this.buildings.forEach((building) => this.destroyView(building.id));
+        this.buildings.splice(0);
+    }
+
     getDynamicBlockedRects(): readonly GridPathRect[] {
         return this.buildings
             .filter((building) => building.blocksPath && building.state === 'complete')
@@ -165,6 +181,31 @@ export class BuildingSystem {
 
     getAllFootprints(): readonly GridPathRect[] {
         return this.buildings.map((building) => building.footprint);
+    }
+
+    /** Read-only data for lifecycle checks; callers receive detached records. */
+    getLifecycleSnapshots(): readonly BuildingLifecycleSnapshot[] {
+        return this.buildings.map((building) => ({
+            activeWorkerUnitId: building.activeWorkerUnitId ?? null,
+            footprint: { ...building.footprint },
+            id: building.id,
+            ownerPlayerId: building.ownerPlayerId,
+            progress: this.getConstructionProgress(building),
+            state: building.state,
+            templateId: building.templateId,
+        }));
+    }
+
+    getDynamicBlockedBuildingIds() {
+        return this.buildings
+            .filter((building) => building.blocksPath && building.state === 'complete')
+            .map((building) => building.id);
+    }
+
+    getVisionSourceBuildingIds() {
+        return this.buildings
+            .filter((building) => this.getBuildingVisionRadius(building) > 0)
+            .map((building) => building.id);
     }
 
     getVisionSources(): readonly VisionSource[] {
@@ -283,6 +324,7 @@ export class BuildingSystem {
             constructionActiveSinceSec:
                 request.completeImmediately || !request.workerUnitId ? undefined : startedAtSec,
             constructionProgressSec: request.completeImmediately ? template.buildTimeSec : 0,
+            costPaid: !request.skipCost,
             completedAtSec: request.completeImmediately ? startedAtSec : undefined,
             footprint,
             hp: template.hp,
@@ -374,12 +416,14 @@ export class BuildingSystem {
         if (!building || building.state !== 'constructing') return null;
 
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
-        const refund = {
-            gold: Math.floor(template.costGold * CONSTRUCTION_CANCEL_REFUND_RATIO),
-            lumber: Math.floor(
-                (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
-            ),
-        };
+        const refund = building.costPaid
+            ? {
+                  gold: Math.floor(template.costGold * CONSTRUCTION_CANCEL_REFUND_RATIO),
+                  lumber: Math.floor(
+                      (template.costLumber ?? 0) * CONSTRUCTION_CANCEL_REFUND_RATIO,
+                  ),
+              }
+            : { gold: 0, lumber: 0 };
         refundWalletCost(this.economy, refund);
         this.destroyView(building.id);
         this.buildings.splice(buildingIndex, 1);
@@ -392,6 +436,24 @@ export class BuildingSystem {
             templateId: building.templateId,
         });
         return { building, refund };
+    }
+
+    removeCompletedBuilding(buildingId: string, reason: string) {
+        const buildingIndex = this.buildings.findIndex(
+            (building) => building.id === buildingId && building.state === 'complete',
+        );
+        const building = this.buildings[buildingIndex];
+        if (!building) return false;
+
+        this.destroyView(building.id);
+        this.buildings.splice(buildingIndex, 1);
+        this.onBuildingRemoved?.(building, reason);
+        this.recordTelemetry?.('building_removed', {
+            buildingId,
+            reason,
+            templateId: building.templateId,
+        });
+        return true;
     }
 
     isBuildingComplete(buildingId: string) {

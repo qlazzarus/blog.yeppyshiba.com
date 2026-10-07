@@ -1,0 +1,65 @@
+{
+  "case": "baseline",
+  "checks": {
+    "normalFixtureIsolation": true,
+    "pass": true,
+    "snapshotReadOnly": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "combatPoc": false,
+    "debugEconomy": false,
+    "debugFixtures": false,
+    "startId": 3,
+    "terrainPathingDebug": false
+  },
+  "snapshot": {
+    "buildings": [],
+    "chickens": [],
+    "elapsedSec": 0.07496666666666668,
+    "fieldEggs": [],
+    "hatchJobs": [],
+    "inventories": [
+      {
+        "id": "p3-farmer",
+        "ownerPlayerId": 3,
+        "slots": [
+          {
+            "itemRawcode": "I003",
+            "quantity": 5
+          },
+          {
+            "itemRawcode": "I009",
+            "quantity": 1
+          },
+          {
+            "itemRawcode": "I00F",
+            "quantity": 1
+          },
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "runId": 1,
+    "selected": {
+      "buildingId": null,
+      "economyEntityId": null,
+      "economyEntityType": null,
+      "unitIds": []
+    },
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0,
+      "supplyCap": 3,
+      "supplyUsed": 0
+    },
+    "workerTasks": []
+  }
+}

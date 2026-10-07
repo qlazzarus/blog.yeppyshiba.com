@@ -57,7 +57,7 @@ type UnitView = {
 
 export type ExternalUnitCollisionBody = {
     readonly id: string;
-    position: Point;
+    position: { x: number; y: number };
     readonly radius: number;
 };
 
@@ -137,9 +137,26 @@ export class ControllableUnitSystem {
         this.worldSize = config.worldSize;
     }
 
-    createForStart(start: PlayerStart) {
-        this.upsertUnit('farmer', start, start.id);
-        this.upsertUnit('dog', start, start.id);
+    createForStart(start: PlayerStart, ownerPlayerId: number) {
+        this.upsertUnit('farmer', start, ownerPlayerId);
+        this.upsertUnit('dog', start, ownerPlayerId);
+    }
+
+    createDebugFarmer(id: string, x: number, y: number, ownerPlayerId: number) {
+        if (!id || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isInteger(ownerPlayerId)) {
+            return false;
+        }
+        this.upsertUnit('farmer', { id: ownerPlayerId, label: id, x, y }, ownerPlayerId, id);
+        return true;
+    }
+
+    setUnitPositionForTest(unitId: string, x: number, y: number) {
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        if (!unit) return false;
+        unit.position = { x, y };
+        this.clearUnitCommand(unitId);
+        return true;
     }
 
     getPrimaryUnitObject() {
@@ -282,6 +299,16 @@ export class ControllableUnitSystem {
         });
     }
 
+    dispose() {
+        this.views.forEach((view) => {
+            view.body.destroy();
+            const index = this.worldObjects.indexOf(view.body);
+            if (index >= 0) this.worldObjects.splice(index, 1);
+        });
+        this.views.clear();
+        this.units.splice(0);
+    }
+
     getSelectedUnits() {
         return this.units.filter((unit) => unit.selected);
     }
@@ -339,6 +366,10 @@ export class ControllableUnitSystem {
         if (!unit || unit.hp <= 0) return false;
 
         unit.hp = Math.max(0, unit.hp - Math.max(1, damage - unit.armor));
+        if (unit.hp <= 0) {
+            this.interruptBuildCommand(unit, 'death');
+            this.interruptPendingBuildOrders(unit, 'death');
+        }
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
         unit.path = unit.hp > 0 ? unit.path : [];
@@ -542,8 +573,9 @@ export class ControllableUnitSystem {
         templateId: ControllableUnitTemplateId,
         start: PlayerStart,
         ownerPlayerId: number,
+        unitId = `p${ownerPlayerId}-${templateId}`,
     ) {
-        const id = `p${ownerPlayerId}-${templateId}`;
+        const id = unitId;
         const offset = UNIT_OFFSETS[templateId];
         const position = {
             x: start.x + offset.x,
@@ -853,6 +885,32 @@ export class ControllableUnitSystem {
         );
         const step = unit.speedPxPerSec * deltaSec;
 
+        const nextPosition =
+            distance <= Math.max(1, step)
+                ? waypoint
+                : {
+                      x: unit.position.x + ((waypoint.x - unit.position.x) / distance) * step,
+                      y: unit.position.y + ((waypoint.y - unit.position.y) / distance) * step,
+                  };
+        if (!this.canTraverseMoveSegment(unit.position, nextPosition)) {
+            const target =
+                unit.currentCommand?.type === 'move'
+                    ? unit.currentCommand.targetPoint
+                    : undefined;
+            const path = target ? this.findMovePath(unit.position, target) : null;
+            if (!path?.length) {
+                this.failMoveCommand(unit);
+                return;
+            }
+
+            // A building can appear after a command has already been smoothed.
+            // Replan once at the first blocked segment; never search every frame.
+            unit.path = path;
+            unit.pathIndex = 0;
+            this.updateView(unit);
+            return;
+        }
+
         if (distance <= Math.max(1, step)) {
             unit.position = { x: waypoint.x, y: waypoint.y };
             unit.pathIndex += 1;
@@ -866,16 +924,33 @@ export class ControllableUnitSystem {
             return;
         }
 
-        const direction = new Phaser.Math.Vector2(
-            waypoint.x - unit.position.x,
-            waypoint.y - unit.position.y,
-        )
-            .normalize()
-            .scale(step);
-        unit.position = {
-            x: unit.position.x + direction.x,
-            y: unit.position.y + direction.y,
-        };
+        unit.position = nextPosition;
+        this.updateView(unit);
+    }
+
+    private canTraverseMoveSegment(from: Point, to: Point) {
+        const distance = Phaser.Math.Distance.Between(from.x, from.y, to.x, to.y);
+        const steps = Math.max(1, Math.ceil(distance / 8));
+        for (let step = 1; step <= steps; step += 1) {
+            const ratio = step / steps;
+            if (
+                !this.canUnitOccupyPoint({
+                    x: from.x + (to.x - from.x) * ratio,
+                    y: from.y + (to.y - from.y) * ratio,
+                })
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private failMoveCommand(unit: ControllableUnitState) {
+        unit.currentCommand = undefined;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.onPendingBuildOrdersInterrupted?.(unit.id, 'path_missing');
+        this.pollNextQueuedCommand(unit);
         this.updateView(unit);
     }
 
@@ -1014,13 +1089,21 @@ export class ControllableUnitSystem {
     }
 
     private pollNextQueuedCommand(unit: ControllableUnitState) {
-        const command = unit.commandQueue.shift();
-        if (!command) {
-            this.updateView(unit);
-            return false;
-        }
+        while (true) {
+            const command = unit.commandQueue.shift();
+            if (!command) {
+                this.updateView(unit);
+                return false;
+            }
 
-        return this.startUnitCommand(unit, command, 'queued');
+            if (this.startUnitCommand(unit, command, 'queued')) return true;
+
+            // A queued movement command can fail pathfinding after the prior command
+            // reaches its target. Drop that one command and keep the FIFO moving.
+            unit.currentCommand = undefined;
+            unit.path = [];
+            unit.pathIndex = 0;
+        }
     }
 
     private startUnitCommand(
@@ -1076,6 +1159,7 @@ export class ControllableUnitSystem {
         }
 
         const targetPoint = command.targetPoint;
+        if (!targetPoint) return;
         const marker = this.scene.add
             .circle(targetPoint.x, targetPoint.y, 11, 0xf1c65c, 0.5)
             .setStrokeStyle(3, 0xfff0aa, 0.98)
