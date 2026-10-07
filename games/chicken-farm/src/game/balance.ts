@@ -24,6 +24,8 @@ export type {
     EnemyId,
     IncomeBuildingConfig,
     IncomeBuildingId,
+    LumberMillId,
+    LumberMillIncomeConfig,
     MarketBuildingId,
     MvpBuildingId,
     PathingBalance,
@@ -397,6 +399,26 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             },
             upgradeCostGold: 140,
             upgradeTo: 'coop_high',
+        },
+    },
+    lumberMillIncome: {
+        lumber_mill: {
+            incomeIntervalSec: 30,
+            lumberPerTick: 70,
+            source: { rawcode: 'h00A' },
+            templateId: 'lumber_mill',
+        },
+        lumber_mill_high: {
+            incomeIntervalSec: 30,
+            lumberPerTick: 170,
+            source: { rawcode: 'h00W' },
+            templateId: 'lumber_mill_high',
+        },
+        lumber_mill_mid: {
+            incomeIntervalSec: 30,
+            lumberPerTick: 110,
+            source: { rawcode: 'h00J' },
+            templateId: 'lumber_mill_mid',
         },
     },
     defenseBuildings: {

@@ -17,7 +17,7 @@ const fullLoopStepTimeoutMs = Math.max(
     Number.parseInt(process.env.CHICKEN_FARM_FULL_LOOP_TIMEOUT_MS ?? '90000', 10) || 90_000,
 );
 
-if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'full_loop' && economyCase !== 'laying' && economyCase !== 'pickup' && economyCase !== 'transfer' && economyCase !== 'deposit' && economyCase !== 'hatch_start' && economyCase !== 'hatch_exit' && economyCase !== 'sale' && economyCase !== 'interruption' && economyCase !== 'all') {
+if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'full_loop' && economyCase !== 'laying' && economyCase !== 'pickup' && economyCase !== 'transfer' && economyCase !== 'deposit' && economyCase !== 'hatch_start' && economyCase !== 'hatch_exit' && economyCase !== 'sale' && economyCase !== 'interruption' && economyCase !== 'lumber_income' && economyCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_ECONOMY_CASE: ${economyCase}`);
 }
 
@@ -45,7 +45,9 @@ const artifactName =
                         : economyCase === 'sale'
                           ? 'economy_check_sale.json'
                           : economyCase === 'interruption'
-                            ? 'economy_check_interruption.json'
+                          ? 'economy_check_interruption.json'
+                            : economyCase === 'lumber_income'
+                              ? 'economy_check_lumber_income.json'
           : 'economy_check_all.json';
 const artifactPath = path.join(rootDir, 'docs/chicken_farm/chicken_farm_w3x_artifacts', artifactName);
 
@@ -75,6 +77,8 @@ async function main() {
         report = await runWithServer(true, runSaleCase);
     } else if (economyCase === 'interruption') {
         report = await runWithServer(true, runInterruptionCase);
+    } else if (economyCase === 'lumber_income') {
+        report = await runWithServer(true, runLumberIncomeCase);
     } else {
         report = {
             case: economyCase,
@@ -91,6 +95,7 @@ async function main() {
             hatchExit: await runWithServer(true, runHatchExitCase),
             sale: await runWithServer(true, runSaleCase),
             interruption: await runWithServer(true, runInterruptionCase),
+            lumberIncome: await runWithServer(true, runLumberIncomeCase),
         };
     }
     await mkdir(path.dirname(artifactPath), { recursive: true });
@@ -673,6 +678,221 @@ async function runLayingCase() {
     } finally {
         await page.close();
         await browser.close();
+    }
+}
+
+/**
+ * Debug fixtures create world buildings through BuildingSystem's completed
+ * lifecycle path.  Only the clock advance and the P4 owner fixture are
+ * synthetic; the chicken still comes from the normal farmer inventory input.
+ */
+async function runLumberIncomeCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 0);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().chickens.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const ownerFourAdded = await page.evaluate(
+            () => window.__chickenFarmDebug!.ensureEconomyPlayerForTest(4),
+        );
+        if (!ownerFourAdded) throw new Error('Failed to add owner-four debug wallet');
+
+        const fixtureIds = await page.evaluate(() => ({
+            ownerFourBasic: window.__chickenFarmDebug!.createEconomyBuildingFixture(
+                'lumber_mill', 3200, 8200, 4,
+            ),
+            ownerFourHigh: window.__chickenFarmDebug!.createEconomyBuildingFixture(
+                'lumber_mill_high', 3520, 8200, 4,
+            ),
+            ownerThreeBasic: window.__chickenFarmDebug!.createEconomyBuildingFixture(
+                'lumber_mill', 3840, 8200, 3,
+            ),
+            ownerThreeMid: window.__chickenFarmDebug!.createEconomyBuildingFixture(
+                'lumber_mill_mid', 4160, 8200, 3,
+            ),
+        }));
+        if (Object.values(fixtureIds).some((id) => !id)) {
+            throw new Error(`Failed to create complete lumber fixtures: ${JSON.stringify(fixtureIds)}`);
+        }
+
+        const beforeFirstTick = await getEconomySnapshot(page);
+        if (beforeFirstTick.lumberIncome.mills.length !== 4) {
+            throw new Error(`Complete fixture lifecycle did not attach four mills: ${JSON.stringify(beforeFirstTick)}`);
+        }
+        const firstTick = await advanceToNextLumberTick(page);
+        assertWalletLumberDelta(firstTick.before, firstTick.after, 3, 180, 'first tick owner 3');
+        assertWalletLumberDelta(firstTick.before, firstTick.after, 4, 240, 'first tick owner 4');
+        const chickenNextEggAtSec = firstTick.after.chickens[0]?.nextEggAtSec;
+        if (!chickenNextEggAtSec || !await page.evaluate(
+            (targetElapsedSec) => window.__chickenFarmDebug!.advanceEconomyForTest(targetElapsedSec),
+            chickenNextEggAtSec,
+        )) {
+            throw new Error(`Failed to advance the living chicken after lumber income: ${JSON.stringify(firstTick)}`);
+        }
+        const afterChickenDrop = await getEconomySnapshot(page);
+        if (afterChickenDrop.fieldEggs.length < 1) {
+            throw new Error(`Lumber income did not continue chicken laying: ${JSON.stringify({ afterChickenDrop, firstTick })}`);
+        }
+
+        const duplicateCallbackIgnored = await page.evaluate(
+            (id) => window.__chickenFarmDebug!.replayCompletedBuildingEconomyAttachmentForTest(id),
+            fixtureIds.ownerThreeBasic,
+        );
+        const afterDuplicateCallback = await getEconomySnapshot(page);
+        if (
+            !duplicateCallbackIgnored ||
+            afterDuplicateCallback.lumberIncome.mills.length !== 4 ||
+            JSON.stringify(afterDuplicateCallback.lumberIncome.totalsByPlayer) !==
+                JSON.stringify(firstTick.after.lumberIncome.totalsByPlayer)
+        ) {
+            throw new Error(`Duplicate completion callback changed income registration: ${JSON.stringify({ afterDuplicateCallback, duplicateCallbackIgnored, firstTick })}`);
+        }
+
+        const pausedId = await page.evaluate(
+            () => window.__chickenFarmDebug!.createPausedConstructionFixture('lumber_mill', 4352, 8896),
+        );
+        if (!pausedId) throw new Error('Failed to create paused lumber mill fixture');
+        const paused = await getEconomySnapshot(page);
+        if (paused.lumberIncome.mills.some((mill) => mill.id === pausedId)) {
+            throw new Error(`Constructing lumber mill registered income: ${JSON.stringify(paused)}`);
+        }
+        const pausedRemoved = await page.evaluate(
+            (id) => window.__chickenFarmDebug!.cancelConstructionForTest(id),
+            pausedId,
+        );
+        if (!pausedRemoved) throw new Error('Failed to clear paused lumber mill fixture');
+        const completedId = await page.evaluate(
+            () => window.__chickenFarmDebug!.createEconomyBuildingFixture('lumber_mill', 4352, 8896, 3),
+        );
+        if (!completedId) throw new Error('Failed to create completed lumber mill fixture');
+        const completed = await getEconomySnapshot(page);
+        if (completed.lumberIncome.mills.filter((mill) => mill.id === completedId).length !== 1) {
+            throw new Error(`Completed lumber mill did not attach exactly once: ${JSON.stringify(completed)}`);
+        }
+
+        const secondTick = await advanceToNextLumberTick(page);
+        assertWalletLumberDelta(secondTick.before, secondTick.after, 3, 250, 'post-completion owner 3');
+        assertWalletLumberDelta(secondTick.before, secondTick.after, 4, 240, 'post-completion owner 4');
+
+        const removed = await page.evaluate(({ ownerFourBasic, ownerThreeBasic }) => ({
+            ownerFourBasic: window.__chickenFarmDebug!.removeCompletedBuildingFixture(ownerFourBasic),
+            ownerThreeBasic: window.__chickenFarmDebug!.removeCompletedBuildingFixture(ownerThreeBasic),
+        }), fixtureIds);
+        if (!removed.ownerThreeBasic || !removed.ownerFourBasic) {
+            throw new Error(`Failed to remove lumber mills before tick: ${JSON.stringify(removed)}`);
+        }
+        const afterRemoval = await getEconomySnapshot(page);
+        if (
+            afterRemoval.lumberIncome.mills.some((mill) =>
+                mill.id === fixtureIds.ownerThreeBasic || mill.id === fixtureIds.ownerFourBasic,
+            )
+        ) {
+            throw new Error(`Removed lumber mill remained registered: ${JSON.stringify(afterRemoval)}`);
+        }
+        const thirdTick = await advanceToNextLumberTick(page);
+        assertWalletLumberDelta(thirdTick.before, thirdTick.after, 3, 180, 'post-removal owner 3');
+        assertWalletLumberDelta(thirdTick.before, thirdTick.after, 4, 170, 'post-removal owner 4');
+        const repeatedTick = await page.evaluate(() => {
+            const elapsedSec = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().elapsedSec;
+            return window.__chickenFarmDebug!.advanceEconomyForTest(elapsedSec);
+        });
+        const afterRepeatedTick = await getEconomySnapshot(page);
+        if (!repeatedTick || JSON.stringify(afterRepeatedTick.wallets) !== JSON.stringify(thirdTick.after.wallets)) {
+            throw new Error(`Repeated timestamp paid lumber twice: ${JSON.stringify({ afterRepeatedTick, repeatedTick, thirdTick })}`);
+        }
+
+        const priorRunId = thirdTick.after.runId;
+        const restartRequested = await page.evaluate(() => window.__chickenFarmDebug!.restartRunForTest());
+        if (!restartRequested) throw new Error('Failed to request same-page restart');
+        await page.waitForFunction((runId) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().runId > runId, priorRunId, { timeout: 10_000 });
+        const afterRestart = await getEconomySnapshot(page);
+        const ownerThreeRestartWallet = afterRestart.wallets.find((wallet) => wallet.playerId === 3);
+        if (
+            afterRestart.lumberIncome.lastProcessedTickSec !== 0 ||
+            afterRestart.lumberIncome.mills.length !== 0 ||
+            JSON.stringify(afterRestart.lumberIncome.totalsByPlayer) !== JSON.stringify([{ lumber: 0, playerId: 3 }]) ||
+            afterRestart.wallets.length !== 1 ||
+            ownerThreeRestartWallet?.gold !== 1500 ||
+            ownerThreeRestartWallet.lumber !== 0
+        ) {
+            throw new Error(`Restart retained lumber income state: ${JSON.stringify(afterRestart)}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'lumber_income',
+            checks: {
+                chickenLayingContinuesWithLumberIncome: true,
+                completeBuildingsPayByOwnerAndTier: true,
+                constructingMillHasNoIncome: true,
+                completedFixtureAttachesOnce: true,
+                duplicateCompletionCallbackIgnored: true,
+                pass: true,
+                removalStopsBeforeNextTick: true,
+                repeatedTimestampDoesNotRepay: true,
+                samePageRestartResetsLumberIncome: true,
+            },
+            errors,
+            executionProfile: {
+                debugFixtures: true,
+                farmerChicken: 'normal inventory click',
+                lumberMills: 'BuildingSystem complete fixtures; paused fixture proves no pre-completion registration',
+                time: 'debug advanceEconomyForTest to global 30-second boundaries',
+            },
+            snapshots: {
+                afterDuplicateCallback,
+                afterChickenDrop,
+                afterRemoval,
+                afterRestart,
+                completed,
+                firstTick: firstTick.after,
+                secondTick: secondTick.after,
+                thirdTick: thirdTick.after,
+            },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function advanceToNextLumberTick(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+) {
+    return page.evaluate(() => {
+        const before = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+        const targetElapsedSec = Math.ceil((before.elapsedSec + 0.001) / 30) * 30;
+        const advanced = window.__chickenFarmDebug!.advanceEconomyForTest(targetElapsedSec);
+        return {
+            advanced,
+            after: window.__chickenFarmDebug!.getEconomyLifecycleSnapshot(),
+            before,
+            targetElapsedSec,
+        };
+    }).then((result) => {
+        if (!result.advanced) throw new Error(`Failed to advance to lumber tick: ${JSON.stringify(result)}`);
+        return result;
+    });
+}
+
+function assertWalletLumberDelta(
+    before: ReturnType<Window['__chickenFarmDebug']['getEconomyLifecycleSnapshot']>,
+    after: ReturnType<Window['__chickenFarmDebug']['getEconomyLifecycleSnapshot']>,
+    playerId: number,
+    expectedDelta: number,
+    label: string,
+) {
+    const beforeWallet = before.wallets.find((wallet) => wallet.playerId === playerId);
+    const afterWallet = after.wallets.find((wallet) => wallet.playerId === playerId);
+    if (!beforeWallet || !afterWallet || afterWallet.lumber !== beforeWallet.lumber + expectedDelta) {
+        throw new Error(`${label} lumber delta mismatch: ${JSON.stringify({ afterWallet, beforeWallet, expectedDelta })}`);
     }
 }
 

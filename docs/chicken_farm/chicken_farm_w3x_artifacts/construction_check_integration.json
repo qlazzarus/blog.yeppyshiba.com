@@ -44,7 +44,7 @@
           "id": "pending-build-1",
           "runtimeBuildingId": "player-building-1",
           "targetPoint": {
-            "x": 3490,
+            "x": 3464,
             "y": 8896
           },
           "templateId": "fence_wood"

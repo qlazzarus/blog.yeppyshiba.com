@@ -61,6 +61,7 @@ import {
     ensureEconomyInventory,
     feedNearestEconomyChicken,
     getEconomyInventory,
+    getLumberMillIncomeSnapshot,
     grantEconomyInventoryItem,
     herdEconomyChickens,
     pickupFieldEgg,
@@ -140,7 +141,7 @@ declare global {
                 }[];
             };
             createPausedConstructionFixture: (
-                templateId: 'coop_basic' | 'market' | 'well_basic',
+                templateId: 'coop_basic' | 'lumber_mill' | 'market' | 'well_basic',
                 x: number,
                 y: number,
             ) => string | null;
@@ -241,6 +242,26 @@ declare global {
                     readonly ownerPlayerId: number;
                     readonly slots: readonly ({ readonly itemRawcode: EconomyItemRawcode; readonly quantity: number } | null)[];
                 }[];
+                readonly lumberIncome: {
+                    readonly lastProcessedTickSec: number;
+                    readonly mills: readonly {
+                        readonly activeFromSec: number;
+                        readonly id: string;
+                        readonly ownerPlayerId: number;
+                        readonly templateId: string;
+                    }[];
+                    readonly totalsByPlayer: readonly {
+                        readonly lumber: number;
+                        readonly playerId: number;
+                    }[];
+                };
+                readonly wallets: readonly {
+                    readonly gold: number;
+                    readonly lumber: number;
+                    readonly playerId: number;
+                    readonly supplyCap: number;
+                    readonly supplyUsed: number;
+                }[];
                 readonly runId: number;
                 readonly selected: {
                     readonly buildingId: string | null;
@@ -279,13 +300,15 @@ declare global {
             ) => boolean;
             setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
-                templateId: 'coop_basic' | 'market' | 'well_basic',
+                templateId: 'coop_basic' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'well_basic',
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
             ) => string | null;
+            ensureEconomyPlayerForTest: (playerId: number) => boolean;
             createPathBlockerFixture: (x: number, y: number) => string | null;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
+            replayCompletedBuildingEconomyAttachmentForTest: (buildingId: string) => boolean;
             advanceEconomyForTest: (targetElapsedSec: number) => boolean;
             disposeRunForTest: () => RunCleanupSnapshot | null;
             ensureStartEconomyForTest: () => void;
@@ -1075,7 +1098,7 @@ class FarmScene extends Phaser.Scene {
 
         if ('storedEggs' in entity) {
             this.createCoopView(entity);
-        } else {
+        } else if ('kind' in entity) {
             this.createWellView(entity);
         }
         this.refreshEconomyLabels();
@@ -3127,6 +3150,7 @@ class FarmScene extends Phaser.Scene {
                 economyBuildingIds: this.economyState
                     ? [
                           ...this.economyState.coops.map((coop) => coop.id),
+                          ...this.economyState.lumberMills.map((mill) => mill.id),
                           ...this.economyState.wells.map((well) => well.id),
                       ]
                     : [],
@@ -3208,6 +3232,20 @@ class FarmScene extends Phaser.Scene {
                         slot ? { itemRawcode: slot.itemRawcode, quantity: slot.quantity } : null,
                     ),
                 })),
+                lumberIncome: this.economyState
+                    ? getLumberMillIncomeSnapshot(this.economyState)
+                    : {
+                          lastProcessedTickSec: 0,
+                          mills: [],
+                          totalsByPlayer: [],
+                      },
+                wallets: (this.economyState?.players ?? []).map((player) => ({
+                    gold: player.gold,
+                    lumber: player.lumber,
+                    playerId: player.id,
+                    supplyCap: player.supplyCap,
+                    supplyUsed: player.supplyUsed,
+                })),
                 runId: this.runId,
                 selected: {
                     buildingId: this.selectedBuildingId ?? null,
@@ -3280,6 +3318,15 @@ class FarmScene extends Phaser.Scene {
                 });
                 return building?.id ?? null;
             },
+            ensureEconomyPlayerForTest: (playerId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isInteger(playerId) || playerId < 0) return false;
+                const state = this.economyState;
+                if (!state) return false;
+                if (state.players.some((player) => player.id === playerId)) return true;
+                state.players.push({ gold: 0, id: playerId, lumber: 0, supplyCap: 0, supplyUsed: 0 });
+                return true;
+            },
             createPathBlockerFixture: (x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
                 const builder = this.controllableUnits
@@ -3299,6 +3346,12 @@ class FarmScene extends Phaser.Scene {
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
+            },
+            replayCompletedBuildingEconomyAttachmentForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                if (!building || building.state !== 'complete' || !this.economyState) return false;
+                return attachCompletedBuildingEconomy(this.economyState, building) === null;
             },
             advanceEconomyForTest: (targetElapsedSec) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;

@@ -21,6 +21,10 @@ export type EnemyId =
 
 export type DefenderId = 'farmer' | 'dog' | 'big_dog';
 export type IncomeBuildingId = 'coop_basic' | 'coop_mid' | 'coop_high';
+export type LumberMillId =
+    | 'lumber_mill'
+    | 'lumber_mill_mid'
+    | 'lumber_mill_high';
 export type DefenseBuildingId =
     | 'fence_wood'
     | 'fence_bronze'
@@ -45,9 +49,7 @@ export type CoreBuildingId = 'farm_house' | 'town_hall' | 'family_temple';
 export type EconomyBuildingId =
     | IncomeBuildingId
     | 'egg_storage'
-    | 'lumber_mill'
-    | 'lumber_mill_mid'
-    | 'lumber_mill_high';
+    | LumberMillId;
 export type MarketBuildingId = 'market' | 'grand_market';
 export type ProductionBuildingId = 'mercenary_barracks';
 export type ResearchBuildingId =
@@ -133,6 +135,13 @@ export type IncomeBuildingConfig = {
     readonly source: SourceTrace;
     readonly upgradeCostGold?: number;
     readonly upgradeTo?: IncomeBuildingId;
+};
+
+export type LumberMillIncomeConfig = {
+    readonly incomeIntervalSec: number;
+    readonly lumberPerTick: number;
+    readonly source: SourceTrace;
+    readonly templateId: LumberMillId;
 };
 
 export type DefenseBuildingConfig = {
@@ -345,6 +354,7 @@ export type ChickenFarmBalance = {
     readonly economy: EconomyBalance;
     readonly enemies: Record<EnemyId, EnemyConfig>;
     readonly incomeBuildings: Record<IncomeBuildingId, IncomeBuildingConfig>;
+    readonly lumberMillIncome: Record<LumberMillId, LumberMillIncomeConfig>;
     readonly defenseBuildings: Record<DefenseBuildingId, DefenseBuildingConfig>;
     readonly pathing: PathingBalance;
     readonly score: ScoreBalance;

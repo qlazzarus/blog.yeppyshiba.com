@@ -2,6 +2,7 @@
   "case": "restart",
   "checks": {
     "freshConstructionAfterRestart": true,
+    "lumberIncomeReset": true,
     "pass": true,
     "staleConstructionCleared": true
   },
@@ -23,7 +24,7 @@
           "id": "pending-build-1",
           "runtimeBuildingId": null,
           "targetPoint": {
-            "x": 3490,
+            "x": 3464,
             "y": 8896
           },
           "templateId": "fence_wood"
@@ -40,6 +41,23 @@
         "lumber": 0
       }
     },
+    "incomeBeforeRestart": {
+      "lastProcessedTickSec": 30,
+      "mills": [
+        {
+          "activeFromSec": 0.5286999999940394,
+          "id": "player-building-3",
+          "ownerPlayerId": 3,
+          "templateId": "lumber_mill"
+        }
+      ],
+      "totalsByPlayer": [
+        {
+          "lumber": 70,
+          "playerId": 3
+        }
+      ]
+    },
     "restarted": {
       "activePlacementTemplateId": null,
       "buildings": [],
@@ -54,6 +72,16 @@
         "gold": 1500,
         "lumber": 0
       }
+    },
+    "restartIncome": {
+      "lastProcessedTickSec": 0,
+      "mills": [],
+      "totalsByPlayer": [
+        {
+          "lumber": 0,
+          "playerId": 3
+        }
+      ]
     }
   }
 }

@@ -9,6 +9,7 @@ import type {
     EconomyInventorySlot,
     EconomyInventoryState,
     EconomyItemRawcode,
+    EconomyLumberMillState,
     EconomyPlayerState,
     EconomyPoint,
     EconomyWellState,
@@ -17,6 +18,7 @@ import type {
     HatchJobState,
 } from './economyTypes';
 import { CHICKEN_FARM_BALANCE } from '../balance';
+import type { LumberMillId } from '../balanceTypes';
 import { resolveBuildingProductionExit } from './buildingProductionExit';
 
 const CHICKEN_COLLISION_RADIUS_PX = 20;
@@ -97,6 +99,9 @@ export function createChickenFarmEconomyState(config?: {
         fieldEggs: [],
         hatchJobs: [],
         inventories: [],
+        lastLumberIncomeTickSec: 0,
+        lumberIncomeTotalsByPlayerId: {},
+        lumberMills: [],
         nextChickenId: 1,
         nextEggId: 1,
         nextHatchJobId: 1,
@@ -193,6 +198,64 @@ export function addEconomyWell(
 }
 
 /**
+ * Registers a completed lumber mill with the pure economy state. World
+ * construction owns when this is called; the mill remains inactive before
+ * `activeFromSec` even if an update jumps across earlier global ticks.
+ */
+export function addEconomyLumberMill(
+    state: ChickenFarmEconomyState,
+    config: {
+        readonly activeFromSec: number;
+        readonly id: string;
+        readonly ownerPlayerId: number;
+        readonly templateId: LumberMillId;
+    },
+) {
+    if (
+        !Number.isFinite(config.activeFromSec) ||
+        config.activeFromSec < 0 ||
+        state.lumberMills.some((mill) => mill.id === config.id) ||
+        !state.players.some((player) => player.id === config.ownerPlayerId) ||
+        !CHICKEN_FARM_BALANCE.lumberMillIncome[config.templateId]
+    ) {
+        return null;
+    }
+
+    const lumberMill: EconomyLumberMillState = {
+        activeFromSec: config.activeFromSec,
+        id: config.id,
+        ownerPlayerId: config.ownerPlayerId,
+        templateId: config.templateId,
+    };
+    state.lumberMills.push(lumberMill);
+    return lumberMill;
+}
+
+export function removeEconomyLumberMill(
+    state: ChickenFarmEconomyState,
+    buildingId: string,
+) {
+    const lumberMillIndex = state.lumberMills.findIndex(
+        (candidate) => candidate.id === buildingId,
+    );
+    if (lumberMillIndex < 0) return null;
+    state.lumberMills.splice(lumberMillIndex, 1);
+    return 'lumber_mill' as const;
+}
+
+/** Read-only diagnostics for lifecycle checks; nested records are copied. */
+export function getLumberMillIncomeSnapshot(state: ChickenFarmEconomyState) {
+    return {
+        lastProcessedTickSec: state.lastLumberIncomeTickSec,
+        mills: state.lumberMills.map((mill) => ({ ...mill })),
+        totalsByPlayer: state.players.map((player) => ({
+            lumber: state.lumberIncomeTotalsByPlayerId[player.id] ?? 0,
+            playerId: player.id,
+        })),
+    };
+}
+
+/**
  * Removes the economy capability owned by a world building.  The caller keeps
  * the world/building lifecycle authoritative; this function only clears the
  * derived economy records and any inventory or hatch jobs that reference it.
@@ -222,7 +285,7 @@ export function removeEconomyBuilding(
         return 'well' as const;
     }
 
-    return null;
+    return removeEconomyLumberMill(state, buildingId);
 }
 
 export function upgradeEconomyWellToWindmill(
@@ -315,10 +378,69 @@ export function updateChickenFarmEconomy(
     options?: EconomyUpdateOptions,
 ) {
     const events: EconomyEvent[] = [];
+    updateLumberMillIncome(state, elapsedSec, events);
     updateChickenVitalityAndAi(state, elapsedSec, events, options);
     updateEggDrops(state, elapsedSec, events);
     completeHatches(state, elapsedSec, events, options);
     return events;
+}
+
+function updateLumberMillIncome(
+    state: ChickenFarmEconomyState,
+    elapsedSec: number,
+    events: EconomyEvent[],
+) {
+    const intervalSec = getLumberMillIncomeIntervalSec();
+    if (!Number.isFinite(elapsedSec) || elapsedSec < state.lastLumberIncomeTickSec) {
+        return;
+    }
+
+    const lastEligibleTickSec = Math.floor(elapsedSec / intervalSec) * intervalSec;
+    for (
+        let tickSec = state.lastLumberIncomeTickSec + intervalSec;
+        tickSec <= lastEligibleTickSec;
+        tickSec += intervalSec
+    ) {
+        const lumberByOwner = new Map<number, number>();
+        state.lumberMills.forEach((mill) => {
+            if (mill.activeFromSec > tickSec) return;
+            const rule = CHICKEN_FARM_BALANCE.lumberMillIncome[mill.templateId];
+            if (!rule) return;
+            lumberByOwner.set(
+                mill.ownerPlayerId,
+                (lumberByOwner.get(mill.ownerPlayerId) ?? 0) + rule.lumberPerTick,
+            );
+        });
+        lumberByOwner.forEach((lumber, playerId) => {
+            const player = state.players.find((candidate) => candidate.id === playerId);
+            if (!player) return;
+            player.lumber += lumber;
+            state.lumberIncomeTotalsByPlayerId[playerId] =
+                (state.lumberIncomeTotalsByPlayerId[playerId] ?? 0) + lumber;
+            events.push({
+                lumber,
+                playerId,
+                tickSec,
+                type: 'lumber_income_paid',
+            });
+        });
+    }
+    state.lastLumberIncomeTickSec = Math.max(
+        state.lastLumberIncomeTickSec,
+        lastEligibleTickSec,
+    );
+}
+
+function getLumberMillIncomeIntervalSec() {
+    const rules = Object.values(CHICKEN_FARM_BALANCE.lumberMillIncome);
+    const intervalSec = rules[0]?.incomeIntervalSec;
+    if (
+        !intervalSec ||
+        rules.some((rule) => rule.incomeIntervalSec !== intervalSec)
+    ) {
+        throw new Error('Lumber mill income requires one shared global interval');
+    }
+    return intervalSec;
 }
 
 export function depositFieldEggToCoop(

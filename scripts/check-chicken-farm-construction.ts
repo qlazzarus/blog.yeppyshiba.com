@@ -566,9 +566,25 @@ async function runRestartCase() {
         const fixtures = await page.evaluate(() => ({
             complete: window.__chickenFarmDebug!.createPathBlockerFixture(4352, 8896),
             paused: window.__chickenFarmDebug!.createPausedConstructionFixture('coop_basic', 4608, 8896),
-            restarted: window.__chickenFarmDebug!.restartRunForTest(),
+            lumberMill: window.__chickenFarmDebug!.createEconomyBuildingFixture('lumber_mill', 4864, 8896),
         }));
-        if (!fixtures.complete || !fixtures.paused || !fixtures.restarted) throw new Error(`Unable to create restart state: ${JSON.stringify(fixtures)}`);
+        if (!fixtures.complete || !fixtures.paused || !fixtures.lumberMill) throw new Error(`Unable to create restart state: ${JSON.stringify(fixtures)}`);
+        const incomeBeforeRestart = await page.evaluate(() => {
+            const targetElapsedSec = Math.ceil(
+                (window.__chickenFarmDebug!.getState().elapsedSec + 0.001) / 30,
+            ) * 30;
+            const advanced = window.__chickenFarmDebug!.advanceEconomyForTest(targetElapsedSec);
+            return { advanced, snapshot: window.__chickenFarmDebug!.getEconomyLifecycleSnapshot() };
+        });
+        if (
+            !incomeBeforeRestart.advanced ||
+            incomeBeforeRestart.snapshot.lumberIncome.mills.length !== 1 ||
+            incomeBeforeRestart.snapshot.lumberIncome.totalsByPlayer[0]?.lumber !== 70
+        ) {
+            throw new Error(`Lumber income did not contaminate restart state: ${JSON.stringify(incomeBeforeRestart)}`);
+        }
+        const restartRequested = await page.evaluate(() => window.__chickenFarmDebug!.restartRunForTest());
+        if (!restartRequested) throw new Error('Unable to restart contaminated session');
         await page.waitForFunction(
             () => window.__chickenFarmDebug!.getState().runId > 1 && window.__chickenFarmDebug!.getState().elapsedSec > 0,
             null,
@@ -576,13 +592,29 @@ async function runRestartCase() {
         );
         const restarted = await getSnapshot(page);
         assertNormalBaseline(restarted, true);
+        const restartIncomeSnapshot = await page.evaluate(() => {
+            const first = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+            const second = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+            return {
+                identical: JSON.stringify(first.lumberIncome) === JSON.stringify(second.lumberIncome),
+                lumberIncome: first.lumberIncome,
+            };
+        });
+        if (
+            !restartIncomeSnapshot.identical ||
+            restartIncomeSnapshot.lumberIncome.lastProcessedTickSec !== 0 ||
+            restartIncomeSnapshot.lumberIncome.mills.length !== 0 ||
+            restartIncomeSnapshot.lumberIncome.totalsByPlayer[0]?.lumber !== 0
+        ) {
+            throw new Error(`Restart retained lumber income state: ${JSON.stringify(restartIncomeSnapshot)}`);
+        }
         const afterSession = { canvas: await getCanvasBounds(page), snapshot: restarted };
         const afterBuilder = await selectFarmer(page, afterSession);
         await openPlacement(page, 'f');
         await clickWorld(page, afterBuilder.calibration, { x: 3584, y: 8896 });
         await waitForPendingCount(page, 1);
         const freshPending = await getSnapshot(page);
-        return { case: constructionCase, checks: { freshConstructionAfterRestart: true, pass: true, staleConstructionCleared: true }, snapshots: { freshPending: freshPending.lifecycle, restarted: restarted.lifecycle } };
+        return { case: constructionCase, checks: { freshConstructionAfterRestart: true, lumberIncomeReset: true, pass: true, staleConstructionCleared: true }, snapshots: { freshPending: freshPending.lifecycle, incomeBeforeRestart: incomeBeforeRestart.snapshot.lumberIncome, restarted: restarted.lifecycle, restartIncome: restartIncomeSnapshot.lumberIncome } };
     } finally { await page.close(); await browser.close(); }
 }
 
@@ -591,10 +623,41 @@ async function runRemovalCase() {
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
     try {
         await prepareNormalSession(page, true);
-        const id = await page.evaluate(() => window.__chickenFarmDebug!
-            .createPathBlockerFixture(4032, 8896));
+        const created = await page.evaluate(() => {
+            const beforeLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            const id = window.__chickenFarmDebug!
+                .createEconomyBuildingFixture('lumber_mill', 4032, 8896);
+            const targetElapsedSec = Math.ceil(
+                (window.__chickenFarmDebug!.getState().elapsedSec + 0.001) / 30,
+            ) * 30;
+            const advanced = window.__chickenFarmDebug!
+                .advanceEconomyForTest(targetElapsedSec);
+            const afterIncomeLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            return { advanced, afterIncomeLumber, beforeLumber, id, targetElapsedSec };
+        });
+        const id = created.id;
+        if (!id || !created.advanced || created.afterIncomeLumber !== created.beforeLumber + 70) {
+            throw new Error(`Lumber mill fixture income mismatch: ${JSON.stringify(created)}`);
+        }
         if (!id || !await page.evaluate((buildingId) => window.__chickenFarmDebug!
             .removeCompletedBuildingFixture(buildingId), id)) throw new Error('Unable to remove complete fixture');
+        const afterRemovalIncome = await page.evaluate(() => {
+            const beforeLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            const targetElapsedSec = Math.ceil(
+                (window.__chickenFarmDebug!.getState().elapsedSec + 0.001) / 30,
+            ) * 30;
+            const advanced = window.__chickenFarmDebug!
+                .advanceEconomyForTest(targetElapsedSec);
+            const afterLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            return { advanced, afterLumber, beforeLumber, targetElapsedSec };
+        });
+        if (!afterRemovalIncome.advanced || afterRemovalIncome.afterLumber !== afterRemovalIncome.beforeLumber) {
+            throw new Error(`Removed lumber mill still paid income: ${JSON.stringify(afterRemovalIncome)}`);
+        }
         const removed = await getSnapshot(page);
         if (
             removed.lifecycle.buildings.length || removed.lifecycle.pendingOrders.length ||
@@ -602,7 +665,7 @@ async function runRemovalCase() {
             removed.lifecycle.economyBuildingIds.length ||
             await page.evaluate((buildingId) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(buildingId), id)
         ) throw new Error(`Removal cleanup/repeat mismatch: ${JSON.stringify(removed)}`);
-        return { case: constructionCase, checks: { completeRemovalIdempotent: true, referencesCleared: true, pass: true }, lifecycle: removed.lifecycle };
+        return { case: constructionCase, checks: { completeRemovalIdempotent: true, lumberIncomeStopped: true, referencesCleared: true, pass: true }, lifecycle: removed.lifecycle, lumberIncome: { afterRemoval: afterRemovalIncome, beforeRemoval: created } };
     } finally { await page.close(); await browser.close(); }
 }
 
@@ -614,8 +677,8 @@ async function runCompletionCase() {
         const builder = await selectFarmer(page, session);
         const point = { x: 4032, y: 8896 };
         const buildingId = await page.evaluate(({ x, y }) => window.__chickenFarmDebug!
-            .createPausedConstructionFixture('coop_basic', x, y), point);
-        if (!buildingId) throw new Error('Unable to create paused coop fixture');
+            .createPausedConstructionFixture('lumber_mill', x, y), point);
+        if (!buildingId) throw new Error('Unable to create paused lumber mill fixture');
         await clickWorld(page, builder.calibration, point, 'right');
         await page.waitForFunction(
             (id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot()
@@ -636,7 +699,22 @@ async function runCompletionCase() {
             buildingId,
             { timeout: 3_000 },
         );
-        return { case: constructionCase, checks: { completionSingleTransition: true, economyAttachedOnce: true, pendingAndWorkerCleared: true, pass: true }, lifecycle: completed.lifecycle };
+        const income = await page.evaluate(() => {
+            const beforeLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            const targetElapsedSec = Math.ceil(
+                (window.__chickenFarmDebug!.getState().elapsedSec + 0.001) / 30,
+            ) * 30;
+            const advanced = window.__chickenFarmDebug!
+                .advanceEconomyForTest(targetElapsedSec);
+            const afterLumber = window.__chickenFarmDebug!
+                .getConstructionLifecycleSnapshot().wallet?.lumber ?? 0;
+            return { advanced, afterLumber, beforeLumber, targetElapsedSec };
+        });
+        if (!income.advanced || income.afterLumber !== income.beforeLumber + 70) {
+            throw new Error(`Completed lumber mill did not pay exactly once: ${JSON.stringify(income)}`);
+        }
+        return { case: constructionCase, checks: { completionSingleTransition: true, economyAttachedOnce: true, lumberIncomePaidOnce: true, pendingAndWorkerCleared: true, pass: true }, income, lifecycle: completed.lifecycle };
     } finally { await page.close(); await browser.close(); }
 }
 

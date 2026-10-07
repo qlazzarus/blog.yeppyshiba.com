@@ -6,6 +6,7 @@ import {
     addEconomyChicken,
     addEconomyCoop,
     addEconomyFieldEgg,
+    addEconomyLumberMill,
     addEconomyWell,
     countInventoryItem,
     createChickenFarmEconomyState,
@@ -13,6 +14,7 @@ import {
     dropInventoryEggToField,
     ensureEconomyInventory,
     feedNearestEconomyChicken,
+    getLumberMillIncomeSnapshot,
     grantEconomyInventoryItem,
     herdEconomyChickens,
     pickupFieldEgg,
@@ -47,7 +49,12 @@ async function main() {
     const state = createChickenFarmEconomyState({
         players: [{ gold: 120, id: 3, lumber: 0, supplyCap: 0, supplyUsed: 0 }],
     });
-    const lifecycleState = createChickenFarmEconomyState();
+    const lifecycleState = createChickenFarmEconomyState({
+        players: [
+            { gold: 0, id: 3, lumber: 0, supplyCap: 0, supplyUsed: 0 },
+            { gold: 0, id: 4, lumber: 0, supplyCap: 0, supplyUsed: 0 },
+        ],
+    });
     const lifecycleBuilding = (
         id: string,
         templateId: PlayerBuilding['templateId'],
@@ -55,9 +62,12 @@ async function main() {
         y: number,
     ) =>
         ({
+            completedAtSec: 0,
             footprint: { height: 128, width: 128, x, y },
             id,
             ownerPlayerId: 3,
+            startedAtSec: 0,
+            state: 'complete',
             templateId,
         }) as PlayerBuilding;
     const lifecycleCoopBuilding = lifecycleBuilding(
@@ -87,6 +97,130 @@ async function main() {
     const removedLifecycleWell = detachBuildingEconomy(
         lifecycleState,
         lifecycleWellBuilding,
+    );
+    const lifecycleLumberMillBuilding = lifecycleBuilding(
+        'player-building-44',
+        'lumber_mill',
+        512,
+        256,
+    );
+    const lifecycleForeignLumberMillBuilding = {
+        ...lifecycleBuilding('player-building-45', 'lumber_mill_mid', 640, 256),
+        completedAtSec: 30,
+        ownerPlayerId: 4,
+        startedAtSec: 30,
+    } as PlayerBuilding;
+    const lifecycleConstructingLumberMillBuilding = {
+        ...lifecycleBuilding('player-building-46', 'lumber_mill_high', 768, 256),
+        state: 'constructing',
+    } as PlayerBuilding;
+    const lifecycleLumberMill = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleLumberMillBuilding,
+    );
+    const lifecycleLumberMillDuplicate = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleLumberMillBuilding,
+    );
+    const lifecycleForeignLumberMill = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleForeignLumberMillBuilding,
+    );
+    const lifecycleConstructingLumberMill = attachCompletedBuildingEconomy(
+        lifecycleState,
+        lifecycleConstructingLumberMillBuilding,
+    );
+    const lifecycleIncomeAt30 = updateChickenFarmEconomy(lifecycleState, 30);
+    const removedLifecycleLumberMill = detachBuildingEconomy(
+        lifecycleState,
+        lifecycleLumberMillBuilding,
+    );
+    const repeatedRemovedLifecycleLumberMill = detachBuildingEconomy(
+        lifecycleState,
+        lifecycleLumberMillBuilding,
+    );
+    const lifecycleIncomeAt60 = updateChickenFarmEconomy(lifecycleState, 60);
+    const lumberIncomeState = createChickenFarmEconomyState({
+        players: [
+            { gold: 101, id: 3, lumber: 7, supplyCap: 4, supplyUsed: 1 },
+            { gold: 202, id: 4, lumber: 11, supplyCap: 6, supplyUsed: 2 },
+        ],
+    });
+    const ownerThreeBasicMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-basic',
+        ownerPlayerId: 3,
+        templateId: 'lumber_mill',
+    });
+    const ownerThreeMidMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-mid',
+        ownerPlayerId: 3,
+        templateId: 'lumber_mill_mid',
+    });
+    const ownerThreeHighMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 30,
+        id: 'lumber-mill-high',
+        ownerPlayerId: 3,
+        templateId: 'lumber_mill_high',
+    });
+    const ownerFourBasicMillOne = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-owner-four-one',
+        ownerPlayerId: 4,
+        templateId: 'lumber_mill',
+    });
+    const ownerFourBasicMillTwo = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-owner-four-two',
+        ownerPlayerId: 4,
+        templateId: 'lumber_mill',
+    });
+    const rejectedDuplicateLumberMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-basic',
+        ownerPlayerId: 3,
+        templateId: 'lumber_mill',
+    });
+    const rejectedForeignLumberMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-missing-owner',
+        ownerPlayerId: 99,
+        templateId: 'lumber_mill',
+    });
+    const rejectedUnknownLumberMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 0,
+        id: 'lumber-mill-unknown-template',
+        ownerPlayerId: 3,
+        templateId: 'not_a_lumber_mill' as never,
+    });
+    addEconomyChicken(lumberIncomeState, {
+        elapsedSec: 0,
+        ownerPlayerId: 3,
+        position: { x: 200, y: 200 },
+    });
+    const lumberIncomeBeforeTick = updateChickenFarmEconomy(lumberIncomeState, 29.999);
+    const lumberIncomeAtFirstTick = updateChickenFarmEconomy(lumberIncomeState, 30);
+    const lumberIncomeAtRepeatedTick = updateChickenFarmEconomy(lumberIncomeState, 30);
+    const lateOwnerThreeBasicMill = addEconomyLumberMill(lumberIncomeState, {
+        activeFromSec: 30.001,
+        id: 'lumber-mill-late-basic',
+        ownerPlayerId: 3,
+        templateId: 'lumber_mill',
+    });
+    const lumberIncomeAtSecondTick = updateChickenFarmEconomy(lumberIncomeState, 60);
+    const lumberIncomeLargeDelta = updateChickenFarmEconomy(lumberIncomeState, 125);
+    const lumberIncomeWallets = lumberIncomeState.players.map((player) => ({
+        gold: player.gold,
+        id: player.id,
+        lumber: player.lumber,
+        supplyCap: player.supplyCap,
+        supplyUsed: player.supplyUsed,
+    }));
+    const lumberIncomeSnapshotBeforeRepeat = getLumberMillIncomeSnapshot(lumberIncomeState);
+    const lumberIncomeSnapshotAfterRepeat = getLumberMillIncomeSnapshot(lumberIncomeState);
+    const resetLumberIncomeSnapshot = getLumberMillIncomeSnapshot(
+        createChickenFarmEconomyState(),
     );
     const coop = addEconomyCoop(state, {
         kind: 'basic',
@@ -595,6 +729,40 @@ async function main() {
                 saleWithoutMarket: saleWithoutMarket !== null,
                 soldEggs: walletSale?.soldEggs ?? 0,
             },
+            lumberIncomeValidation: {
+                beforeTickIncomeEvents: lumberIncomeBeforeTick.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                firstTickIncomeEvents: lumberIncomeAtFirstTick.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                largeDeltaIncomeEvents: lumberIncomeLargeDelta.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                lumberMillCount: lumberIncomeState.lumberMills.length,
+                repeatedTickIncomeEvents: lumberIncomeAtRepeatedTick.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                secondTickIncomeEvents: lumberIncomeAtSecondTick.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                wallets: lumberIncomeWallets,
+                snapshot: lumberIncomeSnapshotBeforeRepeat,
+                resetSnapshot: resetLumberIncomeSnapshot,
+            },
+            lumberMillLifecycleValidation: {
+                incomeAt30: lifecycleIncomeAt30.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                incomeAt60: lifecycleIncomeAt60.filter(
+                    (event) => event.type === 'lumber_income_paid',
+                ),
+                lumberMillIds: lifecycleState.lumberMills.map((mill) => mill.id),
+                wallets: lifecycleState.players.map((player) => ({
+                    id: player.id,
+                    lumber: player.lumber,
+                })),
+            },
             vitalityValidation: {
                 basicWellAttractedCount,
                 finalAiState: vitalityChicken.aiState,
@@ -626,6 +794,183 @@ async function main() {
             wellCount: state.wells.length,
         },
         checks: [
+            {
+                actual: {
+                    canonicalRules: CHICKEN_FARM_BALANCE.lumberMillIncome,
+                    firstTick: lumberIncomeAtFirstTick.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    firstTickAlsoLaidEgg: lumberIncomeAtFirstTick.some(
+                        (event) => event.type === 'egg_dropped',
+                    ),
+                    largeDelta: lumberIncomeLargeDelta.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    lumberMillCount: lumberIncomeState.lumberMills.length,
+                    repeatedTick: lumberIncomeAtRepeatedTick.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    secondTick: lumberIncomeAtSecondTick.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    wallets: lumberIncomeWallets,
+                    snapshot: lumberIncomeSnapshotBeforeRepeat,
+                    repeatedSnapshot: lumberIncomeSnapshotAfterRepeat,
+                    resetSnapshot: resetLumberIncomeSnapshot,
+                },
+                expected: {
+                    firstTick: [
+                        { lumber: 350, playerId: 3, tickSec: 30 },
+                        { lumber: 140, playerId: 4, tickSec: 30 },
+                    ],
+                    largeDelta: [
+                        { lumber: 420, playerId: 3, tickSec: 90 },
+                        { lumber: 140, playerId: 4, tickSec: 90 },
+                        { lumber: 420, playerId: 3, tickSec: 120 },
+                        { lumber: 140, playerId: 4, tickSec: 120 },
+                    ],
+                    lumberMillCount: 6,
+                    repeatedTick: [],
+                    secondTick: [
+                        { lumber: 420, playerId: 3, tickSec: 60 },
+                        { lumber: 140, playerId: 4, tickSec: 60 },
+                    ],
+                    wallets: [
+                        { gold: 101, id: 3, lumber: 1617, supplyCap: 4, supplyUsed: 1 },
+                        { gold: 202, id: 4, lumber: 571, supplyCap: 6, supplyUsed: 2 },
+                    ],
+                    snapshot: {
+                        lastProcessedTickSec: 120,
+                        mills: 6,
+                        totalsByPlayer: [
+                            { lumber: 1610, playerId: 3 },
+                            { lumber: 560, playerId: 4 },
+                        ],
+                    },
+                    resetSnapshot: {
+                        lastProcessedTickSec: 0,
+                        mills: [],
+                        totalsByPlayer: [{ lumber: 0, playerId: 3 }],
+                    },
+                },
+                id: 'lumber_mills_pay_global_30s_income_without_replacing_chicken_eggs',
+                pass:
+                    CHICKEN_FARM_BALANCE.lumberMillIncome.lumber_mill.lumberPerTick === 70 &&
+                    CHICKEN_FARM_BALANCE.lumberMillIncome.lumber_mill_mid.lumberPerTick === 110 &&
+                    CHICKEN_FARM_BALANCE.lumberMillIncome.lumber_mill_high.lumberPerTick === 170 &&
+                    CHICKEN_FARM_BALANCE.lumberMillIncome.lumber_mill.incomeIntervalSec === 30 &&
+                    lumberIncomeBeforeTick.filter((event) => event.type === 'lumber_income_paid').length === 0 &&
+                    lumberIncomeAtFirstTick.some((event) => event.type === 'egg_dropped') &&
+                    JSON.stringify(lumberIncomeAtFirstTick.filter((event) => event.type === 'lumber_income_paid')) ===
+                        JSON.stringify([
+                            { lumber: 350, playerId: 3, tickSec: 30, type: 'lumber_income_paid' },
+                            { lumber: 140, playerId: 4, tickSec: 30, type: 'lumber_income_paid' },
+                        ]) &&
+                    lumberIncomeAtRepeatedTick.filter((event) => event.type === 'lumber_income_paid').length === 0 &&
+                    JSON.stringify(lumberIncomeAtSecondTick.filter((event) => event.type === 'lumber_income_paid')) ===
+                        JSON.stringify([
+                            { lumber: 420, playerId: 3, tickSec: 60, type: 'lumber_income_paid' },
+                            { lumber: 140, playerId: 4, tickSec: 60, type: 'lumber_income_paid' },
+                        ]) &&
+                    JSON.stringify(lumberIncomeLargeDelta.filter((event) => event.type === 'lumber_income_paid')) ===
+                        JSON.stringify([
+                            { lumber: 420, playerId: 3, tickSec: 90, type: 'lumber_income_paid' },
+                            { lumber: 140, playerId: 4, tickSec: 90, type: 'lumber_income_paid' },
+                            { lumber: 420, playerId: 3, tickSec: 120, type: 'lumber_income_paid' },
+                            { lumber: 140, playerId: 4, tickSec: 120, type: 'lumber_income_paid' },
+                        ]) &&
+                    rejectedDuplicateLumberMill === null &&
+                    rejectedForeignLumberMill === null &&
+                    rejectedUnknownLumberMill === null &&
+                    Boolean(ownerThreeBasicMill) &&
+                    Boolean(ownerThreeMidMill) &&
+                    Boolean(ownerThreeHighMill) &&
+                    Boolean(ownerFourBasicMillOne) &&
+                    Boolean(ownerFourBasicMillTwo) &&
+                    Boolean(lateOwnerThreeBasicMill) &&
+                    lumberIncomeState.lumberMills.length === 6 &&
+                    JSON.stringify(lumberIncomeWallets) ===
+                        JSON.stringify([
+                            { gold: 101, id: 3, lumber: 1617, supplyCap: 4, supplyUsed: 1 },
+                            { gold: 202, id: 4, lumber: 571, supplyCap: 6, supplyUsed: 2 },
+                        ]) &&
+                    lumberIncomeSnapshotBeforeRepeat.lastProcessedTickSec === 120 &&
+                    lumberIncomeSnapshotBeforeRepeat.mills.length === 6 &&
+                    JSON.stringify(lumberIncomeSnapshotBeforeRepeat.totalsByPlayer) ===
+                        JSON.stringify([
+                            { lumber: 1610, playerId: 3 },
+                            { lumber: 560, playerId: 4 },
+                        ]) &&
+                    JSON.stringify(lumberIncomeSnapshotBeforeRepeat) ===
+                        JSON.stringify(lumberIncomeSnapshotAfterRepeat) &&
+                    JSON.stringify(resetLumberIncomeSnapshot) ===
+                        JSON.stringify({
+                            lastProcessedTickSec: 0,
+                            mills: [],
+                            totalsByPlayer: [{ lumber: 0, playerId: 3 }],
+                        }),
+            },
+            {
+                actual: {
+                    constructingAttach: lifecycleConstructingLumberMill,
+                    duplicateAttach: lifecycleLumberMillDuplicate,
+                    foreignAttach: lifecycleForeignLumberMill,
+                    incomeAt30: lifecycleIncomeAt30.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    incomeAt60: lifecycleIncomeAt60.filter(
+                        (event) => event.type === 'lumber_income_paid',
+                    ),
+                    lumberMillIds: lifecycleState.lumberMills.map((mill) => mill.id),
+                    removed: removedLifecycleLumberMill,
+                    repeatedRemoval: repeatedRemovedLifecycleLumberMill,
+                    sourceAttach: lifecycleLumberMill,
+                    wallets: lifecycleState.players.map((player) => ({
+                        id: player.id,
+                        lumber: player.lumber,
+                    })),
+                },
+                expected: {
+                    incomeAt30: [
+                        { lumber: 70, playerId: 3, tickSec: 30 },
+                        { lumber: 110, playerId: 4, tickSec: 30 },
+                    ],
+                    incomeAt60: [{ lumber: 110, playerId: 4, tickSec: 60 }],
+                    lumberMillIds: ['player-building-45'],
+                    removed: 'lumber_mill',
+                    wallets: [
+                        { id: 3, lumber: 70 },
+                        { id: 4, lumber: 220 },
+                    ],
+                },
+                id: 'completed_lumber_mills_attach_once_pay_owner_and_detach_immediately',
+                pass:
+                    Boolean(lifecycleLumberMill) &&
+                    lifecycleLumberMillDuplicate === null &&
+                    Boolean(lifecycleForeignLumberMill) &&
+                    lifecycleConstructingLumberMill === null &&
+                    JSON.stringify(lifecycleIncomeAt30.filter((event) => event.type === 'lumber_income_paid')) ===
+                        JSON.stringify([
+                            { lumber: 70, playerId: 3, tickSec: 30, type: 'lumber_income_paid' },
+                            { lumber: 110, playerId: 4, tickSec: 30, type: 'lumber_income_paid' },
+                        ]) &&
+                    removedLifecycleLumberMill === 'lumber_mill' &&
+                    repeatedRemovedLifecycleLumberMill === null &&
+                    JSON.stringify(lifecycleIncomeAt60.filter((event) => event.type === 'lumber_income_paid')) ===
+                        JSON.stringify([
+                            { lumber: 110, playerId: 4, tickSec: 60, type: 'lumber_income_paid' },
+                        ]) &&
+                    JSON.stringify(lifecycleState.lumberMills.map((mill) => mill.id)) ===
+                        JSON.stringify(['player-building-45']) &&
+                    JSON.stringify(lifecycleState.players.map((player) => ({
+                        id: player.id,
+                        lumber: player.lumber,
+                    }))) ===
+                        JSON.stringify([
+                            { id: 3, lumber: 70 },
+                            { id: 4, lumber: 220 },
+                        ]),
+            },
             {
                 actual: {
                     coopInventoryRemoved: !lifecycleState.inventories.some(
