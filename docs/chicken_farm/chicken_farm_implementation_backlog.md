@@ -14,6 +14,7 @@
 | SP-04 | 클릭/drag 선택; 우클릭 이동/상호작용; Stop/Shift 예약; 도달 불가·좁은 통로; 월드/WPM 좌표 정합 | SP-03 |
 | SP-05 | 지형/겹침 검증; 착공 비용·환불; 일꾼 도착/중단/재개; 완공 기능 연결; 취소/파괴 시 blocker·시야·선택·경제 정리 | SP-03/04 |
 | SP-06 | 닭 확보/분양; 우물 효과·산란; field egg 수집; farmer→coop 입고; 부화/출구; 완성 시장 판매; inventory/wallet 보존 | SP-05 |
+| SP-06.5 | W3X 럼버 밀의 30초 목재 수입 복원; 완료/제거·owner·중복 tick 검증; normal economy 회귀 | SP-06 |
 | SP-07 | 실제 유닛/건물/닭의 target 등록; acquire/사거리/시야; 공격·피해·사망; 펜스 파괴/재경로; attack-move 후 목적지/예약 복귀 | SP-04~06 |
 | SP-08 | 실제 맵 spawn rect 연결; 단계별 적 population/보충; 공격 목표 갱신; 진행 시간; 다음 단계; 더 이상 유효하지 않은 적 정리 | SP-07 |
 | SP-09 | 건물별 실제 기능 목록; 생산/부화 queue와 취소; 공급/선행 건물/자원; 업그레이드/연구 효과; 생성 위치·rally 필요 범위 | SP-05/06 |
@@ -25,7 +26,7 @@
 | SP-15 | debug 자원 없이 첫 건설/알/판매 가능; 첫 적 대응 시간; 자원 수입·생산·방어 성장; 후반 진행/막힘; 정상 속도 한 판 검수 | SP-09~14 |
 | SP-16 | 승리와 패배 양 경로; 반복 재시작; 장시간 실행; 개체 수 증가; 경로 정합; 프레임/메모리; 경제·전투·건설 회귀 | SP-15 |
 
-SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01~10은 normal P3 actual 입력, Stop/queue, pathing과 restart를 완료했다. SP-05-01~12는 pending부터 착공 비용·Stop/재개·handoff·queue·refund·완공/제거·restart까지 검수했고, normal P3 실제 통합 lifecycle과 browser 오류 0도 확인했다. SP-06-01~09는 정적 경제 계약, normal P3 read-only snapshot/browser baseline, I003 원자성, 시작 아이템 설치/시장 교환, 우물/산란, field egg 수집·입고, 명시 부화와 blocked exit 재시도를 완료했고 다음 실행은 **SP-06-10**이다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
+SP-03-01~09의 시작 옵션·소유자 계약·runtime 초기 생성·PoC 격리·초기 배치 manifest/registry/view·shutdown cleanup·same-page restart·normal/easy/debug 시작 회귀를 구현·검증했다. SP-04-01~10은 normal P3 actual 입력, Stop/queue, pathing과 restart를 완료했다. SP-05-01~12는 pending부터 착공 비용·Stop/재개·handoff·queue·refund·완공/제거·restart까지 검수했고, normal P3 실제 통합 lifecycle과 browser 오류 0도 확인했다. **SP-06-01~14는 완료**했다. fixture 없는 normal P3 전체 루프는 실제 wall-clock 산란·부화, 입고·판매와 wallet/HUD 장부를 통과했고 economy browser all도 종료 코드 0으로 통과했다. 원본 W3X와의 역할 보존·수치 변환·남은 범위는 [SP-06 W3X 비교](./chicken_farm_sp06_w3x_comparison.md)를 따른다. 다음 실행은 **SP-06.5-01**이며 bridge 완료 후 SP-07 실제 피해·사망 연결로 진행한다. UI 레이아웃 교체, 아트/사운드 제작, 멀티와 DB/WebRTC는 이 목록의 선행 조건이 아니다. SP-12의 범위를 줄일 필요가 있으면 후속 제안으로 명시하며 이번 목록 정리만으로 기존 기능 목표를 삭제하지 않는다.
 
 ## SP-01 세부 실행 계획
 
@@ -110,7 +111,7 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 ## SP-06 세부 실행 계획
 
-2026-10-02: [닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md)을 Terra medium용 **14개 task**로 분해했다. SP-06-01~09는 계약, normal P3 browser 관찰, I003 원자성, 시작 아이템 설치/시장 교환, 우물/산란, field egg 수집·입고, 명시 부화와 [차단 출구 재시도 artifact](./chicken_farm_w3x_artifacts/economy_check_hatch_exit.json)를 완료했다. 09는 전 출구 차단 상태에서 due job을 보존하고 해제 뒤 한 번만 owner chicken을 생성하며 missing-coop `(0,0)` fallback을 차단한다. 다음 실행은 **SP-06-10**이다. 이후 시장 판매·주문 취소·제거·restart·정상 통합을 순차 검수한다. 카드별 읽기 범위·수량 assertion·검증을 따르며 fixture 결과로 정상 전체 루프를 완료 처리하지 않는다.
+2026-10-07: [닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md)의 Terra medium용 **14개 task**를 완료했다. fixture 없는 normal P3 `full_loop`은 실제 30초 산란·20초 부화, 알 입고·판매와 wallet/HUD 장부를 통과했고, 이어 모든 economy case를 포함하는 `all`도 통과했다. 원본 럼버 밀 수입은 닭·알 생산으로 치환하지 않고 별도 bridge ID인 **SP-06.5**에서 복원한다. [SP-06.5 세부 계획](./chicken_farm_sp06_5_task_plan.md)은 Terra medium용 6개 순차 task로 작성했다(구현 미착수). build card·선행조건 강제·업그레이드 UI는 SP-09에 유지하고 economy:measure·construction·full_loop·all 재실행을 완료 조건으로 둔다. [W3X 최종 비교](./chicken_farm_sp06_w3x_comparison.md)는 나머지 원본 전체 경제와의 차이를 SP-09/12/13/15로 분리한다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 

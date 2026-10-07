@@ -29,13 +29,14 @@
           "hp": 39.8400000000001,
           "id": "chicken-1",
           "kind": "basic",
-          "nextEggAtSec": 60.64356666666816,
+          "nextEggAtSec": 60.64706666666639,
           "ownerPlayerId": 3,
           "x": 3467.040345090294,
           "y": 8954.148921726919
         }
       ],
-      "elapsedSec": 31.126900000001463,
+      "coops": [],
+      "elapsedSec": 31.130399999999693,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -94,16 +95,17 @@
           "hp": 39.90000000000005,
           "id": "chicken-1",
           "kind": "basic",
-          "nextEggAtSec": 60.64356666666816,
+          "nextEggAtSec": 60.64706666666639,
           "ownerPlayerId": 3,
           "x": 3454.95192864808,
           "y": 8960.158929041365
         }
       ],
-      "elapsedSec": 30.82690000000148,
+      "coops": [],
+      "elapsedSec": 30.83039999999971,
       "fieldEggs": [
         {
-          "droppedAtSec": 30.643566666668157,
+          "droppedAtSec": 30.647066666666387,
           "id": "egg-1",
           "ownerPlayerId": 3,
           "sourceChickenId": "chicken-1",

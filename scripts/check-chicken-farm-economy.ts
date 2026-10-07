@@ -12,8 +12,12 @@ const host = '127.0.0.1';
 const port = 4200 + (process.pid % 1000);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const economyCase = process.env.CHICKEN_FARM_ECONOMY_CASE ?? 'baseline';
+const fullLoopStepTimeoutMs = Math.max(
+    45_000,
+    Number.parseInt(process.env.CHICKEN_FARM_FULL_LOOP_TIMEOUT_MS ?? '90000', 10) || 90_000,
+);
 
-if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'laying' && economyCase !== 'pickup' && economyCase !== 'transfer' && economyCase !== 'deposit' && economyCase !== 'hatch_start' && economyCase !== 'hatch_exit' && economyCase !== 'all') {
+if (economyCase !== 'baseline' && economyCase !== 'acquisition' && economyCase !== 'bootstrap' && economyCase !== 'full_loop' && economyCase !== 'laying' && economyCase !== 'pickup' && economyCase !== 'transfer' && economyCase !== 'deposit' && economyCase !== 'hatch_start' && economyCase !== 'hatch_exit' && economyCase !== 'sale' && economyCase !== 'interruption' && economyCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_ECONOMY_CASE: ${economyCase}`);
 }
 
@@ -24,6 +28,8 @@ const artifactName =
           ? 'economy_check_acquisition.json'
           : economyCase === 'bootstrap'
             ? 'economy_check_bootstrap.json'
+            : economyCase === 'full_loop'
+              ? 'economy_check_full_loop.json'
             : economyCase === 'laying'
               ? 'economy_check_laying.json'
               : economyCase === 'pickup'
@@ -36,6 +42,10 @@ const artifactName =
                       ? 'economy_check_hatch_start.json'
                       : economyCase === 'hatch_exit'
                         ? 'economy_check_hatch_exit.json'
+                        : economyCase === 'sale'
+                          ? 'economy_check_sale.json'
+                          : economyCase === 'interruption'
+                            ? 'economy_check_interruption.json'
           : 'economy_check_all.json';
 const artifactPath = path.join(rootDir, 'docs/chicken_farm/chicken_farm_w3x_artifacts', artifactName);
 
@@ -47,6 +57,8 @@ async function main() {
         report = await runAcquisitionCase();
     } else if (economyCase === 'bootstrap') {
         report = await runWithServer(false, runBootstrapCase);
+    } else if (economyCase === 'full_loop') {
+        report = await runWithServer(false, runFullLoopCase);
     } else if (economyCase === 'laying') {
         report = await runWithServer(true, runLayingCase);
     } else if (economyCase === 'pickup') {
@@ -59,6 +71,10 @@ async function main() {
         report = await runWithServer(true, runHatchStartCase);
     } else if (economyCase === 'hatch_exit') {
         report = await runWithServer(true, runHatchExitCase);
+    } else if (economyCase === 'sale') {
+        report = await runWithServer(true, runSaleCase);
+    } else if (economyCase === 'interruption') {
+        report = await runWithServer(true, runInterruptionCase);
     } else {
         report = {
             case: economyCase,
@@ -66,12 +82,15 @@ async function main() {
             baseline: await runWithServer(false, runBaseline),
             acquisition: await runAcquisitionCase(),
             bootstrap: await runWithServer(false, runBootstrapCase),
+            fullLoop: await runWithServer(false, runFullLoopCase),
             laying: await runWithServer(true, runLayingCase),
             pickup: await runWithServer(true, runPickupCase),
             transfer: await runWithServer(true, runTransferCase),
             deposit: await runWithServer(true, runDepositCase),
             hatchStart: await runWithServer(true, runHatchStartCase),
             hatchExit: await runWithServer(true, runHatchExitCase),
+            sale: await runWithServer(true, runSaleCase),
+            interruption: await runWithServer(true, runInterruptionCase),
         };
     }
     await mkdir(path.dirname(artifactPath), { recursive: true });
@@ -373,6 +392,218 @@ async function runBootstrapCase() {
     }
 }
 
+/**
+ * The release gate: one unmodified P3 start owns every resource and elapsed
+ * second used here.  Unlike the focused cases below, this case never calls a
+ * fixture, teleport, inventory grant, wallet setter, or economy time advance.
+ */
+async function runFullLoopCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, false);
+        const canvas = await getCanvasBounds(page);
+        const before = await getEconomySnapshot(page);
+        const wellPoint = { x: 3584, y: 8896 };
+        const marketPoint = { x: 4032, y: 8896 };
+
+        const wellBuilder = await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 1);
+        await clickWorld(page, wellBuilder.calibration, wellPoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'campfire'),
+            null,
+            { timeout: 5_000 },
+        );
+
+        const marketBuilder = await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 2);
+        await clickWorld(page, marketBuilder.calibration, marketPoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'market'),
+            null,
+            { timeout: 5_000 },
+        );
+        const market = requireCompleteBuilding(await getEconomySnapshot(page), 'market');
+        const marketCenter = await getBuildingCenter(page, market.id);
+        await clickWorld(page, await calibrateWorldInput(page, canvas), marketCenter);
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.buildingId === id, market.id, { timeout: 5_000 });
+        await page.keyboard.press('e');
+        await page.waitForFunction(() => {
+            const wallet = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().wallet;
+            return wallet?.gold === 1400 && wallet.lumber === 70;
+        }, null, { timeout: 5_000 });
+        console.log('[full_loop] start items and market exchange complete');
+
+        const builder = await selectFarmer(page, canvas);
+        // This is a read-only terrain/footprint query. Keep only candidates
+        // that also project into the active world viewport; canvas clicks
+        // outside that rectangle are intentionally ignored by Phaser.
+        const buildableCoopPoints = await page.evaluate(() => {
+            const xCandidates = [3072, 3328, 3584, 3840, 4096, 4352, 4608, 4864];
+            const yCandidates = [8384, 8640, 8896, 9152, 9408];
+            return yCandidates.flatMap((y) => xCandidates.flatMap((x) => {
+                const preview = window.__chickenFarmDebug!.getConstructionPlacementPreview('coop_basic', x, y);
+                return preview?.valid.valid ? [{ x, y }] : [];
+            }));
+        });
+        const builderPosition = await getFarmer(page);
+        const coopPoint = buildableCoopPoints
+            .filter((candidate) => {
+            const screen = getWorldScreenPoint(builder.calibration, candidate);
+            return screen.x >= canvas.left && screen.x <= canvas.left + canvas.width &&
+                screen.y >= canvas.top && screen.y <= canvas.top + canvas.height * 0.75;
+            })
+            .sort((a, b) =>
+                Math.hypot(a.x - builderPosition.x, a.y - builderPosition.y) -
+                Math.hypot(b.x - builderPosition.x, b.y - builderPosition.y),
+            )[0];
+        if (!coopPoint) {
+            throw new Error(`No visible normal P3 coop placement point: ${JSON.stringify({ buildableCoopPoints, snapshot: await getEconomySnapshot(page) })}`);
+        }
+        console.log(`[full_loop] visible buildable coop point ${coopPoint.x},${coopPoint.y}`);
+        await page.keyboard.press('b');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getState().commandPage === 'build', null, { timeout: 5_000 });
+        // Use the visible Coop command-card button. In headless Chromium the
+        // immediately-following C key can be observed before the build card's
+        // next frame has installed its hotkey state.
+        await clickCommandCardButton(page, canvas, 3);
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().activePlacementTemplateId === 'coop_basic', null, { timeout: 5_000 });
+        await clickWorld(page, builder.calibration, coopPoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'coop_basic'),
+            null,
+            { timeout: 12_000 },
+        );
+        console.log('[full_loop] coop construction started');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'coop_basic' && building.state === 'complete'),
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        const coop = requireCompleteBuilding(await getEconomySnapshot(page), 'coop_basic');
+        const coopCenter = await getBuildingCenter(page, coop.id);
+        console.log('[full_loop] coop construction complete');
+
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 0);
+        await clickInventorySlot(page, canvas, 0);
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().chickens.length === 2, null, { timeout: 5_000 });
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().fieldEggs.length >= 2,
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        console.log('[full_loop] two normal-time eggs laid');
+        const laid = await getEconomySnapshot(page);
+        const firstEgg = laid.fieldEggs[0];
+        if (!firstEgg) throw new Error(`Normal loop produced no first egg: ${JSON.stringify(laid)}`);
+
+        const hatchFarmer = await selectFarmer(page, canvas);
+        await clickWorld(page, hatchFarmer.calibration, { x: firstEgg.x, y: firstEgg.y - 18 }, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1),
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        const pickedForHatch = await getEconomySnapshot(page);
+        const eggSlot = pickedForHatch.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.findIndex((slot) => slot?.itemRawcode === 'I006');
+        if (eggSlot === undefined || eggSlot < 0) throw new Error(`Missing normal-loop egg slot: ${JSON.stringify(pickedForHatch)}`);
+        // The camera is static while the farmer walks. Reusing the calibration avoids
+        // issuing two incidental world clicks immediately before the inventory drag.
+        await page.waitForTimeout(100);
+        await dragInventorySlotToWorld(page, canvas, eggSlot, hatchFarmer.calibration, coopCenter);
+        await page.waitForFunction(
+            (id) => {
+                const snapshot = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+                return snapshot.workerTasks.some((task) => task.type === 'deposit_to_coop' && task.unitId === 'p3-farmer') ||
+                    snapshot.coops.some((coop) => coop.id === id && coop.storedEggs === 1);
+            },
+            coop.id,
+            { timeout: 5_000 },
+        );
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((coop) => coop.id === id && coop.storedEggs === 1),
+            coop.id,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        const deposited = await getEconomySnapshot(page);
+        console.log('[full_loop] first egg deposited');
+
+        await clickWorld(page, await calibrateWorldInput(page, canvas), coopCenter);
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.economyEntityId === id, coop.id, { timeout: 5_000 });
+        await page.keyboard.press('h');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().hatchJobs.length === 1, null, { timeout: 5_000 });
+        const hatchStarted = await getEconomySnapshot(page);
+
+        const saleEgg = hatchStarted.fieldEggs[0];
+        if (!saleEgg) throw new Error(`Normal loop lost the sale egg: ${JSON.stringify(hatchStarted)}`);
+        const saleFarmer = await selectFarmer(page, canvas);
+        await clickWorld(page, saleFarmer.calibration, { x: saleEgg.x, y: saleEgg.y - 18 }, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1),
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        const beforeSale = await getEconomySnapshot(page);
+        await clickWorld(page, saleFarmer.calibration, marketCenter, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market' && task.unitId === 'p3-farmer'),
+            null,
+            { timeout: 5_000 },
+        );
+        console.log('[full_loop] second egg sale ordered');
+        try {
+            await page.waitForFunction(
+                () => !window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006'),
+                null,
+                { timeout: fullLoopStepTimeoutMs },
+            );
+        } catch (error) {
+            throw new Error(`Normal-loop sale did not complete: ${JSON.stringify({
+                controls: await page.evaluate(() => window.__chickenFarmDebug!.getControlSnapshot()),
+                economy: await getEconomySnapshot(page),
+            })}`, { cause: error });
+        }
+        const afterSale = await getEconomySnapshot(page);
+        console.log('[full_loop] second egg sold');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().chickens.length === 3 && window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().hatchJobs.length === 0, null, { timeout: fullLoopStepTimeoutMs });
+        const completed = await getEconomySnapshot(page);
+        console.log('[full_loop] hatch complete');
+        const hud = await page.evaluate(() => window.__chickenFarmDebug!.getState().hud.resourceText);
+
+        if (
+            before.wallet?.gold !== 1500 ||
+            deposited.wallet?.gold !== 1280 || deposited.wallet.lumber !== 18 ||
+            hatchStarted.hatchJobs.length !== 1 ||
+            afterSale.wallet?.gold !== 1292 || afterSale.wallet.lumber !== 18 ||
+            completed.chickens.length !== 3 || completed.hatchJobs.length !== 0 ||
+            !hud.includes('Gold 1292') || !hud.includes('Lumber 18')
+        ) {
+            throw new Error(`Normal full-loop ledger or HUD mismatch: ${JSON.stringify({ afterSale, before, completed, deposited, hatchStarted, hud })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'full_loop',
+            checks: {
+                actualNormalInputsOnly: true,
+                browserErrorsZero: true,
+                coopBuildAndHatchComplete: true,
+                eggLedgerConservedAcrossPickupDepositHatchAndSale: true,
+                hudMatchesWallet: true,
+                marketSalePaysOnce: true,
+            },
+            errors,
+            executionProfile: { debugFixtures: false, startId: 3 },
+            snapshots: { afterSale, before, completed, deposited, hatchStarted },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
 async function runLayingCase() {
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
@@ -584,11 +815,13 @@ async function runTransferCase() {
             { timeout: 5_000 },
         );
 
-        const dropCalibration = await calibrateWorldInput(page, canvas);
-        await selectFarmer(page, canvas);
+        const dropFarmerSelection = await selectFarmer(page, canvas);
         const dropFarmer = await getFarmer(page);
-        const dropPoint = { x: dropFarmer.x + 12, y: dropFarmer.y };
-        await dragInventorySlotToWorld(page, canvas, 1, dropCalibration, dropPoint);
+        // Keep this beyond a pathing cell and the interaction radius so this
+        // case verifies that the inventory source remains intact in transit.
+        const dropPoint = { x: dropFarmer.x - 120, y: dropFarmer.y };
+        await page.waitForTimeout(100);
+        await dragInventorySlotToWorld(page, canvas, 1, dropFarmerSelection.calibration, dropPoint);
         const beforeDrop = await getEconomySnapshot(page);
         const dropCompletedImmediately = beforeDrop.fieldEggs.some((egg) => egg.sourceChickenId === 'p3-farmer');
         if (
@@ -808,9 +1041,200 @@ async function runHatchExitCase() {
     } finally { await page.close(); await browser.close(); }
 }
 
+async function runSaleCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const saleSlot = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(3));
+        const marketId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyBuildingFixture('market', 4032, 8896));
+        if (saleSlot === null || !marketId) throw new Error('Failed to prepare own market sale fixture');
+        const marketCenter = await getBuildingCenter(page, marketId);
+        const beforeSale = await getEconomySnapshot(page);
+        const saleCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, saleCalibration, marketCenter, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'),
+            null,
+            { timeout: 5_000 },
+        );
+        const pendingSale = await getEconomySnapshot(page);
+        if (
+            !pendingSale.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 3) ||
+            pendingSale.wallet?.gold !== beforeSale.wallet?.gold
+        ) throw new Error(`Sale changed state before arrival: ${JSON.stringify({ beforeSale, pendingSale })}`);
+        await page.waitForFunction(
+            () => {
+                const snapshot = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot();
+                return !snapshot.workerTasks.some((task) => task.type === 'sell_at_market') &&
+                    !snapshot.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006');
+            },
+            null,
+            { timeout: 30_000 },
+        );
+        const afterSale = await getEconomySnapshot(page);
+        const eggValue = 12;
+        if (
+            afterSale.wallet?.gold !== (beforeSale.wallet?.gold ?? 0) + 3 * eggValue ||
+            afterSale.wallet?.lumber !== beforeSale.wallet?.lumber ||
+            !afterSale.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I003' && slot.quantity === 5)
+        ) throw new Error(`Market sale ledger mismatch: ${JSON.stringify({ afterSale, beforeSale })}`);
+
+        const repeatCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, repeatCalibration, marketCenter, 'right');
+        await page.waitForTimeout(150);
+        const repeated = await getEconomySnapshot(page);
+        if (repeated.wallet?.gold !== afterSale.wallet?.gold || repeated.workerTasks.some((task) => task.type === 'sell_at_market')) {
+            throw new Error(`Empty repeated sale changed state: ${JSON.stringify({ afterSale, repeated })}`);
+        }
+
+        const foreignSlot = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(1));
+        const foreignMarketId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyBuildingFixture('market', 3500, 8700, 4));
+        if (foreignSlot === null || !foreignMarketId) throw new Error('Failed to prepare foreign market fixture');
+        const beforeForeign = await getEconomySnapshot(page);
+        const foreignCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, foreignCalibration, await getBuildingCenter(page, foreignMarketId), 'right');
+        await page.waitForTimeout(150);
+        const afterForeign = await getEconomySnapshot(page);
+        if (
+            afterForeign.wallet?.gold !== beforeForeign.wallet?.gold ||
+            !afterForeign.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1) ||
+            afterForeign.workerTasks.some((task) => task.type === 'sell_at_market')
+        ) throw new Error(`Foreign market accepted a sale: ${JSON.stringify({ afterForeign, beforeForeign })}`);
+
+        const unfinishedMarketId = await page.evaluate(() => window.__chickenFarmDebug!.createPausedConstructionFixture('market', 3500, 9000));
+        if (!unfinishedMarketId) throw new Error('Failed to prepare unfinished market fixture');
+        const beforeUnfinished = await getEconomySnapshot(page);
+        const unfinishedCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, unfinishedCalibration, await getBuildingCenter(page, unfinishedMarketId), 'right');
+        await page.waitForTimeout(150);
+        const afterUnfinished = await getEconomySnapshot(page);
+        const missingMarketOrder = await page.evaluate(() => window.__chickenFarmDebug!.orderFarmerMarketSale('missing-market'));
+        if (
+            missingMarketOrder ||
+            afterUnfinished.wallet?.gold !== beforeUnfinished.wallet?.gold ||
+            !afterUnfinished.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1) ||
+            afterUnfinished.workerTasks.some((task) => task.type === 'sell_at_market')
+        ) throw new Error(`Unfinished or missing market accepted a sale: ${JSON.stringify({ afterUnfinished, beforeUnfinished, missingMarketOrder })}`);
+
+        await page.evaluate(() => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', 3392, 8928));
+        const beforeRemoval = await getEconomySnapshot(page);
+        const removalCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, removalCalibration, marketCenter, 'right');
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market' && task.targetId === id), marketId, { timeout: 5_000 });
+        const removed = await page.evaluate((id) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(id), marketId);
+        if (!removed) throw new Error('Failed to remove pending market fixture');
+        await page.waitForFunction(() => !window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'), null, { timeout: 5_000 });
+        const afterRemoval = await getEconomySnapshot(page);
+        if (
+            afterRemoval.wallet?.gold !== beforeRemoval.wallet?.gold ||
+            afterRemoval.wallet?.lumber !== beforeRemoval.wallet?.lumber ||
+            !afterRemoval.inventories.find((inventory) => inventory.id === 'p3-farmer')?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === 1)
+        ) throw new Error(`Removed market sold or lost egg: ${JSON.stringify({ afterRemoval, beforeRemoval })}`);
+        assertNoErrors(errors);
+        return {
+            case: 'sale',
+            checks: {
+                foreignMarketRejected: true,
+                unfinishedAndMissingMarketsRejected: true,
+                marketRemovalPreservesEggAndWallet: true,
+                saleAtArrivalPaysCanonicalStackValueOnce: true,
+                secondOrderCannotResellEmptyStack: true,
+            },
+            errors,
+            snapshots: { afterForeign, afterRemoval, afterSale, afterUnfinished, beforeRemoval, beforeSale, beforeUnfinished, pendingSale, repeated },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runInterruptionCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await prepareEconomySession(page, true);
+        const canvas = await getCanvasBounds(page);
+        const eggSlot = await page.evaluate(() => window.__chickenFarmDebug!.grantFarmerEggStack(1));
+        const marketId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyBuildingFixture('market', 4032, 8896));
+        if (eggSlot === null || !marketId) throw new Error('Failed to prepare interrupted sale');
+        const marketCenter = await getBuildingCenter(page, marketId);
+        const beforeStop = await getEconomySnapshot(page);
+        const stopCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, stopCalibration, marketCenter, 'right');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'), null, { timeout: 5_000 });
+        await page.keyboard.press('s');
+        await page.waitForFunction(() => !window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'), null, { timeout: 5_000 });
+        await page.evaluate(({ x, y }) => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', x, y), marketCenter);
+        await page.waitForTimeout(150);
+        const afterStop = await getEconomySnapshot(page);
+        if (!hasFarmerEggs(afterStop, 1) || afterStop.wallet?.gold !== beforeStop.wallet?.gold) {
+            throw new Error(`Stop allowed delayed sale: ${JSON.stringify({ afterStop, beforeStop })}`);
+        }
+
+        await page.evaluate(() => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', 3392, 8928));
+        const shiftCalibration = await calibrateWorldInput(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, shiftCalibration, marketCenter, 'right');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'), null, { timeout: 5_000 });
+        await page.keyboard.down('Shift');
+        await clickWorld(page, shiftCalibration, { x: 3300, y: 8960 }, 'right');
+        await page.keyboard.up('Shift');
+        await page.waitForFunction(() => !window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().workerTasks.some((task) => task.type === 'sell_at_market'), null, { timeout: 5_000 });
+        await page.evaluate(({ x, y }) => window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', x, y), marketCenter);
+        await page.waitForTimeout(150);
+        const afterShiftMove = await getEconomySnapshot(page);
+        if (!hasFarmerEggs(afterShiftMove, 1) || afterShiftMove.wallet?.gold !== beforeStop.wallet?.gold) {
+            throw new Error(`Shift replacement allowed delayed sale: ${JSON.stringify({ afterShiftMove, beforeStop })}`);
+        }
+
+        assertNoErrors(errors);
+        return {
+            case: 'interruption',
+            checks: {
+                shiftReplacementCancelsSale: true,
+                stopCancelsSale: true,
+            },
+            errors,
+            snapshots: { afterShiftMove, afterStop, beforeStop },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+function hasFarmerEggs(
+    snapshot: ReturnType<Window['__chickenFarmDebug']['getEconomyLifecycleSnapshot']>,
+    quantity: number,
+) {
+    return snapshot.inventories
+        .find((inventory) => inventory.id === 'p3-farmer')
+        ?.slots.some((slot) => slot?.itemRawcode === 'I006' && slot.quantity === quantity) ?? false;
+}
+
+async function getBuildingCenter(page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>, buildingId: string) {
+    const center = await page.evaluate((id) => {
+        const building = window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.find((candidate) => candidate.id === id);
+        return building ? { x: building.footprint.x + building.footprint.width / 2, y: building.footprint.y + building.footprint.height / 2 } : null;
+    }, buildingId);
+    if (!center) throw new Error(`Missing building ${buildingId}`);
+    return center;
+}
+
 function requireCompleteBuilding(
     snapshot: ReturnType<Window['__chickenFarmDebug']['getEconomyLifecycleSnapshot']>,
-    templateId: 'campfire' | 'market',
+    templateId: 'campfire' | 'coop_basic' | 'market',
 ) {
     const building = snapshot.buildings.find((candidate) => candidate.templateId === templateId);
     if (!building || building.state !== 'complete' || building.ownerPlayerId !== 3) {
@@ -988,6 +1412,7 @@ async function selectFarmer(
         null,
         { timeout: 5_000 },
     );
+    return { calibration };
 }
 
 async function calibrateWorldInput(
@@ -1020,6 +1445,14 @@ async function clickWorld(
     point: { readonly x: number; readonly y: number },
     button: 'left' | 'right' = 'left',
 ) {
+    const target = getWorldScreenPoint(calibration, point);
+    await page.mouse.click(target.x, target.y, { button });
+}
+
+function getWorldScreenPoint(
+    calibration: Awaited<ReturnType<typeof calibrateWorldInput>>,
+    point: { readonly x: number; readonly y: number },
+) {
     const scaleX =
         (calibration.referenceWorldPoint.x - calibration.calibrationWorldPoint.x) /
         (calibration.referencePoint.x - calibration.calibrationPoint.x);
@@ -1029,11 +1462,10 @@ async function clickWorld(
     if (!Number.isFinite(scaleX) || !Number.isFinite(scaleY) || scaleX === 0 || scaleY === 0) {
         throw new Error(`Invalid world calibration: ${JSON.stringify(calibration)}`);
     }
-    await page.mouse.click(
-        calibration.calibrationPoint.x + (point.x - calibration.calibrationWorldPoint.x) / scaleX,
-        calibration.calibrationPoint.y + (point.y - calibration.calibrationWorldPoint.y) / scaleY,
-        { button },
-    );
+    return {
+        x: calibration.calibrationPoint.x + (point.x - calibration.calibrationWorldPoint.x) / scaleX,
+        y: calibration.calibrationPoint.y + (point.y - calibration.calibrationWorldPoint.y) / scaleY,
+    };
 }
 
 async function clickInventorySlot(
@@ -1057,6 +1489,27 @@ function getInventorySlotScreenPoint(
     };
 }
 
+function getCommandCardButtonScreenPoint(
+    canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
+    buttonIndex: number,
+) {
+    const col = buttonIndex % 4;
+    const row = Math.floor(buttonIndex / 4);
+    return {
+        x: canvas.left + ((679 + col * 67 + 30) / 960) * canvas.width,
+        y: canvas.top + ((566 + row * 46 + 20) / 720) * canvas.height,
+    };
+}
+
+async function clickCommandCardButton(
+    page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
+    canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
+    buttonIndex: number,
+) {
+    const point = getCommandCardButtonScreenPoint(canvas, buttonIndex);
+    await page.mouse.click(point.x, point.y);
+}
+
 async function dragInventorySlotToWorld(
     page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
     canvas: Awaited<ReturnType<typeof getCanvasBounds>>,
@@ -1077,6 +1530,11 @@ async function dragInventorySlotToWorld(
     };
     await page.mouse.move(source.x, source.y);
     await page.mouse.down();
+    await page.waitForFunction(
+        (expectedSlot) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().inventoryDrag?.slotIndex === expectedSlot,
+        slotIndex,
+        { timeout: 2_000 },
+    );
     await page.waitForTimeout(50);
     await page.mouse.move(target.x, target.y, { steps: 8 });
     await page.waitForTimeout(50);

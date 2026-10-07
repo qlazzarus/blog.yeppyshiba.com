@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T09:26:34.664Z",
+  "generatedAt": "2026-10-06T02:22:41.109Z",
   "scenario": {
     "description": "Chicken Farm economy P0: well-buffed chicken lays early, farmer inventory carries the egg into a Warcraft III-style coop inventory, then hatch explicitly consumes one egg.",
     "sourceReferences": [
@@ -286,6 +286,8 @@
         "gold": 156,
         "lumber": 52,
         "rejectedSaleEggs": 3,
+        "foreignOwnerSale": false,
+        "eggsAfterForeignOwnerSale": 3,
         "rejectedSaleGoldAfter": 120,
         "rejectedSaleGold": 120,
         "rejectedSaleLumberAfter": 52,
@@ -299,6 +301,8 @@
         "lumber": 52,
         "remainingFarmerEggs": 0,
         "rejectedSaleEggs": 3,
+        "foreignOwnerSale": false,
+        "eggsAfterForeignOwnerSale": 3,
         "rejectedSaleGoldAfter": 120,
         "rejectedSaleGold": 120,
         "rejectedSaleLumberAfter": 52,

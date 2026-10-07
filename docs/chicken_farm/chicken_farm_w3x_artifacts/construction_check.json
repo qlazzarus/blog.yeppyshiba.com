@@ -1,83 +1,328 @@
 {
-  "case": "start_rejection",
+  "case": "baseline",
   "checks": {
-    "builderRemovalNoCharge": true,
-    "pass": true,
-    "resourceDepletionNoCharge": true,
-    "startOverlapNoCharge": true
+    "lifecycleGetterReadOnly": true,
+    "normalFixtureIsolation": true,
+    "normalP3FencePlacement": true,
+    "pass": true
   },
-  "snapshots": {
-    "builderRemoved": {
-      "activePlacementTemplateId": null,
-      "buildings": [],
-      "dynamicBlockerBuildingIds": [],
-      "economyBuildingIds": [],
-      "pendingOrders": [],
-      "runId": 1,
-      "selectedBuildingId": null,
-      "selectedUnitIds": [
-        "p3-farmer"
-      ],
-      "visionSourceBuildingIds": [],
-      "wallet": {
-        "gold": 1500,
-        "lumber": 0
-      }
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "input": {
+    "buildCard": [
+      "B",
+      "F"
+    ],
+    "placementPoint": {
+      "x": 4032,
+      "y": 8896
     },
-    "footprintRejected": {
-      "activePlacementTemplateId": null,
-      "buildings": [
-        {
-          "activeWorkerUnitId": "p3-farmer",
-          "footprint": {
-            "height": 128,
-            "width": 128,
-            "x": 4224,
-            "y": 8768
-          },
-          "id": "player-building-1",
-          "ownerPlayerId": 3,
-          "progress": 1,
-          "state": "complete",
-          "templateId": "coop_basic"
-        }
-      ],
-      "dynamicBlockerBuildingIds": [
-        "player-building-1"
-      ],
-      "economyBuildingIds": [
-        "player-building-1"
-      ],
-      "pendingOrders": [],
-      "runId": 1,
-      "selectedBuildingId": null,
-      "selectedUnitIds": [
-        "p3-farmer"
-      ],
-      "visionSourceBuildingIds": [
-        "player-building-1"
-      ],
-      "wallet": {
-        "gold": 1500,
-        "lumber": 0
+    "selectedFarmerId": "p3-farmer"
+  },
+  "lifecycle": {
+    "activePlacementTemplateId": null,
+    "buildings": [],
+    "dynamicBlockerBuildingIds": [],
+    "economyBuildingIds": [],
+    "pendingOrders": [
+      {
+        "builderUnitId": "p3-farmer",
+        "footprint": {
+          "height": 128,
+          "width": 128,
+          "x": 3968,
+          "y": 8832
+        },
+        "id": "pending-build-1",
+        "runtimeBuildingId": null,
+        "targetPoint": {
+          "x": 3912,
+          "y": 8896
+        },
+        "templateId": "fence_wood"
       }
+    ],
+    "runId": 1,
+    "selectedBuildingId": null,
+    "selectedUnitIds": [
+      "p3-farmer"
+    ],
+    "visionSourceBuildingIds": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  },
+  "state": {
+    "buildingCount": 0,
+    "commandPage": "build",
+    "debugPoc": {
+      "combatActive": false,
+      "fixturesEnabled": false,
+      "terrainProbeCount": 0
     },
-    "resourceRejected": {
-      "activePlacementTemplateId": null,
-      "buildings": [],
-      "dynamicBlockerBuildingIds": [],
-      "economyBuildingIds": [],
-      "pendingOrders": [],
-      "runId": 1,
-      "selectedBuildingId": null,
-      "selectedUnitIds": [
-        "p3-farmer"
-      ],
-      "visionSourceBuildingIds": [],
-      "wallet": {
-        "gold": 0,
-        "lumber": 0
+    "economyPoc": {
+      "chickens": 0,
+      "coops": 0,
+      "fieldEggs": 0,
+      "hatchJobs": 0,
+      "wells": 0
+    },
+    "elapsedSec": 0.5806966666729247,
+    "runId": 1,
+    "farmerInventory": [
+      {
+        "itemRawcode": "I003",
+        "quantity": 5
+      },
+      {
+        "itemRawcode": "I009",
+        "quantity": 1
+      },
+      {
+        "itemRawcode": "I00F",
+        "quantity": 1
       }
+    ],
+    "farmerEggs": 0,
+    "hud": {
+      "inventorySlotCount": 6,
+      "resourceText": "Gold 1500  Lumber 0  Supply 0/3"
+    },
+    "initialPlacementViewCount": 25,
+    "initialPlacements": [
+      {
+        "id": "wolf_stone_01",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 1632,
+        "y": 1216
+      },
+      {
+        "id": "wolf_stone_02",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 8608,
+        "y": 1472
+      },
+      {
+        "id": "wolf_stone_03",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 1376,
+        "y": 5696
+      },
+      {
+        "id": "wolf_stone_04",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 9696,
+        "y": 5440
+      },
+      {
+        "id": "wolf_stone_05",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 5472,
+        "y": 1472
+      },
+      {
+        "id": "wolf_stone_06",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 7392,
+        "y": 2624
+      },
+      {
+        "id": "wolf_stone_07",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 3424,
+        "y": 2112
+      },
+      {
+        "id": "wolf_stone_08",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 5088,
+        "y": 8448
+      },
+      {
+        "id": "wolf_stone_09",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 1568,
+        "y": 8512
+      },
+      {
+        "id": "wolf_stone_10",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 1376,
+        "y": 3264
+      },
+      {
+        "id": "wolf_stone_11",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 7136,
+        "y": 5888
+      },
+      {
+        "id": "wolf_stone_12",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 3232,
+        "y": 6336
+      },
+      {
+        "id": "wolf_stone_13",
+        "owner": "Player(10)",
+        "rawcode": "n00D",
+        "role": "wolf_stone",
+        "x": 7904,
+        "y": 8640
+      },
+      {
+        "id": "ancient_wolf_stone",
+        "owner": "Player(10)",
+        "rawcode": "n017",
+        "role": "ancient_wolf_stone",
+        "x": 5120,
+        "y": 6752
+      },
+      {
+        "id": "spider_01",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 9876,
+        "y": 114
+      },
+      {
+        "id": "spider_02",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 4590,
+        "y": 202
+      },
+      {
+        "id": "spider_03",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 9776,
+        "y": 4182
+      },
+      {
+        "id": "spider_04",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 4950,
+        "y": 9966
+      },
+      {
+        "id": "spider_05",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 9900,
+        "y": 9986
+      },
+      {
+        "id": "spider_06",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 88,
+        "y": 10104
+      },
+      {
+        "id": "spider_07",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 232,
+        "y": 104
+      },
+      {
+        "id": "spider_08",
+        "owner": "Player(PLAYER_NEUTRAL_AGGRESSIVE)",
+        "rawcode": "n01D",
+        "role": "neutral_spider",
+        "x": 206,
+        "y": 5086
+      },
+      {
+        "id": "central_market_n006",
+        "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+        "rawcode": "n006",
+        "role": "central_market",
+        "x": 4992,
+        "y": 4768
+      },
+      {
+        "id": "central_merchant_h01R",
+        "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+        "rawcode": "h01R",
+        "role": "central_merchant",
+        "x": 4798,
+        "y": 4674
+      },
+      {
+        "id": "central_event_npc_n01J",
+        "owner": "Player(PLAYER_NEUTRAL_PASSIVE)",
+        "rawcode": "n01J",
+        "role": "central_event_npc",
+        "x": 5044,
+        "y": 4250
+      }
+    ],
+    "placingBuildingId": null,
+    "primaryUnit": {
+      "id": "p3-farmer",
+      "x": 3403.9944941497442,
+      "y": 8927.636530480313
+    },
+    "selectedBuildingId": null,
+    "selectedUnitCount": 1,
+    "units": [
+      {
+        "id": "p3-farmer",
+        "ownerPlayerId": 3,
+        "templateId": "farmer"
+      },
+      {
+        "id": "p3-dog",
+        "ownerPlayerId": 3,
+        "templateId": "dog"
+      }
+    ],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    },
+    "worldSize": {
+      "x": 10080,
+      "y": 10528
     }
   }
 }

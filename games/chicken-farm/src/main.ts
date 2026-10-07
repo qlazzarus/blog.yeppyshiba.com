@@ -192,6 +192,11 @@ declare global {
                     readonly slotIndex: number;
                     readonly templateId: string;
                 } | null;
+                readonly inventoryDrag: {
+                    readonly inventoryId: string;
+                    readonly itemRawcode: string;
+                    readonly slotIndex: number;
+                } | null;
                 readonly buildings: readonly {
                     readonly id: string;
                     readonly ownerPlayerId: number;
@@ -277,6 +282,7 @@ declare global {
                 templateId: 'coop_basic' | 'market' | 'well_basic',
                 x: number,
                 y: number,
+                ownerPlayerId?: number,
             ) => string | null;
             createPathBlockerFixture: (x: number, y: number) => string | null;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
@@ -361,6 +367,9 @@ const FOG_DIRTY_DISTANCE_PX = 24;
 const MINIMAP_UPDATE_INTERVAL_SEC = 0.25;
 const MINIMAP_DIRTY_DISTANCE_PX = 32;
 const ECONOMY_INTERACTION_RADIUS_PX = 54;
+// Field eggs are dropped underneath a living chicken.  A farmer must be able
+// to collect from the nearby clear tile instead of pathing into that unit.
+const ECONOMY_EGG_PICKUP_RADIUS_PX = 120;
 const ECONOMY_COOP_INTERACTION_MARGIN_PX = 40;
 const ECONOMY_POC_COOP_TEMPLATE_ID = 'coop_basic';
 const ECONOMY_POC_WELL_TEMPLATE_ID = 'well_basic';
@@ -390,6 +399,7 @@ type EconomyWorkerTask =
       }
     | {
           readonly marketId: string;
+          readonly targetPoint: EconomyPoint;
           readonly type: 'sell_at_market';
           readonly unitId: string;
       };
@@ -1462,7 +1472,7 @@ class FarmScene extends Phaser.Scene {
                     egg.position.x,
                     egg.position.y,
                 );
-                if (distance > ECONOMY_INTERACTION_RADIUS_PX) return;
+                if (distance > ECONOMY_EGG_PICKUP_RADIUS_PX) return;
 
                 const pickedUp = pickupFieldEgg(state, {
                     eggId: egg.id,
@@ -1514,6 +1524,7 @@ class FarmScene extends Phaser.Scene {
                     !market ||
                     market.state !== 'complete' ||
                     (market.templateId !== 'market' && market.templateId !== 'grand_market') ||
+                    market.ownerPlayerId !== unit.ownerPlayerId ||
                     !marketCenter
                 ) {
                     this.recordEconomyEvent('economy_worker_task_cancelled', {
@@ -1524,14 +1535,14 @@ class FarmScene extends Phaser.Scene {
                     this.economyWorkerTasks.delete(unitId);
                     return;
                 }
-                if (
+                const atApproachPoint =
                     Phaser.Math.Distance.Between(
                         unit.position.x,
                         unit.position.y,
-                        marketCenter.x,
-                        marketCenter.y,
-                    ) > ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX
-                ) {
+                        task.targetPoint.x,
+                        task.targetPoint.y,
+                    ) <= ECONOMY_INTERACTION_RADIUS_PX;
+                if (!atApproachPoint && !this.isWithinBuildingInteractionRange(unit.position, market.footprint)) {
                     return;
                 }
 
@@ -1624,6 +1635,7 @@ class FarmScene extends Phaser.Scene {
         if (
             market?.state === 'complete' &&
             (market.templateId === 'market' || market.templateId === 'grand_market') &&
+            market.ownerPlayerId === selectedFarmer.ownerPlayerId &&
             this.getFarmerEggInventory(selectedFarmer.id) > 0
         ) {
             const marketCenter = {
@@ -1642,13 +1654,22 @@ class FarmScene extends Phaser.Scene {
                 });
                 return false;
             }
-            this.controllableUnits.issueMoveCommandToUnits(
+            const moveResult = this.controllableUnits.issueMoveCommandToUnits(
                 [selectedFarmer.id],
                 marketApproachPoint,
-                this.isQueueCommandMode() ? 'append' : 'replace',
+                'replace',
             );
+            if (moveResult.pathFoundCount <= 0) {
+                this.recordEconomyEvent('economy_farmer_market_sale_rejected', {
+                    farmerId: selectedFarmer.id,
+                    marketId: market.id,
+                    reason: 'path_missing',
+                });
+                return false;
+            }
             this.economyWorkerTasks.set(selectedFarmer.id, {
                 marketId: market.id,
+                targetPoint: marketApproachPoint,
                 type: 'sell_at_market',
                 unitId: selectedFarmer.id,
             });
@@ -1666,11 +1687,24 @@ class FarmScene extends Phaser.Scene {
             const egg = state.fieldEggs.find((candidate) => candidate.id === target.id);
             if (!egg) return false;
 
-            this.controllableUnits.issueMoveCommandToUnits(
-                [selectedFarmer.id],
+            const pickupApproachPoint = this.getEggPickupApproachPoints(
                 egg.position,
-                this.isQueueCommandMode() ? 'append' : 'replace',
+                selectedFarmer.position,
+            ).find((candidate) =>
+                this.controllableUnits.issueMoveCommandToUnits(
+                    [selectedFarmer.id],
+                    candidate,
+                    'replace',
+                ).pathFoundCount > 0,
             );
+            if (!pickupApproachPoint) {
+                this.recordEconomyEvent('economy_farmer_pickup_rejected', {
+                    eggId: egg.id,
+                    farmerId: selectedFarmer.id,
+                    reason: 'path_missing',
+                });
+                return false;
+            }
             this.economyWorkerTasks.set(selectedFarmer.id, {
                 eggId: egg.id,
                 type: 'pickup_egg',
@@ -1679,11 +1713,36 @@ class FarmScene extends Phaser.Scene {
             this.recordEconomyEvent('economy_farmer_pickup_ordered', {
                 eggId: egg.id,
                 farmerId: selectedFarmer.id,
+                pickupApproachPoint,
             });
             return true;
         }
 
         return false;
+    }
+
+    private getEggPickupApproachPoints(
+        eggPosition: EconomyPoint,
+        farmerPosition: EconomyPoint,
+    ): EconomyPoint[] {
+        const dx = farmerPosition.x - eggPosition.x;
+        const dy = farmerPosition.y - eggPosition.y;
+        const distance = Math.hypot(dx, dy);
+        const offset = ECONOMY_INTERACTION_RADIUS_PX - 12;
+        const sourceDirection = distance <= 0.001
+            ? { x: 1, y: 0 }
+            : { x: dx / distance, y: dy / distance };
+        const directions = [
+            sourceDirection,
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+        ];
+        return directions.map((direction) => ({
+            x: eggPosition.x + direction.x * offset,
+            y: eggPosition.y + direction.y * offset,
+        }));
     }
 
     private getBuildingInteractionApproachPoint(
@@ -1694,7 +1753,9 @@ class FarmScene extends Phaser.Scene {
             x: footprint.x + footprint.width / 2,
             y: footprint.y + footprint.height / 2,
         };
-        const approachOffset = 16;
+        // The target needs clearance for the farmer collision body as well as
+        // staying inside the interaction radius used when the task completes.
+        const approachOffset = ECONOMY_INTERACTION_RADIUS_PX - 4;
         const candidates = [
             { x: footprint.x - approachOffset, y: center.y },
             { x: footprint.x + footprint.width + approachOffset, y: center.y },
@@ -1715,6 +1776,15 @@ class FarmScene extends Phaser.Scene {
                 }),
             ) ?? null
         );
+    }
+
+    private isWithinBuildingInteractionRange(
+        point: EconomyPoint,
+        footprint: { readonly height: number; readonly width: number; readonly x: number; readonly y: number },
+    ) {
+        const closestX = Phaser.Math.Clamp(point.x, footprint.x, footprint.x + footprint.width);
+        const closestY = Phaser.Math.Clamp(point.y, footprint.y, footprint.y + footprint.height);
+        return Phaser.Math.Distance.Between(point.x, point.y, closestX, closestY) <= ECONOMY_INTERACTION_RADIUS_PX;
     }
 
     private hitTestEconomyEntity(worldX: number, worldY: number): EconomyHitTarget | null {
@@ -1946,11 +2016,19 @@ class FarmScene extends Phaser.Scene {
             .getUnits()
             .find((unit) => unit.id === drag.inventoryId && unit.hp > 0);
         if (sourceUnit?.templateId === 'farmer') {
-            this.controllableUnits.issueMoveCommandToUnits(
+            const moveResult = this.controllableUnits.issueMoveCommandToUnits(
                 [sourceUnit.id],
                 targetPoint,
-                this.isQueueCommandMode() ? 'append' : 'replace',
+                'replace',
             );
+            if (moveResult.pathFoundCount <= 0) {
+                this.recordEconomyEvent('economy_inventory_item_drop_rejected', {
+                    inventoryId: drag.inventoryId,
+                    reason: 'path_missing',
+                    sourceSlotIndex: drag.slotIndex,
+                });
+                return;
+            }
             this.economyWorkerTasks.set(sourceUnit.id, {
                 sourceSlotIndex: drag.slotIndex,
                 targetPoint,
@@ -2000,7 +2078,7 @@ class FarmScene extends Phaser.Scene {
                 this.controllableUnits.issueMoveCommandToUnits(
                     [sourceUnit.id],
                     candidate,
-                    this.isQueueCommandMode() ? 'append' : 'replace',
+                    'replace',
                 ).pathFoundCount > 0,
             );
             if (!interactionPoint) {
@@ -3077,6 +3155,13 @@ class FarmScene extends Phaser.Scene {
                           templateId: this.startItemPlacement.templateId,
                       }
                     : null,
+                inventoryDrag: this.inventoryDrag
+                    ? {
+                          inventoryId: this.inventoryDrag.inventoryId,
+                          itemRawcode: this.inventoryDrag.itemRawcode,
+                          slotIndex: this.inventoryDrag.slotIndex,
+                      }
+                    : null,
                 buildings: (this.buildingSystem?.getLifecycleSnapshots() ?? []).map((building) => ({
                     id: building.id,
                     ownerPlayerId: building.ownerPlayerId,
@@ -3179,7 +3264,7 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.controllableUnits.setUnitPositionForTest(unitId, x, y);
             },
-            createEconomyBuildingFixture: (templateId, x, y) => {
+            createEconomyBuildingFixture: (templateId, x, y, ownerPlayerId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
                 if (this.runDisposed) return null;
                 const builder = this.controllableUnits
@@ -3187,7 +3272,7 @@ class FarmScene extends Phaser.Scene {
                     .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
                 const building = this.buildingSystem?.createBuilding({
                     completeImmediately: true,
-                    ownerPlayerId: builder?.ownerPlayerId ?? 3,
+                    ownerPlayerId: ownerPlayerId ?? builder?.ownerPlayerId ?? 3,
                     templateId,
                     workerUnitId: builder?.id,
                     x,

@@ -59,7 +59,10 @@ type ConstructionPlacementSystemConfig = {
 
 const BUILDER_TEMPLATE_IDS: readonly ControllableUnitTemplateId[] = ['farmer'];
 const BUILDER_START_DISTANCE_PX = 40;
-const BUILD_TARGET_MARGIN_PX = 30;
+// Construction may begin while the builder is within BUILDER_START_DISTANCE_PX
+// of its assigned point. Keep that point far enough outside the final
+// footprint that the completed building never encloses its builder.
+const BUILD_TARGET_MARGIN_PX = 56;
 const GHOST_HATCH_SPACING_PX = 22;
 const GHOST_CORNER_TICK_PX = 22;
 

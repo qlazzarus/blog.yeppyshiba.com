@@ -304,7 +304,12 @@ async function main() {
         supplyCap: 0,
         supplyUsed: 0,
     };
-    const walletState = createChickenFarmEconomyState({ players: [sharedWallet] });
+    const walletState = createChickenFarmEconomyState({
+        players: [
+            sharedWallet,
+            { gold: 80, id: 4, lumber: 13, supplyCap: 0, supplyUsed: 0 },
+        ],
+    });
     const walletInventory = ensureEconomyInventory(walletState, {
         id: 'wallet-farmer',
         ownerPlayerId: 3,
@@ -321,6 +326,13 @@ async function main() {
     const eggsAfterRejectedSale = countInventoryItem(walletState, walletInventory.id, 'I006');
     const walletGoldAfterRejectedSale = sharedWallet.gold;
     const walletLumberAfterRejectedSale = sharedWallet.lumber;
+    const foreignOwnerSale = sellEconomyInventoryEggStack(walletState, {
+        inventoryId: walletInventory.id,
+        marketId: 'player-building-market',
+        ownerPlayerId: 4,
+        slotIndex: 0,
+    });
+    const eggsAfterForeignOwnerSale = countInventoryItem(walletState, walletInventory.id, 'I006');
     const walletSale = sellEconomyInventoryEggStack(walletState, {
         inventoryId: walletInventory.id,
         marketId: 'player-building-market',
@@ -855,6 +867,8 @@ async function main() {
                     gold: sharedWallet.gold,
                     lumber: sharedWallet.lumber,
                     rejectedSaleEggs: eggsAfterRejectedSale,
+                    foreignOwnerSale: foreignOwnerSale !== null,
+                    eggsAfterForeignOwnerSale,
                     rejectedSaleGoldAfter: walletGoldAfterRejectedSale,
                     rejectedSaleGold: walletGoldBeforeRejectedSale,
                     rejectedSaleLumberAfter: walletLumberAfterRejectedSale,
@@ -868,6 +882,8 @@ async function main() {
                     lumber: 52,
                     remainingFarmerEggs: 0,
                     rejectedSaleEggs: 3,
+                    foreignOwnerSale: false,
+                    eggsAfterForeignOwnerSale: 3,
                     rejectedSaleGoldAfter: 120,
                     rejectedSaleGold: 120,
                     rejectedSaleLumberAfter: 52,
@@ -882,6 +898,8 @@ async function main() {
                     sharedWallet.gold === 156 &&
                     sharedWallet.lumber === 52 &&
                     eggsAfterRejectedSale === 3 &&
+                    foreignOwnerSale === null &&
+                    eggsAfterForeignOwnerSale === 3 &&
                     walletGoldAfterRejectedSale === 120 &&
                     walletGoldBeforeRejectedSale === 120 &&
                     walletLumberAfterRejectedSale === 52 &&

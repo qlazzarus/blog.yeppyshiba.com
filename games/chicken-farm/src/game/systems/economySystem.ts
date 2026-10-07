@@ -598,7 +598,13 @@ export function sellEconomyInventoryEggStack(
     const inventory = getEconomyInventory(state, config.inventoryId);
     const player = state.players.find((candidate) => candidate.id === config.ownerPlayerId);
     const slot = inventory?.slots[config.slotIndex];
-    if (!config.marketId || !inventory || !player || slot?.itemRawcode !== 'I006') {
+    if (
+        !config.marketId ||
+        !inventory ||
+        inventory.ownerPlayerId !== config.ownerPlayerId ||
+        !player ||
+        slot?.itemRawcode !== 'I006'
+    ) {
         return null;
     }
 

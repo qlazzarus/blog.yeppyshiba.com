@@ -1,9 +1,8 @@
 {
-  "case": "deposit",
+  "case": "interruption",
   "checks": {
-    "actualDragToCoopDepositsOnce": true,
-    "pendingDepositPreservesSource": true,
-    "storedEggsMatchesCoopInventory": true
+    "shiftReplacementCancelsSale": true,
+    "stopCancelsSale": true
   },
   "errors": {
     "console": [],
@@ -12,25 +11,19 @@
     "response": []
   },
   "snapshots": {
-    "afterDeposit": {
+    "afterShiftMove": {
       "activeStartItemPlacement": null,
       "buildings": [
         {
           "id": "player-building-1",
           "ownerPlayerId": 3,
           "state": "complete",
-          "templateId": "coop_basic"
+          "templateId": "market"
         }
       ],
       "chickens": [],
-      "coops": [
-        {
-          "id": "player-building-1",
-          "ownerPlayerId": 3,
-          "storedEggs": 1
-        }
-      ],
-      "elapsedSec": 1.0482033333333314,
+      "coops": [],
+      "elapsedSec": 1.0273066666666648,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -50,22 +43,10 @@
               "itemRawcode": "I00F",
               "quantity": 1
             },
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "id": "player-building-1",
-          "ownerPlayerId": 3,
-          "slots": [
             {
               "itemRawcode": "I006",
               "quantity": 1
             },
-            null,
-            null,
-            null,
             null,
             null
           ]
@@ -81,32 +62,26 @@
         ]
       },
       "wallet": {
-        "gold": 1500,
+        "gold": 1482,
         "lumber": 0,
         "supplyCap": 3,
         "supplyUsed": 0
       },
       "workerTasks": []
     },
-    "beforeDeposit": {
+    "afterStop": {
       "activeStartItemPlacement": null,
       "buildings": [
         {
           "id": "player-building-1",
           "ownerPlayerId": 3,
           "state": "complete",
-          "templateId": "coop_basic"
+          "templateId": "market"
         }
       ],
       "chickens": [],
-      "coops": [
-        {
-          "id": "player-building-1",
-          "ownerPlayerId": 3,
-          "storedEggs": 0
-        }
-      ],
-      "elapsedSec": 0.981536666666665,
+      "coops": [],
+      "elapsedSec": 0.6439733333333328,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -133,18 +108,6 @@
             null,
             null
           ]
-        },
-        {
-          "id": "player-building-1",
-          "ownerPlayerId": 3,
-          "slots": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
         }
       ],
       "runId": 1,
@@ -157,18 +120,68 @@
         ]
       },
       "wallet": {
-        "gold": 1500,
+        "gold": 1482,
         "lumber": 0,
         "supplyCap": 3,
         "supplyUsed": 0
       },
-      "workerTasks": [
+      "workerTasks": []
+    },
+    "beforeStop": {
+      "activeStartItemPlacement": null,
+      "buildings": [
         {
-          "targetId": "player-building-1",
-          "type": "deposit_to_coop",
-          "unitId": "p3-farmer"
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "state": "complete",
+          "templateId": "market"
         }
-      ]
+      ],
+      "chickens": [],
+      "coops": [],
+      "elapsedSec": 0.2939733333333333,
+      "fieldEggs": [],
+      "hatchJobs": [],
+      "inventories": [
+        {
+          "id": "p3-farmer",
+          "ownerPlayerId": 3,
+          "slots": [
+            {
+              "itemRawcode": "I003",
+              "quantity": 5
+            },
+            {
+              "itemRawcode": "I009",
+              "quantity": 1
+            },
+            {
+              "itemRawcode": "I00F",
+              "quantity": 1
+            },
+            {
+              "itemRawcode": "I006",
+              "quantity": 1
+            },
+            null,
+            null
+          ]
+        }
+      ],
+      "runId": 1,
+      "selected": {
+        "buildingId": null,
+        "economyEntityId": null,
+        "economyEntityType": null,
+        "unitIds": []
+      },
+      "wallet": {
+        "gold": 1482,
+        "lumber": 0,
+        "supplyCap": 3,
+        "supplyUsed": 0
+      },
+      "workerTasks": []
     }
   }
 }
