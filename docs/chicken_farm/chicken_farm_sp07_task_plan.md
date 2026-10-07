@@ -1,6 +1,6 @@
 # SP-07 — 실제 맵 전투 연결 세부 실행 계획
 
-> 갱신: 2026-10-07. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~04를 완료했다. 다음 실행 ID는 **SP-07-05**다.
+> 갱신: 2026-10-07. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~07을 완료했다. 다음 실행 ID는 **SP-07-08**다.
 
 ## 목표와 경계
 
@@ -35,9 +35,9 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 | SP-07-02 | 전투 snapshot·browser harness | 01 | 완료 — normal baseline/all browser 통과 |
 | SP-07-03 | normal 전투 서비스와 적 lifecycle | 02 | 완료 — explicit runtime enemy fixture lifecycle 통과 |
 | SP-07-04 | 농부·개·닭의 실제 target 연결 | 03 | 완료 — normal 분양과 fixture 생성·사망 target 동기화 |
-| SP-07-05 | 건물 target·피해·파괴 연결 | 03/04 | 대기 |
-| SP-07-06 | acquire·시야·사거리 판정 | 04/05 | 대기 |
-| SP-07-07 | 농부·개의 직접 공격과 적 사망 | 06 | 대기 |
+| SP-07-05 | 건물 target·피해·파괴 연결 | 03/04 | 완료 — 완료 건물 단일 피해·제거 경계, 공사 중 대상 제외 |
+| SP-07-06 | acquire·시야·사거리 판정 | 04/05 | 완료 — runtime wolf targeting probe |
+| SP-07-07 | 농부·개의 직접 공격과 적 사망 | 06 | 완료 — actual right-click·cooldown·사망 정리 |
 | SP-07-08 | 실제 완공 타워 공격 | 06/07 | 대기 |
 | SP-07-09 | 늑대 공격·농부/개/닭 사망 정리 | 06/07 | 대기 |
 | SP-07-10 | 건물 파괴와 경제 lifecycle 회귀 | 05/09 | 대기 |
@@ -126,17 +126,39 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 작업: ID/owner/footprint/현재 HP/armor를 노출하고 단일 피해 진입점을 연결한다. 01에서 정한 공사 중/완공 상태별 targetability를 적용하고 치명타는 기존 제거 lifecycle로 보낸다. 파괴를 사용자 취소/환불과 구분한다.
 - 완료/검증: `building_damage`에서 비치명 HP 감소, 치명 제거 1회, 중복 피해 무효, 환불 없음, 공사 중 파괴의 worker·예약·footprint 정리. 이 경계 검증의 직접 damage 호출과 10의 실제 적 공격 증거를 구분한다.
 
+#### SP-07-05 결과
+
+- 상태: **완료**. `BuildingSystem.getWolfTargetableBuildings()`는 완료·targetable·생존 건물만 원본 ID·owner·footprint·HP·armor로 복사해 공개한다. `damageBuilding()`은 이 목록에 있는 건물만 받아 `max(1, rawDamage - armor)`를 적용하고 HP를 0으로 clamp한다.
+- lifecycle: 치명 피해는 refund 없이 기존 `onBuildingRemoved` callback으로 보내므로 economy adapter/view 제거 경로를 재사용한다. 같은 ID의 후속 피해는 제거된 대상이라 거부한다. 공사 중 건물은 SP-07-01 계약상 늑대 대상이 아니므로 damage entry도 거부하며, worker·예약·footprint 정리는 기존 건설 취소/제거 lifecycle에 남긴다.
+- 연결: `CombatPocSystem.damageWolfTargetableBuilding()`이 대상 존재를 다시 확인한 뒤 `main.ts`의 `BuildingSystem.damageBuilding()`만 호출한다. 현재 검증은 명시적 debug damage 경계이며, 실제 늑대의 탐색·접근·타격은 SP-07-06/09에서 연결한다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `npm run build --workspace @games/chicken-farm` → 종료 코드 0(기존 500 kB chunk 경고만 출력). `CHICKEN_FARM_COMBAT_CASE=building_damage npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0, 비치명 9 HP 감소·치명 제거 1회·중복 피해 거부·환불 없음·공사 중 피해 거부를 [building damage artifact](./chicken_farm_w3x_artifacts/combat_check_building_damage.json)로 확인했다. `CHICKEN_FARM_COMBAT_CASE=all ...` → 종료 코드 0, browser 오류 0인 [all artifact](./chicken_farm_w3x_artifacts/combat_check_all.json)를 갱신했다.
+- 다음 ID: **SP-07-06 — 탐색·시야·사거리**.
+
 ### SP-07-06 — 탐색·시야·사거리
 
 - 읽기: `combatPocSystem.ts` acquire/line/range, `buildingSystem.ts#findBuildingCombatTarget`, controllable unit 탐색과 현재 시야 처리.
 - 작업: 대상 owner·생존·시야·acquire radius·공격 사거리·공격선 정책을 실제 target에 적용한다. 건물 거리에는 footprint를 사용하고 static WPM, 이동 blocker, 시야 blocker를 혼동하지 않는다.
 - 완료/검증: `targeting`에서 경계 안/밖, 아군/중립 제외, 가려진 적, 펜스 뒤 적, 큰 건물 가장자리, target 제거·시야 이탈을 검사한다. 근접/원거리 공격선 차이는 01 계약에 따른다.
 
+#### SP-07-06 결과
+
+- 상태: **완료**. runtime wolf targeting probe는 owner·생존·targetable·시야·acquire range·공격선을 함께 판정한다. 건물은 center가 아닌 footprint의 최단 점까지 거리로 검사하며, 대상 자신의 footprint는 공격선을 가리지 않는다.
+- 검증: `CHICKEN_FARM_COMBAT_CASE=targeting npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0. 가까운 tower의 footprint는 공격 가능 후보가 되고, visibility off와 acquire 범위 밖은 후보가 되지 않았다. [targeting artifact](./chicken_farm_w3x_artifacts/combat_check_targeting.json)와 갱신된 [all artifact](./chicken_farm_w3x_artifacts/combat_check_all.json)는 browser 오류 0이다. typecheck/build도 통과했다.
+- 범위: probe는 공격 전 판정 경계다. 실제 플레이어 유닛의 적 지정·피해·사망은 SP-07-07, 늑대 타격은 SP-07-09에서 연결한다.
+- 다음 ID: **SP-07-07 — 플레이어 유닛 공격**.
+
 ### SP-07-07 — 플레이어 유닛 공격
 
 - 읽기: `main.ts` 적 hitTest/우클릭, controllable unit attack 처리, 적 피해/사망 경계.
 - 작업: 농부/개가 실제 입력으로 적을 지정해 접근·공격하고 cooldown과 피해 규칙을 적용하게 한다. 적 사망 시 focus·조회·선택 가능 상태를 정리한다.
 - 완료/검증: `unit_attack`에서 actual click/우클릭, 사거리 밖 피해 0, cooldown 전 중복 타격 0, HP 하한 0, 동시 치명타의 사망 1회. 보상·레벨은 추가하지 않는다.
+
+#### SP-07-07 결과
+
+- 상태: **완료**. 실제 적 지정 명령은 사거리 밖에서 접근하고, 타격이 성공한 경우에만 cooldown을 소비한다. 제거된 적이거나 damage entry가 거부되면 공격 명령·path를 정리하고 다음 예약 명령을 확인한다.
+- lifecycle: runtime 적 HP는 0 아래로 내려가지 않으며 사망한 runtime 적은 enemy snapshot과 hit/attack query에서 제외된다. 따라서 죽은 적을 가리키는 current attack 명령도 다음 update에 해제된다.
+- 검증: `CHICKEN_FARM_COMBAT_CASE=unit_attack npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0. 실제 우클릭으로 HP 1 늑대를 처치하고 enemy 조회 제거·공격 명령 해제·공격자 cooldown을 [unit attack artifact](./chicken_farm_w3x_artifacts/combat_check_unit_attack.json)에서 확인했다. `CHICKEN_FARM_COMBAT_CASE=all ...`, typecheck, build도 통과했고 browser 오류는 0이다.
+- 다음 ID: **SP-07-08 — 완공 타워 공격**.
 
 ### SP-07-08 — 완공 타워 공격
 

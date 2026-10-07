@@ -13,7 +13,7 @@ const port = 5200 + (process.pid % 700);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const combatCase = process.env.CHICKEN_FARM_COMBAT_CASE ?? 'baseline';
 
-if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'all') {
+if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_COMBAT_CASE: ${combatCase}`);
 }
 
@@ -30,6 +30,10 @@ const artifactPath = path.join(
               ? 'combat_check_normal_targets.json'
               : combatCase === 'building_damage'
                 ? 'combat_check_building_damage.json'
+                : combatCase === 'targeting'
+                  ? 'combat_check_targeting.json'
+                  : combatCase === 'unit_attack'
+                    ? 'combat_check_unit_attack.json'
           : 'combat_check_all.json',
 );
 
@@ -47,6 +51,10 @@ async function main() {
                   ? await runWithServer(false, runNormalTargetsCase)
                   : combatCase === 'building_damage'
                     ? await runWithServer(true, runBuildingDamageCase)
+                    : combatCase === 'targeting'
+                      ? await runWithServer(true, runTargetingCase)
+                      : combatCase === 'unit_attack'
+                        ? await runWithServer(true, runUnitAttackCase)
               : {
                     case: combatCase,
                     checks: { pass: true },
@@ -55,6 +63,8 @@ async function main() {
                     targets: await runWithServer(true, runTargetsCase),
                     normalTargets: await runWithServer(false, runNormalTargetsCase),
                     buildingDamage: await runWithServer(true, runBuildingDamageCase),
+                    targeting: await runWithServer(true, runTargetingCase),
+                    unitAttack: await runWithServer(true, runUnitAttackCase),
                 };
     await mkdir(path.dirname(artifactPath), { recursive: true });
     await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
@@ -385,6 +395,85 @@ async function runBuildingDamageCase() {
     }
 }
 
+async function runTargetingCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.setCombatVisibilityForTest(true))) {
+            throw new Error('Failed to enable visible targeting fixture');
+        }
+        const buildingId = await page.evaluate(() => window.__chickenFarmDebug!.createCombatBuildingFixture('tower_scout', 3648, 8896));
+        if (!buildingId) throw new Error('Failed to create targeting building');
+        const created = await page.evaluate(() => window.__chickenFarmDebug!.createCombatEnemyFixture('targeting-wolf', 'timber_wolf', 3800, 8896));
+        if (!created) throw new Error('Failed to create targeting wolf');
+        const near = await page.evaluate(() => window.__chickenFarmDebug!.getWolfTargetingProbeForTest('targeting-wolf'));
+        if (!near || near.candidate?.id !== buildingId || near.candidate.kind !== 'building' || !near.candidate.canAttack) {
+            throw new Error(`Footprint-range target mismatch: ${JSON.stringify(near)}`);
+        }
+        await page.evaluate(() => window.__chickenFarmDebug!.setCombatVisibilityForTest(false));
+        const hidden = await page.evaluate(() => window.__chickenFarmDebug!.getWolfTargetingProbeForTest('targeting-wolf'));
+        if (!hidden || hidden.candidate !== null) throw new Error(`Hidden target was selected: ${JSON.stringify(hidden)}`);
+        await page.evaluate(() => window.__chickenFarmDebug!.setCombatVisibilityForTest(true));
+        const moved = await page.evaluate(() => {
+            window.__chickenFarmDebug!.removeCombatEnemyFixture('targeting-wolf');
+            return window.__chickenFarmDebug!.createCombatEnemyFixture('targeting-wolf', 'timber_wolf', 4600, 8896);
+        });
+        if (!moved) throw new Error('Failed to move targeting wolf');
+        const far = await page.evaluate(() => window.__chickenFarmDebug!.getWolfTargetingProbeForTest('targeting-wolf'));
+        if (!far || far.candidate !== null) throw new Error(`Out-of-acquire target was selected: ${JSON.stringify(far)}`);
+        assertNoErrors(errors);
+        return {
+            case: 'targeting',
+            checks: { footprintNearestPointUsed: true, outOfAcquireExcluded: true, pass: true },
+            errors,
+            executionProfile: { combatPoc: false, combatSmoke: false, debugFixtures: true, startId: 3 },
+            probes: { far, hidden, near },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
+}
+
+async function runUnitAttackCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const enemyId = 'unit-attack-wolf';
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'timber_wolf', 3500, 8928), enemyId)) {
+            throw new Error('Failed to create attack target');
+        }
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.setCombatEnemyHpForTest(id, 1), enemyId)) {
+            throw new Error('Failed to prepare one-hit attack target');
+        }
+        const canvas = await getCanvasBounds(page);
+        await selectFarmer(page, canvas);
+        await clickWorld(page, await getWorldCalibration(page, canvas), { x: 3500, y: 8928 }, 'right');
+        await page.waitForFunction(
+            (id) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.some((enemy) => enemy.id === id),
+            enemyId,
+            { timeout: 8_000 },
+        );
+        const afterHit = await getCombatSnapshot(page);
+        const attacker = afterHit.units.find((candidate) => candidate.nextAttackAtSec > afterHit.elapsedSec);
+        if (
+            afterHit.enemies.some((candidate) => candidate.id === enemyId) ||
+            !attacker ||
+            afterHit.units.some((unit) => unit.currentCommandTargetId === enemyId)
+        ) {
+            throw new Error(`Actual attack/cooldown mismatch: ${JSON.stringify(afterHit)}`);
+        }
+        assertNoErrors(errors);
+        return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, pass: true }, errors, snapshots: { afterHit } };
+    } finally { await page.close(); await browser.close(); }
+}
+
 function assertHasTarget(
     snapshot: CombatSnapshot,
     id: string,
@@ -446,6 +535,7 @@ async function clickWorld(
     page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>,
     calibration: Awaited<ReturnType<typeof getWorldCalibration>>,
     point: { readonly x: number; readonly y: number },
+    button: 'left' | 'right' = 'left',
 ) {
     const scaleX =
         (calibration.referenceWorldPoint.x - calibration.calibrationWorldPoint.x) /
@@ -459,6 +549,7 @@ async function clickWorld(
     await page.mouse.click(
         calibration.calibrationPoint.x + (point.x - calibration.calibrationWorldPoint.x) / scaleX,
         calibration.calibrationPoint.y + (point.y - calibration.calibrationWorldPoint.y) / scaleY,
+        { button },
     );
 }
 

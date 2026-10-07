@@ -65,6 +65,7 @@ type CombatPocSystemConfig = {
     readonly getElapsedSec: () => number;
     readonly getWolfTargetableUnits?: () => readonly ControllableUnitCombatTarget[];
     readonly getWolfTargetableBuildings?: () => readonly WolfTargetableBuilding[];
+    readonly isTargetVisible?: (x: number, y: number) => boolean;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly recordTelemetry?: (
         type: string,
@@ -132,6 +133,7 @@ export class CombatPocSystem {
     private readonly getElapsedSec: () => number;
     private readonly getWolfTargetableUnits: () => readonly ControllableUnitCombatTarget[];
     private readonly getWolfTargetableBuildings: () => readonly WolfTargetableBuilding[];
+    private readonly isTargetVisible: (x: number, y: number) => boolean;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly recordTelemetry?: (
         type: string,
@@ -158,6 +160,7 @@ export class CombatPocSystem {
         this.getElapsedSec = config.getElapsedSec;
         this.getWolfTargetableUnits = config.getWolfTargetableUnits ?? (() => []);
         this.getWolfTargetableBuildings = config.getWolfTargetableBuildings ?? (() => []);
+        this.isTargetVisible = config.isTargetVisible ?? (() => true);
         this.recordPerformance = config.recordPerformance;
         this.recordTelemetry = config.recordTelemetry;
     }
@@ -551,9 +554,20 @@ export class CombatPocSystem {
         return true;
     }
 
+    setRuntimeEnemyHpForTest(id: string, hp: number) {
+        if (!Number.isFinite(hp) || hp <= 0) return false;
+        const wolf = this.combatWolves.find(
+            (candidate) => candidate.id === id && candidate.runtimeManaged && candidate.hp > 0,
+        );
+        if (!wolf) return false;
+        wolf.hp = Math.min(wolf.maxHp, hp);
+        wolf.hpFill.width = WOLF_HP_BAR_WIDTH_PX * (wolf.hp / wolf.maxHp);
+        return true;
+    }
+
     getRuntimeEnemySnapshot() {
         return this.combatWolves
-            .filter((wolf) => wolf.runtimeManaged)
+            .filter((wolf) => wolf.runtimeManaged && wolf.hp > 0)
             .map((wolf) => ({
                 enemyId: wolf.enemyId,
                 hp: wolf.hp,
@@ -577,6 +591,41 @@ export class CombatPocSystem {
             return false;
         }
         return this.damagePlayerBuilding?.(buildingId, damage, attackerId) ?? false;
+    }
+
+    /** Read-only range, owner, visibility and attack-line decision for a runtime wolf. */
+    getWolfTargetingProbe(enemyId: string) {
+        const wolf = this.combatWolves.find(
+            (candidate) => candidate.id === enemyId && candidate.runtimeManaged && candidate.hp > 0,
+        );
+        if (!wolf) return null;
+        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const acquireRange = enemy.acquireRangePx ?? 176;
+        const attackRange = enemy.attackRangePx ?? 34;
+        const units = this.getWolfTargetableUnits()
+            .filter((target) => target.ownerPlayerId !== wolf.ownerPlayerId && target.targetableByWolves && target.hp > 0)
+            .filter((target) => this.isTargetVisible(target.x, target.y))
+            .filter((target) => !this.isWolfLineToPointBlocked(wolf, target.x, target.y))
+            .map((target) => ({ distance: Phaser.Math.Distance.Between(wolf.body.x, wolf.body.y, target.x, target.y), target }))
+            .filter((candidate) => candidate.distance <= acquireRange + candidate.target.radius)
+            .sort((a, b) => a.distance - b.distance);
+        const buildings = this.getWolfTargetableBuildings()
+            .filter((target) => target.ownerPlayerId !== wolf.ownerPlayerId)
+            .map((target) => {
+                const x = Phaser.Math.Clamp(wolf.body.x, target.footprint.x, target.footprint.x + target.footprint.width);
+                const y = Phaser.Math.Clamp(wolf.body.y, target.footprint.y, target.footprint.y + target.footprint.height);
+                return { distance: Phaser.Math.Distance.Between(wolf.body.x, wolf.body.y, x, y), target, x, y };
+            })
+            .filter((candidate) => candidate.distance <= acquireRange)
+            .filter((candidate) => this.isTargetVisible(candidate.x, candidate.y))
+            .filter((candidate) => !this.isWolfLineToBuildingPointBlocked(wolf, candidate.x, candidate.y, candidate.target.footprint))
+            .sort((a, b) => a.distance - b.distance);
+        const unit = units[0];
+        const building = buildings[0];
+        const candidate = !building || (unit && unit.distance <= building.distance)
+            ? unit && { canAttack: unit.distance <= attackRange + unit.target.radius, id: unit.target.id, kind: 'unit' as const, ownerPlayerId: unit.target.ownerPlayerId }
+            : { canAttack: building.distance <= attackRange, id: building.target.id, kind: 'building' as const, ownerPlayerId: building.target.ownerPlayerId };
+        return { acquireRange, attackRange, candidate: candidate ?? null, wolfId: wolf.id };
     }
 
     getAttackableEnemyTarget(targetId: string): AttackableEnemyTarget | null {
@@ -1479,6 +1528,32 @@ export class CombatPocSystem {
             return Phaser.Geom.Intersects.LineToRectangle(line, building.footprint);
         });
         return blockedByCombatBuilding || this.isLineBlockedByExternalDynamicBlocker(line);
+    }
+
+    private isWolfLineToBuildingPointBlocked(
+        wolf: CombatWolf,
+        targetX: number,
+        targetY: number,
+        targetFootprint: GridPathRect,
+    ) {
+        const line = new Phaser.Geom.Line(wolf.body.x, wolf.body.y, targetX, targetY);
+        const blockedByCombatBuilding = this.combatBuildings.some((building) => {
+            if (building.hp <= 0 || !building.blocksPath) return false;
+            return Phaser.Geom.Intersects.LineToRectangle(line, building.footprint);
+        });
+        const blockedByExternal = this.getExternalDynamicBlockedRects().some((rect) => {
+            if (
+                rect.x === targetFootprint.x &&
+                rect.y === targetFootprint.y &&
+                rect.width === targetFootprint.width &&
+                rect.height === targetFootprint.height
+            ) return false;
+            return Phaser.Geom.Intersects.LineToRectangle(
+                line,
+                new Phaser.Geom.Rectangle(rect.x, rect.y, rect.width, rect.height),
+            );
+        });
+        return blockedByCombatBuilding || blockedByExternal;
     }
 
     private isLineBlockedByExternalDynamicBlocker(line: Phaser.Geom.Line) {

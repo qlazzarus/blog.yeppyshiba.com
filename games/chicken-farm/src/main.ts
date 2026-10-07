@@ -358,6 +358,7 @@ declare global {
                 ownerPlayerId?: number,
             ) => boolean;
             removeCombatEnemyFixture: (id: string) => boolean;
+            setCombatEnemyHpForTest: (id: string, hp: number) => boolean;
             createEconomyChickenFixture: (
                 ownerPlayerId: number,
                 x: number,
@@ -365,6 +366,8 @@ declare global {
             ) => string | null;
             markEconomyChickenDeadForTest: (id: string) => boolean;
             damageBuildingForTest: (buildingId: string, damage: number) => boolean;
+            getWolfTargetingProbeForTest: (enemyId: string) => ReturnType<CombatPocSystem['getWolfTargetingProbe']>;
+            setCombatVisibilityForTest: (visible: boolean | null) => boolean;
             getConstructionPlacementPreview: (
                 templateId: 'coop_basic' | 'fence_wood',
                 x: number,
@@ -393,6 +396,11 @@ declare global {
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
+            ) => string | null;
+            createCombatBuildingFixture: (
+                templateId: 'fence_wood' | 'tower_scout',
+                x: number,
+                y: number,
             ) => string | null;
             ensureEconomyPlayerForTest: (playerId: number) => boolean;
             createPathBlockerFixture: (x: number, y: number) => string | null;
@@ -576,6 +584,7 @@ class FarmScene extends Phaser.Scene {
     private buildingSystem?: BuildingSystem;
     private commandCard?: CommandCardSystem;
     private combatPoc?: CombatPocSystem;
+    private combatVisibilityOverrideForTest?: boolean;
     private constructionPlacement?: ConstructionPlacementSystem;
     private controllableUnits!: ControllableUnitSystem;
     private dragSelectionInput?: DragSelectionInputSystem;
@@ -888,6 +897,8 @@ class FarmScene extends Phaser.Scene {
                 this.getWolfTargetableUnits(),
             getWolfTargetableBuildings: () =>
                 this.buildingSystem?.getWolfTargetableBuildings() ?? [],
+            isTargetVisible: (x, y) =>
+                this.combatVisibilityOverrideForTest ?? this.visibility.isCurrentlyVisible(x, y),
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
             recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
@@ -3346,6 +3357,10 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
             },
+            setCombatEnemyHpForTest: (id, hp) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.combatPoc?.setRuntimeEnemyHpForTest(id, hp) ?? false;
+            },
             createEconomyChickenFixture: (ownerPlayerId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
                 if (!Number.isInteger(ownerPlayerId) || !Number.isFinite(x) || !Number.isFinite(y)) {
@@ -3377,6 +3392,13 @@ class FarmScene extends Phaser.Scene {
                     damage,
                     'debug-wolf',
                 ) ?? false;
+            },
+            getWolfTargetingProbeForTest: (enemyId) =>
+                this.combatPoc?.getWolfTargetingProbe(enemyId) ?? null,
+            setCombatVisibilityForTest: (visible) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                this.combatVisibilityOverrideForTest = visible ?? undefined;
+                return true;
             },
             getEconomyLifecycleSnapshot: () => ({
                 activeStartItemPlacement: this.startItemPlacement
@@ -3519,6 +3541,22 @@ class FarmScene extends Phaser.Scene {
                 const building = this.buildingSystem?.createBuilding({
                     completeImmediately: true,
                     ownerPlayerId: ownerPlayerId ?? builder?.ownerPlayerId ?? 3,
+                    templateId,
+                    workerUnitId: builder?.id,
+                    x,
+                    y,
+                });
+                return building?.id ?? null;
+            },
+            createCombatBuildingFixture: (templateId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                const builder = this.controllableUnits
+                    .getUnits()
+                    .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                const building = this.buildingSystem?.createBuilding({
+                    completeImmediately: true,
+                    ownerPlayerId: builder?.ownerPlayerId ?? 3,
+                    skipCost: true,
                     templateId,
                     workerUnitId: builder?.id,
                     x,

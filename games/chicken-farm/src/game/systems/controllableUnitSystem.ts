@@ -985,8 +985,22 @@ export class ControllableUnitSystem {
 
         if (this.getElapsedSec() < unit.nextAttackAtSec) return;
 
-        this.damageEnemyTarget?.(target.id, stats.damage);
+        const landed = this.damageEnemyTarget?.(target.id, stats.damage) ?? false;
+        if (!landed) {
+            unit.currentCommand = undefined;
+            unit.path = [];
+            unit.pathIndex = 0;
+            this.pollNextQueuedCommand(unit);
+            this.updateView(unit);
+            return;
+        }
         unit.nextAttackAtSec = this.getElapsedSec() + stats.attackCooldownSec;
+        this.recordTelemetry?.('player_unit_attack_landed', {
+            damage: stats.damage,
+            targetId: target.id,
+            unitId: unit.id,
+            unitTemplateId: unit.templateId,
+        });
     }
 
     private updateAttackMoveCommand(unit: ControllableUnitState, deltaSec: number) {
