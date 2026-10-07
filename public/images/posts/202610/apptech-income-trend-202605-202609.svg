@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1320" viewBox="0 0 1600 1320"><rect width="1600" height="1320" fill="#fcfbf8"/><g font-family="WenQuanYi Zen Hei, sans-serif">
+<text x="100" y="75" font-size="19" fill="#137e79" letter-spacing="3">YEPPYSHIBA BLOG  /  MONTHLY INCOME</text>
+<text x="100" y="146" font-size="52" fill="#13243b" font-weight="bold">월별 앱테크 수익 추이</text>
+<text x="100" y="194" font-size="25" fill="#586777" >2026년 5–9월 · 각 월 결산에 기록한 합계 · MMF 수익 포함</text>
+<rect x="1207" y="99" width="292" height="54" rx="27" fill="#e1f0eb"/>
+<text x="1353" y="135" font-size="23" fill="#137e79" text-anchor="middle">9월 결산 완료</text>
+<path d="M190 650 H1455" stroke="#d8dfe2" stroke-dasharray="5 7"/>
+<text x="167" y="658" font-size="22" fill="#586777" text-anchor="end">0</text>
+<path d="M190 552.5 H1455" stroke="#d8dfe2" stroke-dasharray="5 7"/>
+<text x="167" y="560.5" font-size="22" fill="#586777" text-anchor="end">10,000</text>
+<path d="M190 455 H1455" stroke="#d8dfe2" stroke-dasharray="5 7"/>
+<text x="167" y="463" font-size="22" fill="#586777" text-anchor="end">20,000</text>
+<path d="M190 357.5 H1455" stroke="#d8dfe2" stroke-dasharray="5 7"/>
+<text x="167" y="365.5" font-size="22" fill="#586777" text-anchor="end">30,000</text>
+<path d="M190 260 H1455" stroke="#d8dfe2" stroke-dasharray="5 7"/>
+<text x="167" y="268" font-size="22" fill="#586777" text-anchor="end">40,000</text>
+<text x="110" y="240" font-size="19" fill="#586777" >단위: 원</text>
+<polyline points="260,466.817 525,301.05725 790,433.50125 1055,416.39975" fill="none" stroke="#348dd1" stroke-width="5" stroke-linejoin="round"/>
+<path d="M1055 416.39975 L1320 308.89625" fill="none" stroke="#137e79" stroke-width="5"/>
+<circle cx="260" cy="466.817" r="10" fill="#348dd1" stroke="#348dd1" stroke-width="4"/>
+<text x="260" y="439.817" font-size="29" fill="#348dd1" text-anchor="middle" font-weight="bold">18,788원</text>
+<text x="260" y="698" font-size="27" fill="#13243b" text-anchor="middle">5월</text>
+<circle cx="525" cy="301.05725" r="10" fill="#348dd1" stroke="#348dd1" stroke-width="4"/>
+<text x="525" y="274.05725" font-size="29" fill="#348dd1" text-anchor="middle" font-weight="bold">35,789원</text>
+<text x="525" y="698" font-size="27" fill="#13243b" text-anchor="middle">6월</text>
+<circle cx="790" cy="433.50125" r="10" fill="#348dd1" stroke="#348dd1" stroke-width="4"/>
+<text x="790" y="406.50125" font-size="29" fill="#348dd1" text-anchor="middle" font-weight="bold">22,205원</text>
+<text x="790" y="698" font-size="27" fill="#13243b" text-anchor="middle">7월</text>
+<circle cx="1055" cy="416.39975" r="10" fill="#348dd1" stroke="#348dd1" stroke-width="4"/>
+<text x="1055" y="389.39975" font-size="29" fill="#348dd1" text-anchor="middle" font-weight="bold">23,959원</text>
+<text x="1055" y="698" font-size="27" fill="#13243b" text-anchor="middle">8월</text>
+<circle cx="1320" cy="308.89625" r="10" fill="#137e79" stroke="#137e79" stroke-width="4"/>
+<text x="1320" y="281.89625" font-size="29" fill="#137e79" text-anchor="middle" font-weight="bold">34,985원</text>
+<text x="1320" y="698" font-size="27" fill="#13243b" text-anchor="middle">9월</text>
+<rect x="100" y="751" width="1400" height="64" rx="12" fill="#e1f0eb"/>
+<text x="160" y="793" font-size="24" fill="#13243b" font-weight="bold">월</text>
+<text x="615" y="793" font-size="24" fill="#13243b" text-anchor="end" font-weight="bold">기록한 합계</text>
+<text x="710" y="793" font-size="24" fill="#13243b" font-weight="bold">집계 기준</text>
+<text x="160" y="855" font-size="24" fill="#13243b" >2026년 5월</text>
+<text x="615" y="855" font-size="25" fill="#13243b" text-anchor="end" font-weight="bold">18,788원</text>
+<text x="710" y="855" font-size="23" fill="#586777" >당시 결산 기준</text>
+<path d="M100 876 H1500" stroke="#d8dfe2"/>
+<text x="160" y="916" font-size="24" fill="#13243b" >2026년 6월</text>
+<text x="615" y="916" font-size="25" fill="#13243b" text-anchor="end" font-weight="bold">35,789원</text>
+<text x="710" y="916" font-size="23" fill="#586777" >당시 결산 기준</text>
+<path d="M100 937 H1500" stroke="#d8dfe2"/>
+<text x="160" y="977" font-size="24" fill="#13243b" >2026년 7월</text>
+<text x="615" y="977" font-size="25" fill="#13243b" text-anchor="end" font-weight="bold">22,205원</text>
+<text x="710" y="977" font-size="23" fill="#586777" >토스 수수료 차감 전</text>
+<path d="M100 998 H1500" stroke="#d8dfe2"/>
+<text x="160" y="1038" font-size="24" fill="#13243b" >2026년 8월</text>
+<text x="615" y="1038" font-size="25" fill="#13243b" text-anchor="end" font-weight="bold">23,959원</text>
+<text x="710" y="1038" font-size="23" fill="#586777" >토스 수수료 차감 전</text>
+<path d="M100 1059 H1500" stroke="#d8dfe2"/>
+<rect x="100" y="1059" width="1400" height="61" fill="#eef6f2"/>
+<text x="160" y="1099" font-size="24" fill="#13243b" >2026년 9월</text>
+<text x="615" y="1099" font-size="25" fill="#137e79" text-anchor="end" font-weight="bold">34,985원</text>
+<text x="710" y="1099" font-size="23" fill="#586777" >토스 수수료 차감 후</text>
+<path d="M100 1120 H1500" stroke="#d8dfe2"/>
+<text x="100" y="1178" font-size="23" fill="#586777" >월별 집계 기준이 달라 동일 조건의 수익률 비교가 아닙니다.</text>
+<text x="100" y="1219" font-size="23" fill="#137e79" >8월 수수료 차감 후 23,519원 → 9월 34,985원  (+11,466원)</text>
+<text x="100" y="1260" font-size="22" fill="#586777" >9월: 교통카드 캐시백 제외 · 모니모 수익 9,046원 포함 · 펀드 투자금 중복 합산 제외</text>
+</g></svg>

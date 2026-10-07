@@ -462,6 +462,10 @@ export class BuildingSystem {
         );
     }
 
+    getBuildings(): readonly PlayerBuilding[] {
+        return this.buildings;
+    }
+
     isConstructionActive(buildingId: string, workerUnitId: string) {
         const building = this.getBuilding(buildingId);
         return (

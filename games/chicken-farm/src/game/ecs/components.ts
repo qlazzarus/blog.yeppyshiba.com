@@ -29,6 +29,7 @@ export type CombatBuilding = {
 export type CombatWolf = {
     readonly body: Phaser.GameObjects.Container;
     readonly defaultTargetBuildingId: string;
+    readonly enemyId: string;
     focusBuildingId?: string;
     focusLockedUntilSec: number;
     focusUnitId?: string;
@@ -38,11 +39,15 @@ export type CombatWolf = {
     lastAttackMoveRefreshAtSec: number;
     lastAttackMoveRefreshReason?: WolfOrderRefreshReason;
     readonly maxHp: number;
+    readonly ownerPlayerId: number;
     nextAttackAtSec: number;
     nextRepathAtSec: number;
     path: readonly GridPathPoint[];
     pathFailedSinceSec?: number;
     pathIndex: number;
+    readonly runtimeManaged: boolean;
+    readonly spawnX: number;
+    readonly spawnY: number;
     state: WolfAiBehaviorState;
     stateAction?: WolfAiDecisionAction;
     stateReason?: string;
