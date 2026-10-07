@@ -37,6 +37,7 @@ import type {
     AttackableEnemyTarget,
     ControllableUnitCombatTarget,
 } from './playerCommandTypes';
+import type { WolfTargetableBuilding } from './buildingSystem';
 import { TerrainBlocker } from './terrainBlocker';
 import {
     type WolfOrderRefreshReason,
@@ -55,9 +56,15 @@ type CombatPocSystemConfig = {
         damage: number,
         attackerTargetId?: string,
     ) => boolean;
+    readonly damagePlayerBuilding?: (
+        buildingId: string,
+        damage: number,
+        attackerId?: string,
+    ) => boolean;
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     readonly getElapsedSec: () => number;
     readonly getWolfTargetableUnits?: () => readonly ControllableUnitCombatTarget[];
+    readonly getWolfTargetableBuildings?: () => readonly WolfTargetableBuilding[];
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly recordTelemetry?: (
         type: string,
@@ -116,9 +123,15 @@ export class CombatPocSystem {
         damage: number,
         attackerTargetId?: string,
     ) => boolean;
+    private readonly damagePlayerBuilding?: (
+        buildingId: string,
+        damage: number,
+        attackerId?: string,
+    ) => boolean;
     private readonly getExternalDynamicBlockedRectsProvider: () => readonly GridPathRect[];
     private readonly getElapsedSec: () => number;
     private readonly getWolfTargetableUnits: () => readonly ControllableUnitCombatTarget[];
+    private readonly getWolfTargetableBuildings: () => readonly WolfTargetableBuilding[];
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly recordTelemetry?: (
         type: string,
@@ -139,10 +152,12 @@ export class CombatPocSystem {
         this.worldObjects = config.worldObjects;
         this.worldSize = config.worldSize;
         this.damageControllableUnit = config.damageControllableUnit;
+        this.damagePlayerBuilding = config.damagePlayerBuilding;
         this.getExternalDynamicBlockedRectsProvider =
             config.getDynamicBlockedRects ?? (() => []);
         this.getElapsedSec = config.getElapsedSec;
         this.getWolfTargetableUnits = config.getWolfTargetableUnits ?? (() => []);
+        this.getWolfTargetableBuildings = config.getWolfTargetableBuildings ?? (() => []);
         this.recordPerformance = config.recordPerformance;
         this.recordTelemetry = config.recordTelemetry;
     }
@@ -550,6 +565,18 @@ export class CombatPocSystem {
                 x: wolf.body.x,
                 y: wolf.body.y,
             }));
+    }
+
+    getWolfTargetableUnitSnapshot() {
+        return this.getWolfTargetableUnits().map((unit) => ({ ...unit }));
+    }
+
+    /** Routes direct wolf damage through the canonical PlayerBuilding owner. */
+    damageWolfTargetableBuilding(buildingId: string, damage: number, attackerId?: string) {
+        if (!this.getWolfTargetableBuildings().some((building) => building.id === buildingId)) {
+            return false;
+        }
+        return this.damagePlayerBuilding?.(buildingId, damage, attackerId) ?? false;
     }
 
     getAttackableEnemyTarget(targetId: string): AttackableEnemyTarget | null {

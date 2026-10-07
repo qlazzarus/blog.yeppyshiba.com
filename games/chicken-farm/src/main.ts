@@ -50,7 +50,10 @@ import {
 import { ConstructionPlacementSystem } from './game/systems/constructionPlacementSystem';
 import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
 import { DragSelectionInputSystem } from './game/systems/dragSelectionInputSystem';
-import type { UnitCommand } from './game/systems/playerCommandTypes';
+import type {
+    ControllableUnitCombatTarget,
+    UnitCommand,
+} from './game/systems/playerCommandTypes';
 import { canOccupyPoint } from './game/systems/movementGuards';
 import {
     addEconomyChicken,
@@ -191,6 +194,12 @@ declare global {
                 readonly active: boolean;
                 readonly buildings: readonly {
                     readonly armor: number;
+                    readonly footprint: {
+                        readonly height: number;
+                        readonly width: number;
+                        readonly x: number;
+                        readonly y: number;
+                    };
                     readonly hp: number;
                     readonly id: string;
                     readonly maxHp: number;
@@ -222,6 +231,16 @@ declare global {
                     readonly ownerPlayerId: number;
                     readonly spawnX: number;
                     readonly spawnY: number;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+                readonly wolfTargets: readonly {
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly maxHp: number;
+                    readonly ownerPlayerId: number;
+                    readonly targetKind: 'controllable_unit' | 'economy_chicken';
+                    readonly templateId: string;
                     readonly x: number;
                     readonly y: number;
                 }[];
@@ -339,6 +358,13 @@ declare global {
                 ownerPlayerId?: number,
             ) => boolean;
             removeCombatEnemyFixture: (id: string) => boolean;
+            createEconomyChickenFixture: (
+                ownerPlayerId: number,
+                x: number,
+                y: number,
+            ) => string | null;
+            markEconomyChickenDeadForTest: (id: string) => boolean;
+            damageBuildingForTest: (buildingId: string, damage: number) => boolean;
             getConstructionPlacementPreview: (
                 templateId: 'coop_basic' | 'fence_wood',
                 x: number,
@@ -853,11 +879,15 @@ class FarmScene extends Phaser.Scene {
                     damage,
                     attackerTargetId,
                 ),
+            damagePlayerBuilding: (buildingId, damage, attackerId) =>
+                this.buildingSystem?.damageBuilding(buildingId, damage, attackerId) ?? false,
             getDynamicBlockedRects: () =>
                 this.buildingSystem?.getDynamicBlockedRects() ?? [],
             getElapsedSec: () => this.elapsedSec,
             getWolfTargetableUnits: () =>
-                this.controllableUnits.getWolfTargetableUnits(),
+                this.getWolfTargetableUnits(),
+            getWolfTargetableBuildings: () =>
+                this.buildingSystem?.getWolfTargetableBuildings() ?? [],
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
             recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
@@ -2526,6 +2556,27 @@ class FarmScene extends Phaser.Scene {
         ];
     }
 
+    private getWolfTargetableUnits(): readonly ControllableUnitCombatTarget[] {
+        const controllable = this.controllableUnits.getWolfTargetableUnits();
+        const chickens = (this.economyState?.chickens ?? [])
+            .filter((chicken) => chicken.aiState !== 'dead' && chicken.hp > 0)
+            .map((chicken) => ({
+                armor: 0,
+                hp: chicken.hp,
+                id: chicken.id,
+                maxHp: chicken.maxHp,
+                name: `${chicken.kind} chicken`,
+                ownerPlayerId: chicken.ownerPlayerId,
+                radius: 16,
+                targetableByWolves: true,
+                targetKind: 'economy_chicken' as const,
+                templateId: `chicken_${chicken.kind}`,
+                x: chicken.position.x,
+                y: chicken.position.y,
+            }));
+        return [...controllable, ...chickens];
+    }
+
     private updateTerrainOverlayHotkey() {
         if (!Phaser.Input.Keyboard.JustDown(this.keys.terrainOverlay)) return;
 
@@ -3235,6 +3286,7 @@ class FarmScene extends Phaser.Scene {
                 active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
                 buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
                     armor: building.armor,
+                    footprint: { ...building.footprint },
                     hp: building.hp,
                     id: building.id,
                     maxHp: building.maxHp,
@@ -3259,6 +3311,7 @@ class FarmScene extends Phaser.Scene {
                         ? this.combatPoc?.getLifecycleSnapshot() ?? null
                         : null,
                 runId: this.runId,
+                wolfTargets: this.combatPoc?.getWolfTargetableUnitSnapshot() ?? [],
                 units: this.controllableUnits.getUnits().map((unit) => ({
                     armor: unit.armor,
                     commandQueueCount: unit.commandQueue.length,
@@ -3292,6 +3345,38 @@ class FarmScene extends Phaser.Scene {
             removeCombatEnemyFixture: (id) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
+            },
+            createEconomyChickenFixture: (ownerPlayerId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                if (!Number.isInteger(ownerPlayerId) || !Number.isFinite(x) || !Number.isFinite(y)) {
+                    return null;
+                }
+                this.createEconomyPoc();
+                if (!this.economyState || !this.canChickenOccupyPoint({ x, y })) return null;
+                const chicken = addEconomyChicken(this.economyState, {
+                    elapsedSec: this.elapsedSec,
+                    ownerPlayerId,
+                    position: { x, y },
+                });
+                this.createChickenView(chicken);
+                return chicken.id;
+            },
+            markEconomyChickenDeadForTest: (id) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                const chicken = this.economyState?.chickens.find((candidate) => candidate.id === id);
+                if (!chicken || chicken.aiState === 'dead') return false;
+                chicken.hp = 0;
+                chicken.aiState = 'dead';
+                this.syncChickenViews();
+                return true;
+            },
+            damageBuildingForTest: (buildingId, damage) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.combatPoc?.damageWolfTargetableBuilding(
+                    buildingId,
+                    damage,
+                    'debug-wolf',
+                ) ?? false;
             },
             getEconomyLifecycleSnapshot: () => ({
                 activeStartItemPlacement: this.startItemPlacement

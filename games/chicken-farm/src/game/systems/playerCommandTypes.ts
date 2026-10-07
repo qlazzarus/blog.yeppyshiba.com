@@ -74,9 +74,11 @@ export type ControllableUnitCombatTarget = {
     readonly id: string;
     readonly maxHp: number;
     readonly name: string;
+    readonly ownerPlayerId: number;
     readonly radius: number;
     readonly targetableByWolves: boolean;
-    readonly templateId: ControllableUnitTemplateId;
+    readonly targetKind: 'controllable_unit' | 'economy_chicken';
+    readonly templateId: string;
     readonly x: number;
     readonly y: number;
 };

@@ -73,6 +73,18 @@ export type BuildingLifecycleSnapshot = {
     readonly templateId: MvpBuildingId;
 };
 
+export type WolfTargetableBuilding = {
+    readonly armor: number;
+    readonly footprint: GridPathRect;
+    readonly hp: number;
+    readonly id: string;
+    readonly maxHp: number;
+    readonly ownerPlayerId: number;
+    readonly state: PlayerBuilding['state'];
+    readonly targetableByWolves: boolean;
+    readonly templateId: MvpBuildingId;
+};
+
 type BuildingSystemConfig = {
     readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
     /** Shared player wallet; when omitted the system creates an isolated PoC wallet. */
@@ -464,6 +476,74 @@ export class BuildingSystem {
 
     getBuildings(): readonly PlayerBuilding[] {
         return this.buildings;
+    }
+
+    /**
+     * Returns detached, living building targets for wolves. Construction is
+     * deliberately excluded by the SP-07 combat contract.
+     */
+    getWolfTargetableBuildings(): readonly WolfTargetableBuilding[] {
+        return this.buildings
+            .filter(
+                (building) =>
+                    building.state === 'complete' &&
+                    building.targetableByWolves &&
+                    building.hp > 0,
+            )
+            .map((building) => ({
+                armor: building.armor,
+                footprint: { ...building.footprint },
+                hp: building.hp,
+                id: building.id,
+                maxHp: building.maxHp,
+                ownerPlayerId: building.ownerPlayerId,
+                state: building.state,
+                targetableByWolves: building.targetableByWolves,
+                templateId: building.templateId,
+            }));
+    }
+
+    /**
+     * Canonical player-building damage boundary. Enemy destruction never
+     * refunds paid construction; cancellation retains its separate policy.
+     */
+    damageBuilding(buildingId: string, rawDamage: number, attackerId?: string) {
+        if (!Number.isFinite(rawDamage) || rawDamage <= 0) return false;
+        const buildingIndex = this.buildings.findIndex(
+            (building) => building.id === buildingId,
+        );
+        const building = this.buildings[buildingIndex];
+        if (
+            !building ||
+            building.state !== 'complete' ||
+            !building.targetableByWolves ||
+            building.hp <= 0
+        ) {
+            return false;
+        }
+
+        const appliedDamage = Math.max(1, rawDamage - building.armor);
+        building.hp = Math.max(0, building.hp - appliedDamage);
+        this.updateView(building);
+        this.recordTelemetry?.('player_building_damaged', {
+            appliedDamage,
+            attackerId: attackerId ?? null,
+            buildingHpAfter: Math.ceil(building.hp),
+            buildingId: building.id,
+            rawDamage,
+            templateId: building.templateId,
+        });
+        if (building.hp > 0) return true;
+
+        this.destroyView(building.id);
+        this.buildings.splice(buildingIndex, 1);
+        this.onBuildingRemoved?.(building, 'combat_destroyed');
+        this.recordTelemetry?.('player_building_destroyed', {
+            attackerId: attackerId ?? null,
+            buildingId: building.id,
+            templateId: building.templateId,
+        });
+        return true;
     }
 
     isConstructionActive(buildingId: string, workerUnitId: string) {

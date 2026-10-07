@@ -1,6 +1,6 @@
 # SP-07 — 실제 맵 전투 연결 세부 실행 계획
 
-> 갱신: 2026-10-07. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~03을 완료했다. 다음 실행 ID는 **SP-07-04**다.
+> 갱신: 2026-10-07. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~04를 완료했다. 다음 실행 ID는 **SP-07-05**다.
 
 ## 목표와 경계
 
@@ -34,7 +34,7 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 | SP-07-01 | 전투 대상·수치·명령·사망 계약 | SP-04~06.5 | 완료 — 정적 계약, runtime 미검증 |
 | SP-07-02 | 전투 snapshot·browser harness | 01 | 완료 — normal baseline/all browser 통과 |
 | SP-07-03 | normal 전투 서비스와 적 lifecycle | 02 | 완료 — explicit runtime enemy fixture lifecycle 통과 |
-| SP-07-04 | 농부·개·닭의 실제 target 연결 | 03 | 대기 |
+| SP-07-04 | 농부·개·닭의 실제 target 연결 | 03 | 완료 — normal 분양과 fixture 생성·사망 target 동기화 |
 | SP-07-05 | 건물 target·피해·파괴 연결 | 03/04 | 대기 |
 | SP-07-06 | acquire·시야·사거리 판정 | 04/05 | 대기 |
 | SP-07-07 | 농부·개의 직접 공격과 적 사망 | 06 | 대기 |
@@ -111,6 +111,14 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 읽기: `controllableUnitSystem.ts`의 target 조회, `economyTypes.ts`, `economySystem.ts` 닭 생성·생존 갱신, `main.ts` economy view 연결.
 - 작업: 농부/개/경제 닭을 같은 ID·owner·현재 위치·HP로 조회하고 생성/부화/제거에 따라 대상 목록을 갱신한다. 닭용 복제 HP나 공격용 가짜 유닛을 생성하지 않는다.
 - 완료/검증: `targets`에서 이동·분양·부화 이후 target 동기화, 소유권 보존, 죽은/제거된 닭 제외. fixture와 normal 분양 입력 증거를 구분한다.
+
+#### SP-07-04 결과
+
+- 상태: **완료**. `main.ts`의 전투 대상 provider가 기존 농부·개 조회와 `economyState.chickens`를 결합한다. economy 닭은 원본 ID·owner·HP·max HP·현재 좌표를 그대로 반환하며 `aiState === 'dead'` 또는 HP 0이면 제외한다. 따라서 분양과 `completeHatches()`가 같은 economy 배열에 추가하는 닭이 즉시 대상 조회에 반영되고, 별도 HP state나 가짜 공격 유닛은 만들지 않는다.
+- 변경: `ControllableUnitCombatTarget`에 owner와 target kind를 명시했고, `CombatPocSystem`의 read-only target snapshot 및 debug fixture 생성/사망 경계를 추가했다. normal browser 입력은 P3 농부 선택 후 I003 inventory slot을 눌러 실제 분양을 수행한다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm` → 종료 코드 0. `CHICKEN_FARM_COMBAT_CASE=normal_targets npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0, 실제 분양 닭의 ID·owner·HP·좌표가 target과 economy snapshot에서 일치한 [normal artifact](./chicken_farm_w3x_artifacts/combat_check_normal_targets.json)를 남겼다. `CHICKEN_FARM_COMBAT_CASE=targets ...` → 종료 코드 0, 농부/개 target, owner 3/4 fixture 닭 보존 및 dead 닭 제외를 [targets artifact](./chicken_farm_w3x_artifacts/combat_check_targets.json)로 확인했다. 부화는 기존 normal `full_loop`에서 `completeHatches()`가 economy 배열에 추가하는 경로를 검증하며, 이 카드의 provider가 같은 배열을 매 tick 읽는다. `CHICKEN_FARM_COMBAT_CASE=all ...` → 종료 코드 0, browser 오류 0인 [all artifact](./chicken_farm_w3x_artifacts/combat_check_all.json)를 갱신했다.
+- 범위: 실제 늑대의 닭 피해·사망 처리와 사망 뒤 산란/경제 정리는 SP-07-09, 건물 피해는 SP-07-05에서 연결한다.
+- 다음 ID: **SP-07-05 — 실제 건물 피해 경계**.
 
 ### SP-07-05 — 실제 건물 피해 경계
 
