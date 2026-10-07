@@ -33,7 +33,7 @@
 - [SP-02 Terra medium 실행 계획](./chicken_farm_sp02_task_plan.md) — Astra light 계획 → Terra medium 실행으로 완료한 기준선·타입·부팅·smoke·측정·인계 7개 task와 재현 명령.
 - [SP-05 건설 lifecycle 실행 계획](./chicken_farm_sp05_task_plan.md) — Terra medium용 12개 task, 상태 전이·비용/환불·일꾼·완공/제거·restart 검수 완료.
 - [SP-06 닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md) — Terra medium용 14개 task 완료. fixture 없는 normal P3 전체 루프와 economy browser all을 통과했다.
-- [SP-06.5 럼버 밀 수입 복원 계획](./chicken_farm_sp06_5_task_plan.md) — Terra medium용 6개 순차 task. 30초 목재 수입 70/110/170을 닭·알 생산과 병행하며 구현은 미착수다.
+- [SP-06.5 럼버 밀 수입 복원 계획](./chicken_farm_sp06_5_task_plan.md) — Terra medium용 6개 task 완료. 30초 목재 수입 70/110/170을 닭·알 생산과 병행하고, lifecycle·restart·browser 회귀를 기록했다.
 - [SP-06 W3X 경제 비교](./chicken_farm_sp06_w3x_comparison.md) — 원본 경제 근거, 웹 MVP 변환값, 완료 범위와 후속 차이.
 - [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md) — 원본 건물·pathing 기준과 웹 lifecycle의 일치점, 변환값, SP-06/07/09 인계 차이.
 - [W3X 건설 Warsmash 검증 계획](./chicken_farm_w3x_warsmash_construction_validation_plan.md) — build time·pathTex·취소 환불·벽/결계·대문 상태를 실제 원본 맵에서 관찰하는 절차.

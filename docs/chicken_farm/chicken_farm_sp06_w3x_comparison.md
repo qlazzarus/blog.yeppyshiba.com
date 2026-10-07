@@ -1,16 +1,17 @@
 # SP-06 닭·알 경제 — W3X 기준 최종 비교
 
-> 갱신: 2026-10-07. 이 문서는 `닭농장1.3a.w3x`의 추출 근거와 웹 MVP의 완료된 경제 루프를 비교한다. 웹 구현의 통과는 **SP-06 범위의 동작 검증**이며, 원본 W3X의 경제 전체를 복제했다는 뜻은 아니다.
+> 갱신: 2026-10-07. 이 문서는 `닭농장1.3a.w3x`의 추출 근거와 웹 MVP의 완료된 경제 루프 및 SP-06.5 럼버 밀 bridge를 비교한다. 웹 구현의 통과는 해당 범위의 동작 검증이며, 원본 W3X 경제 전체를 복제했다는 뜻은 아니다.
 
 ## 완료 판정
 
-SP-06은 완료다. fixture를 끈 normal P3에서 실제 입력으로 시작 아이템 설치, 시장 교환, 닭장 건설, 두 마리 분양, 실제 산란, 수집, 닭장 입고, 부화, 시장 판매를 한 run에서 완료했다. `economy_check_full_loop.json`의 여섯 개 검사는 모두 `true`이고 browser console/page/request/response 오류는 모두 비어 있다. 이어 `CHICKEN_FARM_ECONOMY_CASE=all`의 top-level `pass`도 `true`다.
+SP-06과 SP-06.5 bridge는 완료다. fixture를 끈 normal P3 `full_loop`은 기존 닭·알 경로를 유지했고, `all`은 새 `lumber_income` case까지 포함해 top-level `pass: true`다. browser 오류 목록은 각 해당 사례에서 비어 있다.
 
 | 검증 | 근거 | 결과 |
 | --- | --- | --- |
 | 정상 전체 루프 | [full-loop artifact](./chicken_farm_w3x_artifacts/economy_check_full_loop.json) | fixture off, `1500/0 → 1400/70 → 1280/18 → 1292/18`, 닭 `2 → 3`, HUD 일치 |
-| 경제 사례 묶음 | [all artifact](./chicken_farm_w3x_artifacts/economy_check_all.json) | baseline, 분양, bootstrap, 산란, 수집, drop/입고, 부화, 판매, 주문 취소까지 pass |
-| 순수 경제 불변식 | [economy metrics](./chicken_farm_w3x_artifacts/economy_poc_metrics.json) | 32개 사례 통과 기록 |
+| 경제 사례 묶음 | [all artifact](./chicken_farm_w3x_artifacts/economy_check_all.json) | 기존 사례와 `lumberIncome`을 포함해 pass |
+| 럼버 밀 browser | [lumber-income artifact](./chicken_farm_w3x_artifacts/economy_check_lumber_income.json) | P3/P4 tier 지급·constructing 미등록·중복 callback·제거·동일 tick·restart·닭 산란 병행 통과, 오류 0 |
+| 순수 경제 불변식 | [economy metrics](./chicken_farm_w3x_artifacts/economy_poc_metrics.json) | 34개 사례 통과 기록 |
 
 ## 원본 근거와 웹 구현
 
@@ -21,7 +22,7 @@ SP-06은 완료다. fixture를 끈 normal P3에서 실제 입력으로 시작 �
 | 금·목재 교환 | JASS 3185–3186은 `-100 gold, +70 lumber`를 기록한다. 이후 500/400, 1500/1200, 3000/2400 tier도 있다. | own complete market의 한 번의 `100 gold → 70 lumber` 교환만 구현한다. 첫 닭장 자금 경로를 위한 최소 tier다. | 첫 tier 보존, 상위 tier 미구현 |
 | 닭장 계열 | `h00N → h00O → h01Z`, 비용은 각각 `700/300`, `800/500`, `1200/800` gold/lumber다. | `coop_basic/mid/high`의 계열·이름·HP·선행 데이터는 보존한다. SP-06 normal loop는 `coop_basic`의 MVP 비용 `120 gold/52 lumber`, 25초 건설만 사용한다. | 계열 보존, 수치·시간 변환 |
 | 알 | `I006`은 알이며 부화장 입력 또는 판매 대상으로 설명되고, 원본 item gold cost는 170이다. | field → farmer 6-slot → coop 6-slot 이동, drag drop, owner 검증, 한 번의 부화 또는 `12 gold` 판매를 구현한다. | 흐름 보존, 가격 변환 |
-| 30초 경제 cadence | 럼버 밀 세 계열은 JASS 9358–9360에서 30초마다 70/110/170 lumber를 만든다. | 현재 basic/mid/high 닭의 30초 egg production만 구현돼 있다. 럼버 밀 owner wallet 수입은 아직 연결되지 않았으며 SP-06.5에서 원본 값으로 복원한다. | 수정 대기 |
+| 30초 경제 cadence | 럼버 밀 세 계열은 JASS 9358–9360에서 owner별 living `h00A/h00J/h00W` 수에 30초마다 70/110/170 lumber를 곱한다. | complete `lumber_mill/mid/high`가 shared owner wallet에 30초 global simulation tick마다 70/110/170을 지급한다. 닭 산란과 병행하며 duplicate tick/callback, 제거, restart를 검증했다. | 해당 값·owner cadence 보존 |
 | 시장 판매 | 시장 `h00E`는 금·목재 교환과 닭 구매 역할을 가진다. | own complete market 도착 뒤에만 I006 stack 전체를 판매하며, 타 owner·미완공·삭제 시장·반복 판매를 거부한다. | 역할 보존, 현재는 알 판매만 구현 |
 | 부화 | `I006` 설명은 부화장 투입 후 닭 부화를 명시한다. | coop의 알 한 개를 job 하나로 원자 변환하고 20초 후 basic chicken을 만든다. 출구가 막히면 job을 유지하고 해제 후 한 번만 완료한다. | 기능 보존, 세부 확률·종 미구현 |
 
@@ -29,7 +30,7 @@ SP-06은 완료다. fixture를 끈 normal P3에서 실제 입력으로 시작 �
 
 | 차이 | 영향 | 후속 |
 | --- | --- | --- |
-| 원본의 럼버 밀 30초 수입이 runtime에 없다. | `h00A/h00J/h00W`의 owner별 목재 `70/110/170` 지급을 복원해야 한다. | SP-06.5 |
+| 원본 timer의 첫 dispatch 시점과 unit-count 세부 의미를 완전 관찰하지 못했다. | 웹은 run 시작 후 첫 global simulation 30초 tick, complete building 1개당 지급으로 고정했다. | 원본 timer lifecycle 추가 관찰은 선택 사항; hidden/pause는 SP-13 |
 | 상위 환전 tier와 시장 구매 목록을 구현하지 않았다. | SP-06의 첫 경제 루프는 가능하지만 원본의 장기 자원 경제와 같지 않다. | SP-09, SP-12, SP-15 |
 | 원본 가격·건설 시간·알 가치·생산 단위를 웹 세션 길이에 맞게 축소했다. | progression 속도와 장기 밸런스는 원본 재현 값이 아니다. | SP-15 |
 | requires, supply, coop upgrade/production queue, research를 runtime에서 완전 강제하지 않는다. | 경제 루프 밖의 성장 gate는 아직 검증되지 않았다. | SP-09 |

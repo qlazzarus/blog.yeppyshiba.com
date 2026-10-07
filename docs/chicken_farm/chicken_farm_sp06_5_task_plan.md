@@ -1,6 +1,6 @@
 # SP-06.5 — W3X 럼버 밀 30초 수입 복원
 
-> 작성: 2026-10-07. **계획 작성 완료 / 구현·검증 미착수**. Terra medium에서 한 요청에 한 ID를 순서대로 실행한다. SP-06-05(우물·산란)와 다른 bridge 작업이며 SP-06 완료 → SP-06.5 → SP-07 순서다.
+> 작성·완료: 2026-10-07. Terra medium에서 SP-06-05(우물·산란)와 분리된 럼버 밀 bridge를 완료했으며, 다음 구현 순서는 SP-07이다.
 
 ## 목표와 범위
 
@@ -30,7 +30,7 @@
 | SP-06.5-03 | 완공·제거·owner wallet 연결 | 02 | 완료 |
 | SP-06.5-04 | restart 정리·수입 snapshot | 03 | 완료 |
 | SP-06.5-05 | 럼버 밀 browser 사례 추가 | 04 | 완료 |
-| SP-06.5-06 | 필수 회귀·결과 기록·SP-07 인계 | 05 | 대기 |
+| SP-06.5-06 | 필수 회귀·결과 기록·SP-07 인계 | 05 | 완료 |
 
 의존성은 순차 실행을 뜻한다. 한 ID가 커지면 `-A/-B`로 나누고 남은 범위를 기록한다. task 수를 시간·모델 사용량 보장으로 해석하지 않는다.
 
@@ -162,8 +162,15 @@ git diff --check
 - `full_loop`은 기존 90초 이상 실행 가능한 local runner를 사용한다. timeout/환경 차단은 미통과로 남기며 전체 완료 처리하지 않는다.
 - 결과: 이 문서에 변경 파일·명령·종료 코드·artifact·남은 한계를 기록하고 README/current context/backlog/W3X 비교를 동기화한다. SP-09에 build card·선행조건 강제·업그레이드 UI, SP-07에 실제 파괴 연결 회귀를 인계한다. 전체 원본 경제 이식이나 럼버 밀 정상 성장 UI 완료로 확대 해석하지 않는다.
 
+#### SP-06.5-06 결과
+
+- 상태: **완료**. typecheck/build/순수 34 assertion, construction baseline·completion·removal·restart·integration, fixture 없는 normal P3 `full_loop`, 새 `lumberIncome`을 포함한 `all`을 다시 실행해 통과했다.
+- artifact: [full loop](./chicken_farm_w3x_artifacts/economy_check_full_loop.json)는 normal 입력·wallet/HUD·닭장/부화/판매·오류 0을, [all](./chicken_farm_w3x_artifacts/economy_check_all.json)은 top-level pass와 lumberIncome pass를, [W3X 비교](./chicken_farm_sp06_w3x_comparison.md)는 원본과 남은 차이를 기록한다.
+- 인계: build card, `requires` runtime 강제, upgrade UI/실행은 **SP-09**다. 적의 실제 피해·파괴에서 economy 제거를 호출하는 회귀는 **SP-07**이다. 원본 timer 첫 dispatch와 hidden/pause 정책은 각각 추가 관찰/SP-13 범위다.
+- 다음 ID: **SP-07 — 실제 맵 전투 연결**.
+
 ## 실행 요청 템플릿
 
 > SP-06.5-01을 Terra medium으로 진행해줘. 이 계획의 해당 ID만 구현/검증하고, 결과와 다음 ID를 기록해줘. 닭·알 생산과 럼버 밀 수입은 병행하고 build card·선행조건 강제·업그레이드 UI는 SP-09에 유지해줘.
 
-현재 다음 ID: **SP-06.5-06**. SP-06.5-05는 전용 lumber income browser 사례와 `all` 포함을 완료했으며, 다음은 필수 회귀 재실행과 결과 기록·SP-07 인계다.
+현재 다음 ID: **SP-07**. SP-06.5-06은 필수 회귀와 문서·W3X 비교 동기화를 완료했다.

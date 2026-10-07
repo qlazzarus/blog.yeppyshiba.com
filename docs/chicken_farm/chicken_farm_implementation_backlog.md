@@ -111,7 +111,7 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 ## SP-06 세부 실행 계획
 
-2026-10-07: [닭·알 경제 실행 계획](./chicken_farm_sp06_task_plan.md)의 Terra medium용 **14개 task**를 완료했다. fixture 없는 normal P3 `full_loop`은 실제 30초 산란·20초 부화, 알 입고·판매와 wallet/HUD 장부를 통과했고, 이어 모든 economy case를 포함하는 `all`도 통과했다. 원본 럼버 밀 수입은 닭·알 생산으로 치환하지 않고 별도 bridge ID인 **SP-06.5**에서 복원한다. [SP-06.5 세부 계획](./chicken_farm_sp06_5_task_plan.md)은 Terra medium용 6개 순차 task로 작성했다(구현 미착수). build card·선행조건 강제·업그레이드 UI는 SP-09에 유지하고 economy:measure·construction·full_loop·all 재실행을 완료 조건으로 둔다. [W3X 최종 비교](./chicken_farm_sp06_w3x_comparison.md)는 나머지 원본 전체 경제와의 차이를 SP-09/12/13/15로 분리한다.
+2026-10-07: SP-06의 14개 task와 [SP-06.5 럼버 밀 bridge](./chicken_farm_sp06_5_task_plan.md)의 6개 task를 완료했다. `h00A/h00J/h00W`의 complete building은 owner wallet에 global 30초 tick마다 70/110/170 lumber를 지급하고 닭·알 생산과 병행한다. type/build/순수 34 assertion, construction baseline·completion·removal·restart·integration, normal P3 `full_loop`, 그리고 새 `lumberIncome`을 포함한 `all`이 통과했다. build card·선행조건 강제·업그레이드 UI는 SP-09, 실제 피해 제거는 SP-07에 유지한다. [W3X 최종 비교](./chicken_farm_sp06_w3x_comparison.md)는 남은 원본 경제 차이를 SP-09/12/13/15로 분리한다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 
