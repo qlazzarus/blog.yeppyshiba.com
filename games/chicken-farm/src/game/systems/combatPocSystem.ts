@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
+import type { EnemyId } from '../balanceTypes';
 import {
     MAJOR_TILE_PX,
     TARGET_VIEW_MAJOR_COLS,
@@ -363,14 +364,18 @@ export class CombatPocSystem {
 
     private createCombatWolf(config: {
         readonly defaultTargetBuildingId: string;
+        readonly enemyId?: EnemyId;
         readonly id: string;
         readonly label: string;
+        readonly ownerPlayerId?: number;
+        readonly runtimeManaged?: boolean;
         readonly targetX: number;
         readonly targetY: number;
         readonly x: number;
         readonly y: number;
     }): CombatWolf {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemyId = config.enemyId ?? POC_WOLF_ID;
+        const enemy = CHICKEN_FARM_BALANCE.enemies[enemyId];
         const maxHp = enemy.hp;
         const shadow = this.scene.add
             .ellipse(0, 14, 44, 18, 0x070807, 0.52)
@@ -414,6 +419,7 @@ export class CombatPocSystem {
         const wolf: CombatWolf = {
             body: container,
             defaultTargetBuildingId: config.defaultTargetBuildingId,
+            enemyId,
             focusLockedUntilSec: 0,
             hp: maxHp,
             hpFill,
@@ -421,10 +427,14 @@ export class CombatPocSystem {
             lastAttackMoveRefreshAtSec: 0,
             lastAttackMoveRefreshReason: undefined,
             maxHp,
+            ownerPlayerId: config.ownerPlayerId ?? 10,
             nextAttackAtSec: 0,
             nextRepathAtSec: 0,
             path: [],
             pathIndex: 0,
+            runtimeManaged: config.runtimeManaged ?? false,
+            spawnX: config.x,
+            spawnY: config.y,
             state: 'move',
             targetPoint: new Phaser.Math.Vector2(config.targetX, config.targetY),
         };
@@ -470,6 +480,76 @@ export class CombatPocSystem {
                       ? 'wolves_defeated'
                       : 'in_progress',
         });
+    }
+
+    getLifecycleSnapshot() {
+        return {
+            buildingCount: this.combatBuildings.length,
+            runtimeEnemyCount: this.combatWolves.filter((wolf) => wolf.runtimeManaged)
+                .length,
+            wolfCount: this.combatWolves.length,
+        };
+    }
+
+    spawnRuntimeEnemy(config: {
+        readonly enemyId: EnemyId;
+        readonly id: string;
+        readonly ownerPlayerId: number;
+        readonly x: number;
+        readonly y: number;
+    }) {
+        if (
+            !config.id ||
+            !Number.isInteger(config.ownerPlayerId) ||
+            !Number.isFinite(config.x) ||
+            !Number.isFinite(config.y) ||
+            this.combatWolves.some((wolf) => wolf.id === config.id)
+        ) {
+            return null;
+        }
+
+        return this.createCombatWolf({
+            defaultTargetBuildingId: '',
+            enemyId: config.enemyId,
+            id: config.id,
+            label: config.enemyId,
+            ownerPlayerId: config.ownerPlayerId,
+            runtimeManaged: true,
+            targetX: config.x,
+            targetY: config.y,
+            x: config.x,
+            y: config.y,
+        });
+    }
+
+    removeRuntimeEnemy(id: string) {
+        const index = this.combatWolves.findIndex(
+            (wolf) => wolf.id === id && wolf.runtimeManaged,
+        );
+        const wolf = this.combatWolves[index];
+        if (!wolf) return false;
+
+        wolf.body.destroy();
+        this.combatWolves.splice(index, 1);
+        const worldObjectIndex = this.worldObjects.indexOf(wolf.body);
+        if (worldObjectIndex >= 0) this.worldObjects.splice(worldObjectIndex, 1);
+        return true;
+    }
+
+    getRuntimeEnemySnapshot() {
+        return this.combatWolves
+            .filter((wolf) => wolf.runtimeManaged)
+            .map((wolf) => ({
+                enemyId: wolf.enemyId,
+                hp: wolf.hp,
+                id: wolf.id,
+                maxHp: wolf.maxHp,
+                ownerPlayerId: wolf.ownerPlayerId,
+                spawnX: wolf.spawnX,
+                spawnY: wolf.spawnY,
+                x: wolf.body.x,
+                y: wolf.body.y,
+            }));
     }
 
     getAttackableEnemyTarget(targetId: string): AttackableEnemyTarget | null {

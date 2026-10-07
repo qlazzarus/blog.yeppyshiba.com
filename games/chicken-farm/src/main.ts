@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
+import type { EnemyId } from './game/balanceTypes';
 import {
     CAMERA_ZOOM,
     CANVAS_HEIGHT,
@@ -186,6 +187,60 @@ declare global {
                 readonly visionSourceBuildingIds: readonly string[];
                 readonly wallet: { readonly gold: number; readonly lumber: number } | null;
             };
+            getCombatLifecycleSnapshot: () => {
+                readonly active: boolean;
+                readonly buildings: readonly {
+                    readonly armor: number;
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly maxHp: number;
+                    readonly ownerPlayerId: number;
+                    readonly state: 'complete' | 'constructing';
+                    readonly targetableByWolves: boolean;
+                    readonly templateId: string;
+                }[];
+                readonly chickens: readonly {
+                    readonly aiState: ChickenAiState;
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly maxHp: number;
+                    readonly ownerPlayerId: number;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+                readonly elapsedSec: number;
+                readonly poc: {
+                    readonly buildingCount: number;
+                    readonly runtimeEnemyCount: number;
+                    readonly wolfCount: number;
+                } | null;
+                readonly enemies: readonly {
+                    readonly enemyId: string;
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly maxHp: number;
+                    readonly ownerPlayerId: number;
+                    readonly spawnX: number;
+                    readonly spawnY: number;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+                readonly runId: number;
+                readonly units: readonly {
+                    readonly armor: number;
+                    readonly commandQueueCount: number;
+                    readonly currentCommandTargetId: string | null;
+                    readonly currentCommandType: UnitCommand['type'] | null;
+                    readonly hp: number;
+                    readonly id: string;
+                    readonly maxHp: number;
+                    readonly nextAttackAtSec: number;
+                    readonly ownerPlayerId: number;
+                    readonly templateId: string;
+                    readonly x: number;
+                    readonly y: number;
+                }[];
+            };
             getEconomyLifecycleSnapshot: () => {
                 readonly activeStartItemPlacement: {
                     readonly inventoryId: string;
@@ -276,6 +331,14 @@ declare global {
                     readonly unitId: string;
                 }[];
             };
+            createCombatEnemyFixture: (
+                id: string,
+                enemyId: EnemyId,
+                x: number,
+                y: number,
+                ownerPlayerId?: number,
+            ) => boolean;
+            removeCombatEnemyFixture: (id: string) => boolean;
             getConstructionPlacementPreview: (
                 templateId: 'coop_basic' | 'fence_wood',
                 x: number,
@@ -783,32 +846,30 @@ class FarmScene extends Phaser.Scene {
         }
         this.configureCameras(map);
         this.configurePointerSelection();
-        if (CHICKEN_FARM_POC_FLAGS.combat || CHICKEN_FARM_POC_FLAGS.combatSmoke) {
-            this.combatPoc = new CombatPocSystem({
-                damageControllableUnit: (unitId, damage, attackerTargetId) =>
-                    this.controllableUnits.damageUnit(
-                        unitId,
-                        damage,
-                        attackerTargetId,
-                    ),
-                getDynamicBlockedRects: () =>
-                    this.buildingSystem?.getDynamicBlockedRects() ?? [],
-                getElapsedSec: () => this.elapsedSec,
-                getWolfTargetableUnits: () =>
-                    this.controllableUnits.getWolfTargetableUnits(),
-                recordPerformance: (label, elapsedMs) =>
-                    this.performanceProfiler.record(label, elapsedMs),
-                recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
-                scene: this,
-                terrainBlocker: this.terrainBlocker,
-                worldObjects: this.worldObjects,
-                worldSize: this.worldSize,
-            });
-            if (CHICKEN_FARM_POC_FLAGS.combat) {
-                this.createCombatPoc();
-            } else {
-                this.createCombatSmokePoc();
-            }
+        this.combatPoc = new CombatPocSystem({
+            damageControllableUnit: (unitId, damage, attackerTargetId) =>
+                this.controllableUnits.damageUnit(
+                    unitId,
+                    damage,
+                    attackerTargetId,
+                ),
+            getDynamicBlockedRects: () =>
+                this.buildingSystem?.getDynamicBlockedRects() ?? [],
+            getElapsedSec: () => this.elapsedSec,
+            getWolfTargetableUnits: () =>
+                this.controllableUnits.getWolfTargetableUnits(),
+            recordPerformance: (label, elapsedMs) =>
+                this.performanceProfiler.record(label, elapsedMs),
+            recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
+            scene: this,
+            terrainBlocker: this.terrainBlocker,
+            worldObjects: this.worldObjects,
+            worldSize: this.worldSize,
+        });
+        if (CHICKEN_FARM_POC_FLAGS.combat) {
+            this.createCombatPoc();
+        } else if (CHICKEN_FARM_POC_FLAGS.combatSmoke) {
+            this.createCombatSmokePoc();
         }
         if (CHICKEN_FARM_POC_FLAGS.terrainPathingDebug) {
             this.terrainPathingPoc = new TerrainPathingPocSystem({
@@ -3170,6 +3231,68 @@ class FarmScene extends Phaser.Scene {
                       }
                     : null,
             }),
+            getCombatLifecycleSnapshot: () => ({
+                active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
+                buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
+                    armor: building.armor,
+                    hp: building.hp,
+                    id: building.id,
+                    maxHp: building.maxHp,
+                    ownerPlayerId: building.ownerPlayerId,
+                    state: building.state,
+                    targetableByWolves: building.targetableByWolves,
+                    templateId: building.templateId,
+                })),
+                chickens: (this.economyState?.chickens ?? []).map((chicken) => ({
+                    aiState: chicken.aiState,
+                    hp: chicken.hp,
+                    id: chicken.id,
+                    maxHp: chicken.maxHp,
+                    ownerPlayerId: chicken.ownerPlayerId,
+                    x: chicken.position.x,
+                    y: chicken.position.y,
+                })),
+                elapsedSec: this.elapsedSec,
+                enemies: this.combatPoc?.getRuntimeEnemySnapshot() ?? [],
+                poc:
+                    (this.combatPoc?.getLifecycleSnapshot().buildingCount ?? 0) > 0
+                        ? this.combatPoc?.getLifecycleSnapshot() ?? null
+                        : null,
+                runId: this.runId,
+                units: this.controllableUnits.getUnits().map((unit) => ({
+                    armor: unit.armor,
+                    commandQueueCount: unit.commandQueue.length,
+                    currentCommandTargetId:
+                        unit.currentCommand?.type === 'attack'
+                            ? unit.currentCommand.targetEntityId
+                            : null,
+                    currentCommandType: unit.currentCommand?.type ?? null,
+                    hp: unit.hp,
+                    id: unit.id,
+                    maxHp: unit.maxHp,
+                    nextAttackAtSec: unit.nextAttackAtSec,
+                    ownerPlayerId: unit.ownerPlayerId,
+                    templateId: unit.templateId,
+                    x: unit.position.x,
+                    y: unit.position.y,
+                })),
+            }),
+            createCombatEnemyFixture: (id, enemyId, x, y, ownerPlayerId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return Boolean(
+                    this.combatPoc?.spawnRuntimeEnemy({
+                        enemyId,
+                        id,
+                        ownerPlayerId: ownerPlayerId ?? 10,
+                        x,
+                        y,
+                    }),
+                );
+            },
+            removeCombatEnemyFixture: (id) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
+            },
             getEconomyLifecycleSnapshot: () => ({
                 activeStartItemPlacement: this.startItemPlacement
                     ? {
@@ -3461,7 +3584,8 @@ class FarmScene extends Phaser.Scene {
                     buildingCount: this.buildingSystem?.getBuildingCount() ?? 0,
                     commandPage: this.commandCard?.getPage() ?? 'off',
                     debugPoc: {
-                        combatActive: Boolean(this.combatPoc),
+                        combatActive:
+                            (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
                         fixturesEnabled: CHICKEN_FARM_POC_FLAGS.debugFixtures,
                         terrainProbeCount: this.terrainPathingPoc?.getProbeCount() ?? 0,
                     },

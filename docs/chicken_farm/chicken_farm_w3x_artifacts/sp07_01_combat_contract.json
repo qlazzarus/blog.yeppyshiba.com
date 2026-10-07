@@ -1,0 +1,84 @@
+{
+  "taskId": "SP-07-01",
+  "status": "static-contract",
+  "normalP3": {
+    "ownerPlayerId": 3,
+    "farmer": { "id": "p3-farmer", "x": 3392, "y": 8928 },
+    "dog": { "id": "p3-dog", "spawnOffset": { "x": 42, "y": 18 } },
+    "wallet": { "gold": 1500, "lumber": 0, "supplyCap": 3, "supplyUsed": 0 }
+  },
+  "authority": {
+    "units": "ControllableUnitState is authoritative for farmer/dog position, owner, HP, armor, command and queue.",
+    "chickens": "EconomyChickenState is authoritative for chicken position, owner, HP and aiState.",
+    "buildings": "PlayerBuilding is authoritative for completed/construction state, footprint, owner, HP, armor and targetableByWolves.",
+    "enemies": "SP-07-03 creates one runtime enemy registry; CombatPocSystem private combatWolves must not become a second normal-run authority.",
+    "snapshot": "SP-07-02 returns copied observations only; it must not write HP, command, cooldown or lifecycle state."
+  },
+  "targeting": {
+    "playerAttackers": ["farmer", "dog", "complete tower"],
+    "wolfAttackers": ["runtime wolf/enemy"],
+    "wolfTargets": ["living farmer", "living dog", "living economy chicken", "targetable player building"],
+    "playerTargets": ["living runtime enemy"],
+    "excluded": ["same-owner targets", "neutral passive placements", "dead or removed entities", "unimplemented wave stones", "unimplemented central NPCs"],
+    "construction": "Constructing buildings are not attack targets in SP-07. Completed buildings use targetableByWolves; exact construction-damage behavior remains absent until a later explicit contract.",
+    "distance": "Unit attacks use center-to-center distance plus target radius. Building attacks use the nearest point of the target footprint."
+  },
+  "combatRules": {
+    "damage": "Apply max(1, rawDamage - targetArmor), clamp HP to zero, and reject a damage call whose target is already dead or removed.",
+    "cooldown": "Consume an attacker cooldown only after its damage entry point accepts a living target. A rejected or missing target consumes no new cooldown.",
+    "lineOfAttack": "SP-07-06 defines visibility and line policy. Terrain and dynamic blockers remain movement/pathing blockers until that card makes a combat-line decision; no attack may pass through an unvalidated blocker as an implementation shortcut.",
+    "death": "The transition to HP zero is idempotent. It clears focus, current command, queue and path as applicable, then uses the existing unit/building/economy removal callback exactly once.",
+    "refund": "Enemy destruction of a completed building gives no refund, matching SP-05-01. Paid construction cancellation retains its separate 75% refund rule.",
+    "farmerOutcome": "Farmer death hands off revival, final defeat and simulation stop to SP-11. SP-07 only emits and cleans up death state. Dog, chicken and ordinary-building loss never independently causes defeat."
+  },
+  "orders": {
+    "directAttack": "A direct player attack tracks the specified live enemy until it dies, is removed, becomes invalid or the player replaces/stops the order.",
+    "attackMove": "Store the original destination separately from a temporary acquired target. After the target dies, disappears or is released, continue to the original destination; do not turn the temporary direct-attack command into the permanent order.",
+    "queue": "Stop or replacement clears active combat pursuit. Shift commands remain FIFO; an invalid dead-target command is discarded and the next queued command is polled.",
+    "wolves": "W3X issues Player(10) units an attack order into a broad farm rectangle on spawn/entry and refreshes it every 60 seconds. SP-07 supplies target acquisition/pathing only; SP-08 owns spawn rectangles, periodic population and wave scheduling."
+  },
+  "normalP3StaticReplay": {
+    "knownBuildableFence": {
+      "input": { "x": 3584, "y": 8896 },
+      "templateId": "fence_wood",
+      "snappedFootprint": { "x": 3520, "y": 8832, "width": 128, "height": 128 },
+      "cost": { "gold": 8, "lumber": 0 },
+      "buildTimeSec": 1,
+      "evidence": "SP-05-01 static WPM contract"
+    },
+    "firstDefensePath": [
+      "Start normal P3 at the farmer coordinate with the standard farmer/dog pair.",
+      "Use the existing build-card route to construct fence_wood at the known static-safe input and let it complete.",
+      "Build a tower_scout through the same real construction lifecycle at a separately validated non-overlapping WPM point; SP-07-01 does not invent a tower coordinate without a static grid assertion.",
+      "SP-07-03 explicit enemy fixture will approach the completed defense. This is fixture-only evidence and is not a natural wave."
+    ],
+    "reasonForFixture": "Normal starts create no runtime enemy because combat/combatSmoke are false and SP-08 owns wave spawning. The first actual combat evidence therefore needs an explicit fixture enemy after SP-07-03."
+  },
+  "sourceFacts": {
+    "w3x": [
+      "combat_unit_stats_reference.tsv: H000 farmer and n002 dog attack ground/structure targets; n007 timber wolf attacks ground, structure, debris, item and ward targets.",
+      "jass_wolf_order_flows.tsv: Player(10) wolves receive an attack order into IlIlI on spawn/zone entry and a 60-second refresh; JASS does not state a concrete farmer/chicken/building priority.",
+      "key_unit_placement_reference.tsv: wolf stones, neutral spiders and central NPCs are static placement records, not proof that their combat lifecycle exists in the web runtime."
+    ],
+    "webConversion": [
+      "balance.ts is canonical for current web combat values; its farmer/dog/timber-wolf values intentionally differ from extracted W3X values and are not an exact stat port.",
+      "buildingSystem.ts already has completed-tower target search and damage callback seams, while normal main.ts constructs CombatPocSystem only behind combat/combatSmoke flags.",
+      "controllableUnitSystem.ts already models direct attack and attack-move, but attack-move replaces itself with direct attack and cannot restore its original destination."
+    ]
+  },
+  "scope": {
+    "sp07": ["runtime target registry", "acquisition/range/visibility", "player and enemy damage/death", "building/economy destruction", "blocker re-pathing", "attack-move and queue restoration"],
+    "deferred": {
+      "SP-08": "spawn rectangles, wave timing, population, replenishment and transitions",
+      "SP-09": "tech enforcement, production and upgrade UI",
+      "SP-10": "boss abilities, rewards and score",
+      "SP-11": "revival, victory, defeat and game shutdown",
+      "SP-12": "wolf stones, spiders, central NPCs and other event content",
+      "SP-13": "pause/hidden simulation-time policy"
+    }
+  },
+  "verification": {
+    "performed": ["Static comparison of SP-01, balance/types, command, building, economy and W3X artifacts", "git diff --check"],
+    "notPerformed": ["Game-code implementation", "Typecheck/build", "Browser/runtime or actual-input verification"]
+  }
+}
