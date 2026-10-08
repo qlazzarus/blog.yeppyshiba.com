@@ -16,7 +16,7 @@
 | SP-06 | 닭 확보/분양; 우물 효과·산란; field egg 수집; farmer→coop 입고; 부화/출구; 완성 시장 판매; inventory/wallet 보존 | SP-05 |
 | SP-06.5 | W3X 럼버 밀의 30초 목재 수입 복원; 완료/제거·owner·중복 tick 검증; normal economy 회귀 | SP-06 |
 | SP-07 | 실제 유닛/건물/닭의 target 등록; acquire/사거리/시야; 공격·피해·사망; 펜스 파괴/재경로; attack-move 후 목적지/예약 복귀 | SP-04~06 |
-| SP-08 | 실제 맵 spawn rect 연결; 단계별 적 population/보충; 공격 목표 갱신; 진행 시간; 다음 단계; 더 이상 유효하지 않은 적 정리 | SP-07 |
+| SP-08 | W3X 13 spawn rect 좌표 변환·선택; 120~3000초 phase; 일반 늑대 rawcode/tier별 population·보충; spawn/60초 attack refresh; wave 적 lifecycle·restart 정리; 실제 농장 blocker/재경로 회귀 | SP-07 |
 | SP-09 | 건물별 실제 기능 목록; 생산/부화 queue와 취소; 공급/선행 건물/자원; 업그레이드/연구 효과; 생성 위치·rally 필요 범위 | SP-05/06 |
 | SP-10 | 적 티어별 실제 능력; 보스 출현·능력·처치; 레벨/드롭/보상 지급; 중복 판정 방지; 종료 조건과 연결 | SP-08/09 |
 | SP-11 | 승리·패배 판정 1회; 명령/경제/웨이브 정지; 결과 표시; 새 판의 객체·event·timer·queue·자원 초기화 | SP-01/08/10 |
@@ -113,9 +113,20 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 2026-10-07: SP-06의 14개 task와 [SP-06.5 럼버 밀 bridge](./chicken_farm_sp06_5_task_plan.md)의 6개 task를 완료했다. `h00A/h00J/h00W`의 complete building은 owner wallet에 global 30초 tick마다 70/110/170 lumber를 지급하고 닭·알 생산과 병행한다. type/build/순수 34 assertion, construction baseline·completion·removal·restart·integration, normal P3 `full_loop`, 그리고 새 `lumberIncome`을 포함한 `all`이 통과했다. build card·선행조건 강제·업그레이드 UI는 SP-09, 실제 피해 제거는 SP-07에 유지한다. [W3X 최종 비교](./chicken_farm_sp06_w3x_comparison.md)는 남은 원본 경제 차이를 SP-09/12/13/15로 분리한다.
 
-## SP-07 세부 실행 계획
+## SP-07 완료와 SP-08 세부 실행 계획
 
-2026-10-07: [실제 맵 전투 연결 계획](./chicken_farm_sp07_task_plan.md)을 Terra Medium용 **16개 task**로 분해했다. 계약·관찰 → normal 전투 서비스 → 실제 유닛/닭/건물 target → 탐색·공격·사망 → 경제 파괴·펜스 재경로 → attack-move/예약 → restart·통합·회귀 순서다. 모두 대기이며 다음 ID는 **SP-07-01**이다. 한 요청에 한 ID만 실행하며 각 카드에 읽기 범위·완료 조건·검증 사례를 지정했다. normal 서비스와 PoC fixture 생성을 분리하고 웨이브 스케줄은 SP-08에 유지한다.
+2026-10-08: [실제 맵 전투 연결 계획](./chicken_farm_sp07_task_plan.md)의 Terra Medium용 **16개 task**를 완료했다. 계약·관찰 → normal 전투 서비스 → 실제 유닛/닭/건물 target → 탐색·공격·사망 → 경제 파괴·펜스 재경로 → attack-move/예약 → restart·통합·회귀를 통과했다. [SP-07 W3X 비교](./chicken_farm_sp07_w3x_comparison.md)는 원본 사실과 웹 변환을 분리한다.
+
+2026-10-08: [SP-08 Terra Medium 실행 계획](./chicken_farm_sp08_task_plan.md)을 **18개 task**로 분해했다. 원본 계약 → 13 rect 변환/선택 → 18티어·phase 데이터 → clock/목표/보충 → 관찰·runtime spawn → 사망·명령 → blocker·restart → 전 phase/normal 통합 → 회귀 순서다. **계획만 작성했으며 모두 미착수**, 다음 실행은 **SP-08-01**이다. 각 카드의 읽기 범위·완료 조건·검증과 한 ID 실행 템플릿을 따른다.
+
+아래 인계 조건을 세부 카드의 완료 조건과 artifact에 반영했다.
+
+1. `jass_wolf_spawn_points.tsv`의 13 rect를 웹 world 좌표로 변환하고, 선택 결과의 원본 rect ID·변환 좌표·유효 terrain/pathing을 기록한다.
+2. `wolf_wave_phase_reference.tsv`의 120/600/1100/1500/2000/2200/2400/2600/2800/3000초 phase와 일반 늑대 replenish tier·증분을 data-driven scheduler로 연결한다. 보스 spawn은 SP-10으로 분리한다.
+3. 일반 적 spawn은 rawcode에서 `EnemyId`를 결정하고 owner 10·고유 run-scoped ID·spawn rect 좌표를 갖는다. normal 시작에는 wave/fixture 적이 0이어야 한다.
+4. `jass_wolf_order_flows.tsv`의 spawn-entry 및 60초 global `attack` refresh를 attack-move target 갱신으로 구현한다. 웹의 구체 target 우선순위는 SP-07 정책임을 기록하고 원본 JASS 사실로 표기하지 않는다.
+5. wave 적이 실제 P3 농부·개·닭·완성 건물·fence blocker를 같은 combat registry로 사용하고, 펜스 파괴 뒤 stale focus 없이 repath하는 browser 사례를 둔다.
+6. phase 전환·적 사망/제거·same-page restart에서 scheduler timer·enemy registry·명령이 남지 않는지 확인한다. pause/hidden 시간 정책은 SP-13, 수치 밸런스는 SP-15로 넘긴다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 
