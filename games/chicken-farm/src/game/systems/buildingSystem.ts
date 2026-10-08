@@ -75,6 +75,7 @@ export type BuildingLifecycleSnapshot = {
 
 export type WolfTargetableBuilding = {
     readonly armor: number;
+    readonly blocksPath: boolean;
     readonly footprint: GridPathRect;
     readonly hp: number;
     readonly id: string;
@@ -492,6 +493,7 @@ export class BuildingSystem {
             )
             .map((building) => ({
                 armor: building.armor,
+                blocksPath: building.blocksPath,
                 footprint: { ...building.footprint },
                 hp: building.hp,
                 id: building.id,

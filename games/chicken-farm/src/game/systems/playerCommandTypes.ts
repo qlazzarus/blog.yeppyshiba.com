@@ -19,6 +19,7 @@ export type UnitCommand =
           readonly unitIds: readonly string[];
       }
     | {
+          readonly resumeAttackMoveTargetPoint?: Point;
           readonly targetEntityId: string;
           readonly targetPoint?: Point;
           readonly type: 'attack';

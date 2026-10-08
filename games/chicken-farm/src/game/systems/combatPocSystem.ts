@@ -56,6 +56,11 @@ type CombatPocSystemConfig = {
         damage: number,
         attackerTargetId?: string,
     ) => boolean;
+    readonly damageEconomyChicken?: (
+        chickenId: string,
+        damage: number,
+        attackerTargetId?: string,
+    ) => boolean;
     readonly damagePlayerBuilding?: (
         buildingId: string,
         damage: number,
@@ -124,6 +129,11 @@ export class CombatPocSystem {
         damage: number,
         attackerTargetId?: string,
     ) => boolean;
+    private readonly damageEconomyChicken?: (
+        chickenId: string,
+        damage: number,
+        attackerTargetId?: string,
+    ) => boolean;
     private readonly damagePlayerBuilding?: (
         buildingId: string,
         damage: number,
@@ -154,6 +164,7 @@ export class CombatPocSystem {
         this.worldObjects = config.worldObjects;
         this.worldSize = config.worldSize;
         this.damageControllableUnit = config.damageControllableUnit;
+        this.damageEconomyChicken = config.damageEconomyChicken;
         this.damagePlayerBuilding = config.damagePlayerBuilding;
         this.getExternalDynamicBlockedRectsProvider =
             config.getDynamicBlockedRects ?? (() => []);
@@ -279,6 +290,13 @@ export class CombatPocSystem {
         this.towerHitMarkers = [];
         this.wolfBuildingHitMarkers = [];
         this.nextCombatTelemetrySnapshotAtSec = 0;
+        this.combatGraphics = undefined;
+        this.combatLabel = undefined;
+    }
+
+    dispose() {
+        this.clearCombatObjects();
+        this.nextCombatDebugDrawAtSec = 0;
     }
 
     private getSmokeTargetSpawnPoint(anchor: PlayerStart) {
@@ -581,6 +599,26 @@ export class CombatPocSystem {
             }));
     }
 
+    /** Read-only runtime behavior state for browser blocker/repath assertions. */
+    getRuntimeEnemyBehaviorSnapshot(id: string) {
+        const wolf = this.combatWolves.find(
+            (candidate) => candidate.id === id && candidate.runtimeManaged && candidate.hp > 0,
+        );
+        if (!wolf) return null;
+        return {
+            focusBuildingId: wolf.focusBuildingId ?? null,
+            focusUnitId: wolf.focusUnitId ?? null,
+            id: wolf.id,
+            pathRemaining: Math.max(0, wolf.path.length - wolf.pathIndex),
+            state: wolf.state,
+            stateAction: wolf.stateAction ?? null,
+            stateReason: wolf.stateReason ?? null,
+            targetBuildingId: wolf.targetBuildingId ?? null,
+            x: wolf.body.x,
+            y: wolf.body.y,
+        };
+    }
+
     getWolfTargetableUnitSnapshot() {
         return this.getWolfTargetableUnits().map((unit) => ({ ...unit }));
     }
@@ -822,18 +860,22 @@ export class CombatPocSystem {
             wolf.pathFailedSinceSec = this.elapsedSec;
         }
         const blockingTarget = this.getWolfBlockingTarget(wolf);
+        const externalBlockingTarget = this.getWolfExternalBlockingTarget(wolf);
+        const anyBlockingTarget = blockingTarget ?? externalBlockingTarget;
         const decision = decideWolfAiBehavior({
             blockedToBlockerDelaySec:
                 CHICKEN_FARM_BALANCE.pathing.blockerAttackAcquire
                     .blockedToBlockerDelaySec,
             elapsedSec: this.elapsedSec,
-            hasBlockingTarget: Boolean(blockingTarget),
+            hasBlockingTarget: Boolean(anyBlockingTarget),
             hasDirectTarget: Boolean(directTarget),
             hasLivePathWaypoint:
                 wolf.path.length > 0 && wolf.pathIndex < wolf.path.length,
             isBlockingTargetInAttackRange: blockingTarget
                 ? this.isWolfInAttackRange(wolf, blockingTarget)
-                : false,
+                : externalBlockingTarget
+                  ? this.isWolfInExternalBuildingAttackRange(wolf, externalBlockingTarget)
+                  : false,
             pathFailedSinceSec: wolf.pathFailedSinceSec,
         });
 
@@ -950,6 +992,12 @@ export class CombatPocSystem {
         if (decision.action === 'attack_blocker' && blockingTarget) {
             wolf.targetBuildingId = blockingTarget.id;
             this.attackCombatBuilding(wolf, blockingTarget, enemy.damage);
+            return;
+        }
+
+        if (decision.action === 'attack_blocker' && externalBlockingTarget) {
+            this.damageWolfTargetableBuilding(externalBlockingTarget.id, enemy.damage, wolf.id);
+            wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
             return;
         }
 
@@ -1708,6 +1756,28 @@ export class CombatPocSystem {
         return null;
     }
 
+    private getWolfExternalBlockingTarget(wolf: CombatWolf) {
+        const line = this.getWolfTargetLine(wolf);
+        return this.getWolfTargetableBuildings()
+            .filter((building) => building.blocksPath && building.hp > 0)
+            .filter((building) => Phaser.Geom.Intersects.LineToRectangle(
+                line,
+                new Phaser.Geom.Rectangle(building.footprint.x, building.footprint.y, building.footprint.width, building.footprint.height),
+            ))
+            .sort((a, b) => this.getDistanceFromWolfToExternalFootprint(wolf, a) - this.getDistanceFromWolfToExternalFootprint(wolf, b))[0] ?? null;
+    }
+
+    private getDistanceFromWolfToExternalFootprint(wolf: CombatWolf, building: WolfTargetableBuilding) {
+        const x = Phaser.Math.Clamp(wolf.body.x, building.footprint.x, building.footprint.x + building.footprint.width);
+        const y = Phaser.Math.Clamp(wolf.body.y, building.footprint.y, building.footprint.y + building.footprint.height);
+        return Phaser.Math.Distance.Between(wolf.body.x, wolf.body.y, x, y);
+    }
+
+    private isWolfInExternalBuildingAttackRange(wolf: CombatWolf, building: WolfTargetableBuilding) {
+        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        return this.getDistanceFromWolfToExternalFootprint(wolf, building) <= (enemy.attackRangePx ?? 34) + (enemy.rangeLeashPx ?? 0);
+    }
+
     private getDistanceFromWolfToBuildingFootprint(
         wolf: CombatWolf,
         building: CombatBuilding,
@@ -1815,8 +1885,9 @@ export class CombatPocSystem {
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
         const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
-        const damaged =
-            this.damageControllableUnit?.(target.value.id, damage, wolf.id) ?? false;
+        const damaged = target.value.targetKind === 'economy_chicken'
+            ? this.damageEconomyChicken?.(target.value.id, damage, wolf.id) ?? false
+            : this.damageControllableUnit?.(target.value.id, damage, wolf.id) ?? false;
         wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
         this.recordTelemetry?.('wolf_attack_landed', {
             damage,

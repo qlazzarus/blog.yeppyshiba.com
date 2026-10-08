@@ -366,6 +366,7 @@ declare global {
             ) => string | null;
             markEconomyChickenDeadForTest: (id: string) => boolean;
             damageBuildingForTest: (buildingId: string, damage: number) => boolean;
+            getRuntimeEnemyBehaviorForTest: (enemyId: string) => ReturnType<CombatPocSystem['getRuntimeEnemyBehaviorSnapshot']>;
             getWolfTargetingProbeForTest: (enemyId: string) => ReturnType<CombatPocSystem['getWolfTargetingProbe']>;
             setCombatVisibilityForTest: (visible: boolean | null) => boolean;
             getConstructionPlacementPreview: (
@@ -807,7 +808,8 @@ class FarmScene extends Phaser.Scene {
                 getElapsedSec: () => this.elapsedSec,
                 getAttackableEnemyTargets: () =>
                     this.combatPoc?.getAttackableEnemyTargets() ?? [],
-                isTargetVisible: (x, y) => this.visibility.isCurrentlyVisible(x, y),
+                isTargetVisible: (x, y) =>
+                    this.combatVisibilityOverrideForTest ?? this.visibility.isCurrentlyVisible(x, y),
                 onBuildingCompleted: (building) =>
                     this.attachCompletedBuildingEconomy(building),
                 onBuildingRemoved: (building) =>
@@ -888,6 +890,8 @@ class FarmScene extends Phaser.Scene {
                     damage,
                     attackerTargetId,
                 ),
+            damageEconomyChicken: (chickenId, damage) =>
+                this.damageEconomyChicken(chickenId, damage),
             damagePlayerBuilding: (buildingId, damage, attackerId) =>
                 this.buildingSystem?.damageBuilding(buildingId, damage, attackerId) ?? false,
             getDynamicBlockedRects: () =>
@@ -1077,6 +1081,7 @@ class FarmScene extends Phaser.Scene {
         this.initialPlacementViews = undefined;
         this.initialPlacementRegistry.clear();
         this.visibility?.dispose();
+        this.combatPoc?.dispose();
         this.combatPoc = undefined;
         this.terrainPathingPoc = undefined;
         this.economyState = undefined;
@@ -2588,6 +2593,23 @@ class FarmScene extends Phaser.Scene {
         return [...controllable, ...chickens];
     }
 
+    private damageEconomyChicken(chickenId: string, damage: number) {
+        if (!Number.isFinite(damage) || damage <= 0) return false;
+        const chicken = this.economyState?.chickens.find(
+            (candidate) => candidate.id === chickenId && candidate.aiState !== 'dead' && candidate.hp > 0,
+        );
+        if (!chicken) return false;
+        chicken.hp = Math.max(0, chicken.hp - Math.max(1, damage));
+        if (chicken.hp <= 0) {
+            chicken.aiState = 'dead';
+            chicken.targetPosition = null;
+            chicken.targetWellId = null;
+            this.destroyEconomyView(chicken.id);
+            this.recordEconomyEvent('economy_chicken_died', { chickenId: chicken.id });
+        }
+        return true;
+    }
+
     private updateTerrainOverlayHotkey() {
         if (!Phaser.Input.Keyboard.JustDown(this.keys.terrainOverlay)) return;
 
@@ -3240,6 +3262,10 @@ class FarmScene extends Phaser.Scene {
     }
 
     private exposeDebugAutomation() {
+        const debugRunId = this.runId;
+        const isCurrentDebugRun = () =>
+            !this.runDisposed && this.runId === debugRunId;
+
         window.__chickenFarmDebug = {
             createPausedConstructionFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
@@ -3393,6 +3419,8 @@ class FarmScene extends Phaser.Scene {
                     'debug-wolf',
                 ) ?? false;
             },
+            getRuntimeEnemyBehaviorForTest: (enemyId) =>
+                this.combatPoc?.getRuntimeEnemyBehaviorSnapshot(enemyId) ?? null,
             getWolfTargetingProbeForTest: (enemyId) =>
                 this.combatPoc?.getWolfTargetingProbe(enemyId) ?? null,
             setCombatVisibilityForTest: (visible) => {
@@ -3517,7 +3545,7 @@ class FarmScene extends Phaser.Scene {
                 return true;
             },
             damageControllableUnitForTest: (unitId, damage) => {
-                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || !isCurrentDebugRun()) return false;
                 return this.controllableUnits.damageUnit(unitId, damage);
             },
             cancelConstructionForTest: (buildingId) => {
@@ -3648,7 +3676,7 @@ class FarmScene extends Phaser.Scene {
                 this.initialPlacementViews?.sync(this.initialPlacementRegistry);
             },
             restartRunForTest: () => {
-                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || !isCurrentDebugRun()) {
                     return false;
                 }
                 this.scene.restart();

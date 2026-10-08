@@ -1,0 +1,78 @@
+{
+  "case": "blocker",
+  "checks": {
+    "openDetourPreservedFence": true,
+    "sealedPathAttackedBlocker": true,
+    "destroyedBlockerClearedFocusAndRepathed": true,
+    "unreachableTerrainRetriedFinitely": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "behaviors": {
+    "afterBlockerDestroyed": {
+      "focusBuildingId": null,
+      "focusUnitId": "blocker-target",
+      "id": "blocker-sealed-wolf",
+      "pathRemaining": 0,
+      "state": "repath",
+      "stateAction": "wait_for_repath",
+      "stateReason": "path_missing_waiting_for_blocker_delay",
+      "targetBuildingId": null,
+      "x": 3522.5,
+      "y": 8928
+    },
+    "duringBlockerAttack": {
+      "focusBuildingId": null,
+      "focusUnitId": "blocker-target",
+      "id": "blocker-sealed-wolf",
+      "pathRemaining": 0,
+      "state": "attack_blocker",
+      "stateAction": "attack_blocker",
+      "stateReason": "blocker_attack_range_reached",
+      "targetBuildingId": null,
+      "x": 3550,
+      "y": 8928
+    },
+    "firstUnreachable": {
+      "focusBuildingId": null,
+      "focusUnitId": "unreachable-target",
+      "id": "unreachable-wolf",
+      "pathRemaining": 0,
+      "state": "repath",
+      "stateAction": "wait_for_repath",
+      "stateReason": "path_missing_waiting_for_blocker_delay",
+      "targetBuildingId": null,
+      "x": 96,
+      "y": 96
+    },
+    "openDetour": {
+      "focusBuildingId": null,
+      "focusUnitId": "blocker-target",
+      "id": "blocker-open-wolf",
+      "pathRemaining": 1,
+      "state": "move",
+      "stateAction": "follow_path",
+      "stateReason": "path_available",
+      "targetBuildingId": null,
+      "x": 3516.2711701434255,
+      "y": 8809.152553237716
+    },
+    "secondUnreachable": {
+      "focusBuildingId": null,
+      "focusUnitId": "unreachable-target",
+      "id": "unreachable-wolf",
+      "pathRemaining": 0,
+      "state": "repath",
+      "stateAction": "wait_for_repath",
+      "stateReason": "path_missing_waiting_for_blocker_delay",
+      "targetBuildingId": null,
+      "x": 96,
+      "y": 96
+    }
+  }
+}

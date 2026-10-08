@@ -961,11 +961,7 @@ export class ControllableUnitSystem {
 
         const target = this.getAttackableEnemyTarget(unit.currentCommand.targetEntityId);
         if (!target || target.hp <= 0) {
-            unit.currentCommand = undefined;
-            unit.path = [];
-            unit.pathIndex = 0;
-            this.pollNextQueuedCommand(unit);
-            this.updateView(unit);
+            this.finishAttackCommand(unit, 'target_unavailable');
             return;
         }
 
@@ -987,11 +983,7 @@ export class ControllableUnitSystem {
 
         const landed = this.damageEnemyTarget?.(target.id, stats.damage) ?? false;
         if (!landed) {
-            unit.currentCommand = undefined;
-            unit.path = [];
-            unit.pathIndex = 0;
-            this.pollNextQueuedCommand(unit);
-            this.updateView(unit);
+            this.finishAttackCommand(unit, 'damage_rejected');
             return;
         }
         unit.nextAttackAtSec = this.getElapsedSec() + stats.attackCooldownSec;
@@ -1009,6 +1001,7 @@ export class ControllableUnitSystem {
         const target = this.findAttackMoveTarget(unit);
         if (target) {
             unit.currentCommand = {
+                resumeAttackMoveTargetPoint: unit.currentCommand.targetPoint,
                 targetEntityId: target.id,
                 targetPoint: { x: target.x, y: target.y },
                 type: 'attack',
@@ -1021,6 +1014,41 @@ export class ControllableUnitSystem {
         }
 
         this.updateMoveCommand(unit, deltaSec);
+    }
+
+    private finishAttackCommand(
+        unit: ControllableUnitState,
+        reason: 'damage_rejected' | 'target_unavailable',
+    ) {
+        const command = unit.currentCommand;
+        const resumeTarget =
+            command?.type === 'attack'
+                ? command.resumeAttackMoveTargetPoint
+                : undefined;
+        if (resumeTarget) {
+            const path = this.findMovePath(unit.position, resumeTarget);
+            unit.currentCommand = {
+                targetPoint: resumeTarget,
+                type: 'attack_move',
+                unitIds: [unit.id],
+            };
+            unit.path = path ?? [];
+            unit.pathIndex = 0;
+            this.recordTelemetry?.('player_unit_attack_move_resumed', {
+                reason,
+                targetX: Number(resumeTarget.x.toFixed(1)),
+                targetY: Number(resumeTarget.y.toFixed(1)),
+                unitId: unit.id,
+            });
+            this.updateView(unit);
+            return;
+        }
+
+        unit.currentCommand = undefined;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.pollNextQueuedCommand(unit);
+        this.updateView(unit);
     }
 
     private findAttackMoveTarget(unit: ControllableUnitState) {

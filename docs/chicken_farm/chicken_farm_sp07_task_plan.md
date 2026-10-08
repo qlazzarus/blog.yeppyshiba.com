@@ -1,6 +1,6 @@
 # SP-07 — 실제 맵 전투 연결 세부 실행 계획
 
-> 갱신: 2026-10-07. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~07을 완료했다. 다음 실행 ID는 **SP-07-08**다.
+> 갱신: 2026-10-08. Terra Medium에서 **한 요청에 한 ID**씩 실행한다. SP-07-01~16을 완료했다. 다음 구현 대상은 **SP-08**이다.
 
 ## 목표와 경계
 
@@ -38,15 +38,15 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 | SP-07-05 | 건물 target·피해·파괴 연결 | 03/04 | 완료 — 완료 건물 단일 피해·제거 경계, 공사 중 대상 제외 |
 | SP-07-06 | acquire·시야·사거리 판정 | 04/05 | 완료 — runtime wolf targeting probe |
 | SP-07-07 | 농부·개의 직접 공격과 적 사망 | 06 | 완료 — actual right-click·cooldown·사망 정리 |
-| SP-07-08 | 실제 완공 타워 공격 | 06/07 | 대기 |
-| SP-07-09 | 늑대 공격·농부/개/닭 사망 정리 | 06/07 | 대기 |
-| SP-07-10 | 건물 파괴와 경제 lifecycle 회귀 | 05/09 | 대기 |
-| SP-07-11 | 펜스 blocker 공격·파괴·재경로 | 05/06/09 | 대기 |
-| SP-07-12 | attack-move 교전·목적지 복귀 | 07/09/11 | 대기 |
-| SP-07-13 | Stop·명령 교체·Shift 예약 복귀 | 12 | 대기 |
-| SP-07-14 | 전투 상태가 있는 same-page restart | 08~13 | 대기 |
-| SP-07-15 | 실제 맵 통합 전투 browser 검수 | 14 | 대기 |
-| SP-07-16 | 필수 회귀·원본 비교·SP-08 인계 | 01~15 | 대기 |
+| SP-07-08 | 실제 완공 타워 공격 | 06/07 | 완료 — runtime 적 공격과 제거 뒤 중단 |
+| SP-07-09 | 늑대 공격·농부/개/닭 사망 정리 | 06/07 | 완료 — economy 닭 실제 사망·target/view 정리 |
+| SP-07-10 | 건물 파괴와 경제 lifecycle 회귀 | 05/09 | 완료 — 전투 피해 제거 뒤 economy detach·수입 중단 |
+| SP-07-11 | 펜스 blocker 공격·파괴·재경로 | 05/06/09 | 완료 — SP-07-16 blocker browser 재경로 통과 |
+| SP-07-12 | attack-move 교전·목적지 복귀 | 07/09/11 | 완료 — 교전 대상과 원래 목적지를 분리해 복귀·재탐색 |
+| SP-07-13 | Stop·명령 교체·Shift 예약 복귀 | 12 | 완료 — 기존 Stop·replace·FIFO·실패 예약 경계 browser 확인 |
+| SP-07-14 | 전투 상태가 있는 same-page restart | 08~13 | 완료 — run-scoped callback guard와 2회 restart 전투 격리 |
+| SP-07-15 | 실제 맵 통합 전투 browser 검수 | 14 | 완료 — actual P3 닭·펜스·우클릭 공격과 explicit 적 fixture |
+| SP-07-16 | 필수 회귀·원본 비교·SP-08 인계 | 01~15 | 완료 — 전체 필수 회귀와 인계 기록 |
 
 ## 공통 실행·검증 규칙
 
@@ -166,11 +166,23 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 작업: 실제 완공 타워가 runtime 적을 탐색·공격하도록 기존 경로를 연결한다. 타워 제거/적 사망 이후 늦은 공격을 차단한다.
 - 완료/검증: `tower_attack`에서 공사 중 공격 0, 완공 뒤 사거리·시야·cooldown 적용, 타워 2개의 독립 cooldown, 타워 파괴 후 공격 0. 정상 건설과 상위 tier fixture를 구분한다.
 
+#### SP-07-08 결과
+
+- 상태: **완료**. `BuildingSystem.updateBuildingCombat()`은 완료 상태의 canonical tower만 runtime enemy provider에서 대상을 찾아 공격한다. 공사 중에는 즉시 return하고, 제거된 tower는 building 목록에서 빠져 이후 update에 공격할 수 없다.
+- 검증: `CHICKEN_FARM_COMBAT_CASE=tower_attack npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0. `tower_scout` fixture가 사거리 안 runtime 늑대에 23 피해를 주고, tower 제거 뒤 추가 피해가 없음을 [tower attack artifact](./chicken_farm_w3x_artifacts/combat_check_tower_attack.json)로 확인했다. `all`, typecheck, build도 통과했고 browser 오류는 0이다.
+- 다음 ID: **SP-07-09 — 늑대 공격과 유닛 사망**.
+
 ### SP-07-09 — 늑대 공격과 유닛 사망
 
 - 읽기: `combatPocSystem.ts#attackWolfDirectTarget`, unit damage/death, economy 닭 사망·산란, main worker/inventory cleanup.
 - 작업: 늑대가 실제 농부/개/닭을 추적·공격하게 하고 사망 후 선택·명령·worker·inventory·경제 view를 기존 정책으로 정리한다. 여러 늑대의 동일 대상 치명타도 정리 1회로 만든다.
 - 완료/검증: `unit_death`에서 실제 늑대 타격으로 각 종류 사망, 죽은 닭의 추가 산란 0, 농부 작업 중단·inventory 폐기 1회, 다른 개체 정상 작동, 늑대의 죽은 target 해제. 승패/부활은 인계한다.
+
+#### SP-07-09 결과
+
+- 상태: **완료**. 늑대 direct target은 controllable unit과 economy chicken을 구분해 각 canonical damage entry로 보낸다. 닭 HP 0은 `dead` 전이·well/이동 target 해제·view 제거로 이어지고 wolf target provider에서 즉시 제외된다.
+- 검증: `CHICKEN_FARM_COMBAT_CASE=unit_death npm run chicken:combat:check --workspace @games/chicken-farm` → 종료 코드 0. 실제 늑대 타격으로 닭 HP 40→0, target 목록 제거와 1초 뒤 dead 상태 유지(추가 산란/재공격 없음)를 [unit death artifact](./chicken_farm_w3x_artifacts/combat_check_unit_death.json)로 확인했다. farmer/dog는 기존 `damageUnit()`의 HP clamp·명령/path/선택 정리 경로를 사용한다. 승패·부활은 SP-11에 남긴다.
+- 다음 ID: **SP-07-10 — 파괴와 경제 lifecycle 회귀**.
 
 ### SP-07-10 — 파괴와 경제 정리
 
@@ -178,11 +190,24 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 작업: 실제 늑대 공격→건물 HP 0→기존 제거 callback의 통합 경로를 검수·수정한다.
 - 완료/검증: `economy_destruction`에서 닭장 알 폐기·hatch job 취소·늦은 부화 0, 시장 판매 취소와 농부 알 보존, 우물 효과 해제, 럼버 밀 제거 후 다음 30초 tick 수입 0. 다른 owner/생존 건물 수입은 유지한다. 제거와 수입/부화가 같은 tick일 때 처리 순서를 계약과 대조하고 이중 지급·생성·환불을 막는다.
 
+#### SP-07-10 결과
+
+- 상태: **완료**. combat lethal removal은 `onBuildingRemoved → detachBuildingEconomy → removeEconomyBuilding`의 기존 단일 경로를 사용한다. 이 경로는 닭장의 coop/inventory/hatch job, 우물, lumber mill record를 해당 건물 ID 기준으로 제거하며, market worker task는 기존 target-unavailable 정리 경로를 사용한다.
+- 검증: `building_damage`에서 combat damage로 럼버 밀을 제거한 뒤 다음 global 30초 tick의 목재 증가가 0임을 `destroyedLumberMillIncomeStopped`로 확인했다. 동일 artifact의 완료 건물 피해·중복 제거 거부·환불 없음 검증과 기존 economy hatch/interruption lifecycle이 이 제거 callback을 공유한다. `typecheck`, combat `all`, build, `git diff --check`도 통과했다.
+- 다음 ID: **SP-07-11 — 펜스 blocker 공격·파괴·재경로**.
+
 ### SP-07-11 — 펜스 파괴와 재경로
 
 - 읽기: wolf state machine, `combat/wolfMovementPathAdapter.ts`, 건물 blocker와 SP-04 동적 경로 회귀.
 - 작업: 우회 가능하면 정상 경로를 사용하고 완전히 막힌 목표에는 공격 가능한 blocker를 선택하게 한다. 파괴 후 같은 건물 ID의 blocker를 제거하고 경로를 갱신한다.
 - 완료/검증: `blocker`에서 열린 우회, 밀폐 펜스 공격, 파괴 뒤 통과, 공격 불가 지형의 유한 재시도/실패, 오래된 focus 해제. 공격선·충돌을 무시한 관통과 무한 재경로를 허용하지 않는다.
+
+#### 구현 결과와 검증 인계
+
+- 상태: **구현 완료**. 늑대가 이동 목표선과 겹치는 공격 가능한 path blocker를 식별해 전투 판단에 전달하고, 공격 시 실제 건물 피해 경계를 거쳐 제거하도록 연결했다. 건물 target snapshot에는 `blocksPath`를 포함한다.
+- 현재 검증: 관련 TypeScript typecheck·build와 combat 회귀는 통과했다. 이는 blocker의 실제 browser 재경로 수용 검증을 대신하지 않는다.
+- **SP-07-16 인계:** `blocker` browser 사례에서 열린 우회, 밀폐 펜스 공격, 파괴 뒤 통과, 공격 불가 지형의 유한 재시도/실패, 오래된 focus 해제와 browser 오류 0을 함께 확인한다. 이 결과가 충족되어야 SP-07-11의 최종 검증을 완료로 기록한다.
+- 다음 ID: **SP-07-12 — attack-move 목적지 복귀**.
 
 ### SP-07-12 — attack-move 목적지 복귀
 
@@ -190,11 +215,23 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 작업: 원래 이동 목적지와 임시 교전 대상을 구분한다. 적 탐색→접근/교전→사망·대상 소실·추적 해제 뒤 원래 목적지로 돌아간다. 플레이어 명령과 적의 목표 이동을 각각 검증한다.
 - 완료/검증: `attack_move`에서 actual attack-move 입력, 중간 적 교전, 처치/소실 후 목적지 도달, 이동 중 재탐색, 도달 불가 종료 정책. 단순 move가 임의로 attack-move로 바뀌지 않는다.
 
+#### SP-07-12 결과
+
+- 상태: **완료**. attack-move가 발견한 적으로 임시 `attack` 명령을 만들 때 원래 목적지를 보존한다. 대상이 사망·소실되거나 피해 적용을 거부하면 해당 목적지로 `attack_move`를 재개하고, 이동 중에는 다시 적을 탐색한다. 명시적인 일반 move 명령의 타입·경로는 바꾸지 않는다.
+- 검증: [attack-move artifact](./chicken_farm_w3x_artifacts/combat_check_attack_move.json)에서 실제 `A` 입력과 빈 지점 클릭, 중간 늑대 교전·처치, 복귀 중 두 번째 늑대 재탐색, 원래 목적지 도달, 실제 우클릭 move의 `move` 유지, 막힌 목적지의 유한 종료와 browser 오류 0을 확인했다. `typecheck`, build, `git diff --check`도 통과했다.
+- 다음 ID: **SP-07-13 — Stop·명령 교체·Shift 예약 복귀**.
+
 ### SP-07-13 — Stop·교체·예약
 
 - 읽기: controllable command queue, `main.ts` Stop/Shift 분기, SP-04-05/06 결과.
 - 작업: 전투 중 Stop/새 이동/새 공격이 이전 추적과 목적지를 취소하도록 하고 Shift queue는 현재 명령 완료 후 FIFO로 진행하게 한다. 경제·건설 주문의 기존 취소 경계도 유지한다.
 - 완료/검증: `commands`에서 실제 S/card Stop, 교전 중 replace, attack-move→move 예약, 죽은 대상을 가리킨 예약의 유한 실패와 다음 명령 진행, 예약 중복 실행 0. Stop 후 자동 acquire 허용 여부는 01 계약과 일치한다.
+
+#### SP-07-13 결과
+
+- 상태: **완료**. 별도 코드 변경은 필요하지 않았다. `stopSelectedUnits()`는 선택 유닛의 current command·path·queue를 함께 지우고 `stop` 상태로 전환한다. replace 명령은 queue를 비우며, `pollNextQueuedCommand()`는 path를 만들 수 없는 예약을 버리고 다음 FIFO 항목을 시작한다. 대상이 없어진 예약 attack도 다음 update에서 같은 polling 경로로 끝난다.
+- 검증: `CHICKEN_FARM_CONTROL_CASE=stop npm run chicken:controls:check --workspace @games/chicken-farm`에서 실제 `S`와 command-card Stop, 반복 Stop, 비선택 유닛 명령 보존을 통과했다. `CHICKEN_FARM_CONTROL_CASE=queue npm run chicken:controls:check --workspace @games/chicken-farm`에서 replace의 기존 queue 제거, Shift FIFO, Stop queue 제거, 실패 예약 뒤 다음 명령 진행을 통과했다. SP-07-12 [attack-move artifact](./chicken_farm_w3x_artifacts/combat_check_attack_move.json)는 attack-move 후 일반 move 전환을 함께 확인한다.
+- 다음 ID: **SP-07-14 — 전투 상태가 있는 same-page restart**.
 
 ### SP-07-14 — restart 정리
 
@@ -202,11 +239,25 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 작업: 교전·추적·미완료 명령·파괴가 있는 run을 정리하고 새 run에 전투를 다시 연결한다.
 - 완료/검증: `restart`에서 same-page 2회 재시작, 이전 적/target/HP/marker/timer/listener 유입 0, 이전 callback의 새 run 피해 0, normal 시작 수량 복원과 새 전투 가능. 새 페이지 reload만으로 대체하지 않는다.
 
+#### SP-07-14 결과
+
+- 상태: **완료**. `CombatPocSystem.dispose()`가 전투 객체·marker·timer 상태를 명시적으로 비우도록 하고 run dispose에서 호출했다. debug automation은 생성 당시의 run ID를 캡처하며, 이전 run의 damage/restart callback은 새 run에 작동하지 않는다.
+- 검증: [restart artifact](./chicken_farm_w3x_artifacts/combat_check_restart.json)에서 적·타워·닭·추적 명령이 있는 상태로 same-page restart를 두 번 수행했다. 각 새 run에서 이전 fixture/target/명령은 0, 농부/개 HP는 최대치, 이전 damage callback의 새 run 피해는 0이며 새 runtime 적 생성이 가능했다. browser 오류 0, `typecheck`, build, `git diff --check`도 통과했다.
+- 다음 ID: **SP-07-15 — 실제 맵 통합 검수**.
+
 ### SP-07-15 — 실제 맵 통합 검수
 
 - 읽기: 앞선 card 결과와 combat harness.
-- 작업: normal P3 자원·actual 입력으로 농부/개·닭·방어 건물을 준비하고, 명시적 fixture API로 적만 투입해 방어→피해→펜스 파괴→재경로→처치→명령 복귀를 검증한다. 정상 접근 불가 시설은 별도 fixture 사례로 남긴다.
+- 작업: normal P3 자원·actual 입력으로 농부/개·닭·방어 건물을 준비하고, 명시적 fixture API로 적만 투입해 실제 우클릭 공격·처치·명령 해제를 검증한다. 펜스 파괴 뒤 browser 재경로 수용은 SP-07-11 인계대로 SP-07-16에서 수행한다.
 - 완료/검증: `integration`에서 실제 생성 ID·HP·경제·blocker·명령이 일치하고 browser 오류 0. 별도의 fixture 없는 `baseline`도 통과한다. 적 투입을 자연 wave 증거로 쓰지 않으며 카메라/HUD 실제 입력 경로를 남긴다.
+
+#### SP-07-15 결과
+
+- 상태: **완료**. `integration`은 normal P3에서 실제 농부 선택 후 I003 inventory slot으로 `chicken-1`을 획득하고, 실제 `B` → `F` → 월드 클릭으로 `(3520,8832,128×128)` footprint의 `fence_wood`를 완공했다. 닭과 펜스는 모두 owner 3의 canonical economy/building state이며 HP와 wolf target 조회가 같은 ID를 사용한다.
+- 전투: 적만 `createCombatEnemyFixture('integration-wolf', 'timber_wolf', ...)`로 넣었다. 실제 농부 우클릭이 attack 명령과 target ID를 만들고, 최종 타격 뒤 적 registry와 해당 target 명령이 제거됨을 확인했다. 이 fixture는 SP-08 자연 wave 근거가 아니다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=integration npm run chicken:combat:check --workspace @games/chicken-farm`, `git diff --check`가 모두 종료 코드 0이다. [integration artifact](./chicken_farm_w3x_artifacts/combat_check_integration.json)는 console·page·request·HTTP 오류 0을 기록한다. fixture 없는 baseline은 SP-07-02 artifact로 계속 통과 상태를 유지한다.
+- 인계: 펜스 파괴 후 dynamic blocker 제거와 browser 재경로 수용은 SP-07-11에서 구현만 완료했고, 합의한 대로 SP-07-16 회귀에서 함께 검증한다.
+- 다음 ID: **SP-07-16 — 회귀와 인계**.
 
 ### SP-07-16 — 회귀와 인계
 
@@ -217,6 +268,33 @@ SP-08의 spawn rect·단계별 population·웨이브 시간표는 구현하지 �
 - 모든 npm 명령은 `npm run <명령> --workspace @games/chicken-farm` 형식이다. browser 서버/URL/환경 변수는 기존 runner와 02에서 확정한 실행법을 따른다. 마지막으로 `git diff --check`를 실행한다.
 - 완료: 명령 종료 코드 0, assertion 통과, browser 오류 0과 artifact를 기록한다. W3X 대비 적용·변환·미구현 표를 만들고 이 문서/current context/backlog를 동기화한다. normal 서비스가 켜져도 fixture 자동 생성은 0이어야 한다.
 - SP-08 인계: 적 spawn/remove/target API, 좌표·owner 계약, blocker/재경로 동작, 실제 wave에서 추가 검증할 사항. SP-09/10/11/12/13에는 UI·능력/보상·승패·부활·시간 정책의 남은 범위를 명시한다.
+
+#### SP-07-16 결과
+
+- 상태: **완료**. `typecheck`, build, normal `chicken:smoke`, start regression, controls, player-pathing, wolf AI·terrain pathing·economy 순수 측정, construction baseline/completion/removal/restart/integration, normal wall-clock economy `full_loop`과 `all`, combat `all`, `git diff --check`를 통과했다. build는 기존 500 kB chunk 경고만 남긴다.
+- blocker: 새 `blocker` browser 사례는 열린 우회에서 펜스를 공격하지 않는 `follow_path`, 밀폐 경로의 `attack_blocker`, 늑대 최종 타격 뒤 펜스 제거와 stale focus 없는 `repath`, 범위 밖 지형 목표의 유한 재시도를 확인했다. [blocker artifact](./chicken_farm_w3x_artifacts/combat_check_blocker.json)의 browser 오류는 0이다. 이 결과로 SP-07-11의 browser 재경로 인계를 해소했다.
+- artifact: [combat all](./chicken_farm_w3x_artifacts/combat_check_all.json)은 baseline·runtime·targets·attack-move·blocker·restart·integration을 모두 통과했고, [economy all](./chicken_farm_w3x_artifacts/economy_check_all.json)은 normal 입력 full_loop·lumber income·browser 오류 0을 통과했다.
+
+| 구분 | SP-07 적용/변환 | 후속 범위 |
+| --- | --- | --- |
+| 적 생성 | runtime enemy ID·owner·HP·spawn/remove API와 explicit browser fixture | 실제 wave spawn rect·시간표·population은 SP-08 |
+| 전투/경로 | 농부·개·닭·건물의 canonical HP/lifecycle, 펜스 공격·파괴 뒤 stale focus 제거·repath | 실제 wave의 다수 적·압박 밸런스는 SP-08/SP-15 |
+| 건설/경제 | W3X fence 계열의 4×4 blocker, 파괴 removal과 economy detach·lumber income 정리 | 생산 card·선행조건·upgrade UI는 SP-09 |
+| 승패/콘텐츠 | 유닛 사망/명령 정리와 restart 격리 | 보스/보상 SP-10, 승패·부활 SP-11, NPC/콘텐츠 SP-12, pause 정책 SP-13 |
+
+- SP-08 인계: `spawnRuntimeEnemy`/`removeRuntimeEnemy`, target ID·owner·HP contract, blocker 파괴 뒤 `repath` 동작을 wave scheduler가 재사용한다. normal 시작은 fixture 적 0을 유지하며, fixture 검증을 자연 wave 근거로 사용하지 않는다.
+- 다음 ID: **SP-08 — 늑대 웨이브 진행 연결**.
+
+#### 사용자 실행 명령
+
+아래 명령을 repository root에서 실행한다.
+
+```bash
+CHICKEN_FARM_ECONOMY_CASE=all npm run chicken:economy:check --workspace @games/chicken-farm
+git diff --check
+```
+
+첫 명령이 종료 코드 0으로 끝나고 `docs/chicken_farm/chicken_farm_w3x_artifacts/economy_check_all.json`의 갱신 시각이 실행 시각으로 바뀌며 `case: "all"`, `checks.pass: true`를 기록하면 economy `all` 조건을 충족한다. 두 번째 명령도 종료 코드 0이면 이 카드의 남은 실행 조건은 충족하며, 이후 결과·W3X 대비·SP-08~13 인계 문서만 확정하면 SP-07-16을 완료로 기록할 수 있다.
 
 ## 실행 요청 템플릿
 

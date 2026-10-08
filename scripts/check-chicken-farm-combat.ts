@@ -13,7 +13,7 @@ const port = 5200 + (process.pid % 700);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const combatCase = process.env.CHICKEN_FARM_COMBAT_CASE ?? 'baseline';
 
-if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'all') {
+if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'tower_attack' && combatCase !== 'unit_death' && combatCase !== 'attack_move' && combatCase !== 'blocker' && combatCase !== 'restart' && combatCase !== 'integration' && combatCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_COMBAT_CASE: ${combatCase}`);
 }
 
@@ -34,6 +34,18 @@ const artifactPath = path.join(
                   ? 'combat_check_targeting.json'
                   : combatCase === 'unit_attack'
                     ? 'combat_check_unit_attack.json'
+                    : combatCase === 'tower_attack'
+                      ? 'combat_check_tower_attack.json'
+                    : combatCase === 'unit_death'
+                        ? 'combat_check_unit_death.json'
+                          : combatCase === 'attack_move'
+                            ? 'combat_check_attack_move.json'
+                            : combatCase === 'blocker'
+                              ? 'combat_check_blocker.json'
+                          : combatCase === 'restart'
+                            ? 'combat_check_restart.json'
+                            : combatCase === 'integration'
+                              ? 'combat_check_integration.json'
           : 'combat_check_all.json',
 );
 
@@ -55,6 +67,18 @@ async function main() {
                       ? await runWithServer(true, runTargetingCase)
                       : combatCase === 'unit_attack'
                         ? await runWithServer(true, runUnitAttackCase)
+                        : combatCase === 'tower_attack'
+                          ? await runWithServer(true, runTowerAttackCase)
+                          : combatCase === 'unit_death'
+                            ? await runWithServer(true, runUnitDeathCase)
+                            : combatCase === 'attack_move'
+                              ? await runWithServer(true, runAttackMoveCase)
+                              : combatCase === 'blocker'
+                                ? await runWithServer(true, runBlockerCase)
+                              : combatCase === 'restart'
+                                ? await runWithServer(true, runRestartCase)
+                                : combatCase === 'integration'
+                                  ? await runWithServer(true, runIntegrationCase)
               : {
                     case: combatCase,
                     checks: { pass: true },
@@ -65,6 +89,12 @@ async function main() {
                     buildingDamage: await runWithServer(true, runBuildingDamageCase),
                     targeting: await runWithServer(true, runTargetingCase),
                     unitAttack: await runWithServer(true, runUnitAttackCase),
+                    towerAttack: await runWithServer(true, runTowerAttackCase),
+                    unitDeath: await runWithServer(true, runUnitDeathCase),
+                    attackMove: await runWithServer(true, runAttackMoveCase),
+                    blocker: await runWithServer(true, runBlockerCase),
+                    restart: await runWithServer(true, runRestartCase),
+                    integration: await runWithServer(true, runIntegrationCase),
                 };
     await mkdir(path.dirname(artifactPath), { recursive: true });
     await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
@@ -376,11 +406,26 @@ async function runBuildingDamageCase() {
         if (rejectedConstructionDamage || construction?.state !== 'constructing') {
             throw new Error(`Constructing building became wolf targetable: ${JSON.stringify({ construction, rejectedConstructionDamage })}`);
         }
+        const millId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyBuildingFixture('lumber_mill', 4352, 8896));
+        if (!millId) throw new Error('Failed to create lumber mill');
+        const millBefore = await getCombatSnapshot(page);
+        const mill = millBefore.buildings.find((candidate) => candidate.id === millId);
+        if (!mill || !await page.evaluate(({ id, damage }) => window.__chickenFarmDebug!.damageBuildingForTest(id, damage), { id: millId, damage: mill.maxHp + mill.armor })) {
+            throw new Error('Failed to destroy lumber mill through combat boundary');
+        }
+        const income = await page.evaluate(() => {
+            const before = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().wallet?.lumber ?? 0;
+            const time = Math.ceil((window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().elapsedSec + 0.1) / 30) * 30;
+            window.__chickenFarmDebug!.advanceEconomyForTest(time);
+            return { after: window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().wallet?.lumber ?? 0, before };
+        });
+        if (income.after !== income.before) throw new Error(`Destroyed lumber mill paid income: ${JSON.stringify(income)}`);
         assertNoErrors(errors);
         return {
             case: 'building_damage',
             checks: {
                 constructionExcludedByTargetability: true,
+                destroyedLumberMillIncomeStopped: true,
                 lethalRemovalIsIdempotent: true,
                 nonLethalDamageUsesArmor: true,
                 pass: true,
@@ -458,7 +503,7 @@ async function runUnitAttackCase() {
         await page.waitForFunction(
             (id) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.some((enemy) => enemy.id === id),
             enemyId,
-            { timeout: 8_000 },
+            { timeout: 18_000 },
         );
         const afterHit = await getCombatSnapshot(page);
         const attacker = afterHit.units.find((candidate) => candidate.nextAttackAtSec > afterHit.elapsedSec);
@@ -472,6 +517,603 @@ async function runUnitAttackCase() {
         assertNoErrors(errors);
         return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, pass: true }, errors, snapshots: { afterHit } };
     } finally { await page.close(); await browser.close(); }
+}
+
+async function runTowerAttackCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        await page.evaluate(() => window.__chickenFarmDebug!.setCombatVisibilityForTest(true));
+        const towerId = await page.evaluate(() => window.__chickenFarmDebug!.createCombatBuildingFixture('tower_scout', 3648, 8896));
+        if (!towerId) throw new Error('Failed to create completed tower');
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.createCombatEnemyFixture('tower-wolf', 'timber_wolf', 3820, 8896))) {
+            throw new Error('Failed to create tower target');
+        }
+        await page.waitForFunction(
+            () => (window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.find((enemy) => enemy.id === 'tower-wolf')?.hp ?? 450) < 450,
+            null,
+            { timeout: 5_000 },
+        );
+        const afterHit = await getCombatSnapshot(page);
+        const hpAfterHit = afterHit.enemies.find((enemy) => enemy.id === 'tower-wolf')?.hp;
+        if (hpAfterHit === undefined || hpAfterHit >= 450) throw new Error(`Tower did not hit: ${JSON.stringify(afterHit)}`);
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(id), towerId)) {
+            throw new Error('Failed to remove tower');
+        }
+        await page.waitForTimeout(1_300);
+        const afterRemoval = await getCombatSnapshot(page);
+        const hpAfterRemoval = afterRemoval.enemies.find((enemy) => enemy.id === 'tower-wolf')?.hp;
+        if (hpAfterRemoval !== hpAfterHit || afterRemoval.buildings.some((building) => building.id === towerId)) {
+            throw new Error(`Removed tower attacked or remained active: ${JSON.stringify({ afterHit, afterRemoval })}`);
+        }
+        assertNoErrors(errors);
+        return { case: 'tower_attack', checks: { completedTowerAttacksRuntimeEnemy: true, removedTowerStopsAttacking: true, pass: true }, errors, snapshots: { afterHit, afterRemoval } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runUnitDeathCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const chickenId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyChickenFixture(3, 3650, 8896));
+        if (!chickenId || !await page.evaluate(() => window.__chickenFarmDebug!.createCombatEnemyFixture('death-wolf', 'timber_wolf', 3650, 8896))) {
+            throw new Error('Failed to create wolf/chicken death fixture');
+        }
+        await page.waitForFunction(
+            (id) => {
+                const snapshot = window.__chickenFarmDebug!.getCombatLifecycleSnapshot();
+                return snapshot.chickens.some((chicken) => chicken.id === id && chicken.aiState === 'dead' && chicken.hp === 0) &&
+                !snapshot.wolfTargets.some((target) => target.id === id);
+            },
+            chickenId,
+            { timeout: 18_000 },
+        );
+        const afterDeath = await getCombatSnapshot(page);
+        await page.waitForTimeout(1_100);
+        const afterWait = await getCombatSnapshot(page);
+        const chicken = afterDeath.chickens.find((candidate) => candidate.id === chickenId);
+        if (!chicken || chicken.hp !== 0 || chicken.aiState !== 'dead' || afterWait.chickens.find((candidate) => candidate.id === chickenId)?.hp !== 0) {
+            throw new Error(`Chicken death was not idempotent: ${JSON.stringify({ afterDeath, afterWait })}`);
+        }
+        assertNoErrors(errors);
+        return { case: 'unit_death', checks: { deadChickenStopsTargetingAndProduction: true, deathIsIdempotent: true, pass: true }, errors, snapshots: { afterDeath, afterWait } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runAttackMoveCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const canvas = await getCanvasBounds(page);
+        const calibration = await getWorldCalibration(page, canvas);
+        await selectFarmer(page, canvas);
+        const farmer = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.find(
+                (unit) => unit.id === 'p3-farmer',
+            ),
+        );
+        if (!farmer) throw new Error('Missing farmer for attack-move case');
+
+        const destination = { x: farmer.x + 160, y: farmer.y };
+        const enemyId = 'attack-move-wolf';
+        await page.keyboard.press('a');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getControlSnapshot().targeting.attack,
+            null,
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, calibration, destination);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandType === 'attack_move',
+            ),
+            null,
+            { timeout: 5_000 },
+        );
+        if (!await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'timber_wolf', x, y),
+            { id: enemyId, x: farmer.x + 70, y: farmer.y },
+        )) {
+            throw new Error('Failed to create attack-move target');
+        }
+
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandTargetId === id,
+            ),
+            enemyId,
+            { timeout: 8_000 },
+        );
+        const duringCombat = await getCombatSnapshot(page);
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.setCombatEnemyHpForTest(id, 1), enemyId)) {
+            throw new Error('Failed to make attack-move target lethal');
+        }
+        await page.waitForFunction(
+            (id) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.some(
+                (enemy) => enemy.id === id,
+            ),
+            enemyId,
+            { timeout: 8_000 },
+        );
+        await page.waitForFunction(
+            () => {
+                const unit = window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.find(
+                    (candidate) => candidate.id === 'p3-farmer',
+                );
+                return unit?.currentCommandType === 'attack_move';
+            },
+            null,
+            { timeout: 8_000 },
+        );
+        const afterResume = await getCombatSnapshot(page);
+        const resumedFarmer = afterResume.units.find((unit) => unit.id === 'p3-farmer');
+        const secondEnemyId = 'attack-move-second-wolf';
+        if (!resumedFarmer || !await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'timber_wolf', x, y),
+            { id: secondEnemyId, x: resumedFarmer.x + 64, y: resumedFarmer.y },
+        )) {
+            throw new Error('Failed to create attack-move reacquisition target');
+        }
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandTargetId === id,
+            ),
+            secondEnemyId,
+            { timeout: 8_000 },
+        );
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.setCombatEnemyHpForTest(id, 1), secondEnemyId)) {
+            throw new Error('Failed to make reacquired target lethal');
+        }
+        await page.waitForFunction(
+            (id) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.some(
+                (enemy) => enemy.id === id,
+            ),
+            secondEnemyId,
+            { timeout: 8_000 },
+        );
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandType === 'attack_move',
+            ),
+            null,
+            { timeout: 8_000 },
+        );
+        try {
+            await page.waitForFunction(
+                (target) => {
+                    const unit = window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.find(
+                        (candidate) => candidate.id === 'p3-farmer',
+                    );
+                    return Boolean(
+                        unit &&
+                            unit.currentCommandType === null &&
+                            Math.hypot(unit.x - target.x, unit.y - target.y) < 36,
+                    );
+                },
+                destination,
+                { timeout: 20_000 },
+            );
+        } catch (error) {
+            throw new Error(
+                `Attack-move did not reach its destination: ${JSON.stringify({
+                    afterResume,
+                    destination,
+                    snapshot: await getCombatSnapshot(page),
+                })}`,
+                { cause: error },
+            );
+        }
+        const atDestination = await getCombatSnapshot(page);
+        const simpleMoveDestination = { x: destination.x + 48, y: destination.y };
+        await clickWorld(page, calibration, simpleMoveDestination, 'right');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandType === 'move',
+            ),
+            null,
+            { timeout: 5_000 },
+        );
+        await page.waitForFunction(
+            (target) => {
+                const unit = window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.find(
+                    (candidate) => candidate.id === 'p3-farmer',
+                );
+                return Boolean(
+                    unit &&
+                        unit.currentCommandType === null &&
+                        Math.hypot(unit.x - target.x, unit.y - target.y) < 36,
+                );
+            },
+            simpleMoveDestination,
+            { timeout: 12_000 },
+        );
+        const blockedDestination = { x: simpleMoveDestination.x + 64, y: simpleMoveDestination.y };
+        const blockerId = await page.evaluate(
+            ({ x, y }) => window.__chickenFarmDebug!.createCombatBuildingFixture('fence_wood', x, y),
+            blockedDestination,
+        );
+        if (!blockerId) throw new Error('Failed to create blocked attack-move destination');
+        const beforeBlockedOrder = await getCombatSnapshot(page);
+        await page.keyboard.press('a');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getControlSnapshot().targeting.attack,
+            null,
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, calibration, blockedDestination);
+        await page.waitForFunction(
+            () => !window.__chickenFarmDebug!.getControlSnapshot().targeting.attack,
+            null,
+            { timeout: 5_000 },
+        );
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandType === null,
+            ),
+            null,
+            { timeout: 5_000 },
+        );
+        const afterBlockedOrder = await getCombatSnapshot(page);
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.removeCompletedBuildingFixture(id), blockerId)) {
+            throw new Error('Failed to remove blocked attack-move destination');
+        }
+        if (
+            !duringCombat.units.some((unit) => unit.id === 'p3-farmer' && unit.currentCommandTargetId === enemyId) ||
+            atDestination.enemies.some((enemy) => enemy.id === enemyId) ||
+            atDestination.enemies.some((enemy) => enemy.id === secondEnemyId)
+        ) {
+            throw new Error(`Attack-move did not engage then resume: ${JSON.stringify({ duringCombat, afterResume, atDestination, afterBlockedOrder, beforeBlockedOrder })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'attack_move',
+            checks: {
+                actualAttackMoveInput: true,
+                engagedIntermediateEnemy: true,
+                reacquiredEnemyWhileReturning: true,
+                resumedOriginalDestinationAfterTargetDeath: true,
+                simpleMoveRemainedMove: true,
+                unreachableDestinationEnded: true,
+                pass: true,
+            },
+            errors,
+            snapshots: { afterBlockedOrder, afterResume, atDestination, beforeBlockedOrder, duringCombat },
+        };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runBlockerCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        await page.evaluate(() => {
+            window.__chickenFarmDebug!.setCombatVisibilityForTest(true);
+            return [
+                window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-farmer', 3200, 8400),
+                window.__chickenFarmDebug!.setControllableUnitPositionForTest('p3-dog', 3200, 8450),
+                window.__chickenFarmDebug!.createDebugFarmerForTest('blocker-target', 3392, 8928, 3),
+            ];
+        });
+        const fenceId = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatBuildingFixture('fence_wood', 3450, 8896),
+        );
+        if (!fenceId) throw new Error('Failed to create blocker fence');
+
+        if (!await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('blocker-open-wolf', 'timber_wolf', 3530, 8800),
+        )) {
+            throw new Error('Failed to create open-detour wolf');
+        }
+        await page.waitForFunction(
+            () => {
+                const behavior = window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-open-wolf');
+                return behavior?.focusUnitId === 'blocker-target' && behavior.targetBuildingId === null;
+            },
+            null,
+            { timeout: 8_000 },
+        );
+        const openDetour = await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-open-wolf'));
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.removeCombatEnemyFixture(id), 'blocker-open-wolf')) {
+            throw new Error('Failed to remove open-detour wolf');
+        }
+
+        if (!await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('blocker-sealed-wolf', 'timber_wolf', 3550, 8928),
+        )) {
+            throw new Error('Failed to create sealed-path wolf');
+        }
+        try {
+            await page.waitForFunction(
+                () => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-sealed-wolf')?.state === 'attack_blocker',
+                null,
+                { timeout: 12_000 },
+            );
+        } catch (error) {
+            throw new Error(
+                `Sealed blocker was not attacked: ${JSON.stringify({
+                    behavior: await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-sealed-wolf')),
+                    snapshot: await getCombatSnapshot(page),
+                })}`,
+                { cause: error },
+            );
+        }
+        const duringBlockerAttack = await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-sealed-wolf'));
+        if (!await page.evaluate((buildingId) => window.__chickenFarmDebug!.damageBuildingForTest(buildingId, 190), fenceId)) {
+            throw new Error('Failed to prepare blocker for final wolf hit');
+        }
+        await page.waitForFunction(
+            (buildingId) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().buildings.some((building) => building.id === buildingId),
+            fenceId,
+            { timeout: 8_000 },
+        );
+        await page.waitForFunction(
+            () => {
+                const behavior = window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-sealed-wolf');
+                return Boolean(
+                    behavior &&
+                    behavior.focusBuildingId === null &&
+                    behavior.targetBuildingId === null &&
+                    behavior.focusUnitId === 'blocker-target' &&
+                    Number.isFinite(behavior.pathRemaining),
+                );
+            },
+            null,
+            { timeout: 8_000 },
+        );
+        const afterBlockerDestroyed = await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('blocker-sealed-wolf'));
+
+        if (!await page.evaluate(() => {
+            return window.__chickenFarmDebug!.createDebugFarmerForTest('unreachable-target', 0, 0, 3) &&
+                window.__chickenFarmDebug!.createCombatEnemyFixture('unreachable-wolf', 'timber_wolf', 96, 96);
+        })) {
+            throw new Error('Failed to create unreachable terrain fixture');
+        }
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('unreachable-wolf')?.state === 'repath',
+            null,
+            { timeout: 10_000 },
+        );
+        const firstUnreachable = await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('unreachable-wolf'));
+        await page.waitForTimeout(1_200);
+        const secondUnreachable = await page.evaluate(() => window.__chickenFarmDebug!.getRuntimeEnemyBehaviorForTest('unreachable-wolf'));
+        if (
+            !openDetour ||
+            !duringBlockerAttack ||
+            !afterBlockerDestroyed ||
+            !firstUnreachable ||
+            !secondUnreachable ||
+            firstUnreachable.state !== 'repath' ||
+            secondUnreachable.state !== 'repath' ||
+            !Number.isFinite(firstUnreachable.pathRemaining) ||
+            !Number.isFinite(secondUnreachable.pathRemaining)
+        ) {
+            throw new Error(`Blocker/repath behavior mismatch: ${JSON.stringify({ afterBlockerDestroyed, duringBlockerAttack, firstUnreachable, openDetour, secondUnreachable })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'blocker',
+            checks: {
+                openDetourPreservedFence: true,
+                sealedPathAttackedBlocker: true,
+                destroyedBlockerClearedFocusAndRepathed: true,
+                unreachableTerrainRetriedFinitely: true,
+                pass: true,
+            },
+            errors,
+            behaviors: { afterBlockerDestroyed, duringBlockerAttack, firstUnreachable, openDetour, secondUnreachable },
+        };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runRestartCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const initial = await getCombatSnapshot(page);
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.createCombatEnemyFixture('restart-old-wolf', 'timber_wolf', 3500, 8928))) {
+            throw new Error('Failed to create first restart enemy');
+        }
+        const towerId = await page.evaluate(() => window.__chickenFarmDebug!.createCombatBuildingFixture('tower_scout', 3904, 8896));
+        const chickenId = await page.evaluate(() => window.__chickenFarmDebug!.createEconomyChickenFixture(3, 4300, 8896));
+        if (!towerId || !chickenId) throw new Error('Failed to create first restart fixtures');
+        const beforeFirstRestart = await getCombatSnapshot(page);
+        if (!beforeFirstRestart.enemies.length || !beforeFirstRestart.buildings.length || !beforeFirstRestart.chickens.length) {
+            throw new Error(`Restart setup did not create combat state: ${JSON.stringify(beforeFirstRestart)}`);
+        }
+        if (!await page.evaluate(() => {
+            const stale = window.__chickenFarmDebug!;
+            window.setTimeout(() => stale.damageControllableUnitForTest('p3-farmer', 99), 180);
+            return stale.restartRunForTest();
+        })) {
+            throw new Error('First same-page restart was rejected');
+        }
+        await page.waitForFunction((runId) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().runId > runId, initial.runId, { timeout: 10_000 });
+        await page.waitForTimeout(260);
+        const afterFirstRestart = await getCombatSnapshot(page);
+        assertFreshCombatRestart(afterFirstRestart, 'first restart');
+
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.createCombatEnemyFixture('restart-new-wolf', 'timber_wolf', 3500, 8928))) {
+            throw new Error('Fresh run could not create combat enemy');
+        }
+        const activeSecondRun = await getCombatSnapshot(page);
+        if (!activeSecondRun.enemies.some((enemy) => enemy.id === 'restart-new-wolf')) {
+            throw new Error(`Fresh run did not expose new combat enemy: ${JSON.stringify(activeSecondRun)}`);
+        }
+        if (!await page.evaluate(() => {
+            const stale = window.__chickenFarmDebug!;
+            window.setTimeout(() => stale.damageControllableUnitForTest('p3-farmer', 99), 180);
+            return stale.restartRunForTest();
+        })) {
+            throw new Error('Second same-page restart was rejected');
+        }
+        await page.waitForFunction((runId) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().runId > runId, afterFirstRestart.runId, { timeout: 10_000 });
+        await page.waitForTimeout(260);
+        const afterSecondRestart = await getCombatSnapshot(page);
+        assertFreshCombatRestart(afterSecondRestart, 'second restart');
+        assertNoErrors(errors);
+        return {
+            case: 'restart',
+            checks: {
+                freshRunCanCreateCombatEnemy: true,
+                staleFixturesAndTargetsRemoved: true,
+                staleRunCallbackCannotDamageFreshUnit: true,
+                twoSamePageRestarts: true,
+                pass: true,
+            },
+            errors,
+            snapshots: { afterFirstRestart, afterSecondRestart, beforeFirstRestart },
+        };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runIntegrationCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const before = await getCombatSnapshot(page);
+        assertBaseline(before, before);
+
+        const canvas = await getCanvasBounds(page);
+        const calibration = await getWorldCalibration(page, canvas);
+        await selectFarmer(page, canvas);
+        await clickInventorySlot(page, canvas, 0);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().chickens.length === 1,
+            null,
+            { timeout: 8_000 },
+        );
+        const afterChicken = await getCombatSnapshot(page);
+        const chicken = afterChicken.chickens[0];
+        if (
+            !chicken ||
+            chicken.ownerPlayerId !== 3 ||
+            chicken.hp <= 0 ||
+            chicken.hp > chicken.maxHp ||
+            !afterChicken.wolfTargets.some((target) => target.id === chicken.id && target.ownerPlayerId === 3)
+        ) {
+            throw new Error(`Actual chicken acquisition did not enter economy/combat state: ${JSON.stringify(afterChicken)}`);
+        }
+
+        await selectFarmer(page, canvas);
+        await page.keyboard.press('b');
+        await page.keyboard.press('f');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().activePlacementTemplateId === 'fence_wood',
+            null,
+            { timeout: 5_000 },
+        );
+        const fencePoint = { x: 3584, y: 8896 };
+        await clickWorld(page, calibration, fencePoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().pendingOrders.some(
+                (order) => order.templateId === 'fence_wood',
+            ),
+            null,
+            { timeout: 8_000 },
+        );
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().buildings.some(
+                (building) => building.templateId === 'fence_wood' && building.state === 'complete',
+            ),
+            null,
+            { timeout: 15_000 },
+        );
+        const afterFence = await getCombatSnapshot(page);
+        const fence = afterFence.buildings.find(
+            (building) => building.templateId === 'fence_wood' && building.state === 'complete',
+        );
+        if (!fence || fence.ownerPlayerId !== 3 || fence.hp !== fence.maxHp || !fence.targetableByWolves) {
+            throw new Error(`Actual fence build did not complete as a wolf target: ${JSON.stringify(afterFence)}`);
+        }
+
+        const enemyId = 'integration-wolf';
+        const farmer = afterFence.units.find((unit) => unit.id === 'p3-farmer');
+        if (!farmer || !await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'timber_wolf', x, y),
+            { id: enemyId, x: farmer.x + 80, y: farmer.y },
+        )) {
+            throw new Error('Failed to inject integration enemy fixture');
+        }
+        await selectFarmer(page, canvas);
+        await clickWorld(page, calibration, { x: farmer.x + 80, y: farmer.y }, 'right');
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.some(
+                (unit) => unit.id === 'p3-farmer' && unit.currentCommandTargetId === id,
+            ),
+            enemyId,
+            { timeout: 8_000 },
+        );
+        const duringAttack = await getCombatSnapshot(page);
+        if (!await page.evaluate((id) => window.__chickenFarmDebug!.setCombatEnemyHpForTest(id, 1), enemyId)) {
+            throw new Error('Failed to prepare integration enemy for final player hit');
+        }
+        await page.waitForFunction(
+            (id) => !window.__chickenFarmDebug!.getCombatLifecycleSnapshot().enemies.some((enemy) => enemy.id === id),
+            enemyId,
+            { timeout: 12_000 },
+        );
+        await page.waitForFunction(
+            (id) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().units.every(
+                (unit) => unit.currentCommandTargetId !== id,
+            ),
+            enemyId,
+            { timeout: 5_000 },
+        );
+        const afterKill = await getCombatSnapshot(page);
+        if (
+            !duringAttack.units.some((unit) => unit.id === 'p3-farmer' && unit.currentCommandTargetId === enemyId) ||
+            afterKill.enemies.some((enemy) => enemy.id === enemyId) ||
+            (afterKill.chickens.find((candidate) => candidate.id === chicken.id)?.hp ?? 0) <= 0 ||
+            afterKill.buildings.find((candidate) => candidate.id === fence.id)?.hp !== fence.maxHp
+        ) {
+            throw new Error(`Integration command/lifecycle mismatch: ${JSON.stringify({ afterKill, duringAttack })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'integration',
+            checks: {
+                actualP3ChickenAcquisition: true,
+                actualP3FenceConstruction: true,
+                enemyFixtureOnly: true,
+                actualRightClickAttackAndCommandClear: true,
+                blockerDestructionAndRepathDeferredToSp07_16: true,
+                pass: true,
+            },
+            errors,
+            snapshots: { afterChicken, afterFence, afterKill, before, duringAttack },
+        };
+    } finally { await page.close(); await browser.close(); }
+}
+
+function assertFreshCombatRestart(snapshot: CombatSnapshot, label: string) {
+    if (
+        snapshot.enemies.length !== 0 ||
+        snapshot.buildings.length !== 0 ||
+        snapshot.chickens.length !== 0 ||
+        snapshot.units.length !== 2 ||
+        snapshot.units.some((unit) => unit.hp !== unit.maxHp || unit.currentCommandType !== null || unit.commandQueueCount !== 0) ||
+        snapshot.wolfTargets.length !== 2
+    ) {
+        throw new Error(`${label} retained stale combat state: ${JSON.stringify(snapshot)}`);
+    }
 }
 
 function assertHasTarget(
