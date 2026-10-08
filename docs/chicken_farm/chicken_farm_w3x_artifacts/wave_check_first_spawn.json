@@ -1,0 +1,77 @@
+{
+  "case": "first_spawn",
+  "checks": {
+    "actualRuntimeRegistryEntry": true,
+    "pass": true,
+    "productionWaveTickPath": true,
+    "spawnBeforeBoundaryZero": true,
+    "spawnMetadataMatchesOwnerTierAndRect": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "startId": 3,
+    "targetOverride": {
+      "quantity": 1,
+      "tier": 1
+    }
+  },
+  "snapshot": {
+    "activeTierTargets": [
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": 1,
+        "tier": 1
+      },
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": null,
+        "tier": 2
+      },
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": null,
+        "tier": 3
+      },
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": null,
+        "tier": 4
+      },
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": null,
+        "tier": 5
+      },
+      {
+        "confirmedPhaseEntryDeltaTotal": 0,
+        "targetQuantity": null,
+        "tier": 6
+      }
+    ],
+    "currentPhaseAtSec": 120,
+    "nextPhaseAtSec": 600,
+    "nextReplenishAtSec": 120.2,
+    "schedulerStatus": "enabled",
+    "waveManagedEnemyIds": [
+      "wave-r1-t1-s0"
+    ],
+    "waveManagedEnemies": [
+      {
+        "enemyId": "timber_wolf",
+        "id": "wave-r1-t1-s0",
+        "ownerPlayerId": 10,
+        "sourceRectId": "wolf_spawn_rect_13",
+        "spawnedAtSec": 120,
+        "spawnX": 8551.303918496898,
+        "spawnY": 1449.0796321301204,
+        "tier": 1
+      }
+    ]
+  }
+}

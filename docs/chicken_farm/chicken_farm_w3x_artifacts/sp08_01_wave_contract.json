@@ -1,0 +1,61 @@
+{
+  "id": "SP-08-01",
+  "status": "complete",
+  "scope": "Static W3X-to-web wave contract only; no runtime scheduler, spawn manifest, or browser harness was implemented.",
+  "sources": [
+    { "path": "wolf_wave_phase_reference.tsv", "evidence": "Ten phases at 120, 600, 1100, 1500, 2000, 2200, 2400, 2600, 2800, and 3000 seconds; each names replenish and target-increment functions." },
+    { "path": "jass_timer_events.tsv", "evidence": "Phase replenish triggers IIiliI through IIlliI run every 0.20 seconds; target-increment triggers run every 35 or 22 seconds; IIIiiI runs every 60 seconds." },
+    { "path": "jass_wolf_order_flows.tsv", "evidence": "Player(10) units receive an attack point order on spawn-rect entry and every 60 seconds toward a random point in IlIlI; no general unit/building priority is present." },
+    { "path": "jass_wolf_order_areas.tsv", "evidence": "IlIlI is the source global attack rect [-3168,-7424] to [7008,2848]." },
+    { "path": "jass_wolf_unit_tiers.tsv", "evidence": "Defines ordinary tier 1-18 rawcodes; mapping to web EnemyId remains SP-08-04." },
+    { "path": "../chicken_farm_sp07_w3x_comparison.md", "evidence": "SP-07 supplies the shared runtime enemy/combat lifecycle and reserves natural wave scheduling for SP-08." }
+  ],
+  "originalFacts": {
+    "enemyOwnerPlayerId": 10,
+    "replenish": {
+      "intervalSec": 0.2,
+      "batchSize": 2,
+      "phaseTiers": { "120": "1-6", "600": "3-7", "1100": "4-9", "1500": "7-9", "2000": "8-12", "2200": "10-12", "2400": "11-15", "2600": "13-15", "2800": "14-18", "3000": "16-18" }
+    },
+    "targetPopulation": {
+      "incrementIntervalsSec": { "120": 35, "600": 35, "1100": 35, "1500": 35, "2000": 35, "2200": 35, "2400": 35, "2600": 35, "2800": 22, "3000": 22 },
+      "phaseEntryDeltas": { "120": "none in extracted reference", "600": "tier 3:+7, 4:+3, 5:+2, 6:+1", "1100": "tier 4:+5, 5:+3, 6:+2, 7:+1", "1500": "tier 7:+4, 8:+3, 9:+2", "2000": "tier 8:+7, 9:+5, 10:+4, 11:+3, 12:+2", "2200": "tier 10:+7, 11:+4, 12:+3", "2400": "tier 11:+7, 12:+6, 13:+5, 14:+4, 15:+3", "2600": "tier 13:+7, 14:+4, 15:+3", "2800": "tier 14:+9, 15:+8, 16:+7, 17:+5, 18:+4", "3000": "tier 16:+9, 17:+7, 18:+6" }
+    },
+    "orders": {
+      "spawnEntry": "Player(10) wolf entering a spawn rect receives an attack order to a random point in IlIlI.",
+      "globalRefresh": "Every 60 seconds, all Player(10) units receive an attack order to a random point in IlIlI.",
+      "targetPriority": "The extracted JASS flow does not state a general farmer, chicken, or building priority."
+    },
+    "bossMilestones": { "600": "H012", "1500": "H00X", "2200": "H013", "2600": "H01B", "3000": "H01N" }
+  },
+  "currentWebState": {
+    "session": { "firstWaveSec": 120, "waveCheckIntervalSec": 20, "source": "src/game/balance.ts" },
+    "waves": "waves.timeline is a mixed ordinary/boss event list with replenishBatchSize 2 and min-alive values 2-6; it is not connected to the normal runtime scheduler.",
+    "combat": "CombatPocSystem can spawn/remove runtime enemies and immediately issues a spawn-entry attack move, but normal runs have no natural wave spawning.",
+    "orders": "The current per-wolf refresh checks elapsed time since that wolf's last order and may also refresh when stuck or when its target is reached. It is not the original global 60-second group order."
+  },
+  "webDecisions": {
+    "populationAuthority": "SP-08 scheduler owns only wave-managed, living runtime enemies with ownerPlayerId 10 and a recorded ordinary tier. Fixtures, PoC wolves, bosses, and another owner's units do not count toward ordinary population.",
+    "phaseReplacement": "At a phase boundary the new phase becomes the sole active replenishment and target-increment policy. Existing enemies remain alive and keep their tier; their removal is not a phase transition side effect.",
+    "spawnFailure": "A failed placement does not consume a sequence ID, does not increase alive population, and is retried on the next due 0.2-second replenish tick.",
+    "timeAndOrdering": "The scheduler uses scene simulation time. At one timestamp it applies phase transitions in ascending time order, then due target increments, then replenish from the canonical live registry, then global attack refresh. Repeating the same timestamp is idempotent.",
+    "targetIncrementSchedule": "Unless source recovery proves a different reset rule, each phase schedules its first periodic target increment one full phase interval after activation. This is a web scheduling decision, not an asserted W3X fact.",
+    "spawnOrders": "A newly registered wave enemy receives one spawn-entry attack-move toward the converted W3X global attack rect. Concrete target acquisition remains the SP-07 web combat policy.",
+    "globalRefresh": "At elapsed multiples of 60 seconds, each living wave-managed Player(10) enemy receives exactly one global attack refresh independent of its spawn time. Stuck/reached repaths remain separately labelled and must not count as the global refresh.",
+    "normalStart": "Normal P3 starts with zero wave-managed enemies and creates none before the 120-second phase; test fixtures may only exist in explicit test profiles."
+  },
+  "unresolvedSourceFacts": [
+    { "item": "Initial target population for tiers 1-6 at 120 seconds", "reason": "The phase reference labels the entry delta as none, while extracted timer/function labels do not expose array initialization values.", "requiredBefore": "SP-08-05 canonical phase configuration and SP-08-07 population increment implementation" },
+    { "item": "Per-35/22-second increment amount and exact timer reset/overlap behavior", "reason": "Artifacts establish timer periods and phase-entry deltas, but not increment function bodies or timer lifecycle.", "requiredBefore": "SP-08-05 and SP-08-07" },
+    { "item": "Whether a one-unit shortage may be overshot by the two-unit CreateNUnitsAtLoc batch", "reason": "The batch size is evidenced, but the conditional comparison is absent from extracted summaries.", "requiredBefore": "SP-08-08 replenish calculation" },
+    { "item": "Exact raw-W3X to trimmed Phaser conversion for global attack and 13 spawn rects", "reason": "Original bounds are known, but coordinate conversion and pathing validity are SP-08-02 work.", "requiredBefore": "SP-08-02 and SP-08-12" }
+  ],
+  "explicitNonGoals": {
+    "SP-09": "Building costs, build time, requirements, upgrades, tower access, and gate states.",
+    "SP-10": "Boss spawning, abilities, summons, drops, rewards, and duplicate reward prevention.",
+    "SP-11": "Farmer revival, defeat, and simulation lock.",
+    "SP-13": "Pause and hidden-tab clock policy.",
+    "SP-15": "Combat-stat and normal-play balance tuning."
+  },
+  "nextTask": "SP-08-02 — 13 spawn rect coordinate manifest and static verification"
+}

@@ -637,7 +637,7 @@ export class CombatPocSystem {
             (candidate) => candidate.id === enemyId && candidate.runtimeManaged && candidate.hp > 0,
         );
         if (!wolf) return null;
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const acquireRange = enemy.acquireRangePx ?? 176;
         const attackRange = enemy.attackRangePx ?? 34;
         const units = this.getWolfTargetableUnits()
@@ -845,7 +845,7 @@ export class CombatPocSystem {
     }
 
     private updateWolfCombat(wolf: CombatWolf, deltaSec: number) {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const movementDeltaSec = Math.min(deltaSec, MAX_WOLF_MOVEMENT_DELTA_SEC);
         this.updateWolfAutoAcquireFocus(wolf);
         this.refreshWolfAttackMoveOrderIfNeeded(wolf);
@@ -1253,7 +1253,7 @@ export class CombatPocSystem {
         wolf: CombatWolf,
         building: CombatBuilding,
     ): GridPathPoint[] {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const attackRange = (enemy.attackRangePx ?? 34) + (enemy.rangeLeashPx ?? 0);
         const baseMargin = Math.max(12, attackRange - 24);
         const margins = [
@@ -1394,7 +1394,7 @@ export class CombatPocSystem {
 
         const focusedUnit = this.getWolfFocusedUnit(wolf);
         if (focusedUnit) {
-            const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+            const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
             const distance = Phaser.Math.Distance.Between(
                 wolf.body.x,
                 wolf.body.y,
@@ -1449,7 +1449,7 @@ export class CombatPocSystem {
     }
 
     private getWolfUnitTargetInAcquireRange(wolf: CombatWolf) {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const acquireRange = enemy.acquireRangePx ?? 176;
         const units = this.getWolfTargetableUnits()
             .filter((unit) => {
@@ -1474,7 +1474,7 @@ export class CombatPocSystem {
     }
 
     private getWolfBuildingTargetInAcquireRange(wolf: CombatWolf) {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const acquireRange = enemy.acquireRangePx ?? 176;
         const buildings = this.combatBuildings
             .filter((building) => {
@@ -1540,7 +1540,7 @@ export class CombatPocSystem {
     }
 
     private getWolfUnitTargetInAttackRange(wolf: CombatWolf): WolfDirectTarget | null {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const acquireRange = enemy.acquireRangePx ?? 176;
         const attackRange = enemy.attackRangePx ?? 34;
         const units = this.getWolfTargetableUnits()
@@ -1774,7 +1774,7 @@ export class CombatPocSystem {
     }
 
     private isWolfInExternalBuildingAttackRange(wolf: CombatWolf, building: WolfTargetableBuilding) {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         return this.getDistanceFromWolfToExternalFootprint(wolf, building) <= (enemy.attackRangePx ?? 34) + (enemy.rangeLeashPx ?? 0);
     }
 
@@ -1797,7 +1797,7 @@ export class CombatPocSystem {
     }
 
     private isWolfInAttackRange(wolf: CombatWolf, building: CombatBuilding) {
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const attackRange = (enemy.attackRangePx ?? 34) + (enemy.rangeLeashPx ?? 0);
         const attackCircle = new Phaser.Geom.Circle(
             wolf.body.x,
@@ -1822,7 +1822,7 @@ export class CombatPocSystem {
     ) {
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const appliedDamage = Math.max(1, damage - building.armor);
         building.hp = Math.max(0, building.hp - appliedDamage);
         wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
@@ -1884,7 +1884,7 @@ export class CombatPocSystem {
 
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
-        const enemy = CHICKEN_FARM_BALANCE.enemies[POC_WOLF_ID];
+        const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
         const damaged = target.value.targetKind === 'economy_chicken'
             ? this.damageEconomyChicken?.(target.value.id, damage, wolf.id) ?? false
             : this.damageControllableUnit?.(target.value.id, damage, wolf.id) ?? false;

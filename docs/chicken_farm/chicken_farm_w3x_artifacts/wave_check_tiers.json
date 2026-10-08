@@ -1,0 +1,188 @@
+{
+  "case": "tiers",
+  "damagePolicy": "W3X base + 1dN damage is stored as Math.round(base + (N + 1) / 2).",
+  "pass": true,
+  "specialAbilities": "Not represented by ordinary tier data; SP-10 owns ability and summon lifecycle.",
+  "tiers": [
+    {
+      "armor": 0,
+      "attackCooldownSec": 1.35,
+      "damage": 13,
+      "enemyId": "timber_wolf",
+      "hp": 450,
+      "rawcode": "n007",
+      "speedPxPerSec": 330,
+      "tier": 1
+    },
+    {
+      "armor": 1,
+      "attackCooldownSec": 1.35,
+      "damage": 19,
+      "enemyId": "frost_wolf",
+      "hp": 600,
+      "rawcode": "n008",
+      "speedPxPerSec": 330,
+      "tier": 2
+    },
+    {
+      "armor": 1,
+      "attackCooldownSec": 1.35,
+      "damage": 23,
+      "enemyId": "giant_wolf",
+      "hp": 700,
+      "rawcode": "n009",
+      "speedPxPerSec": 330,
+      "tier": 3
+    },
+    {
+      "armor": 2,
+      "attackCooldownSec": 1.35,
+      "damage": 26,
+      "enemyId": "giant_frost_wolf",
+      "hp": 800,
+      "rawcode": "n00A",
+      "speedPxPerSec": 330,
+      "tier": 4
+    },
+    {
+      "armor": 2,
+      "attackCooldownSec": 1.35,
+      "damage": 30,
+      "enemyId": "dire_wolf",
+      "hp": 700,
+      "rawcode": "n00B",
+      "speedPxPerSec": 330,
+      "tier": 5
+    },
+    {
+      "armor": 3,
+      "attackCooldownSec": 1.35,
+      "damage": 32,
+      "enemyId": "dire_frost_wolf",
+      "hp": 750,
+      "rawcode": "n00C",
+      "speedPxPerSec": 330,
+      "tier": 6
+    },
+    {
+      "armor": 5,
+      "attackCooldownSec": 1.35,
+      "damage": 57,
+      "enemyId": "spirit_wolf",
+      "hp": 1900,
+      "rawcode": "n00G",
+      "speedPxPerSec": 330,
+      "tier": 7
+    },
+    {
+      "armor": 5,
+      "attackCooldownSec": 1.35,
+      "damage": 64,
+      "enemyId": "dire_wolf_tier_8",
+      "hp": 2200,
+      "rawcode": "n00I",
+      "speedPxPerSec": 330,
+      "tier": 8
+    },
+    {
+      "armor": 6,
+      "attackCooldownSec": 1.35,
+      "damage": 71,
+      "enemyId": "shadow_wolf",
+      "hp": 2700,
+      "rawcode": "n00J",
+      "speedPxPerSec": 330,
+      "tier": 9
+    },
+    {
+      "armor": 7,
+      "attackCooldownSec": 1.35,
+      "damage": 91,
+      "enemyId": "fel_beast",
+      "hp": 700,
+      "rawcode": "n00K",
+      "speedPxPerSec": 350,
+      "tier": 10
+    },
+    {
+      "armor": 8,
+      "attackCooldownSec": 1.35,
+      "damage": 108,
+      "enemyId": "fel_stalker",
+      "hp": 6500,
+      "rawcode": "n00L",
+      "speedPxPerSec": 350,
+      "tier": 11
+    },
+    {
+      "armor": 9,
+      "attackCooldownSec": 1.35,
+      "damage": 125,
+      "enemyId": "fel_ravager",
+      "hp": 7500,
+      "rawcode": "n00M",
+      "speedPxPerSec": 350,
+      "tier": 12
+    },
+    {
+      "armor": 10,
+      "attackCooldownSec": 1.35,
+      "damage": 147,
+      "enemyId": "darkguard",
+      "hp": 14000,
+      "rawcode": "n00U",
+      "speedPxPerSec": 330,
+      "tier": 13
+    },
+    {
+      "armor": 12,
+      "attackCooldownSec": 1.35,
+      "damage": 171,
+      "enemyId": "shupikuta",
+      "hp": 19000,
+      "rawcode": "n00V",
+      "speedPxPerSec": 330,
+      "tier": 14
+    },
+    {
+      "armor": 14,
+      "attackCooldownSec": 1.35,
+      "damage": 187,
+      "enemyId": "overlord",
+      "hp": 17500,
+      "rawcode": "n00W",
+      "speedPxPerSec": 330,
+      "tier": 15
+    },
+    {
+      "armor": 15,
+      "attackCooldownSec": 1.35,
+      "damage": 215,
+      "enemyId": "satyr",
+      "hp": 17000,
+      "rawcode": "n013",
+      "speedPxPerSec": 330,
+      "tier": 16
+    },
+    {
+      "armor": 18,
+      "attackCooldownSec": 1.35,
+      "damage": 248,
+      "enemyId": "satyr_soulstealer",
+      "hp": 19000,
+      "rawcode": "n015",
+      "speedPxPerSec": 330,
+      "tier": 17
+    },
+    {
+      "armor": 24,
+      "attackCooldownSec": 1.35,
+      "damage": 291,
+      "enemyId": "satyr_shadowdancer",
+      "hp": 22000,
+      "rawcode": "n014",
+      "speedPxPerSec": 330,
+      "tier": 18
+    }
+  ]
+}

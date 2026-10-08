@@ -1,0 +1,29 @@
+{
+  "case": "baseline",
+  "checks": {
+    "normalP3FixtureCountZero": true,
+    "pass": true,
+    "snapshotReadOnly": true,
+    "waveEnemyCountZero": true,
+    "waveSchedulerEnabled": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": false,
+    "startId": 3
+  },
+  "snapshot": {
+    "activeTierTargets": [],
+    "currentPhaseAtSec": null,
+    "nextPhaseAtSec": 120,
+    "nextReplenishAtSec": null,
+    "schedulerStatus": "enabled",
+    "waveManagedEnemyIds": [],
+    "waveManagedEnemies": []
+  }
+}

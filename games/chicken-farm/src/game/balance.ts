@@ -4,6 +4,8 @@ import type {
     DifficultyConfig,
     DifficultyId,
     EnemyId,
+    WaveBossMilestone,
+    WaveTierDelta,
 } from './balanceTypes';
 import { BUILDING_TEMPLATES } from './buildingTemplates';
 
@@ -28,6 +30,7 @@ export type {
     LumberMillIncomeConfig,
     MarketBuildingId,
     MvpBuildingId,
+    OrdinaryWavePhase,
     PathingBalance,
     ProductionBuildingId,
     ResearchBuildingId,
@@ -37,7 +40,8 @@ export type {
     ShopItemId,
     SourceTrace,
     WaveBalance,
-    WaveEvent,
+    WaveBossMilestone,
+    WaveTierDelta,
     WolfFocusRule,
     WolfOrderRefreshRule,
     WolfTargetClass,
@@ -49,6 +53,32 @@ const WOLF_AUTO_ACQUIRE_RANGE_PX = 176;
 const WOLF_RANGE_LEASH_PX = 16;
 const WOLF_WINDUP_SEC = 0.18;
 const BOSS_AUTO_ACQUIRE_RANGE_PX = 208;
+
+function ordinaryWolf(config: {
+    readonly armor: number;
+    readonly attackCooldownSec: number;
+    readonly damage: number;
+    readonly hp: number;
+    readonly id: EnemyId;
+    readonly rawcode: string;
+    readonly score: number;
+    readonly speedPxPerSec: number;
+}) {
+    return {
+        ...config,
+        attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+        acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
+        rangeLeashPx: WOLF_RANGE_LEASH_PX,
+        source: {
+            notes: [
+                'W3X dice damage is converted to rounded fixed average damage for the web combat model.',
+            ],
+            rawcode: config.rawcode,
+        },
+        tags: ['ordinary'] as const,
+        windupSec: WOLF_WINDUP_SEC,
+    };
+}
 
 export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
     buildingTemplates: BUILDING_TEMPLATES,
@@ -258,11 +288,11 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         },
         frost_wolf: {
             armor: 1,
-            attackCooldownSec: 1.1,
+            attackCooldownSec: 1.35,
             attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
             acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
-            damage: 12,
-            hp: 140,
+            damage: 19,
+            hp: 600,
             id: 'frost_wolf',
             rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 15,
@@ -275,11 +305,11 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         },
         giant_wolf: {
             armor: 1,
-            attackCooldownSec: 1.15,
+            attackCooldownSec: 1.35,
             attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
             acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
-            damage: 16,
-            hp: 175,
+            damage: 23,
+            hp: 700,
             id: 'giant_wolf',
             rangeLeashPx: WOLF_RANGE_LEASH_PX,
             score: 20,
@@ -290,6 +320,156 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             tags: ['ordinary'],
             windupSec: WOLF_WINDUP_SEC,
         },
+        giant_frost_wolf: ordinaryWolf({
+            armor: 2,
+            attackCooldownSec: 1.35,
+            damage: 26,
+            hp: 800,
+            id: 'giant_frost_wolf',
+            rawcode: 'n00A',
+            score: 40,
+            speedPxPerSec: 330,
+        }),
+        dire_wolf: ordinaryWolf({
+            armor: 2,
+            attackCooldownSec: 1.35,
+            damage: 30,
+            hp: 700,
+            id: 'dire_wolf',
+            rawcode: 'n00B',
+            score: 50,
+            speedPxPerSec: 330,
+        }),
+        dire_frost_wolf: ordinaryWolf({
+            armor: 3,
+            attackCooldownSec: 1.35,
+            damage: 32,
+            hp: 750,
+            id: 'dire_frost_wolf',
+            rawcode: 'n00C',
+            score: 60,
+            speedPxPerSec: 330,
+        }),
+        spirit_wolf: ordinaryWolf({
+            armor: 5,
+            attackCooldownSec: 1.35,
+            damage: 57,
+            hp: 1900,
+            id: 'spirit_wolf',
+            rawcode: 'n00G',
+            score: 70,
+            speedPxPerSec: 330,
+        }),
+        dire_wolf_tier_8: ordinaryWolf({
+            armor: 5,
+            attackCooldownSec: 1.35,
+            damage: 64,
+            hp: 2200,
+            id: 'dire_wolf_tier_8',
+            rawcode: 'n00I',
+            score: 80,
+            speedPxPerSec: 330,
+        }),
+        shadow_wolf: ordinaryWolf({
+            armor: 6,
+            attackCooldownSec: 1.35,
+            damage: 71,
+            hp: 2700,
+            id: 'shadow_wolf',
+            rawcode: 'n00J',
+            score: 90,
+            speedPxPerSec: 330,
+        }),
+        fel_beast: ordinaryWolf({
+            armor: 7,
+            attackCooldownSec: 1.35,
+            damage: 91,
+            hp: 700,
+            id: 'fel_beast',
+            rawcode: 'n00K',
+            score: 100,
+            speedPxPerSec: 350,
+        }),
+        fel_stalker: ordinaryWolf({
+            armor: 8,
+            attackCooldownSec: 1.35,
+            damage: 108,
+            hp: 6500,
+            id: 'fel_stalker',
+            rawcode: 'n00L',
+            score: 110,
+            speedPxPerSec: 350,
+        }),
+        fel_ravager: ordinaryWolf({
+            armor: 9,
+            attackCooldownSec: 1.35,
+            damage: 125,
+            hp: 7500,
+            id: 'fel_ravager',
+            rawcode: 'n00M',
+            score: 120,
+            speedPxPerSec: 350,
+        }),
+        darkguard: ordinaryWolf({
+            armor: 10,
+            attackCooldownSec: 1.35,
+            damage: 147,
+            hp: 14000,
+            id: 'darkguard',
+            rawcode: 'n00U',
+            score: 130,
+            speedPxPerSec: 330,
+        }),
+        shupikuta: ordinaryWolf({
+            armor: 12,
+            attackCooldownSec: 1.35,
+            damage: 171,
+            hp: 19000,
+            id: 'shupikuta',
+            rawcode: 'n00V',
+            score: 140,
+            speedPxPerSec: 330,
+        }),
+        overlord: ordinaryWolf({
+            armor: 14,
+            attackCooldownSec: 1.35,
+            damage: 187,
+            hp: 17500,
+            id: 'overlord',
+            rawcode: 'n00W',
+            score: 150,
+            speedPxPerSec: 330,
+        }),
+        satyr: ordinaryWolf({
+            armor: 15,
+            attackCooldownSec: 1.35,
+            damage: 215,
+            hp: 17000,
+            id: 'satyr',
+            rawcode: 'n013',
+            score: 160,
+            speedPxPerSec: 330,
+        }),
+        satyr_soulstealer: ordinaryWolf({
+            armor: 18,
+            attackCooldownSec: 1.35,
+            damage: 248,
+            hp: 19000,
+            id: 'satyr_soulstealer',
+            rawcode: 'n015',
+            score: 170,
+            speedPxPerSec: 330,
+        }),
+        satyr_shadowdancer: ordinaryWolf({
+            armor: 24,
+            attackCooldownSec: 1.35,
+            damage: 291,
+            hp: 22000,
+            id: 'satyr_shadowdancer',
+            rawcode: 'n014',
+            score: 180,
+            speedPxPerSec: 330,
+        }),
         hell_hound: {
             armor: 3,
             attackCooldownSec: 0.9,
@@ -887,79 +1067,34 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
         },
     },
     waves: {
+        // SP-10 owns boss spawning and rewards. These are source milestones only.
+        bossMilestonesForSp10: [
+            { atSec: 600, bossRawcode: 'H012', note: 'Blood Wolf' },
+            { atSec: 1500, bossRawcode: 'H00X', note: 'Wild Wolf' },
+            { atSec: 2200, bossRawcode: 'H013', note: 'Hell Hound' },
+            { atSec: 2600, bossRawcode: 'H01B', note: 'Doom Guard' },
+            { atSec: 3000, bossRawcode: 'H01N', note: 'Archimonde' },
+        ] satisfies readonly WaveBossMilestone[],
+        ordinaryPhases: [
+            { activeTiers: [1, 2, 3, 4, 5, 6], atSec: 120, phaseEntryTargetDeltas: [], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [3, 4, 5, 6, 7], atSec: 600, phaseEntryTargetDeltas: [{ amount: 7, tier: 3 }, { amount: 3, tier: 4 }, { amount: 2, tier: 5 }, { amount: 1, tier: 6 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [4, 5, 6, 7, 8, 9], atSec: 1100, phaseEntryTargetDeltas: [{ amount: 5, tier: 4 }, { amount: 3, tier: 5 }, { amount: 2, tier: 6 }, { amount: 1, tier: 7 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [7, 8, 9], atSec: 1500, phaseEntryTargetDeltas: [{ amount: 4, tier: 7 }, { amount: 3, tier: 8 }, { amount: 2, tier: 9 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [8, 9, 10, 11, 12], atSec: 2000, phaseEntryTargetDeltas: [{ amount: 7, tier: 8 }, { amount: 5, tier: 9 }, { amount: 4, tier: 10 }, { amount: 3, tier: 11 }, { amount: 2, tier: 12 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [10, 11, 12], atSec: 2200, phaseEntryTargetDeltas: [{ amount: 7, tier: 10 }, { amount: 4, tier: 11 }, { amount: 3, tier: 12 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [11, 12, 13, 14, 15], atSec: 2400, phaseEntryTargetDeltas: [{ amount: 7, tier: 11 }, { amount: 6, tier: 12 }, { amount: 5, tier: 13 }, { amount: 4, tier: 14 }, { amount: 3, tier: 15 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [13, 14, 15], atSec: 2600, phaseEntryTargetDeltas: [{ amount: 7, tier: 13 }, { amount: 4, tier: 14 }, { amount: 3, tier: 15 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 35 },
+            { activeTiers: [14, 15, 16, 17, 18], atSec: 2800, phaseEntryTargetDeltas: [{ amount: 9, tier: 14 }, { amount: 8, tier: 15 }, { amount: 7, tier: 16 }, { amount: 5, tier: 17 }, { amount: 4, tier: 18 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 22 },
+            { activeTiers: [16, 17, 18], atSec: 3000, phaseEntryTargetDeltas: [{ amount: 9, tier: 16 }, { amount: 7, tier: 17 }, { amount: 6, tier: 18 }], periodicTargetDeltas: null, replenishIntervalSec: 0.2, targetIncrementIntervalSec: 22 },
+        ] satisfies readonly {
+            readonly activeTiers: readonly number[];
+            readonly atSec: number;
+            readonly phaseEntryTargetDeltas: readonly WaveTierDelta[];
+            readonly periodicTargetDeltas: null;
+            readonly replenishIntervalSec: number;
+            readonly targetIncrementIntervalSec: number;
+        }[],
         replenishBatchSize: 2,
-        replenishMinAliveBase: 2,
-        replenishMinAliveMax: 6,
-        timeline: [
-            {
-                atSec: 120,
-                count: 4,
-                enemyId: 'timber_wolf',
-                group: 'ordinary',
-            },
-            {
-                atSec: 600,
-                count: 1,
-                enemyId: 'blood_wolf',
-                group: 'boss',
-            },
-            {
-                atSec: 1100,
-                count: 5,
-                enemyId: 'frost_wolf',
-                group: 'ordinary',
-            },
-            {
-                atSec: 1500,
-                count: 1,
-                enemyId: 'wild_wolf',
-                group: 'boss',
-            },
-            {
-                atSec: 2000,
-                count: 4,
-                enemyId: 'giant_wolf',
-                group: 'ordinary',
-            },
-            {
-                atSec: 2200,
-                count: 1,
-                enemyId: 'hell_hound',
-                group: 'boss',
-            },
-            {
-                atSec: 2400,
-                count: 6,
-                enemyId: 'giant_wolf',
-                group: 'ordinary',
-            },
-            {
-                atSec: 2600,
-                count: 1,
-                enemyId: 'doom_guard',
-                group: 'boss',
-            },
-            {
-                atSec: 2800,
-                count: 8,
-                enemyId: 'giant_wolf',
-                group: 'ordinary',
-            },
-            {
-                atSec: 3000,
-                count: 1,
-                enemyId: 'archimonde',
-                group: 'final',
-            },
-            {
-                atSec: null,
-                condition:
-                    'Spawn after archimonde death only if actual play confirms the transform.',
-                count: 1,
-                enemyId: 'nether_dragon',
-                group: 'final',
-            },
-        ],
     },
 };
 

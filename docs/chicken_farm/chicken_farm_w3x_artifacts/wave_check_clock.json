@@ -1,0 +1,26 @@
+{
+  "case": "clock",
+  "finalSnapshot": {
+    "currentPhaseAtSec": 3000,
+    "nextPhaseAtSec": null
+  },
+  "pass": true,
+  "partitionedEventTimes": [
+    120,
+    600,
+    1100,
+    1500,
+    2000,
+    2200,
+    2400,
+    2600,
+    2800,
+    3000
+  ],
+  "rejectedInputs": [
+    "backward_time",
+    "NaN",
+    "negative_time"
+  ],
+  "timingPolicy": "Each phase atSec is emitted once when simulation elapsedSec reaches or passes it; 3000 starts the last phase."
+}

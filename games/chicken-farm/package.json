@@ -18,6 +18,8 @@
         "chicken:smoke": "tsx ../../scripts/smoke-chicken-farm-start.ts",
         "chicken:start-regression:check": "tsx ../../scripts/check-chicken-farm-start-regression.ts",
         "chicken:start-session:check": "tsx ../../scripts/check-chicken-farm-start-session.ts",
+        "chicken:waves:check": "tsx ../../scripts/check-chicken-farm-waves.ts",
+        "chicken:wave:check": "tsx ../../scripts/check-chicken-farm-wave-runtime.ts",
         "chicken:wolfai:measure": "tsx ../../scripts/measure-chicken-farm-wolf-ai.ts",
         "dev": "vite --host 0.0.0.0",
         "build": "vite build",

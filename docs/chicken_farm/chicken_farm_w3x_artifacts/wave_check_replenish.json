@@ -1,0 +1,36 @@
+{
+  "batchPolicy": "Web safety decision: request min(shortage, batchSize), so a known one-unit shortage requests one and never exceeds target.",
+  "case": "replenish",
+  "pass": true,
+  "requests": [
+    {
+      "count": 1,
+      "enemyId": "frost_wolf",
+      "rawcode": "n008",
+      "tier": 2
+    },
+    {
+      "count": 1,
+      "enemyId": "giant_wolf",
+      "rawcode": "n009",
+      "tier": 3
+    },
+    {
+      "count": 2,
+      "enemyId": "giant_frost_wolf",
+      "rawcode": "n00A",
+      "tier": 4
+    }
+  ],
+  "unresolvedLiveTargetTiers": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "unresolvedTargetTiers": [
+    5
+  ]
+}

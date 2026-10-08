@@ -12,6 +12,21 @@ export type EnemyId =
     | 'timber_wolf'
     | 'frost_wolf'
     | 'giant_wolf'
+    | 'giant_frost_wolf'
+    | 'dire_wolf'
+    | 'dire_frost_wolf'
+    | 'spirit_wolf'
+    | 'dire_wolf_tier_8'
+    | 'shadow_wolf'
+    | 'fel_beast'
+    | 'fel_stalker'
+    | 'fel_ravager'
+    | 'darkguard'
+    | 'shupikuta'
+    | 'overlord'
+    | 'satyr'
+    | 'satyr_soulstealer'
+    | 'satyr_shadowdancer'
     | 'blood_wolf'
     | 'wild_wolf'
     | 'hell_hound'
@@ -238,19 +253,31 @@ export type EconomyBalance = {
     readonly startingSupplyCap: number;
 };
 
-export type WaveEvent = {
-    readonly atSec: number | null;
-    readonly condition?: string;
-    readonly count: number;
-    readonly enemyId: EnemyId;
-    readonly group: 'ordinary' | 'boss' | 'final';
+export type WaveTierDelta = {
+    readonly amount: number;
+    readonly tier: number;
+};
+
+export type OrdinaryWavePhase = {
+    readonly activeTiers: readonly number[];
+    readonly atSec: number;
+    readonly phaseEntryTargetDeltas: readonly WaveTierDelta[];
+    // The source establishes the interval but does not expose these per-tick amounts.
+    readonly periodicTargetDeltas: null;
+    readonly replenishIntervalSec: number;
+    readonly targetIncrementIntervalSec: number;
+};
+
+export type WaveBossMilestone = {
+    readonly atSec: number;
+    readonly bossRawcode: string;
+    readonly note: string;
 };
 
 export type WaveBalance = {
+    readonly bossMilestonesForSp10: readonly WaveBossMilestone[];
+    readonly ordinaryPhases: readonly OrdinaryWavePhase[];
     readonly replenishBatchSize: number;
-    readonly replenishMinAliveBase: number;
-    readonly replenishMinAliveMax: number;
-    readonly timeline: readonly WaveEvent[];
 };
 
 export type ScoreBalance = {

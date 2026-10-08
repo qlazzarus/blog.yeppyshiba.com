@@ -2,6 +2,11 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
+import { calculateWaveReplenishPlan } from './game/waveReplenish';
+import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
+import { createWaveScheduler, type WaveScheduler } from './game/waveScheduler';
+import { WAVE_SPAWN_MANIFEST } from './game/waveSpawnManifest';
+import { selectWaveSpawnPoint } from './game/waveSpawnSelector';
 import {
     CAMERA_ZOOM,
     CANVAS_HEIGHT,
@@ -260,6 +265,28 @@ declare global {
                     readonly y: number;
                 }[];
             };
+            getWaveSnapshot: () => {
+                readonly activeTierTargets: readonly {
+                    readonly confirmedPhaseEntryDeltaTotal: number;
+                    readonly targetQuantity: number | null;
+                    readonly tier: number;
+                }[];
+                readonly currentPhaseAtSec: number | null;
+                readonly nextPhaseAtSec: number | null;
+                readonly nextReplenishAtSec: number | null;
+                readonly schedulerStatus: 'enabled' | 'not_started';
+                readonly waveManagedEnemyIds: readonly string[];
+                readonly waveManagedEnemies: readonly {
+                    readonly enemyId: EnemyId;
+                    readonly id: string;
+                    readonly ownerPlayerId: number;
+                    readonly sourceRectId: string;
+                    readonly spawnedAtSec: number;
+                    readonly spawnX: number;
+                    readonly spawnY: number;
+                    readonly tier: number;
+                }[];
+            };
             getEconomyLifecycleSnapshot: () => {
                 readonly activeStartItemPlacement: {
                     readonly inventoryId: string;
@@ -358,6 +385,7 @@ declare global {
                 ownerPlayerId?: number,
             ) => boolean;
             removeCombatEnemyFixture: (id: string) => boolean;
+            damageWaveEnemyForTest: (id: string, damage: number) => boolean;
             setCombatEnemyHpForTest: (id: string, hp: number) => boolean;
             createEconomyChickenFixture: (
                 ownerPlayerId: number,
@@ -383,6 +411,7 @@ declare global {
                 readonly valid: { readonly valid: true } | { readonly reason: string; readonly valid: false };
             } | null;
             setConstructionWalletForTest: (gold: number, lumber: number) => boolean;
+            setWaveTargetQuantityForTest: (tier: number, quantity: number | null) => boolean;
             damageControllableUnitForTest: (unitId: string, damage: number) => boolean;
             cancelConstructionForTest: (buildingId: string) => boolean;
             createDebugFarmerForTest: (
@@ -408,6 +437,7 @@ declare global {
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
             replayCompletedBuildingEconomyAttachmentForTest: (buildingId: string) => boolean;
             advanceEconomyForTest: (targetElapsedSec: number) => boolean;
+            advanceWaveForTest: (targetElapsedSec: number) => boolean;
             disposeRunForTest: () => RunCleanupSnapshot | null;
             ensureStartEconomyForTest: () => void;
             grantFarmerEggStack: (quantity: number) => number | null;
@@ -497,6 +527,7 @@ const ECONOMY_POC_WELL_TEMPLATE_ID = 'well_basic';
 const FARMER_FEED_MANA_COST = 3;
 const FARMER_HERD_MANA_COST = 4;
 const ECONOMY_BUILDING_NAMEPLATE_OFFSET_PX = 86;
+const WAVE_OWNER_PLAYER_ID = 10;
 const ECONOMY_CHICKEN_COLLISION_RADIUS_PX = 20;
 const INITIAL_CHICKEN_SCROLL_CHARGES = 5;
 
@@ -562,6 +593,17 @@ type RunCleanupCounts = {
     readonly worldObjectCount: number;
 };
 
+type WaveManagedEnemy = {
+    readonly enemyId: EnemyId;
+    readonly id: string;
+    readonly ownerPlayerId: number;
+    readonly sourceRectId: string;
+    readonly spawnedAtSec: number;
+    readonly spawnX: number;
+    readonly spawnY: number;
+    readonly tier: number;
+};
+
 class FarmScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private debugPanel!: Phaser.GameObjects.Rectangle;
@@ -606,6 +648,7 @@ class FarmScene extends Phaser.Scene {
     private nextTelemetrySampleSec = 0;
     private nextFogUpdateSec = 0;
     private nextMinimapUpdateSec = 0;
+    private nextWaveReplenishAtSec: number | null = null;
     private resourceText!: Phaser.GameObjects.Text;
     private runDisposed = false;
     private runId = 0;
@@ -640,6 +683,11 @@ class FarmScene extends Phaser.Scene {
     private worldObjects: Phaser.GameObjects.GameObject[] = [];
     private worldSize = new Phaser.Math.Vector2(0, 0);
     private worldScale = CHICKEN_FARM_TILEMAP_POC_01.defaultScale;
+    private waveManagedEnemies = new Map<string, WaveManagedEnemy>();
+    private wavePopulationTargets?: WavePopulationTargets;
+    private waveScheduler?: WaveScheduler;
+    private waveSpawnSequence = 0;
+    private waveTargetOverridesForTest = new Map<number, number | null>();
 
     constructor() {
         super('farm-poc');
@@ -911,6 +959,7 @@ class FarmScene extends Phaser.Scene {
             worldObjects: this.worldObjects,
             worldSize: this.worldSize,
         });
+        this.initializeWaveRuntime();
         if (CHICKEN_FARM_POC_FLAGS.combat) {
             this.createCombatPoc();
         } else if (CHICKEN_FARM_POC_FLAGS.combatSmoke) {
@@ -934,6 +983,9 @@ class FarmScene extends Phaser.Scene {
         if (this.runDisposed) return;
         this.performanceProfiler.beginFrame(delta);
         this.elapsedSec += delta / 1000;
+        this.performanceProfiler.measure('update.wave', () =>
+            this.updateWaveRuntime(),
+        );
         this.performanceProfiler.measure('update.hotkeys', () => {
             const commandConsumed = this.updateCommandHotkeys();
             if (commandConsumed) return;
@@ -985,6 +1037,138 @@ class FarmScene extends Phaser.Scene {
             this.updateSelectionInfo(),
         );
         this.performanceProfiler.endFrame(this.elapsedSec);
+    }
+
+    private initializeWaveRuntime() {
+        this.waveScheduler = createWaveScheduler(
+            CHICKEN_FARM_BALANCE.waves.ordinaryPhases,
+        );
+        this.wavePopulationTargets = createWavePopulationTargets();
+        this.nextWaveReplenishAtSec = null;
+        this.waveManagedEnemies.clear();
+        this.waveSpawnSequence = 0;
+        this.waveTargetOverridesForTest.clear();
+    }
+
+    private getWaveSnapshot() {
+        const schedulerSnapshot = this.waveScheduler?.getSnapshot() ?? null;
+        const populationSnapshot = this.wavePopulationTargets?.getSnapshot() ?? null;
+        const waveManagedEnemies = [...this.waveManagedEnemies.values()];
+        return {
+            activeTierTargets: populationSnapshot?.activeTierTargets.map((target) => ({
+                ...target,
+                targetQuantity: this.waveTargetOverridesForTest.has(target.tier)
+                    ? this.waveTargetOverridesForTest.get(target.tier) ?? null
+                    : target.targetQuantity,
+            })) ?? [],
+            currentPhaseAtSec: schedulerSnapshot?.currentPhase?.atSec ?? null,
+            nextPhaseAtSec: schedulerSnapshot?.nextPhaseAtSec ?? null,
+            nextReplenishAtSec: this.nextWaveReplenishAtSec,
+            schedulerStatus: schedulerSnapshot ? 'enabled' as const : 'not_started' as const,
+            waveManagedEnemyIds: waveManagedEnemies.map((enemy) => enemy.id),
+            waveManagedEnemies,
+        };
+    }
+
+    private updateWaveRuntime() {
+        const scheduler = this.waveScheduler;
+        const populationTargets = this.wavePopulationTargets;
+        if (!scheduler || !populationTargets || !this.combatPoc) return;
+
+        this.reconcileWaveManagedEnemies();
+        const phaseStarts = scheduler.tick(this.elapsedSec);
+        populationTargets.tick(this.elapsedSec, phaseStarts);
+        if (this.nextWaveReplenishAtSec === null && phaseStarts.length > 0) {
+            this.nextWaveReplenishAtSec = phaseStarts[0].atSec;
+        }
+        while (
+            this.nextWaveReplenishAtSec !== null &&
+            this.nextWaveReplenishAtSec <= this.elapsedSec + 1e-9
+        ) {
+            this.requestWaveReplenish();
+            this.nextWaveReplenishAtSec = Number(
+                (this.nextWaveReplenishAtSec + 0.2).toFixed(6),
+            );
+        }
+    }
+
+    private requestWaveReplenish() {
+        const populationTargets = this.wavePopulationTargets;
+        const combat = this.combatPoc;
+        if (!populationTargets || !combat) return;
+        const activeTierTargets = populationTargets
+            .getSnapshot()
+            .activeTierTargets.map((target) => ({
+                ...target,
+                targetQuantity: this.waveTargetOverridesForTest.has(target.tier)
+                    ? this.waveTargetOverridesForTest.get(target.tier) ?? null
+                    : target.targetQuantity,
+            }));
+        const runtimeEnemies = combat.getRuntimeEnemySnapshot();
+        const aliveCounts = activeTierTargets.map((target) => ({
+            aliveCount: runtimeEnemies.filter(
+                (enemy) => {
+                    const managed = this.waveManagedEnemies.get(enemy.id);
+                    return (
+                        managed?.tier === target.tier &&
+                        managed.ownerPlayerId === WAVE_OWNER_PLAYER_ID &&
+                        enemy.ownerPlayerId === WAVE_OWNER_PLAYER_ID
+                    );
+                },
+            ).length,
+            tier: target.tier,
+        }));
+        const plan = calculateWaveReplenishPlan({
+            aliveCounts,
+            batchSize: CHICKEN_FARM_BALANCE.waves.replenishBatchSize,
+            targets: activeTierTargets,
+        });
+        for (const request of plan.requests) {
+            for (let index = 0; index < request.count; index += 1) {
+                const selection = selectWaveSpawnPoint({
+                    dynamicBlockedRects: this.getDynamicBlockedRects(),
+                    isTerrainFootprintBlocked: (footprint) =>
+                        (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+                    rects: WAVE_SPAWN_MANIFEST,
+                    worldSize: { height: this.worldSize.y, width: this.worldSize.x },
+                });
+                if (!selection) continue;
+                const id = `wave-r${this.runId}-t${request.tier}-s${this.waveSpawnSequence}`;
+                const spawned = combat.spawnRuntimeEnemy({
+                    enemyId: request.enemyId,
+                    id,
+                    ownerPlayerId: WAVE_OWNER_PLAYER_ID,
+                    x: selection.candidate.x,
+                    y: selection.candidate.y,
+                });
+                if (!spawned) continue;
+                this.waveManagedEnemies.set(id, {
+                    enemyId: request.enemyId,
+                    id,
+                    ownerPlayerId: WAVE_OWNER_PLAYER_ID,
+                    sourceRectId: selection.rect.id,
+                    spawnedAtSec: this.elapsedSec,
+                    spawnX: selection.candidate.x,
+                    spawnY: selection.candidate.y,
+                    tier: request.tier,
+                });
+                this.waveSpawnSequence += 1;
+            }
+        }
+    }
+
+    /**
+     * The combat registry is the canonical source of living enemies. Keep
+     * metadata only for live wave-owned enemies; phase changes deliberately do
+     * not participate here, so live enemies from an older phase remain.
+     */
+    private reconcileWaveManagedEnemies() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        const aliveIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
+        for (const id of this.waveManagedEnemies.keys()) {
+            if (!aliveIds.has(id)) this.waveManagedEnemies.delete(id);
+        }
     }
 
     private renderTilemapObjects(
@@ -1084,6 +1268,12 @@ class FarmScene extends Phaser.Scene {
         this.combatPoc?.dispose();
         this.combatPoc = undefined;
         this.terrainPathingPoc = undefined;
+        this.waveScheduler = undefined;
+        this.wavePopulationTargets = undefined;
+        this.nextWaveReplenishAtSec = null;
+        this.waveManagedEnemies.clear();
+        this.waveTargetOverridesForTest.clear();
+        this.waveSpawnSequence = 0;
         this.economyState = undefined;
         this.economyEventLog = [];
         this.economyLabels.clear();
@@ -3367,6 +3557,9 @@ class FarmScene extends Phaser.Scene {
                     y: unit.position.y,
                 })),
             }),
+            getWaveSnapshot: () => ({
+                ...this.getWaveSnapshot(),
+            }),
             createCombatEnemyFixture: (id, enemyId, x, y, ownerPlayerId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return Boolean(
@@ -3382,6 +3575,10 @@ class FarmScene extends Phaser.Scene {
             removeCombatEnemyFixture: (id) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
+            },
+            damageWaveEnemyForTest: (id, damage) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                return this.combatPoc?.damageEnemyTarget(id, damage) ?? false;
             },
             setCombatEnemyHpForTest: (id, hp) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
@@ -3544,6 +3741,15 @@ class FarmScene extends Phaser.Scene {
                 this.refreshEconomyLabels();
                 return true;
             },
+            setWaveTargetQuantityForTest: (tier, quantity) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isInteger(tier) || tier < 1 || tier > 18) return false;
+                if (quantity !== null && (!Number.isInteger(quantity) || quantity < 0)) {
+                    return false;
+                }
+                this.waveTargetOverridesForTest.set(tier, quantity);
+                return true;
+            },
             damageControllableUnitForTest: (unitId, damage) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || !isCurrentDebugRun()) return false;
                 return this.controllableUnits.damageUnit(unitId, damage);
@@ -3637,6 +3843,15 @@ class FarmScene extends Phaser.Scene {
                 events.forEach((event) => this.handleEconomyEvent(event));
                 this.syncChickenViews();
                 this.refreshEconomyLabels();
+                return true;
+            },
+            advanceWaveForTest: (targetElapsedSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) {
+                    return false;
+                }
+                this.elapsedSec = targetElapsedSec;
+                this.updateWaveRuntime();
                 return true;
             },
             disposeRunForTest: () => {

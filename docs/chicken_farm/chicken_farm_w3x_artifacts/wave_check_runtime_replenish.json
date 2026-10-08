@@ -1,0 +1,388 @@
+{
+  "case": "replenish",
+  "checks": {
+    "actualCombatDeathReplenishesOnNextDue": true,
+    "duplicateDirectRemoveDoesNotCreateNegativeCount": true,
+    "pass": true,
+    "phaseExitKeepsExistingLiveEnemy": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "startId": 3,
+    "targetOverride": {
+      "quantity": 1,
+      "tier": 1
+    }
+  },
+  "snapshot": {
+    "afterDeath": {
+      "active": true,
+      "buildings": [],
+      "chickens": [],
+      "elapsedSec": 120,
+      "enemies": [],
+      "poc": null,
+      "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
+      "units": [
+        {
+          "armor": 0,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ]
+    },
+    "afterDeathReplenish": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextReplenishAtSec": 120.4,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s1"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s1",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_12",
+          "spawnedAtSec": 120.2,
+          "spawnX": 5370.209350582103,
+          "spawnY": 1435.4508384337726,
+          "tier": 1
+        }
+      ]
+    },
+    "afterDirectRemoveReplenish": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextReplenishAtSec": 120.6,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s2"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s2",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_07",
+          "spawnedAtSec": 120.4,
+          "spawnX": 9702.990393827942,
+          "spawnY": 5395.071554577882,
+          "tier": 1
+        }
+      ]
+    },
+    "afterPhaseTransition": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 7,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 3,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 2,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 1,
+          "targetQuantity": null,
+          "tier": 6
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 7
+        }
+      ],
+      "currentPhaseAtSec": 600,
+      "nextPhaseAtSec": 1100,
+      "nextReplenishAtSec": 600.2,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s2"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s2",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_07",
+          "spawnedAtSec": 120.4,
+          "spawnX": 9702.990393827942,
+          "spawnY": 5395.071554577882,
+          "tier": 1
+        }
+      ]
+    },
+    "combatAfterPhaseTransition": {
+      "active": true,
+      "buildings": [],
+      "chickens": [],
+      "elapsedSec": 600,
+      "enemies": [
+        {
+          "enemyId": "timber_wolf",
+          "hp": 450,
+          "id": "wave-r1-t1-s2",
+          "maxHp": 450,
+          "ownerPlayerId": 10,
+          "spawnX": 9702.990393827942,
+          "spawnY": 5395.071554577882,
+          "x": 9702.990393827942,
+          "y": 5395.071554577882
+        }
+      ],
+      "poc": null,
+      "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
+      "units": [
+        {
+          "armor": 0,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ]
+    },
+    "deathReplenished": true,
+    "directRemoveReplenished": true,
+    "duplicateRemove": false,
+    "initial": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextReplenishAtSec": 120.2,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s0"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s0",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_08",
+          "spawnedAtSec": 120,
+          "spawnX": 1321.167912700139,
+          "spawnY": 3249.6953076047234,
+          "tier": 1
+        }
+      ]
+    },
+    "killed": true,
+    "phaseTransitioned": true,
+    "removed": true
+  }
+}

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import type { EnemyId } from '../balanceTypes';
 import type { GridPathPoint } from '../systems/pathing';
 import type { WolfOrderRefreshReason } from '../systems/wolfAi';
 import type {
@@ -29,7 +30,7 @@ export type CombatBuilding = {
 export type CombatWolf = {
     readonly body: Phaser.GameObjects.Container;
     readonly defaultTargetBuildingId: string;
-    readonly enemyId: string;
+    readonly enemyId: EnemyId;
     focusBuildingId?: string;
     focusLockedUntilSec: number;
     focusUnitId?: string;

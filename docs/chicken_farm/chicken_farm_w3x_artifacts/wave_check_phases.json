@@ -1,0 +1,313 @@
+{
+  "case": "phases",
+  "bossHandoffOnly": [
+    {
+      "atSec": 600,
+      "bossRawcode": "H012",
+      "note": "Blood Wolf"
+    },
+    {
+      "atSec": 1500,
+      "bossRawcode": "H00X",
+      "note": "Wild Wolf"
+    },
+    {
+      "atSec": 2200,
+      "bossRawcode": "H013",
+      "note": "Hell Hound"
+    },
+    {
+      "atSec": 2600,
+      "bossRawcode": "H01B",
+      "note": "Doom Guard"
+    },
+    {
+      "atSec": 3000,
+      "bossRawcode": "H01N",
+      "note": "Archimonde"
+    }
+  ],
+  "pass": true,
+  "periodicTargetDeltas": "null: source increment amounts are unresolved; SP-08-07 must not invent them.",
+  "phases": [
+    {
+      "activeTiers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "atSec": 120,
+      "phaseEntryTargetDeltas": [],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "atSec": 600,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 7,
+          "tier": 3
+        },
+        {
+          "amount": 3,
+          "tier": 4
+        },
+        {
+          "amount": 2,
+          "tier": 5
+        },
+        {
+          "amount": 1,
+          "tier": 6
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "atSec": 1100,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 5,
+          "tier": 4
+        },
+        {
+          "amount": 3,
+          "tier": 5
+        },
+        {
+          "amount": 2,
+          "tier": 6
+        },
+        {
+          "amount": 1,
+          "tier": 7
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        7,
+        8,
+        9
+      ],
+      "atSec": 1500,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 4,
+          "tier": 7
+        },
+        {
+          "amount": 3,
+          "tier": 8
+        },
+        {
+          "amount": 2,
+          "tier": 9
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "atSec": 2000,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 7,
+          "tier": 8
+        },
+        {
+          "amount": 5,
+          "tier": 9
+        },
+        {
+          "amount": 4,
+          "tier": 10
+        },
+        {
+          "amount": 3,
+          "tier": 11
+        },
+        {
+          "amount": 2,
+          "tier": 12
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        10,
+        11,
+        12
+      ],
+      "atSec": 2200,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 7,
+          "tier": 10
+        },
+        {
+          "amount": 4,
+          "tier": 11
+        },
+        {
+          "amount": 3,
+          "tier": 12
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "atSec": 2400,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 7,
+          "tier": 11
+        },
+        {
+          "amount": 6,
+          "tier": 12
+        },
+        {
+          "amount": 5,
+          "tier": 13
+        },
+        {
+          "amount": 4,
+          "tier": 14
+        },
+        {
+          "amount": 3,
+          "tier": 15
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        13,
+        14,
+        15
+      ],
+      "atSec": 2600,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 7,
+          "tier": 13
+        },
+        {
+          "amount": 4,
+          "tier": 14
+        },
+        {
+          "amount": 3,
+          "tier": 15
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 35
+    },
+    {
+      "activeTiers": [
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "atSec": 2800,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 9,
+          "tier": 14
+        },
+        {
+          "amount": 8,
+          "tier": 15
+        },
+        {
+          "amount": 7,
+          "tier": 16
+        },
+        {
+          "amount": 5,
+          "tier": 17
+        },
+        {
+          "amount": 4,
+          "tier": 18
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 22
+    },
+    {
+      "activeTiers": [
+        16,
+        17,
+        18
+      ],
+      "atSec": 3000,
+      "phaseEntryTargetDeltas": [
+        {
+          "amount": 9,
+          "tier": 16
+        },
+        {
+          "amount": 7,
+          "tier": 17
+        },
+        {
+          "amount": 6,
+          "tier": 18
+        }
+      ],
+      "replenishIntervalSec": 0.2,
+      "targetIncrementIntervalSec": 22
+    }
+  ],
+  "rejectedInputs": [
+    "duplicate_milestone",
+    "unknown_tier",
+    "negative_delta"
+  ],
+  "source": "wolf_wave_phase_reference.tsv"
+}
