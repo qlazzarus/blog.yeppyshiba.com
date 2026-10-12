@@ -1,28 +1,28 @@
 {
-  "generatedAt": "2026-10-05T09:58:20.594Z",
+  "generatedAt": "2026-10-12T10:10:06.196Z",
   "trending": [
     {
-      "path": "/article/phaser4-apex-seoul-runtime-sprite-contact-shadow",
-      "views": 4,
+      "path": "/article/anyang-ottogi-hamtaehall-rolypoly-review",
+      "views": 3,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
-      "path": "/article/apptech-income-august-2026",
+      "path": "/article/apptech-income-september-2026",
       "views": 3,
-      "avgSec": 664.1,
+      "avgSec": 121.43,
+      "reason": "amplify"
+    },
+    {
+      "path": "/article/allowance-300k-01",
+      "views": 1,
+      "avgSec": 72.65,
       "reason": "amplify"
     },
     {
       "path": "/article/apptech-income-may-2026",
-      "views": 3,
-      "avgSec": 82.75,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/apptech-income-june-2026",
       "views": 1,
-      "avgSec": 66.55,
+      "avgSec": 61.42,
       "reason": "amplify"
     }
   ]
