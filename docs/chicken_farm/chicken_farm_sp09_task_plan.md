@@ -1,6 +1,6 @@
 # SP-09 건물 기능·성장 경로 — Terra Medium 실행 계획
 
-> 작성: 2026-10-13. **계획 작성 완료, 구현 미착수.** SP-05~08 완료 상태를 출발점으로 한다. 다음 실행은 **SP-09-01**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
+> 갱신: 2026-10-13. SP-09-01의 정적 기능·테크 범위 계약을 완료했다. 다음 실행은 **SP-09-02**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
 
 ## 목표와 범위
 
@@ -32,7 +32,7 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ## 실행 순서
 
-모든 카드는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
+SP-09-01만 **완료**했고, 02~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -66,11 +66,11 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ### SP-09-01 — 건물 기능·테크 범위 계약
 
-- 상태: **미착수**. 선행: SP-08.
+- 상태: **완료**. 선행: SP-08.
 - 읽기: buildingTemplates.ts, balanceTypes.ts, building_tech_reference.tsv, research_upgrade_provider_reference.tsv 및 SP-05/06/07 비교표.
 - 수정 범위: 모든 template의 build/upgrade/produce/research/aura/gate 기능을 현재 구현·이번 필수·후속 ID로 분류한다. 원본 rawcode와 웹 ID, 가족/용병 전용 기능의 SP-12 경계를 고정한다.
-- 완료 조건: sp09_01_growth_contract.json에 전 template의 담당 ID와 normal 성장 경로를 기록한다. 근거 없는 기능 삭제나 전부 SP-12 이관은 금지한다.
-- 검증: 정적 coverage와 rawcode 대조. source 미확인 값은 unknown과 웹 결정을 분리한다.
+- 결과: [성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json)에 35개 전 template의 rawcode·기능·현재 연결·SP-09 담당·SP-12 이후 경계와 normal 성장 경로를 기록했다. 기본 연구와 현재 개/타워/닭에 필요한 기능은 SP-09에 남겼고 가족·용병·워크샵 콘텐츠만 SP-12로 분리했다.
+- 검증: source template 35개와 artifact 35개를 대조했고 누락은 없다. `building_tech_reference.tsv`의 유닛 rawcode 조건, 연구 비용/시간/레벨, h006/h00G 대문 전이는 unknown으로 보존했다. 런타임 코드는 변경하지 않았다.
 
 ### SP-09-02 — 비용·시간·인구·취소 정책 계약
 

@@ -132,7 +132,7 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 ## SP-09 세부 실행 계획
 
-2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. **계획 완료·구현 미착수**, 다음 실행은 **SP-09-01**이다.
+2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. SP-09-01 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json)을 완료했으며, 02~25는 미착수이고 다음 실행은 **SP-09-02**다. 계약은 현재 구현·SP-09 필수·SP-12 콘텐츠 경계, normal 성장 경로와 W3X 미확인을 분리한다.
 
 - 01~04: 기능·거래 계약, canonical 데이터, snapshot/harness.
 - 05~07: 선행조건·착공 검증과 공급 lifecycle.
