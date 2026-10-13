@@ -15,10 +15,22 @@
   },
   "behaviors": {
     "afterBlockerDestroyed": {
+      "attackMoveDestination": {
+        "x": 3077.8919059056993,
+        "y": 8689.122382228148
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 3490,
+        "y": 8928
+      },
+      "path": [],
       "focusBuildingId": null,
       "focusUnitId": "blocker-target",
       "id": "blocker-sealed-wolf",
+      "blockingTargetId": null,
       "pathRemaining": 0,
+      "pathFailedSinceSec": 0.20484999999999998,
       "state": "repath",
       "stateAction": "wait_for_repath",
       "stateReason": "path_missing_waiting_for_blocker_delay",
@@ -27,10 +39,22 @@
       "y": 8928
     },
     "duringBlockerAttack": {
+      "attackMoveDestination": {
+        "x": 3077.8919059056993,
+        "y": 8689.122382228148
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 3490,
+        "y": 8830
+      },
+      "path": [],
       "focusBuildingId": null,
       "focusUnitId": "blocker-target",
       "id": "blocker-sealed-wolf",
+      "blockingTargetId": null,
       "pathRemaining": 0,
+      "pathFailedSinceSec": 0.20484999999999998,
       "state": "attack_blocker",
       "stateAction": "attack_blocker",
       "stateReason": "blocker_attack_range_reached",
@@ -39,10 +63,22 @@
       "y": 8928
     },
     "firstUnreachable": {
+      "attackMoveDestination": {
+        "x": 1274.382879596956,
+        "y": 3153.4744880827648
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 0,
+        "y": 0
+      },
+      "path": [],
       "focusBuildingId": null,
       "focusUnitId": "unreachable-target",
       "id": "unreachable-wolf",
+      "blockingTargetId": null,
       "pathRemaining": 0,
+      "pathFailedSinceSec": 1.1548499999999977,
       "state": "repath",
       "stateAction": "wait_for_repath",
       "stateReason": "path_missing_waiting_for_blocker_delay",
@@ -51,22 +87,51 @@
       "y": 96
     },
     "openDetour": {
+      "attackMoveDestination": {
+        "x": 3363.726433422848,
+        "y": 8798.709781100955
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 3490,
+        "y": 8830
+      },
+      "path": [
+        {
+          "x": 3506,
+          "y": 8816
+        }
+      ],
       "focusBuildingId": null,
       "focusUnitId": "blocker-target",
       "id": "blocker-open-wolf",
+      "blockingTargetId": null,
       "pathRemaining": 1,
+      "pathFailedSinceSec": null,
       "state": "move",
       "stateAction": "follow_path",
       "stateReason": "path_available",
       "targetBuildingId": null,
-      "x": 3516.2711701434255,
-      "y": 8809.152553237716
+      "x": 3516.2803226966635,
+      "y": 8809.146451535558
     },
     "secondUnreachable": {
+      "attackMoveDestination": {
+        "x": 1274.382879596956,
+        "y": 3153.4744880827648
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 0,
+        "y": 0
+      },
+      "path": [],
       "focusBuildingId": null,
       "focusUnitId": "unreachable-target",
       "id": "unreachable-wolf",
+      "blockingTargetId": null,
       "pathRemaining": 0,
+      "pathFailedSinceSec": 1.1548499999999977,
       "state": "repath",
       "stateAction": "wait_for_repath",
       "stateReason": "path_missing_waiting_for_blocker_delay",

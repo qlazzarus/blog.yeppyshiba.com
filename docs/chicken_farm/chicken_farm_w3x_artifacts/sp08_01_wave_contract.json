@@ -32,7 +32,7 @@
     "session": { "firstWaveSec": 120, "waveCheckIntervalSec": 20, "source": "src/game/balance.ts" },
     "waves": "waves.timeline is a mixed ordinary/boss event list with replenishBatchSize 2 and min-alive values 2-6; it is not connected to the normal runtime scheduler.",
     "combat": "CombatPocSystem can spawn/remove runtime enemies and immediately issues a spawn-entry attack move, but normal runs have no natural wave spawning.",
-    "orders": "The current per-wolf refresh checks elapsed time since that wolf's last order and may also refresh when stuck or when its target is reached. It is not the original global 60-second group order."
+    "orders": "SP-08-13 uses a run-scoped simulation-time 60-second global clock. It dispatches only live wave-managed owner-10 runtime IDs that existed at each tick; per-wolf stuck/reached repaths remain separate reasons."
   },
   "webDecisions": {
     "populationAuthority": "SP-08 scheduler owns only wave-managed, living runtime enemies with ownerPlayerId 10 and a recorded ordinary tier. Fixtures, PoC wolves, bosses, and another owner's units do not count toward ordinary population.",
@@ -40,7 +40,7 @@
     "spawnFailure": "A failed placement does not consume a sequence ID, does not increase alive population, and is retried on the next due 0.2-second replenish tick.",
     "timeAndOrdering": "The scheduler uses scene simulation time. At one timestamp it applies phase transitions in ascending time order, then due target increments, then replenish from the canonical live registry, then global attack refresh. Repeating the same timestamp is idempotent.",
     "targetIncrementSchedule": "Unless source recovery proves a different reset rule, each phase schedules its first periodic target increment one full phase interval after activation. This is a web scheduling decision, not an asserted W3X fact.",
-    "spawnOrders": "A newly registered wave enemy receives one spawn-entry attack-move toward the converted W3X global attack rect. Concrete target acquisition remains the SP-07 web combat policy.",
+    "spawnOrders": "A newly registered wave enemy receives one spawn-entry attack-move inside the converted W3X global attack rect. SP-08-12 web refinement intersects this with local farm bounds and world clearance, samples at most 32 occupiable points, and retains current position on failure; empty targets use the broad rect. Zone re-entry triggers are not implemented. Concrete target acquisition remains the SP-07 web combat policy.",
     "globalRefresh": "At elapsed multiples of 60 seconds, each living wave-managed Player(10) enemy receives exactly one global attack refresh independent of its spawn time. Stuck/reached repaths remain separately labelled and must not count as the global refresh.",
     "normalStart": "Normal P3 starts with zero wave-managed enemies and creates none before the 120-second phase; test fixtures may only exist in explicit test profiles."
   },
@@ -57,5 +57,5 @@
     "SP-13": "Pause and hidden-tab clock policy.",
     "SP-15": "Combat-stat and normal-play balance tuning."
   },
-  "nextTask": "SP-08-02 — 13 spawn rect coordinate manifest and static verification"
+  "nextTask": "SP-08-14 — actual farm entry, fence destruction, and rerouting"
 }

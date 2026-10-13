@@ -35,9 +35,16 @@ export type WavePopulationTargets = {
 };
 
 /**
- * Stores only target facts supported by the extracted source. Initial target
- * values and periodic increment amounts remain null until their source is
- * recovered; consequently this module never fabricates a spawn quantity.
+ * The extracted W3X data does not disclose initial live counts. This is the
+ * explicit web playability baseline: each active ordinary tier has one live
+ * unit until source-backed population quantities are recovered.
+ */
+export const WEB_WAVE_BASELINE_TARGET_QUANTITY = 1;
+
+/**
+ * Stores source-backed phase deltas alongside the explicit web baseline. The
+ * original initial counts and periodic increment amounts remain unresolved;
+ * periodic ticks therefore do not change this baseline quantity.
  */
 export function createWavePopulationTargets(): WavePopulationTargets {
     const confirmedDeltasByTier = new Map<number, number>();
@@ -51,7 +58,7 @@ export function createWavePopulationTargets(): WavePopulationTargets {
             return {
                 activeTierTargets: (currentPhase?.activeTiers ?? []).map((tier) => ({
                     confirmedPhaseEntryDeltaTotal: confirmedDeltasByTier.get(tier) ?? 0,
-                    targetQuantity: null,
+                    targetQuantity: WEB_WAVE_BASELINE_TARGET_QUANTITY,
                     tier,
                 })),
                 currentPhaseAtSec: currentPhase?.atSec ?? null,

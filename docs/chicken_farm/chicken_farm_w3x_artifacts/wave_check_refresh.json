@@ -1,0 +1,271 @@
+{
+  "case": "refresh",
+  "checks": {
+    "pass": true,
+    "globalTickIndependentOfSpawnTime": true,
+    "deadAndForeignEnemiesExcluded": true,
+    "refreshReasonDistinctFromRepath": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "startId": 3,
+    "targetOverride": {
+      "tier": 1,
+      "quantity": 2
+    },
+    "timeJumps": [
+      120,
+      121,
+      180,
+      240
+    ]
+  },
+  "snapshot": {
+    "advanced": true,
+    "advancedTo180": true,
+    "at180": {
+      "first": {
+        "attackMoveDestination": {
+          "x": 3129.719017596676,
+          "y": 8853.790497400016
+        },
+        "attackMoveReason": "periodic_global_attack_refresh",
+        "targetPoint": {
+          "x": 3129.719017596676,
+          "y": 8853.790497400016
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "wave-r1-t1-s0",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 6981.571869122221,
+        "y": 5791.04981583166
+      },
+      "second": {
+        "attackMoveDestination": {
+          "x": 3388.4804577184946,
+          "y": 8871.564789587383
+        },
+        "attackMoveReason": "periodic_global_attack_refresh",
+        "targetPoint": {
+          "x": 3388.4804577184946,
+          "y": 8871.564789587383
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "wave-r1-t1-s1",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 8519.89366927576,
+        "y": 1421.0386013158493
+      },
+      "foreign": {
+        "attackMoveDestination": {
+          "x": 3137.2659960685455,
+          "y": 8549.567294021968
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3137.2659960685455,
+          "y": 8549.567294021968
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "foreign-refresh",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 3400,
+        "y": 8900
+      }
+    },
+    "before": {
+      "first": {
+        "attackMoveDestination": {
+          "x": 3673.246891572754,
+          "y": 8971.519253639432
+        },
+        "attackMoveReason": "periodic_global_attack_refresh",
+        "targetPoint": {
+          "x": 3673.246891572754,
+          "y": 8971.519253639432
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "wave-r1-t1-s0",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 6981.571869122221,
+        "y": 5791.04981583166
+      },
+      "second": {
+        "attackMoveDestination": {
+          "x": 3729.5166775067687,
+          "y": 8944.400018012497
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3729.5166775067687,
+          "y": 8944.400018012497
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "wave-r1-t1-s1",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 8519.89366927576,
+        "y": 1421.0386013158493
+      },
+      "foreign": {
+        "attackMoveDestination": {
+          "x": 3137.2659960685455,
+          "y": 8549.567294021968
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3137.2659960685455,
+          "y": 8549.567294021968
+        },
+        "path": [],
+        "focusBuildingId": null,
+        "focusUnitId": null,
+        "id": "foreign-refresh",
+        "pathRemaining": 0,
+        "state": "move",
+        "stateAction": null,
+        "stateReason": null,
+        "targetBuildingId": null,
+        "x": 3400,
+        "y": 8900
+      }
+    },
+    "firstId": "wave-r1-t1-s0",
+    "foreignCreated": true,
+    "removedFirst": true,
+    "secondId": "wave-r1-t1-s1",
+    "afterSecond": {
+      "attackMoveDestination": {
+        "x": 3403.7000260168934,
+        "y": 8930.346364995024
+      },
+      "attackMoveReason": "periodic_global_attack_refresh",
+      "targetPoint": {
+        "x": 3403.7000260168934,
+        "y": 8930.346364995024
+      },
+      "path": [],
+      "focusBuildingId": null,
+      "focusUnitId": null,
+      "id": "wave-r1-t1-s1",
+      "pathRemaining": 0,
+      "state": "move",
+      "stateAction": null,
+      "stateReason": null,
+      "targetBuildingId": null,
+      "x": 8519.89366927576,
+      "y": 1421.0386013158493
+    },
+    "afterForeign": {
+      "attackMoveDestination": {
+        "x": 3137.2659960685455,
+        "y": 8549.567294021968
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 3137.2659960685455,
+        "y": 8549.567294021968
+      },
+      "path": [],
+      "focusBuildingId": null,
+      "focusUnitId": null,
+      "id": "foreign-refresh",
+      "pathRemaining": 0,
+      "state": "move",
+      "stateAction": null,
+      "stateReason": null,
+      "targetBuildingId": null,
+      "x": 3400,
+      "y": 8900
+    },
+    "wave": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextGlobalAttackRefreshAtSec": 300,
+      "nextReplenishAtSec": 240.2,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s1"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s1",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_13",
+          "spawnedAtSec": 121,
+          "spawnX": 8519.89366927576,
+          "spawnY": 1421.0386013158493,
+          "tier": 1
+        }
+      ]
+    }
+  }
+}

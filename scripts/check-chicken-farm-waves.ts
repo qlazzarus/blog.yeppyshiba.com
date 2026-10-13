@@ -21,6 +21,7 @@ import { validateOrdinaryWavePhases } from '../games/chicken-farm/src/game/waveP
 import { createWaveScheduler } from '../games/chicken-farm/src/game/waveScheduler';
 import { createWavePopulationTargets } from '../games/chicken-farm/src/game/wavePopulationTargets';
 import { calculateWaveReplenishPlan } from '../games/chicken-farm/src/game/waveReplenish';
+import { createWaveGlobalAttackRefresh } from '../games/chicken-farm/src/game/waveGlobalAttackRefresh';
 
 type WpmPathingGrid = {
     readonly cellSize: number;
@@ -77,6 +78,10 @@ const populationTargetsOutputPath = path.join(
 const replenishOutputPath = path.join(
     rootDir,
     'docs/chicken_farm/chicken_farm_w3x_artifacts/wave_check_replenish.json',
+);
+const refreshOutputPath = path.join(
+    rootDir,
+    'docs/chicken_farm/chicken_farm_w3x_artifacts/wave_check_global_refresh.json',
 );
 const scale = 2;
 
@@ -181,6 +186,8 @@ async function main() {
     );
     const replenishArtifact = checkWaveReplenish();
     await writeFile(replenishOutputPath, `${JSON.stringify(replenishArtifact, null, 2)}\n`, 'utf8');
+    const refreshArtifact = checkWaveGlobalRefresh();
+    await writeFile(refreshOutputPath, `${JSON.stringify(refreshArtifact, null, 2)}\n`, 'utf8');
     const tiersArtifact = checkWaveEnemyTiers(statsText);
     await writeFile(tiersOutputPath, `${JSON.stringify(tiersArtifact, null, 2)}\n`, 'utf8');
     const phasesArtifact = checkWavePhases();
@@ -200,6 +207,25 @@ async function main() {
     console.log(`Wrote ${clockOutputPath}`);
     console.log(`Wrote ${populationTargetsOutputPath}`);
     console.log(`Wrote ${replenishOutputPath}`);
+    console.log(`Wrote ${refreshOutputPath}`);
+}
+
+function checkWaveGlobalRefresh() {
+    const refresh = createWaveGlobalAttackRefresh();
+    assert.deepEqual(refresh.tick(59.999), [], 'no refresh before the first 60-second boundary');
+    assert.deepEqual(refresh.tick(60).map((event) => event.atSec), [60], 'first refresh boundary');
+    assert.deepEqual(refresh.tick(60), [], 'same timestamp is idempotent');
+    assert.deepEqual(refresh.tick(179.999).map((event) => event.atSec), [120], 'next crossed boundary only');
+    assert.deepEqual(refresh.tick(180).map((event) => event.atSec), [180], 'later refresh boundary');
+    assert.throws(() => refresh.tick(179), Error, 'backward time is rejected');
+    assert.throws(() => createWaveGlobalAttackRefresh(0), Error, 'zero interval is rejected');
+    return {
+        case: 'global_refresh',
+        pass: true,
+        refreshTimes: [60, 120, 180],
+        rejectedInputs: ['backward_time', 'zero_interval'],
+        timingPolicy: 'Global 60-second simulation ticks are idempotent and independent from wolf spawn timestamps.',
+    };
 }
 
 function checkWaveReplenish() {
@@ -261,8 +287,12 @@ function checkWaveReplenish() {
         batchSize: 2,
         targets: populationTargets.getSnapshot().activeTierTargets,
     });
-    assert.deepEqual(unresolvedLivePlan.requests, [], 'current unresolved source targets cannot spawn');
-    assert.deepEqual(unresolvedLivePlan.unresolvedTargetTiers, [1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(
+        unresolvedLivePlan.requests.map((request) => [request.tier, request.count]),
+        [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]],
+        'normal web baseline replenishes one live enemy for every first-phase tier',
+    );
+    assert.deepEqual(unresolvedLivePlan.unresolvedTargetTiers, []);
 
     assert.throws(
         () => calculateWaveReplenishPlan({ aliveCounts: [], batchSize: 0, targets: [] }),
@@ -299,8 +329,8 @@ function checkWavePopulationTargets() {
     );
     assert.deepEqual(
         targets.getSnapshot().activeTierTargets,
-        [1, 2, 3, 4, 5, 6].map((tier) => ({ confirmedPhaseEntryDeltaTotal: 0, targetQuantity: null, tier })),
-        'unknown initial targets remain null',
+        [1, 2, 3, 4, 5, 6].map((tier) => ({ confirmedPhaseEntryDeltaTotal: 0, targetQuantity: 1, tier })),
+        'explicit web baseline gives each active tier one live unit',
     );
     assert.deepEqual(
         tick(155).map((event) => [event.type, event.atSec]),
@@ -321,10 +351,10 @@ function checkWavePopulationTargets() {
             [3, 7], [4, 3], [5, 2], [6, 1], [7, 0],
         ].map(([tier, confirmedPhaseEntryDeltaTotal]) => ({
             confirmedPhaseEntryDeltaTotal,
-            targetQuantity: null,
+            targetQuantity: 1,
             tier,
         })),
-        'phase entry deltas accumulate without inventing target quantities',
+        'phase entry deltas accumulate while the web baseline remains one per active tier',
     );
     assert.ok(
         !targets.getSnapshot().activeTierTargets.some((entry) => entry.tier === 1),
@@ -338,7 +368,7 @@ function checkWavePopulationTargets() {
             [14, 17], [15, 14], [16, 7], [17, 5], [18, 4],
         ].map(([tier, confirmedPhaseEntryDeltaTotal]) => ({
             confirmedPhaseEntryDeltaTotal,
-            targetQuantity: null,
+            targetQuantity: 1,
             tier,
         })),
         '2800 phase preserves overlapping tier entry deltas and switches active tiers',
@@ -357,7 +387,7 @@ function checkWavePopulationTargets() {
             [16, 16], [17, 12], [18, 10],
         ].map(([tier, confirmedPhaseEntryDeltaTotal]) => ({
             confirmedPhaseEntryDeltaTotal,
-            targetQuantity: null,
+            targetQuantity: 1,
             tier,
         })),
         'final phase retains prior known deltas and applies final entry delta',

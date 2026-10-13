@@ -26,7 +26,7 @@
       "active": false,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.08174999999701976,
+      "elapsedSec": 0.08096919999523161,
       "enemies": [],
       "poc": null,
       "runId": 1,
@@ -116,7 +116,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.07530766666964693,
+        "elapsedSec": 0.075,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -185,7 +185,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.12529433333631362,
+        "elapsedSec": 0.12166666666666666,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -195,8 +195,8 @@
             "ownerPlayerId": 10,
             "spawnX": 4160,
             "spawnY": 8896,
-            "x": 4155.399747119342,
-            "y": 8886.010541642612
+            "x": 4151.999097600272,
+            "y": 8889.277793458245
           }
         ],
         "poc": null,
@@ -266,7 +266,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.15862766666964695,
+        "elapsedSec": 0.15499999999999997,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -364,20 +364,20 @@
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3648.3551123896877,
-            "y": 8897.533882511618
+            "x": 3648.413720149921,
+            "y": 8897.479229891034
           },
           {
             "aiState": "wander",
-            "hp": 39.990004,
+            "hp": 39.99001341333334,
             "id": "chicken-2",
             "maxHp": 40,
             "ownerPlayerId": 4,
-            "x": 3778.156889285098,
-            "y": 8893.756378694561
+            "x": 3778.1567415408863,
+            "y": 8893.75849153522
           }
         ],
-        "elapsedSec": 0.15826666666666658,
+        "elapsedSec": 0.15446346666666663,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -412,7 +412,7 @@
           },
           {
             "armor": 0,
-            "hp": 39.990004,
+            "hp": 39.99001341333334,
             "id": "chicken-2",
             "maxHp": 40,
             "name": "basic chicken",
@@ -421,8 +421,8 @@
             "targetableByWolves": true,
             "targetKind": "economy_chicken",
             "templateId": "chicken_basic",
-            "x": 3778.156889285098,
-            "y": 8893.756378694561
+            "x": 3778.1567415408863,
+            "y": 8893.75849153522
           }
         ],
         "units": [
@@ -460,7 +460,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.07496666666666663,
+        "elapsedSec": 0.07466466666666666,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -531,24 +531,24 @@
         "chickens": [
           {
             "aiState": "wander",
-            "hp": 39.993336,
+            "hp": 39.99369349333333,
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3648.903408259792,
-            "y": 8897.022588341079
+            "x": 3648.9622354261355,
+            "y": 8896.967731120987
           },
           {
             "aiState": "wander",
-            "hp": 39.996668,
+            "hp": 39.99668008,
             "id": "chicken-2",
             "maxHp": 40,
             "ownerPlayerId": 4,
-            "x": 3778.052296428366,
-            "y": 8895.25212623152
+            "x": 3778.0521068302705,
+            "y": 8895.25483761061
           }
         ],
-        "elapsedSec": 0.12494666666666661,
+        "elapsedSec": 0.1211301333333333,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -583,7 +583,7 @@
           },
           {
             "armor": 0,
-            "hp": 39.993336,
+            "hp": 39.99369349333333,
             "id": "chicken-1",
             "maxHp": 40,
             "name": "basic chicken",
@@ -592,12 +592,12 @@
             "targetableByWolves": true,
             "targetKind": "economy_chicken",
             "templateId": "chicken_basic",
-            "x": 3648.903408259792,
-            "y": 8897.022588341079
+            "x": 3648.9622354261355,
+            "y": 8896.967731120987
           },
           {
             "armor": 0,
-            "hp": 39.996668,
+            "hp": 39.99668008,
             "id": "chicken-2",
             "maxHp": 40,
             "name": "basic chicken",
@@ -606,8 +606,8 @@
             "targetableByWolves": true,
             "targetKind": "economy_chicken",
             "templateId": "chicken_basic",
-            "x": 3778.052296428366,
-            "y": 8895.25212623152
+            "x": 3778.0521068302705,
+            "y": 8895.25483761061
           }
         ],
         "units": [
@@ -677,7 +677,7 @@
             "y": 8970.010538553444
           }
         ],
-        "elapsedSec": 0.4142400000125169,
+        "elapsedSec": 0.4072866666666668,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -760,7 +760,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.08160000000894069,
+        "elapsedSec": 0.07433333333333346,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -853,7 +853,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.17837333333333336,
+        "elapsedSec": 0.17377666676680248,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -939,7 +939,7 @@
           }
         ],
         "chickens": [],
-        "elapsedSec": 0.14504000000000003,
+        "elapsedSec": 0.14044333343346915,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1025,7 +1025,7 @@
           }
         ],
         "chickens": [],
-        "elapsedSec": 0.09506000000000002,
+        "elapsedSec": 0.0918200000858307,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1168,7 +1168,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.49163519999701977,
+        "elapsedSec": 0.4888933333333332,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1225,7 +1225,7 @@
             "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 0.9083018666636865,
+            "nextAttackAtSec": 0.90556,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3434,
@@ -1270,7 +1270,7 @@
           }
         ],
         "chickens": [],
-        "elapsedSec": 0.164886666670839,
+        "elapsedSec": 0.1565233333333334,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -1280,8 +1280,8 @@
             "ownerPlayerId": 10,
             "spawnX": 3820,
             "spawnY": 8896,
-            "x": 3813.294511399168,
-            "y": 8880.92638638335
+            "x": 3819.6848724565234,
+            "y": 8912.067910120217
           }
         ],
         "poc": null,
@@ -1351,7 +1351,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.3482200000041723,
+        "elapsedSec": 0.47319,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -1361,8 +1361,8 @@
             "ownerPlayerId": 10,
             "spawnX": 3820,
             "spawnY": 8896,
-            "x": 3776.4712381583945,
-            "y": 8833.411649424163
+            "x": 3819.0633378418593,
+            "y": 9016.563306702006
           }
         ],
         "poc": null,
@@ -1454,11 +1454,11 @@
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3585.937251889015,
-            "y": 8862.14060493379
+            "x": 3586.4530967013725,
+            "y": 8865.63781562691
           }
         ],
-        "elapsedSec": 4.311193666660699,
+        "elapsedSec": 4.204428133333328,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -1468,8 +1468,8 @@
             "ownerPlayerId": 10,
             "spawnX": 3650,
             "spawnY": 8896,
-            "x": 3673.0380804132196,
-            "y": 8874.516642459012
+            "x": 3673.0385477482287,
+            "y": 8874.51620666205
           }
         ],
         "poc": null,
@@ -1545,11 +1545,11 @@
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3585.937251889015,
-            "y": 8862.14060493379
+            "x": 3586.4530967013725,
+            "y": 8865.63781562691
           }
         ],
-        "elapsedSec": 5.479483666660702,
+        "elapsedSec": 5.3780681333333265,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -1559,8 +1559,8 @@
             "ownerPlayerId": 10,
             "spawnX": 3650,
             "spawnY": 8896,
-            "x": 3686.952102117959,
-            "y": 8916.258707573228
+            "x": 3685.6427560264556,
+            "y": 8961.09446865315
           }
         ],
         "poc": null,
@@ -1667,7 +1667,7 @@
           }
         ],
         "chickens": [],
-        "elapsedSec": 12.18268333334048,
+        "elapsedSec": 7.987653333447769,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1710,7 +1710,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 2.398040000007149,
+            "nextAttackAtSec": 2.3902866667811042,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3602.9744550957826,
@@ -1724,7 +1724,7 @@
             "hp": 198,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 3.0763833333404804,
+            "nextAttackAtSec": 3.041893333447769,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3440.1886254171177,
@@ -1736,7 +1736,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 1.4313733333404826,
+        "elapsedSec": 1.4236200001144377,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1779,7 +1779,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 1.4813733333404855,
+            "nextAttackAtSec": 1.4736200001144408,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3407.929437494881,
@@ -1793,7 +1793,7 @@
             "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 2.1980400000071496,
+            "nextAttackAtSec": 2.1902866667811045,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3434,
@@ -1805,7 +1805,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 8.19445333334048,
+        "elapsedSec": 5.86995333344777,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1848,7 +1848,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 2.398040000007149,
+            "nextAttackAtSec": 2.3902866667811042,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3554.9744550957826,
@@ -1862,7 +1862,7 @@
             "hp": 198,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 3.0763833333404804,
+            "nextAttackAtSec": 3.041893333447769,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3440.1886254171177,
@@ -1891,7 +1891,7 @@
           }
         ],
         "chickens": [],
-        "elapsedSec": 10.492773333340482,
+        "elapsedSec": 7.084983333447769,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -1934,7 +1934,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 2.398040000007149,
+            "nextAttackAtSec": 2.3902866667811042,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3602.9744550957826,
@@ -1948,7 +1948,7 @@
             "hp": 198,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 3.0763833333404804,
+            "nextAttackAtSec": 3.041893333447769,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3440.1886254171177,
@@ -1960,7 +1960,7 @@
         "active": true,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.5980400000071522,
+        "elapsedSec": 0.5902866667811073,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -2015,7 +2015,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 1.4813733333404855,
+            "nextAttackAtSec": 1.4736200001144408,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3403.9507184776126,
@@ -2029,7 +2029,7 @@
             "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 1.3813733333404856,
+            "nextAttackAtSec": 1.3736200001144407,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3434,
@@ -2056,10 +2056,22 @@
     },
     "behaviors": {
       "afterBlockerDestroyed": {
+        "attackMoveDestination": {
+          "x": 3112.2499354342576,
+          "y": 9178.422589988895
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3490,
+          "y": 8928
+        },
+        "path": [],
         "focusBuildingId": null,
         "focusUnitId": "blocker-target",
         "id": "blocker-sealed-wolf",
+        "blockingTargetId": null,
         "pathRemaining": 0,
+        "pathFailedSinceSec": 0.20859333341916406,
         "state": "repath",
         "stateAction": "wait_for_repath",
         "stateReason": "path_missing_waiting_for_blocker_delay",
@@ -2068,10 +2080,22 @@
         "y": 8928
       },
       "duringBlockerAttack": {
+        "attackMoveDestination": {
+          "x": 3112.2499354342576,
+          "y": 9178.422589988895
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3490,
+          "y": 8830
+        },
+        "path": [],
         "focusBuildingId": null,
         "focusUnitId": "blocker-target",
         "id": "blocker-sealed-wolf",
+        "blockingTargetId": null,
         "pathRemaining": 0,
+        "pathFailedSinceSec": 0.20859333341916406,
         "state": "attack_blocker",
         "stateAction": "attack_blocker",
         "stateReason": "blocker_attack_range_reached",
@@ -2080,10 +2104,22 @@
         "y": 8928
       },
       "firstUnreachable": {
+        "attackMoveDestination": {
+          "x": 2510.802171132052,
+          "y": 3983.689496340189
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "path": [],
         "focusBuildingId": null,
         "focusUnitId": "unreachable-target",
         "id": "unreachable-wolf",
+        "blockingTargetId": null,
         "pathRemaining": 0,
+        "pathFailedSinceSec": 1.1585933334191616,
         "state": "repath",
         "stateAction": "wait_for_repath",
         "stateReason": "path_missing_waiting_for_blocker_delay",
@@ -2092,22 +2128,51 @@
         "y": 96
       },
       "openDetour": {
+        "attackMoveDestination": {
+          "x": 3434.2930108070927,
+          "y": 8997.114621216911
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 3490,
+          "y": 8830
+        },
+        "path": [
+          {
+            "x": 3506,
+            "y": 8816
+          }
+        ],
         "focusBuildingId": null,
         "focusUnitId": "blocker-target",
         "id": "blocker-open-wolf",
+        "blockingTargetId": null,
         "pathRemaining": 1,
+        "pathFailedSinceSec": null,
         "state": "move",
         "stateAction": "follow_path",
         "stateReason": "path_available",
         "targetBuildingId": null,
-        "x": 3516.2730006540733,
-        "y": 8809.151332897285
+        "x": 3516.276661675368,
+        "y": 8809.148892216423
       },
       "secondUnreachable": {
+        "attackMoveDestination": {
+          "x": 2510.802171132052,
+          "y": 3983.689496340189
+        },
+        "attackMoveReason": "spawn_rect_enter_attack",
+        "targetPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "path": [],
         "focusBuildingId": null,
         "focusUnitId": "unreachable-target",
         "id": "unreachable-wolf",
+        "blockingTargetId": null,
         "pathRemaining": 0,
+        "pathFailedSinceSec": 1.1585933334191616,
         "state": "repath",
         "stateAction": "wait_for_repath",
         "stateReason": "path_missing_waiting_for_blocker_delay",
@@ -2302,7 +2367,7 @@
             "y": 8896.511498770047
           }
         ],
-        "elapsedSec": 0.14286666667560738,
+        "elapsedSec": 0.13966999996662138,
         "enemies": [
           {
             "enemyId": "timber_wolf",
@@ -2385,7 +2450,7 @@
             "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 0.9262000000089408,
+            "nextAttackAtSec": 0.9230033332999548,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3434,
@@ -2426,7 +2491,7 @@
             "y": 8970.010538553444
           }
         ],
-        "elapsedSec": 0.4794666666666666,
+        "elapsedSec": 0.47856333321889233,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -2536,7 +2601,7 @@
             "y": 9010.421883564437
           }
         ],
-        "elapsedSec": 1.912799999999995,
+        "elapsedSec": 1.9118966665522208,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -2638,15 +2703,15 @@
         "chickens": [
           {
             "aiState": "wander",
-            "hp": 39.235362000000286,
+            "hp": 39.473386000000275,
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3370.2659505586453,
-            "y": 8930.369043554683
+            "x": 3378.3529622104274,
+            "y": 8985.19557848629
           }
         ],
-        "elapsedSec": 4.252656666666665,
+        "elapsedSec": 3.0616333332188885,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -2667,7 +2732,7 @@
           },
           {
             "armor": 2,
-            "hp": 198,
+            "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
             "name": "Dog",
@@ -2681,7 +2746,7 @@
           },
           {
             "armor": 0,
-            "hp": 39.235362000000286,
+            "hp": 39.473386000000275,
             "id": "chicken-1",
             "maxHp": 40,
             "name": "basic chicken",
@@ -2690,8 +2755,8 @@
             "targetableByWolves": true,
             "targetKind": "economy_chicken",
             "templateId": "chicken_basic",
-            "x": 3370.2659505586453,
-            "y": 8930.369043554683
+            "x": 3378.3529622104274,
+            "y": 8985.19557848629
           }
         ],
         "units": [
@@ -2703,7 +2768,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 3.7977766666666617,
+            "nextAttackAtSec": 3.316663333218888,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3428.2363487809694,
@@ -2714,10 +2779,10 @@
             "commandQueueCount": 0,
             "currentCommandTargetId": null,
             "currentCommandType": null,
-            "hp": 198,
+            "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 4.532726666666663,
+            "nextAttackAtSec": 3.621613333218889,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3436.316721022138,
@@ -2729,7 +2794,7 @@
         "active": false,
         "buildings": [],
         "chickens": [],
-        "elapsedSec": 0.08011666666666667,
+        "elapsedSec": 0.0794333332379659,
         "enemies": [],
         "poc": null,
         "runId": 1,
@@ -2817,19 +2882,19 @@
         "chickens": [
           {
             "aiState": "wander",
-            "hp": 39.440672000000276,
+            "hp": 39.57037200000028,
             "id": "chicken-1",
             "maxHp": 40,
             "ownerPlayerId": 3,
-            "x": 3377.006823289056,
-            "y": 8976.06932322992
+            "x": 3381.537270245261,
+            "y": 9006.78384659102
           }
         ],
-        "elapsedSec": 3.226106666666662,
+        "elapsedSec": 2.5767033332188887,
         "enemies": [
           {
             "enemyId": "timber_wolf",
-            "hp": 404,
+            "hp": 422,
             "id": "integration-wolf",
             "maxHp": 450,
             "ownerPlayerId": 10,
@@ -2872,7 +2937,7 @@
           },
           {
             "armor": 0,
-            "hp": 39.440672000000276,
+            "hp": 39.57037200000028,
             "id": "chicken-1",
             "maxHp": 40,
             "name": "basic chicken",
@@ -2881,8 +2946,8 @@
             "targetableByWolves": true,
             "targetKind": "economy_chicken",
             "templateId": "chicken_basic",
-            "x": 3377.006823289056,
-            "y": 8976.06932322992
+            "x": 3381.537270245261,
+            "y": 9006.78384659102
           }
         ],
         "units": [
@@ -2894,7 +2959,7 @@
             "hp": 100,
             "id": "p3-farmer",
             "maxHp": 100,
-            "nextAttackAtSec": 3.7977766666666617,
+            "nextAttackAtSec": 3.316663333218888,
             "ownerPlayerId": 3,
             "templateId": "farmer",
             "x": 3428.2363487809694,
@@ -2908,7 +2973,7 @@
             "hp": 209,
             "id": "p3-dog",
             "maxHp": 220,
-            "nextAttackAtSec": 3.6977766666666616,
+            "nextAttackAtSec": 2.776836666552221,
             "ownerPlayerId": 3,
             "templateId": "dog",
             "x": 3436.316721022138,

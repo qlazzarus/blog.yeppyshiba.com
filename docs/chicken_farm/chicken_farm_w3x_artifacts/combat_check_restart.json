@@ -18,7 +18,7 @@
       "active": false,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.08333333333333331,
+      "elapsedSec": 0.1333333333333333,
       "enemies": [],
       "poc": null,
       "runId": 2,
@@ -87,7 +87,7 @@
       "active": false,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.08333333333333331,
+      "elapsedSec": 0.1333333333333333,
       "enemies": [],
       "poc": null,
       "runId": 3,
@@ -183,7 +183,7 @@
           "y": 8896.51129417054
         }
       ],
-      "elapsedSec": 0.14159906666666672,
+      "elapsedSec": 0.12698120003337862,
       "enemies": [
         {
           "enemyId": "timber_wolf",
@@ -266,7 +266,7 @@
           "hp": 209,
           "id": "p3-dog",
           "maxHp": 220,
-          "nextAttackAtSec": 0.9249390666666668,
+          "nextAttackAtSec": 0.9103212000333787,
           "ownerPlayerId": 3,
           "templateId": "dog",
           "x": 3434,

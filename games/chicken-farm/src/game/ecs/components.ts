@@ -28,6 +28,7 @@ export type CombatBuilding = {
 };
 
 export type CombatWolf = {
+    attackMoveDestination?: { readonly x: number; readonly y: number };
     readonly body: Phaser.GameObjects.Container;
     readonly defaultTargetBuildingId: string;
     readonly enemyId: EnemyId;

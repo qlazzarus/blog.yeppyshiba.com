@@ -179,9 +179,9 @@
 #### SP-08-07 결과
 
 - 상태: **완료**. `wavePopulationTargets.ts`는 scheduler phase event를 받아 tier별 known phase-entry delta ledger와 현재 active tier를 유지한다. phase 밖 tier는 replenish 대상 snapshot에서 제외하지만, 나중 phase에 다시 활성화되면 누적된 known delta를 보존한다.
-- 미확인 보존: 120초 초기 target과 모든 periodic increment amount는 원본 추출에 없으므로 `targetQuantity: null`을 유지한다. 35/22초 due time은 `periodic_target_increment_unresolved` 이벤트로 기록할 뿐 spawn 가능한 수량을 만들지 않는다.
+- 미확인 보존: 120초 초기 target과 모든 periodic increment amount는 원본 추출에 없다. SP-08-17부터는 source 값으로 주장하지 않는 명시적 웹 baseline으로 active tier마다 `targetQuantity: 1`을 사용하며, 35/22초 due time은 계속 `periodic_target_increment_unresolved` 이벤트로만 기록해 baseline을 증가시키지 않는다.
 - 시간 규칙: phase entry의 known delta를 먼저 적용하고 첫 periodic due는 phase 시작 한 주기 뒤다. 같은 timestamp 재호출은 state를 바꾸지 않으며, phase 전환 시 이전 phase의 due를 먼저 처리한 뒤 새 phase interval로 교체한다.
-- 검증: [population-target artifact](./chicken_farm_w3x_artifacts/wave_check_population_targets.json)는 120초의 null 초기 target, 155초 첫 due, 600초 중첩 phase delta, inactive tier 제외, 2800초 22초 due, 3000초 final delta와 one-jump/분할 tick의 동일 순서를 기록한다. 실제 적 생성은 하지 않았다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `git diff --check`를 통과했다.
+- 검증: [population-target artifact](./chicken_farm_w3x_artifacts/wave_check_population_targets.json)는 120초 active tier별 web baseline 1, 155초 첫 due, 600초 중첩 phase delta, inactive tier 제외, 2800초 22초 due, 3000초 final delta와 one-jump/분할 tick의 동일 순서를 기록한다. 실제 natural spawn은 SP-08-17에서 별도 검증했다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `git diff --check`를 통과했다.
 - 다음 ID: **SP-08-08 — 부족분 보충 계산**.
 
 ### SP-08-08 — 부족분 보충 계산
@@ -195,7 +195,7 @@
 
 - 상태: **완료**. `waveReplenish.ts`의 순수 `calculateWaveReplenishPlan()`은 active target과 canonical live tier count를 받아 rawcode·EnemyId·tier별 생성 요청만 계산한다. registry·alive count·spawn sequence는 변경하지 않는다.
 - batch 정책: 원본의 2기 batch는 보존하되, 1기 부족 시 목표를 넘기지 않도록 `min(shortage, 2)`를 요청하는 웹 안전 결정을 적용했다. 원본이 1기 부족을 2기로 초과 생성하는지 여부는 확인되지 않았으므로 W3X 재현 주장에 포함하지 않는다.
-- 미확인 경계: `targetQuantity: null`인 현재 live population target은 요청 0으로 처리하고 unresolved tier를 반환한다. 따라서 아직 source 미확인 수치를 자연 spawn으로 변환하지 않는다.
+- 미확인 경계: source initial/periodic quantity는 계속 unresolved로 남는다. SP-08-17의 explicit web baseline은 active tier당 1기의 최소 natural wave만 제공하고, source 수치 복원이나 periodic 증가로 해석하지 않는다.
 - 검증: [replenish artifact](./chicken_farm_w3x_artifacts/wave_check_replenish.json)는 0/1/2 이상 부족, rawcode 매핑, target 충족/초과, inactive tier 무시, unresolved target, 생성 실패 뒤 같은 입력 재시도, updated live count의 다음 tick 요청 0을 대조한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `git diff --check`를 통과했다.
 - 다음 ID: **SP-08-09 — 관찰 API와 browser 진입점**.
 
@@ -224,8 +224,8 @@
 
 - 상태: **완료**. run마다 `WaveScheduler`와 population target 상태를 생성하고 scene simulation clock에서 갱신한다. 0.2초 replenish due는 canonical runtime enemy snapshot을 live count로 읽고, `selectWaveSpawnPoint()`의 W3X rect·terrain·dynamic blocker 판정 후 `CombatPocSystem.spawnRuntimeEnemy()`에 전달한다.
 - runtime 기록: 성공한 요청만 `wave-r<run>-t<tier>-s<sequence>` ID와 owner 10, source rect ID, spawn 시각·좌표를 기록한다. selector 또는 registry spawn 실패는 sequence·managed enemy registry를 변경하지 않아 유령 alive를 남기지 않는다. run dispose와 새 run 초기화는 scheduler·target override·managed metadata를 제거한다.
-- source 경계: normal P3는 현재 원본 미확인 `targetQuantity: null`을 그대로 사용하므로 scheduler enabled 상태에서도 자연 spawn 0이다. test profile의 `setWaveTargetQuantityForTest()`는 source 값을 대체하지 않는 명시적 target override이며, `advanceWaveForTest()`는 scene의 production wave tick만 호출한다.
-- 검증: [first-spawn artifact](./chicken_farm_w3x_artifacts/wave_check_first_spawn.json)는 120초 전 0, 120초 경계의 actual combat registry/view 등록, tier 1/timber_wolf, owner 10, run/tier/sequence ID, W3X spawn rect와 시각·좌표를 기록한다. [baseline artifact](./chicken_farm_w3x_artifacts/wave_check_baseline.json)는 enabled scheduler의 normal P3 자연 적 0과 browser 오류 0을 기록한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, 두 wave browser case, `git diff --check`를 통과했다.
+- source 경계: 원본 initial target은 여전히 미확정이다. SP-08-17의 normal P3는 source 값이 아닌 명시적 web baseline(active tier당 1기)을 사용한다. test profile의 `setWaveTargetQuantityForTest()`는 이 baseline도 대체하는 명시적 test-only override이며, `advanceWaveForTest()`는 scene의 production wave tick만 호출한다.
+- 검증: [first-spawn artifact](./chicken_farm_w3x_artifacts/wave_check_first_spawn.json)는 120초 전 0, 120초 경계의 actual combat registry/view 등록, tier 1/timber_wolf, owner 10, run/tier/sequence ID, W3X spawn rect와 시각·좌표를 기록한다. [baseline artifact](./chicken_farm_w3x_artifacts/wave_check_baseline.json)는 enabled scheduler의 120초 전 normal P3 wave 적 0과 browser 오류 0을 기록한다. natural normal spawn·farm contact는 SP-08-17 artifact에 별도 기록했다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, 두 wave browser case, `git diff --check`를 통과했다.
 - 다음 ID: **SP-08-11 — 적 사망·제거와 재보충**.
 
 ### SP-08-11 — 적 사망·제거와 재보충
@@ -250,12 +250,32 @@
 - 완료 조건: wave 적은 실제 spawn rect에서 출발하고 유효 목적지를 갖는다. 현재 교전 focus와 원래 이동 목표가 구분되며 실제 P3 농장 방향으로 이동할 재현 사례가 있다.
 - 검증·artifact: browser spawn_order: rect/목적지/경로·이동 전후 위치 기록. 원본 broad rect와 웹 local 영역을 혼동하지 않는다.
 
+#### SP-08-12 결과
+
+- 상태: **완료**. `waveSpawnManifest.ts`에 원본 IlIlI의 변환 영역 `[-160,32]~[10016,10304]`를 명시했다. `combatPocSystem.ts`는 실제 등록 직후 한 번 spawn-entry attack-move를 발행하며 웹 농장 주변 영역을 원본 변환 영역·world clearance와 교차해 목적지를 고른다. 이 local 유도는 JASS의 무작위 broad rect/대상 우선순위와 동일하다는 주장이 아니다.
+- 유효성·fallback: 유한 좌표의 살아 있는 대상/기존 건물로 local bounds를 만든다. 빈 목록은 broad 영역으로 돌아가고 terrain/dynamic blocker/늑대 footprint 검사를 최대 32회 수행한다. invalid/전부 막힘이면 현재 위치를 유지한다. teleport나 무한 탐색은 없으며 기존 reached/stuck 재시도 경로를 사용한다. spawn-zone 재진입 trigger는 추가하지 않았고 생성 등록 때만 적용한다.
+- 목적지 분리: `CombatWolf.attackMoveDestination`은 focus/경로용 `targetPoint`와 별도로 보존한다. focus가 사라지면 원래 명령 목적지를 복원한다. read-only behavior snapshot은 명령 이유·원래 목적지·현재 목표·남은 경로를 노출한다.
+- 검증: [spawn-order artifact](./chicken_farm_w3x_artifacts/wave_check_spawn_order.json)는 seed 812, P3, 명시적 tier-1 target override와 120초 clock jump를 사용한다. 실제 rect 02 생성 좌표, 유효 목적지, 경로와 64px 이상 실제 scene 이동 후 목적지 접근을 확인했고 browser 오류는 0이다. 원본 미확인 population의 자연 spawn 증거는 아니다.
+- 변경 파일: 위 runtime 3개 파일, `scripts/check-chicken-farm-wave-runtime.ts`, spawn-order/blocker artifact, 계약·계획·현황·backlog 문서.
+- 검증 명령(종료 코드 0): `npm run typecheck --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=spawn_order npm run chicken:wave:check --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=blocker npm run chicken:combat:check --workspace @games/chicken-farm`, `git diff --check`.
+- 후속: 원본 initial/periodic population 미확인은 유지한다. 전역 tick과 stuck/reached 명령 이유 분리는 다음 카드 범위다.
+- 다음 ID: **SP-08-13 — 60초 global attack refresh**. 자동 착수하지 않았다.
+
 ### SP-08-13 — 60초 global attack refresh
 
 - 읽기: 기존 refreshWolfAttackMoveOrderIfNeeded/shouldRefreshWolfAttackMove, 06 clock과 12 명령 경계.
 - 작업: 개체 spawn 시각과 무관한 전역 60초 tick을 연결한다. 기존 stuck/reached 재명령을 별도 이유로 구분해 중복 global 갱신을 없앤다. 교전 중 refresh 적용과 범위는 01 계약을 따른다.
 - 완료 조건: 서로 다른 시각에 생성된 owner 10 적이 같은 전역 tick에 각 1회 갱신된다. 살아 있는 교전 적·idle·stuck 사례와 dead/다른 owner 제외를 검사한다.
 - 검증·artifact: 순수 refresh 경계 검사와 browser refresh. 120초 phase/spawn과 global tick이 겹칠 때 계약 순서 검증.
+
+#### SP-08-13 결과
+
+- 상태: **완료**. `waveGlobalAttackRefresh.ts`의 순수 simulation clock은 60초마다 idempotent event를 만든다. `main.ts`는 phase → target → replenish 뒤에 해당 timestamp까지 생성된 wave-managed owner-10 적만 `CombatPocSystem`에 전달한다. 그러므로 120초 spawn과 120초 global tick은 spawn-entry order 뒤 정확히 한 global order를 발행하며, 과거 tick에는 아직 생성되지 않은 적을 소급 적용하지 않는다.
+- 명령 경계: global refresh는 combat focus 여부와 무관하게 대상 적에게 적용하며, fixture·boss·다른 owner·dead registry entry는 wave metadata/살아 있는 runtime registry 경계 밖이라 제외된다. 기존 per-wolf timer 갱신은 제거했고 stuck/reached 재명령은 각각 `stuck_repath`/`target_reached_repath`로 기록해 global reason과 섞이지 않는다.
+- 검증: [순수 refresh artifact](./chicken_farm_w3x_artifacts/wave_check_global_refresh.json)는 60/120/180초 경계, 같은 timestamp idempotence, 역행 시간과 0 interval 거절을 기록한다. [browser refresh artifact](./chicken_farm_w3x_artifacts/wave_check_refresh.json)는 test profile에서 120초 첫 적, 121초 둘째 적을 만들고 180초 동일 global tick에서 두 적 모두 한 번 갱신, 240초에는 제거된 첫 적 제외와 생존 둘째 적 갱신, owner-9 fixture 제외를 기록했다. browser 오류는 0이다.
+- 검증 명령(종료 코드 0): `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=refresh npm run chicken:wave:check --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=blocker npm run chicken:combat:check --workspace @games/chicken-farm`, `git diff --check`.
+- 후속: pause/hidden time policy는 SP-13 범위이며, actual farm/fence 이동·공격 통합은 SP-08-14에서 검증한다.
+- 다음 ID: **SP-08-14 — 실제 농장·펜스 파괴와 재경로**. 자동 착수하지 않았다.
 
 ### SP-08-14 — 실제 농장 진입·펜스 재경로
 
@@ -264,12 +284,28 @@
 - 완료 조건: 동일 combat registry/HP 사용, fence 피해→제거→blocker revision→stale focus 해제→repath 관찰. 도달 불가는 유한 재시도이며 지형 통과/teleport 없음.
 - 검증·artifact: browser farm_blocker. 테스트 건설·자원 fixture 여부와 자연 wave spawn 여부를 각각 명시한다. 실패한 경로를 직접 move로 덮어 통과시키지 않는다.
 
+#### SP-08-14 결과
+
+- 상태: **완료**. Scheduled wave 적도 기존 `CombatPocSystem`의 target acquire·dynamic blocker·fence damage·building removal·path refresh lifecycle을 그대로 사용한다. 막힌 focused route에서 generic stuck repath가 `pathFailedSinceSec`를 매번 지우지 않도록 고쳐 fence-attack decision이 정상적으로 due 된다. 이 변경은 fixture와 wave 적의 공통 경로에 적용된다.
+- 검증: [farm-blocker artifact](./chicken_farm_w3x_artifacts/wave_check_farm_blocker.json)는 seed 812와 명시적 tier-1 target override로 120초에 실제 scheduler wave 적을 생성했다. 해당 적이 farm target fixture 앞 `fence_wood`를 공격하고, fixture damage로 마지막 타격 직전까지 만든 뒤 canonical building removal을 거쳐 target까지의 거리를 실제로 줄이며 이동을 재개했다. 직접 move/teleport는 사용하지 않았다. target/fence fixture와 시간 jump를 artifact에 명시했으며, 원본 미확인 자연 population의 normal-play 증거는 아니다.
+- 검증 명령(종료 코드 0): `npm run typecheck --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=farm_blocker npm run chicken:wave:check --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=blocker npm run chicken:combat:check --workspace @games/chicken-farm`, `git diff --check`.
+- 후속: fixture 없는 normal P3 첫 wave/농장 접근은 SP-08-17에서 별도로 검증하며, same-page restart 격리는 SP-08-15 범위다.
+- 다음 ID: **SP-08-15 — wave 상태가 있는 same-page restart**. 자동 착수하지 않았다.
+
 ### SP-08-15 — wave 상태가 있는 same-page restart
 
 - 읽기: main.ts dispose/restart/run guard, scheduler dispose와 combat clear 경로.
 - 작업: scheduler·tick due·RNG·sequence·population·명령 참조를 새 run으로 초기화하고 이전 callback/debug 참조를 무효화한다.
 - 완료 조건: 교전/보충 대기/phase 전환 상태에서 2회 restart. 새 run 시작 적 0, 이전 적/타이머/주문 0, 과거 callback 영향 0, 새 120초 wave 한 번 생성.
 - 검증·artifact: browser restart와 기존 combat restart. snapshot에 old/new runId와 예정 tick·alive 수 기록.
+
+#### SP-08-15 결과
+
+- 상태: **완료**. `disposeRun()`은 wave scheduler·population target·global refresh clock·replenish due·metadata·target override·sequence를 제거하고, 새 run의 `initializeWaveRuntime()`이 독립 state를 만든다. `getWaveSnapshot()`은 다음 global refresh 시각도 노출한다.
+- 수정: stale `window.__chickenFarmDebug` closure가 같은 Phaser Scene 인스턴스의 새 run을 계속 변경할 수 있었다. `setWaveTargetQuantityForTest()`와 `advanceWaveForTest()`에 debug run token guard를 적용해 옛 callback/debug reference를 거절했다. read-only snapshot은 새 run 상태만 보여 준다.
+- 검증: [wave restart artifact](./chicken_farm_w3x_artifacts/wave_check_restart.json)는 120초 생성·replenish 대기 상태에서 첫 restart, run-1 stale callback의 600초 advance 시도, run-2의 600초 phase transition 상태에서 둘째 restart, run-3의 새 120초 단일 `wave-r3-t1-s0` 생성을 기록한다. 각 새 run은 enemy 0, active target 0, next phase 120, next global refresh 60, next replenish null이고 browser 오류는 0이다.
+- 검증 명령(종료 코드 0): `npm run typecheck --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=restart npm run chicken:wave:check --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=restart npm run chicken:combat:check --workspace @games/chicken-farm`, `git diff --check`.
+- 다음 ID: **SP-08-16 — 전 phase·18티어 runtime 검수**. 자동 착수하지 않았다.
 
 ### SP-08-16 — 전 phase·18티어 runtime 검수
 
@@ -278,6 +314,13 @@
 - 완료 조건: 모든 일반 tier의 rawcode/EnemyId/owner/spawn·기본 전투 처리, phase별 목표/생존/보충, 이전 phase timer 중복 0, boss 생성 0. 3000초 이후 일반 보충도 검사한다.
 - 검증·artifact: browser phases와 순수 전체 검사. 가속·적 제거 fixture가 있는 증거를 정상 속도 생존/밸런스 검수로 부르지 않는다.
 
+#### SP-08-16 결과
+
+- 상태: **완료**. `phases` browser profile은 production wave scheduler를 0.2초 단위로 120~3000초까지 전진시켜 10개 phase 경계마다 active tier를 한 개체씩 보충했다. 각 행은 scheduler의 현재 phase, canonical combat registry ID, owner 10, `wave-r1-t…` ID, spawn rect/좌표와 ordinary EnemyId를 함께 기록한다. 18개 tier는 `WAVE_ORDINARY_ENEMY_TIERS`의 rawcode/EnemyId 계약과 대조했고 boss ID는 생성되지 않았다.
+- 통제: 장시간 누적을 막기 위해 각 phase 관찰 뒤 그 phase의 target override를 해제하고 fixture 제거를 수행했다. 이어서 production scheduler를 한 번 더 실행해 stale wave metadata도 제거됨을 확인했다. 따라서 이전 phase의 적/타이머 중복은 다음 행에 없고, 3000초 phase의 일반 tier 16~18 생성·combat 등록은 제거 전 행에 보존된다. 이는 가속 fixture 검수이며 정상 속도 생존·밸런스 근거는 아니다.
+- 검증: [runtime phases artifact](./chicken_farm_w3x_artifacts/wave_check_runtime_phases.json)는 10개 phase, 18개 tier, 3000초 이후 scheduler cleanup, browser 오류 0을 기록한다. [순수 wave 전체 artifact](./chicken_farm_w3x_artifacts/wave_check_phases.json)는 phase/clock/target/replenish 계약을 다시 대조한다. `npm run typecheck --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=phases npm run chicken:wave:check --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `git diff --check`를 종료 코드 0으로 통과했다.
+- 다음 ID: **SP-08-17 — 정상 속도 첫 wave 통합**. 자동 착수하지 않았다.
+
 ### SP-08-17 — 정상 속도 첫 wave 통합
 
 - 읽기: 정상 시작 계약, 기존 normal 경제/건설 입력 harness, 10~14 실제 wave 경로.
@@ -285,12 +328,27 @@
 - 완료 조건: 기본 wallet 보존, 120초 전 wave 0, 첫 생성·spawn 명령·농장 접근·실제 피해 증거와 browser 오류 0. 첫 스폰만 관찰하고 농장 연결까지 완료 처리하지 않는다.
 - 검증·artifact: browser normal_integration: 120초와 이동 시간을 포함한 유한 timeout/진행 로그. 운에 의존하지 않게 production RNG와 동일 로직의 재현 seed를 기록. 정상 속도 첫 구간만 검증하며 50분 완주는 SP-15/16.
 
+#### SP-08-17 결과
+
+- 상태: **완료**. 원본 initial target 수량이 추출에 없다는 경계는 유지하고, `WEB_WAVE_BASELINE_TARGET_QUANTITY = 1`을 명시적 웹 플레이성 정책으로 추가했다. normal scheduler는 active ordinary tier마다 1기를 보충하며 35/22초 periodic amount는 여전히 변경하지 않는다. 이를 W3X 수치 복원으로 주장하지 않는다.
+- 검증: [normal integration artifact](./chicken_farm_w3x_artifacts/wave_check_normal_integration.json)는 debug fixture·시간 jump·debug 자원 없이 normal P3에서 시작 wallet 1500/0, 실제 I003 inventory 클릭의 닭 1기 획득, 실제 build-card `farm_house` 건설을 기록한다. seed 812에서 120.10초에 tier 1~6 6기가 spawn-entry order로 생성되고, 158.15초에 농장 target focus와 실제 피해가 관찰됐으며 browser 오류는 0이다.
+- 범위: 이 검증은 첫 자연 spawn과 농장 contact까지만 다룬다. 50분 phase 완주, target 수량 밸런스, 보스/보상과 승패는 SP-10/15/16 후속 범위다.
+- 검증 명령(종료 코드 0): `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=normal_integration npm run chicken:wave:check --workspace @games/chicken-farm`, `CHICKEN_FARM_WAVE_CASE=baseline npm run chicken:wave:check --workspace @games/chicken-farm`, `git diff --check`.
+- 다음 ID: **SP-08-18 — 필수 회귀·W3X 비교·후속 인계**. 자동 착수하지 않았다.
+
 ### SP-08-18 — 회귀·W3X 비교·인계
 
 - 읽기: 모든 SP-08 artifact, SP-07 비교, backlog/current context.
 - 작업: 필수 검사 후 SP-08 W3X 비교 문서에 보존/변환/미구현을 정리한다. 보스·능력/보상, 종료, pause/hidden, 밸런스·성능 항목을 해당 SP에 인계하고 실제 완료 상태만 동기화한다.
 - 완료 조건: 실패/미확인 사항이 없거나 명시적으로 후속 범위임을 입증한다. wave fixture 없는 normal 증거와 가속 전 phase 증거를 구분한다. 다음 상위 실행은 SP-09.
 - 검증·artifact: typecheck/build, waves:check, wave:check all, combat all, economy all, controls/construction의 all selector 지원 확인 후 전체 검사, start-regression, player-pathing. 중복 실행하지 말고 명령/종료 코드/artifact를 기록.
+
+#### SP-08-18 결과
+
+- 상태: **완료**. [SP-08 W3X 비교](./chicken_farm_sp08_w3x_comparison.md)는 phase·18 tier·13 spawn rect·60초 attack refresh의 보존, active tier당 1기의 explicit web baseline, 보스/보상·종료·pause·밸런스/성능 인계를 분리했다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm`, `npm run build`, `npm run chicken:waves:check --workspace @games/chicken-farm`, `CHICKEN_FARM_COMBAT_CASE=all npm run chicken:combat:check --workspace @games/chicken-farm`, `CHICKEN_FARM_ECONOMY_CASE=all npm run chicken:economy:check --workspace @games/chicken-farm`, `npm run chicken:start-regression:check --workspace @games/chicken-farm`, `npm run chicken:player-pathing:check --workspace @games/chicken-farm`, `git diff --check`를 종료 코드 0으로 통과했다.
+- harness 경계: `wave:check`, controls, construction에는 `all` selector가 없어 source의 supported selector를 확인했다. 신규 [normal integration](./chicken_farm_w3x_artifacts/wave_check_normal_integration.json)과 [runtime phases](./chicken_farm_w3x_artifacts/wave_check_runtime_phases.json), 기존 case artifact를 사용했으며 all selector 추가는 후속 harness 개선이다.
+- 다음 상위 실행: **SP-09 — 건물 기능·성장 경로**. SP-08의 추가 task는 자동 착수하지 않았다.
 
 ## Terra Medium 실행 요청 템플릿
 

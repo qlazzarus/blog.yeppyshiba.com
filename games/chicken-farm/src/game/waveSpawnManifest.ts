@@ -67,3 +67,8 @@ export const WAVE_SPAWN_MANIFEST: readonly WaveSpawnRect[] = [
     waveSpawnRect('wolf_spawn_rect_12', 'IIliI', 1255, { maxX: 2496, maxY: -5920, minX: 2304, minY: -6112 }),
     waveSpawnRect('wolf_spawn_rect_13', 'IIllI', 1256, { maxX: 5632, maxY: -5952, minX: 5440, minY: -6144 }),
 ] as const;
+
+// jass_wolf_order_areas.tsv: IlIlI, line 1268. The trimmed map clips minX=-160.
+export const WAVE_ATTACK_WORLD_RECT = w3xRectToPhaserWorld({
+    minX: -3168, minY: -7424, maxX: 7008, maxY: 2848,
+});

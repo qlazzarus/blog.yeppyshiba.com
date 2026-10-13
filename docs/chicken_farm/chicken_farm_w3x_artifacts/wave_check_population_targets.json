@@ -2,17 +2,17 @@
   "activeTierTargets": [
     {
       "confirmedPhaseEntryDeltaTotal": 16,
-      "targetQuantity": null,
+      "targetQuantity": 1,
       "tier": 16
     },
     {
       "confirmedPhaseEntryDeltaTotal": 12,
-      "targetQuantity": null,
+      "targetQuantity": 1,
       "tier": 17
     },
     {
       "confirmedPhaseEntryDeltaTotal": 10,
-      "targetQuantity": null,
+      "targetQuantity": 1,
       "tier": 18
     }
   ],

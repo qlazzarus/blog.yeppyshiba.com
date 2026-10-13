@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { EnemyId } from '../balanceTypes';
+import { WAVE_ATTACK_WORLD_RECT } from '../waveSpawnManifest';
 import {
     MAJOR_TILE_PX,
     TARGET_VIEW_MAJOR_COLS,
@@ -42,7 +43,6 @@ import { TerrainBlocker } from './terrainBlocker';
 import {
     type WolfOrderRefreshReason,
     getRandomPointInRect,
-    shouldRefreshWolfAttackMove,
 } from './wolfAi';
 import { decideWolfAiBehavior } from './wolfAiStateMachine';
 
@@ -599,6 +599,18 @@ export class CombatPocSystem {
             }));
     }
 
+    /** Applies one global attack order to the supplied live runtime enemy IDs. */
+    refreshRuntimeEnemyAttackMoveOrders(ids: readonly string[]) {
+        const requestedIds = new Set(ids);
+        const refreshedIds: string[] = [];
+        for (const wolf of this.combatWolves) {
+            if (!wolf.runtimeManaged || wolf.hp <= 0 || !requestedIds.has(wolf.id)) continue;
+            this.issueWolfAttackMoveOrder(wolf, 'periodic_global_attack_refresh');
+            refreshedIds.push(wolf.id);
+        }
+        return refreshedIds;
+    }
+
     /** Read-only runtime behavior state for browser blocker/repath assertions. */
     getRuntimeEnemyBehaviorSnapshot(id: string) {
         const wolf = this.combatWolves.find(
@@ -606,10 +618,16 @@ export class CombatPocSystem {
         );
         if (!wolf) return null;
         return {
+            attackMoveDestination: wolf.attackMoveDestination ? { ...wolf.attackMoveDestination } : null,
+            attackMoveReason: wolf.lastAttackMoveRefreshReason ?? null,
+            targetPoint: { x: wolf.targetPoint.x, y: wolf.targetPoint.y },
+            path: wolf.path.slice(wolf.pathIndex).map((point) => ({ x: point.x, y: point.y })),
             focusBuildingId: wolf.focusBuildingId ?? null,
             focusUnitId: wolf.focusUnitId ?? null,
             id: wolf.id,
+            blockingTargetId: this.getWolfBlockingTarget(wolf)?.id ?? null,
             pathRemaining: Math.max(0, wolf.path.length - wolf.pathIndex),
+            pathFailedSinceSec: wolf.pathFailedSinceSec ?? null,
             state: wolf.state,
             stateAction: wolf.stateAction ?? null,
             stateReason: wolf.stateReason ?? null,
@@ -1127,7 +1145,10 @@ export class CombatPocSystem {
         }
 
         const goal = this.getWolfGoalBuilding(wolf);
-        if (!goal) return;
+        if (!goal) {
+            if (wolf.attackMoveDestination) wolf.targetPoint.set(wolf.attackMoveDestination.x, wolf.attackMoveDestination.y);
+            return;
+        }
 
         const [candidate] = this.getWolfPathGoalCandidates(wolf, goal);
         wolf.targetPoint.set(candidate?.x ?? goal.body.x, candidate?.y ?? goal.body.y);
@@ -1145,15 +1166,13 @@ export class CombatPocSystem {
             Boolean(wolf.focusBuildingId && this.getWolfGoalBuilding(wolf));
         if (hasFocusedTarget && !stuckLongEnough) return;
 
-        const elapsedSinceLastRefreshSec =
-            this.elapsedSec - wolf.lastAttackMoveRefreshAtSec;
+        // A blocked focused route must reach the blocker decision below. Issuing
+        // a generic stuck repath here would clear pathFailedSinceSec every time
+        // and prevent the fence-attack lifecycle from ever becoming due.
         if (
-            shouldRefreshWolfAttackMove(
-                'periodic_global_attack_refresh',
-                elapsedSinceLastRefreshSec,
-            )
+            stuckLongEnough &&
+            (this.getWolfBlockingTarget(wolf) || this.getWolfExternalBlockingTarget(wolf))
         ) {
-            this.issueWolfAttackMoveOrder(wolf, 'periodic_global_attack_refresh');
             return;
         }
 
@@ -1168,11 +1187,39 @@ export class CombatPocSystem {
 
         if (!stuckLongEnough && !reachedTarget) return;
 
-        this.issueWolfAttackMoveOrder(wolf, 'periodic_global_attack_refresh');
+        this.issueWolfAttackMoveOrder(
+            wolf,
+            stuckLongEnough ? 'stuck_repath' : 'target_reached_repath',
+        );
     }
 
     private issueWolfAttackMoveOrder(wolf: CombatWolf, reason: WolfOrderRefreshReason) {
-        const target = getRandomPointInRect(this.getLocalWolfAttackMoveRect());
+        const local = this.getLocalWolfAttackMoveRect();
+        const broad = WAVE_ATTACK_WORLD_RECT;
+        const rect = {
+            minX: Math.max(16, broad.minX, local.minX),
+            minY: Math.max(16, broad.minY, local.minY),
+            maxX: Math.min(this.worldSize.x - 16, broad.maxX, local.maxX),
+            maxY: Math.min(this.worldSize.y - 16, broad.maxY, local.maxY),
+        };
+        // Bounded local-farm sampling is a web policy, not JASS target priority.
+        // If every candidate is blocked, retain the valid spawn/current position.
+        let target = { x: wolf.body.x, y: wolf.body.y };
+        if (rect.minX <= rect.maxX && rect.minY <= rect.maxY) {
+            for (let attempt = 0; attempt < 32; attempt += 1) {
+                const candidate = getRandomPointInRect(rect);
+                if (Number.isFinite(candidate.x) && Number.isFinite(candidate.y) && canWolfOccupyPoint({
+                    dynamicBlockedRects: this.getCombatBlockedRects(),
+                    terrainBlocker: this.terrainBlocker,
+                    worldSize: this.worldSize,
+                    ...candidate,
+                })) {
+                    target = candidate;
+                    break;
+                }
+            }
+        }
+        wolf.attackMoveDestination = { ...target };
         wolf.focusBuildingId = undefined;
         wolf.focusUnitId = undefined;
         wolf.targetBuildingId = undefined;
@@ -1207,7 +1254,10 @@ export class CombatPocSystem {
             x: building.body.x,
             y: building.body.y,
         }));
-        const points = primaryPoints.length ? primaryPoints : fallbackPoints;
+        const points = (primaryPoints.length ? primaryPoints : fallbackPoints)
+            .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+        // Empty targets fall back to the converted source area, clipped below.
+        if (!points.length) return WAVE_ATTACK_WORLD_RECT;
         const padding =
             CHICKEN_FARM_BALANCE.pathing.wolfAi.attackMoveRefresh.localRectPaddingPx;
         const minX = Math.max(0, Math.min(...points.map((point) => point.x)) - padding);

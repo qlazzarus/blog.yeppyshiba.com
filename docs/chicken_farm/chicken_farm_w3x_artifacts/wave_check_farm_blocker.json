@@ -1,0 +1,158 @@
+{
+  "case": "farm_blocker",
+  "checks": {
+    "pass": true,
+    "scheduledWaveEnemyUsed": true,
+    "fenceAttackedThroughCanonicalCombat": true,
+    "fenceDestroyedAndRepathObserved": true,
+    "noDirectMoveOrTeleport": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "seed": 812,
+    "naturalPopulation": false,
+    "targetOverride": {
+      "tier": 1,
+      "quantity": 1
+    },
+    "timeJump": 120,
+    "fixtures": [
+      "debug farmer target",
+      "fence_wood"
+    ]
+  },
+  "spawned": {
+    "enemy": {
+      "enemyId": "timber_wolf",
+      "id": "wave-r1-t1-s0",
+      "ownerPlayerId": 10,
+      "sourceRectId": "wolf_spawn_rect_02",
+      "spawnedAtSec": 120,
+      "spawnX": 5042.721734024584,
+      "spawnY": 8336.098146826029,
+      "tier": 1
+    },
+    "wave": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextGlobalAttackRefreshAtSec": 180,
+      "nextReplenishAtSec": 120.2,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s0"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s0",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_02",
+          "spawnedAtSec": 120,
+          "spawnX": 5042.721734024584,
+          "spawnY": 8336.098146826029,
+          "tier": 1
+        }
+      ]
+    }
+  },
+  "fixtureLayout": {
+    "fence": {
+      "x": 4954.721734024584,
+      "y": 8272.098146826029
+    },
+    "target": {
+      "x": 4866.721734024584,
+      "y": 8336.098146826029
+    }
+  },
+  "movementAfterFenceRemoval": {
+    "distanceAfter": 146.7059489406351,
+    "distanceBefore": 174.20594894063282
+  },
+  "duringFenceAttack": {
+    "attackMoveDestination": {
+      "x": 3759.1735695963725,
+      "y": 9369.994501846377
+    },
+    "attackMoveReason": "periodic_global_attack_refresh",
+    "targetPoint": {
+      "x": 4964.721734024584,
+      "y": 8434.098146826029
+    },
+    "path": [],
+    "focusBuildingId": null,
+    "focusUnitId": "wave-farm-target-wave-r1-t1-s0",
+    "id": "wave-r1-t1-s0",
+    "blockingTargetId": null,
+    "pathRemaining": 0,
+    "pathFailedSinceSec": 120.02978306666665,
+    "state": "attack_blocker",
+    "stateAction": "attack_blocker",
+    "stateReason": "blocker_attack_range_reached",
+    "targetBuildingId": null,
+    "x": 5040.8682204612205,
+    "y": 8340.649400288632
+  },
+  "afterFenceDestroyed": {
+    "attackMoveDestination": {
+      "x": 3759.1735695963725,
+      "y": 9369.994501846377
+    },
+    "attackMoveReason": "periodic_global_attack_refresh",
+    "targetPoint": {
+      "x": 4964.721734024584,
+      "y": 8336.098146826029
+    },
+    "path": [],
+    "focusBuildingId": null,
+    "focusUnitId": "wave-farm-target-wave-r1-t1-s0",
+    "id": "wave-r1-t1-s0",
+    "blockingTargetId": null,
+    "pathRemaining": 0,
+    "pathFailedSinceSec": 120.02978306666665,
+    "state": "repath",
+    "stateAction": "wait_for_repath",
+    "stateReason": "path_missing_waiting_for_blocker_delay",
+    "targetBuildingId": null,
+    "x": 5013.377607160528,
+    "y": 8339.930943364618
+  }
+}

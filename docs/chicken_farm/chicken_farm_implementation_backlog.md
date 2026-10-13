@@ -117,7 +117,9 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 2026-10-08: [실제 맵 전투 연결 계획](./chicken_farm_sp07_task_plan.md)의 Terra Medium용 **16개 task**를 완료했다. 계약·관찰 → normal 전투 서비스 → 실제 유닛/닭/건물 target → 탐색·공격·사망 → 경제 파괴·펜스 재경로 → attack-move/예약 → restart·통합·회귀를 통과했다. [SP-07 W3X 비교](./chicken_farm_sp07_w3x_comparison.md)는 원본 사실과 웹 변환을 분리한다.
 
-2026-10-08: [SP-08 Terra Medium 실행 계획](./chicken_farm_sp08_task_plan.md)을 **18개 task**로 분해했다. SP-08-01 [원본 wave 계약](./chicken_farm_w3x_artifacts/sp08_01_wave_contract.json), SP-08-02 [13 rect 좌표 검증](./chicken_farm_w3x_artifacts/wave_check_coordinates.json), SP-08-03 [spawn 선택 검증](./chicken_farm_w3x_artifacts/wave_check_spawn_selection.json), SP-08-04 [18 tier 검증](./chicken_farm_w3x_artifacts/wave_check_tiers.json), SP-08-05 [10 phase 검증](./chicken_farm_w3x_artifacts/wave_check_phases.json), SP-08-06 [phase clock 검증](./chicken_farm_w3x_artifacts/wave_check_clock.json), SP-08-07 [population target 검증](./chicken_farm_w3x_artifacts/wave_check_population_targets.json), SP-08-08 [replenish 검증](./chicken_farm_w3x_artifacts/wave_check_replenish.json), SP-08-09 [baseline 검증](./chicken_farm_w3x_artifacts/wave_check_baseline.json), SP-08-10 [first spawn 검증](./chicken_farm_w3x_artifacts/wave_check_first_spawn.json), SP-08-11 [runtime replenish 검증](./chicken_farm_w3x_artifacts/wave_check_runtime_replenish.json)을 완료했다. 원본 초기 target·주기 증가량·timer lifecycle의 미확인은 명시적으로 보류했다. 다음 실행은 **SP-08-12**다. 이후 명령 → blocker·restart → 전 phase/normal 통합 → 회귀 순서를 따른다. 각 카드의 읽기 범위·완료 조건·검증과 한 ID 실행 템플릿을 따른다.
+2026-10-08~13: [SP-08 Terra Medium 실행 계획](./chicken_farm_sp08_task_plan.md)을 **18개 task**로 분해했다. SP-08-01 [원본 wave 계약](./chicken_farm_w3x_artifacts/sp08_01_wave_contract.json), SP-08-02 [13 rect 좌표 검증](./chicken_farm_w3x_artifacts/wave_check_coordinates.json), SP-08-03 [spawn 선택 검증](./chicken_farm_w3x_artifacts/wave_check_spawn_selection.json), SP-08-04 [18 tier 검증](./chicken_farm_w3x_artifacts/wave_check_tiers.json), SP-08-05 [10 phase 검증](./chicken_farm_w3x_artifacts/wave_check_phases.json), SP-08-06 [phase clock 검증](./chicken_farm_w3x_artifacts/wave_check_clock.json), SP-08-07 [population target 검증](./chicken_farm_w3x_artifacts/wave_check_population_targets.json), SP-08-08 [replenish 검증](./chicken_farm_w3x_artifacts/wave_check_replenish.json), SP-08-09 [baseline 검증](./chicken_farm_w3x_artifacts/wave_check_baseline.json), SP-08-10 [first spawn 검증](./chicken_farm_w3x_artifacts/wave_check_first_spawn.json), SP-08-11 [runtime replenish 검증](./chicken_farm_w3x_artifacts/wave_check_runtime_replenish.json), SP-08-12 [spawn order 검증](./chicken_farm_w3x_artifacts/wave_check_spawn_order.json), SP-08-13 [global refresh 검증](./chicken_farm_w3x_artifacts/wave_check_refresh.json), SP-08-14 [farm blocker 검증](./chicken_farm_w3x_artifacts/wave_check_farm_blocker.json), SP-08-15 [wave restart 검증](./chicken_farm_w3x_artifacts/wave_check_restart.json), SP-08-16 [전 phase runtime 검증](./chicken_farm_w3x_artifacts/wave_check_runtime_phases.json), SP-08-17 [정상 첫 wave 통합](./chicken_farm_w3x_artifacts/wave_check_normal_integration.json)을 완료했다. 원본 initial target·주기 증가량·timer lifecycle의 미확인은 보류하고, normal play에는 active tier당 1기의 explicit web baseline만 적용했다. 다음 실행은 **SP-08-18**이다. 이후 회귀 순서를 따른다. 각 카드의 읽기 범위·완료 조건·검증과 한 ID 실행 템플릿을 따른다.
+
+2026-10-13: SP-08-18 회귀·비교·인계를 완료해 SP-08 전체를 완료 처리했다. [SP-08 W3X 비교](./chicken_farm_sp08_w3x_comparison.md)는 원본 보존·웹 변환·미확인을 분리하고 SP-09~16 인계를 기록한다. 다음 상위 실행은 **SP-09**다.
 
 아래 인계 조건을 세부 카드의 완료 조건과 artifact에 반영했다.
 
@@ -127,6 +129,19 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 4. `jass_wolf_order_flows.tsv`의 spawn-entry 및 60초 global `attack` refresh를 attack-move target 갱신으로 구현한다. 웹의 구체 target 우선순위는 SP-07 정책임을 기록하고 원본 JASS 사실로 표기하지 않는다.
 5. wave 적이 실제 P3 농부·개·닭·완성 건물·fence blocker를 같은 combat registry로 사용하고, 펜스 파괴 뒤 stale focus 없이 repath하는 browser 사례를 둔다.
 6. phase 전환·적 사망/제거·same-page restart에서 scheduler timer·enemy registry·명령이 남지 않는지 확인한다. pause/hidden 시간 정책은 SP-13, 수치 밸런스는 SP-15로 넘긴다.
+
+## SP-09 세부 실행 계획
+
+2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. **계획 완료·구현 미착수**, 다음 실행은 **SP-09-01**이다.
+
+- 01~04: 기능·거래 계약, canonical 데이터, snapshot/harness.
+- 05~07: 선행조건·착공 검증과 공급 lifecycle.
+- 08~12: 생산 예약·부화·일반 유닛·출구/rally·제거 정리.
+- 13~16: 업그레이드 진행·공간/전투·경제 갱신·취소/파괴.
+- 17~20: 연구 lifecycle·실제 효과·지원 기능·대문 상태.
+- 21~25: command card, restart, 정상 성장 통합, 전체 coverage와 필수 회귀.
+
+한 요청에 한 ID를 실행하며 각 카드의 읽기·수정 범위·완료 조건·검증을 따른다. 기존 경제/전투/출구 경로를 재사용하고 가족·용병 등 SP-12 콘텐츠와의 경계는 01 기능표에서 확정한다. 원본 미확인을 임의 수치로 복원 완료 처리하지 않는다.
 
 ## 기존 경제 통합 계획 — 참고 이력
 

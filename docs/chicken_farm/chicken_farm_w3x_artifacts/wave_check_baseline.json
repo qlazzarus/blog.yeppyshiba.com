@@ -21,6 +21,7 @@
     "activeTierTargets": [],
     "currentPhaseAtSec": null,
     "nextPhaseAtSec": 120,
+    "nextGlobalAttackRefreshAtSec": 60,
     "nextReplenishAtSec": null,
     "schedulerStatus": "enabled",
     "waveManagedEnemyIds": [],

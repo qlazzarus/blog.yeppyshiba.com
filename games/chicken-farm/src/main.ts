@@ -5,6 +5,10 @@ import type { EnemyId } from './game/balanceTypes';
 import { calculateWaveReplenishPlan } from './game/waveReplenish';
 import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
 import { createWaveScheduler, type WaveScheduler } from './game/waveScheduler';
+import {
+    createWaveGlobalAttackRefresh,
+    type WaveGlobalAttackRefresh,
+} from './game/waveGlobalAttackRefresh';
 import { WAVE_SPAWN_MANIFEST } from './game/waveSpawnManifest';
 import { selectWaveSpawnPoint } from './game/waveSpawnSelector';
 import {
@@ -272,6 +276,7 @@ declare global {
                     readonly tier: number;
                 }[];
                 readonly currentPhaseAtSec: number | null;
+                readonly nextGlobalAttackRefreshAtSec: number | null;
                 readonly nextPhaseAtSec: number | null;
                 readonly nextReplenishAtSec: number | null;
                 readonly schedulerStatus: 'enabled' | 'not_started';
@@ -684,6 +689,7 @@ class FarmScene extends Phaser.Scene {
     private worldSize = new Phaser.Math.Vector2(0, 0);
     private worldScale = CHICKEN_FARM_TILEMAP_POC_01.defaultScale;
     private waveManagedEnemies = new Map<string, WaveManagedEnemy>();
+    private waveGlobalAttackRefresh?: WaveGlobalAttackRefresh;
     private wavePopulationTargets?: WavePopulationTargets;
     private waveScheduler?: WaveScheduler;
     private waveSpawnSequence = 0;
@@ -1044,6 +1050,7 @@ class FarmScene extends Phaser.Scene {
             CHICKEN_FARM_BALANCE.waves.ordinaryPhases,
         );
         this.wavePopulationTargets = createWavePopulationTargets();
+        this.waveGlobalAttackRefresh = createWaveGlobalAttackRefresh();
         this.nextWaveReplenishAtSec = null;
         this.waveManagedEnemies.clear();
         this.waveSpawnSequence = 0;
@@ -1063,6 +1070,8 @@ class FarmScene extends Phaser.Scene {
             })) ?? [],
             currentPhaseAtSec: schedulerSnapshot?.currentPhase?.atSec ?? null,
             nextPhaseAtSec: schedulerSnapshot?.nextPhaseAtSec ?? null,
+            nextGlobalAttackRefreshAtSec:
+                this.waveGlobalAttackRefresh?.getSnapshot().nextRefreshAtSec ?? null,
             nextReplenishAtSec: this.nextWaveReplenishAtSec,
             schedulerStatus: schedulerSnapshot ? 'enabled' as const : 'not_started' as const,
             waveManagedEnemyIds: waveManagedEnemies.map((enemy) => enemy.id),
@@ -1073,7 +1082,8 @@ class FarmScene extends Phaser.Scene {
     private updateWaveRuntime() {
         const scheduler = this.waveScheduler;
         const populationTargets = this.wavePopulationTargets;
-        if (!scheduler || !populationTargets || !this.combatPoc) return;
+        const combat = this.combatPoc;
+        if (!scheduler || !populationTargets || !combat) return;
 
         this.reconcileWaveManagedEnemies();
         const phaseStarts = scheduler.tick(this.elapsedSec);
@@ -1089,6 +1099,12 @@ class FarmScene extends Phaser.Scene {
             this.nextWaveReplenishAtSec = Number(
                 (this.nextWaveReplenishAtSec + 0.2).toFixed(6),
             );
+        }
+        for (const refresh of this.waveGlobalAttackRefresh?.tick(this.elapsedSec) ?? []) {
+            const eligibleIds = [...this.waveManagedEnemies.values()]
+                .filter((enemy) => enemy.ownerPlayerId === WAVE_OWNER_PLAYER_ID && enemy.spawnedAtSec <= refresh.atSec)
+                .map((enemy) => enemy.id);
+            combat.refreshRuntimeEnemyAttackMoveOrders(eligibleIds);
         }
     }
 
@@ -1270,6 +1286,7 @@ class FarmScene extends Phaser.Scene {
         this.terrainPathingPoc = undefined;
         this.waveScheduler = undefined;
         this.wavePopulationTargets = undefined;
+        this.waveGlobalAttackRefresh = undefined;
         this.nextWaveReplenishAtSec = null;
         this.waveManagedEnemies.clear();
         this.waveTargetOverridesForTest.clear();
@@ -3742,7 +3759,7 @@ class FarmScene extends Phaser.Scene {
                 return true;
             },
             setWaveTargetQuantityForTest: (tier, quantity) => {
-                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || !isCurrentDebugRun()) return false;
                 if (!Number.isInteger(tier) || tier < 1 || tier > 18) return false;
                 if (quantity !== null && (!Number.isInteger(quantity) || quantity < 0)) {
                     return false;
@@ -3846,7 +3863,7 @@ class FarmScene extends Phaser.Scene {
                 return true;
             },
             advanceWaveForTest: (targetElapsedSec) => {
-                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || !isCurrentDebugRun()) return false;
                 if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) {
                     return false;
                 }
