@@ -1,0 +1,175 @@
+{
+  "case": "coordinates",
+  "conversion": "world = W3X + PHASER_WORLD_ORIGIN_FROM_W3X; Y is not inverted",
+  "pass": true,
+  "pathing": {
+    "cellSize": 32,
+    "dynamicBlockersIncluded": false,
+    "gridHeight": 336,
+    "gridWidth": 352,
+    "policy": "Records static WPM ground cells only; dynamic construction blockers are SP-08-03 runtime input."
+  },
+  "rects": [
+    {
+      "id": "wolf_spawn_rect_01",
+      "openCellCount": 36,
+      "sourceRectSymbol": "lili",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 1600,
+        "maxY": 8544,
+        "minX": 1408,
+        "minY": 8352
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_02",
+      "openCellCount": 36,
+      "sourceRectSymbol": "llIi",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 5120,
+        "maxY": 8480,
+        "minX": 4928,
+        "minY": 8288
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_03",
+      "openCellCount": 36,
+      "sourceRectSymbol": "llii",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 7136,
+        "maxY": 5920,
+        "minX": 6944,
+        "minY": 5728
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_04",
+      "openCellCount": 36,
+      "sourceRectSymbol": "llli",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 7936,
+        "maxY": 8640,
+        "minX": 7744,
+        "minY": 8448
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_05",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIIII",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 3264,
+        "maxY": 6368,
+        "minX": 3072,
+        "minY": 6176
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_06",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIIiI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 1408,
+        "maxY": 5728,
+        "minX": 1216,
+        "minY": 5536
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_07",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIIlI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 9728,
+        "maxY": 5472,
+        "minX": 9536,
+        "minY": 5280
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_08",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIiII",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 1376,
+        "maxY": 3296,
+        "minX": 1184,
+        "minY": 3104
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_09",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIiiI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 3456,
+        "maxY": 2144,
+        "minX": 3264,
+        "minY": 1952
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_10",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIilI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 7424,
+        "maxY": 2656,
+        "minX": 7232,
+        "minY": 2464
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_11",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIlII",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 1632,
+        "maxY": 1248,
+        "minX": 1440,
+        "minY": 1056
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_12",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIliI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 5504,
+        "maxY": 1536,
+        "minX": 5312,
+        "minY": 1344
+      }
+    },
+    {
+      "id": "wolf_spawn_rect_13",
+      "openCellCount": 36,
+      "sourceRectSymbol": "IIllI",
+      "totalCellCount": 36,
+      "world": {
+        "maxX": 8640,
+        "maxY": 1504,
+        "minX": 8448,
+        "minY": 1312
+      }
+    }
+  ],
+  "source": "jass_wolf_spawn_points.tsv lines 1244-1256",
+  "world": {
+    "height": 10528,
+    "width": 10080
+  }
+}

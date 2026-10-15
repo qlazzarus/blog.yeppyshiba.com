@@ -1,0 +1,469 @@
+{
+  "case": "upgrade",
+  "checks": {
+    "illegalTierRejected": true,
+    "pass": true,
+    "prerequisiteNoCharge": true,
+    "productionUpgradeMutualExclusion": true,
+    "completionAdapterApplied": true,
+    "combatProfileRefreshed": true,
+    "damageFractionPreserved": true,
+    "economyCoopTierRefreshed": true,
+    "acceptedPrerequisiteLossCompletes": true,
+    "cancelRefundOnce": true,
+    "destroyedUpgradeNoRefundOrLateRestore": true,
+    "footprintCollisionDeferred": true,
+    "repeatedRequestSingleCharge": true,
+    "supplyTierRefreshed": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "duringProduction": {
+    "jobs": {
+      "hatch": [],
+      "production": [
+        {
+          "completeAtSec": 16.316053333333482,
+          "id": "production-1",
+          "producerId": "player-building-3",
+          "recipeId": "dog",
+          "state": "running"
+        }
+      ]
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 8,
+      "cap": 9,
+      "reserved": 1,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house",
+        "lumber_mill",
+        "market",
+        "tower_scout",
+        "well_basic"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 430,
+      "lumber": 80
+    }
+  },
+  "completed": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 10,
+      "cap": 11,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house",
+        "lumber_mill",
+        "market",
+        "tower_guard_small",
+        "town_hall",
+        "well_basic"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 306,
+      "lumber": 92
+    }
+  },
+  "blockedReady": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 10,
+      "cap": 11,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6",
+        "player-building-7",
+        "player-building-8"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house",
+        "fence_wood",
+        "lumber_mill",
+        "market",
+        "tower_guard_small",
+        "tower_scout",
+        "town_hall",
+        "well_basic"
+      ]
+    },
+    "upgrades": [
+      {
+        "buildingId": "player-building-7",
+        "completeAtSec": 40.59938666666681,
+        "sourceTemplateId": "tower_scout",
+        "state": "ready",
+        "targetTemplateId": "tower_guard_small"
+      }
+    ],
+    "wallet": {
+      "gold": 456,
+      "lumber": 82
+    }
+  },
+  "upgradedCoop": {
+    "id": "player-building-10",
+    "kind": "mid",
+    "ownerPlayerId": 3,
+    "storedEggs": 0
+  },
+  "cancelled": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 13,
+      "cap": 14,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-10",
+        "player-building-11",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6",
+        "player-building-7",
+        "player-building-9"
+      ],
+      "completeBuildingTemplateIds": [
+        "coop_mid",
+        "farm_house",
+        "grand_market",
+        "lumber_mill",
+        "tower_guard_small",
+        "town_hall",
+        "workshop_lab"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 480,
+      "lumber": 90
+    }
+  },
+  "destroyedLate": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 13,
+      "cap": 14,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-10",
+        "player-building-11",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6",
+        "player-building-7",
+        "player-building-9"
+      ],
+      "completeBuildingTemplateIds": [
+        "coop_mid",
+        "farm_house",
+        "grand_market",
+        "lumber_mill",
+        "tower_guard_small",
+        "town_hall",
+        "workshop_lab"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 420,
+      "lumber": 270
+    }
+  },
+  "prerequisiteRemovedCompletion": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 10,
+      "cap": 11,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-10",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6",
+        "player-building-7",
+        "player-building-9"
+      ],
+      "completeBuildingTemplateIds": [
+        "coop_mid",
+        "farm_house",
+        "grand_market",
+        "lumber_mill",
+        "tower_guard_small",
+        "town_hall",
+        "workshop_lab"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 410,
+      "lumber": 72
+    }
+  },
+  "resolvedAfterBlocker": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 10,
+      "cap": 11,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6",
+        "player-building-7"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house",
+        "lumber_mill",
+        "market",
+        "tower_guard_small",
+        "town_hall",
+        "well_basic"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 456,
+      "lumber": 82
+    }
+  },
+  "started": {
+    "jobs": {
+      "hatch": [],
+      "production": [
+        {
+          "completeAtSec": 16.316053333333482,
+          "id": "production-1",
+          "producerId": "player-building-3",
+          "recipeId": "dog",
+          "state": "running"
+        }
+      ]
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 8,
+      "cap": 9,
+      "reserved": 1,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3",
+        "player-building-4",
+        "player-building-5",
+        "player-building-6"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house",
+        "lumber_mill",
+        "market",
+        "tower_scout",
+        "well_basic"
+      ]
+    },
+    "upgrades": [
+      {
+        "buildingId": "player-building-4",
+        "completeAtSec": 30.38272000000015,
+        "sourceTemplateId": "farm_house",
+        "state": "running",
+        "targetTemplateId": "town_hall"
+      }
+    ],
+    "wallet": {
+      "gold": 350,
+      "lumber": 40
+    }
+  }
+}

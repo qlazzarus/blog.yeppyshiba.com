@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { MvpBuildingId } from '../balanceTypes';
+import { evaluateBuildingEligibility } from '../growthEligibility';
 import type {
     ControllableUnitState,
     ControllableUnitTemplateId,
@@ -418,11 +419,24 @@ export class ConstructionPlacementSystem {
         options: PlacementValidationOptions = {},
     ): PlacementValidation {
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[buildingId];
-        if (!options.ignoreBuilderSelection && !this.getSelectedBuilder()) {
+        const builder = this.getSelectedBuilder();
+        if (!options.ignoreBuilderSelection && !builder) {
             return { reason: 'missing_builder_selection', valid: false };
         }
         if (!options.ignoreCost && !this.buildingSystem.canAfford(template)) {
             return { reason: 'insufficient_resources', valid: false };
+        }
+        if (builder) {
+            const eligibility = this.getBuildingEligibility(
+                buildingId,
+                builder.ownerPlayerId,
+            );
+            if (!eligibility.eligible) {
+                return {
+                    reason: this.getEligibilityRejectionReason(eligibility),
+                    valid: false,
+                };
+            }
         }
         if (
             footprint.x < 0 ||
@@ -518,7 +532,7 @@ export class ConstructionPlacementSystem {
             );
             if (distance > BUILDER_START_DISTANCE_PX) continue;
 
-            const validation = this.validateBuildStart(order);
+            const validation = this.validateBuildStart(order, builder);
             if (!validation.valid) {
                 this.rejectPendingOrderAtStart(index, order, validation.reason);
                 index -= 1;
@@ -547,10 +561,23 @@ export class ConstructionPlacementSystem {
         }
     }
 
-    private validateBuildStart(order: PendingBuildOrder): BuildStartValidation {
+    private validateBuildStart(
+        order: PendingBuildOrder,
+        builder: ControllableUnitState,
+    ): BuildStartValidation {
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[order.templateId];
         if (!this.buildingSystem.canAfford(template)) {
             return { reason: 'insufficient_resources_at_site', valid: false };
+        }
+        const eligibility = this.getBuildingEligibility(
+            order.templateId,
+            builder.ownerPlayerId,
+        );
+        if (!eligibility.eligible) {
+            return {
+                reason: `${this.getEligibilityRejectionReason(eligibility)}_at_site`,
+                valid: false,
+            };
         }
         if (
             order.footprint.x < 0 ||
@@ -580,6 +607,41 @@ export class ConstructionPlacementSystem {
         }
 
         return { valid: true };
+    }
+
+    private getBuildingEligibility(
+        buildingId: MvpBuildingId,
+        ownerPlayerId: number,
+    ) {
+        return evaluateBuildingEligibility(
+            {
+                buildings: this.buildingSystem.getBuildings().map((building) => ({
+                    hp: building.hp,
+                    ownerPlayerId: building.ownerPlayerId,
+                    state: building.state,
+                    templateId: building.templateId,
+                })),
+                ownerPlayerId,
+                units: this.getUnits().map((unit) => ({
+                    alive: unit.hp > 0,
+                    ownerPlayerId: unit.ownerPlayerId,
+                    templateId: unit.templateId,
+                })),
+            },
+            buildingId,
+        );
+    }
+
+    private getEligibilityRejectionReason(eligibility: ReturnType<typeof evaluateBuildingEligibility>) {
+        if (eligibility.missingBuildingTemplateIds.length) {
+            return `missing_prerequisite:${eligibility.missingBuildingTemplateIds.join(',')}`;
+        }
+        if (eligibility.missingResearchLevels.length) {
+            return `missing_research:${eligibility.missingResearchLevels
+                .map((requirement) => `${requirement.id}:${requirement.requiredLevel}`)
+                .join(',')}`;
+        }
+        return `missing_unit:${eligibility.missingUnitTemplateIds.join(',')}`;
     }
 
     private rejectPendingOrderAtStart(

@@ -19,9 +19,12 @@
     "terrainPathingDebug": false
   },
   "snapshot": {
+    "activeStartItemPlacement": null,
+    "inventoryDrag": null,
     "buildings": [],
     "chickens": [],
-    "elapsedSec": 0.07496666666666668,
+    "coops": [],
+    "elapsedSec": 0.08225000000004656,
     "fieldEggs": [],
     "hatchJobs": [],
     "inventories": [
@@ -45,6 +48,25 @@
           null,
           null
         ]
+      }
+    ],
+    "lumberIncome": {
+      "lastProcessedTickSec": 0,
+      "mills": [],
+      "totalsByPlayer": [
+        {
+          "lumber": 0,
+          "playerId": 3
+        }
+      ]
+    },
+    "wallets": [
+      {
+        "gold": 1500,
+        "lumber": 0,
+        "playerId": 3,
+        "supplyCap": 3,
+        "supplyUsed": 0
       }
     ],
     "runId": 1,

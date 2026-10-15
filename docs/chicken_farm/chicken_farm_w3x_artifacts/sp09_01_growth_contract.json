@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "task": "SP-09-01",
+  "status": "complete",
+  "writtenAt": "2026-10-13",
+  "scope": "Building-template feature ownership and normal-growth boundary. This is a static contract; it does not claim runtime tech enforcement or W3X-complete reconstruction.",
+  "sources": {
+    "template": "games/chicken-farm/src/game/buildingTemplates.ts",
+    "types": "games/chicken-farm/src/game/balanceTypes.ts",
+    "w3xBuildingTech": "docs/chicken_farm/chicken_farm_w3x_artifacts/building_tech_reference.tsv",
+    "w3xResearchProviders": "docs/chicken_farm/chicken_farm_w3x_artifacts/research_upgrade_provider_reference.tsv",
+    "comparisons": [
+      "docs/chicken_farm/chicken_farm_sp05_w3x_comparison.md",
+      "docs/chicken_farm/chicken_farm_sp06_w3x_comparison.md",
+      "docs/chicken_farm/chicken_farm_sp07_w3x_comparison.md"
+    ]
+  },
+  "currentRuntimeFacts": {
+    "construction": "The generic construction lifecycle can place template IDs, but it does not yet enforce template.requires at preview or start.",
+    "commandCard": "Only fence_wood, tower_scout, farm_house, coop_basic, well_basic and market have build-card entries. It has hatch and first market exchange, but no generic production, upgrade, research, or gate actions.",
+    "economy": "coop_basic hatch, market egg sale/exchange, well effect, and lumber-mill 30-second owner income are connected. Mid/high tiers are data/economy adapters without a completed upgrade command path.",
+    "combat": "Tower attack data and fence/tower target/blocker lifecycle are connected. Normal tech access to tower tiers is not connected.",
+    "supply": "Wallet has supplyCap and supplyUsed fields, but no production reservation or complete entity lifecycle contract exists."
+  },
+  "normalGrowthPath": [
+    {
+      "step": 1,
+      "webPath": "normal P3 starts with starter campfire and market items; the first market exchange and egg economy are already usable",
+      "evidence": "SP-06 normal full-loop artifact",
+      "owner": "SP-06"
+    },
+    {
+      "step": 2,
+      "webPath": "build farm_house, then lumber_mill; its 30-second income funds the first defense tier",
+      "owner": "SP-09-05 through SP-09-07, then SP-09-21"
+    },
+    {
+      "step": 3,
+      "webPath": "lumber_mill unlocks tower_guard_small; scout tower remains the early no-requirement defense entry",
+      "owner": "SP-09-05, SP-09-06, SP-09-13 through SP-09-16"
+    },
+    {
+      "step": 4,
+      "webPath": "farm_house -> town_hall -> workshop_lab/family_temple branches unlock coop, wall, tower, and mill tier growth",
+      "owner": "SP-09-03 through SP-09-16"
+    },
+    {
+      "step": 5,
+      "webPath": "research, supported dog production, mercenaries, workshop units, and long-form market content split by current playable relevance",
+      "owner": "SP-09-17 through SP-09-19 and SP-12"
+    }
+  ],
+  "templateCoverage": [
+    { "id": "campfire", "rawcode": "h01Q", "features": ["build", "heal_aura"], "current": "starter item placement and aura are connected", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-19"], "laterOwner": null },
+    { "id": "arcane_lab", "rawcode": "h01H", "features": ["build", "requires", "research_provider"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-17"], "laterOwner": "SP-12 content-only research effects" },
+    { "id": "barrier_magic", "rawcode": "h00Y", "features": ["build", "requires", "upgrade_from", "upgrade_to"], "current": "construction/combat template only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-16"], "laterOwner": null },
+    { "id": "blacksmith", "rawcode": "h00B", "features": ["build", "requires", "research_provider"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-17"], "laterOwner": "SP-12 mercenary research targets" },
+    { "id": "coop_basic", "rawcode": "h00N", "features": ["build", "requires", "hatch", "production_exit", "upgrade_to"], "current": "build card and hatch lifecycle connected; prerequisite and upgrade are not", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-08", "SP-09-09", "SP-09-11", "SP-09-15"], "laterOwner": null },
+    { "id": "coop_mid", "rawcode": "h00O", "features": ["requires", "hatch", "production_exit", "upgrade_to", "research_provider"], "current": "economy rule data only", "requiredOwner": ["SP-09-13", "SP-09-16", "SP-09-15"], "laterOwner": "coopProtection effect if it exceeds current chicken scope" },
+    { "id": "coop_high", "rawcode": "h01Z", "features": ["requires", "hatch", "production_exit", "research_provider"], "current": "economy rule data only", "requiredOwner": ["SP-09-13", "SP-09-16", "SP-09-15"], "laterOwner": "coopProtection effect if it exceeds current chicken scope" },
+    { "id": "egg_storage", "rawcode": "h004", "features": ["build", "requires", "upgrade_to"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-16"], "laterOwner": null },
+    { "id": "family_temple", "rawcode": "h015", "features": ["requires", "production", "production_exit", "upgrade_to"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-16"], "laterOwner": "SP-12 family unit catalogue except existing big_dog" },
+    { "id": "farm_house", "rawcode": "h001", "features": ["build", "production", "production_exit", "upgrade_to"], "current": "build card; dog data exists but generic production is absent", "requiredOwner": ["SP-09-08", "SP-09-10", "SP-09-13", "SP-09-16"], "laterOwner": "SP-12 family unit catalogue" },
+    { "id": "fence_bronze", "rawcode": "h00L", "features": ["upgrade_from", "upgrade_to", "combat_blocker"], "current": "template/combat data only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-16"], "laterOwner": null },
+    { "id": "fence_wood", "rawcode": "h003", "features": ["build", "upgrade_to", "combat_blocker"], "current": "build card and combat blocker connected", "requiredOwner": ["SP-09-13", "SP-09-16", "SP-09-21"], "laterOwner": null },
+    { "id": "gate_wood", "rawcode": "h006", "features": ["build", "requires", "gate_state", "combat_blocker"], "current": "closed template only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-20", "SP-09-21"], "laterOwner": "Warsmash observation of original open/close transition" },
+    { "id": "grand_market", "rawcode": "h01X", "features": ["requires", "upgrade_from"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-13", "SP-09-16"], "laterOwner": "SP-12 market tiers and catalogue" },
+    { "id": "lumber_mill", "rawcode": "h00A", "features": ["build", "requires", "income", "research_provider", "upgrade_to"], "current": "30-second income connected; no normal command or requirement enforcement", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-15", "SP-09-17", "SP-09-21"], "laterOwner": null },
+    { "id": "lumber_mill_mid", "rawcode": "h00J", "features": ["requires", "income", "research_provider", "upgrade_to"], "current": "30-second income adapter connected", "requiredOwner": ["SP-09-13", "SP-09-15", "SP-09-17"], "laterOwner": null },
+    { "id": "lumber_mill_high", "rawcode": "h00W", "features": ["requires", "income", "research_provider"], "current": "30-second income adapter connected", "requiredOwner": ["SP-09-13", "SP-09-15", "SP-09-17"], "laterOwner": null },
+    { "id": "market", "rawcode": "h00E", "features": ["build", "exchange", "egg_sale", "upgrade_to"], "current": "starter placement, first exchange, and egg sale connected", "requiredOwner": ["SP-09-13", "SP-09-16", "SP-09-21"], "laterOwner": "SP-12 market purchase catalogue and higher exchange tiers" },
+    { "id": "mercenary_barracks", "rawcode": "h026", "features": ["build", "requires", "production", "production_exit"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06"], "laterOwner": "SP-12 mercenary production catalogue" },
+    { "id": "plasma_wall", "rawcode": "h01G", "features": ["requires", "upgrade_from", "combat_blocker"], "current": "template/combat data only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-16"], "laterOwner": "intermediate W3X barrier variants" },
+    { "id": "power_generator", "rawcode": "h01V", "features": ["build", "requires", "research_provider"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-17", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_arcane_small", "rawcode": "h016", "features": ["requires", "attack", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_arcane_medium", "rawcode": "h008", "features": ["requires", "attack", "upgrade_from", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_arcane_large", "rawcode": "h017", "features": ["requires", "attack", "upgrade_from", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_arcane_grand", "rawcode": "h01K", "features": ["requires", "attack", "upgrade_from"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_guard_small", "rawcode": "h007", "features": ["requires", "attack", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_guard_medium", "rawcode": "h00Q", "features": ["requires", "attack", "upgrade_from", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_guard_large", "rawcode": "h00Z", "features": ["requires", "attack", "upgrade_from", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_guard_grand", "rawcode": "h00R", "features": ["requires", "attack", "upgrade_from", "upgrade_to"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_guard_black", "rawcode": "h01J", "features": ["requires", "attack", "upgrade_from"], "current": "combat template only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18"], "laterOwner": null },
+    { "id": "tower_scout", "rawcode": "h00D", "features": ["build", "attack", "upgrade_to"], "current": "build card and combat target lifecycle connected", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-18", "SP-09-21"], "laterOwner": "SP-15 range and balance adjustment" },
+    { "id": "town_hall", "rawcode": "h00H", "features": ["requires", "production", "production_exit", "upgrade_to"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-10", "SP-09-13", "SP-09-16"], "laterOwner": "SP-12 family unit catalogue" },
+    { "id": "wall_stone", "rawcode": "h00K", "features": ["requires", "upgrade_from", "upgrade_to", "combat_blocker"], "current": "template/combat data only", "requiredOwner": ["SP-09-13", "SP-09-14", "SP-09-16"], "laterOwner": null },
+    { "id": "well_basic", "rawcode": "h00M", "features": ["build", "requires", "heal_aura", "upgrade_to"], "current": "build card and aura/economy adapter connected", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-13", "SP-09-15", "SP-09-19", "SP-09-21"], "laterOwner": null },
+    { "id": "workshop_lab", "rawcode": "h00C", "features": ["build", "requires", "production", "production_exit", "research_provider"], "current": "template data only", "requiredOwner": ["SP-09-05", "SP-09-06", "SP-09-17"], "laterOwner": "SP-12 workshop unit catalogue" }
+  ],
+  "researchBoundary": {
+    "SP09Required": ["masonry", "guardTowerDamage", "arcaneTowerDamage", "dogDamage", "dogSpeedClaw", "coopProtection only if it affects current chicken entities"],
+    "SP12Deferred": ["guardmanBoost", "soldierAttackSpeed", "meleeDamage", "soldierArmor", "rangedRange", "rangedDamage", "automation", "workshopSpecial", "mercenary and workshop unit production"],
+    "unknown": ["R006 towerSupportUpgrade has a provider and target group but no confirmed effect value", "provider TSV does not establish research cost, time, maximum level, or full target semantics"]
+  },
+  "w3xUnknownsKeptOpen": [
+    "Original build-time and refund rules are not available in the extracted tables.",
+    "h006/h00G closed/open gate state transition has not been observed in Warsmash.",
+    "Several original requirements are unit rawcodes such as H002; they must not be silently treated as a matching building requirement.",
+    "Template web costs and combat values are session-length conversions, not claimed W3X values."
+  ],
+  "coverageCheck": {
+    "templateCountInSource": 35,
+    "coveredTemplateCount": 35,
+    "unassignedTemplates": [],
+    "nextTask": "SP-09-02"
+  }
+}

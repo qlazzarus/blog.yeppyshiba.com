@@ -1,0 +1,428 @@
+{
+  "case": "spawn_order",
+  "seed": 812,
+  "executionProfile": {
+    "debugFixtures": true,
+    "startId": 3,
+    "targetOverride": {
+      "tier": 1,
+      "quantity": 1
+    },
+    "timeJump": 120,
+    "movement": "real scene update; no teleport"
+  },
+  "sourceBroadRect": {
+    "minX": -160,
+    "minY": 32,
+    "maxX": 10016,
+    "maxY": 10304
+  },
+  "policy": "web local farm bounds intersect converted IlIlI; 32 occupiable candidates; current position fallback; registration only, no zone re-entry trigger",
+  "checks": {
+    "pass": true,
+    "finiteDestinationInsideSourceArea": true,
+    "retainedPrimaryDestination": true,
+    "actualPathAndMovement": true
+  },
+  "sourceSpawnRect": {
+    "maxX": 5120,
+    "maxY": 8480,
+    "minX": 4928,
+    "minY": 8288
+  },
+  "before": {
+    "wave": {
+      "activeTierTargets": [
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": 1,
+          "tier": 1
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 2
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 3
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 4
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 5
+        },
+        {
+          "confirmedPhaseEntryDeltaTotal": 0,
+          "targetQuantity": null,
+          "tier": 6
+        }
+      ],
+      "currentPhaseAtSec": 120,
+      "nextPhaseAtSec": 600,
+      "nextReplenishAtSec": 120.2,
+      "schedulerStatus": "enabled",
+      "waveManagedEnemyIds": [
+        "wave-r1-t1-s0"
+      ],
+      "waveManagedEnemies": [
+        {
+          "enemyId": "timber_wolf",
+          "id": "wave-r1-t1-s0",
+          "ownerPlayerId": 10,
+          "sourceRectId": "wolf_spawn_rect_02",
+          "spawnedAtSec": 120,
+          "spawnX": 5042.721734024584,
+          "spawnY": 8336.098146826029,
+          "tier": 1
+        }
+      ]
+    },
+    "behavior": {
+      "attackMoveDestination": {
+        "x": 3343.1800448391587,
+        "y": 9348.755693396088
+      },
+      "attackMoveReason": "spawn_rect_enter_attack",
+      "targetPoint": {
+        "x": 3343.1800448391587,
+        "y": 9348.755693396088
+      },
+      "path": [],
+      "focusBuildingId": null,
+      "focusUnitId": null,
+      "id": "wave-r1-t1-s0",
+      "pathRemaining": 0,
+      "state": "move",
+      "stateAction": null,
+      "stateReason": null,
+      "targetBuildingId": null,
+      "x": 5042.721734024584,
+      "y": 8336.098146826029
+    },
+    "targets": {
+      "active": true,
+      "buildings": [],
+      "chickens": [],
+      "elapsedSec": 120,
+      "enemies": [
+        {
+          "enemyId": "timber_wolf",
+          "hp": 450,
+          "id": "wave-r1-t1-s0",
+          "maxHp": 450,
+          "ownerPlayerId": 10,
+          "spawnX": 5042.721734024584,
+          "spawnY": 8336.098146826029,
+          "x": 5042.721734024584,
+          "y": 8336.098146826029
+        }
+      ],
+      "poc": null,
+      "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
+      "units": [
+        {
+          "armor": 0,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ]
+    }
+  },
+  "after": {
+    "attackMoveDestination": {
+      "x": 3343.1800448391587,
+      "y": 9348.755693396088
+    },
+    "attackMoveReason": "spawn_rect_enter_attack",
+    "targetPoint": {
+      "x": 3343.1800448391587,
+      "y": 9348.755693396088
+    },
+    "path": [
+      {
+        "x": 4991.180044839159,
+        "y": 8416.098146826029
+      },
+      {
+        "x": 4959.180044839159,
+        "y": 8448.098146826029
+      },
+      {
+        "x": 4927.180044839159,
+        "y": 8480.098146826029
+      },
+      {
+        "x": 4895.180044839159,
+        "y": 8512.098146826029
+      },
+      {
+        "x": 4863.180044839159,
+        "y": 8544.098146826029
+      },
+      {
+        "x": 4831.180044839159,
+        "y": 8576.098146826029
+      },
+      {
+        "x": 4799.180044839159,
+        "y": 8608.098146826029
+      },
+      {
+        "x": 4767.180044839159,
+        "y": 8640.098146826029
+      },
+      {
+        "x": 4735.180044839159,
+        "y": 8672.098146826029
+      },
+      {
+        "x": 4703.180044839159,
+        "y": 8704.098146826029
+      },
+      {
+        "x": 4671.180044839159,
+        "y": 8736.098146826029
+      },
+      {
+        "x": 4639.180044839159,
+        "y": 8768.098146826029
+      },
+      {
+        "x": 4607.180044839159,
+        "y": 8800.098146826029
+      },
+      {
+        "x": 4575.180044839159,
+        "y": 8832.098146826029
+      },
+      {
+        "x": 4543.180044839159,
+        "y": 8864.098146826029
+      },
+      {
+        "x": 4511.180044839159,
+        "y": 8896.098146826029
+      },
+      {
+        "x": 4479.180044839159,
+        "y": 8928.098146826029
+      },
+      {
+        "x": 4447.180044839159,
+        "y": 8960.098146826029
+      },
+      {
+        "x": 4415.180044839159,
+        "y": 8992.098146826029
+      },
+      {
+        "x": 4383.180044839159,
+        "y": 9024.098146826029
+      },
+      {
+        "x": 4351.180044839159,
+        "y": 9056.098146826029
+      },
+      {
+        "x": 4319.180044839159,
+        "y": 9088.098146826029
+      },
+      {
+        "x": 4287.180044839159,
+        "y": 9120.098146826029
+      },
+      {
+        "x": 4255.180044839159,
+        "y": 9152.098146826029
+      },
+      {
+        "x": 4223.180044839159,
+        "y": 9184.098146826029
+      },
+      {
+        "x": 4191.180044839159,
+        "y": 9216.098146826029
+      },
+      {
+        "x": 4159.180044839159,
+        "y": 9248.098146826029
+      },
+      {
+        "x": 4127.180044839159,
+        "y": 9280.098146826029
+      },
+      {
+        "x": 4095.1800448391587,
+        "y": 9312.098146826029
+      },
+      {
+        "x": 4063.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 4031.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3999.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3967.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3935.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3903.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3871.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3839.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3807.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3775.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3743.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3711.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3679.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3647.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3615.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3583.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3551.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3519.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3487.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3455.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3423.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3391.1800448391587,
+        "y": 9344.098146826029
+      },
+      {
+        "x": 3359.1800448391587,
+        "y": 9344.098146826029
+      }
+    ],
+    "focusBuildingId": null,
+    "focusUnitId": null,
+    "id": "wave-r1-t1-s0",
+    "pathRemaining": 52,
+    "state": "move",
+    "stateAction": "follow_path",
+    "stateReason": "path_available",
+    "targetBuildingId": null,
+    "x": 5012.031938010155,
+    "y": 8392.353914308816
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  }
+}

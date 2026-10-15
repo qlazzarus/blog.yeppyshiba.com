@@ -1,0 +1,166 @@
+{
+  "case": "growth_prerequisite",
+  "checks": {
+    "completedPrerequisitePermitsPendingOrder": true,
+    "destroyedPrerequisiteRejectsAtStartWithoutCharge": true,
+    "incompletePrerequisiteRejected": true,
+    "missingPrerequisiteRejectedRepeatedly": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "snapshots": {
+    "destroyed": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": null,
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 5376,
+            "y": 8896
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0,
+          "state": "constructing",
+          "templateId": "town_hall"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1000,
+        "lumber": 500
+      }
+    },
+    "missing": {
+      "activePlacementTemplateId": "coop_basic",
+      "buildings": [],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1000,
+        "lumber": 500
+      }
+    },
+    "pending": {
+      "activePlacementTemplateId": null,
+      "buildings": [
+        {
+          "activeWorkerUnitId": null,
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 5376,
+            "y": 8896
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0,
+          "state": "constructing",
+          "templateId": "town_hall"
+        },
+        {
+          "activeWorkerUnitId": "p3-farmer",
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 5632,
+            "y": 8896
+          },
+          "id": "player-building-2",
+          "ownerPlayerId": 3,
+          "progress": 1,
+          "state": "complete",
+          "templateId": "town_hall"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [
+        "player-building-2"
+      ],
+      "economyBuildingIds": [],
+      "pendingOrders": [
+        {
+          "builderUnitId": "p3-farmer",
+          "footprint": {
+            "height": 128,
+            "width": 128,
+            "x": 3968,
+            "y": 8832
+          },
+          "id": "pending-build-1",
+          "runtimeBuildingId": null,
+          "targetPoint": {
+            "x": 3912,
+            "y": 8896
+          },
+          "templateId": "coop_basic"
+        }
+      ],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [
+        "player-building-2"
+      ],
+      "wallet": {
+        "gold": 1000,
+        "lumber": 500
+      }
+    },
+    "unfinished": {
+      "activePlacementTemplateId": "coop_basic",
+      "buildings": [
+        {
+          "activeWorkerUnitId": null,
+          "footprint": {
+            "height": 256,
+            "width": 256,
+            "x": 5376,
+            "y": 8896
+          },
+          "id": "player-building-1",
+          "ownerPlayerId": 3,
+          "progress": 0,
+          "state": "constructing",
+          "templateId": "town_hall"
+        }
+      ],
+      "dynamicBlockerBuildingIds": [],
+      "economyBuildingIds": [],
+      "pendingOrders": [],
+      "runId": 1,
+      "selectedBuildingId": null,
+      "selectedUnitIds": [
+        "p3-farmer"
+      ],
+      "visionSourceBuildingIds": [],
+      "wallet": {
+        "gold": 1000,
+        "lumber": 500
+      }
+    }
+  }
+}

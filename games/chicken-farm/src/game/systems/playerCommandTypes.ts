@@ -19,6 +19,7 @@ export type UnitCommand =
           readonly unitIds: readonly string[];
       }
     | {
+          readonly resumeAttackMoveTargetPoint?: Point;
           readonly targetEntityId: string;
           readonly targetPoint?: Point;
           readonly type: 'attack';
@@ -74,9 +75,11 @@ export type ControllableUnitCombatTarget = {
     readonly id: string;
     readonly maxHp: number;
     readonly name: string;
+    readonly ownerPlayerId: number;
     readonly radius: number;
     readonly targetableByWolves: boolean;
-    readonly templateId: ControllableUnitTemplateId;
+    readonly targetKind: 'controllable_unit' | 'economy_chicken';
+    readonly templateId: string;
     readonly x: number;
     readonly y: number;
 };

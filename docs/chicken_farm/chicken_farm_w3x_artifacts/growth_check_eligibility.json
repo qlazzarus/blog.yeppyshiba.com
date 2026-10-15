@@ -1,0 +1,72 @@
+{
+  "case": "eligibility",
+  "cases": {
+    "allSatisfied": {
+      "eligible": true,
+      "missingBuildingTemplateIds": [],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": null
+    },
+    "constructing": {
+      "eligible": false,
+      "missingBuildingTemplateIds": [
+        "town_hall"
+      ],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": "missing_building_prerequisite"
+    },
+    "higherTier": {
+      "eligible": true,
+      "missingBuildingTemplateIds": [],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": null
+    },
+    "missingMultiple": {
+      "eligible": false,
+      "missingBuildingTemplateIds": [
+        "arcane_lab",
+        "fence_wood"
+      ],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": "missing_building_prerequisite"
+    },
+    "missingOne": {
+      "eligible": false,
+      "missingBuildingTemplateIds": [
+        "town_hall"
+      ],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": "missing_building_prerequisite"
+    },
+    "ownerMismatch": {
+      "eligible": false,
+      "missingBuildingTemplateIds": [
+        "town_hall"
+      ],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": "missing_building_prerequisite"
+    },
+    "removed": {
+      "eligible": false,
+      "missingBuildingTemplateIds": [
+        "town_hall"
+      ],
+      "missingResearchLevels": [],
+      "missingUnitTemplateIds": [],
+      "reason": "missing_building_prerequisite"
+    }
+  },
+  "pass": true,
+  "policy": {
+    "completeAndLivingOnly": true,
+    "higherTierSatisfiesAncestor": true,
+    "ownerScoped": true,
+    "unitRawcodesAreExactStrings": true
+  }
+}

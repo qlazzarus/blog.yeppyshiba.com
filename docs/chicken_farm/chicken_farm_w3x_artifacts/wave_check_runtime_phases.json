@@ -1,0 +1,817 @@
+{
+  "case": "phases",
+  "checks": {
+    "pass": true,
+    "allTenPhasesReached": true,
+    "allEighteenOrdinaryTiersSpawned": true,
+    "noBossSpawned": true,
+    "post3000OrdinaryPhaseObserved": true,
+    "productionSchedulerSteppedAt0_2Sec": true,
+    "fixtureRemovalRecorded": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "targetOverride": "one live enemy per active tier; cleared after each phase observation",
+    "simulationStepSec": 0.2,
+    "fixtureRemoval": "Each observed wave enemy is directly removed before the next phase to bound population, then a production scheduler step reconciles the removal; this is not normal-play survival evidence."
+  },
+  "report": {
+    "rows": [
+      {
+        "atSec": 120,
+        "combatEnemyIds": [
+          "wave-r1-t1-s0",
+          "wave-r1-t2-s1",
+          "wave-r1-t3-s2",
+          "wave-r1-t4-s3",
+          "wave-r1-t5-s4",
+          "wave-r1-t6-s5"
+        ],
+        "currentPhaseAtSec": 120,
+        "enemies": [
+          {
+            "enemyId": "timber_wolf",
+            "id": "wave-r1-t1-s0",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_08",
+            "spawnedAtSec": 120,
+            "spawnX": 1287.4535141338156,
+            "spawnY": 3142.7635347933356,
+            "tier": 1
+          },
+          {
+            "enemyId": "frost_wolf",
+            "id": "wave-r1-t2-s1",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_11",
+            "spawnedAtSec": 120,
+            "spawnX": 1585.6302369468729,
+            "spawnY": 1208.946216902598,
+            "tier": 2
+          },
+          {
+            "enemyId": "giant_wolf",
+            "id": "wave-r1-t3-s2",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 120,
+            "spawnX": 1578.9051537709697,
+            "spawnY": 8515.314815512076,
+            "tier": 3
+          },
+          {
+            "enemyId": "giant_frost_wolf",
+            "id": "wave-r1-t4-s3",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_06",
+            "spawnedAtSec": 120,
+            "spawnX": 1336.3461758234941,
+            "spawnY": 5623.514496717892,
+            "tier": 4
+          },
+          {
+            "enemyId": "dire_wolf",
+            "id": "wave-r1-t5-s4",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_02",
+            "spawnedAtSec": 120,
+            "spawnX": 5088.689201193749,
+            "spawnY": 8370.225855285707,
+            "tier": 5
+          },
+          {
+            "enemyId": "dire_frost_wolf",
+            "id": "wave-r1-t6-s5",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 120,
+            "spawnX": 1519.983052296568,
+            "spawnY": 8520.886682349845,
+            "tier": 6
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t1-s0",
+          "wave-r1-t2-s1",
+          "wave-r1-t3-s2",
+          "wave-r1-t4-s3",
+          "wave-r1-t5-s4",
+          "wave-r1-t6-s5"
+        ],
+        "tiers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      {
+        "atSec": 600,
+        "combatEnemyIds": [
+          "wave-r1-t3-s6",
+          "wave-r1-t4-s7",
+          "wave-r1-t5-s8",
+          "wave-r1-t6-s9",
+          "wave-r1-t7-s10"
+        ],
+        "currentPhaseAtSec": 600,
+        "enemies": [
+          {
+            "enemyId": "giant_wolf",
+            "id": "wave-r1-t3-s6",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_05",
+            "spawnedAtSec": 600,
+            "spawnX": 3127.84601599277,
+            "spawnY": 6339.149010112002,
+            "tier": 3
+          },
+          {
+            "enemyId": "giant_frost_wolf",
+            "id": "wave-r1-t4-s7",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_06",
+            "spawnedAtSec": 600,
+            "spawnX": 1378.5200629207563,
+            "spawnY": 5573.943447718757,
+            "tier": 4
+          },
+          {
+            "enemyId": "dire_wolf",
+            "id": "wave-r1-t5-s8",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_04",
+            "spawnedAtSec": 600,
+            "spawnX": 7802.299509636656,
+            "spawnY": 8478.844940346644,
+            "tier": 5
+          },
+          {
+            "enemyId": "dire_frost_wolf",
+            "id": "wave-r1-t6-s9",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_07",
+            "spawnedAtSec": 600,
+            "spawnX": 9666.858434208674,
+            "spawnY": 5432.347557736423,
+            "tier": 6
+          },
+          {
+            "enemyId": "spirit_wolf",
+            "id": "wave-r1-t7-s10",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_11",
+            "spawnedAtSec": 600,
+            "spawnX": 1593.3304693073685,
+            "spawnY": 1091.7789635728095,
+            "tier": 7
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t3-s6",
+          "wave-r1-t4-s7",
+          "wave-r1-t5-s8",
+          "wave-r1-t6-s9",
+          "wave-r1-t7-s10"
+        ],
+        "tiers": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      {
+        "atSec": 1100,
+        "combatEnemyIds": [
+          "wave-r1-t4-s11",
+          "wave-r1-t5-s12",
+          "wave-r1-t6-s13",
+          "wave-r1-t7-s14",
+          "wave-r1-t8-s15",
+          "wave-r1-t9-s16"
+        ],
+        "currentPhaseAtSec": 1100,
+        "enemies": [
+          {
+            "enemyId": "giant_frost_wolf",
+            "id": "wave-r1-t4-s11",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_13",
+            "spawnedAtSec": 1100,
+            "spawnX": 8621.352635337185,
+            "spawnY": 1381.1142367933007,
+            "tier": 4
+          },
+          {
+            "enemyId": "dire_wolf",
+            "id": "wave-r1-t5-s12",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_05",
+            "spawnedAtSec": 1100,
+            "spawnX": 3226.420370424803,
+            "spawnY": 6229.056494610095,
+            "tier": 5
+          },
+          {
+            "enemyId": "dire_frost_wolf",
+            "id": "wave-r1-t6-s13",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_13",
+            "spawnedAtSec": 1100,
+            "spawnX": 8465.207010163047,
+            "spawnY": 1348.6678718234448,
+            "tier": 6
+          },
+          {
+            "enemyId": "spirit_wolf",
+            "id": "wave-r1-t7-s14",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_10",
+            "spawnedAtSec": 1100,
+            "spawnX": 7378.801456427394,
+            "spawnY": 2587.9043648538573,
+            "tier": 7
+          },
+          {
+            "enemyId": "dire_wolf_tier_8",
+            "id": "wave-r1-t8-s15",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_06",
+            "spawnedAtSec": 1100,
+            "spawnX": 1386.8591628383328,
+            "spawnY": 5629.303026229625,
+            "tier": 8
+          },
+          {
+            "enemyId": "shadow_wolf",
+            "id": "wave-r1-t9-s16",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_09",
+            "spawnedAtSec": 1100,
+            "spawnX": 3437.143140299144,
+            "spawnY": 2003.0162913311299,
+            "tier": 9
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t4-s11",
+          "wave-r1-t5-s12",
+          "wave-r1-t6-s13",
+          "wave-r1-t7-s14",
+          "wave-r1-t8-s15",
+          "wave-r1-t9-s16"
+        ],
+        "tiers": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "atSec": 1500,
+        "combatEnemyIds": [
+          "wave-r1-t7-s17",
+          "wave-r1-t8-s18",
+          "wave-r1-t9-s19"
+        ],
+        "currentPhaseAtSec": 1500,
+        "enemies": [
+          {
+            "enemyId": "spirit_wolf",
+            "id": "wave-r1-t7-s17",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_10",
+            "spawnedAtSec": 1500,
+            "spawnX": 7359.7315887748955,
+            "spawnY": 2518.9555999537306,
+            "tier": 7
+          },
+          {
+            "enemyId": "dire_wolf_tier_8",
+            "id": "wave-r1-t8-s18",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_08",
+            "spawnedAtSec": 1500,
+            "spawnX": 1312.4905574250652,
+            "spawnY": 3120.9471302223183,
+            "tier": 8
+          },
+          {
+            "enemyId": "shadow_wolf",
+            "id": "wave-r1-t9-s19",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_06",
+            "spawnedAtSec": 1500,
+            "spawnX": 1389.6529997885832,
+            "spawnY": 5664.455459486551,
+            "tier": 9
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t7-s17",
+          "wave-r1-t8-s18",
+          "wave-r1-t9-s19"
+        ],
+        "tiers": [
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "atSec": 2000,
+        "combatEnemyIds": [
+          "wave-r1-t8-s20",
+          "wave-r1-t9-s21",
+          "wave-r1-t10-s22",
+          "wave-r1-t11-s23",
+          "wave-r1-t12-s24"
+        ],
+        "currentPhaseAtSec": 2000,
+        "enemies": [
+          {
+            "enemyId": "dire_wolf_tier_8",
+            "id": "wave-r1-t8-s20",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_10",
+            "spawnedAtSec": 2000,
+            "spawnX": 7260.505473268542,
+            "spawnY": 2594.1807438952283,
+            "tier": 8
+          },
+          {
+            "enemyId": "shadow_wolf",
+            "id": "wave-r1-t9-s21",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 2000,
+            "spawnX": 1482.7909483005922,
+            "spawnY": 8499.326570506897,
+            "tier": 9
+          },
+          {
+            "enemyId": "fel_beast",
+            "id": "wave-r1-t10-s22",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_05",
+            "spawnedAtSec": 2000,
+            "spawnX": 3137.015164569587,
+            "spawnY": 6255.2349694825725,
+            "tier": 10
+          },
+          {
+            "enemyId": "fel_stalker",
+            "id": "wave-r1-t11-s23",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_03",
+            "spawnedAtSec": 2000,
+            "spawnX": 7104.566612931527,
+            "spawnY": 5827.008410470748,
+            "tier": 11
+          },
+          {
+            "enemyId": "fel_ravager",
+            "id": "wave-r1-t12-s24",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_06",
+            "spawnedAtSec": 2000,
+            "spawnX": 1370.0832099417873,
+            "spawnY": 5600.011328590761,
+            "tier": 12
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t8-s20",
+          "wave-r1-t9-s21",
+          "wave-r1-t10-s22",
+          "wave-r1-t11-s23",
+          "wave-r1-t12-s24"
+        ],
+        "tiers": [
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "atSec": 2200,
+        "combatEnemyIds": [
+          "wave-r1-t10-s25",
+          "wave-r1-t11-s26",
+          "wave-r1-t12-s27"
+        ],
+        "currentPhaseAtSec": 2200,
+        "enemies": [
+          {
+            "enemyId": "fel_beast",
+            "id": "wave-r1-t10-s25",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_12",
+            "spawnedAtSec": 2200,
+            "spawnX": 5392.768853971952,
+            "spawnY": 1400.3048369965038,
+            "tier": 10
+          },
+          {
+            "enemyId": "fel_stalker",
+            "id": "wave-r1-t11-s26",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_03",
+            "spawnedAtSec": 2200,
+            "spawnX": 7067.224571149888,
+            "spawnY": 5785.110815801237,
+            "tier": 11
+          },
+          {
+            "enemyId": "fel_ravager",
+            "id": "wave-r1-t12-s27",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_11",
+            "spawnedAtSec": 2200,
+            "spawnX": 1477.2864549270907,
+            "spawnY": 1192.8400831832723,
+            "tier": 12
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t10-s25",
+          "wave-r1-t11-s26",
+          "wave-r1-t12-s27"
+        ],
+        "tiers": [
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "atSec": 2400,
+        "combatEnemyIds": [
+          "wave-r1-t11-s28",
+          "wave-r1-t12-s29",
+          "wave-r1-t13-s30",
+          "wave-r1-t14-s31",
+          "wave-r1-t15-s32"
+        ],
+        "currentPhaseAtSec": 2400,
+        "enemies": [
+          {
+            "enemyId": "fel_stalker",
+            "id": "wave-r1-t11-s28",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_12",
+            "spawnedAtSec": 2400,
+            "spawnX": 5415.599958815473,
+            "spawnY": 1382.9236123126882,
+            "tier": 11
+          },
+          {
+            "enemyId": "fel_ravager",
+            "id": "wave-r1-t12-s29",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_11",
+            "spawnedAtSec": 2400,
+            "spawnX": 1564.754630770506,
+            "spawnY": 1197.4138204933467,
+            "tier": 12
+          },
+          {
+            "enemyId": "darkguard",
+            "id": "wave-r1-t13-s30",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_07",
+            "spawnedAtSec": 2400,
+            "spawnX": 9622.936915751263,
+            "spawnY": 5364.042325072238,
+            "tier": 13
+          },
+          {
+            "enemyId": "shupikuta",
+            "id": "wave-r1-t14-s31",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_07",
+            "spawnedAtSec": 2400,
+            "spawnX": 9707.883354688252,
+            "spawnY": 5330.5878927116255,
+            "tier": 14
+          },
+          {
+            "enemyId": "overlord",
+            "id": "wave-r1-t15-s32",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 2400,
+            "spawnX": 1499.7438319186588,
+            "spawnY": 8506.02552190781,
+            "tier": 15
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t11-s28",
+          "wave-r1-t12-s29",
+          "wave-r1-t13-s30",
+          "wave-r1-t14-s31",
+          "wave-r1-t15-s32"
+        ],
+        "tiers": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      {
+        "atSec": 2600,
+        "combatEnemyIds": [
+          "wave-r1-t13-s33",
+          "wave-r1-t14-s34",
+          "wave-r1-t15-s35"
+        ],
+        "currentPhaseAtSec": 2600,
+        "enemies": [
+          {
+            "enemyId": "darkguard",
+            "id": "wave-r1-t13-s33",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_13",
+            "spawnedAtSec": 2600,
+            "spawnX": 8598.1188207618,
+            "spawnY": 1361.664892988885,
+            "tier": 13
+          },
+          {
+            "enemyId": "shupikuta",
+            "id": "wave-r1-t14-s34",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 2600,
+            "spawnX": 1488.9810281217212,
+            "spawnY": 8439.328908522477,
+            "tier": 14
+          },
+          {
+            "enemyId": "overlord",
+            "id": "wave-r1-t15-s35",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_08",
+            "spawnedAtSec": 2600,
+            "spawnX": 1231.6838675031513,
+            "spawnY": 3144.347530163908,
+            "tier": 15
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t13-s33",
+          "wave-r1-t14-s34",
+          "wave-r1-t15-s35"
+        ],
+        "tiers": [
+          13,
+          14,
+          15
+        ]
+      },
+      {
+        "atSec": 2800,
+        "combatEnemyIds": [
+          "wave-r1-t14-s36",
+          "wave-r1-t15-s37",
+          "wave-r1-t16-s38",
+          "wave-r1-t17-s39",
+          "wave-r1-t18-s40"
+        ],
+        "currentPhaseAtSec": 2800,
+        "enemies": [
+          {
+            "enemyId": "shupikuta",
+            "id": "wave-r1-t14-s36",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 2800,
+            "spawnX": 1483.0828104338227,
+            "spawnY": 8404.784408546408,
+            "tier": 14
+          },
+          {
+            "enemyId": "overlord",
+            "id": "wave-r1-t15-s37",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_09",
+            "spawnedAtSec": 2800,
+            "spawnX": 3309.9295020748823,
+            "spawnY": 2055.2684101476143,
+            "tier": 15
+          },
+          {
+            "enemyId": "satyr",
+            "id": "wave-r1-t16-s38",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_12",
+            "spawnedAtSec": 2800,
+            "spawnX": 5476.6259058425885,
+            "spawnY": 1509.8779886613715,
+            "tier": 16
+          },
+          {
+            "enemyId": "satyr_soulstealer",
+            "id": "wave-r1-t17-s39",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_01",
+            "spawnedAtSec": 2800,
+            "spawnX": 1464.4170963969857,
+            "spawnY": 8501.705051042882,
+            "tier": 17
+          },
+          {
+            "enemyId": "satyr_shadowdancer",
+            "id": "wave-r1-t18-s40",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_04",
+            "spawnedAtSec": 2800,
+            "spawnX": 7809.622033228088,
+            "spawnY": 8600.132494513928,
+            "tier": 18
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t14-s36",
+          "wave-r1-t15-s37",
+          "wave-r1-t16-s38",
+          "wave-r1-t17-s39",
+          "wave-r1-t18-s40"
+        ],
+        "tiers": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      {
+        "atSec": 3000,
+        "combatEnemyIds": [
+          "wave-r1-t16-s41",
+          "wave-r1-t17-s42",
+          "wave-r1-t18-s43"
+        ],
+        "currentPhaseAtSec": 3000,
+        "enemies": [
+          {
+            "enemyId": "satyr",
+            "id": "wave-r1-t16-s41",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_12",
+            "spawnedAtSec": 3000,
+            "spawnX": 5464.685473798894,
+            "spawnY": 1516.053298843985,
+            "tier": 16
+          },
+          {
+            "enemyId": "satyr_soulstealer",
+            "id": "wave-r1-t17-s42",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_04",
+            "spawnedAtSec": 3000,
+            "spawnX": 7905.57634462278,
+            "spawnY": 8497.29774031246,
+            "tier": 17
+          },
+          {
+            "enemyId": "satyr_shadowdancer",
+            "id": "wave-r1-t18-s43",
+            "ownerPlayerId": 10,
+            "sourceRectId": "wolf_spawn_rect_05",
+            "spawnedAtSec": 3000,
+            "spawnX": 3158.877093369194,
+            "spawnY": 6274.761001269035,
+            "tier": 18
+          }
+        ],
+        "removedIds": [
+          "wave-r1-t16-s41",
+          "wave-r1-t17-s42",
+          "wave-r1-t18-s43"
+        ],
+        "tiers": [
+          16,
+          17,
+          18
+        ]
+      }
+    ],
+    "final": {
+      "combat": {
+        "active": false,
+        "buildings": [],
+        "chickens": [],
+        "elapsedSec": 3001.2,
+        "enemies": [],
+        "poc": null,
+        "runId": 1,
+        "wolfTargets": [
+          {
+            "armor": 0,
+            "hp": 100,
+            "id": "p3-farmer",
+            "maxHp": 100,
+            "name": "Farmer",
+            "ownerPlayerId": 3,
+            "radius": 20,
+            "targetableByWolves": true,
+            "targetKind": "controllable_unit",
+            "templateId": "farmer",
+            "x": 3392,
+            "y": 8928
+          },
+          {
+            "armor": 2,
+            "hp": 220,
+            "id": "p3-dog",
+            "maxHp": 220,
+            "name": "Dog",
+            "ownerPlayerId": 3,
+            "radius": 18,
+            "targetableByWolves": true,
+            "targetKind": "controllable_unit",
+            "templateId": "dog",
+            "x": 3434,
+            "y": 8946
+          }
+        ],
+        "units": [
+          {
+            "armor": 0,
+            "commandQueueCount": 0,
+            "currentCommandTargetId": null,
+            "currentCommandType": null,
+            "hp": 100,
+            "id": "p3-farmer",
+            "maxHp": 100,
+            "nextAttackAtSec": 0,
+            "ownerPlayerId": 3,
+            "templateId": "farmer",
+            "x": 3392,
+            "y": 8928
+          },
+          {
+            "armor": 2,
+            "commandQueueCount": 0,
+            "currentCommandTargetId": null,
+            "currentCommandType": null,
+            "hp": 220,
+            "id": "p3-dog",
+            "maxHp": 220,
+            "nextAttackAtSec": 0,
+            "ownerPlayerId": 3,
+            "templateId": "dog",
+            "x": 3434,
+            "y": 8946
+          }
+        ]
+      },
+      "wave": {
+        "activeTierTargets": [
+          {
+            "confirmedPhaseEntryDeltaTotal": 16,
+            "targetQuantity": null,
+            "tier": 16
+          },
+          {
+            "confirmedPhaseEntryDeltaTotal": 12,
+            "targetQuantity": null,
+            "tier": 17
+          },
+          {
+            "confirmedPhaseEntryDeltaTotal": 10,
+            "targetQuantity": null,
+            "tier": 18
+          }
+        ],
+        "currentPhaseAtSec": 3000,
+        "nextPhaseAtSec": null,
+        "nextGlobalAttackRefreshAtSec": 3060,
+        "nextReplenishAtSec": 3001.4,
+        "schedulerStatus": "enabled",
+        "waveManagedEnemyIds": [],
+        "waveManagedEnemies": []
+      }
+    }
+  }
+}

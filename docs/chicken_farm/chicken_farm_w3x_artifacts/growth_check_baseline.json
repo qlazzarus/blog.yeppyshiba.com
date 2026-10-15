@@ -1,0 +1,57 @@
+{
+  "case": "baseline",
+  "checks": {
+    "foreignOwnerHidden": true,
+    "normalFixtureIsolation": true,
+    "pass": true,
+    "snapshotReadOnly": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "combatPoc": false,
+    "debugEconomy": false,
+    "debugFixtures": false,
+    "startId": 3,
+    "terrainPathingDebug": false
+  },
+  "snapshot": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  }
+}

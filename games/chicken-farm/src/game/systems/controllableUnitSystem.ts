@@ -34,6 +34,7 @@ type ControllableUnitSystemConfig = {
         unitId: string,
         reason: string,
     ) => void;
+    readonly onUnitDied?: (unit: ControllableUnitState) => void;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly recordTelemetry?: (
         type: string,
@@ -108,6 +109,7 @@ export class ControllableUnitSystem {
         unitId: string,
         reason: string,
     ) => void;
+    private readonly onUnitDied?: (unit: ControllableUnitState) => void;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly recordTelemetry?: (
         type: string,
@@ -129,6 +131,7 @@ export class ControllableUnitSystem {
         this.onBuildCommandInterrupted = config.onBuildCommandInterrupted;
         this.onPendingBuildOrdersInterrupted =
             config.onPendingBuildOrdersInterrupted;
+        this.onUnitDied = config.onUnitDied;
         this.recordPerformance = config.recordPerformance;
         this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
@@ -148,6 +151,13 @@ export class ControllableUnitSystem {
         }
         this.upsertUnit('farmer', { id: ownerPlayerId, label: id, x, y }, ownerPlayerId, id);
         return true;
+    }
+
+    createProducedDog(id: string, x: number, y: number, ownerPlayerId: number) {
+        if (!id || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isInteger(ownerPlayerId)) {
+            return false;
+        }
+        return this.createUnitAt('dog', id, { x, y }, ownerPlayerId);
     }
 
     setUnitPositionForTest(unitId: string, x: number, y: number) {
@@ -353,8 +363,10 @@ export class ControllableUnitSystem {
                 id: unit.id,
                 maxHp: unit.maxHp,
                 name: unit.templateId === 'farmer' ? 'Farmer' : 'Dog',
+                ownerPlayerId: unit.ownerPlayerId,
                 radius: COLLISION_RADIUS_BY_TEMPLATE[unit.templateId],
                 targetableByWolves: true,
+                targetKind: 'controllable_unit',
                 templateId: unit.templateId,
                 x: unit.position.x,
                 y: unit.position.y,
@@ -369,6 +381,7 @@ export class ControllableUnitSystem {
         if (unit.hp <= 0) {
             this.interruptBuildCommand(unit, 'death');
             this.interruptPendingBuildOrders(unit, 'death');
+            this.onUnitDied?.(unit);
         }
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
@@ -619,6 +632,26 @@ export class ControllableUnitSystem {
 
         this.units.push(state);
         this.createView(state);
+    }
+
+    private createUnitAt(
+        templateId: ControllableUnitTemplateId,
+        id: string,
+        position: Point,
+        ownerPlayerId: number,
+    ) {
+        if (this.units.some((unit) => unit.id === id)) return false;
+        const stats = CHICKEN_FARM_BALANCE.defenders[templateId];
+        const state: ControllableUnitState = {
+            armor: stats.armor, hp: stats.hp, id, mana: stats.mana ?? 0,
+            manaRegenPerSec: stats.manaRegenPerSec ?? 0, maxHp: stats.hp,
+            maxMana: stats.mana ?? 0, nextAttackAtSec: 0, ownerPlayerId,
+            path: [], pathIndex: 0, position: { ...position }, selected: false,
+            speedPxPerSec: stats.speedPxPerSec, templateId, commandQueue: [],
+        };
+        this.units.push(state);
+        this.createView(state);
+        return true;
     }
 
     private createView(unit: ControllableUnitState) {
@@ -959,11 +992,7 @@ export class ControllableUnitSystem {
 
         const target = this.getAttackableEnemyTarget(unit.currentCommand.targetEntityId);
         if (!target || target.hp <= 0) {
-            unit.currentCommand = undefined;
-            unit.path = [];
-            unit.pathIndex = 0;
-            this.pollNextQueuedCommand(unit);
-            this.updateView(unit);
+            this.finishAttackCommand(unit, 'target_unavailable');
             return;
         }
 
@@ -983,8 +1012,18 @@ export class ControllableUnitSystem {
 
         if (this.getElapsedSec() < unit.nextAttackAtSec) return;
 
-        this.damageEnemyTarget?.(target.id, stats.damage);
+        const landed = this.damageEnemyTarget?.(target.id, stats.damage) ?? false;
+        if (!landed) {
+            this.finishAttackCommand(unit, 'damage_rejected');
+            return;
+        }
         unit.nextAttackAtSec = this.getElapsedSec() + stats.attackCooldownSec;
+        this.recordTelemetry?.('player_unit_attack_landed', {
+            damage: stats.damage,
+            targetId: target.id,
+            unitId: unit.id,
+            unitTemplateId: unit.templateId,
+        });
     }
 
     private updateAttackMoveCommand(unit: ControllableUnitState, deltaSec: number) {
@@ -993,6 +1032,7 @@ export class ControllableUnitSystem {
         const target = this.findAttackMoveTarget(unit);
         if (target) {
             unit.currentCommand = {
+                resumeAttackMoveTargetPoint: unit.currentCommand.targetPoint,
                 targetEntityId: target.id,
                 targetPoint: { x: target.x, y: target.y },
                 type: 'attack',
@@ -1005,6 +1045,41 @@ export class ControllableUnitSystem {
         }
 
         this.updateMoveCommand(unit, deltaSec);
+    }
+
+    private finishAttackCommand(
+        unit: ControllableUnitState,
+        reason: 'damage_rejected' | 'target_unavailable',
+    ) {
+        const command = unit.currentCommand;
+        const resumeTarget =
+            command?.type === 'attack'
+                ? command.resumeAttackMoveTargetPoint
+                : undefined;
+        if (resumeTarget) {
+            const path = this.findMovePath(unit.position, resumeTarget);
+            unit.currentCommand = {
+                targetPoint: resumeTarget,
+                type: 'attack_move',
+                unitIds: [unit.id],
+            };
+            unit.path = path ?? [];
+            unit.pathIndex = 0;
+            this.recordTelemetry?.('player_unit_attack_move_resumed', {
+                reason,
+                targetX: Number(resumeTarget.x.toFixed(1)),
+                targetY: Number(resumeTarget.y.toFixed(1)),
+                unitId: unit.id,
+            });
+            this.updateView(unit);
+            return;
+        }
+
+        unit.currentCommand = undefined;
+        unit.path = [];
+        unit.pathIndex = 0;
+        this.pollNextQueuedCommand(unit);
+        this.updateView(unit);
     }
 
     private findAttackMoveTarget(unit: ControllableUnitState) {

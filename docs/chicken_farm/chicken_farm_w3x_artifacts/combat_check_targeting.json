@@ -1,0 +1,45 @@
+{
+  "case": "targeting",
+  "checks": {
+    "footprintNearestPointUsed": true,
+    "outOfAcquireExcluded": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "combatPoc": false,
+    "combatSmoke": false,
+    "debugFixtures": true,
+    "startId": 3
+  },
+  "probes": {
+    "far": {
+      "acquireRange": 176,
+      "attackRange": 96,
+      "candidate": null,
+      "wolfId": "targeting-wolf"
+    },
+    "hidden": {
+      "acquireRange": 176,
+      "attackRange": 96,
+      "candidate": null,
+      "wolfId": "targeting-wolf"
+    },
+    "near": {
+      "acquireRange": 176,
+      "attackRange": 96,
+      "candidate": {
+        "canAttack": true,
+        "id": "player-building-1",
+        "kind": "building",
+        "ownerPlayerId": 3
+      },
+      "wolfId": "targeting-wolf"
+    }
+  }
+}

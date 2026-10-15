@@ -1,0 +1,14 @@
+{
+  "case": "global_refresh",
+  "pass": true,
+  "refreshTimes": [
+    60,
+    120,
+    180
+  ],
+  "rejectedInputs": [
+    "backward_time",
+    "zero_interval"
+  ],
+  "timingPolicy": "Global 60-second simulation ticks are idempotent and independent from wolf spawn timestamps."
+}

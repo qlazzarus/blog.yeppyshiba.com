@@ -1,0 +1,190 @@
+{
+  "case": "spawn_selection",
+  "checks": {
+    "allBlocked": {
+      "pass": true,
+      "result": null
+    },
+    "boundaryRejected": {
+      "pass": true,
+      "result": null
+    },
+    "eachRect": [
+      {
+        "id": "wolf_spawn_rect_01",
+        "point": {
+          "x": 1442.2481234520674,
+          "y": 8463.459928102791
+        },
+        "rectId": "wolf_spawn_rect_01"
+      },
+      {
+        "id": "wolf_spawn_rect_02",
+        "point": {
+          "x": 4976.760725878179,
+          "y": 8349.013251677155
+        },
+        "rectId": "wolf_spawn_rect_02"
+      },
+      {
+        "id": "wolf_spawn_rect_03",
+        "point": {
+          "x": 7007.273328304291,
+          "y": 5898.56657525152
+        },
+        "rectId": "wolf_spawn_rect_03"
+      },
+      {
+        "id": "wolf_spawn_rect_04",
+        "point": {
+          "x": 7821.7859307304025,
+          "y": 8568.119898825884
+        },
+        "rectId": "wolf_spawn_rect_04"
+      },
+      {
+        "id": "wolf_spawn_rect_05",
+        "point": {
+          "x": 3164.298533156514,
+          "y": 6245.673222400248
+        },
+        "rectId": "wolf_spawn_rect_05"
+      },
+      {
+        "id": "wolf_spawn_rect_06",
+        "point": {
+          "x": 1322.8111355826259,
+          "y": 5555.226545974612
+        },
+        "rectId": "wolf_spawn_rect_06"
+      },
+      {
+        "id": "wolf_spawn_rect_07",
+        "point": {
+          "x": 9657.323738008738,
+          "y": 5408.779869548976
+        },
+        "rectId": "wolf_spawn_rect_07"
+      },
+      {
+        "id": "wolf_spawn_rect_08",
+        "point": {
+          "x": 1319.8363404348493,
+          "y": 3182.3331931233406
+        },
+        "rectId": "wolf_spawn_rect_08"
+      },
+      {
+        "id": "wolf_spawn_rect_09",
+        "point": {
+          "x": 3414.348942860961,
+          "y": 1979.8865166977048
+        },
+        "rectId": "wolf_spawn_rect_09"
+      },
+      {
+        "id": "wolf_spawn_rect_10",
+        "point": {
+          "x": 7396.861545287073,
+          "y": 2601.439840272069
+        },
+        "rectId": "wolf_spawn_rect_10"
+      },
+      {
+        "id": "wolf_spawn_rect_11",
+        "point": {
+          "x": 1459.3741477131844,
+          "y": 1142.9931638464332
+        },
+        "rectId": "wolf_spawn_rect_11"
+      },
+      {
+        "id": "wolf_spawn_rect_12",
+        "point": {
+          "x": 5345.886750139296,
+          "y": 1380.5464874207973
+        },
+        "rectId": "wolf_spawn_rect_12"
+      },
+      {
+        "id": "wolf_spawn_rect_13",
+        "point": {
+          "x": 8496.399352565408,
+          "y": 1458.0998109951615
+        },
+        "rectId": "wolf_spawn_rect_13"
+      }
+    ],
+    "partialDynamicBlocker": {
+      "attempts": [
+        {
+          "candidate": {
+            "x": 1456,
+            "y": 8400
+          },
+          "rectId": "wolf_spawn_rect_01",
+          "reason": "dynamic_blocker"
+        }
+      ],
+      "pass": true,
+      "selected": {
+        "x": 1552,
+        "y": 8496
+      }
+    },
+    "partialTerrainBlocker": {
+      "attempts": [
+        {
+          "candidate": {
+            "x": 1456,
+            "y": 8400
+          },
+          "rectId": "wolf_spawn_rect_01",
+          "reason": "terrain_blocker"
+        }
+      ],
+      "pass": true,
+      "selected": {
+        "x": 1552,
+        "y": 8496
+      }
+    },
+    "repeatableSeed": {
+      "pass": true,
+      "selection": {
+        "attempts": [],
+        "candidate": {
+          "x": 7845.217526145279,
+          "y": 8484.477846860886
+        },
+        "footprint": {
+          "height": 32,
+          "width": 32,
+          "x": 7829.217526145279,
+          "y": 8468.477846860886
+        },
+        "rect": {
+          "id": "wolf_spawn_rect_04",
+          "source": {
+            "maxX": 4928,
+            "maxY": 1184,
+            "minX": 4736,
+            "minY": 992
+          },
+          "sourceLine": 1247,
+          "sourceRectSymbol": "llli",
+          "world": {
+            "maxX": 7936,
+            "maxY": 8640,
+            "minX": 7744,
+            "minY": 8448
+          }
+        }
+      }
+    }
+  },
+  "dynamicBlockerPolicy": "Intersecting wolf footprints are rejected; no alternate farm position is used.",
+  "pass": true,
+  "retryPolicy": "A null result creates no spawn request; the scheduler retries on its next replenish tick.",
+  "wolfClearancePx": 16
+}

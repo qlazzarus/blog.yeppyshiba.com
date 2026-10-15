@@ -8,7 +8,9 @@ export type Point = {
 
 export type WolfOrderRefreshReason =
     | 'periodic_global_attack_refresh'
-    | 'spawn_rect_enter_attack';
+    | 'spawn_rect_enter_attack'
+    | 'stuck_repath'
+    | 'target_reached_repath';
 
 export type WolfAttackMoveOrder = {
     readonly reason: WolfOrderRefreshReason;
@@ -35,24 +37,6 @@ export function createWolfAttackMoveOrder(
         reason,
         target: getRandomPointInRect(globalAttackRect, random),
     };
-}
-
-export function shouldRefreshWolfAttackMove(
-    reason: WolfOrderRefreshReason,
-    elapsedSinceLastRefreshSec: number,
-): boolean {
-    const model = CHICKEN_FARM_BALANCE.pathing.wolfAi.jassOrderModel;
-
-    if (reason === 'spawn_rect_enter_attack') {
-        return model.spawnEntryAttackRefresh.enabled;
-    }
-
-    const { intervalSec } = model.periodicAttackRefresh;
-    return (
-        model.periodicAttackRefresh.enabled &&
-        intervalSec !== undefined &&
-        elapsedSinceLastRefreshSec >= intervalSec
-    );
 }
 
 export function getEnabledWolfFocusRules(): readonly WolfFocusRule[] {

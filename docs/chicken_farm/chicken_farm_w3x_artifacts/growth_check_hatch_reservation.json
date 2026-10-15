@@ -1,0 +1,16 @@
+{
+  "case": "hatch_reservation",
+  "pass": true,
+  "cases": {
+    "activeCancel": true,
+    "blockedExitCancel": true,
+    "completedNoop": true,
+    "destroyedNoRefund": true,
+    "fullInventoryNoop": true,
+    "ownerIsolation": true
+  },
+  "policy": {
+    "egg": "restore_one_on_player_cancel",
+    "supply": "reserve_then_commit_or_release"
+  }
+}

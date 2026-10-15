@@ -45,7 +45,7 @@
       "lastProcessedTickSec": 30,
       "mills": [
         {
-          "activeFromSec": 0.5286999999940394,
+          "activeFromSec": 0.5269800000059603,
           "id": "player-building-3",
           "ownerPlayerId": 3,
           "templateId": "lumber_mill"
