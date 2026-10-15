@@ -1,0 +1,35 @@
+{
+  "case": "unit_support_effects",
+  "pass": true,
+  "cases": {
+    "baseDog": {
+      "armor": 2,
+      "attackCooldownSec": 0.8,
+      "damage": 18,
+      "hp": 220,
+      "mana": 30,
+      "manaRegenPerSec": 0.25,
+      "id": "dog",
+      "role": "fast_defender",
+      "source": {
+        "rawcode": "n002"
+      },
+      "speedPxPerSec": 290
+    },
+    "researchedDog": {
+      "armor": 2,
+      "attackCooldownSec": 0.6080000000000001,
+      "damage": 26,
+      "hp": 220,
+      "mana": 30,
+      "manaRegenPerSec": 0.25,
+      "id": "dog",
+      "role": "fast_defender",
+      "source": {
+        "rawcode": "n002"
+      },
+      "speedPxPerSec": 359.6
+    },
+    "farmerUnaffected": true
+  }
+}

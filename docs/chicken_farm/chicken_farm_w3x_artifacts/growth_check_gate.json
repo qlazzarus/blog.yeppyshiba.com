@@ -1,0 +1,70 @@
+{
+  "case": "gate",
+  "checks": {
+    "closeBlockedByOccupant": true,
+    "footprintRetained": true,
+    "openCloseLifecycle": true,
+    "pass": true,
+    "removedGateNoop": true
+  },
+  "closed": {
+    "attack": null,
+    "armor": 7,
+    "footprint": {
+      "height": 128,
+      "width": 128,
+      "x": 1200,
+      "y": 1200
+    },
+    "gateOpen": false,
+    "hp": 300,
+    "id": "player-building-1",
+    "maxHp": 300,
+    "ownerPlayerId": 3,
+    "state": "complete",
+    "targetableByWolves": true,
+    "templateId": "gate_wood"
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "opened": {
+    "attack": null,
+    "armor": 7,
+    "footprint": {
+      "height": 128,
+      "width": 128,
+      "x": 1200,
+      "y": 1200
+    },
+    "gateOpen": true,
+    "hp": 300,
+    "id": "player-building-1",
+    "maxHp": 300,
+    "ownerPlayerId": 3,
+    "state": "complete",
+    "targetableByWolves": true,
+    "templateId": "gate_wood"
+  },
+  "reclosed": {
+    "attack": null,
+    "armor": 7,
+    "footprint": {
+      "height": 128,
+      "width": 128,
+      "x": 1200,
+      "y": 1200
+    },
+    "gateOpen": false,
+    "hp": 300,
+    "id": "player-building-1",
+    "maxHp": 300,
+    "ownerPlayerId": 3,
+    "state": "complete",
+    "targetableByWolves": true,
+    "templateId": "gate_wood"
+  }
+}

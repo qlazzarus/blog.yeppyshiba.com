@@ -1,0 +1,13 @@
+{
+  "case": "defense_research",
+  "pass": true,
+  "cases": {
+    "arcaneDamageLevel3": 41,
+    "guardDamageLevel2": 30,
+    "masonryLevel2": {
+      "armor": 3,
+      "maxHp": 300
+    },
+    "scoutUnaffected": true
+  }
+}

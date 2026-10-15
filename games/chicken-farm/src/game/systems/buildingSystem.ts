@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { BuildingTemplateConfig, MvpBuildingId } from '../balanceTypes';
+import { getResearchedBuildingStats, type BuildingResearchLevels } from '../buildingResearchStats';
 import { VISIBILITY_OVERLAY } from '../config';
 import type { GridPathRect } from './pathing';
 import type { AttackableEnemyTarget, Point } from './playerCommandTypes';
@@ -26,6 +27,7 @@ export type PlayerBuilding = {
     constructionProgressSec: number;
     readonly costPaid: boolean;
     footprint: GridPathRect;
+    gateOpen?: boolean;
     hp: number;
     readonly id: string;
     maxHp: number;
@@ -53,9 +55,12 @@ export type BuildingSelectionSummary = {
     readonly activeWorkerUnitId: string | null;
     readonly displayName: string;
     readonly footprintCells: { readonly h: number; readonly w: number };
+    readonly footprint: GridPathRect;
+    readonly gateOpen: boolean | null;
     readonly hp: number;
     readonly id: string;
     readonly maxHp: number;
+    readonly ownerPlayerId: number;
     readonly progress: number;
     readonly remainingSec: number;
     readonly state: PlayerBuilding['state'];
@@ -66,6 +71,7 @@ export type BuildingSelectionSummary = {
 export type BuildingLifecycleSnapshot = {
     readonly activeWorkerUnitId: string | null;
     readonly footprint: GridPathRect;
+    readonly gateOpen: boolean | null;
     readonly id: string;
     readonly ownerPlayerId: number;
     readonly progress: number;
@@ -91,6 +97,7 @@ type BuildingSystemConfig = {
     /** Shared player wallet; when omitted the system creates an isolated PoC wallet. */
     readonly economy?: PlayerEconomyState;
     readonly getElapsedSec: () => number;
+    readonly getResearchLevels?: (ownerPlayerId: number) => BuildingResearchLevels;
     readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly isTargetVisible?: (x: number, y: number) => boolean;
     readonly onBuildingCompleted?: (building: PlayerBuilding) => void;
@@ -146,6 +153,7 @@ export class BuildingSystem {
     private readonly buildings: PlayerBuilding[] = [];
     private readonly damageEnemyTarget: (targetId: string, damage: number) => boolean;
     private readonly getElapsedSec: () => number;
+    private readonly getResearchLevels?: (ownerPlayerId: number) => BuildingResearchLevels;
     private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
     private readonly isTargetVisible: (x: number, y: number) => boolean;
     private readonly onBuildingCompleted?: (building: PlayerBuilding) => void;
@@ -168,6 +176,7 @@ export class BuildingSystem {
         };
         this.damageEnemyTarget = config.damageEnemyTarget ?? (() => false);
         this.getElapsedSec = config.getElapsedSec;
+        this.getResearchLevels = config.getResearchLevels;
         this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
         this.isTargetVisible = config.isTargetVisible ?? (() => true);
         this.onBuildingCompleted = config.onBuildingCompleted;
@@ -201,6 +210,7 @@ export class BuildingSystem {
         return this.buildings.map((building) => ({
             activeWorkerUnitId: building.activeWorkerUnitId ?? null,
             footprint: { ...building.footprint },
+            gateOpen: building.templateId === 'gate_wood' ? Boolean(building.gateOpen) : null,
             id: building.id,
             ownerPlayerId: building.ownerPlayerId,
             progress: this.getConstructionProgress(building),
@@ -298,9 +308,12 @@ export class BuildingSystem {
             activeWorkerUnitId: building.activeWorkerUnitId ?? null,
             displayName: template.displayName,
             footprintCells: template.footprintCells,
+            footprint: { ...building.footprint },
+            gateOpen: building.templateId === 'gate_wood' ? (building.gateOpen ?? false) : null,
             hp: Math.ceil(building.hp),
             id: building.id,
             maxHp: building.maxHp,
+            ownerPlayerId: building.ownerPlayerId,
             progress,
             remainingSec: Math.max(0, building.buildTimeSec - progress * building.buildTimeSec),
             state: building.state,
@@ -331,7 +344,7 @@ export class BuildingSystem {
         const startedAtSec = this.getElapsedSec();
         const building: PlayerBuilding = {
             activeWorkerUnitId: request.workerUnitId,
-            armor: template.armor,
+            armor: this.getResearchStats(request.ownerPlayerId, template).armor,
             buildTimeSec: template.buildTimeSec,
             blocksPath: template.blocksPath,
             constructionActiveSinceSec:
@@ -340,9 +353,10 @@ export class BuildingSystem {
             costPaid: !request.skipCost,
             completedAtSec: request.completeImmediately ? startedAtSec : undefined,
             footprint,
-            hp: template.hp,
+            gateOpen: request.templateId === 'gate_wood' ? false : undefined,
+            hp: this.getResearchStats(request.ownerPlayerId, template).maxHp,
             id: `player-building-${this.nextBuildingId}`,
-            maxHp: template.hp,
+            maxHp: this.getResearchStats(request.ownerPlayerId, template).maxHp,
             nextAttackAtSec: startedAtSec,
             ownerPlayerId: request.ownerPlayerId,
             startedAtSec,
@@ -455,13 +469,14 @@ export class BuildingSystem {
         const sourceTemplateId = building.templateId;
         const sourceHp = building.hp;
         this.destroyView(building.id);
-        building.armor = target.armor;
+        const targetStats = this.getResearchStats(building.ownerPlayerId, target);
+        building.armor = targetStats.armor;
         building.blocksPath = target.blocksPath;
         building.buildTimeSec = target.buildTimeSec;
         building.footprint = targetFootprint;
         // Preserve the damage fraction: an upgrade cannot restore full HP.
-        building.hp = Math.min(target.hp, Math.max(1, target.hp * hpRatio));
-        building.maxHp = target.hp;
+        building.hp = Math.min(targetStats.maxHp, Math.max(1, targetStats.maxHp * hpRatio));
+        building.maxHp = targetStats.maxHp;
         building.targetableByWolves = target.targetableByWolves;
         building.templateId = targetTemplateId;
         this.createView(building, target);
@@ -531,6 +546,47 @@ export class BuildingSystem {
 
     getBuildings(): readonly PlayerBuilding[] {
         return this.buildings;
+    }
+
+    /** Opens movement through a gate without releasing its build footprint. */
+    setGateOpen(
+        buildingId: string,
+        open: boolean,
+        isFootprintOccupied?: (footprint: GridPathRect) => boolean,
+    ) {
+        const building = this.getBuilding(buildingId);
+        if (!building || building.state !== 'complete' || building.templateId !== 'gate_wood') {
+            return false;
+        }
+        if (!open && isFootprintOccupied?.(building.footprint)) return false;
+        building.gateOpen = open;
+        building.blocksPath = !open;
+        this.updateView(building);
+        this.recordTelemetry?.('gate_state_changed', {
+            buildingId,
+            open,
+        });
+        return true;
+    }
+
+    /** Recomputes all completed owner buildings from immutable template base stats. */
+    refreshResearchStats(ownerPlayerId: number) {
+        this.buildings
+            .filter((building) => building.ownerPlayerId === ownerPlayerId && building.state === 'complete')
+            .forEach((building) => {
+                const stats = this.getResearchStats(
+                    building.ownerPlayerId,
+                    CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId],
+                );
+                const hpRatio = building.maxHp <= 0
+                    ? 0
+                    : Phaser.Math.Clamp(building.hp / building.maxHp, 0, 1);
+                building.armor = stats.armor;
+                building.maxHp = stats.maxHp;
+                // Research never restores a damaged building to full health.
+                building.hp = Math.min(stats.maxHp, Math.max(1, stats.maxHp * hpRatio));
+                this.updateView(building);
+            });
     }
 
     /**
@@ -739,7 +795,7 @@ export class BuildingSystem {
         overlay.clear();
         const rect = building.footprint;
         if (building.state === 'complete') {
-            overlay.lineStyle(2, 0xe8d48a, 0.72);
+            overlay.lineStyle(2, building.gateOpen ? 0x71dba4 : 0xe8d48a, 0.72);
             overlay.strokeRect(rect.x + 4, rect.y + 4, rect.width - 8, rect.height - 8);
             return;
         }
@@ -783,21 +839,22 @@ export class BuildingSystem {
         if (building.state !== 'complete') return;
 
         const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
-        if (!template.attack) return;
+        const attack = this.getResearchStats(building.ownerPlayerId, template).attack;
+        if (!attack) return;
         if (this.getElapsedSec() < building.nextAttackAtSec) return;
 
-        const target = this.findBuildingCombatTarget(building, template.attack.rangePx);
+        const target = this.findBuildingCombatTarget(building, attack.rangePx);
         if (!target) return;
 
-        const landed = this.damageEnemyTarget(target.id, template.attack.damage);
+        const landed = this.damageEnemyTarget(target.id, attack.damage);
         if (!landed) return;
 
         const center = this.getBuildingCenter(building);
-        building.nextAttackAtSec = this.getElapsedSec() + template.attack.cooldownSec;
+        building.nextAttackAtSec = this.getElapsedSec() + attack.cooldownSec;
         this.recordTelemetry?.('player_building_attack_landed', {
             buildingId: building.id,
-            damage: template.attack.damage,
-            rangePx: template.attack.rangePx,
+            damage: attack.damage,
+            rangePx: attack.rangePx,
             targetHpBefore: Math.ceil(target.hp),
             targetId: target.id,
             targetX: Number(target.x.toFixed(1)),
@@ -806,6 +863,17 @@ export class BuildingSystem {
             x: Number(center.x.toFixed(1)),
             y: Number(center.y.toFixed(1)),
         });
+    }
+
+    private getResearchStats(ownerPlayerId: number, template: BuildingTemplateConfig) {
+        return getResearchedBuildingStats(
+            template,
+            this.getResearchLevels?.(ownerPlayerId) ?? {
+                arcaneTowerDamage: 0,
+                guardTowerDamage: 0,
+                masonry: 0,
+            },
+        );
     }
 
     private findBuildingCombatTarget(building: PlayerBuilding, rangePx: number) {

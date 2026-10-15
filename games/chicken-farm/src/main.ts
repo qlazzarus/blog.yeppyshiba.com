@@ -2,7 +2,14 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
-import { GROWTH_PRODUCTION_RECIPES, GROWTH_RESEARCH, type ResearchDefinition } from './game/growthProgression';
+import { getResearchedBuildingStats } from './game/buildingResearchStats';
+import { getResearchedUnitStats } from './game/unitResearchStats';
+import {
+    GROWTH_BUILDING_RULES,
+    GROWTH_PRODUCTION_RECIPES,
+    GROWTH_RESEARCH,
+    type ResearchDefinition,
+} from './game/growthProgression';
 import { evaluateBuildingEligibility } from './game/growthEligibility';
 import { calculateWaveReplenishPlan } from './game/waveReplenish';
 import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
@@ -69,6 +76,7 @@ import type {
 import { canOccupyPoint } from './game/systems/movementGuards';
 import {
     addEconomyChicken,
+    cancelCoopHatch,
     countInventoryItem,
     consumeEconomyInventoryItem,
     createChickenFarmEconomyState,
@@ -180,6 +188,7 @@ declare global {
                         readonly x: number;
                         readonly y: number;
                     };
+                    readonly gateOpen: boolean | null;
                     readonly id: string;
                     readonly ownerPlayerId: number;
                     readonly progress: number;
@@ -273,6 +282,7 @@ declare global {
                     readonly maxHp: number;
                     readonly nextAttackAtSec: number;
                     readonly ownerPlayerId: number;
+                    readonly stats: { readonly attackCooldownSec: number; readonly damage: number; readonly speedPxPerSec: number };
                     readonly templateId: string;
                     readonly x: number;
                     readonly y: number;
@@ -489,13 +499,13 @@ declare global {
             ) => boolean;
             setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
-                templateId: 'arcane_lab' | 'coop_basic' | 'coop_mid' | 'family_temple' | 'farm_house' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'power_generator' | 'town_hall' | 'well_basic' | 'workshop_lab',
+                templateId: 'arcane_lab' | 'campfire' | 'coop_basic' | 'coop_mid' | 'family_temple' | 'farm_house' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'power_generator' | 'town_hall' | 'well_basic' | 'workshop_lab',
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
             ) => string | null;
             createCombatBuildingFixture: (
-                templateId: 'fence_wood' | 'tower_scout',
+                templateId: 'fence_wood' | 'gate_wood' | 'tower_arcane_small' | 'tower_guard_small' | 'tower_scout',
                 x: number,
                 y: number,
             ) => string | null;
@@ -510,6 +520,7 @@ declare global {
             advanceProductionForTest: (targetElapsedSec: number) => boolean;
             setProductionExitBlockedForTest: (blocked: boolean) => boolean;
             setBuildingRallyPointForTest: (buildingId: string, x: number, y: number) => boolean;
+            setGateOpenForTest: (buildingId: string, open: boolean) => boolean;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
             replayCompletedBuildingEconomyAttachmentForTest: (buildingId: string) => boolean;
             advanceEconomyForTest: (targetElapsedSec: number) => boolean;
@@ -696,6 +707,7 @@ class FarmScene extends Phaser.Scene {
     private inventorySlots: readonly InventorySlotView[] = [];
     private renderedInventoryId?: string;
     private attackTargetingActive = false;
+    private rallyTargetingBuildingId?: string;
     private farmerFeedAutocast = false;
     private herdTargetingActive = false;
     private initialPlacementRegistry = new InitialPlacementRegistry();
@@ -876,6 +888,10 @@ class FarmScene extends Phaser.Scene {
                 this.combatPoc?.getAttackableEnemyTargets() ?? [],
             getDynamicBlockedRects: () => this.getDynamicBlockedRects(),
             getElapsedSec: () => this.elapsedSec,
+            getResearchLevels: (ownerPlayerId) => ({
+                dogDamage: this.researchQueue?.getLevel(ownerPlayerId, 'dogDamage') ?? 0,
+                dogSpeedClaw: this.researchQueue?.getLevel(ownerPlayerId, 'dogSpeedClaw') ?? 0,
+            }),
             onBuildCommandInterrupted: (unitId, siteId, reason) =>
                 this.buildingSystem?.pauseConstruction(siteId, unitId, reason),
             onPendingBuildOrdersInterrupted: (unitId, reason) =>
@@ -938,6 +954,11 @@ class FarmScene extends Phaser.Scene {
                     this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
                 economy: this.getSharedPlayerEconomy(),
                 getElapsedSec: () => this.elapsedSec,
+                getResearchLevels: (ownerPlayerId) => ({
+                    arcaneTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'arcaneTowerDamage') ?? 0,
+                    guardTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'guardTowerDamage') ?? 0,
+                    masonry: this.researchQueue?.getLevel(ownerPlayerId, 'masonry') ?? 0,
+                }),
                 getAttackableEnemyTargets: () =>
                     this.combatPoc?.getAttackableEnemyTargets() ?? [],
                 isTargetVisible: (x, y) =>
@@ -979,9 +1000,49 @@ class FarmScene extends Phaser.Scene {
                 buttons: hud.commandButtons,
                 getSelectionKind: () => this.getCommandCardSelectionKind(),
                 isActionEnabled: (action) => {
+                    if (action.type === 'request_building_upgrade') {
+                        return this.canRequestSelectedBuildingUpgrade();
+                    }
+                    if (action.type === 'cancel_building_upgrade') {
+                        return Boolean(this.selectedBuildingId && this.buildingUpgrades?.has(this.selectedBuildingId));
+                    }
+                    if (action.type === 'toggle_gate') {
+                        const building = this.selectedBuildingId
+                            ? this.buildingSystem?.getBuilding(this.selectedBuildingId)
+                            : null;
+                        return Boolean(
+                            building &&
+                            building.templateId === 'gate_wood' &&
+                            (building.gateOpen || !this.isGateFootprintOccupied(building.footprint)),
+                        );
+                    }
+                    if (action.type === 'request_dog_production') {
+                        return this.canRequestSelectedDogProduction();
+                    }
+                    if (action.type === 'cancel_selected_production') {
+                        return Boolean(this.getSelectedProductionJob());
+                    }
+                    if (action.type === 'cancel_selected_hatch') {
+                        return Boolean(this.getSelectedHatchJob());
+                    }
+                    if (action.type === 'request_research') {
+                        return this.canRequestSelectedResearch(action.researchId);
+                    }
+                    if (action.type === 'cancel_selected_research') {
+                        return Boolean(this.getSelectedResearchJob());
+                    }
+                    if (action.type === 'start_rally_targeting') {
+                        return Boolean(this.getSelectedRallyBuilding());
+                    }
+                    if (action.type === 'start_coop_hatch') {
+                        return this.canRequestSelectedHatch();
+                    }
                     const farmer = this.controllableUnits
                         .getSelectedUnits()
                         .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                    if (action.type === 'start_build_placement') {
+                        return Boolean(farmer && this.canStartBuildPlacement(action.buildingId, farmer.ownerPlayerId));
+                    }
                     if (!farmer) return true;
                     if (action.type === 'feed_nearby_chicken') {
                         return this.controllableUnits.hasMana(
@@ -1088,6 +1149,7 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.buildings', () =>
             this.buildingSystem?.update(),
         );
+        this.updateSupportAuras(delta / 1000);
         this.performanceProfiler.measure('update.constructionPlacement', () =>
             this.constructionPlacement?.update(),
         );
@@ -1386,6 +1448,7 @@ class FarmScene extends Phaser.Scene {
         this.economyWorkerTasks.clear();
         this.selectedBuildingId = undefined;
         this.selectedEconomyEntity = undefined;
+        this.rallyTargetingBuildingId = undefined;
         this.startItemPlacement = undefined;
         this.startItemPlacementGraphics = undefined;
         this.attackTargetingActive = false;
@@ -1530,6 +1593,9 @@ class FarmScene extends Phaser.Scene {
     }
 
     private handleBuildingCompleted(building: Parameters<typeof attachCompletedBuildingEconomy>[1]) {
+        // A building may have started construction before research completed.
+        // Completion reuses the same base+level projection as existing/new tiers.
+        this.buildingSystem?.refreshResearchStats(building.ownerPlayerId);
         this.supplyLifecycle?.registerBuilding(
             building.id,
             building.ownerPlayerId,
@@ -1683,7 +1749,53 @@ class FarmScene extends Phaser.Scene {
                 this.researchQueue?.discardProvider(job.providerId);
                 return;
             }
-            this.researchQueue?.complete(job.providerId);
+            const completed = this.researchQueue?.complete(job.providerId);
+            if (completed) this.buildingSystem?.refreshResearchStats(completed.ownerPlayerId);
+        });
+    }
+
+    private getResearchedBuildingAttack(ownerPlayerId: number, templateId: keyof typeof CHICKEN_FARM_BALANCE.buildingTemplates) {
+        return getResearchedBuildingStats(
+            CHICKEN_FARM_BALANCE.buildingTemplates[templateId],
+            {
+                arcaneTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'arcaneTowerDamage') ?? 0,
+                guardTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'guardTowerDamage') ?? 0,
+                masonry: this.researchQueue?.getLevel(ownerPlayerId, 'masonry') ?? 0,
+            },
+        ).attack ?? null;
+    }
+
+    private getResearchedUnitStats(ownerPlayerId: number, templateId: 'dog' | 'farmer') {
+        const stats = getResearchedUnitStats(
+            templateId,
+            CHICKEN_FARM_BALANCE.defenders[templateId],
+            {
+                dogDamage: this.researchQueue?.getLevel(ownerPlayerId, 'dogDamage') ?? 0,
+                dogSpeedClaw: this.researchQueue?.getLevel(ownerPlayerId, 'dogSpeedClaw') ?? 0,
+            },
+        );
+        return {
+            attackCooldownSec: stats.attackCooldownSec,
+            damage: stats.damage,
+            speedPxPerSec: stats.speedPxPerSec,
+        };
+    }
+
+    private updateSupportAuras(deltaSec: number) {
+        if (!Number.isFinite(deltaSec) || deltaSec <= 0) return;
+        (this.buildingSystem?.getBuildings() ?? []).forEach((building) => {
+            if (building.state !== 'complete' || building.hp <= 0) return;
+            const aura = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].aura;
+            if (!aura || aura.kind !== 'heal') return;
+            this.controllableUnits.healUnitsInRange(
+                building.ownerPlayerId,
+                {
+                    x: building.footprint.x + building.footprint.width / 2,
+                    y: building.footprint.y + building.footprint.height / 2,
+                },
+                aura.rangePx,
+                aura.amountPerSec * deltaSec,
+            );
         });
     }
 
@@ -2976,6 +3088,10 @@ class FarmScene extends Phaser.Scene {
             });
             return true;
         }
+        if (this.rallyTargetingBuildingId && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
+            this.rallyTargetingBuildingId = undefined;
+            return true;
+        }
         if (this.attackTargetingActive && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
             this.attackTargetingActive = false;
             this.telemetry.record('attack_targeting_cancelled', { reason: 'escape' });
@@ -3061,7 +3177,187 @@ class FarmScene extends Phaser.Scene {
 
             this.selectedBuildingId = undefined;
             this.commandCard?.refresh();
+            return;
         }
+
+        if (action.type === 'request_building_upgrade') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building) return;
+            this.requestBuildingUpgrade(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'cancel_building_upgrade') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building) return;
+            this.cancelBuildingUpgrade(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'toggle_gate') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building || building.templateId !== 'gate_wood') return;
+            this.setGateOpen(building.id, building.ownerPlayerId, !building.gateOpen);
+            return;
+        }
+
+        if (action.type === 'request_dog_production') {
+            const building = this.getSelectedBuilding();
+            if (building) this.requestDogProduction(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_production') {
+            const job = this.getSelectedProductionJob();
+            if (job) this.productionQueue?.cancel(job.id, job.ownerPlayerId, this.elapsedSec);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_hatch') {
+            const job = this.getSelectedHatchJob();
+            if (!job || !this.economyState) return;
+            const cancelled = cancelCoopHatch(this.economyState, {
+                hatchJobId: job.id,
+                ownerPlayerId: job.ownerPlayerId,
+            });
+            if (cancelled) this.handleEconomyEvent(cancelled);
+            return;
+        }
+
+        if (action.type === 'request_research') {
+            const building = this.getSelectedBuilding();
+            if (building) this.requestResearch(building.id, building.ownerPlayerId, action.researchId);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_research') {
+            const job = this.getSelectedResearchJob();
+            if (job) this.cancelResearch(job.providerId, job.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'start_rally_targeting') {
+            const building = this.getSelectedRallyBuilding();
+            if (!building) return;
+            this.constructionPlacement?.cancelPlacement('rally_targeting');
+            this.attackTargetingActive = false;
+            this.herdTargetingActive = false;
+            this.rallyTargetingBuildingId = building.id;
+        }
+    }
+
+    private getSelectedBuilding() {
+        return this.selectedBuildingId ? this.buildingSystem?.getBuilding(this.selectedBuildingId) ?? null : null;
+    }
+
+    private getSelectedProductionJob() {
+        const building = this.getSelectedBuilding();
+        if (!building) return null;
+        return this.productionQueue?.getJobs(building.ownerPlayerId).find((job) => job.producerId === building.id) ?? null;
+    }
+
+    private getSelectedResearchJob() {
+        const building = this.getSelectedBuilding();
+        if (!building) return null;
+        return this.researchQueue?.get(building.ownerPlayerId).find((job) => job.providerId === building.id) ?? null;
+    }
+
+    private getSelectedHatchJob() {
+        const coopId = this.selectedEconomyEntity?.type === 'coop' ? this.selectedEconomyEntity.id : null;
+        if (!coopId) return null;
+        return this.economyState?.hatchJobs.find((job) => job.coopId === coopId) ?? null;
+    }
+
+    private canRequestSelectedHatch() {
+        const coopId = this.selectedEconomyEntity?.type === 'coop' ? this.selectedEconomyEntity.id : null;
+        const state = this.economyState;
+        if (!coopId || !state) return false;
+        const coop = state.coops.find((candidate) => candidate.id === coopId);
+        const wallet = coop && state.players.find((player) => player.id === coop.ownerPlayerId);
+        return Boolean(
+            coop && wallet && coop.storedEggs > 0 &&
+            state.hatchJobs.filter((job) => job.coopId === coop.id).length < state.config.coopRules[coop.kind].hatchCapacity &&
+            wallet.supplyCap - wallet.supplyUsed - (wallet.supplyReserved ?? 0) >= 1,
+        );
+    }
+
+    private getSelectedRallyBuilding() {
+        if (this.selectedEconomyEntity?.type === 'coop') {
+            return this.buildingSystem?.getBuilding(this.selectedEconomyEntity.id) ?? null;
+        }
+        const building = this.getSelectedBuilding();
+        return building?.state === 'complete' && CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].productionExit
+            ? building
+            : null;
+    }
+
+    private canRequestSelectedDogProduction() {
+        const building = this.getSelectedBuilding();
+        if (!building) return false;
+        const recipe = GROWTH_PRODUCTION_RECIPES.dog;
+        const wallet = this.economyState?.players.find((player) => player.id === building.ownerPlayerId);
+        return Boolean(
+            wallet && building.state === 'complete' && !this.buildingUpgrades?.has(building.id) &&
+            recipe.producerTemplateIds.some((templateId) => templateId === building.templateId) &&
+            wallet.gold >= recipe.cost.gold && wallet.lumber >= recipe.cost.lumber &&
+            wallet.supplyCap - wallet.supplyUsed - (wallet.supplyReserved ?? 0) >= recipe.supplyCost,
+        );
+    }
+
+    private canRequestSelectedResearch(researchId: ResearchDefinition['id']) {
+        const building = this.getSelectedBuilding();
+        if (!building || building.state !== 'complete' || this.buildingUpgrades?.has(building.id)) return false;
+        const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
+        const definition = GROWTH_RESEARCH[researchId];
+        const wallet = this.economyState?.players.find((player) => player.id === building.ownerPlayerId);
+        const researchQueue = this.researchQueue;
+        return Boolean(
+            wallet && researchQueue && template.providesResearch?.includes(researchId) &&
+            !researchQueue.get(building.ownerPlayerId).some((job) => job.providerId === building.id || job.researchId === researchId) &&
+            researchQueue.getLevel(building.ownerPlayerId, researchId) < definition.maxLevel &&
+            wallet.gold >= definition.costPerLevel.gold && wallet.lumber >= definition.costPerLevel.lumber,
+        );
+    }
+
+    private canStartBuildPlacement(templateId: keyof typeof CHICKEN_FARM_BALANCE.buildingTemplates, ownerPlayerId?: number) {
+        if (
+            ownerPlayerId === undefined ||
+            GROWTH_BUILDING_RULES[templateId].acquisition !== 'build' ||
+            !this.buildingSystem?.canAfford(CHICKEN_FARM_BALANCE.buildingTemplates[templateId])
+        ) return false;
+        return evaluateBuildingEligibility({
+            buildings: (this.buildingSystem.getBuildings() ?? []).map((building) => ({
+                hp: building.hp,
+                ownerPlayerId: building.ownerPlayerId,
+                state: building.state,
+                templateId: building.templateId,
+            })),
+            ownerPlayerId,
+        }, templateId).eligible;
+    }
+
+    private canRequestSelectedBuildingUpgrade() {
+        if (!this.selectedBuildingId) return false;
+        const buildingSystem = this.buildingSystem;
+        if (!buildingSystem) return false;
+        const building = buildingSystem?.getBuilding(this.selectedBuildingId);
+        if (!building || building.state !== 'complete' || this.buildingUpgrades?.has(building.id)) return false;
+        const targetTemplateId = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].upgradeTo;
+        if (!targetTemplateId || this.productionQueue?.getJobs().some((job) => job.producerId === building.id)) return false;
+        const target = CHICKEN_FARM_BALANCE.buildingTemplates[targetTemplateId];
+        if (!buildingSystem.canAfford(target)) return false;
+        return evaluateBuildingEligibility({
+            buildings: buildingSystem.getBuildings().map((candidate) => ({
+                hp: candidate.hp,
+                ownerPlayerId: candidate.ownerPlayerId,
+                state: candidate.state,
+                templateId: candidate.templateId,
+            })),
+            ownerPlayerId: building.ownerPlayerId,
+        }, targetTemplateId).eligible;
     }
 
     private getCommandCardSelectionKind(): CommandCardSelectionKind {
@@ -3098,6 +3394,27 @@ class FarmScene extends Phaser.Scene {
             ...(this.combatPoc?.getDynamicBlockedRects() ?? []),
             ...(this.buildingSystem?.getDynamicBlockedRects() ?? []),
         ];
+    }
+
+    private setGateOpen(buildingId: string, ownerPlayerId: number, open: boolean) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        if (!building || building.ownerPlayerId !== ownerPlayerId) return false;
+        return this.buildingSystem?.setGateOpen(
+            buildingId,
+            open,
+            (footprint) => this.isGateFootprintOccupied(footprint),
+        ) ?? false;
+    }
+
+    private isGateFootprintOccupied(footprint: { readonly height: number; readonly width: number; readonly x: number; readonly y: number }) {
+        const contains = (point: { readonly x: number; readonly y: number }) =>
+            point.x >= footprint.x &&
+            point.x <= footprint.x + footprint.width &&
+            point.y >= footprint.y &&
+            point.y <= footprint.y + footprint.height;
+        return this.controllableUnits.getUnits().some((unit) => unit.hp > 0 && contains(unit.position)) ||
+            (this.economyState?.chickens ?? []).some((chicken) => chicken.aiState !== 'dead' && chicken.hp > 0 && contains(chicken.position)) ||
+            (this.combatPoc?.getRuntimeEnemySnapshot() ?? []).some((enemy) => enemy.hp > 0 && contains(enemy));
     }
 
     private getWolfTargetableUnits(): readonly ControllableUnitCombatTarget[] {
@@ -3300,12 +3617,16 @@ class FarmScene extends Phaser.Scene {
             e: Phaser.Input.Keyboard.KeyCodes.E,
             escape: Phaser.Input.Keyboard.KeyCodes.ESC,
             f: Phaser.Input.Keyboard.KeyCodes.F,
+            g: Phaser.Input.Keyboard.KeyCodes.G,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             h: Phaser.Input.Keyboard.KeyCodes.H,
             left: Phaser.Input.Keyboard.KeyCodes.A,
+            l: Phaser.Input.Keyboard.KeyCodes.L,
             m: Phaser.Input.Keyboard.KeyCodes.M,
             microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
+            p: Phaser.Input.Keyboard.KeyCodes.P,
             right: Phaser.Input.Keyboard.KeyCodes.D,
+            r: Phaser.Input.Keyboard.KeyCodes.R,
             s: Phaser.Input.Keyboard.KeyCodes.S,
             shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
             stop: Phaser.Input.Keyboard.KeyCodes.S,
@@ -3313,6 +3634,7 @@ class FarmScene extends Phaser.Scene {
             telemetryExport: Phaser.Input.Keyboard.KeyCodes.L,
             terrainOverlay: Phaser.Input.Keyboard.KeyCodes.T,
             up: Phaser.Input.Keyboard.KeyCodes.W,
+            u: Phaser.Input.Keyboard.KeyCodes.U,
             w: Phaser.Input.Keyboard.KeyCodes.W,
             x: Phaser.Input.Keyboard.KeyCodes.X,
         }) as FarmScene['keys'];
@@ -3339,6 +3661,14 @@ class FarmScene extends Phaser.Scene {
                     y: worldPoint.y,
                 };
                 if (this.startItemPlacement && this.placeStartItem(worldPoint)) return;
+                if (this.rallyTargetingBuildingId) {
+                    const building = this.buildingSystem?.getBuilding(this.rallyTargetingBuildingId);
+                    if (building) this.buildingSystem?.setRallyPoint(building.id, worldPoint);
+                    this.rallyTargetingBuildingId = undefined;
+                    this.commandCard?.refresh();
+                    this.updateSelectionInfo();
+                    return;
+                }
                 if (this.herdTargetingActive) {
                     this.issueHerdTargetingCommand(worldPoint);
                     return;
@@ -3928,9 +4258,10 @@ class FarmScene extends Phaser.Scene {
             getCombatLifecycleSnapshot: () => ({
                 active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
                 buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
-                    attack: CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].attack ?? null,
+                    attack: this.getResearchedBuildingAttack(building.ownerPlayerId, building.templateId),
                     armor: building.armor,
                     footprint: { ...building.footprint },
+                    gateOpen: building.templateId === 'gate_wood' ? Boolean(building.gateOpen) : null,
                     hp: building.hp,
                     id: building.id,
                     maxHp: building.maxHp,
@@ -3969,6 +4300,7 @@ class FarmScene extends Phaser.Scene {
                     maxHp: unit.maxHp,
                     nextAttackAtSec: unit.nextAttackAtSec,
                     ownerPlayerId: unit.ownerPlayerId,
+                    stats: this.getResearchedUnitStats(unit.ownerPlayerId, unit.templateId),
                     templateId: unit.templateId,
                     x: unit.position.x,
                     y: unit.position.y,
@@ -4307,6 +4639,14 @@ class FarmScene extends Phaser.Scene {
                 if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
                 return this.buildingSystem?.setRallyPoint(buildingId, { x, y }) ?? false;
             },
+            setGateOpenForTest: (buildingId, open) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (typeof open !== 'boolean') return false;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                return Boolean(
+                    building && this.setGateOpen(buildingId, building.ownerPlayerId, open),
+                );
+            },
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
@@ -4320,12 +4660,14 @@ class FarmScene extends Phaser.Scene {
             advanceEconomyForTest: (targetElapsedSec) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
+                const elapsedDeltaSec = targetElapsedSec - this.elapsedSec;
                 this.elapsedSec = targetElapsedSec;
                 const events = updateChickenFarmEconomy(this.economyState!, this.elapsedSec, {
                     canChickenOccupyPoint: (point) => this.canProductionExitOccupyPoint(point),
                     getRallyPoint: (buildingId) => this.buildingSystem?.getRallyPoint(buildingId) ?? null,
                 });
                 events.forEach((event) => this.handleEconomyEvent(event));
+                this.updateSupportAuras(elapsedDeltaSec);
                 this.syncChickenViews();
                 this.refreshEconomyLabels();
                 return true;
@@ -4614,6 +4956,32 @@ class FarmScene extends Phaser.Scene {
         }
         if (selectedBuilding) {
             const template = CHICKEN_FARM_BALANCE.buildingTemplates[selectedBuilding.templateId];
+            const upgradeTargetId = template.upgradeTo;
+            const upgradeTarget = upgradeTargetId
+                ? CHICKEN_FARM_BALANCE.buildingTemplates[upgradeTargetId]
+                : null;
+            const upgradeJob = this.buildingUpgrades
+                ?.get(selectedBuilding.ownerPlayerId)
+                .find((job) => job.buildingId === selectedBuilding.id);
+            const upgradeEligibility = upgradeTargetId
+                ? evaluateBuildingEligibility(
+                      {
+                          buildings: this.buildingSystem?.getBuildings().map((building) => ({
+                              hp: building.hp,
+                              ownerPlayerId: building.ownerPlayerId,
+                              state: building.state,
+                              templateId: building.templateId,
+                          })) ?? [],
+                          ownerPlayerId: selectedBuilding.ownerPlayerId,
+                      },
+                      upgradeTargetId,
+                  )
+                : null;
+            const productionJob = this.getSelectedProductionJob();
+            const researchJob = this.getSelectedResearchJob();
+            const supply = this.economyState?.players.find(
+                (player) => player.id === selectedBuilding.ownerPlayerId,
+            );
             const buildPercent = Math.round(selectedBuilding.progress * 100);
             const workerText =
                 selectedBuilding.state === 'complete'
@@ -4636,20 +5004,49 @@ class FarmScene extends Phaser.Scene {
                 `HP ${selectedBuilding.hp}/${selectedBuilding.maxHp} | Armor ${template.armor} | Footprint ${selectedBuilding.footprintCells.w}x${selectedBuilding.footprintCells.h}${attackText}`,
             );
             this.selectionInfoStatusText.setText(
-                `Status ${selectedBuilding.state} | Build ${buildPercent}% | Remaining ${selectedBuilding.remainingSec.toFixed(
-                    1,
-                )}s`,
+                upgradeJob
+                    ? `Upgrade → ${upgradeTarget?.displayName ?? upgradeJob.targetTemplateId} | ${Math.round(
+                          Math.min(
+                              1,
+                              Math.max(
+                                  0,
+                                  (this.elapsedSec - upgradeJob.startedAtSec) /
+                                      Math.max(0.001, upgradeJob.completeAtSec - upgradeJob.startedAtSec),
+                              ),
+                          ) * 100,
+                      )}% | ${Math.max(0, upgradeJob.completeAtSec - this.elapsedSec).toFixed(1)}s | X: 75% refund`
+                    : productionJob
+                      ? `Train dog ${productionJob.state} | ${productionJob.completeAtSec === null ? 'queued' : `${Math.max(0, productionJob.completeAtSec - this.elapsedSec).toFixed(1)}s`} | Supply ${supply?.supplyUsed ?? 0}+${supply?.supplyReserved ?? 0}/${supply?.supplyCap ?? 0}`
+                      : researchJob
+                        ? `Research ${researchJob.researchId} Lv.${researchJob.targetLevel} | ${Math.max(0, researchJob.completeAtSec - this.elapsedSec).toFixed(1)}s | X: full refund`
+                    : selectedBuilding.templateId === 'gate_wood'
+                      ? `Gate ${selectedBuilding.gateOpen ? 'open' : 'closed'} | G: toggle${
+                            !selectedBuilding.gateOpen && this.isGateFootprintOccupied(selectedBuilding.footprint)
+                                ? ' (blocked: unit in gate)'
+                                : ''
+                        }`
+                      : `Status ${selectedBuilding.state} | Build ${buildPercent}% | Remaining ${selectedBuilding.remainingSec.toFixed(
+                            1,
+                        )}s`,
             );
             this.selectionInfoBodyText.setText(
                 selectedBuilding.state === 'complete' &&
                     (selectedBuilding.templateId === 'market' ||
                         selectedBuilding.templateId === 'grand_market')
                     ? '농부가 알을 들고 시장을 우클릭하면 판매합니다.'
-                    : `${workerText} | Cost ${template.originalCost?.gold ?? template.costGold}g${
-                          template.originalCost?.lumber
-                              ? ` ${template.originalCost.lumber}l`
-                              : ''
-                      } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
+                    : productionJob
+                      ? `P: cancel only this building's ${productionJob.recipeId} job; refund and supply reservation return.`
+                      : researchJob
+                        ? `X: cancel only this provider's research job; full cost returns.`
+                    : upgradeTarget
+                      ? upgradeJob
+                        ? `${workerText} | upgrade running; X cancels and refunds 75% of paid cost.`
+                        : `U: ${upgradeTarget.displayName} ${upgradeTarget.costGold}g${
+                              upgradeTarget.costLumber ? ` ${upgradeTarget.costLumber}l` : ''
+                          } | ${this.describeEligibility(upgradeEligibility)}`
+                      : `${workerText} | Cost ${template.costGold}g${
+                            template.costLumber ? ` ${template.costLumber}l` : ''
+                        } | no further upgrade`,
             );
             this.clearInventorySlots();
             return;
@@ -4708,6 +5105,20 @@ class FarmScene extends Phaser.Scene {
         this.clearInventorySlots();
     }
 
+    private describeEligibility(eligibility: ReturnType<typeof evaluateBuildingEligibility> | null) {
+        if (!eligibility || eligibility.eligible) return 'Ready';
+        const missing = [
+            ...eligibility.missingBuildingTemplateIds.map((id) =>
+                CHICKEN_FARM_BALANCE.buildingTemplates[id].displayName,
+            ),
+            ...eligibility.missingResearchLevels.map(
+                (requirement) => `${requirement.id} Lv.${requirement.requiredLevel}`,
+            ),
+            ...eligibility.missingUnitTemplateIds,
+        ];
+        return `Locked: needs ${missing.join(', ')}`;
+    }
+
     private updateSelectedBuildingRangeOverlay() {
         const selectedBuilding = this.selectedBuildingId
             ? this.buildingSystem?.getBuilding(this.selectedBuildingId)
@@ -4759,7 +5170,9 @@ class FarmScene extends Phaser.Scene {
             );
             this.selectionInfoStatusText.setText(`Hatch ${hatchText}`);
             this.selectionInfoBodyText.setText(
-                '농부가 든 알을 닭장에 넣으면 닭장 인벤토리에 들어가고 부화가 시작됩니다.',
+                hatchJobs[0]
+                    ? `X: cancel this coop's hatch (egg and reserved supply return) | R: set rally`
+                    : 'H: hatch one stored egg | R: set rally',
             );
             this.renderInventorySlots(inventory);
             return true;

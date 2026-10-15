@@ -4,6 +4,10 @@
     "duplicateBlocked": true,
     "fullCancelRefund": true,
     "levelOnce": true,
+    "existingMasonryApplied": true,
+    "newTowerDamageApplied": true,
+    "dogResearchApplied": true,
+    "supportAuraOwnerAndRemoval": true,
     "pass": true
   },
   "before": {
@@ -34,9 +38,11 @@
     "tech": {
       "completeBuildingIds": [
         "player-building-1",
-        "player-building-2"
+        "player-building-2",
+        "player-building-3"
       ],
       "completeBuildingTemplateIds": [
+        "fence_wood",
         "lumber_mill"
       ]
     },
@@ -74,9 +80,11 @@
     "tech": {
       "completeBuildingIds": [
         "player-building-1",
-        "player-building-2"
+        "player-building-2",
+        "player-building-3"
       ],
       "completeBuildingTemplateIds": [
+        "fence_wood",
         "lumber_mill"
       ]
     },
@@ -119,9 +127,11 @@
     "tech": {
       "completeBuildingIds": [
         "player-building-1",
-        "player-building-2"
+        "player-building-2",
+        "player-building-3"
       ],
       "completeBuildingTemplateIds": [
+        "fence_wood",
         "lumber_mill"
       ]
     },
@@ -148,7 +158,7 @@
       "levels": [],
       "queued": [
         {
-          "completeAtSec": 18.143266666666293,
+          "completeAtSec": 18.16389,
           "providerId": "player-building-1",
           "researchId": "masonry",
           "state": "running",
@@ -173,9 +183,11 @@
     "tech": {
       "completeBuildingIds": [
         "player-building-1",
-        "player-building-2"
+        "player-building-2",
+        "player-building-3"
       ],
       "completeBuildingTemplateIds": [
+        "fence_wood",
         "lumber_mill"
       ]
     },

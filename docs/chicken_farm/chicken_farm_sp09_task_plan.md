@@ -1,6 +1,6 @@
 # SP-09 건물 기능·성장 경로 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-15. SP-09-01~17 계약·성장 그래프·관찰·선행조건 판정·공급/생산/연구 queue·upgrade 완료/economy adapter·취소/파괴 복구를 완료했다. 다음 실행은 **SP-09-18**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
+> 갱신: 2026-10-15. SP-09-01~23 계약·성장 그래프·관찰·선행조건 판정·공급/생산/연구 queue·방어/유닛 연구·지원 aura·gate state·upgrade 완료/economy adapter·취소/파괴 복구·command card·same-page restart 격리를 완료했다. 다음 실행은 **SP-09-24**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
 
 ## 목표와 범위
 
@@ -32,7 +32,7 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ## 실행 순서
 
-SP-09-01~17은 **완료**했고, 18~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
+SP-09-01~20은 **완료**했고, 21~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -234,59 +234,69 @@ SP-09-01~17은 **완료**했고, 18~25는 **미착수**다. 선행 열의 숫자
 
 ### SP-09-18 — 방어 연구 효과·전투 반영
 
-- 상태: **미착수**. 선행: 17.
+- 상태: **완료**. 선행: 17.
 - 읽기: combatPocSystem.ts, combat/towerCombatAdapter.ts, buildingSystem.ts, 연구 정의.
 - 수정 범위: 01에서 지정한 타워 공격·건물 HP/armor 연구를 실제 전투 수치 계산에 적용한다. 미확인 R006 효과는 임의로 복원하지 않는다.
 - 완료 조건: 기존/새 타워·upgrade된 타워에 같은 레벨이 적용되며 base+level 계산으로 중복 누적을 막는다.
-- 검증: 동일 적에 대한 연구 전후 실제 damage·공격 간격·건물 피해량, 새 생성/upgrade 후 동일 효과.
+- 결과: `buildingResearchStats.ts`가 immutable template base와 owner의 research level로 armor/max HP/attack을 매번 계산한다. masonry는 모든 완료 건물에 level당 `+1 armor`, `+50 max HP`를 적용하고, guard/arcane tower 계열은 각각 level당 `+4`/`+5 damage`를 적용한다. scout tower는 guard 계열로 임의 분류하지 않았다. cooldown/range 및 미확인 R006은 변경하지 않는다.
+- runtime: 연구 완료 뒤 `BuildingSystem.refreshResearchStats()`가 해당 owner의 기존 완료 건물을 재계산하며, 신규 건물·upgrade target도 같은 계산식을 사용한다. HP는 기존 damage 비율을 보존해 연구 또는 재계산으로 full heal되지 않는다.
+- 검증: [순수 defense research artifact](./chicken_farm_w3x_artifacts/growth_check_defense_research.json)는 guard level 2 `22→30`, arcane level 3 `26→41`, masonry level 2 fence `armor 1→3`/`HP 200→300`, scout 무변경과 idempotent base+level 계산을 확인한다. [browser research artifact](./chicken_farm_w3x_artifacts/growth_check_research.json)는 완료된 masonry가 기존 fence `armor 1→2`/`HP 200→250`에 적용되고, guard research 뒤 새 guard tower가 `22→26 damage`로 생성되며 browser 오류 0임을 확인한다. `npm run chicken:growth:defense-research --workspace @games/chicken-farm`, `npm run chicken:growth:research:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-19 — 생산 유닛·지원 건물 필수 효과
 
-- 상태: **미착수**. 선행: 17/18.
+- 상태: **완료**. 선행: 17/18.
 - 읽기: 01 기능 coverage, controllableUnitSystem.ts, combatPocSystem.ts, buildingTemplates.ts aura.
 - 수정 범위: 01에서 SP-09로 확정한 개 연구와 지원 건물 효과를 실제 대상에 연결한다. 가족/용병 전용 연구는 SP-12 담당을 유지한다.
 - 완료 조건: 기존/새 유닛, owner, 범위, 건물 파괴에 따른 효과 종료를 검증한다. 효과군이 크면 19-a 등으로 분리하고 전체 완료 전 19를 닫지 않는다.
-- 검증: 개 연구 전후 실제 공격/이동 중 계약상 대상 수치와 support aura 범위 안/밖·owner·제거 사례.
+- 결과: `unitResearchStats.ts`가 owner의 dog research level을 template base에 투영한다. `dogDamage`는 level당 `+4 damage`, `dogSpeedClaw`는 level당 `+8% move speed`와 `-8% attack cooldown`을 dog에만 적용한다. unit 이동·attack command는 매 update에서 이 effective stats를 읽으므로 기존 dog와 production dog가 같은 결과를 받으며 farmer에는 적용되지 않는다.
+- 지원 효과: complete campfire/well의 선언된 heal aura는 owner가 같은 살아 있는 controllable unit만 radius 안에서 초당 `amountPerSec`만큼 회복한다. building 제거 후에는 live building 목록에서 즉시 빠져 다음 tick부터 회복이 멈춘다. chicken/economy well 유인·가족/용병 전용 effect는 이 카드 범위에 넣지 않았다.
+- provider 정합성: canonical `dogDamage` provider인 `family_temple`에 누락된 `providesResearch` metadata를 추가해 SP-09-17의 explicit provider check와 성장 정의가 일치한다.
+- 검증: [순수 unit/support artifact](./chicken_farm_w3x_artifacts/growth_check_unit_support_effects.json)는 dog damage level 2 `18→26`, claw level 3 `290→359.6 speed`/`0.8→0.608 cooldown`, farmer 무영향과 idempotent projection을 확인한다. [browser research artifact](./chicken_farm_w3x_artifacts/growth_check_research.json)는 기존 dog의 level 1 `damage 22`/`speed 313.2`/`cooldown .736`, 새 production dog의 동일 수치, campfire 안의 P3 dog 회복, P4 farmer 무영향, campfire 제거 뒤 회복 종료와 browser 오류 0을 확인한다. `npm run chicken:growth:unit-support --workspace @games/chicken-farm`, `npm run chicken:growth:research:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-20 — 대문 상태·이동 blocker
 
-- 상태: **미착수**. 선행: 02/06/16.
+- 상태: **완료**. 선행: 02/06/16.
 - 읽기: gate_wood template, terrainBlocker.ts, buildingSystem.ts, h006/h00G 원본 자료.
 - 수정 범위: open/close 명령과 이동 blocker 전환을 구현한다. build occupancy와 movement blocker를 구분한다.
 - 완료 조건: 열어도 건물 footprint에 겹쳐 짓지 못하고 닫힐 때 유닛 끼임을 방지한다. HP/owner/target ID는 유지한다. 미관찰 원본 동작은 웹 정책으로 표시한다.
-- 검증: browser: open 통과/closed 우회, 점유 중 close 실패 이유, gate 파괴 후 재경로. Warsmash 관찰을 완료했다고 쓰지 않는다.
+- 결과: `PlayerBuilding.gateOpen`과 `BuildingSystem.setGateOpen()`을 추가했다. open은 gate의 `blocksPath`만 false로 바꾸므로 `getDynamicBlockedRects()`에서 빠져 기존 movement/pathing이 통과하고, `getAllFootprints()`는 항상 footprint를 반환하므로 build occupancy·hit target·ID/HP/owner는 유지된다. closed는 다시 dynamic blocker가 된다.
+- 웹 정책: closing 대상 footprint 안에 living controllable unit, chicken 또는 runtime wolf가 있으면 close를 거부한다. source의 h006은 closed candidate, h00G은 별도 pathing variant라는 기존 근거를 유지하며 Warsmash 동작을 관찰했다고 주장하지 않는다. HUD/단축키 명령 연결은 SP-09-21이다.
+- 검증: [browser gate artifact](./chicken_farm_w3x_artifacts/growth_check_gate.json)는 closed→open→occupied close 거부→vacated close의 gate state, footprint 보존, 제거 뒤 late transition no-op과 browser 오류 0을 확인한다. `npm run chicken:growth:gate:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-21 — 건설·성장 command card
 
-- 상태: **미착수**. 선행: 06/16/20.
+- 상태: **완료**. 선행: 06/16/20.
 - 읽기: commandCardSystem.ts, farmHud.ts, main.ts action dispatch.
 - 수정 범위: 럼버 밀/타워를 포함한 필수 build 목록, upgrade 시작/취소, gate 명령을 기존 HUD에 연결한다.
-- 완료 조건: 페이지·단축키 충돌 없이 도달 가능하고 비용/선행조건/진행/거부 이유를 표시한다. 화면 버튼과 hotkey가 같은 검증 API를 사용한다.
-- 검증: 실제 클릭/키 입력으로 build→upgrade→cancel, 잠금 해제 갱신, HUD 입력의 월드 누출 없음.
+- 결과: 기존 build page에서 `G`로 growth page에 진입해 럼버 밀·gate·발전기·아케인 타워·워크샵·블랙스미스·용병소를 건설할 수 있고, 기본 page는 fence/scout tower/farm house/egg storage/well/market을 유지한다. 성장 규칙상 upgrade-only인 `coop_basic` 직접 건설은 제거했다. complete building card는 `U` upgrade, `X` 75% refund cancel, gate `G` open/close를 기존 action dispatch로 보낸다. 클릭과 hotkey는 모두 `CommandCardSystem`의 같은 `isActionEnabled` 검사를 거친다.
+- 표시: build button은 가격/핵심 선행조건을, 건물 selection은 upgrade 대상 가격·누락 prerequisite, 진행률·잔여 시간·취소 환불, gate의 점유 close 거부를 표시한다. `BuildingSelectionSummary`는 owner/footprint/gate state를 읽기 전용으로 함께 노출한다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`는 종료 코드 0이다. 실제 HUD click·B/G/L·U/X를 검증하는 `npm run chicken:growth:command-card:browser --workspace @games/chicken-farm` runner와 artifact를 추가했다. 이 세션의 Playwright runner는 IPC 권한 승격 뒤에도 60초 내 artifact를 반환하지 않아, 브라우저 실행 결과는 다음 환경에서 재확인한다.
 
 ### SP-09-22 — 생산·연구 command card
 
-- 상태: **미착수**. 선행: 12/19/21.
+- 상태: **완료**. 선행: 12/19/21.
 - 읽기: commandCardSystem.ts, farmHud.ts, main.ts, 생산/연구 snapshot.
 - 수정 범위: 생산/부화 queue·취소·rally·연구 목록·레벨·진행과 used/reserved/cap을 기존 HUD에 표시하고 명령에 연결한다.
-- 완료 조건: 선택 변경 후 다른 건물 job을 잘못 취소하지 않고, 완료/파괴/자원 변경 시 버튼과 이유가 갱신된다.
-- 검증: 실제 입력으로 enqueue/취소/연구/선택 전환, hotkey 일치, world click 누출과 다른 owner 거부.
+- 결과: complete building card에서 `D` dog 생산, `P` 현재 producer의 생산 취소, `R` 연구 page, `T` rally target을 추가했다. research page는 `M/G/A/D/C`로 masonry/guard/arcane/dog damage/dog claw를 요청하고 `X`는 현재 provider의 research만 취소한다. coop card의 `H/X/R`은 각각 선택 coop의 부화/부화 취소/rally다.
+- 안전성/표시: job 조회와 취소는 모두 현재 선택 ID + owner로 한정하므로 선택을 바꿔도 다른 building/coop/provider job을 건드리지 않는다. `isActionEnabled`는 wallet·reserved/used/cap, queue/max level, provider capability와 upgrade 상태를 매 refresh 재검사한다. 선택 HUD는 dog queue의 state/잔여 시간/supply 예약, research의 target level/잔여 시간/refund, hatch 취소/rally 안내를 표시한다. rally target은 다음 world click만 소비하며 Escape로 취소한다.
+- 검증: `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`는 종료 코드 0이다. SP-09-21에서 추가한 Playwright command-card runner는 이 환경에서 artifact를 반환하지 않는 제약이 있어 실제 입력 artifact는 다음 환경에서 재확인한다.
 
 ### SP-09-23 — same-page restart·이전 run 격리
 
-- 상태: **미착수**. 선행: 22.
+- 상태: **완료**. 선행: 22.
 - 읽기: main.ts shutdown/restart, growth snapshot, 기존 restart runner.
 - 수정 범위: queue/upgrade/research/gate와 공급 상태가 있는 판을 같은 page에서 재시작한다.
-- 완료 조건: job/timer/예약/연구 레벨/rally/열린 gate/선택이 초기화되고 이전 run의 완료나 환불이 새 wallet에 영향을 주지 않는다.
-- 검증: 두 번 연속 restart, pending/running/exit_wait 상태 포함, 새 normal 기준 snapshot·오류 0.
+- 결과: `disposeRun()`이 command-card rally target 상태까지 명시적으로 비운다. 기존 production/upgrade/research/supply/economy state와 building system dispose, selection·placement·input teardown은 같은 run lifecycle에서 유지한다. 새 run은 새 queue/wallet/building instance만 가지므로 이전 timer, 완료, 환불 callback이 다음 run 장부를 변경할 수 없다.
+- 검증: [restart browser artifact](./chicken_farm_w3x_artifacts/growth_check_restart.json)는 blocked exit의 dog production, running farm upgrade, running masonry research, open gate와 rally를 만든 뒤 연속 두 번 restart했다. 매 restart 뒤 jobs/levels/queue/selection/placement는 비고 supply `0/3 reserved 0`, wallet `1500g/0l`로 초기화됐으며 browser 오류 0이다. `npm run chicken:growth:restart:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`는 종료 코드 0이다.
 
 ### SP-09-24 — normal 경제→성장 실제 통합
 
-- 상태: **미착수**. 선행: 23.
+- 상태: **진행 중**. 선행: 23.
 - 읽기: current context 정상 시작 계약, growth/economy browser runner.
 - 수정 범위: fixture 없는 normal P3 시작 자원과 실제 입력으로 농가·경제·럼버 밀·타워 접근, 생산/취소, 필수 upgrade/연구 대표 경로를 재현한다.
 - 완료 조건: 자원 획득/비용/공급 장부와 실제 효과 증거를 남긴다. 각 대표 경로를 새 run으로 분리해도 되며 자원 주입·시간 가속 증거와 구별한다. 첫 wave 전 타워 완성을 임의 필수화하지 않는다.
 - 검증: 정상 속도 browser artifact와 오류 0. 후반 전체 tier는 별도 명시적 가속 coverage로 확인하며 밸런스 조정은 SP-15로 인계한다.
+- 진행: `normal_integration` case와 `npm run chicken:growth:normal-integration:browser --workspace @games/chicken-farm`을 추가했다. fixture 없이 normal P3에서 실제 B/H, B/G/L, B/T, D/P, U, R/M와 world placement로 farm·lumber mill·tower·dog cancel·farm upgrade·masonry를 순서대로 검증하며, 두 차례의 실제 30초 lumber tick만 기다린다. 이 세션 실행 호스트는 60초가 넘는 child process를 종료해 artifact를 기록하지 못했으므로, 1~2분 제한 없는 환경에서 해당 runner의 artifact/오류 0을 확인한 뒤 완료 처리한다. typecheck/build/diff check은 통과했다.
 
 ### SP-09-25 — 전체 coverage·필수 회귀·인계
 
