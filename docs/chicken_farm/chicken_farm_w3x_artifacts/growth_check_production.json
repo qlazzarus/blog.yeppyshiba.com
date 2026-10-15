@@ -1,0 +1,307 @@
+{
+  "case": "production",
+  "checks": {
+    "actualControllableDog": true,
+    "blockedExitRetainsReservation": true,
+    "destroyedProducerNoRefund": true,
+    "noLateGhostDog": true,
+    "pass": true,
+    "rallyMoveIssued": true,
+    "supplyCommittedOnce": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "before": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 6,
+      "cap": 6,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1440,
+      "lumber": 100
+    }
+  },
+  "completed": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 5,
+      "cap": 6,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1370,
+      "lumber": 80
+    }
+  },
+  "destroyed": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 2,
+      "cap": 3,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1300,
+      "lumber": 60
+    }
+  },
+  "beforeDestroy": {
+    "jobs": {
+      "hatch": [],
+      "production": [
+        {
+          "completeAtSec": 47.05,
+          "id": "production-2",
+          "producerId": "player-building-1",
+          "recipeId": "dog",
+          "state": "running"
+        }
+      ]
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 4,
+      "cap": 6,
+      "reserved": 1,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1300,
+      "lumber": 60
+    }
+  },
+  "late": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 2,
+      "cap": 3,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1300,
+      "lumber": 60
+    }
+  },
+  "exitWait": {
+    "jobs": {
+      "hatch": [],
+      "production": [
+        {
+          "completeAtSec": 16.125886666666737,
+          "id": "production-1",
+          "producerId": "player-building-1",
+          "recipeId": "dog",
+          "state": "exit_wait"
+        }
+      ]
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 5,
+      "cap": 6,
+      "reserved": 1,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1370,
+      "lumber": 80
+    }
+  },
+  "queued": {
+    "jobs": {
+      "hatch": [],
+      "production": [
+        {
+          "completeAtSec": 16.125886666666737,
+          "id": "production-1",
+          "producerId": "player-building-1",
+          "recipeId": "dog",
+          "state": "running"
+        }
+      ]
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 5,
+      "cap": 6,
+      "reserved": 1,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1"
+      ],
+      "completeBuildingTemplateIds": [
+        "farm_house"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1370,
+      "lumber": 80
+    }
+  }
+}

@@ -34,6 +34,7 @@ type ControllableUnitSystemConfig = {
         unitId: string,
         reason: string,
     ) => void;
+    readonly onUnitDied?: (unit: ControllableUnitState) => void;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly recordTelemetry?: (
         type: string,
@@ -108,6 +109,7 @@ export class ControllableUnitSystem {
         unitId: string,
         reason: string,
     ) => void;
+    private readonly onUnitDied?: (unit: ControllableUnitState) => void;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly recordTelemetry?: (
         type: string,
@@ -129,6 +131,7 @@ export class ControllableUnitSystem {
         this.onBuildCommandInterrupted = config.onBuildCommandInterrupted;
         this.onPendingBuildOrdersInterrupted =
             config.onPendingBuildOrdersInterrupted;
+        this.onUnitDied = config.onUnitDied;
         this.recordPerformance = config.recordPerformance;
         this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
@@ -148,6 +151,13 @@ export class ControllableUnitSystem {
         }
         this.upsertUnit('farmer', { id: ownerPlayerId, label: id, x, y }, ownerPlayerId, id);
         return true;
+    }
+
+    createProducedDog(id: string, x: number, y: number, ownerPlayerId: number) {
+        if (!id || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isInteger(ownerPlayerId)) {
+            return false;
+        }
+        return this.createUnitAt('dog', id, { x, y }, ownerPlayerId);
     }
 
     setUnitPositionForTest(unitId: string, x: number, y: number) {
@@ -371,6 +381,7 @@ export class ControllableUnitSystem {
         if (unit.hp <= 0) {
             this.interruptBuildCommand(unit, 'death');
             this.interruptPendingBuildOrders(unit, 'death');
+            this.onUnitDied?.(unit);
         }
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
@@ -621,6 +632,26 @@ export class ControllableUnitSystem {
 
         this.units.push(state);
         this.createView(state);
+    }
+
+    private createUnitAt(
+        templateId: ControllableUnitTemplateId,
+        id: string,
+        position: Point,
+        ownerPlayerId: number,
+    ) {
+        if (this.units.some((unit) => unit.id === id)) return false;
+        const stats = CHICKEN_FARM_BALANCE.defenders[templateId];
+        const state: ControllableUnitState = {
+            armor: stats.armor, hp: stats.hp, id, mana: stats.mana ?? 0,
+            manaRegenPerSec: stats.manaRegenPerSec ?? 0, maxHp: stats.hp,
+            maxMana: stats.mana ?? 0, nextAttackAtSec: 0, ownerPlayerId,
+            path: [], pathIndex: 0, position: { ...position }, selected: false,
+            speedPxPerSec: stats.speedPxPerSec, templateId, commandQueue: [],
+        };
+        this.units.push(state);
+        this.createView(state);
+        return true;
     }
 
     private createView(unit: ControllableUnitState) {

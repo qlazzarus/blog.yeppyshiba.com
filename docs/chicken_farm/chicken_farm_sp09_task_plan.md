@@ -1,6 +1,6 @@
 # SP-09 건물 기능·성장 경로 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-13. SP-09-01~06 계약·성장 그래프·관찰·선행조건 판정과 건설 연결을 완료했다. 다음 실행은 **SP-09-07**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
+> 갱신: 2026-10-15. SP-09-01~17 계약·성장 그래프·관찰·선행조건 판정·공급/생산/연구 queue·upgrade 완료/economy adapter·취소/파괴 복구를 완료했다. 다음 실행은 **SP-09-18**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
 
 ## 목표와 범위
 
@@ -32,7 +32,7 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ## 실행 순서
 
-SP-09-01~06은 **완료**했고, 07~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
+SP-09-01~17은 **완료**했고, 18~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -118,91 +118,119 @@ SP-09-01~06은 **완료**했고, 07~25는 **미착수**다. 선행 열의 숫자
 
 ### SP-09-07 — 공급 cap·used lifecycle
 
-- 상태: **미착수**. 선행: 02/04.
+- 상태: **완료**. 선행: 02/04.
 - 읽기: playerWallet.ts, initialPlacementRegistry.ts, controllableUnitSystem.ts, economySystem.ts, buildingSystem.ts.
 - 수정 범위: 기존 entity와 owner wallet에서 인구 공급/사용을 갱신하는 단일 경로를 만든다. 닭·개·농부·건물 각각의 대상 여부는 02를 따른다.
 - 완료 조건: 초기 배치, 완공, 생성, 사망, 제거, 소유자 경계가 정확히 1회 반영된다. 공급 건물 파괴로 cap이 줄어도 기존 유닛을 임의 삭제하지 않는다.
 - 검증: initial→complete→death→반복 remove 장부, owner 2개 격리, cap 미만/동일/초과 사례.
+- 결과: `supplyLifecycle.ts`가 ID-기반 등록/해제 단일 장부를 제공한다. 완료 건물은 `growthProgression.ts`의 공급량(농가 3, 타운 홀 5, 가족 사원 7)만 cap에 반영하고, 닭 생성/사망은 used를 1회 반영한다. 시작 농부·개는 SP-09-02의 normal `0/3` 정책에 따라 명시적으로 0이다. 완료·제거 callback과 스크롤/부화/전투·자연사 닭 lifecycle에 연결했으며, 중복 callback은 no-op이다.
+- 검증: [supply lifecycle artifact](./chicken_farm_w3x_artifacts/growth_check_supply_lifecycle.json)는 initial→complete→death→반복 remove, P3/P4 격리, cap 미만/동일/초과를 확인한다. [browser lifecycle artifact](./chicken_farm_w3x_artifacts/growth_check_supply.json)는 실제 닭 생성 `used 0→1`, 사망 `1→0`, 반복 제거 no-op과 browser 오류 0을 확인한다. `npm run chicken:growth:supply --workspace @games/chicken-farm`, `npm run chicken:growth:supply:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다. browser normal baseline은 `used 0/cap 3`을 유지했고 console/page/request 오류는 0이다.
 
 ### SP-09-08 — 생산 예약·직렬 queue 코어
 
-- 상태: **미착수**. 선행: 03/05/07.
+- 상태: **완료**. 선행: 03/05/07.
 - 읽기: economyTypes.ts, playerWallet.ts 및 02 거래 계약.
 - 수정 범위: 부화와 일반 생산이 사용할 예약/상태 규칙을 정의하고 enqueue→running→exit_wait→complete/cancelled 상태를 구현한다. 기존 hatchJobs를 중복 생성하지 않는다.
 - 완료 조건: 동시 생산 시 reserved를 포함해 cap 초과를 막는다. queue 길이·병렬 capacity·비용 시점은 명시하고 실패 시 부분 차감이 없다.
 - 검증: 순수 검증: FIFO/capacity, 지갑 부족, 공급 부족, 같은 tick 두 요청, 예약 해제 1회.
+- 결과: `ProductionQueue`와 wallet 공급 helper를 추가했다. producer별 실행 capacity는 1, queue는 FIFO이며, accepted enqueue가 비용을 전액 차감하고 `supplyReserved`를 즉시 확보한다. running이 완료 시각에 `exit_wait`로 전이하고 출구가 허용한 `complete()`만 reservation을 used로 전환한다. player cancel은 전액 환불·reservation 해제, 파괴 정리는 환불 없이 reservation만 해제한다. 현재 부화 `hatchJobs`는 건드리지 않았고 SP-09-09가 이 코어에 연결한다.
+- 관찰: `getGrowthSnapshot()`은 owner별 production job과 `available = cap - used - reserved`를 제공한다. normal baseline은 계속 `reserved 0`, 빈 production 배열이다.
+- 검증: [production queue artifact](./chicken_farm_w3x_artifacts/growth_check_production_queue.json)는 FIFO/serial capacity, 지갑 부족, reserved를 포함한 같은 tick 공급 경합, complete 전환, cancel·destroy의 reservation 해제를 확인한다. `npm run chicken:growth:production-queue --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-09 — 기존 부화의 예약·취소 연결
 
-- 상태: **미착수**. 선행: 08.
+- 상태: **완료**. 선행: 08.
 - 읽기: economySystem.ts startCoopHatch/부화 update, economyTypes.ts, main.ts hatch action.
 - 수정 범위: 기존 부화 capacity·알 소비·시간을 유지하며 08 예약과 취소 API에 연결한다.
 - 완료 조건: 취소 시 계약만큼 알과 공급을 1회 복원한다. 없는 job·완료 job·다른 owner 요청은 무변경이고 출구 대기 중 재차 소비하지 않는다.
 - 검증: 기존 hatch_start/hatch_exit 회귀와 active/queued/exit_wait 취소, 만원 inventory 반환 사례.
+- 결과: `startCoopHatch()`는 기존 capacity·알 소비·시간을 보존하면서 accepted job마다 supply 1을 예약한다. 출구 대기는 예약을 유지하고 실제 출구 확보 때만 reserved→used를 전환한다. `cancelCoopHatch()`는 owner와 coop을 검증하고 inventory 공간이 있을 때만 egg 1·reservation 1을 함께 복원하며, 완료/없는 job/다른 owner/가득 찬 inventory는 무변경이다. 완료된 닭은 `SupplyLifecycle.adoptReservedChicken()`으로 등록해 used 이중 가산 없이 사망 시 정상 해제된다. 건물 파괴 시 job 정리·무환불은 SP-09-12 범위를 유지한다.
+- 검증: [hatch reservation artifact](./chicken_farm_w3x_artifacts/growth_check_hatch_reservation.json)는 active/exit_wait 취소, 완료/반복/다른 owner no-op, full inventory 실패와 reserved→used를 확인한다. `npm run chicken:growth:hatch-reservation --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `CHICKEN_FARM_ECONOMY_CASE=hatch_start npm run chicken:economy:check --workspace @games/chicken-farm`, `CHICKEN_FARM_ECONOMY_CASE=hatch_exit npm run chicken:economy:check --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-10 — 일반 생산·실제 유닛 등록
 
-- 상태: **미착수**. 선행: 08/09.
+- 상태: **완료**. 선행: 08/09.
 - 읽기: buildingTemplates.ts produces, controllableUnitSystem.ts, combatPocSystem.ts, main.ts 초기 유닛 등록.
 - 수정 범위: 01에서 확정한 SP-09 생산 목록을 기존 실제 유닛 생성·전투 등록 경로에 연결한다.
 - 완료 조건: 완성·소유 건물에서만 생산하며 실제 이동/선택/피격 가능한 유닛을 정확히 1기 등록한다. SP-12 전용 목록은 미지원 이유를 표시하고 성공으로 응답하지 않는다.
 - 검증: 최소 기존 개 생산의 실제 snapshot/선택/전투 target 확인 및 다른 필수 생산 항목별 데이터 사례. fixture spawn만으로 완료하지 않는다.
+- 결과: `requestDogProduction()`은 complete·owner 일치·`farm_house`/`town_hall` producer만 canonical dog recipe로 enqueue한다. queue completion은 실제 `ControllableUnitSystem.createProducedDog()`를 호출해 고유 `produced-<job>` entity를 만들고, combat의 controllable target 경로에 즉시 포함한다. reservation 완료 뒤 `SupplyLifecycle.adoptReservedUnit()`으로 등록해 used 이중 가산 없이 사망 때 해제된다. SP-12 전용 rawcode/가족·용병 생산은 API가 없으므로 성공 경로가 없다. 생산 건물 제거 정리는 SP-09-12, shared exit blocker/rally는 SP-09-11에서 현재 임시 spawn point를 대체한다.
+- 검증: [production browser artifact](./chicken_farm_w3x_artifacts/growth_check_production.json)는 완료 농가의 dog enqueue, `reserved 1→used 1`, 빈 queue, 실제 dog entity 등록과 browser 오류 0을 확인한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:production --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-11 — 출구 대기·rally 실제 이동
 
-- 상태: **미착수**. 선행: 10.
+- 상태: **완료**. 선행: 10.
 - 읽기: buildingProductionExit.ts, buildingSystem.ts getRallyPoint/setRallyPoint, playerControlSystem.ts.
 - 수정 범위: 부화/일반 생산에 기존 출구 resolver를 공유하고 resolved=false에서는 대기한다. 건물 rally 입력과 생성 후 이동 명령을 연결한다.
 - 완료 조건: terrain·dynamic blocker가 막으면 유닛이 생성되지 않고 예약이 유지된다. 출구 해제 시 1회 생성, rally는 정상 pathing을 이용한다.
 - 검증: browser: 전체 출구 봉쇄→해제, 유효/도달 불가 rally, 우클릭의 건물/유닛 선택 분기.
+- 결과: 일반 dog 생산은 `BuildingSystem.getProductionExit()`를 통해 부화와 같은 `resolveBuildingProductionExit()`를 사용한다. exit resolver가 실패하면 `exit_wait`·reservation을 유지하고, 해제 후에만 dog 1기를 생성·complete한다. `BuildingSystem` rally point가 있으면 생성 직후 기존 `issueMoveCommandToUnits()` pathing으로 move order를 부여한다. 부화도 동일 occupancy predicate와 coop building rally point를 받아 생성된 chicken의 AI target으로 적용한다. world command-card/우클릭 입력 분기는 SP-09-21/22 범위에 남는다.
+- 검증: [production browser artifact](./chicken_farm_w3x_artifacts/growth_check_production.json)는 전체 출구 봉쇄 시 `exit_wait`/reserved 유지, 해제 뒤 1회 생성·used 전환, rally move command와 browser 오류 0을 확인한다. 기존 hatch exit browser 회귀도 유지했다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:production --workspace @games/chicken-farm`, `npm run chicken:economy:check --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-12 — 생산 건물 제거·예약 정리
 
-- 상태: **미착수**. 선행: 09/10/11.
+- 상태: **완료**. 선행: 09/10/11.
 - 읽기: buildingSystem.ts 제거 callback, buildingEconomyAdapter.ts, economySystem.ts unregister 경로.
 - 수정 범위: 생산 도중 건물 파괴/제거 시 모든 job과 예약을 단일 lifecycle에서 정리한다.
 - 완료 조건: cancel과 destroyed의 환불 차이를 지키고 파괴 뒤 late completion·유령 유닛·음수 reserved가 없다.
 - 검증: 실제 적 피해로 제거, 반복 remove, 취소와 완료/파괴가 같은 tick에 발생하는 사례.
+- 결과: `handleBuildingRemoved()`가 `ProductionQueue.discardProducer()`를 먼저 호출해 dog production의 모든 active/queued/exit_wait reservation을 비용 환불 없이 해제한다. `removeEconomyBuilding()`도 coop hatch job을 제거하기 전 owner wallet의 hatch reservation을 해제한다. 양쪽 모두 ID 제거 뒤 반복 호출은 no-op이며 기존 building supply cap 해제와 economy detach를 유지한다.
+- 검증: [production browser artifact](./chicken_farm_w3x_artifacts/growth_check_production.json)는 실제 적 피해로 생산 중 농가를 제거해 job/reserved가 0, 비용 무환불, 이후 late completion 유령 dog 0을 확인한다. [hatch reservation artifact](./chicken_farm_w3x_artifacts/growth_check_hatch_reservation.json)는 coop 파괴 시 egg 무환불·reservation 해제·반복 제거 no-op을 확인한다. `npm run chicken:growth:hatch-reservation --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:production --workspace @games/chicken-farm`, `npm run chicken:economy:check --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-13 — 업그레이드 시작·진행 코어
 
-- 상태: **미착수**. 선행: 03/05/07/12.
+- 상태: **완료**. 선행: 03/05/07/12.
 - 읽기: buildingSystem.ts, 성장 정의, playerWallet.ts.
 - 수정 범위: complete 건물의 upgradeTo를 요청하고 선행조건/자원/queue 충돌을 검사해 시간 기반 upgrade 상태로 전이한다.
 - 완료 조건: building ID·owner·선택을 유지하고 비용 1회 차감, 진행 중 기능/공급/생산 허용은 02 정책을 따른다. 완료 adapter는 다음 카드다.
 - 검증: 순수·browser: 정상 시작, 불법 tier, 자원/조건 부족, 연타, 생산 중 충돌, 진행률.
+- 결과: `BuildingUpgradeSystem`이 building ID별 `running → ready` 시간 상태와 start 시점의 비용 1회 차감을 소유한다. `requestBuildingUpgrade()`는 complete/owner 일치 source의 canonical `upgradeTo`만 읽고, target의 same-owner living/complete prerequisite와 wallet을 재검사하며, production job이 남은 건물·이미 upgrade 중인 건물·upgradeTo 없는 건물을 거부한다. upgrade 중에는 새 dog 생산도 막는다. 건물 entity 자체는 바꾸지 않으므로 ID·owner·선택과 source 기능/공급은 유지되며, `ready` 뒤 target template/공간·전투/economy adapter 적용은 SP-09-14/15에 남긴다.
+- 관찰: `getGrowthSnapshot()`의 owner-local `upgrades`에 source/target, 완료 시각, `running|ready`를 노출했다. normal baseline은 빈 배열을 유지한다.
+- 검증: [순수 upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_building_upgrades.json)는 조건/자원 부족 무차감, owner 격리, 단일 차감과 deadline 전후 상태를 확인한다. [browser upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_upgrade.json)는 market prerequisite 부족, `well_basic` 불법 tier, production↔upgrade 상호 배제, 연타 무차감, `ready` 진행 및 source `farm_house` 보존을 확인했고 browser 오류는 0이다. `npm run chicken:growth:upgrades --workspace @games/chicken-farm`, `npm run chicken:growth:upgrades:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-14 — 업그레이드 완료·공간/전투 갱신
 
-- 상태: **미착수**. 선행: 13.
+- 상태: **완료**. 선행: 13.
 - 읽기: buildingSystem.ts, visibilitySystem.ts, combat/towerCombatAdapter.ts, combatPocSystem.ts.
 - 수정 범위: 완료 시 template/HP/armor/attack/footprint/시야를 원자적으로 교체하고 기존 combat target을 갱신한다.
 - 완료 조건: ID·owner·선택·타깃 참조를 보존하며 blocker 중복이나 HP 전회복 악용이 없다. footprint 확장 실패는 02 정책에 따라 보류/거부한다.
 - 검증: 실제 피해를 받은 펜스/타워 upgrade, blocker/시야 before-after, 공격 수치 변경, 겹침 확장 거부.
+- 결과: `BuildingSystem.upgradeBuilding()`이 source의 direct `upgradeTo`만 받아 live building object의 template, armor, HP/max HP, path blocker footprint, targetable 상태와 view를 한 번에 교체한다. ID·owner·rally/선택 참조는 같은 object에 남고, HP는 source의 현재 비율로 환산해 이미 입은 피해가 full heal로 사라지지 않는다. 전투는 기존 `BuildingSystem.updateBuildingCombat()`이 변경된 template의 attack profile을 즉시 읽고, vision/minimap은 completion 직후 강제 갱신한다. `SupplyLifecycle.replaceBuilding()`은 tier의 supply 제공량만 차이로 갱신한다.
+- 공간 정책: target footprint의 다른 live building 겹침, world boundary 또는 terrain blocker가 있으면 paid job을 `ready`로 보류하고 source를 유지한다. 장애물이 사라진 이후 같은 job만 원자 적용한다. 비용 환불/취소·파괴 종료는 SP-09-16 범위다. 경제 entity tier adapter는 SP-09-15에 남긴다.
+- 검증: [browser upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_upgrade.json)는 farm house→town hall의 ID/owner 보존, damaged HP 비율 보존, armor `5→7`, supply cap `+2`, tower scout→guard small attack profile `23/384/1.05 → 22/225/0.9`, overlap `ready` 보류→blocker 제거 후 1회 완료와 browser 오류 0을 확인한다. `npm run chicken:growth:upgrades:browser --workspace @games/chicken-farm`, `npm run chicken:growth:upgrades --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-15 — 경제 업그레이드 adapter
 
-- 상태: **미착수**. 선행: 14.
+- 상태: **완료**. 선행: 14.
 - 읽기: buildingEconomyAdapter.ts, economySystem.ts upgradeEconomyWellToWindmill/coop/lumber income.
 - 수정 범위: 닭장·우물·시장·럼버 밀 tier 전환을 동일 entity의 경제 상태에 반영한다.
 - 완료 조건: inventory/기존 job/owner를 보존하고 용량 축소 처리는 계약을 따른다. 럼버 밀은 기존 global 30초 위상을 유지하며 70/110/170 지급이 중복되지 않는다.
 - 검증: 닭장 알 보유 upgrade, 우물 효과, 시장 변환, 30초 직전/직후 럼버 밀 upgrade의 장부.
+- 결과: `upgradeCompletedBuildingEconomy()`가 world completion 뒤 stable building ID의 derived economy record만 in-place 전환한다. coop은 kind/position만 바꾸어 stored egg, inventory, active hatch와 owner를 보존하고, 기존 hatch의 결과 kind/reservation은 재작성하지 않는다. `egg_storage → coop_basic`처럼 이전 capability가 없는 direct route는 같은 ID로 coop/inventory를 처음 생성한다. lumber mill은 `templateId`만 교체해 `activeFromSec`와 global `lastLumberIncomeTickSec`를 그대로 둔다. market/grand market은 별도 economy entity 없이 이미 stable world building ID를 조회하므로 adapter도 같은 ID를 유지한다.
+- 범위 판정: 현재 canonical growth graph에는 `well_basic`/windmill 대상 `upgradeTo`가 없다. existing `upgradeEconomyWellToWindmill()` 효과는 보존했지만 임의 template route를 만들지 않았고, well record는 현재/향후 동일-ID 이동 갱신만 한다. tier 전환의 취소·파괴 rollback은 SP-09-16에서 처리한다.
+- 관찰: economy lifecycle snapshot의 coop에 `kind`를 추가해 browser에서 runtime tier를 확인할 수 있다.
+- 검증: [순수 economy adapter artifact](./chicken_farm_w3x_artifacts/growth_check_economy_upgrades.json)는 coop basic→mid의 egg/inventory/job identity 보존·새 capacity, egg storage→첫 coop capability, market stable ID, lumber global phase에서 `30s:70`, `60s:110`, `90s:170` 단일 지급을 확인한다. [browser upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_upgrade.json)는 실제 `coop_basic → coop_mid` completion과 same-ID economy kind 전환, 이전 template/전투/공간 사례 및 browser 오류 0을 확인한다. `npm run chicken:growth:economy-upgrades --workspace @games/chicken-farm`, `npm run chicken:growth:upgrades:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-16 — 업그레이드 취소·파괴 복구
 
-- 상태: **미착수**. 선행: 14/15.
+- 상태: **완료**. 선행: 14/15.
 - 읽기: upgrade 상태, buildingSystem.ts 제거 경로, economy/combat adapter.
 - 수정 범위: 진행 중 취소는 이전 template과 계약상 비용/HP 상태로 되돌리고, 파괴는 제거 경로로 종료한다.
 - 완료 조건: 완료/취소 경합·반복 요청에도 환불은 최대 1회이며 파괴된 건물이 완료 callback으로 복원되지 않는다.
 - 검증: 시작 직후/완료 직전 취소, 실제 적 공격 파괴, 선행 건물 소실 중 upgrade 정책 사례.
+- 결과: `BuildingUpgradeSystem.cancel()`은 owner를 확인한 running/ready job만 삭제하고 target web cost의 `floor(75%)`를 한 번 환불한다. source building은 completion 전까지 변경되지 않으므로 취소는 template/HP/footprint/economy state를 그대로 보존한다. `handleBuildingRemoved()`는 production/hatch 정리보다 먼저 `buildingUpgrades.discard()`를 호출해 combat destroy·debug remove 모두 upgrade job을 무환불 폐기한다. 이미 job이 없는 completion/cancel/discard는 no-op이다.
+- 정책: prerequisite는 accepted start 시점에 snapshot 판정한다. 시작 뒤 요구 building이 사라져도 이미 결제된 source upgrade는 계속 completion을 시도한다. source building 자체가 파괴되면 destruction이 우선하며 ready/running callback은 재생성하지 않는다. 취소/파괴의 economy rollback을 별도로 수행하지 않는 이유는 target economy adapter가 completion에서만 적용되기 때문이다.
+- 검증: [순수 upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_building_upgrades.json)는 ready 직전/후 owner 경계, 75% floor 단일 refund, repeat cancel no-op, ready discard 무환불과 late complete 차단을 확인한다. [browser upgrade artifact](./chicken_farm_w3x_artifacts/growth_check_upgrade.json)는 prerequisite well 제거 뒤 accepted market upgrade 완료, farm cancel refund 한 번, 실제 적 피해 파괴 후 job 0·무환불·deadline 이후 ghost restore 0 및 browser 오류 0을 확인한다. `npm run chicken:growth:upgrades --workspace @games/chicken-farm`, `npm run chicken:growth:upgrades:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `npm run chicken:growth:browser --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-17 — 연구 queue·레벨 lifecycle
 
-- 상태: **미착수**. 선행: 03/05/08/16.
+- 상태: **완료**. 선행: 03/05/08/16.
 - 읽기: research_upgrade_provider_reference.tsv, providesResearch, 성장 정의.
 - 수정 범위: 01의 필수 연구에 owner별 레벨/비용/시간/max level 및 연구 job을 연결한다.
 - 완료 조건: 동일 owner가 제공 건물 2개로 같은 다음 레벨을 중복 구매하지 못한다. 취소/제공 건물 파괴/완료의 비용·레벨 적용이 1회다. 효과 적용은 18/19다.
-- 검증: 순수 검증: 요구 레벨, max, 중복 연구, owner 격리, 취소/파괴/완료 경합.
+- 결과: `ResearchQueue`가 provider별 단일 job과 owner별 연구 level을 분리해 관리한다. 수락 시 정의된 level 비용을 한 번 결제하고, 같은 owner/research key의 다음 level은 다른 provider에서도 예약할 수 없다. 완료는 예약된 바로 다음 level일 때만 1회 적용한다. 효과 수치의 실제 반영은 SP-09-18/19에 남긴다.
+- 정책: player cancel은 선언 비용 전액을 한 번 환불한다. provider 제거는 job을 무환불 폐기하므로 destroy가 ready completion보다 우선한다. provider가 upgrade 등으로 연구 제공 자격을 잃은 경우 ready completion도 무환불 폐기한다.
+- 검증: [순수 research artifact](./chicken_farm_w3x_artifacts/growth_check_research_queue.json)는 next-level 중복 차단, provider serial, owner 격리, full cancel refund, destroy 무환불/late complete 차단과 level 3 max no-charge를 확인한다. [browser research artifact](./chicken_farm_w3x_artifacts/growth_check_research.json)는 실제 lumber mill 두 개에서 masonry 중복 차단, 취소 전액 환불, completion level 1과 browser 오류 0을 확인한다. `npm run chicken:growth:research --workspace @games/chicken-farm`, `npm run chicken:growth:research:browser --workspace @games/chicken-farm`, `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`은 종료 코드 0이다.
 
 ### SP-09-18 — 방어 연구 효과·전투 반영
 

@@ -132,7 +132,7 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 ## SP-09 세부 실행 계획
 
-2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. SP-09-01 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json), SP-09-02 [거래 정책](./chicken_farm_w3x_artifacts/sp09_02_transaction_contract.json), SP-09-03 [성장 그래프](./chicken_farm_w3x_artifacts/growth_check_progression.json), SP-09-04 [normal baseline](./chicken_farm_w3x_artifacts/growth_check_baseline.json), SP-09-05 [eligibility](./chicken_farm_w3x_artifacts/growth_check_eligibility.json), SP-09-06 [건설 선행조건 browser 검증](./chicken_farm_w3x_artifacts/construction_check_growth_prerequisite.json)을 완료했으며, 07~25는 미착수이고 다음 실행은 **SP-09-07**다. preview와 착공 직전은 같은 owner의 complete/living 건물·유닛 조건을 다시 검사하며, 이동 중 prerequisite가 사라지면 비용·blocker·기능 등록 없이 order를 폐기한다.
+2026-10-15: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. SP-09-01~15 성장·출구/rally·upgrade completion/economy adapter에 이어 SP-09-16 [upgrade 취소·파괴 복구](./chicken_farm_w3x_artifacts/growth_check_upgrade.json)를 완료했다. player cancel은 source 유지와 target cost 75% floor 단일 refund이며 source destruction은 job 무환불 discard로 late completion/ghost restore를 막는다. accepted 뒤 prerequisite 소실은 job을 취소하지 않는다. 다음 **SP-09-17**은 연구 queue·레벨 lifecycle이다. producer 제거는 dog queue와 coop hatch의 reservation만 1회 해제하고 비용/알을 환불하지 않으며 late completion·유령 entity를 막는다. 17~25는 미착수다. preview와 착공 직전은 같은 owner의 complete/living 건물·유닛 조건을 다시 검사하며, 이동 중 prerequisite가 사라지면 비용·blocker·기능 등록 없이 order를 폐기한다.
 
 - 01~04: 기능·거래 계약, canonical 데이터, snapshot/harness.
 - 05~07: 선행조건·착공 검증과 공급 lifecycle.

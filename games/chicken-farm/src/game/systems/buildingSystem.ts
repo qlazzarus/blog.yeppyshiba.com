@@ -18,24 +18,24 @@ export type PlayerEconomyState = PlayerWallet;
 
 export type PlayerBuilding = {
     activeWorkerUnitId?: string;
-    readonly armor: number;
-    readonly buildTimeSec: number;
-    readonly blocksPath: boolean;
+    armor: number;
+    buildTimeSec: number;
+    blocksPath: boolean;
     completedAtSec?: number;
     constructionActiveSinceSec?: number;
     constructionProgressSec: number;
     readonly costPaid: boolean;
-    readonly footprint: GridPathRect;
+    footprint: GridPathRect;
     hp: number;
     readonly id: string;
-    readonly maxHp: number;
+    maxHp: number;
     nextAttackAtSec: number;
     readonly ownerPlayerId: number;
     rallyPoint?: Point;
     readonly startedAtSec: number;
     state: 'complete' | 'constructing';
-    readonly targetableByWolves: boolean;
-    readonly templateId: MvpBuildingId;
+    targetableByWolves: boolean;
+    templateId: MvpBuildingId;
     readonly workerUnitId?: string;
 };
 
@@ -419,6 +419,60 @@ export class BuildingSystem {
         });
         this.updateView(building);
         return true;
+    }
+
+    /**
+     * Atomically applies a direct template upgrade while retaining the live
+     * entity ID, owner, rally point and selection references held by callers.
+     */
+    upgradeBuilding(
+        buildingId: string,
+        targetTemplateId: MvpBuildingId,
+        isTerrainFootprintBlocked?: (footprint: GridPathRect) => boolean,
+    ) {
+        const building = this.getBuilding(buildingId);
+        if (building?.state !== 'complete') return null;
+        const sourceTemplate = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
+        if (sourceTemplate.upgradeTo !== targetTemplateId) return null;
+
+        const target = CHICKEN_FARM_BALANCE.buildingTemplates[targetTemplateId];
+        const center = this.getBuildingCenter(building);
+        const targetFootprint = getBuildingFootprint(
+            targetTemplateId,
+            center.x - (target.footprintCells.w * BUILDING_FOOTPRINT_CELL_PX) / 2,
+            center.y - (target.footprintCells.h * BUILDING_FOOTPRINT_CELL_PX) / 2,
+        );
+        const footprintBlocked = this.buildings.some(
+            (candidate) =>
+                candidate.id !== building.id &&
+                footprintsOverlap(candidate.footprint, targetFootprint),
+        );
+        if (footprintBlocked || isTerrainFootprintBlocked?.(targetFootprint)) return null;
+
+        const hpRatio = building.maxHp <= 0
+            ? 0
+            : Phaser.Math.Clamp(building.hp / building.maxHp, 0, 1);
+        const sourceTemplateId = building.templateId;
+        const sourceHp = building.hp;
+        this.destroyView(building.id);
+        building.armor = target.armor;
+        building.blocksPath = target.blocksPath;
+        building.buildTimeSec = target.buildTimeSec;
+        building.footprint = targetFootprint;
+        // Preserve the damage fraction: an upgrade cannot restore full HP.
+        building.hp = Math.min(target.hp, Math.max(1, target.hp * hpRatio));
+        building.maxHp = target.hp;
+        building.targetableByWolves = target.targetableByWolves;
+        building.templateId = targetTemplateId;
+        this.createView(building, target);
+        this.updateView(building);
+        this.recordTelemetry?.('building_upgraded', {
+            buildingId: building.id,
+            sourceHp: Number(sourceHp.toFixed(2)),
+            sourceTemplateId,
+            targetTemplateId,
+        });
+        return building;
     }
 
     cancelConstruction(buildingId: string, reason: string) {
@@ -822,6 +876,15 @@ export function getBuildingFootprint(
         x,
         y,
     };
+}
+
+function footprintsOverlap(a: GridPathRect, b: GridPathRect) {
+    return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+    );
 }
 
 export function snapBuildingTopLeft(

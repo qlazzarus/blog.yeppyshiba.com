@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
-import { GROWTH_RESEARCH } from './game/growthProgression';
+import { GROWTH_PRODUCTION_RECIPES, GROWTH_RESEARCH, type ResearchDefinition } from './game/growthProgression';
+import { evaluateBuildingEligibility } from './game/growthEligibility';
 import { calculateWaveReplenishPlan } from './game/waveReplenish';
 import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
 import { createWaveScheduler, type WaveScheduler } from './game/waveScheduler';
@@ -56,6 +57,7 @@ import type { PlayerEconomyState } from './game/systems/buildingSystem';
 import {
     attachCompletedBuildingEconomy,
     detachBuildingEconomy,
+    upgradeCompletedBuildingEconomy,
 } from './game/systems/buildingEconomyAdapter';
 import { ConstructionPlacementSystem } from './game/systems/constructionPlacementSystem';
 import { ControllableUnitSystem } from './game/systems/controllableUnitSystem';
@@ -87,6 +89,7 @@ import type {
     ChickenAiState,
     ChickenFarmEconomyState,
     ChickenKind,
+    CoopKind,
     EconomyChickenState,
     EconomyCoopState,
     EconomyEvent,
@@ -103,6 +106,10 @@ import {
 import { PerformanceProfiler } from './game/systems/performanceProfiler';
 import { InitialPlacementRegistry } from './game/systems/initialPlacementRegistry';
 import { InitialPlacementViewSystem } from './game/systems/initialPlacementViewSystem';
+import { SupplyLifecycle } from './game/systems/supplyLifecycle';
+import { ProductionQueue } from './game/systems/productionQueue';
+import { BuildingUpgradeSystem } from './game/systems/buildingUpgradeSystem';
+import { ResearchQueue } from './game/systems/researchQueue';
 import { TerrainPathingPocSystem } from './game/systems/terrainPathingPocSystem';
 import { TerrainBlocker, type WpmPathingGrid } from './game/systems/terrainBlocker';
 import { TelemetryRecorder } from './game/systems/telemetryRecorder';
@@ -203,6 +210,7 @@ declare global {
             getCombatLifecycleSnapshot: () => {
                 readonly active: boolean;
                 readonly buildings: readonly {
+                    readonly attack: { readonly cooldownSec: number; readonly damage: number; readonly rangePx: number } | null;
                     readonly armor: number;
                     readonly footprint: {
                         readonly height: number;
@@ -323,6 +331,7 @@ declare global {
                 }[];
                 readonly coops: readonly {
                     readonly id: string;
+                    readonly kind: CoopKind;
                     readonly ownerPlayerId: number;
                     readonly storedEggs: number;
                 }[];
@@ -391,27 +400,48 @@ declare global {
                         readonly id: string;
                         readonly state: 'exit_wait' | 'running';
                     }[];
-                    readonly production: readonly [];
+                    readonly production: readonly {
+                        readonly completeAtSec: number | null;
+                        readonly id: string;
+                        readonly producerId: string;
+                        readonly recipeId: string;
+                        readonly state: 'complete' | 'exit_wait' | 'cancelled' | 'queued' | 'running';
+                    }[];
                 };
                 readonly lastRejectionReason: null;
                 readonly ownerPlayerId: number;
                 readonly research: {
-                    readonly levels: readonly [];
-                    readonly queued: readonly [];
+                    readonly levels: readonly {
+                        readonly level: number;
+                        readonly researchId: ResearchDefinition['id'];
+                    }[];
+                    readonly queued: readonly {
+                        readonly completeAtSec: number;
+                        readonly providerId: string;
+                        readonly researchId: ResearchDefinition['id'];
+                        readonly state: 'ready' | 'running';
+                        readonly targetLevel: number;
+                    }[];
                     readonly supportedIds: readonly string[];
                 };
                 readonly runId: number;
                 readonly supply: {
                     readonly available: number;
                     readonly cap: number;
-                    readonly reserved: 0;
+                    readonly reserved: number;
                     readonly used: number;
                 };
                 readonly tech: {
                     readonly completeBuildingIds: readonly string[];
                     readonly completeBuildingTemplateIds: readonly string[];
                 };
-                readonly upgrades: readonly [];
+                readonly upgrades: readonly {
+                    readonly buildingId: string;
+                    readonly completeAtSec: number;
+                    readonly sourceTemplateId: string;
+                    readonly state: 'ready' | 'running';
+                    readonly targetTemplateId: string;
+                }[];
                 readonly wallet: { readonly gold: number; readonly lumber: number };
             } | null;
             createCombatEnemyFixture: (
@@ -459,7 +489,7 @@ declare global {
             ) => boolean;
             setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
-                templateId: 'coop_basic' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'town_hall' | 'well_basic',
+                templateId: 'arcane_lab' | 'coop_basic' | 'coop_mid' | 'family_temple' | 'farm_house' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'power_generator' | 'town_hall' | 'well_basic' | 'workshop_lab',
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
@@ -471,6 +501,15 @@ declare global {
             ) => string | null;
             ensureEconomyPlayerForTest: (playerId: number) => boolean;
             createPathBlockerFixture: (x: number, y: number) => string | null;
+            requestDogProductionForTest: (buildingId: string) => string | null;
+            requestBuildingUpgradeForTest: (buildingId: string) => string | null;
+            cancelBuildingUpgradeForTest: (buildingId: string) => boolean;
+            requestResearchForTest: (buildingId: string, researchId: ResearchDefinition['id']) => string | null;
+            cancelResearchForTest: (buildingId: string) => boolean;
+            advanceResearchForTest: (targetElapsedSec: number) => boolean;
+            advanceProductionForTest: (targetElapsedSec: number) => boolean;
+            setProductionExitBlockedForTest: (blocked: boolean) => boolean;
+            setBuildingRallyPointForTest: (buildingId: string, x: number, y: number) => boolean;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
             replayCompletedBuildingEconomyAttachmentForTest: (buildingId: string) => boolean;
             advanceEconomyForTest: (targetElapsedSec: number) => boolean;
@@ -529,6 +568,7 @@ declare global {
                     readonly terrainProbeCount: number;
                 };
                 readonly units: readonly {
+                    readonly currentCommandType: string | null;
                     readonly id: string;
                     readonly ownerPlayerId: number;
                     readonly templateId: string;
@@ -674,6 +714,11 @@ class FarmScene extends Phaser.Scene {
     private economyChickenHpFills = new Map<string, Phaser.GameObjects.Rectangle>();
     private economyViewPositions = new Map<string, EconomyPoint>();
     private economyState?: ChickenFarmEconomyState;
+    private supplyLifecycle?: SupplyLifecycle;
+    private productionQueue?: ProductionQueue;
+    private buildingUpgrades?: BuildingUpgradeSystem;
+    private researchQueue?: ResearchQueue;
+    private productionExitBlockedForTest = false;
     private economyViewObjects = new Map<string, Phaser.GameObjects.GameObject[]>();
     private economyWorkerTasks = new Map<string, EconomyWorkerTask>();
     private minimapGraphics?: Phaser.GameObjects.Graphics;
@@ -838,6 +883,7 @@ class FarmScene extends Phaser.Scene {
                     unitId,
                     reason,
                 ),
+            onUnitDied: (unit) => this.supplyLifecycle?.unregister(`unit:${unit.id}`),
             recordPerformance: (label, elapsedMs) =>
                 this.performanceProfiler.record(label, elapsedMs),
             recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
@@ -897,9 +943,9 @@ class FarmScene extends Phaser.Scene {
                 isTargetVisible: (x, y) =>
                     this.combatVisibilityOverrideForTest ?? this.visibility.isCurrentlyVisible(x, y),
                 onBuildingCompleted: (building) =>
-                    this.attachCompletedBuildingEconomy(building),
+                    this.handleBuildingCompleted(building),
                 onBuildingRemoved: (building) =>
-                    this.detachBuildingEconomy(building.id),
+                    this.handleBuildingRemoved(building.id),
                 recordTelemetry: (type, payload) => this.telemetry.record(type, payload),
                 scene: this,
                 worldObjects: this.worldObjects,
@@ -1049,6 +1095,9 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.economyPoc', () =>
             this.updateEconomyPoc(),
         );
+        this.updateProductionQueue();
+        this.updateBuildingUpgrades();
+        this.updateResearchQueue();
         this.updateFarmerFeedAutocast();
         this.performanceProfiler.measure('update.combat', () =>
             this.combatPoc?.update(delta / 1000),
@@ -1324,6 +1373,11 @@ class FarmScene extends Phaser.Scene {
         this.waveTargetOverridesForTest.clear();
         this.waveSpawnSequence = 0;
         this.economyState = undefined;
+        this.supplyLifecycle = undefined;
+        this.productionQueue = undefined;
+        this.buildingUpgrades = undefined;
+        this.researchQueue = undefined;
+        this.productionExitBlockedForTest = false;
         this.economyEventLog = [];
         this.economyLabels.clear();
         this.economyChickenHpFills.clear();
@@ -1390,6 +1444,27 @@ class FarmScene extends Phaser.Scene {
                 },
             ],
         });
+        this.supplyLifecycle = new SupplyLifecycle((ownerPlayerId) =>
+            this.economyState?.players.find((player) => player.id === ownerPlayerId) ?? null,
+        );
+        this.productionQueue = new ProductionQueue((ownerPlayerId) =>
+            this.economyState?.players.find((player) => player.id === ownerPlayerId) ?? null,
+        );
+        this.buildingUpgrades = new BuildingUpgradeSystem((ownerPlayerId) =>
+            this.economyState?.players.find((player) => player.id === ownerPlayerId) ?? null,
+        );
+        this.researchQueue = new ResearchQueue((ownerPlayerId) =>
+            this.economyState?.players.find((player) => player.id === ownerPlayerId) ?? null,
+        );
+        // Existing start units are deliberately registered at zero supply;
+        // this preserves the explicit SP-09-02 normal-start ledger (0/3).
+        this.controllableUnits.getUnits().forEach((unit) =>
+            this.supplyLifecycle?.registerStarterUnit(
+                unit.id,
+                unit.ownerPlayerId,
+                unit.templateId,
+            ),
+        );
         this.ensureFarmerInventories();
         const farmer =
             this.controllableUnits
@@ -1454,6 +1529,196 @@ class FarmScene extends Phaser.Scene {
         });
     }
 
+    private handleBuildingCompleted(building: Parameters<typeof attachCompletedBuildingEconomy>[1]) {
+        this.supplyLifecycle?.registerBuilding(
+            building.id,
+            building.ownerPlayerId,
+            building.templateId,
+        );
+        this.attachCompletedBuildingEconomy(building);
+    }
+
+    private handleBuildingRemoved(buildingId: string) {
+        // Destruction wins the race with any ready/running upgrade and never
+        // refunds its already-paid target cost.
+        this.buildingUpgrades?.discard(buildingId);
+        this.researchQueue?.discardProvider(buildingId);
+        // A production building's destruction never refunds paid cost, but it
+        // does release every outstanding result reservation exactly once.
+        this.productionQueue?.discardProducer(buildingId);
+        this.supplyLifecycle?.unregisterBuilding(buildingId);
+        this.detachBuildingEconomy(buildingId);
+    }
+
+    private requestDogProduction(buildingId: string, ownerPlayerId: number) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        const recipe = GROWTH_PRODUCTION_RECIPES.dog;
+        if (
+            !building ||
+            building.state !== 'complete' ||
+            building.ownerPlayerId !== ownerPlayerId ||
+            this.buildingUpgrades?.has(buildingId) ||
+            !recipe.producerTemplateIds.some((templateId) => templateId === building.templateId)
+        ) {
+            return null;
+        }
+        return this.productionQueue?.enqueue({
+            cost: recipe.cost,
+            durationSec: recipe.durationSec,
+            ownerPlayerId,
+            producerId: building.id,
+            recipeId: recipe.id,
+            supplyCost: recipe.supplyCost,
+        }, this.elapsedSec) ?? null;
+    }
+
+    private requestBuildingUpgrade(buildingId: string, ownerPlayerId: number) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        if (!building || building.state !== 'complete' || building.ownerPlayerId !== ownerPlayerId) {
+            return null;
+        }
+        const targetTemplateId = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].upgradeTo;
+        if (!targetTemplateId || this.productionQueue?.getJobs().some((job) => job.producerId === buildingId)) {
+            return null;
+        }
+        const eligibility = evaluateBuildingEligibility({
+            buildings: (this.buildingSystem?.getBuildings() ?? []).map((candidate) => ({
+                hp: candidate.hp,
+                ownerPlayerId: candidate.ownerPlayerId,
+                state: candidate.state,
+                templateId: candidate.templateId,
+            })),
+            ownerPlayerId,
+        }, targetTemplateId);
+        const target = CHICKEN_FARM_BALANCE.buildingTemplates[targetTemplateId];
+        return this.buildingUpgrades?.start({
+            buildingId,
+            cost: { gold: target.costGold, lumber: target.costLumber },
+            durationSec: target.buildTimeSec,
+            eligible: eligibility.eligible,
+            ownerPlayerId,
+            sourceTemplateId: building.templateId,
+            targetTemplateId,
+        }, this.elapsedSec) ?? null;
+    }
+
+    private cancelBuildingUpgrade(buildingId: string, ownerPlayerId: number) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        if (!building || building.state !== 'complete' || building.ownerPlayerId !== ownerPlayerId) {
+            return null;
+        }
+        return this.buildingUpgrades?.cancel(buildingId, ownerPlayerId) ?? null;
+    }
+
+    private requestResearch(
+        buildingId: string,
+        ownerPlayerId: number,
+        researchId: ResearchDefinition['id'],
+    ) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        const template = building && CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
+        if (
+            !building ||
+            building.state !== 'complete' ||
+            building.ownerPlayerId !== ownerPlayerId ||
+            this.buildingUpgrades?.has(buildingId) ||
+            !template?.providesResearch?.includes(researchId)
+        ) return null;
+        return this.researchQueue?.start({
+            ownerPlayerId,
+            providerId: building.id,
+            providerTemplateId: building.templateId,
+            researchId,
+        }, this.elapsedSec) ?? null;
+    }
+
+    private cancelResearch(buildingId: string, ownerPlayerId: number) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        if (!building || building.ownerPlayerId !== ownerPlayerId) return null;
+        return this.researchQueue?.cancel(buildingId, ownerPlayerId) ?? null;
+    }
+
+    private updateBuildingUpgrades() {
+        this.buildingUpgrades?.advance(this.elapsedSec);
+        this.buildingUpgrades?.get().forEach((job) => {
+            if (job.state !== 'ready') return;
+            const building = this.buildingSystem?.upgradeBuilding(
+                job.buildingId,
+                job.targetTemplateId,
+                (footprint) =>
+                    footprint.x < 0 ||
+                    footprint.y < 0 ||
+                    footprint.x + footprint.width > this.worldSize.x ||
+                    footprint.y + footprint.height > this.worldSize.y ||
+                    (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+            );
+            if (!building) return;
+            this.supplyLifecycle?.replaceBuilding(
+                building.id,
+                building.ownerPlayerId,
+                building.templateId,
+            );
+            this.upgradeCompletedBuildingEconomy(building);
+            this.buildingUpgrades?.complete(job.buildingId);
+            this.updateFogOfWarIfNeeded(true);
+            this.updateMinimapIfNeeded(true);
+        });
+    }
+
+    private updateResearchQueue() {
+        this.researchQueue?.advance(this.elapsedSec);
+        this.researchQueue?.get().forEach((job) => {
+            if (job.state !== 'ready') return;
+            const building = this.buildingSystem?.getBuilding(job.providerId);
+            const definition = GROWTH_RESEARCH[job.researchId];
+            const stillProvides = Boolean(
+                building &&
+                building.state === 'complete' &&
+                building.ownerPlayerId === job.ownerPlayerId &&
+                (definition.providerTemplateIds as readonly string[]).includes(building.templateId) &&
+                CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId]
+                    .providesResearch?.includes(job.researchId as never),
+            );
+            if (!stillProvides) {
+                this.researchQueue?.discardProvider(job.providerId);
+                return;
+            }
+            this.researchQueue?.complete(job.providerId);
+        });
+    }
+
+    private updateProductionQueue() {
+        this.productionQueue?.advance(this.elapsedSec);
+        this.productionQueue?.getJobs().forEach((job) => {
+            if (job.state !== 'exit_wait' || job.recipeId !== 'dog') return;
+            const building = this.buildingSystem?.getBuilding(job.producerId);
+            if (!building || building.state !== 'complete') return;
+            const exit = this.buildingSystem?.getProductionExit(
+                building.id,
+                18,
+                (point) => this.canProductionExitOccupyPoint(point),
+            );
+            if (!exit?.resolved) return;
+            const unitId = `produced-${job.id}`;
+            if (!this.controllableUnits.createProducedDog(unitId, exit.point.x, exit.point.y, job.ownerPlayerId)) {
+                return;
+            }
+            const completed = this.productionQueue?.complete(job.id, this.elapsedSec);
+            if (!completed) return;
+            this.supplyLifecycle?.adoptReservedUnit(unitId, job.ownerPlayerId, 'dog');
+            const rallyPoint = this.buildingSystem?.getRallyPoint(building.id);
+            if (rallyPoint) {
+                this.controllableUnits.issueMoveCommandToUnits([unitId], rallyPoint, 'replace');
+            }
+            this.telemetry.record('production_completed', {
+                buildingId: building.id,
+                jobId: job.id,
+                recipeId: job.recipeId,
+                unitId,
+            });
+        });
+    }
+
     private detachBuildingEconomy(buildingId: string) {
         if (!this.economyState) return;
         const removedKind = detachBuildingEconomy(this.economyState, { id: buildingId });
@@ -1467,6 +1732,20 @@ class FarmScene extends Phaser.Scene {
         this.recordEconomyEvent('economy_building_detached', {
             buildingId,
             kind: removedKind,
+        });
+    }
+
+    private upgradeCompletedBuildingEconomy(
+        building: Parameters<typeof upgradeCompletedBuildingEconomy>[1],
+    ) {
+        if (!this.economyState) return;
+        const kind = upgradeCompletedBuildingEconomy(this.economyState, building);
+        if (!kind) return;
+        this.refreshEconomyLabels();
+        this.recordEconomyEvent('economy_building_upgraded', {
+            buildingId: building.id,
+            kind,
+            templateId: building.templateId,
         });
     }
 
@@ -1544,7 +1823,8 @@ class FarmScene extends Phaser.Scene {
         if (!this.economyState) return;
 
         const events = updateChickenFarmEconomy(this.economyState, this.elapsedSec, {
-            canChickenOccupyPoint: (point) => this.canChickenOccupyPoint(point),
+            canChickenOccupyPoint: (point) => this.canProductionExitOccupyPoint(point),
+            getRallyPoint: (buildingId) => this.buildingSystem?.getRallyPoint(buildingId) ?? null,
         });
         events.forEach((event) => this.handleEconomyEvent(event));
 
@@ -1627,6 +1907,10 @@ class FarmScene extends Phaser.Scene {
         });
     }
 
+    private canProductionExitOccupyPoint(point: EconomyPoint) {
+        return !this.productionExitBlockedForTest && this.canChickenOccupyPoint(point);
+    }
+
     private handleEconomyEvent(event: EconomyEvent) {
         if (event.type === 'egg_dropped' || event.type === 'egg_dropped_from_inventory') {
             const egg = this.economyState?.fieldEggs.find(
@@ -1638,9 +1922,13 @@ class FarmScene extends Phaser.Scene {
             const chicken = this.economyState?.chickens.find(
                 (candidate) => candidate.id === event.chickenId,
             );
-            if (chicken) this.createChickenView(chicken);
+            if (chicken) {
+                this.supplyLifecycle?.adoptReservedChicken(chicken.id, chicken.ownerPlayerId);
+                this.createChickenView(chicken);
+            }
         }
         if (event.type === 'chicken_died') {
+            this.supplyLifecycle?.unregisterChicken(event.chickenId);
             this.destroyEconomyView(event.chickenId);
         }
 
@@ -2284,6 +2572,7 @@ class FarmScene extends Phaser.Scene {
                 ownerPlayerId: farmer.ownerPlayerId,
                 position: spawnPosition,
             });
+            this.supplyLifecycle?.registerChicken(chicken.id, chicken.ownerPlayerId);
             this.createChickenView(chicken);
             this.recordEconomyEvent('start_item_used', {
                 itemRawcode: 'I003',
@@ -2843,6 +3132,7 @@ class FarmScene extends Phaser.Scene {
             chicken.aiState = 'dead';
             chicken.targetPosition = null;
             chicken.targetWellId = null;
+            this.supplyLifecycle?.unregisterChicken(chicken.id);
             this.destroyEconomyView(chicken.id);
             this.recordEconomyEvent('economy_chicken_died', { chickenId: chicken.id });
         }
@@ -3537,22 +3827,34 @@ class FarmScene extends Phaser.Scene {
                 return {
                     jobs: {
                         hatch: hatchJobs,
-                        production: [],
+                        production: (this.productionQueue?.getJobs(ownerId) ?? []).map((job) => ({
+                            completeAtSec: job.completeAtSec,
+                            id: job.id,
+                            producerId: job.producerId,
+                            recipeId: job.recipeId,
+                            state: job.state,
+                        })),
                     },
                     // The fields become live in SP-09-05/08/13/17. Keeping
                     // them explicit makes the baseline's absent state testable.
                     lastRejectionReason: null,
                     ownerPlayerId: ownerId,
                     research: {
-                        levels: [],
-                        queued: [],
+                        levels: this.researchQueue?.getLevels(ownerId) ?? [],
+                        queued: (this.researchQueue?.get(ownerId) ?? []).map((job) => ({
+                            completeAtSec: job.completeAtSec,
+                            providerId: job.providerId,
+                            researchId: job.researchId,
+                            state: job.state,
+                            targetLevel: job.targetLevel,
+                        })),
                         supportedIds: Object.keys(GROWTH_RESEARCH).sort(),
                     },
                     runId: this.runId,
                     supply: {
-                        available: wallet.supplyCap - wallet.supplyUsed,
+                        available: wallet.supplyCap - wallet.supplyUsed - (wallet.supplyReserved ?? 0),
                         cap: wallet.supplyCap,
-                        reserved: 0,
+                        reserved: wallet.supplyReserved ?? 0,
                         used: wallet.supplyUsed,
                     },
                     tech: {
@@ -3561,7 +3863,13 @@ class FarmScene extends Phaser.Scene {
                             ...new Set(completeBuildings.map((building) => building.templateId)),
                         ].sort(),
                     },
-                    upgrades: [],
+                    upgrades: (this.buildingUpgrades?.get(ownerId) ?? []).map((job) => ({
+                        buildingId: job.buildingId,
+                        completeAtSec: job.completeAtSec,
+                        sourceTemplateId: job.sourceTemplateId,
+                        state: job.state,
+                        targetTemplateId: job.targetTemplateId,
+                    })),
                     wallet: { gold: wallet.gold, lumber: wallet.lumber },
                 };
             },
@@ -3620,6 +3928,7 @@ class FarmScene extends Phaser.Scene {
             getCombatLifecycleSnapshot: () => ({
                 active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
                 buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
+                    attack: CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].attack ?? null,
                     armor: building.armor,
                     footprint: { ...building.footprint },
                     hp: building.hp,
@@ -3704,6 +4013,7 @@ class FarmScene extends Phaser.Scene {
                     ownerPlayerId,
                     position: { x, y },
                 });
+                this.supplyLifecycle?.registerChicken(chicken.id, chicken.ownerPlayerId);
                 this.createChickenView(chicken);
                 return chicken.id;
             },
@@ -3713,6 +4023,7 @@ class FarmScene extends Phaser.Scene {
                 if (!chicken || chicken.aiState === 'dead') return false;
                 chicken.hp = 0;
                 chicken.aiState = 'dead';
+                this.supplyLifecycle?.unregisterChicken(chicken.id);
                 this.syncChickenViews();
                 return true;
             },
@@ -3767,6 +4078,7 @@ class FarmScene extends Phaser.Scene {
                 })),
                 coops: (this.economyState?.coops ?? []).map((coop) => ({
                     id: coop.id,
+                    kind: coop.kind,
                     ownerPlayerId: coop.ownerPlayerId,
                     storedEggs: coop.storedEggs,
                 })),
@@ -3931,6 +4243,70 @@ class FarmScene extends Phaser.Scene {
                 });
                 return building?.id ?? null;
             },
+            requestDogProductionForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                const job = building
+                    ? this.requestDogProduction(buildingId, building.ownerPlayerId)
+                    : null;
+                return job?.id ?? null;
+            },
+            requestBuildingUpgradeForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                const job = building
+                    ? this.requestBuildingUpgrade(buildingId, building.ownerPlayerId)
+                    : null;
+                return job?.buildingId ?? null;
+            },
+            cancelBuildingUpgradeForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                return Boolean(
+                    building && this.cancelBuildingUpgrade(buildingId, building.ownerPlayerId),
+                );
+            },
+            requestResearchForTest: (buildingId, researchId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                const job = building
+                    ? this.requestResearch(buildingId, building.ownerPlayerId, researchId)
+                    : null;
+                return job?.providerId ?? null;
+            },
+            cancelResearchForTest: (buildingId) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                return Boolean(
+                    building && this.cancelResearch(buildingId, building.ownerPlayerId),
+                );
+            },
+            advanceResearchForTest: (targetElapsedSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
+                this.elapsedSec = targetElapsedSec;
+                this.updateResearchQueue();
+                return true;
+            },
+            advanceProductionForTest: (targetElapsedSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
+                this.elapsedSec = targetElapsedSec;
+                this.updateProductionQueue();
+                this.updateBuildingUpgrades();
+                this.updateResearchQueue();
+                return true;
+            },
+            setProductionExitBlockedForTest: (blocked) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                this.productionExitBlockedForTest = blocked;
+                return true;
+            },
+            setBuildingRallyPointForTest: (buildingId, x, y) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+                return this.buildingSystem?.setRallyPoint(buildingId, { x, y }) ?? false;
+            },
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
@@ -3946,7 +4322,8 @@ class FarmScene extends Phaser.Scene {
                 if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
                 this.elapsedSec = targetElapsedSec;
                 const events = updateChickenFarmEconomy(this.economyState!, this.elapsedSec, {
-                    canChickenOccupyPoint: (point) => this.canChickenOccupyPoint(point),
+                    canChickenOccupyPoint: (point) => this.canProductionExitOccupyPoint(point),
+                    getRallyPoint: (buildingId) => this.buildingSystem?.getRallyPoint(buildingId) ?? null,
                 });
                 events.forEach((event) => this.handleEconomyEvent(event));
                 this.syncChickenViews();
@@ -4112,6 +4489,7 @@ class FarmScene extends Phaser.Scene {
                     selectedBuildingId: this.selectedBuildingId ?? null,
                     selectedUnitCount: this.controllableUnits.getSelectedUnits().length,
                     units: this.controllableUnits.getUnits().map((unit) => ({
+                        currentCommandType: unit.currentCommand?.type ?? null,
                         id: unit.id,
                         ownerPlayerId: unit.ownerPlayerId,
                         templateId: unit.templateId,

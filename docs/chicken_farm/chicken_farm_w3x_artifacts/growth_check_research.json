@@ -1,0 +1,188 @@
+{
+  "case": "research",
+  "checks": {
+    "duplicateBlocked": true,
+    "fullCancelRefund": true,
+    "levelOnce": true,
+    "pass": true
+  },
+  "before": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2"
+      ],
+      "completeBuildingTemplateIds": [
+        "lumber_mill"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 832,
+      "lumber": 1000
+    }
+  },
+  "cancelled": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2"
+      ],
+      "completeBuildingTemplateIds": [
+        "lumber_mill"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 832,
+      "lumber": 1000
+    }
+  },
+  "completed": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [
+        {
+          "level": 1,
+          "researchId": "masonry"
+        }
+      ],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2"
+      ],
+      "completeBuildingTemplateIds": [
+        "lumber_mill"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 777,
+      "lumber": 965
+    }
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "queued": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [
+        {
+          "completeAtSec": 18.143266666666293,
+          "providerId": "player-building-1",
+          "researchId": "masonry",
+          "state": "running",
+          "targetLevel": 1
+        }
+      ],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2"
+      ],
+      "completeBuildingTemplateIds": [
+        "lumber_mill"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 777,
+      "lumber": 965
+    }
+  }
+}
