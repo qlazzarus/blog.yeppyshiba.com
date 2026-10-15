@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
+import { GROWTH_RESEARCH } from './game/growthProgression';
 import { calculateWaveReplenishPlan } from './game/waveReplenish';
 import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
 import { createWaveScheduler, type WaveScheduler } from './game/waveScheduler';
@@ -154,7 +155,7 @@ declare global {
                 }[];
             };
             createPausedConstructionFixture: (
-                templateId: 'coop_basic' | 'lumber_mill' | 'market' | 'well_basic',
+                templateId: 'coop_basic' | 'lumber_mill' | 'market' | 'town_hall' | 'well_basic',
                 x: number,
                 y: number,
             ) => string | null;
@@ -382,6 +383,37 @@ declare global {
                     readonly unitId: string;
                 }[];
             };
+            getGrowthSnapshot: (ownerPlayerId?: number) => {
+                readonly jobs: {
+                    readonly hatch: readonly {
+                        readonly completeAtSec: number;
+                        readonly coopId: string;
+                        readonly id: string;
+                        readonly state: 'exit_wait' | 'running';
+                    }[];
+                    readonly production: readonly [];
+                };
+                readonly lastRejectionReason: null;
+                readonly ownerPlayerId: number;
+                readonly research: {
+                    readonly levels: readonly [];
+                    readonly queued: readonly [];
+                    readonly supportedIds: readonly string[];
+                };
+                readonly runId: number;
+                readonly supply: {
+                    readonly available: number;
+                    readonly cap: number;
+                    readonly reserved: 0;
+                    readonly used: number;
+                };
+                readonly tech: {
+                    readonly completeBuildingIds: readonly string[];
+                    readonly completeBuildingTemplateIds: readonly string[];
+                };
+                readonly upgrades: readonly [];
+                readonly wallet: { readonly gold: number; readonly lumber: number };
+            } | null;
             createCombatEnemyFixture: (
                 id: string,
                 enemyId: EnemyId,
@@ -427,7 +459,7 @@ declare global {
             ) => boolean;
             setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
-                templateId: 'coop_basic' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'well_basic',
+                templateId: 'coop_basic' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'town_hall' | 'well_basic',
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
@@ -3474,6 +3506,65 @@ class FarmScene extends Phaser.Scene {
             !this.runDisposed && this.runId === debugRunId;
 
         window.__chickenFarmDebug = {
+            getGrowthSnapshot: (ownerPlayerId) => {
+                const ownerId = ownerPlayerId ?? this.startSession.ownerPlayerId;
+                // Growth automation is intentionally scoped to the active
+                // single-player owner. Debug fixtures may create other owners,
+                // but must not expose their wallet or progression state.
+                if (ownerId !== this.startSession.ownerPlayerId || this.runDisposed) {
+                    return null;
+                }
+                const wallet = this.economyState?.players.find(
+                    (player) => player.id === ownerId,
+                );
+                if (!wallet) return null;
+                const completeBuildings = (this.buildingSystem?.getBuildings() ?? [])
+                    .filter(
+                        (building) =>
+                            building.ownerPlayerId === ownerId &&
+                            building.state === 'complete',
+                    )
+                    .sort((left, right) => left.id.localeCompare(right.id));
+                const hatchJobs = (this.economyState?.hatchJobs ?? [])
+                    .filter((job) => job.ownerPlayerId === ownerId)
+                    .sort((left, right) => left.id.localeCompare(right.id))
+                    .map((job) => ({
+                        completeAtSec: job.completeAtSec,
+                        coopId: job.coopId,
+                        id: job.id,
+                        state: this.elapsedSec >= job.completeAtSec ? ('exit_wait' as const) : ('running' as const),
+                    }));
+                return {
+                    jobs: {
+                        hatch: hatchJobs,
+                        production: [],
+                    },
+                    // The fields become live in SP-09-05/08/13/17. Keeping
+                    // them explicit makes the baseline's absent state testable.
+                    lastRejectionReason: null,
+                    ownerPlayerId: ownerId,
+                    research: {
+                        levels: [],
+                        queued: [],
+                        supportedIds: Object.keys(GROWTH_RESEARCH).sort(),
+                    },
+                    runId: this.runId,
+                    supply: {
+                        available: wallet.supplyCap - wallet.supplyUsed,
+                        cap: wallet.supplyCap,
+                        reserved: 0,
+                        used: wallet.supplyUsed,
+                    },
+                    tech: {
+                        completeBuildingIds: completeBuildings.map((building) => building.id),
+                        completeBuildingTemplateIds: [
+                            ...new Set(completeBuildings.map((building) => building.templateId)),
+                        ].sort(),
+                    },
+                    upgrades: [],
+                    wallet: { gold: wallet.gold, lumber: wallet.lumber },
+                };
+            },
             createPausedConstructionFixture: (templateId, x, y) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures) return null;
                 if (this.runDisposed) return null;

@@ -1,6 +1,6 @@
 # SP-09 건물 기능·성장 경로 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-13. SP-09-01의 정적 기능·테크 범위 계약을 완료했다. 다음 실행은 **SP-09-02**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
+> 갱신: 2026-10-13. SP-09-01~06 계약·성장 그래프·관찰·선행조건 판정과 건설 연결을 완료했다. 다음 실행은 **SP-09-07**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
 
 ## 목표와 범위
 
@@ -32,7 +32,7 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ## 실행 순서
 
-SP-09-01만 **완료**했고, 02~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
+SP-09-01~06은 **완료**했고, 07~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -74,43 +74,47 @@ SP-09-01만 **완료**했고, 02~25는 **미착수**다. 선행 열의 숫자는
 
 ### SP-09-02 — 비용·시간·인구·취소 정책 계약
 
-- 상태: **미착수**. 선행: 01.
+- 상태: **완료**. 선행: 01.
 - 읽기: 01 계약, buildingTemplates.ts, playerWallet.ts, economyTypes.ts, startSessionConfig.ts, unit_rawcode_crosscheck.tsv.
 - 수정 범위: build/upgrade/production/research별 비용 지불 시점, 취소 환불, 파괴 손실, 공급 예약, 상위 건물의 하위 조건 충족, 업그레이드 중 기능/HP/queue 정책을 표로 고정한다.
-- 완료 조건: sp09_02_transaction_contract.json에 시작 supply 3의 의미, food_made/food_used 변환, 알 환불과 저장소 만원 처리, 인구 초과 및 동시 완료 순서를 명시한다. build time과 대문 전이는 관찰 미확인을 보존한다.
-- 검증: 정상/부족/취소/파괴/재시작 사례별 자원·알·인구 전후 장부를 손으로 대조한다. 원본 가격으로 일괄 교체하지 않는다.
+- 결과: [거래 정책 계약](./chicken_farm_w3x_artifacts/sp09_02_transaction_contract.json)에 건설·upgrade·생산·부화·연구의 비용 시점, cancel/destroy 차이, 공급 예약, 같은 tick 경합, upgrade 중 capability/HP/footprint 정책을 고정했다. W3X food는 source trace이고 web `3/0`에는 확인된 변환비가 없다는 점을 명시했다.
+- 검증: normal/부족/취소/파괴/부화 취소·파괴/restart의 before/after 장부 6개를 손으로 대조했다. 현재 source의 비용·75% floor refund·blocked hatch exit·coop removal 동작과 일치하며, 런타임 구현은 변경하지 않았다.
 
 ### SP-09-03 — canonical 성장 데이터·그래프
 
-- 상태: **미착수**. 선행: 01/02.
+- 상태: **완료**. 선행: 01/02.
 - 읽기: buildingTemplates.ts, balanceTypes.ts, balance.ts 및 01/02 계약.
 - 수정 범위: requires/upgradeTo/produces/providesResearch를 참조하는 typed 성장 정의를 정리하고 생산·연구 비용/시간/효과 설정을 추가한다.
-- 완료 조건: 없는 ID, upgrade 순환, 도달 불가 노드, 직접 건설과 업그레이드 전용 혼동을 검출한다. 원본 유닛 요구조건을 건물 ID로 조용히 치환하지 않는다.
-- 검증: 순수 데이터 검증: normal 시작에서 경제→럼버 밀→타워와 필수 상위 경로의 도달 가능성. 미구현 가족 조건은 명시한 웹 정책 또는 SP-12 의존으로 표시한다.
+- 결과: `growthProgression.ts`에 35개 template의 `build`/`upgrade_only`/`starter_only` 획득 규칙, core 공급값 `3/5/7`, 현재 SP-09 범위의 dog 생산 recipe, 5개 연구의 provider·비용·시간·max level·효과를 추가했다. 이 수치는 W3X 미확인 비용·시간을 대신 주장하지 않는 명시적 웹 baseline이며 SP-15에서 조정할 수 있다.
+- 그래프: `tower_arcane_small`은 source upgrade가 없는 직접 건설 시작점임을 검증 중 발견해 `build`로 고정했다. 중간/상위 아케인 타워는 이어지는 upgrade-only 노드다. W3X 유닛 rawcode 요구조건은 dog recipe의 source trace로 별도 보존했고, 가족/용병/워크샵 생산은 SP-12에 남겼다.
+- 검증: [progression artifact](./chicken_farm_w3x_artifacts/growth_check_progression.json)는 35개 규칙 coverage, 없는 upgrade target 0, upgrade cycle 0, normal `farm_house`/`market`에서 럼버 밀·가드 타워·family temple·arcane lab의 도달 가능성을 기록한다. `campfire`만 starter-only로 graph 밖이다. `npm run chicken:growth:check --workspace @games/chicken-farm`과 `npm run typecheck --workspace @games/chicken-farm`이 종료 코드 0이다.
 
 ### SP-09-04 — 관찰 snapshot·성장 검증 harness
 
-- 상태: **미착수**. 선행: 03.
+- 상태: **완료**. 선행: 03.
 - 읽기: main.ts debug guard, scripts/check-chicken-farm-economy.ts, scripts/check-chicken-farm-construction.ts.
 - 수정 범위: run/owner별 tech, used/reserved/cap, job, upgrade, research, 거부 이유의 read-only snapshot과 최소 baseline runner를 만든다.
-- 완료 조건: 제안 파일 scripts/check-chicken-farm-growth.ts와 growth_check_baseline.json. 테스트 mutation은 명시적 debug/test 경로로 격리하고 normal 부팅에는 fixture가 없다.
-- 검증: normal P3 baseline·browser 오류 0·다른 owner 상태 비노출. 새 selector와 실행 명령을 문서에 기록한다.
+- 결과: `window.__chickenFarmDebug.getGrowthSnapshot(ownerPlayerId?)`와 `chicken:growth:browser`를 추가했다. snapshot은 active P3 owner의 run ID, wallet, supply used/reserved/cap/available, complete-building tech, hatch/production job, upgrade, research level/queue, 마지막 거부 이유를 복사본으로 반환한다. 아직 미구현 lifecycle은 명시적 빈 배열/null이며 이후 카드가 같은 surface를 채운다.
+- 격리: snapshot은 active single-player owner만 반환하며, debug fixture로 만든 다른 owner의 성장 상태는 `null`로 차단한다. mutation API를 추가하지 않았고 runner는 `debugFixtures=false`, combat/debug economy/terrain probe off인 normal P3에서만 실행한다.
+- 검증: [normal baseline artifact](./chicken_farm_w3x_artifacts/growth_check_baseline.json)는 연속 read 무변경, wallet `1500/0`, supply `used 0/reserved 0/cap 3`, job·upgrade·research level 0, P4 비노출, browser console/page/request/HTTP 오류 0을 기록한다. `npm run typecheck --workspace @games/chicken-farm` 및 `npm run chicken:growth:browser --workspace @games/chicken-farm`이 종료 코드 0이다.
 
 ### SP-09-05 — 선행조건 순수 판정기
 
-- 상태: **미착수**. 선행: 03/04.
+- 상태: **완료**. 선행: 03/04.
 - 읽기: buildingSystem.ts, initialPlacementRegistry.ts, 성장 정의.
 - 수정 범위: 같은 owner의 살아 있는 complete 건물과 계약상 연구/유닛 조건을 조회해 단일 eligibility 결과와 실패 이유를 만든다.
-- 완료 조건: 건설 중/파괴된/다른 owner 건물이 조건을 충족하지 않는다. 상위 tier의 하위 대체 규칙은 02 계약과 일치한다.
-- 검증: 순수 사례: 모두 충족, 하나 부족, 다중 조건, 상위 대체, owner 불일치, 제거 직후.
+- 결과: `growthEligibility.ts`에 `evaluateBuildingEligibility()`과 `evaluateGrowthEligibility()`를 추가했다. template `requires`, 선택적 연구 레벨·유닛 template 조건을 같은 owner의 alive/complete 상태로 검사하고, 누락 건물·연구·유닛과 단일/복수 실패 이유를 반환한다. rawcode/유닛 template은 문자열 exact match이며 건물 ID로 변환하지 않는다.
+- 정책: source template의 upgrade chain을 따라 candidate가 요구 건물과 같거나 상위 tier이면 충족한다. 건설 중, HP 0, 다른 owner의 건물은 충족하지 않는다. 이 순수 API는 SP-09-06에서 preview/착공에 연결하며 이번 카드에서 runtime 거부는 추가하지 않았다.
+- 검증: [eligibility artifact](./chicken_farm_w3x_artifacts/growth_check_eligibility.json)는 town hall→farm house 대체와 lumber mill high→base 대체, 하나/다중 부족, 다른 owner, constructing, 제거 직후를 확인한다. `npm run typecheck --workspace @games/chicken-farm` 및 `npm run chicken:growth:eligibility --workspace @games/chicken-farm`이 종료 코드 0이다.
 
 ### SP-09-06 — 건설 preview·착공 선행조건 연결
 
-- 상태: **미착수**. 선행: 05.
+- 상태: **완료**. 선행: 05.
 - 읽기: constructionPlacementSystem.ts, buildingSystem.ts, main.ts 착공 경로.
 - 수정 범위: preview와 실제 착공에 같은 판정기를 연결한다. 이동/Shift 예약 중 prerequisite 또는 자원이 변하면 착공 직전에 재검사한다.
 - 완료 조건: 거부된 착공은 비용·blocker·기능 등록이 0회이며 다음 예약 처리는 SP-05 계약을 유지한다. UI 우회 호출도 거부한다.
-- 검증: browser: 선행 건물 미완성/완성/이동 중 파괴/중복 클릭 및 기존 construction rejection 회귀.
+- 결과: `ConstructionPlacementSystem`이 선택된 builder owner의 complete/living 건물·유닛 상태를 `evaluateBuildingEligibility()`로 preview와 착공 직전에 각각 재평가한다. 누락 항목은 `missing_prerequisite:<template>` 형태로 남기며, 이동 중 prerequisite가 제거되면 order만 폐기하고 비용·blocker·economy 등록을 만들지 않는다.
+- 검증: [growth prerequisite browser artifact](./chicken_farm_w3x_artifacts/construction_check_growth_prerequisite.json)는 미완성/완성 town hall, 반복 클릭, 이동 뒤 town hall 제거를 확인한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run chicken:growth:prerequisite --workspace @games/chicken-farm`, `npm run chicken:construction:check --workspace @games/chicken-farm`이 종료 코드 0이다.
 
 ### SP-09-07 — 공급 cap·used lifecycle
 

@@ -1,0 +1,103 @@
+{
+  "case": "progression_graph",
+  "pass": true,
+  "productionRecipes": [
+    {
+      "id": "dog",
+      "producerTemplateIds": [
+        "farm_house",
+        "town_hall"
+      ],
+      "supplyCost": 1
+    }
+  ],
+  "reachable": [
+    "arcane_lab",
+    "barrier_magic",
+    "blacksmith",
+    "coop_basic",
+    "coop_high",
+    "coop_mid",
+    "egg_storage",
+    "family_temple",
+    "farm_house",
+    "fence_bronze",
+    "fence_wood",
+    "gate_wood",
+    "grand_market",
+    "lumber_mill",
+    "lumber_mill_high",
+    "lumber_mill_mid",
+    "market",
+    "mercenary_barracks",
+    "plasma_wall",
+    "power_generator",
+    "tower_arcane_grand",
+    "tower_arcane_large",
+    "tower_arcane_medium",
+    "tower_arcane_small",
+    "tower_guard_black",
+    "tower_guard_grand",
+    "tower_guard_large",
+    "tower_guard_medium",
+    "tower_guard_small",
+    "tower_scout",
+    "town_hall",
+    "wall_stone",
+    "well_basic",
+    "workshop_lab"
+  ],
+  "research": [
+    {
+      "id": "arcaneTowerDamage",
+      "maxLevel": 3,
+      "providerTemplateIds": [
+        "power_generator"
+      ],
+      "sourceRawcode": "R009"
+    },
+    {
+      "id": "dogDamage",
+      "maxLevel": 3,
+      "providerTemplateIds": [
+        "family_temple"
+      ],
+      "sourceRawcode": "R00A"
+    },
+    {
+      "id": "dogSpeedClaw",
+      "maxLevel": 3,
+      "providerTemplateIds": [
+        "arcane_lab"
+      ],
+      "sourceRawcode": "R00D"
+    },
+    {
+      "id": "guardTowerDamage",
+      "maxLevel": 3,
+      "providerTemplateIds": [
+        "power_generator"
+      ],
+      "sourceRawcode": "R008"
+    },
+    {
+      "id": "masonry",
+      "maxLevel": 3,
+      "providerTemplateIds": [
+        "lumber_mill",
+        "lumber_mill_mid",
+        "lumber_mill_high"
+      ],
+      "sourceRawcode": "Rhac"
+    }
+  ],
+  "templateCount": 35,
+  "unreachable": [
+    "campfire"
+  ],
+  "webSupplyPolicy": {
+    "family_temple": 7,
+    "farm_house": 3,
+    "town_hall": 5
+  }
+}

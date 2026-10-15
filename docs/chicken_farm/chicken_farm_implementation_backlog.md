@@ -132,7 +132,7 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 ## SP-09 세부 실행 계획
 
-2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. SP-09-01 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json)을 완료했으며, 02~25는 미착수이고 다음 실행은 **SP-09-02**다. 계약은 현재 구현·SP-09 필수·SP-12 콘텐츠 경계, normal 성장 경로와 W3X 미확인을 분리한다.
+2026-10-13: [SP-09 건물 기능·성장 경로](./chicken_farm_sp09_task_plan.md)를 Terra Medium용 **25개 task**로 분해했다. SP-09-01 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json), SP-09-02 [거래 정책](./chicken_farm_w3x_artifacts/sp09_02_transaction_contract.json), SP-09-03 [성장 그래프](./chicken_farm_w3x_artifacts/growth_check_progression.json), SP-09-04 [normal baseline](./chicken_farm_w3x_artifacts/growth_check_baseline.json), SP-09-05 [eligibility](./chicken_farm_w3x_artifacts/growth_check_eligibility.json), SP-09-06 [건설 선행조건 browser 검증](./chicken_farm_w3x_artifacts/construction_check_growth_prerequisite.json)을 완료했으며, 07~25는 미착수이고 다음 실행은 **SP-09-07**다. preview와 착공 직전은 같은 owner의 complete/living 건물·유닛 조건을 다시 검사하며, 이동 중 prerequisite가 사라지면 비용·blocker·기능 등록 없이 order를 폐기한다.
 
 - 01~04: 기능·거래 계약, canonical 데이터, snapshot/harness.
 - 05~07: 선행조건·착공 검증과 공급 lifecycle.

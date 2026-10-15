@@ -56,7 +56,8 @@ if (
     constructionCase !== 'completion' &&
     constructionCase !== 'removal' &&
     constructionCase !== 'restart' &&
-    constructionCase !== 'integration'
+    constructionCase !== 'integration' &&
+    constructionCase !== 'growth_prerequisite'
 ) {
     throw new Error(`Unsupported CHICKEN_FARM_CONSTRUCTION_CASE: ${constructionCase}`);
 }
@@ -85,8 +86,10 @@ async function main() {
                               : constructionCase === 'removal'
                                 ? await runRemovalCase()
                                 : constructionCase === 'restart'
-                                  ? await runRestartCase()
-                                  : await runIntegrationCase();
+                                    ? await runRestartCase()
+                                    : constructionCase === 'growth_prerequisite'
+                                      ? await runGrowthPrerequisiteCase()
+                                      : await runIntegrationCase();
         await mkdir(path.dirname(artifactPath), { recursive: true });
         await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
         console.log(JSON.stringify({ ...report, artifactPath }, null, 2));
@@ -105,7 +108,7 @@ function startDevServer() {
             VITE_CHICKEN_FARM_COMBAT_SMOKE: 'false',
             VITE_CHICKEN_FARM_DEBUG_ECONOMY: 'false',
             VITE_CHICKEN_FARM_DEBUG_FIXTURES:
-                constructionCase === 'start_rejection' || constructionCase === 'pause_resume' || constructionCase === 'refund' || constructionCase === 'completion' || constructionCase === 'removal' || constructionCase === 'restart'
+                constructionCase === 'start_rejection' || constructionCase === 'pause_resume' || constructionCase === 'refund' || constructionCase === 'completion' || constructionCase === 'removal' || constructionCase === 'restart' || constructionCase === 'growth_prerequisite'
                     ? 'true'
                     : 'false',
             VITE_CHICKEN_FARM_START_ID: '3',
@@ -1190,6 +1193,124 @@ function assertRejectedStart(
         snapshot.lifecycle.wallet.lumber !== expectedLumber
     ) {
         throw new Error(`${label} failed to clear without a charge: ${JSON.stringify(snapshot)}`);
+    }
+}
+
+async function runGrowthPrerequisiteCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = { console: [] as string[], page: [] as string[], request: [] as string[], response: [] as string[] };
+    page.on('console', (message) => {
+        if (message.type() === 'error') errors.console.push(message.text());
+    });
+    page.on('pageerror', (error) => errors.page.push(error.message));
+    page.on('requestfailed', (failed) =>
+        errors.request.push(`${failed.method()} ${failed.url()} ${failed.failure()?.errorText}`),
+    );
+    page.on('response', (response) => {
+        if (response.status() >= 400) errors.response.push(`${response.status()} ${response.url()}`);
+    });
+
+    try {
+        const session = await prepareNormalSession(page, true);
+        const builder = await selectFarmer(page, session);
+        const placementPoint = { x: 4032, y: 8896 };
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.setConstructionWalletForTest(1000, 500))) {
+            throw new Error('Could not fund growth prerequisite fixture');
+        }
+
+        await openPlacement(page, 'c');
+        await clickWorld(page, builder.calibration, placementPoint);
+        await clickWorld(page, builder.calibration, placementPoint);
+        const missing = await getSnapshot(page);
+        if (
+            missing.lifecycle.pendingOrders.length !== 0 ||
+            missing.lifecycle.buildings.length !== 0 ||
+            missing.lifecycle.wallet?.gold !== 1000 ||
+            missing.lifecycle.wallet.lumber !== 500
+        ) {
+            throw new Error(`Missing prerequisite created or charged construction: ${JSON.stringify(missing)}`);
+        }
+
+        const pausedTownHall = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createPausedConstructionFixture('town_hall', 5376, 8896),
+        );
+        if (!pausedTownHall) throw new Error('Could not create unfinished town hall fixture');
+        await clickWorld(page, builder.calibration, placementPoint);
+        const unfinished = await getSnapshot(page);
+        if (
+            unfinished.lifecycle.pendingOrders.length !== 0 ||
+            unfinished.lifecycle.wallet?.gold !== 1000 ||
+            unfinished.lifecycle.wallet.lumber !== 500
+        ) {
+            throw new Error(`Unfinished prerequisite was accepted: ${JSON.stringify(unfinished)}`);
+        }
+
+        const completedTownHall = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createEconomyBuildingFixture('town_hall', 5632, 8896),
+        );
+        if (!completedTownHall) throw new Error('Could not create completed town hall fixture');
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.setConstructionWalletForTest(1000, 500))) {
+            throw new Error('Could not reset fixture wallet');
+        }
+        await clickWorld(page, builder.calibration, placementPoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().pendingOrders.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const pending = await getSnapshot(page);
+        const pendingOrder = pending.lifecycle.pendingOrders[0];
+        if (!pendingOrder || pending.lifecycle.wallet?.gold !== 1000 || pending.lifecycle.wallet.lumber !== 500) {
+            throw new Error(`Completed prerequisite did not permit unpaid pending order: ${JSON.stringify(pending)}`);
+        }
+
+        if (!await page.evaluate((buildingId) =>
+            window.__chickenFarmDebug!.removeCompletedBuildingFixture(buildingId), completedTownHall)) {
+            throw new Error('Could not remove completed town hall fixture');
+        }
+        if (!await page.evaluate(({ builderId, target }) =>
+            window.__chickenFarmDebug!.setControllableUnitPositionForTest(builderId, target.x, target.y), {
+                builderId: builder.farmerId,
+                target: pendingOrder.targetPoint,
+            })) {
+            throw new Error('Could not advance builder to build site');
+        }
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().pendingOrders.length === 0,
+            null,
+            { timeout: 5_000 },
+        );
+        const destroyed = await getSnapshot(page);
+        const coopBuildings = destroyed.lifecycle.buildings.filter(
+            (building) => building.templateId === 'coop_basic',
+        );
+        if (
+            coopBuildings.length !== 0 ||
+            destroyed.lifecycle.wallet?.gold !== 1000 ||
+            destroyed.lifecycle.wallet.lumber !== 500 ||
+            destroyed.lifecycle.economyBuildingIds.length !== 0
+        ) {
+            throw new Error(`Prerequisite loss at site was not cleanly rejected: ${JSON.stringify(destroyed)}`);
+        }
+        if (errors.console.length || errors.page.length || errors.request.length || errors.response.length) {
+            throw new Error(`Browser errors: ${JSON.stringify(errors)}`);
+        }
+        return {
+            case: constructionCase,
+            checks: {
+                completedPrerequisitePermitsPendingOrder: true,
+                destroyedPrerequisiteRejectsAtStartWithoutCharge: true,
+                incompletePrerequisiteRejected: true,
+                missingPrerequisiteRejectedRepeatedly: true,
+                pass: true,
+            },
+            errors,
+            snapshots: { destroyed: destroyed.lifecycle, missing: missing.lifecycle, pending: pending.lifecycle, unfinished: unfinished.lifecycle },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
     }
 }
 

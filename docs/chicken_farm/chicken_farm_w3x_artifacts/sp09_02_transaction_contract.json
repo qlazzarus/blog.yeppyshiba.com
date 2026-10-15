@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "task": "SP-09-02",
+  "status": "complete",
+  "writtenAt": "2026-10-13",
+  "scope": "Canonical transaction policy for later SP-09 implementation. Existing runtime behavior is recorded separately from the decisions that later cards must implement.",
+  "sources": {
+    "growthContract": "sp09_01_growth_contract.json",
+    "buildLifecycle": "games/chicken-farm/src/game/systems/buildingSystem.ts and constructionPlacementSystem.ts",
+    "wallet": "games/chicken-farm/src/game/systems/playerWallet.ts",
+    "economy": "games/chicken-farm/src/game/systems/economySystem.ts and economyTypes.ts",
+    "start": "games/chicken-farm/src/game/startSessionConfig.ts",
+    "w3x": "unit_rawcode_crosscheck.tsv and building_tech_reference.tsv"
+  },
+  "normalStart": {
+    "ownerPlayerId": 3,
+    "wallet": { "gold": 1500, "lumber": 0, "supplyCap": 3, "supplyUsed": 0 },
+    "meaning": "The web cap is an explicit session cap, not a claim that raw W3X food_made values have been scaled by a known ratio. Debug 10000/10000/10000 is test-only and cannot establish normal affordability."
+  },
+  "currentBehavior": {
+    "build": "A pending order spends nothing. BuildingSystem.createBuilding spends the template web gold/lumber exactly once after start validation; skipCost sets costPaid false. Constructing paid buildings refund floor(cost * 0.75) once through cancelConstruction. Completed removal refunds zero.",
+    "hatch": "startCoopHatch removes one I006 egg before creating a timed job. It checks coop job capacity, but currently has no supply reservation or public cancellation. A blocked exit retains the job and does not consume another egg. removeEconomyBuilding drops coop jobs and inventory without returning the egg.",
+    "upgradeResearchProduction": "No generic action, queue, cost, time, reservation, cancellation, or research-level runtime exists yet.",
+    "supply": "PlayerWallet carries supplyCap/supplyUsed, initialized as 3/0, but current construction, hatch, initial units, death, and removal do not update them."
+  },
+  "decisions": {
+    "walletOwnership": "Every transaction reads and mutates only the owning complete building's owner wallet. A different owner cannot satisfy cost, supply, cancellation, or receive refund effects.",
+    "build": {
+      "cost": "Use the current web template costGold/costLumber, not originalCost. Check at start after pending travel and eligibility validation; deduct atomically once.",
+      "cancel": "Only a paid constructing building can be player-cancelled. Refund floor(web gold/lumber cost * 0.75) once. Pending orders have paid zero and cancel for zero. skipCost/test/item fixtures refund zero.",
+      "destroy": "Destruction/removal gives zero gold, lumber, egg, supply, production, or research refund. It uses the existing single removal path.",
+      "buildTime": "Use the existing template buildTimeSec as the web policy. Extracted W3X build time is unavailable, so no original-time replacement is authorized."
+    },
+    "upgrade": {
+      "eligibility": "An upgrade begins only for an owned complete source building with upgradeTo, after source/target prerequisites and wallet checks. It is not a second direct building placement.",
+      "costAndTime": "Until SP-09-03 adds explicit upgrade records, target template web cost and target template buildTimeSec are the provisional web inputs. Original upgrade costs/times are unknown and must not be inferred from original build cost.",
+      "payment": "Deduct once at accepted upgrade start. A building has at most one upgrade or production/research job at a time unless a later explicit per-building capacity says otherwise.",
+      "inProgress": "Keep the source building's footprint, owner, selection, blocker, vision, combat identity, current HP, and active economy capability through progress. It continues its source capability; no target capability is activated early.",
+      "completion": "Atomically replace the capability/template data at completion. Preserve current HP ratio capped by target max HP; do not restore to full HP. If a target footprint cannot safely fit at start, reject before payment rather than move or overlap entities.",
+      "cancel": "Player cancellation restores the unchanged source state and refunds floor(upgrade web cost * 0.75) once. A destroyed upgrading building follows destruction and refunds zero."
+    },
+    "production": {
+      "queue": "A building has a serial queue by default. The existing coop hatch capacity remains its explicit exception and is not changed by this contract.",
+      "payment": "For generic production, deduct the declared web cost and reserve supply atomically when enqueue is accepted. Production cost/time must be explicit SP-09-03 data; no template construction cost may be reused as a unit cost.",
+      "cancel": "A player cancellation returns the declared full unit cost and one reserved supply exactly once, then removes the job. A destroyed production building returns neither cost nor egg; it only clears jobs/reservations once.",
+      "exitWait": "A completed job whose exit is blocked remains paid and supply-reserved. It must not complete again or consume a second input."
+    },
+    "hatch": {
+      "input": "Each accepted hatch consumes exactly one stored I006 egg and reserves the result chicken's supply. The current capacity/time and blocked-exit retry behavior stay in force.",
+      "playerCancel": "SP-09-09 must return exactly one I006 to the same coop inventory and release its one supply reservation. If no slot is available, cancellation fails without changing job, egg, or reservation; it must not drop an unowned field egg.",
+      "destroy": "Coop removal destroys its stored eggs and jobs, releases their reservations, and refunds no egg. This deliberately differs from player cancellation.",
+      "simultaneous": "For a same-tick cancel, destroy, and completion race, process a still-existing job only once: destroyed wins over completion; explicit cancel wins over completion only if it reaches the job first; all later operations are no-ops."
+    },
+    "research": {
+      "costAndTime": "Research requires an explicit web cost, time, maximum level, and effect record from SP-09-03. Provider template construction cost is never a research cost proxy.",
+      "paymentAndCancel": "Deduct once at accepted queue start. Player cancel refunds the full declared research cost once; provider destruction refunds zero and clears the job. No level changes before completion.",
+      "duplicate": "One owner may reserve only one next level of a research key across all providers."
+    },
+    "supply": {
+      "mapping": "W3X food_made becomes future per-template supplyProvided; W3X food_used becomes future per-unit supplyCost. The source contains examples such as h001 food_made 30, h00H 50, h015 65, h00A 3 and h009 food_used 2, but no web conversion ratio is known.",
+      "webDecision": "SP-09-03 must state every current playable template/unit supply value explicitly. Existing starting cap 3 and used 0 are the initial web values, and not a derivation from raw W3X food fields.",
+      "reservation": "available = supplyCap - supplyUsed - supplyReserved. Enqueue/hatch accepts only when available >= supplyCost, immediately increments reserved, and completion converts that reservation to used exactly once.",
+      "lifecycle": "Unit death/removal decrements used once. Job player-cancel or destruction decrements reserved once. Building destruction decreases its supplied cap but never deletes existing units or jobs; new production remains blocked while available is insufficient."
+    }
+  },
+  "manualLedgerCases": [
+    {
+      "case": "normal paid construction then cancel",
+      "before": { "gold": 1500, "lumber": 0, "supply": "0/3" },
+      "input": "farm_house web cost 60g/0l reaches valid start, then player cancels while constructing",
+      "after": { "gold": 1485, "lumber": 0, "supply": "0/3" },
+      "reason": "1500 - 60 + floor(60 * .75); construction does not reserve supply"
+    },
+    {
+      "case": "lumber shortage",
+      "before": { "gold": 1500, "lumber": 0, "supply": "0/3" },
+      "input": "coop_basic needs 120g/52l at start",
+      "after": { "gold": 1500, "lumber": 0, "supply": "0/3" },
+      "reason": "reject before create/spend; template prerequisite enforcement is SP-09-06"
+    },
+    {
+      "case": "paid construction destroyed",
+      "before": { "gold": 1440, "lumber": 0, "supply": "0/3" },
+      "input": "a paid farm_house is destroyed rather than player-cancelled",
+      "after": { "gold": 1440, "lumber": 0, "supply": "0/3" },
+      "reason": "destruction refund is zero"
+    },
+    {
+      "case": "hatch player cancel with inventory space",
+      "before": { "storedEggs": 1, "hatchJobs": 0, "supply": "0/3" },
+      "input": "accept hatch, then player cancels before completion",
+      "after": { "storedEggs": 1, "hatchJobs": 0, "supply": "0/3" },
+      "reason": "one egg and one reservation are restored exactly once"
+    },
+    {
+      "case": "hatch blocked exit then building destruction",
+      "before": { "storedEggs": 1, "hatchJobs": 0, "supply": "0/3" },
+      "input": "accept hatch, exit stays blocked after completeAtSec, then coop is destroyed",
+      "after": { "storedEggs": 0, "hatchJobs": 0, "supply": "0/3" },
+      "reason": "blocked exit preserves the paid reservation; destruction removes it with zero egg refund"
+    },
+    {
+      "case": "restart",
+      "before": { "wallet": "arbitrary prior run", "jobs": "pending/running/exit_wait", "supply": "arbitrary prior run" },
+      "input": "same-page new run",
+      "after": { "gold": 1500, "lumber": 0, "supply": "0/3", "jobs": 0 },
+      "reason": "new run resets state; prior callbacks cannot mutate its wallet or supply"
+    }
+  ],
+  "openSourceFacts": [
+    "W3X extracted tables do not provide confirmed build/upgrade/research time or refund rules.",
+    "Original food fields establish raw values but not a valid web conversion scale.",
+    "Original h006/h00G gate state transition remains unobserved and is not a transaction rule.",
+    "Original research provider data does not establish research cost, duration, maximum level, or complete target effect semantics."
+  ],
+  "implementationOwners": {
+    "canonical values and graph": "SP-09-03",
+    "snapshot and runner": "SP-09-04",
+    "prerequisite": "SP-09-05 and SP-09-06",
+    "supply": "SP-09-07",
+    "production and hatch": "SP-09-08 through SP-09-12",
+    "upgrade": "SP-09-13 through SP-09-16",
+    "research and effects": "SP-09-17 through SP-09-19",
+    "restart verification": "SP-09-23",
+    "nextTask": "SP-09-03"
+  }
+}

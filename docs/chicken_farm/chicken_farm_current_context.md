@@ -28,7 +28,7 @@
 | 6.5 | SP-06.5 | W3X 럼버 밀 30초 수입 복원 | **완료** — [6개 실행 task](./chicken_farm_sp06_5_task_plan.md), `full_loop`·`all` 통과 | 닭·알 생산과 병행 지급; build card·선행조건·upgrade UI는 SP-09 |
 | 7 | SP-07 | 실제 맵 전투 연결 | **완료** — [16개 세부 task](./chicken_farm_sp07_task_plan.md), combat/economy all 통과 | 농부/개/타워와 적의 공격·피해·사망, 시야·사거리·펜스 blocker, attack-move 복귀 |
 | 8 | SP-08 | 늑대 웨이브 진행 연결 | **완료** — [18개 task](./chicken_farm_sp08_task_plan.md), [W3X 비교](./chicken_farm_sp08_w3x_comparison.md), normal/phase runtime 및 combat/economy all 통과 | 실제 spawn 구역, 단계별 출현/보충, 농장 진입, 경로 막힘 대응, 웨이브 전환 |
-| 9 | SP-09 | 건물 기능·성장 경로 | [SP-09-01 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json) 완료; 02~25 미착수, 다음 **SP-09-02** | 플레이에 필요한 생산·업그레이드·선행조건·인구·취소 처리와 명령 연결 |
+| 9 | SP-09 | 건물 기능·성장 경로 | [SP-09-01 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json)·[02 거래 정책](./chicken_farm_w3x_artifacts/sp09_02_transaction_contract.json)·[03 성장 그래프](./chicken_farm_w3x_artifacts/growth_check_progression.json)·[04 normal baseline](./chicken_farm_w3x_artifacts/growth_check_baseline.json)·[05 eligibility](./chicken_farm_w3x_artifacts/growth_check_eligibility.json)·[06 건설 선행조건](./chicken_farm_w3x_artifacts/construction_check_growth_prerequisite.json) 완료; 07~25 미착수, 다음 **SP-09-07** | 플레이에 필요한 생산·업그레이드·선행조건·인구·취소 처리와 명령 연결 |
 | 10 | SP-10 | 적 단계·보스·보상 연결 | 데이터/계획 기준 대조 필요 | 일반 적 티어/보스의 능력·처치·드롭·보상과 다음 진행 연결; 중복 보상 방지 |
 | 11 | SP-11 | 승리·패배·재시작 구현 | 전체 루프 확인 필요 | SP-01 규칙으로 종료, 판정/경제 진행 중단, 재시작 시 이전 판 객체·예약·타이머 제거 |
 | 12 | SP-12 | 싱글 콘텐츠 누락 정리·연결 | 항목별 구현 감사 필요 | 상점/아이템, 가족/용병, 연구/스킬, 질병/치유·이벤트 등 기존 기획을 구현/미구현/후속 제안으로 대조하고 필수분 연결 |
@@ -70,7 +70,7 @@ SP-02는 [세부 실행 계획](./chicken_farm_sp02_task_plan.md)의 **SP-02-01 
 
 - 마지막 사용자 보고: **2026-09-28 16:10 KST 기록**, 5시간 잔여 61%(reset in 3h 11m), 주간 잔여 78%(reset in 6d 17h). 자동 갱신되지 않는 과거 스냅샷이다.
 - 운영안: 매 소작업 전후 양쪽 잔여율 기록, 각 한도 20% 여유. 실제 task당 Astra light 소비 표본은 아직 없다.
-- SP-08은 완료했다. SP-09-01은 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json)으로 완료했으며, 다음 실행은 [SP-09 세부 계획](./chicken_farm_sp09_task_plan.md)의 **SP-09-02 비용·시간·인구·취소 정책 계약**이다. 25개 카드를 한 요청에 한 ID씩 실행한다. source 미확인 initial quantity는 active tier당 1기의 explicit web baseline이며, 보스/보상은 SP-10, 부활/패배는 SP-11, pause는 SP-13, 수치 밸런스는 SP-15에 유지한다.
+- SP-08은 완료했다. SP-09-01의 [35개 template 성장 계약](./chicken_farm_w3x_artifacts/sp09_01_growth_contract.json), SP-09-02의 [거래 정책](./chicken_farm_w3x_artifacts/sp09_02_transaction_contract.json), SP-09-03의 [성장 그래프](./chicken_farm_w3x_artifacts/growth_check_progression.json), SP-09-04의 [normal baseline](./chicken_farm_w3x_artifacts/growth_check_baseline.json), SP-09-05의 [eligibility](./chicken_farm_w3x_artifacts/growth_check_eligibility.json), SP-09-06의 [건설 선행조건](./chicken_farm_w3x_artifacts/construction_check_growth_prerequisite.json)을 완료했으며, 다음 실행은 [SP-09 세부 계획](./chicken_farm_sp09_task_plan.md)의 **SP-09-07 공급 cap·used lifecycle**이다. 25개 카드를 한 요청에 한 ID씩 실행한다. source 미확인 initial quantity는 active tier당 1기의 explicit web baseline이며, 보스/보상은 SP-10, 부활/패배는 SP-11, pause는 SP-13, 수치 밸런스는 SP-15에 유지한다.
 - 기존 20~34개 싱글 / 전체 45~78개 추정은 UI·표현·멀티를 포함한 이전 범위다. **이번 싱글 우선 task의 기간·비용 예측으로 그대로 사용하지 않는다.** 상세 목록 대조와 실측 이후 재산정한다.
 - 측정표와 계산 규칙: [Astra light 개발 작업량·한도 예산](./chicken_farm_astra_light_work_budget_2026-09-28.md).
 
