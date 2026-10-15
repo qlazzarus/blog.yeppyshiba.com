@@ -104,8 +104,6 @@ BC-250은 단순히 로컬 챗봇 하나를 실행하고 끝낼 장비가 아니
 
 향후 제작할 웹게임에서는 특정 상황에 반응하는 **AI 플레이어·NPC 의사결정**에 로컬 모델을 적용해 보고 싶다. 모든 행동을 실시간 LLM에 맡기기보다 게임 규칙과 일반적인 상태 머신을 기본으로 두고, 필요한 판단에만 AI를 호출하는 방식이 현실적일 것으로 보고 있다.
 
-관련 개발 기록: [Apex Seoul — 모바일 조작과 PWA 준비](https://blog.yeppyshiba.com/article/phaser4-apex-seoul-mobile-controls-motion-pwa/)
-
 ### 4. Orange Pi 홈랩과 연결
 
 ![AMD BC-250 AI 서버와 Orange Pi k3s 클러스터의 미래 연결 구성도](/images/posts/202610/bc250-homelab-architecture.jpg)
