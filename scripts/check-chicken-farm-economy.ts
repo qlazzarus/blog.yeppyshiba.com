@@ -441,20 +441,79 @@ async function runFullLoopCase() {
         }, null, { timeout: 5_000 });
         console.log('[full_loop] start items and market exchange complete');
 
+        // coop_basic is a town-hall tier building in the SP-09 progression.
+        // Establish that prerequisite through the real command card and
+        // construction/upgrade lifecycle before looking for a coop placement.
+        const farmBuilder = await selectFarmer(page, canvas);
+        const farmPoint = await page.evaluate(() => {
+            const xCandidates = [3072, 3328, 3584, 3840, 4096, 4352, 4608, 4864];
+            const yCandidates = [8384, 8640, 8896, 9152, 9408];
+            return yCandidates.flatMap((y) => xCandidates.flatMap((x) => {
+                const preview = window.__chickenFarmDebug!.getConstructionPlacementPreview('farm_house', x, y);
+                return preview?.valid.valid ? [{ x, y }] : [];
+            }));
+        }).then((candidates) => candidates
+            .filter((candidate) => {
+                const screen = getWorldScreenPoint(farmBuilder.calibration, candidate);
+                return screen.x >= canvas.left && screen.x <= canvas.left + canvas.width &&
+                    screen.y >= canvas.top && screen.y <= canvas.top + canvas.height * 0.75;
+            })
+            .sort((a, b) => Math.hypot(a.x - 3392, a.y - 8928) - Math.hypot(b.x - 3392, b.y - 8928))[0]);
+        if (!farmPoint) {
+            throw new Error(`No visible normal P3 farm placement point: ${JSON.stringify(await getEconomySnapshot(page))}`);
+        }
+        await page.keyboard.press('b');
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getState().commandPage === 'build', null, { timeout: 5_000 });
+        await page.keyboard.press('h');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().activePlacementTemplateId === 'farm_house',
+            null,
+            { timeout: 5_000 },
+        );
+        await clickWorld(page, farmBuilder.calibration, farmPoint);
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'farm_house' && building.state === 'complete'),
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        const farm = requireCompleteBuilding(await getEconomySnapshot(page), 'farm_house');
+        const farmSelection = await selectFarmer(page, canvas);
+        await clickWorld(page, farmSelection.calibration, await getBuildingCenter(page, farm.id));
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.buildingId === id, farm.id, { timeout: 5_000 });
+        await page.keyboard.press('u');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'town_hall' && building.state === 'complete'),
+            null,
+            { timeout: fullLoopStepTimeoutMs },
+        );
+        console.log('[full_loop] farm upgraded to town hall prerequisite');
+
+        // The first exchange paid for the farm/upgrade path. A second real
+        // exchange funds the egg-storage -> coop upgrade's 52 lumber cost
+        // without a fixture.
+        const marketReselection = await calibrateWorldInput(page, canvas);
+        await clickWorld(page, marketReselection, marketCenter);
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.buildingId === id, market.id, { timeout: 5_000 });
+        await page.keyboard.press('e');
+        await page.waitForFunction(() => {
+            const wallet = window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().wallet;
+            return wallet?.gold === 1160 && wallet.lumber === 100;
+        }, null, { timeout: 5_000 });
+
         const builder = await selectFarmer(page, canvas);
         // This is a read-only terrain/footprint query. Keep only candidates
         // that also project into the active world viewport; canvas clicks
         // outside that rectangle are intentionally ignored by Phaser.
-        const buildableCoopPoints = await page.evaluate(() => {
+        const buildableEggStoragePoints = await page.evaluate(() => {
             const xCandidates = [3072, 3328, 3584, 3840, 4096, 4352, 4608, 4864];
             const yCandidates = [8384, 8640, 8896, 9152, 9408];
             return yCandidates.flatMap((y) => xCandidates.flatMap((x) => {
-                const preview = window.__chickenFarmDebug!.getConstructionPlacementPreview('coop_basic', x, y);
+                const preview = window.__chickenFarmDebug!.getConstructionPlacementPreview('egg_storage', x, y);
                 return preview?.valid.valid ? [{ x, y }] : [];
             }));
         });
         const builderPosition = await getFarmer(page);
-        const coopPoint = buildableCoopPoints
+        const eggStoragePoint = buildableEggStoragePoints
             .filter((candidate) => {
             const screen = getWorldScreenPoint(builder.calibration, candidate);
             return screen.x >= canvas.left && screen.x <= canvas.left + canvas.width &&
@@ -464,24 +523,27 @@ async function runFullLoopCase() {
                 Math.hypot(a.x - builderPosition.x, a.y - builderPosition.y) -
                 Math.hypot(b.x - builderPosition.x, b.y - builderPosition.y),
             )[0];
-        if (!coopPoint) {
-            throw new Error(`No visible normal P3 coop placement point: ${JSON.stringify({ buildableCoopPoints, snapshot: await getEconomySnapshot(page) })}`);
+        if (!eggStoragePoint) {
+            throw new Error(`No visible normal P3 egg-storage placement point: ${JSON.stringify({ buildableEggStoragePoints, snapshot: await getEconomySnapshot(page) })}`);
         }
-        console.log(`[full_loop] visible buildable coop point ${coopPoint.x},${coopPoint.y}`);
+        console.log(`[full_loop] visible buildable egg-storage point ${eggStoragePoint.x},${eggStoragePoint.y}`);
         await page.keyboard.press('b');
         await page.waitForFunction(() => window.__chickenFarmDebug!.getState().commandPage === 'build', null, { timeout: 5_000 });
-        // Use the visible Coop command-card button. In headless Chromium the
-        // immediately-following C key can be observed before the build card's
-        // next frame has installed its hotkey state.
+        // coop_basic is upgrade-only, so build its real egg_storage predecessor
+        // from the command card and upgrade that completed building.
         await clickCommandCardButton(page, canvas, 3);
-        await page.waitForFunction(() => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().activePlacementTemplateId === 'coop_basic', null, { timeout: 5_000 });
-        await clickWorld(page, builder.calibration, coopPoint);
+        await page.waitForFunction(() => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().activePlacementTemplateId === 'egg_storage', null, { timeout: 5_000 });
+        await clickWorld(page, builder.calibration, eggStoragePoint);
         await page.waitForFunction(
-            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'coop_basic'),
+            () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'egg_storage' && building.state === 'complete'),
             null,
-            { timeout: 12_000 },
+            { timeout: fullLoopStepTimeoutMs },
         );
-        console.log('[full_loop] coop construction started');
+        const eggStorage = requireCompleteBuilding(await getEconomySnapshot(page), 'egg_storage');
+        const eggStorageSelection = await selectFarmer(page, canvas);
+        await clickWorld(page, eggStorageSelection.calibration, await getBuildingCenter(page, eggStorage.id));
+        await page.waitForFunction((id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().selected.buildingId === id, eggStorage.id, { timeout: 5_000 });
+        await page.keyboard.press('u');
         await page.waitForFunction(
             () => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().buildings.some((building) => building.templateId === 'coop_basic' && building.state === 'complete'),
             null,
@@ -528,11 +590,20 @@ async function runFullLoopCase() {
             coop.id,
             { timeout: 5_000 },
         );
-        await page.waitForFunction(
-            (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((coop) => coop.id === id && coop.storedEggs === 1),
-            coop.id,
-            { timeout: fullLoopStepTimeoutMs },
-        );
+        try {
+            await page.waitForFunction(
+                (id) => window.__chickenFarmDebug!.getEconomyLifecycleSnapshot().coops.some((coop) => coop.id === id && coop.storedEggs === 1),
+                coop.id,
+                { timeout: fullLoopStepTimeoutMs },
+            );
+        } catch (error) {
+            throw new Error(`Normal-loop egg deposit did not complete: ${JSON.stringify({
+                controls: await page.evaluate(() => window.__chickenFarmDebug!.getControlSnapshot()),
+                economy: await getEconomySnapshot(page),
+                firstEgg,
+                coopCenter,
+            })}`, { cause: error });
+        }
         const deposited = await getEconomySnapshot(page);
         console.log('[full_loop] first egg deposited');
 
@@ -580,11 +651,11 @@ async function runFullLoopCase() {
 
         if (
             before.wallet?.gold !== 1500 ||
-            deposited.wallet?.gold !== 1280 || deposited.wallet.lumber !== 18 ||
+            deposited.wallet?.gold !== 980 || deposited.wallet.lumber !== 48 ||
             hatchStarted.hatchJobs.length !== 1 ||
-            afterSale.wallet?.gold !== 1292 || afterSale.wallet.lumber !== 18 ||
+            afterSale.wallet?.gold !== 992 || afterSale.wallet.lumber !== 48 ||
             completed.chickens.length !== 3 || completed.hatchJobs.length !== 0 ||
-            !hud.includes('Gold 1292') || !hud.includes('Lumber 18')
+            !hud.includes('Gold 992') || !hud.includes('Lumber 48')
         ) {
             throw new Error(`Normal full-loop ledger or HUD mismatch: ${JSON.stringify({ afterSale, before, completed, deposited, hatchStarted, hud })}`);
         }
@@ -1559,7 +1630,8 @@ function assertAcquisitionDelta(
         afterCharges !== expectedScrollCharges ||
         before.wallet?.gold !== after.wallet?.gold ||
         before.wallet?.lumber !== after.wallet?.lumber ||
-        before.wallet?.supplyUsed !== after.wallet?.supplyUsed
+        after.wallet?.supplyCap !== before.wallet?.supplyCap ||
+        after.wallet?.supplyUsed !== before.wallet?.supplyUsed + chickenDelta
     ) {
         throw new Error(`${label} acquisition mismatch: ${JSON.stringify({ after, before })}`);
     }

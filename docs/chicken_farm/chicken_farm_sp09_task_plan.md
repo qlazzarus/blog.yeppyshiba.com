@@ -1,6 +1,6 @@
 # SP-09 건물 기능·성장 경로 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-15. SP-09-01~23 계약·성장 그래프·관찰·선행조건 판정·공급/생산/연구 queue·방어/유닛 연구·지원 aura·gate state·upgrade 완료/economy adapter·취소/파괴 복구·command card·same-page restart 격리를 완료했다. 다음 실행은 **SP-09-24**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
+> 갱신: 2026-10-16. SP-09-01~25 계약·성장 그래프·관찰·선행조건 판정·공급/생산/연구 queue·방어/유닛 연구·지원 aura·gate state·upgrade 완료/economy adapter·취소/파괴 복구·command card·same-page restart·normal 경제→성장 실제 통합·필수 회귀/인계를 완료했다. 다음 실행은 **SP-10**이며 **한 요청에 한 ID**만 수행한다. 문서의 모델 명칭은 실행 권장 설정이며 현재 세션의 모델을 전환하지 않는다.
 
 ## 목표와 범위
 
@@ -32,7 +32,7 @@ SP-09는 기존 건물 성장과 현재 유닛에 필요한 기능을 담당한�
 
 ## 실행 순서
 
-SP-09-01~20은 **완료**했고, 21~25는 **미착수**다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
+SP-09-01~25는 **완료**했다. 선행 열의 숫자는 SP-09 내부 ID이며 기본 순서는 01 → 02 → … → 25다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -291,20 +291,23 @@ SP-09-01~20은 **완료**했고, 21~25는 **미착수**다. 선행 열의 숫자
 
 ### SP-09-24 — normal 경제→성장 실제 통합
 
-- 상태: **진행 중**. 선행: 23.
+- 상태: **완료**. 선행: 23.
 - 읽기: current context 정상 시작 계약, growth/economy browser runner.
 - 수정 범위: fixture 없는 normal P3 시작 자원과 실제 입력으로 농가·경제·럼버 밀·타워 접근, 생산/취소, 필수 upgrade/연구 대표 경로를 재현한다.
 - 완료 조건: 자원 획득/비용/공급 장부와 실제 효과 증거를 남긴다. 각 대표 경로를 새 run으로 분리해도 되며 자원 주입·시간 가속 증거와 구별한다. 첫 wave 전 타워 완성을 임의 필수화하지 않는다.
 - 검증: 정상 속도 browser artifact와 오류 0. 후반 전체 tier는 별도 명시적 가속 coverage로 확인하며 밸런스 조정은 SP-15로 인계한다.
-- 진행: `normal_integration` case와 `npm run chicken:growth:normal-integration:browser --workspace @games/chicken-farm`을 추가했다. fixture 없이 normal P3에서 실제 B/H, B/G/L, B/T, D/P, U, R/M와 world placement로 farm·lumber mill·tower·dog cancel·farm upgrade·masonry를 순서대로 검증하며, 두 차례의 실제 30초 lumber tick만 기다린다. 이 세션 실행 호스트는 60초가 넘는 child process를 종료해 artifact를 기록하지 못했으므로, 1~2분 제한 없는 환경에서 해당 runner의 artifact/오류 0을 확인한 뒤 완료 처리한다. typecheck/build/diff check은 통과했다.
+- 결과: `normal_integration` case와 `npm run chicken:growth:normal-integration:browser --workspace @games/chicken-farm`이 fixture 없는 normal P3에서 실제 B/H, B/G/L, B/T, D/P, U, R/M와 world placement로 farm·lumber mill·tower·dog cancel·farm upgrade·masonry를 순서대로 검증한다. 카메라/캔버스 보정과 가시 뷰포트 내 타워 배치도 runner에 고정했다.
+- 검증: [normal integration browser artifact](./chicken_farm_w3x_artifacts/growth_check_normal_integration.json)는 normal P3·fixture off, 실제 두 차례 30초 lumber tick, 럼버 밀·scout tower·town hall 완료, dog 예약 해제, masonry level 1, wallet `1189g/65l`, supply `0/8 reserved 0` 및 console/page/request/HTTP 오류 0을 기록한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`은 종료 코드 0이다.
 
 ### SP-09-25 — 전체 coverage·필수 회귀·인계
 
-- 상태: **미착수**. 선행: 01~24.
+- 상태: **완료**. 선행: 01~24.
 - 읽기: 01 기능표, 모든 growth artifact, SP-05~08 runner와 비교표.
 - 수정 범위: 각 필수 건물/생산/연구/upgrade edge에 구현과 검증 증거를 매핑하고 기존 회귀를 실행한다. SP-09 W3X 비교표와 후속 인계를 작성한다.
 - 완료 조건: 필수 미완료가 있으면 SP-09를 완료 처리하지 않는다. 후속은 구체 기능·이유·담당 SP를 적고 current context/backlog의 다음 실행을 SP-10으로 맞춘다.
 - 검증: typecheck/build, growth 전체 지원 사례, economy all/combat all, construction lifecycle·controls·wave normal/phase·restart 관련 사례. runner에 없는 all selector를 가정하지 않는다.
+- 결과: 성장 graph/공급/생산·부화/연구·upgrade·gate·command-card·restart의 기존 evidence를 [SP-09 W3X 비교표](./chicken_farm_sp09_w3x_comparison.md)에 매핑했다. `economy all`은 실제 normal P3의 farm → town hall → egg storage → coop upgrade → 산란/예치/부화/판매 경로도 포함하도록 갱신했고, 닭장 접근 뒤 유휴 농부가 예치 작업을 남기는 runtime 상태 전이를 수정했다.
+- 검증: 2026-10-16 재실행 artifact인 [economy all](./chicken_farm_w3x_artifacts/economy_check_all.json), [combat all](./chicken_farm_w3x_artifacts/combat_check_all.json), [construction completion](./chicken_farm_w3x_artifacts/construction_check_completion.json)·[removal](./chicken_farm_w3x_artifacts/construction_check_removal.json)·[restart](./chicken_farm_w3x_artifacts/construction_check_restart.json), [wave normal integration](./chicken_farm_w3x_artifacts/wave_check_normal_integration.json), [wave runtime phases](./chicken_farm_w3x_artifacts/wave_check_runtime_phases.json)는 모두 pass 및 browser 오류 0이다. `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`도 종료 코드 0이다.
 
 ## Terra Medium 실행 요청 템플릿
 

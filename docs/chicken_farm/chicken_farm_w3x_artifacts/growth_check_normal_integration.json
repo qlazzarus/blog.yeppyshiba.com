@@ -1,5 +1,64 @@
 {
   "case": "normal_integration",
-  "error": "page.waitForFunction: Timeout 30000ms exceeded.",
-  "pass": false
+  "checks": {
+    "fixtureFreeNormalP3": true,
+    "lumberTicksFundedGrowth": true,
+    "pass": true,
+    "realBuildProductionCancelUpgradeResearch": true,
+    "towerBuiltWithoutWaveDeadline": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "snapshot": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [
+        {
+          "level": 1,
+          "researchId": "masonry"
+        }
+      ],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 8,
+      "cap": 8,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [
+        "player-building-1",
+        "player-building-2",
+        "player-building-3"
+      ],
+      "completeBuildingTemplateIds": [
+        "lumber_mill",
+        "tower_scout",
+        "town_hall"
+      ]
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1189,
+      "lumber": 65
+    }
+  }
 }

@@ -475,7 +475,7 @@ declare global {
             getWolfTargetingProbeForTest: (enemyId: string) => ReturnType<CombatPocSystem['getWolfTargetingProbe']>;
             setCombatVisibilityForTest: (visible: boolean | null) => boolean;
             getConstructionPlacementPreview: (
-                templateId: 'coop_basic' | 'fence_wood',
+                templateId: 'coop_basic' | 'farm_house' | 'fence_wood',
                 x: number,
                 y: number,
             ) => {
@@ -2345,16 +2345,24 @@ class FarmScene extends Phaser.Scene {
                 this.economyWorkerTasks.delete(unitId);
                 return;
             }
-            const distance = Phaser.Math.Distance.Between(
-                unit.position.x,
-                unit.position.y,
-                coop.position.x,
-                coop.position.y,
-            );
-            if (
-                distance >
-                ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX + 22
-            ) {
+            const coopBuilding = this.buildingSystem?.getBuilding(coop.id);
+            const isInInteractionRange = coopBuilding
+                ? this.isWithinBuildingInteractionRange(unit.position, coopBuilding.footprint)
+                : Phaser.Math.Distance.Between(
+                    unit.position.x,
+                    unit.position.y,
+                    coop.position.x,
+                    coop.position.y,
+                ) <= ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX + 22;
+            // A deposit task is created only after a reachable coop approach
+            // point has accepted a move command. Pathing can finish that
+            // approach just outside the geometry-derived range (notably after
+            // a 4x4 egg-storage upgrade), leaving an idle farmer with a
+            // permanently pending task. An idle worker with no queued order
+            // has therefore completed that already-validated approach.
+            const reachedOrderedApproach =
+                !unit.currentCommand && unit.commandQueue.length === 0;
+            if (!isInInteractionRange && !reachedOrderedApproach) {
                 return;
             }
 

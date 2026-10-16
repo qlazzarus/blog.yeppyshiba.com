@@ -40,6 +40,7 @@ const artifactPath = path.join(
     'docs/chicken_farm/chicken_farm_w3x_artifacts',
     growthCase === 'baseline' ? 'growth_check_baseline.json' : `growth_check_${growthCase}.json`,
 );
+const worldClickTraces: Array<Record<string, unknown>> = [];
 
 if (!['baseline', 'supply', 'production', 'upgrade', 'research', 'gate', 'command_card', 'restart', 'normal_integration'].includes(growthCase)) {
     throw new Error(`Unsupported CHICKEN_FARM_GROWTH_CASE: ${growthCase}`);
@@ -224,7 +225,9 @@ async function runCommandCardLifecycle() {
             window.__chickenFarmDebug!.createEconomyBuildingFixture('farm_house', 4200, 9000, 3),
         );
         assert.ok(farmHouseId, 'upgrade source fixture exists');
-        await clickWorld(page, calibration, { x: 4200, y: 9000 });
+        // Fixture coordinates are footprint origins; select the building's
+        // center rather than its border so pointer rounding cannot miss it.
+        await clickWorld(page, calibration, { x: 4328, y: 9128 });
         await page.waitForFunction(
             (id) => window.__chickenFarmDebug!.getState().selectedBuildingId === id,
             farmHouseId,
@@ -353,6 +356,8 @@ async function runNormalIntegration() {
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
     const errors = { console: [] as string[], page: [] as string[], request: [] as string[], response: [] as string[] };
+    let stage = 'launch';
+    worldClickTraces.length = 0;
     page.on('console', (message) => {
         if (message.type() === 'error') errors.console.push(message.text());
     });
@@ -362,6 +367,7 @@ async function runNormalIntegration() {
         if (response.status() >= 400) errors.response.push(`${response.status()} ${response.url()}`);
     });
     try {
+        stage = 'initial_scene_ready';
         await page.goto(baseUrl, { waitUntil: 'networkidle' });
         await page.waitForFunction(
             () => Boolean(window.__chickenFarmDebug) && window.__chickenFarmDebug!.getState().elapsedSec > 0,
@@ -379,6 +385,7 @@ async function runNormalIntegration() {
         assert.ok(farmer, 'normal farmer exists');
 
         const build = async (keys: readonly string[], site: { readonly x: number; readonly y: number }, templateId: string) => {
+            stage = `${templateId}: select_farmer`;
             const currentFarmer = await page.evaluate((id) =>
                 window.__chickenFarmDebug!.getControlSnapshot().units.find((unit) => unit.id === id),
                 farmer.id,
@@ -386,9 +393,11 @@ async function runNormalIntegration() {
             assert.ok(currentFarmer, 'farmer remains alive for normal build path');
             await clickWorld(page, calibration, { x: currentFarmer.x, y: currentFarmer.y });
             await page.waitForFunction((id) => window.__chickenFarmDebug!.getControlSnapshot().units.some((unit) => unit.id === id && unit.selected), farmer.id);
+            stage = `${templateId}: open_build_page`;
             await page.keyboard.press(keys[0]!);
             await page.waitForFunction(() => window.__chickenFarmDebug!.getState().commandPage === 'build');
             if (keys.length === 3) {
+                stage = `${templateId}: open_growth_page`;
                 await page.keyboard.press(keys[1]!);
                 try {
                     await page.waitForFunction(() => window.__chickenFarmDebug!.getState().commandPage === 'growth');
@@ -400,6 +409,7 @@ async function runNormalIntegration() {
                     );
                 }
             }
+            stage = `${templateId}: start_placement`;
             await page.keyboard.press(keys.at(-1)!);
             try {
                 await page.waitForFunction(
@@ -413,6 +423,7 @@ async function runNormalIntegration() {
                     { cause: error },
                 );
             }
+            stage = `${templateId}: place`;
             await clickWorld(page, calibration, site);
             await page.waitForFunction(
                 (id) => window.__chickenFarmDebug!.getConstructionLifecycleSnapshot().buildings.some((building) => building.templateId === id),
@@ -427,14 +438,19 @@ async function runNormalIntegration() {
 
         await build(['b', 'h'], { x: 3584, y: 8896 }, 'farm_house');
         await build(['b', 'g', 'l'], { x: 4096, y: 8896 }, 'lumber_mill');
-        await build(['b', 't'], { x: 4608, y: 8896 }, 'tower_scout');
+        // Keep the placement point inside the 960px browser viewport.  The
+        // previous x=4608 resolves to screen x=1050 at the P3 camera start,
+        // so Playwright clicks outside Phaser's canvas and no placement occurs.
+        await build(['b', 't'], { x: 4352, y: 8896 }, 'tower_scout');
 
         // First normal 30-second lumber tick funds dog production/cancel and the farm upgrade.
+        stage = 'wait_first_lumber_income';
         await page.waitForFunction(
             () => (window.__chickenFarmDebug!.getGrowthSnapshot().wallet.lumber >= 70),
             null,
             { timeout: 50_000 },
         );
+        stage = 'dog_production_cancel_and_upgrade';
         await clickWorld(page, calibration, { x: 3712, y: 9024 });
         await page.waitForFunction(() => window.__chickenFarmDebug!.getState().selectedBuildingId !== null);
         await page.keyboard.press('d');
@@ -445,11 +461,13 @@ async function runNormalIntegration() {
         await page.waitForFunction(() => window.__chickenFarmDebug!.getGrowthSnapshot().upgrades.length === 1);
 
         // A second real payout funds masonry after the dog cancellation and upgrade cost.
+        stage = 'wait_second_lumber_income';
         await page.waitForFunction(
             () => window.__chickenFarmDebug!.getGrowthSnapshot().wallet.lumber >= 35,
             null,
             { timeout: 50_000 },
         );
+        stage = 'research_masonry';
         await clickWorld(page, calibration, { x: 4160, y: 8960 });
         await page.waitForFunction(() => window.__chickenFarmDebug!.getState().selectedBuildingId !== null);
         await page.keyboard.press('r');
@@ -462,6 +480,7 @@ async function runNormalIntegration() {
             { timeout: 30_000 },
         );
 
+        stage = 'assert_final_state';
         const result = await getGrowthSnapshot(page);
         assert.equal(result.jobs.production.length, 0, 'dog cancellation leaves no job');
         assert.equal(result.supply.reserved, 0, 'dog cancellation releases supply reservation');
@@ -485,6 +504,14 @@ async function runNormalIntegration() {
             errors,
             snapshot: result,
         };
+    } catch (error) {
+        const diagnostic = await getNormalIntegrationDiagnostic(page).catch((diagnosticError) => ({
+            diagnosticError: diagnosticError instanceof Error ? diagnosticError.message : String(diagnosticError),
+        }));
+        throw new Error(
+            `Normal integration failed at ${stage}: ${JSON.stringify({ diagnostic, worldClickTraces })}`,
+            { cause: error },
+        );
     } finally {
         await page.close();
         await browser.close();
@@ -1094,16 +1121,25 @@ async function makeWorldCalibration(
 ) {
     const first = { x: canvas.left, y: canvas.top };
     const second = { x: canvas.left + canvas.width / 4, y: canvas.top + canvas.height / 4 };
-    await page.mouse.click(first.x, first.y);
-    const firstWorld = await page.evaluate(
-        () => window.__chickenFarmDebug!.getControlSnapshot().lastPrimaryClickWorldPoint,
-    );
-    await page.mouse.click(second.x, second.y);
-    const secondWorld = await page.evaluate(
-        () => window.__chickenFarmDebug!.getControlSnapshot().lastPrimaryClickWorldPoint,
-    );
+    const clickAndReadWorld = async (point: { readonly x: number; readonly y: number }) => {
+        const previous = await page.evaluate(
+            () => window.__chickenFarmDebug!.getControlSnapshot().lastPrimaryClickWorldPoint,
+        );
+        await page.mouse.click(point.x, point.y);
+        await page.waitForFunction(
+            (before) => {
+                const current = window.__chickenFarmDebug!.getControlSnapshot().lastPrimaryClickWorldPoint;
+                return current !== null && (before === null || current.x !== before.x || current.y !== before.y);
+            },
+            previous,
+        );
+        return page.evaluate(() => window.__chickenFarmDebug!.getControlSnapshot().lastPrimaryClickWorldPoint);
+    };
+    const firstWorld = await clickAndReadWorld(first);
+    const secondWorld = await clickAndReadWorld(second);
+    const camera = await page.evaluate(() => window.__chickenFarmDebug!.getControlSnapshot().camera);
     assert.ok(firstWorld && secondWorld, 'world calibration points exist');
-    return { first, firstWorld, second, secondWorld };
+    return { camera, first, firstWorld, second, secondWorld };
 }
 
 async function clickWorld(
@@ -1111,13 +1147,20 @@ async function clickWorld(
     calibration: Awaited<ReturnType<typeof makeWorldCalibration>>,
     world: { readonly x: number; readonly y: number },
 ) {
+    // Pointer coordinates have a CSS-to-Phaser scale factor, so retain the
+    // measured screen transform and compensate only for camera movement.
     const scaleX = (calibration.secondWorld.x - calibration.firstWorld.x) / (calibration.second.x - calibration.first.x);
     const scaleY = (calibration.secondWorld.y - calibration.firstWorld.y) / (calibration.second.y - calibration.first.y);
     assert.ok(Number.isFinite(scaleX) && Number.isFinite(scaleY) && scaleX !== 0 && scaleY !== 0, 'valid world calibration');
-    await page.mouse.click(
-        calibration.first.x + (world.x - calibration.firstWorld.x) / scaleX,
-        calibration.first.y + (world.y - calibration.firstWorld.y) / scaleY,
-    );
+    const camera = await page.evaluate(() => window.__chickenFarmDebug!.getControlSnapshot().camera);
+    const cameraDeltaX = camera.scrollX - calibration.camera.scrollX;
+    const cameraDeltaY = camera.scrollY - calibration.camera.scrollY;
+    const screen = {
+        x: calibration.first.x + (world.x - calibration.firstWorld.x - cameraDeltaX) / scaleX,
+        y: calibration.first.y + (world.y - calibration.firstWorld.y - cameraDeltaY) / scaleY,
+    };
+    worldClickTraces.push({ calibration, camera, screen, world });
+    await page.mouse.click(screen.x, screen.y);
 }
 
 async function getNormalIntegrationDiagnostic(page: import('playwright').Page) {
