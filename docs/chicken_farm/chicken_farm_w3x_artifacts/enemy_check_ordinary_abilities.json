@@ -1,0 +1,136 @@
+{
+  "case": "ordinary_enemy_ability_policy",
+  "checks": {
+    "all18TiersCovered": true,
+    "attachmentWithoutEffectDoesNotExecute": true,
+    "baseAttackOnlyTiersExplicit": true,
+    "pass": true,
+    "unresolvedAbilityPoliciesBlocked": true
+  },
+  "policies": [
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "timber_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "frost_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "giant_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "giant_frost_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "dire_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [
+        "ACct"
+      ],
+      "enemyId": "dire_frost_wolf",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "spirit_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "dire_wolf_tier_8",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "shadow_wolf",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "fel_beast",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "fel_stalker",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02I"
+      ],
+      "enemyId": "fel_ravager",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02I",
+        "A024"
+      ],
+      "enemyId": "darkguard",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02I"
+      ],
+      "enemyId": "shupikuta",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02I",
+        "A023"
+      ],
+      "enemyId": "overlord",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02W"
+      ],
+      "enemyId": "satyr",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [
+        "A02U"
+      ],
+      "enemyId": "satyr_soulstealer",
+      "execution": "blocked_source_data",
+      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+    },
+    {
+      "attachedAbilityIds": [],
+      "enemyId": "satyr_shadowdancer",
+      "execution": "base_attack_only",
+      "reason": "No attached special ability is recorded for this ordinary tier."
+    }
+  ]
+}

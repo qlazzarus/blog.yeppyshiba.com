@@ -2,6 +2,17 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
+import {
+    CANONICAL_ENEMY_DEFINITIONS,
+    type EnemyProgressionSnapshot,
+} from './game/enemyProgression';
+import { ORDINARY_ENEMY_ABILITY_POLICIES } from './game/ordinaryEnemyAbilityPolicies';
+import {
+    createLinkedSummonRegistry,
+    reconcileLinkedSummons,
+    registerLinkedSummon,
+    type LinkedSummonRegistry,
+} from './game/linkedSummonRegistry';
 import { getResearchedBuildingStats } from './game/buildingResearchStats';
 import { getResearchedUnitStats } from './game/unitResearchStats';
 import {
@@ -311,6 +322,7 @@ declare global {
                     readonly tier: number;
                 }[];
             };
+            getEnemyProgressionSnapshot: () => EnemyProgressionSnapshot;
             getEconomyLifecycleSnapshot: () => {
                 readonly activeStartItemPlacement: {
                     readonly inventoryId: string;
@@ -462,6 +474,11 @@ declare global {
                 ownerPlayerId?: number,
             ) => boolean;
             removeCombatEnemyFixture: (id: string) => boolean;
+            spawnLinkedSummonForTest: (
+                parentEnemyId: string,
+                enemyId: EnemyId,
+                lifetimeSec?: number,
+            ) => string | null;
             damageWaveEnemyForTest: (id: string, damage: number) => boolean;
             setCombatEnemyHpForTest: (id: string, hp: number) => boolean;
             createEconomyChickenFixture: (
@@ -766,6 +783,8 @@ class FarmScene extends Phaser.Scene {
     private lastFogAnchor?: Phaser.Math.Vector2;
     private lastMinimapAnchor?: Phaser.Math.Vector2;
     private lastMinimapCamera?: Phaser.Math.Vector2;
+    private linkedSummonRegistry: LinkedSummonRegistry = createLinkedSummonRegistry();
+    private linkedSummonSequence = 0;
     private terrainBlocker?: TerrainBlocker;
     private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
     private terrainOverlayVisible = false;
@@ -880,8 +899,15 @@ class FarmScene extends Phaser.Scene {
         this.configureControls();
         this.input.mouse?.disableContextMenu();
         this.controllableUnits = new ControllableUnitSystem({
-            damageEnemyTarget: (targetId, damage) =>
-                this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+            damageEnemyTarget: (targetId, damage, attackerId) => {
+                const attacker = this.controllableUnits.getUnits().find((unit) => unit.id === attackerId);
+                return this.combatPoc?.damageEnemyTarget(targetId, damage, {
+                    attackerEntityId: attackerId,
+                    cause: 'unit',
+                    ownerPlayerId: attacker?.ownerPlayerId ?? null,
+                    rewardEligible: Boolean(attacker),
+                }) ?? false;
+            },
             getAttackableEnemyTarget: (targetId) =>
                 this.combatPoc?.getAttackableEnemyTarget(targetId) ?? null,
             getAttackableEnemyTargets: () =>
@@ -950,8 +976,13 @@ class FarmScene extends Phaser.Scene {
         this.createEconomyPoc();
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
-                damageEnemyTarget: (targetId, damage) =>
-                    this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+                damageEnemyTarget: (targetId, damage, attacker) =>
+                    this.combatPoc?.damageEnemyTarget(targetId, damage, {
+                        attackerEntityId: attacker.id,
+                        cause: 'tower',
+                        ownerPlayerId: attacker.ownerPlayerId,
+                        rewardEligible: true,
+                    }) ?? false,
                 economy: this.getSharedPlayerEconomy(),
                 getElapsedSec: () => this.elapsedSec,
                 getResearchLevels: (ownerPlayerId) => ({
@@ -1090,6 +1121,7 @@ class FarmScene extends Phaser.Scene {
             getDynamicBlockedRects: () =>
                 this.buildingSystem?.getDynamicBlockedRects() ?? [],
             getElapsedSec: () => this.elapsedSec,
+            getRunId: () => this.runId,
             getWolfTargetableUnits: () =>
                 this.getWolfTargetableUnits(),
             getWolfTargetableBuildings: () =>
@@ -1196,6 +1228,8 @@ class FarmScene extends Phaser.Scene {
         this.waveGlobalAttackRefresh = createWaveGlobalAttackRefresh();
         this.nextWaveReplenishAtSec = null;
         this.waveManagedEnemies.clear();
+        this.linkedSummonRegistry = createLinkedSummonRegistry();
+        this.linkedSummonSequence = 0;
         this.waveSpawnSequence = 0;
         this.waveTargetOverridesForTest.clear();
     }
@@ -1229,6 +1263,7 @@ class FarmScene extends Phaser.Scene {
         if (!scheduler || !populationTargets || !combat) return;
 
         this.reconcileWaveManagedEnemies();
+        this.reconcileLinkedSummons();
         const phaseStarts = scheduler.tick(this.elapsedSec);
         populationTargets.tick(this.elapsedSec, phaseStarts);
         if (this.nextWaveReplenishAtSec === null && phaseStarts.length > 0) {
@@ -1328,6 +1363,61 @@ class FarmScene extends Phaser.Scene {
         for (const id of this.waveManagedEnemies.keys()) {
             if (!aliveIds.has(id)) this.waveManagedEnemies.delete(id);
         }
+    }
+
+    private reconcileLinkedSummons() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        const aliveEnemyIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
+        const reconciled = reconcileLinkedSummons(this.linkedSummonRegistry, {
+            aliveEnemyIds,
+            nowSec: this.elapsedSec,
+        });
+        this.linkedSummonRegistry = reconciled.registry;
+        reconciled.removeIds.forEach((id) => combat.removeRuntimeEnemy(id));
+    }
+
+    private spawnLinkedSummonForTest(
+        parentEnemyId: string,
+        enemyId: EnemyId,
+        lifetimeSec: number | undefined,
+    ) {
+        const combat = this.combatPoc;
+        if (!combat || !parentEnemyId || !Number.isFinite(lifetimeSec ?? 0) || (lifetimeSec ?? 0) < 0) {
+            return null;
+        }
+        const parent = combat.getRuntimeEnemySnapshot().find((enemy) => enemy.id === parentEnemyId);
+        if (!parent) return null;
+        const selection = selectWaveSpawnPoint({
+            dynamicBlockedRects: this.getDynamicBlockedRects(),
+            isTerrainFootprintBlocked: (footprint) =>
+                (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+            rects: WAVE_SPAWN_MANIFEST,
+            worldSize: { height: this.worldSize.y, width: this.worldSize.x },
+        });
+        if (!selection) return null;
+        const id = `linked-r${this.runId}-s${this.linkedSummonSequence}`;
+        const registered = registerLinkedSummon(this.linkedSummonRegistry, {
+            enemyId,
+            id,
+            lifetimeExpiresAtSec: lifetimeSec === undefined ? null : this.elapsedSec + lifetimeSec,
+            ownerPlayerId: parent.ownerPlayerId,
+            parentEnemyId,
+            runId: this.runId,
+            spawnedAtSec: this.elapsedSec,
+        });
+        if (!registered.accepted) return null;
+        const spawned = combat.spawnRuntimeEnemy({
+            enemyId,
+            id,
+            ownerPlayerId: parent.ownerPlayerId,
+            x: selection.candidate.x,
+            y: selection.candidate.y,
+        });
+        if (!spawned) return null;
+        this.linkedSummonRegistry = registered.registry;
+        this.linkedSummonSequence += 1;
+        return id;
     }
 
     private renderTilemapObjects(
@@ -4317,6 +4407,94 @@ class FarmScene extends Phaser.Scene {
             getWaveSnapshot: () => ({
                 ...this.getWaveSnapshot(),
             }),
+            getEnemyProgressionSnapshot: () => {
+                const waveEnemiesById = new Map(
+                    this.getWaveSnapshot().waveManagedEnemies.map((enemy) => [
+                        enemy.id,
+                        enemy,
+                    ]),
+                );
+                const canonicalEnemies = Object.values(CANONICAL_ENEMY_DEFINITIONS).sort(
+                    (left, right) => left.rawcode.localeCompare(right.rawcode),
+                );
+                const definitionByRawcode = new Map(
+                    canonicalEnemies.map((definition) => [definition.rawcode, definition]),
+                );
+                const abilityClock = this.combatPoc?.getEnemyAbilityClockSnapshot();
+
+                return {
+                    abilityClock: {
+                        activeCasts: abilityClock?.activeCasts ?? [],
+                        cooldownCount: abilityClock?.cooldownCount ?? 0,
+                        state: 'ready_no_supported_abilities' as const,
+                    },
+                    bossMilestones: CHICKEN_FARM_BALANCE.waves.bossMilestonesForSp10.map(
+                        (milestone) => {
+                            const definition = definitionByRawcode.get(milestone.bossRawcode);
+                            if (!definition) {
+                                throw new Error(`Missing canonical boss definition: ${milestone.bossRawcode}`);
+                            }
+                            return {
+                                atSec: milestone.atSec,
+                                enemyId: definition.enemyId,
+                                rawcode: milestone.bossRawcode,
+                                state:
+                                    this.elapsedSec >= milestone.atSec
+                                        ? ('due_not_scheduled' as const)
+                                        : ('pending' as const),
+                            };
+                        },
+                    ),
+                    canonicalEnemies,
+                    deathEvents: this.combatPoc?.getEnemyDeathEvents() ?? [],
+                    elapsedSec: this.elapsedSec,
+                    fieldDrops: { entries: [], state: 'not_started' as const },
+                    finalTracking: {
+                        state: 'not_started' as const,
+                        trackedLinkedSummonIds: [],
+                        trackedWaveEnemyIds: [],
+                    },
+                    fixturesEnabled: CHICKEN_FARM_POC_FLAGS.debugFixtures,
+                    farmerProgression: { owners: [], state: 'not_started' as const },
+                    linkedSummons: {
+                        active: this.linkedSummonRegistry.active,
+                        ended: this.linkedSummonRegistry.ended,
+                        state: 'registry_active' as const,
+                    },
+                    rewardLedger: { entries: [], state: 'not_started' as const },
+                    runId: this.runId,
+                    runtimeEnemies: (this.combatPoc?.getRuntimeEnemySnapshot() ?? [])
+                        .map((enemy) => {
+                            const definition = CANONICAL_ENEMY_DEFINITIONS[enemy.enemyId];
+                            const ordinaryAbilityPolicy = ORDINARY_ENEMY_ABILITY_POLICIES.find(
+                                (policy) => policy.enemyId === enemy.enemyId,
+                            );
+                            const linkedSummon = this.linkedSummonRegistry.active.find(
+                                (summon) => summon.id === enemy.id,
+                            );
+                            return {
+                                abilities: definition.abilities,
+                                enemyId: enemy.enemyId,
+                                id: enemy.id,
+                                origin: linkedSummon
+                                    ? ('linked_summon' as const)
+                                    : waveEnemiesById.has(enemy.id)
+                                      ? ('ordinary_wave' as const)
+                                      : ('runtime_fixture_or_other' as const),
+                                ownerPlayerId: enemy.ownerPlayerId,
+                                ordinaryAbilityPolicy: ordinaryAbilityPolicy
+                                    ? {
+                                          attachedAbilityIds: ordinaryAbilityPolicy.attachedAbilityIds,
+                                          execution: ordinaryAbilityPolicy.execution,
+                                      }
+                                    : null,
+                                parentEnemyId: linkedSummon?.parentEnemyId ?? null,
+                                rawcode: definition.rawcode,
+                            };
+                        })
+                        .sort((left, right) => left.id.localeCompare(right.id)),
+                };
+            },
             createCombatEnemyFixture: (id, enemyId, x, y, ownerPlayerId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return Boolean(
@@ -4333,9 +4511,18 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
             },
+            spawnLinkedSummonForTest: (parentEnemyId, enemyId, lifetimeSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                return this.spawnLinkedSummonForTest(parentEnemyId, enemyId, lifetimeSec);
+            },
             damageWaveEnemyForTest: (id, damage) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
-                return this.combatPoc?.damageEnemyTarget(id, damage) ?? false;
+                return this.combatPoc?.damageEnemyTarget(id, damage, {
+                    attackerEntityId: null,
+                    cause: 'debug',
+                    ownerPlayerId: null,
+                    rewardEligible: false,
+                }) ?? false;
             },
             setCombatEnemyHpForTest: (id, hp) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;

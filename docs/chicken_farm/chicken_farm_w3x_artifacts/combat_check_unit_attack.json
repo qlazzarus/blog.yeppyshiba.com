@@ -4,6 +4,7 @@
     "actualRightClickLandsHit": true,
     "cooldownConsumedAfterHit": true,
     "killedEnemyRemovedOnce": true,
+    "ownerAttributionRecorded": true,
     "pass": true
   },
   "errors": {
@@ -17,7 +18,7 @@
       "active": true,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.4916666666666666,
+      "elapsedSec": 0.4956166666674116,
       "enemies": [],
       "poc": null,
       "runId": 1,
@@ -62,6 +63,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -74,13 +80,31 @@
           "hp": 209,
           "id": "p3-dog",
           "maxHp": 220,
-          "nextAttackAtSec": 0.9083333333333333,
+          "nextAttackAtSec": 0.9122833333340784,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946
         }
       ]
+    },
+    "death": {
+      "attackerEntityId": "p3-dog",
+      "cause": "unit",
+      "deadEntityId": "unit-attack-wolf",
+      "enemyId": "timber_wolf",
+      "ownerPlayerId": 3,
+      "rewardEligible": true,
+      "runId": 1,
+      "x": 3500,
+      "y": 8928,
+      "deathKey": "1:unit-attack-wolf:1",
+      "deathSequence": 1
     }
   }
 }

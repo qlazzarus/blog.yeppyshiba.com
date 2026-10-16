@@ -1,0 +1,1770 @@
+{
+  "case": "fixture",
+  "checks": {
+    "canonicalAbilityEvidenceExposed": true,
+    "fixtureOriginExposed": true,
+    "noRewardOrXpMutation": true,
+    "ordinaryAbilityPolicyExposed": true,
+    "parentRemovalDespawnedLinkedSummon": true,
+    "pass": true,
+    "parentExplicitlyNullBeforeSummonRegistry": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "startId": 3
+  },
+  "snapshots": {
+    "after": {
+      "abilityClock": {
+        "activeCasts": [],
+        "cooldownCount": 0,
+        "state": "ready_no_supported_abilities"
+      },
+      "bossMilestones": [
+        {
+          "atSec": 600,
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "state": "pending"
+        },
+        {
+          "atSec": 1500,
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "state": "pending"
+        },
+        {
+          "atSec": 2200,
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "state": "pending"
+        },
+        {
+          "atSec": 2600,
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "state": "pending"
+        },
+        {
+          "atSec": 3000,
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "state": "pending"
+        }
+      ],
+      "canonicalEnemies": [
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03H",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A01G",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 300,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03B",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03E",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01H",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 450,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "source_description",
+              "id": "A03C",
+              "sourceDescription": "Summons an Infernal; landing deals 300 damage to enemy ground units and stuns them for a source-defined duration.",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A025",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 700,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03F",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02Q",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": null,
+              "source": "unresolved"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03G",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01J",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02T",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02S",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02V",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "nether_dragon",
+          "rawcode": "H01O",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 1000,
+              "source": "source_score_message"
+            }
+          },
+          "role": "conditional_boss"
+        },
+        {
+          "abilities": [],
+          "enemyId": "timber_wolf",
+          "rawcode": "n007",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 10,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "frost_wolf",
+          "rawcode": "n008",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 15,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_wolf",
+          "rawcode": "n009",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 20,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_frost_wolf",
+          "rawcode": "n00A",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 40,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf",
+          "rawcode": "n00B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 50,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "rawcode": "n00C",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 60,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "spirit_wolf",
+          "rawcode": "n00G",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 70,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf_tier_8",
+          "rawcode": "n00I",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 80,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "shadow_wolf",
+          "rawcode": "n00J",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 90,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_beast",
+          "rawcode": "n00K",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 100,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_stalker",
+          "rawcode": "n00L",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 110,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "fel_ravager",
+          "rawcode": "n00M",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 120,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A024",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "darkguard",
+          "rawcode": "n00U",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 130,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "shupikuta",
+          "rawcode": "n00V",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 140,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "overlord",
+          "rawcode": "n00W",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A02W",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr",
+          "rawcode": "n013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 160,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "satyr_shadowdancer",
+          "rawcode": "n014",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 180,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02U",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr_soulstealer",
+          "rawcode": "n015",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 170,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        }
+      ],
+      "deathEvents": [],
+      "elapsedSec": 0.1443266666674117,
+      "fieldDrops": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "finalTracking": {
+        "state": "not_started",
+        "trackedLinkedSummonIds": [],
+        "trackedWaveEnemyIds": []
+      },
+      "fixturesEnabled": true,
+      "farmerProgression": {
+        "owners": [],
+        "state": "not_started"
+      },
+      "linkedSummons": {
+        "active": [
+          {
+            "enemyId": "timber_wolf",
+            "id": "linked-r1-s0",
+            "lifetimeExpiresAtSec": 10.127660000000745,
+            "ownerPlayerId": 10,
+            "parentEnemyId": "sp10-snapshot-boss",
+            "runId": 1,
+            "spawnedAtSec": 0.12766000000074504
+          }
+        ],
+        "ended": [],
+        "state": "registry_active"
+      },
+      "rewardLedger": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "runId": 1,
+      "runtimeEnemies": [
+        {
+          "abilities": [],
+          "enemyId": "timber_wolf",
+          "id": "linked-r1-s0",
+          "origin": "linked_summon",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [],
+            "execution": "base_attack_only"
+          },
+          "parentEnemyId": "sp10-snapshot-boss",
+          "rawcode": "n007"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "fel_ravager",
+          "id": "sp10-ordinary-ability",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "A02I"
+            ],
+            "execution": "blocked_source_data"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00M"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03B",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "blood_wolf",
+          "id": "sp10-snapshot-boss",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": null,
+          "parentEnemyId": null,
+          "rawcode": "H012"
+        }
+      ]
+    },
+    "afterParentRemoval": {
+      "abilityClock": {
+        "activeCasts": [],
+        "cooldownCount": 0,
+        "state": "ready_no_supported_abilities"
+      },
+      "bossMilestones": [
+        {
+          "atSec": 600,
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "state": "pending"
+        },
+        {
+          "atSec": 1500,
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "state": "pending"
+        },
+        {
+          "atSec": 2200,
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "state": "pending"
+        },
+        {
+          "atSec": 2600,
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "state": "pending"
+        },
+        {
+          "atSec": 3000,
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "state": "pending"
+        }
+      ],
+      "canonicalEnemies": [
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03H",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A01G",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 300,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03B",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03E",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01H",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 450,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "source_description",
+              "id": "A03C",
+              "sourceDescription": "Summons an Infernal; landing deals 300 damage to enemy ground units and stuns them for a source-defined duration.",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A025",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 700,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03F",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02Q",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": null,
+              "source": "unresolved"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03G",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01J",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02T",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02S",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02V",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "nether_dragon",
+          "rawcode": "H01O",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 1000,
+              "source": "source_score_message"
+            }
+          },
+          "role": "conditional_boss"
+        },
+        {
+          "abilities": [],
+          "enemyId": "timber_wolf",
+          "rawcode": "n007",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 10,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "frost_wolf",
+          "rawcode": "n008",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 15,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_wolf",
+          "rawcode": "n009",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 20,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_frost_wolf",
+          "rawcode": "n00A",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 40,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf",
+          "rawcode": "n00B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 50,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "rawcode": "n00C",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 60,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "spirit_wolf",
+          "rawcode": "n00G",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 70,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf_tier_8",
+          "rawcode": "n00I",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 80,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "shadow_wolf",
+          "rawcode": "n00J",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 90,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_beast",
+          "rawcode": "n00K",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 100,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_stalker",
+          "rawcode": "n00L",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 110,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "fel_ravager",
+          "rawcode": "n00M",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 120,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A024",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "darkguard",
+          "rawcode": "n00U",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 130,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "shupikuta",
+          "rawcode": "n00V",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 140,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "overlord",
+          "rawcode": "n00W",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A02W",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr",
+          "rawcode": "n013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 160,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "satyr_shadowdancer",
+          "rawcode": "n014",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 180,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02U",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr_soulstealer",
+          "rawcode": "n015",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 170,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        }
+      ],
+      "deathEvents": [],
+      "elapsedSec": 0.21099333333407835,
+      "fieldDrops": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "finalTracking": {
+        "state": "not_started",
+        "trackedLinkedSummonIds": [],
+        "trackedWaveEnemyIds": []
+      },
+      "fixturesEnabled": true,
+      "farmerProgression": {
+        "owners": [],
+        "state": "not_started"
+      },
+      "linkedSummons": {
+        "active": [],
+        "ended": [
+          {
+            "enemyId": "timber_wolf",
+            "id": "linked-r1-s0",
+            "lifetimeExpiresAtSec": 10.127660000000745,
+            "ownerPlayerId": 10,
+            "parentEnemyId": "sp10-snapshot-boss",
+            "runId": 1,
+            "spawnedAtSec": 0.12766000000074504,
+            "reason": "parent_removed"
+          }
+        ],
+        "state": "registry_active"
+      },
+      "rewardLedger": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "runId": 1,
+      "runtimeEnemies": [
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "fel_ravager",
+          "id": "sp10-ordinary-ability",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "A02I"
+            ],
+            "execution": "blocked_source_data"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00M"
+        }
+      ]
+    },
+    "before": {
+      "abilityClock": {
+        "activeCasts": [],
+        "cooldownCount": 0,
+        "state": "ready_no_supported_abilities"
+      },
+      "bossMilestones": [
+        {
+          "atSec": 600,
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "state": "pending"
+        },
+        {
+          "atSec": 1500,
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "state": "pending"
+        },
+        {
+          "atSec": 2200,
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "state": "pending"
+        },
+        {
+          "atSec": 2600,
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "state": "pending"
+        },
+        {
+          "atSec": 3000,
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "state": "pending"
+        }
+      ],
+      "canonicalEnemies": [
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03H",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A01G",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "wild_wolf",
+          "rawcode": "H00X",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 300,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03B",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "blood_wolf",
+          "rawcode": "H012",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03E",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01H",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "hell_hound",
+          "rawcode": "H013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 450,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "source_description",
+              "id": "A03C",
+              "sourceDescription": "Summons an Infernal; landing deals 300 damage to enemy ground units and stuns them for a source-defined duration.",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A025",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "doom_guard",
+          "rawcode": "H01B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 700,
+              "source": "source_score_message"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A03F",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02R",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02Q",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "archimonde",
+          "rawcode": "H01N",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": null,
+              "source": "unresolved"
+            }
+          },
+          "role": "regular_boss"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A03G",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A01J",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02T",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02S",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A02V",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "nether_dragon",
+          "rawcode": "H01O",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 1000,
+              "source": "source_score_message"
+            }
+          },
+          "role": "conditional_boss"
+        },
+        {
+          "abilities": [],
+          "enemyId": "timber_wolf",
+          "rawcode": "n007",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 10,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "frost_wolf",
+          "rawcode": "n008",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 15,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_wolf",
+          "rawcode": "n009",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 20,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "giant_frost_wolf",
+          "rawcode": "n00A",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 40,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf",
+          "rawcode": "n00B",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 50,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "rawcode": "n00C",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 60,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "spirit_wolf",
+          "rawcode": "n00G",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 70,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "dire_wolf_tier_8",
+          "rawcode": "n00I",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 80,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "shadow_wolf",
+          "rawcode": "n00J",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 90,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_beast",
+          "rawcode": "n00K",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 100,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "fel_stalker",
+          "rawcode": "n00L",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 110,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "fel_ravager",
+          "rawcode": "n00M",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 120,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A024",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "darkguard",
+          "rawcode": "n00U",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 130,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "shupikuta",
+          "rawcode": "n00V",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 140,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02I",
+              "runtimeState": "unsupported"
+            },
+            {
+              "evidence": "unknown",
+              "id": "A023",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "overlord",
+          "rawcode": "n00W",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 150,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "A02W",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr",
+          "rawcode": "n013",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 160,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [],
+          "enemyId": "satyr_shadowdancer",
+          "rawcode": "n014",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 180,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "confirmed_name",
+              "id": "A02U",
+              "runtimeState": "unsupported"
+            }
+          ],
+          "enemyId": "satyr_soulstealer",
+          "rawcode": "n015",
+          "reward": {
+            "farmerKillXp": 0,
+            "score": {
+              "effectiveScore": 170,
+              "source": "web_baseline"
+            }
+          },
+          "role": "ordinary"
+        }
+      ],
+      "deathEvents": [],
+      "elapsedSec": 0.0776666666674117,
+      "fieldDrops": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "finalTracking": {
+        "state": "not_started",
+        "trackedLinkedSummonIds": [],
+        "trackedWaveEnemyIds": []
+      },
+      "fixturesEnabled": true,
+      "farmerProgression": {
+        "owners": [],
+        "state": "not_started"
+      },
+      "linkedSummons": {
+        "active": [],
+        "ended": [],
+        "state": "registry_active"
+      },
+      "rewardLedger": {
+        "entries": [],
+        "state": "not_started"
+      },
+      "runId": 1,
+      "runtimeEnemies": []
+    }
+  }
+}

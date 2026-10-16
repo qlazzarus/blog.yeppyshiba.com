@@ -1,0 +1,51 @@
+{
+  "case": "enemy_death_ledger",
+  "checks": {
+    "duplicateLethalIgnored": true,
+    "environmentIsNotRewardEligible": true,
+    "ownerAndPositionPreserved": true,
+    "pass": true,
+    "runScopedDeathKey": true
+  },
+  "events": [
+    {
+      "attackerEntityId": "p3-farmer",
+      "cause": "unit",
+      "deadEntityId": "wolf-a",
+      "enemyId": "timber_wolf",
+      "ownerPlayerId": 3,
+      "rewardEligible": true,
+      "runId": 17,
+      "x": 3600,
+      "y": 8700,
+      "deathKey": "17:wolf-a:1",
+      "deathSequence": 1
+    },
+    {
+      "attackerEntityId": null,
+      "cause": "environment",
+      "deadEntityId": "wolf-b",
+      "enemyId": "timber_wolf",
+      "ownerPlayerId": null,
+      "rewardEligible": false,
+      "runId": 17,
+      "x": 3600,
+      "y": 8700,
+      "deathKey": "17:wolf-b:2",
+      "deathSequence": 2
+    },
+    {
+      "attackerEntityId": "tower-3",
+      "cause": "tower",
+      "deadEntityId": "wolf-c",
+      "enemyId": "timber_wolf",
+      "ownerPlayerId": 3,
+      "rewardEligible": true,
+      "runId": 17,
+      "x": 3600,
+      "y": 8700,
+      "deathKey": "17:wolf-c:3",
+      "deathSequence": 3
+    }
+  ]
+}

@@ -16,6 +16,11 @@
       "active": true,
       "buildings": [
         {
+          "attack": {
+            "cooldownSec": 1.05,
+            "damage": 23,
+            "rangePx": 384
+          },
           "armor": 5,
           "footprint": {
             "height": 128,
@@ -23,6 +28,7 @@
             "x": 3648,
             "y": 8896
           },
+          "gateOpen": null,
           "hp": 275,
           "id": "player-building-1",
           "maxHp": 275,
@@ -33,7 +39,7 @@
         }
       ],
       "chickens": [],
-      "elapsedSec": 0.15831666666368635,
+      "elapsedSec": 0.16560666666756077,
       "enemies": [
         {
           "enemyId": "timber_wolf",
@@ -43,8 +49,8 @@
           "ownerPlayerId": 10,
           "spawnX": 3820,
           "spawnY": 8896,
-          "x": 3812.4738068384263,
-          "y": 8881.323874487636
+          "x": 3808.802487695934,
+          "y": 8883.89316739852
         }
       ],
       "poc": null,
@@ -90,6 +96,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -104,6 +115,11 @@
           "maxHp": 220,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946
@@ -114,7 +130,7 @@
       "active": true,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.34164999999701967,
+      "elapsedSec": 0.34894000000089404,
       "enemies": [
         {
           "enemyId": "timber_wolf",
@@ -124,8 +140,8 @@
           "ownerPlayerId": 10,
           "spawnX": 3820,
           "spawnY": 8896,
-          "x": 3775.648181294272,
-          "y": 8833.813234197778
+          "x": 3766.4645768500463,
+          "y": 8840.67934697202
         }
       ],
       "poc": null,
@@ -171,6 +187,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -185,6 +206,11 @@
           "maxHp": 220,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946

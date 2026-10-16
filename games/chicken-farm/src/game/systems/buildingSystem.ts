@@ -93,7 +93,7 @@ export type WolfTargetableBuilding = {
 };
 
 type BuildingSystemConfig = {
-    readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    readonly damageEnemyTarget?: (targetId: string, damage: number, attacker: { readonly id: string; readonly ownerPlayerId: number }) => boolean;
     /** Shared player wallet; when omitted the system creates an isolated PoC wallet. */
     readonly economy?: PlayerEconomyState;
     readonly getElapsedSec: () => number;
@@ -151,7 +151,7 @@ const BUILDING_HATCH_SPACING_PX = 24;
 export class BuildingSystem {
     readonly economy: PlayerEconomyState;
     private readonly buildings: PlayerBuilding[] = [];
-    private readonly damageEnemyTarget: (targetId: string, damage: number) => boolean;
+    private readonly damageEnemyTarget: (targetId: string, damage: number, attacker: { readonly id: string; readonly ownerPlayerId: number }) => boolean;
     private readonly getElapsedSec: () => number;
     private readonly getResearchLevels?: (ownerPlayerId: number) => BuildingResearchLevels;
     private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
@@ -846,7 +846,10 @@ export class BuildingSystem {
         const target = this.findBuildingCombatTarget(building, attack.rangePx);
         if (!target) return;
 
-        const landed = this.damageEnemyTarget(target.id, attack.damage);
+        const landed = this.damageEnemyTarget(target.id, attack.damage, {
+            id: building.id,
+            ownerPlayerId: building.ownerPlayerId,
+        });
         if (!landed) return;
 
         const center = this.getBuildingCenter(building);

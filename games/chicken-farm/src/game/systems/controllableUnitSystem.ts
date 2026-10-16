@@ -21,7 +21,7 @@ import type {
 import type { TerrainBlocker } from './terrainBlocker';
 
 type ControllableUnitSystemConfig = {
-    readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    readonly damageEnemyTarget?: (targetId: string, damage: number, attackerId: string) => boolean;
     readonly getAttackableEnemyTarget?: (targetId: string) => AttackableEnemyTarget | null;
     readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
@@ -95,7 +95,7 @@ const UNIT_SELECTION_STROKE_PX = 4;
 const UNIT_ATTACK_MOVE_ACQUIRE_RADIUS_PX = 190;
 
 export class ControllableUnitSystem {
-    private readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    private readonly damageEnemyTarget?: (targetId: string, damage: number, attackerId: string) => boolean;
     private readonly getAttackableEnemyTarget: (
         targetId: string,
     ) => AttackableEnemyTarget | null;
@@ -1036,7 +1036,7 @@ export class ControllableUnitSystem {
 
         if (this.getElapsedSec() < unit.nextAttackAtSec) return;
 
-        const landed = this.damageEnemyTarget?.(target.id, stats.damage) ?? false;
+        const landed = this.damageEnemyTarget?.(target.id, stats.damage, unit.id) ?? false;
         if (!landed) {
             this.finishAttackCommand(unit, 'damage_rejected');
             return;

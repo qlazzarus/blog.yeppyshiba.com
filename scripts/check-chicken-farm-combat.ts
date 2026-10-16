@@ -205,13 +205,21 @@ async function runRuntimeCase() {
         );
         if (!removed) throw new Error('Failed to remove runtime enemy fixture');
         const removedSnapshot = await getCombatSnapshot(page);
+        const removalDeaths = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getEnemyProgressionSnapshot().deathEvents.filter(
+                (event) => event.deadEntityId === 'runtime-wolf-1',
+            ),
+        );
         if (removedSnapshot.enemies.some((candidate) => candidate.id === 'runtime-wolf-1')) {
             throw new Error(`Removed runtime enemy remained queryable: ${JSON.stringify(removedSnapshot)}`);
+        }
+        if (removalDeaths.length) {
+            throw new Error(`Runtime fixture removal recorded a death: ${JSON.stringify(removalDeaths)}`);
         }
         assertNoErrors(errors);
         return {
             case: 'runtime',
-            checks: { duplicateIdRejected: true, pass: true, removedNotQueryable: true },
+            checks: { duplicateIdRejected: true, pass: true, removalDoesNotRecordDeath: true, removedNotQueryable: true },
             errors,
             executionProfile: { combatPoc: false, combatSmoke: false, debugFixtures: true, startId: 3 },
             snapshots: { before, created: createdSnapshot, removed: removedSnapshot },
@@ -506,6 +514,11 @@ async function runUnitAttackCase() {
             { timeout: 18_000 },
         );
         const afterHit = await getCombatSnapshot(page);
+        const death = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getEnemyProgressionSnapshot().deathEvents.find(
+                (event) => event.deadEntityId === 'unit-attack-wolf',
+            ),
+        );
         const attacker = afterHit.units.find((candidate) => candidate.nextAttackAtSec > afterHit.elapsedSec);
         if (
             afterHit.enemies.some((candidate) => candidate.id === enemyId) ||
@@ -514,8 +527,11 @@ async function runUnitAttackCase() {
         ) {
             throw new Error(`Actual attack/cooldown mismatch: ${JSON.stringify(afterHit)}`);
         }
+        if (!death || death.cause !== 'unit' || death.attackerEntityId !== attacker.id || death.ownerPlayerId !== attacker.ownerPlayerId || !death.rewardEligible) {
+            throw new Error(`Unit death attribution mismatch: ${JSON.stringify(death)}`);
+        }
         assertNoErrors(errors);
-        return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, pass: true }, errors, snapshots: { afterHit } };
+        return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, ownerAttributionRecorded: true, pass: true }, errors, snapshots: { afterHit, death } };
     } finally { await page.close(); await browser.close(); }
 }
 

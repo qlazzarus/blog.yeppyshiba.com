@@ -3,6 +3,7 @@
   "checks": {
     "duplicateIdRejected": true,
     "pass": true,
+    "removalDoesNotRecordDeath": true,
     "removedNotQueryable": true
   },
   "errors": {
@@ -22,10 +23,40 @@
       "active": false,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.07608333332886301,
+      "elapsedSec": 0.07561666666703921,
       "enemies": [],
       "poc": null,
       "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
       "units": [
         {
           "armor": 0,
@@ -37,6 +68,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -51,6 +87,11 @@
           "maxHp": 220,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946
@@ -61,7 +102,7 @@
       "active": true,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.12605666666219636,
+      "elapsedSec": 0.12560880000037256,
       "enemies": [
         {
           "enemyId": "timber_wolf",
@@ -71,12 +112,42 @@
           "ownerPlayerId": 10,
           "spawnX": 4160,
           "spawnY": 8896,
-          "x": 4153.271804001448,
-          "y": 8904.696815392144
+          "x": 4155.102141908326,
+          "y": 8886.150584478568
         }
       ],
       "poc": null,
       "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
       "units": [
         {
           "armor": 0,
@@ -88,6 +159,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -102,6 +178,11 @@
           "maxHp": 220,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946
@@ -112,10 +193,40 @@
       "active": false,
       "buildings": [],
       "chickens": [],
-      "elapsedSec": 0.1593899999955297,
+      "elapsedSec": 0.15894213333370588,
       "enemies": [],
       "poc": null,
       "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
       "units": [
         {
           "armor": 0,
@@ -127,6 +238,11 @@
           "maxHp": 100,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
           "templateId": "farmer",
           "x": 3392,
           "y": 8928
@@ -141,6 +257,11 @@
           "maxHp": 220,
           "nextAttackAtSec": 0,
           "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
           "templateId": "dog",
           "x": 3434,
           "y": 8946

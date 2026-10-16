@@ -10,6 +10,7 @@ export function updateTowerCombat(config: {
     readonly combatBuildings: readonly CombatBuilding[];
     readonly elapsedSec: number;
     readonly focusWolfOnBuilding: (wolf: CombatWolf, building: CombatBuilding) => void;
+    readonly damageEnemyTarget: (targetId: string, damage: number, tower: CombatBuilding) => boolean;
     readonly onTowerHit?: (event: {
         readonly damage: number;
         readonly target: CombatWolf;
@@ -47,14 +48,12 @@ export function updateTowerCombat(config: {
                 1,
                 Math.round(towerAttack.damage * tower.attackDamageScale),
             );
-            target.hp = Math.max(0, target.hp - scaledDamage);
-            target.hpFill.width = 38 * (target.hp / target.maxHp);
+            const landed = config.damageEnemyTarget(target.id, scaledDamage, tower);
+            if (!landed) return;
             tower.nextAttackAtSec = config.elapsedSec + towerAttack.cooldownSec;
             config.onTowerHit?.({ damage: scaledDamage, target, tower });
 
             if (target.hp <= 0) {
-                target.state = 'dead';
-                target.body.setAlpha(0.35);
                 return;
             }
 

@@ -143,6 +143,19 @@ SP-06 착수 전 [SP-05 W3X/WPM 비교](./chicken_farm_sp05_w3x_comparison.md)�
 
 한 요청에 한 ID를 실행하며 각 카드의 읽기·수정 범위·완료 조건·검증을 따른다. 기존 경제/전투/출구 경로를 재사용하고 가족·용병 등 SP-12 콘텐츠와의 경계는 01 기능표에서 확정한다. 원본 미확인을 임의 수치로 복원 완료 처리하지 않는다.
 
+## SP-10 적 단계·보스·보상 실행 계획
+
+2026-10-16: [Terra Medium 세부 실행 계획](./chicken_farm_sp10_task_plan.md)을 **28개 상위 task**로 분해했다. SP-10-01 [적·보스·능력 coverage 계약](./chicken_farm_w3x_artifacts/sp10_01_enemy_contract.json), SP-10-02 [보상 계약](./chicken_farm_w3x_artifacts/sp10_02_reward_contract.json), SP-10-03 [canonical coverage](./chicken_farm_w3x_artifacts/enemy_check_progression.json), SP-10-04 [normal snapshot](./chicken_farm_w3x_artifacts/enemy_check_snapshot.json), SP-10-05 [death ledger](./chicken_farm_w3x_artifacts/enemy_check_death.json), SP-10-06 [ability clock](./chicken_farm_w3x_artifacts/enemy_check_ability_clock.json), SP-10-07 [ordinary ability policy](./chicken_farm_w3x_artifacts/enemy_check_ordinary_abilities.json)를 완료했다. 03은 모든 `EnemyId`의 rawcode·role·ability evidence/runtime state·reward source를 [enemyProgression.ts](../../games/chicken-farm/src/game/enemyProgression.ts)에 분리하고 18 tier/5 milestone/7 level threshold를 순수 assertion으로 고정했다. 04는 read-only debug snapshot과 normal/fixture browser runner를 추가했으며, 보상·XP·drop·final ledger는 실제 구현 전 `not_started` 상태로 보인다. 05는 한 alive→dead 전이와 run-scoped death key로 유닛·타워 귀속 및 중복 lethal 무시를 고정하고, 제거·재시작은 지급 대상 event를 만들지 않게 했다. 06은 shared simulation clock에서 cooldown/windup·invalid target·caster death를 처리한다. 07은 18 ordinary tier를 base attack-only 또는 source-data block으로 모두 연결했고, 수치가 없는 A02I와 나머지 능력은 실행하지 않는다. H01O/특수 적의 출현 조건과 이름만 확인된 능력, H01N score, 농부 kill XP table은 완료 차단 항목으로 남겼다. 다음 실행은 **SP-10-08**이다. SP-09-25 완료 근거는 [SP-09 계획](./chicken_farm_sp09_task_plan.md#sp-09-25--전체-coverage필수-회귀인계)과 [비교표](./chicken_farm_sp09_w3x_comparison.md)를 따른다. 위 SP-09-17 다음 실행 표기는 10월 15일의 이력이다.
+
+- 01~04: 적/능력·보상 계약, canonical 데이터, snapshot/harness.
+- 05~09: 단일 사망 이벤트, 공통 능력 실행, 일반 적 효과·연결 소환체.
+- 10~16: milestone scheduler, 실제 보스 출현, 보스별 능력과 조건부 보스 coverage.
+- 17~21: 점수/자원·XP·레벨 스탯·드롭/획득·레벨 아이템 단일 지급.
+- 22~24: final 추적/보충 중단, 필수 HUD, same-page restart 격리.
+- 25~28: 전체 티어/난이도 coverage, normal 실제 처치, 보스/final 통합, 회귀·SP-11 인계.
+
+한 요청에 한 ID를 실행한다. 다중 능력 카드는 필요하면 효과별 하위 ID로 먼저 분할한다. 원본 이름만 확인된 능력을 동작 확정으로 취급하지 않으며, 보스 성장 XP와 농부 XP, 처치 점수와 gold를 구분한다. 승패 판정은 SP-11, 특수 콘텐츠/아이템 사용 확장은 SP-12에 유지한다.
+
 ## 기존 경제 통합 계획 — 참고 이력
 
 
