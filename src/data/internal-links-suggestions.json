@@ -1,119 +1,47 @@
 {
-  "topPost": "/article/anyang-ottogi-hamtaehall-rolypoly-review",
-  "topPostViews": 3,
+  "topPost": "/article/amd-bc250-local-ai-server-project",
+  "topPostViews": 39,
   "relatedSuggestions": [
-    "/anyang-ottogi-hamtaehall-rolypoly-review/",
-    "/ansan-bono-dong-gukbapjip-review/",
-    "/ansan-sonaro-coffee-bakery-review/",
-    "/anyang-imidon/",
-    "/better-bagel-bar-ganjeolgot-review/",
-    "/bundang-cafe-deerhill-review/"
+    "/amd-bc250-local-ai-server-project/",
+    "/gpx-route-viewer-local-analyzer/",
+    "/phaser4-apex-seoul-local-records-and-reset/",
+    "/stl-3d-printing-calculator-local-browser/"
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/apptech-income-september-2026",
-      "views": 3,
-      "avgSec": 121.43
-    },
-    {
-      "path": "/article/allowance-300k-01",
-      "views": 1,
-      "avgSec": 72.65
-    },
-    {
-      "path": "/article/apptech-income-may-2026",
-      "views": 1,
-      "avgSec": 61.42
+      "path": "/article/apptech-income-july-2026",
+      "views": 2,
+      "avgSec": 74.36
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/svn-to-git",
-      "views": 3,
-      "avgSec": 3.93
-    },
-    {
-      "path": "/article/apptech-income-july-2026",
-      "views": 2,
-      "avgSec": 2.07
-    },
-    {
-      "path": "/article/gwanggyo-mochiga",
-      "views": 2,
-      "avgSec": 5.93
-    },
-    {
-      "path": "/article/ansan-bono-dong-gukbapjip-review",
+      "path": "/article/a-look-back-in-2025",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/ga4-to-cloudflare-view-counter",
-      "views": 1,
-      "avgSec": 7.92
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-downhill-elevation-rendering",
-      "views": 1,
-      "avgSec": 0.14
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-downhill-rpm-fuelcut",
-      "views": 1,
-      "avgSec": 0.11
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-drift-state-telemetry",
-      "views": 1,
-      "avgSec": 0.11
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-handling-log-tuning",
-      "views": 1,
-      "avgSec": 0.12
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-player-car-speed-control",
-      "views": 1,
-      "avgSec": 9.14
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-raven-coupe-sprite-pipeline",
-      "views": 1,
-      "avgSec": 7.72
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-runtime-sprite-contact-shadow",
-      "views": 1,
-      "avgSec": 0.11
-    },
-    {
-      "path": "/article/phaser4-isometric-minesweeper-minefield-first-click",
-      "views": 1,
-      "avgSec": 5.1
-    },
-    {
-      "path": "/article/quarter-view",
-      "views": 1,
-      "avgSec": 1.44
-    },
-    {
-      "path": "/article/rethink-blog-meaning-while-continuing-development",
+      "path": "/article/amd-bc250-local-ai-server-project",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/suwon-jinmi-chicken-review",
+      "path": "/article/amd-bc250-local-ai-server-project",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/thinking-math-formula",
+      "path": "/article/apptech-income-september-2026",
       "views": 1,
-      "avgSec": 6.75
+      "avgSec": 6.43
     },
     {
-      "path": "/article/uiwang-1981-chopyeong-gyeongyang",
+      "path": "/article/deep-learning-prime-number",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
       "views": 1,
       "avgSec": 0
     }
