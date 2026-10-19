@@ -1,6 +1,6 @@
 # SP-10 적 단계·보스·보상 연결 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-19. SP-10-01~08과 SP-10-09-a/b/c/d/e/f/g/h는 각 카드에 완료 기록이 있다. SP-10-09-i-1은 Warsmash 엔진 근거 조사를 완료했다. 다음은 **SP-10-09-i-2 (외부 능력 데이터 입력 대기)**이며 상위 i는 근거 보류다. SP-10-10~28은 미착수다. Astra light 계획 → Terra Medium에서 **한 요청에 한 ID** 실행 전략을 유지한다. 모델 명칭은 실행 권장 설정이며 이 문서가 현재 모델을 전환하거나 구현을 실행하지 않는다.
+> 갱신: 2026-10-19. SP-10-01~08과 SP-10-09-a/b/c/d/e/f/g/h, i-1, i-2-a/b/c, i-3-a/b, i-4-a/b/c는 완료했다. ACct는 원본 수치가 아닌 승인된 W1(15%·2배) 웹 정책으로 n00C에 구현됐고, A024의 j-1 base-family/override 조사와 j-2 데이터/웹 정책 결정 게이트를 완료했다. A024 구현 계약은 아직 승인 대기이며, 재개 대상은 **SP-10-09-j-3 (blocked)**다. SP-10-10~28은 미착수다. Astra light 계획 → Terra Medium에서 **한 요청에 한 ID** 실행 전략을 유지한다. 모델 명칭은 실행 권장 설정이며 이 문서가 현재 모델을 전환하거나 구현을 실행하지 않는다.
 
 ## 목표와 범위
 
@@ -294,26 +294,34 @@ SP-10-01~08과 09-a/b/c/d는 완료 기록이 있고, SP-10-09는 나머지 하�
 
 #### SP-10-09-i — ACct 잔여 능력
 
-- 상태: **근거 보류**. 선행: 09-a.
+- 상태: **완료 (W1 승인 웹 정책)**. 선행: 09-a.
 - 읽기: a의 ACct 근거, n00C attachment, 01/07 정책과 관련 전투 adapter.
 - 수정 범위: 효과·대상·수치·발동 조건을 원본 또는 명시적인 웹 계약으로 확정한 뒤 해당 effect family를 구현한다. n00E 등 일반 적 외 사용처는 영향 범위만 기록한다.
 - 완료 조건: n00C의 실제 효과와 종료 조건이 계약과 일치한다. 근거/웹 결정이 부족하면 보류하며 base attack-only로 완료하지 않는다.
 - 검증: 허용/금지 대상, 발동/종료, 실제 상태 변화의 순수·browser 사례. 여러 독립 효과면 i-1 등으로 분할한다.
 - 조사 결과: [ACct evidence](./chicken_farm_w3x_artifacts/sp10_09_i_acct_effect_evidence.json)는 n00C/n00E의 ACct가 일반 공격에 DataA1% 확률로 DataB1배 피해를 주는 critical-strike family임을 기록한다. 그러나 map override에는 DataA1·DataB1이 없고 추출된 W3X에는 상속 기본값도 없다.
-- 보류 이유: chance와 multiplier 모두 없으며 승인된 웹 대체 계약도 없다. 따라서 무작위 확률·추가 피해·대상 상호작용을 추측으로 구현하지 않았고, n00C는 `blocked_source_data`를 유지한다. base attack-only로 재분류해 완료 처리하지 않는다.
+- 근거 상태: source chance/multiplier는 미확정이며, W1 웹 계약(15%·2배)을 n00C에만 구현·검증했다. canonical/runtime policy는 `implemented_web_policy`로 노출되며 `base_attack_only`로 완료 처리하지 않는다.
 - 재개 조건: 선택한 Warsmash 외부 데이터셋에서 ACct code 및 상속 수치를 복구한다. map 제작 버전과 일치하지 않으면 선택한 데이터셋 기준임을 명시한다. 또는 chance·multiplier·결정적 RNG·difficulty 적용을 포함한 명시적 웹 정책이 필요하다. 현재 Warsmash 채택은 임의 수치 승인이 아니다.
 - 추가 조사: [Warsmash 근거와 하위 카드](./chicken_farm_sp10_09_i_warsmash_evidence.md). main `f9e0aeed4be372d6016519d0e97b384aa873f374`의 데이터 loader·alias dispatch·공유 critical passive·seeded RNG·damage 전달 경로를 확인했다. code와 수치는 외부 SLK가 필요하므로 runtime은 변경하지 않았다.
-- 하위 ID: **i-1 엔진 근거 고정 (완료)** → **i-2 상속 데이터 확보 (입력 대기)** → **i-3 효과 계약·순수 resolver (미착수)** → **i-4 runtime·browser 회귀 (미착수)**. 각 카드의 읽기/수정/완료/검증은 위 문서에 정의한다.
+- 하위 ID: **i-1 엔진 근거 고정 (완료)** → **i-2 계약 확보 (W1 승인으로 완료)** → **i-3 효과 계약·순수 resolver (미착수)** → **i-4 runtime·browser 회귀 (미착수)**. i-2는 **a 공개 소스 참조 MD → b 공개 데이터 후보 조사 → c 데이터 확정 또는 정책 결정 게이트**로 나눈다. 각 카드의 읽기/수정/완료/검증·중단 조건과 Terra medium 요청 템플릿은 위 문서에 정의한다.
 - 전략: Astra light 계획/계약 검토 → Terra medium 한 ID 실행은 작은 검증 단위에 적합하다고 판단해 유지한다. 실제 모델 전환이나 비용·성능 검증을 했다는 의미는 아니다.
-- 다음 ID: **SP-10-09-i-2**. 필요한 입력은 Warsmash에서 사용하는 `Units/AbilityData.slk` 및 관련 profile의 경로/데이터 버전이다.
+- i-2-a 완료: [GitHub 참조 기록](./chicken_farm_sp10_09_i_github_reference.md)에 고정 commit의 5개 원문 URL·SHA-256 및 UI/데이터 로딩/dispatch 흐름을 기록했다. 기존 checkout과 Git blob 해시 일치, 로컬 링크 검사를 통과했다. ACct JSON·runtime은 변경하지 않았으며 수치는 미확보다.
+- i-2-b 완료: 후보 3개를 고정 commit/file hash 기준으로 조사했으나 ACct row와 필수 필드를 모두 제공하는 공개 데이터셋은 없었다. 조사 완료는 데이터 확보 완료가 아니다.
+- i-2-c 완료: [ACct 결정 게이트](./chicken_farm_sp10_09_i_acct_decision_gate.md)에 S(라이선스 데이터셋 복구)·W(원본과 구별된 웹 대체 정책) 경로와 승인 필수 항목을 기록했다. 이후 사용자 W1 채택 승인을 기록했고 source evidence와 별도로 JSON에 approvedWebPolicy를 추가했다.
+- 세부 실행: [Terra medium W1 실행 카드](./chicken_farm_sp10_09_i_w1_execution_plan.md). i-3-a는 `acctCriticalStrikePolicy.ts`와 `chicken:enemy:acct-policy`로 W1 source/web type 분리, n00C 전용 actor·target 판정을 완료했다. i-3-b는 `acctCriticalStrikeResolver.ts`로 dedicated seeded RNG, strict 15% boundary, duplicate attack ID protection, difficulty-adjusted damage의 2배 적용을 순수 검증했다. i-4-a/b는 n00C unit hit 연결·same-seed lifecycle·observation을 구현했고, i-4-c는 실제 browser proc/non-proc/건물 제외/reset/overkill evidence와 progression coverage를 통과시켰다. ACct만 implemented web policy, 나머지 6 ordinary blocked policy는 보존한다.
+- 다음 ID: **SP-10-09-j**.
 
 #### SP-10-09-j — A024 잔여 능력
 
-- 상태: **미착수**. 선행: 09-a.
+- 상태: **j-1/j-2 완료 / 구현 계약 대기**. 선행: 09-a.
 - 읽기: a의 A024 근거, n00U attachment, 01/07 정책과 관련 adapter.
 - 수정 범위: A024 전용 효과 계약을 확정해 다크가드에 연결한다. 함께 붙은 A02I와 실행·중첩 관계를 기록한다.
 - 완료 조건: 효과·대상·주기·취소가 계약과 일치하며 이름/소유 유닛만으로 효과를 정하지 않는다. 미확정은 보류한다.
 - 검증: 대상 경계, 재발동, 시전자 사망, 실제 상태 변화 순수·browser 사례. 여러 효과면 j-1 등으로 분할한다.
+- j-1 조사 결과: [A024 effect evidence](./chicken_farm_w3x_artifacts/sp10_09_j_a024_effect_evidence.json)에 map hash와 `Aadm` base, map override `acdn=5`/`atar=air,ground,ward,invu,vuln,tree`를 재대조했다. Aadm family가 Abolish Magic이며 dispel과 summoned-unit damage field를 갖는다는 공개 base-family 근거는 확인했지만, A024의 inherited DataA~D/range/duration/target relation/autocast과 map 제작 patch는 미확정이다. 현재 web runtime에도 buff disposition/dispel adapter와 complete summoned scope가 없다.
+- j-2 결정 게이트: [A024 data/policy decision gate](./chicken_farm_sp10_09_j_a024_decision_gate.md)는 S(버전·locale·hash가 고정된 AbilityData/profile 복구와 map override merge)와 W(원본과 구별된 웹 대체 정책)의 재개 조건을 분리했다. 공개 근거는 Aadm family와 일부 field 의미만 뒷받침하므로 source 값을 보완하지 않는다.
+- 보류: A02I도 unresolved이므로 A024의 dispel target·중첩 대상으로 가정하지 않았다. source versioned data 또는 target relation, buff model, summoned scope, damage, range, cooldown failure, A02I interaction을 포함한 명시적 웹 정책 승인 전에는 cast/피해/쿨다운/runtime state를 추가하지 않는다.
+- 다음 ID: **SP-10-09-j-3 (blocked)** — S 복구 자료 또는 W 완전 정책 승인 후 effect contract·resolver를 구현한다. 상위 j는 완료가 아니다.
 
 #### SP-10-09-k — A023 잔여 능력
 
@@ -339,7 +347,7 @@ SP-10-01~08과 09-a/b/c/d는 완료 기록이 있고, SP-10-09는 나머지 하�
 - 완료 조건: 모든 필수 일반 적 능력이 구현·검증되거나 명시적으로 승인된 웹 대체 계약을 충족한다. A02U의 실제 생성→공격→처치/만료, wave 수 분리, 중복 보상 자격 방지, restart/run 격리를 확인한다. 미해결이 있으면 부모 09는 보류를 유지한다.
 - 검증: 관련 death/clock/linked-summon/ordinary/progression/wave 회귀와 browser 통합, typecheck/build/diff check. 정상 실행과 가속·fixture 결과를 분리한다. artifact·명령·종료 코드·한계를 남기고 통과 후 다음 ID를 **SP-10-10**으로 갱신한다.
 
-하위 계획 작성 및 09-a/b/c/d/e/f/g 검증: a~m의 ID·선행·읽기/수정/완료/검증 항목을 정적 확인했고, 09-a는 원본 W3X 재추출, 09-b는 source/web policy와 transition case JSON assertion, 09-c는 pure corpse transition runner, 09-d는 실제 runtime death browser 사례, 09-e는 n016 canonical summon 및 실제 공격 browser 사례, 09-f는 A02U 전용 registry·종료 정책, 09-g는 corpse 위치 생성·소비 browser 사례로 확인했다. 이후 h 완료 및 i-1 근거 조사 기록은 각 카드를 따른다. 다음 요청 대상은 **SP-10-09-i-2 (데이터 입력 대기)**다.
+하위 계획 작성 및 09-a/b/c/d/e/f/g 검증: a~m의 ID·선행·읽기/수정/완료/검증 항목을 정적 확인했고, 09-a는 원본 W3X 재추출, 09-b는 source/web policy와 transition case JSON assertion, 09-c는 pure corpse transition runner, 09-d는 실제 runtime death browser 사례, 09-e는 n016 canonical summon 및 실제 공격 browser 사례, 09-f는 A02U 전용 registry·종료 정책, 09-g는 corpse 위치 생성·소비 browser 사례로 확인했다. 이후 h 완료 및 i-1/i-2-a/i-2-b/i-2-c 근거·결정 게이트, i-3-a 정책/대상 판정, i-3-b RNG/resolver, i-4-a/b lifecycle, i-4-c browser coverage, j-1 A024 base-family/override 조사와 j-2 source-data/web-policy 결정 게이트를 완료했다. 다음 **j-3**은 S 복구 자료 또는 W 완전 정책 승인을 기다린다.
 
 ### SP-10-10 — 보스 milestone scheduler
 

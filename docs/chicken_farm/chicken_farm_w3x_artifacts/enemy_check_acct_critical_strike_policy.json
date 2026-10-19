@@ -1,0 +1,42 @@
+{
+  "case": "acct_w1_policy_and_target_eligibility",
+  "checks": {
+    "actorScopeIsN00COnly": true,
+    "callbackFailureRollbackIsDeferredToRuntimeAdapter": true,
+    "chanceBoundaryUsesStrictLessThan": true,
+    "dedicatedSeededRngReplaysAndSkipsInvalidEvents": true,
+    "duplicateAttackIdConsumesNoSecondDrawOrDamage": true,
+    "eligibleTargetsAreAliveHostileUnitsOnly": true,
+    "invalidPolicyValuesRejected": true,
+    "ordinaryRuntimeCoverageExposesACctW1": true,
+    "pass": true,
+    "sourceAndWebPolicySeparated": true
+  },
+  "sourceEvidence": {
+    "abilityId": "ACct",
+    "actorRawcode": "n00C",
+    "inheritedFields": {
+      "DataA1": "unresolved",
+      "DataB1": "unresolved"
+    },
+    "sourceStatus": "unresolved_inherited_values"
+  },
+  "webPolicy": {
+    "abilityId": "ACct",
+    "actor": {
+      "enemyId": "dire_frost_wolf",
+      "rawcode": "n00C"
+    },
+    "chance": 0.15,
+    "damageMultiplier": 2,
+    "flatBonusDamage": 0,
+    "provenance": "approved_web_design_not_recovered_warcraft_data"
+  },
+  "resolverSample": {
+    "adjustedDamage": 32,
+    "attackId": "w1-1",
+    "damage": 32,
+    "proc": false,
+    "roll": 0.2713352437131107
+  }
+}

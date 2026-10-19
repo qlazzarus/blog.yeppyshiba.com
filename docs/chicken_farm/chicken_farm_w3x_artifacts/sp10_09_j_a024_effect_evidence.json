@@ -1,0 +1,56 @@
+{
+  "case": "sp10_09_j_a024_effect_evidence",
+  "abilityId": "A024",
+  "owner": {
+    "rawcode": "n00U",
+    "enemyId": "darkguard"
+  },
+  "mapEvidence": {
+    "mapSha256": "254a8a461e515f562b4c631ccb457abff382dec7eb05811981cf24ed9749eb86",
+    "objectFile": "war3map.w3a",
+    "baseAbilityId": "Aadm",
+    "verifiedOverrides": {
+      "acdn": 5,
+      "atar": "air,ground,ward,invu,vuln,tree"
+    },
+    "unmodifiedInheritedFields": [
+      "base ability title",
+      "DataA through DataD",
+      "range",
+      "duration",
+      "mana cost",
+      "relation/target flags",
+      "autocast behavior"
+    ]
+  },
+  "baseFamilyEvidence": {
+    "identity": "Abolish Magic",
+    "knownFamilyBehavior": [
+      "dispels positive buffs from enemy units",
+      "dispels negative buffs from friendly units",
+      "has a summoned-unit damage field"
+    ],
+    "sources": [
+      "https://liquipedia.net/warcraft/Template%3ASpellCard/Aadm",
+      "https://github.com/dc114154qq/war3-reforged-trainer/blob/master/war3_ability_fields.py"
+    ],
+    "warning": "Base-family behavior and public default values do not establish the map's inherited ability data, patch, target relations, or autocast selection."
+  },
+  "runtimeGap": {
+    "currentWebRuntimeHasNo": [
+      "unit buff inventory or positive/negative disposition",
+      "dispel effect adapter",
+      "summoned-unit classification covering every Aadm target",
+      "source-verified A024 DataA/B or range"
+    ],
+    "a02iRelationship": "Darkguard also attaches A02I, but its effect is unresolved and must not be treated as an A024 buff or target rule."
+  },
+  "implementationDecision": {
+    "state": "blocked_source_data_and_web_contract",
+    "runtime": "No A024 cast, dispel, summoned-unit damage, cooldown entry, or runtime-state change was added.",
+    "requiredBeforeImplementation": [
+      "licensed/versioned base AbilityData and profile fields with map override merge, or",
+      "explicit approved web policy for target relations, buff model, summoned-unit scope, damage, range, cooldown/failure consumption, and A02I interaction"
+    ]
+  }
+}

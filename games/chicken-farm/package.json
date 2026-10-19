@@ -12,6 +12,7 @@
         "chicken:economy:measure": "tsx ../../scripts/measure-chicken-farm-economy.ts",
         "chicken:enemy:death": "tsx ../../scripts/check-chicken-farm-enemy-death.ts",
         "chicken:enemy:ability-clock": "tsx ../../scripts/check-chicken-farm-enemy-ability-clock.ts",
+        "chicken:enemy:acct-policy": "tsx ../../scripts/check-chicken-farm-acct-critical-strike-policy.ts",
         "chicken:enemy:ordinary-abilities": "tsx ../../scripts/check-chicken-farm-ordinary-enemy-abilities.ts",
         "chicken:enemy:linked-summons": "tsx ../../scripts/check-chicken-farm-linked-summons.ts",
         "chicken:enemy:ordinary-summons": "tsx ../../scripts/check-chicken-farm-ordinary-summons.ts",

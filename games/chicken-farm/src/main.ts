@@ -246,6 +246,20 @@ declare global {
             };
             getCombatLifecycleSnapshot: () => {
                 readonly active: boolean;
+                readonly acctCriticalStrike: {
+                    readonly draws: number;
+                    readonly observations: readonly {
+                        readonly actualHpDecrease: number;
+                        readonly applied: boolean;
+                        readonly attackId: string;
+                        readonly deliveredDamage: number;
+                        readonly proc: boolean;
+                        readonly roll: number;
+                        readonly targetId: string;
+                    }[];
+                    readonly seed: number;
+                    readonly state: number;
+                };
                 readonly buildings: readonly {
                     readonly attack: { readonly cooldownSec: number; readonly damage: number; readonly rangePx: number } | null;
                     readonly armor: number;
@@ -4537,6 +4551,12 @@ class FarmScene extends Phaser.Scene {
             }),
             getCombatLifecycleSnapshot: () => ({
                 active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
+                acctCriticalStrike: this.combatPoc?.getAcctCriticalStrikeSnapshot() ?? {
+                    draws: 0,
+                    observations: [],
+                    seed: this.runId,
+                    state: this.runId,
+                },
                 buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
                     attack: this.getResearchedBuildingAttack(building.ownerPlayerId, building.templateId),
                     armor: building.armor,

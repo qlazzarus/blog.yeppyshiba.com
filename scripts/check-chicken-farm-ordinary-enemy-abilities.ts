@@ -20,19 +20,23 @@ async function main() {
     assert.equal(ORDINARY_ENEMY_ABILITY_POLICIES.length, 18);
     assert.deepEqual(result.duplicateEnemyIds, []);
     assert.deepEqual(result.missingEnemyIds, []);
-    assert.deepEqual(result.nonEmptyExecutablePolicies, []);
-    assert.equal(result.blockedPolicies.length, 7);
+    assert.deepEqual(
+        result.nonEmptyExecutablePolicies.map((policy) => policy.enemyId),
+        ['dire_frost_wolf'],
+    );
+    assert.equal(result.blockedPolicies.length, 6);
     assert.deepEqual(getExecutableOrdinaryEnemyAbilities('fel_ravager'), []);
+    assert.deepEqual(getExecutableOrdinaryEnemyAbilities('dire_frost_wolf'), ['ACct']);
     assert.deepEqual(getExecutableOrdinaryEnemyAbilities('timber_wolf'), []);
 
     const artifact = {
         case: 'ordinary_enemy_ability_policy',
         checks: {
             all18TiersCovered: true,
-            attachmentWithoutEffectDoesNotExecute: true,
+            acctW1PolicyIsExecutable: true,
             baseAttackOnlyTiersExplicit: true,
             pass: true,
-            unresolvedAbilityPoliciesBlocked: true,
+            unresolvedAbilityPoliciesRemainBlocked: true,
         },
         policies: ORDINARY_ENEMY_ABILITY_POLICIES,
     };

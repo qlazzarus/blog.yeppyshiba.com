@@ -121,9 +121,13 @@ async function runFixture() {
         const casterCreated = await page.evaluate(() =>
             window.__chickenFarmDebug!.createCombatEnemyFixture('sp10-a02u-caster', 'satyr_soulstealer', 3650, 8700, 10),
         );
+        const criticalCreated = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('sp10-acct-w1', 'dire_frost_wolf', 3750, 8700, 10),
+        );
         assert.equal(created, true, 'fixture profile must create the explicit runtime enemy');
         assert.equal(ordinaryCreated, true, 'fixture profile must create the ordinary ability coverage enemy');
         assert.equal(casterCreated, true, 'fixture profile must create the A02U caster');
+        assert.equal(criticalCreated, true, 'fixture profile must create the ACct W1 enemy');
         const linkedId = await page.evaluate(() =>
             window.__chickenFarmDebug!.spawnLinkedSummonForTest('sp10-snapshot-boss', 'timber_wolf', 10),
         );
@@ -139,6 +143,13 @@ async function runFixture() {
         const ordinary = after.runtimeEnemies.find((candidate) => candidate.id === 'sp10-ordinary-ability');
         assert.equal(ordinary?.ordinaryAbilityPolicy?.execution, 'blocked_source_data');
         assert.deepEqual(ordinary?.ordinaryAbilityPolicy?.attachedAbilityIds, ['A02I']);
+        const critical = after.runtimeEnemies.find((candidate) => candidate.id === 'sp10-acct-w1');
+        assert.equal(critical?.ordinaryAbilityPolicy?.execution, 'implemented_web_policy');
+        assert.deepEqual(critical?.ordinaryAbilityPolicy?.attachedAbilityIds, ['ACct']);
+        assert.equal(
+            critical?.abilities.find((ability) => ability.id === 'ACct')?.runtimeState,
+            'implemented_web_policy',
+        );
         assert.equal(after.linkedSummons.active.length, 1);
         assert.equal(after.linkedSummons.active[0]?.parentEnemyId, 'sp10-snapshot-boss');
         const linkedEnemy = after.runtimeEnemies.find((candidate) => candidate.id === linkedId);
@@ -202,6 +213,7 @@ async function runFixture() {
                 fixtureOriginExposed: true,
                 noRewardOrXpMutation: true,
                 ordinaryAbilityPolicyExposed: true,
+                acctW1ImplementedPolicyExposed: true,
                 ordinaryDeathCreatesCorpse: true,
                 ordinarySummonConsumesReservedCorpse: true,
                 parentRemovalDespawnedLinkedSummon: true,

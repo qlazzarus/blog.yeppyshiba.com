@@ -4,13 +4,12 @@ import { WAVE_ORDINARY_ENEMY_TIERS } from './waveEnemyTiers';
 export type OrdinaryEnemyAbilityPolicy = {
     readonly attachedAbilityIds: readonly string[];
     readonly enemyId: EnemyId;
-    readonly execution: 'base_attack_only' | 'blocked_source_data';
+    readonly execution: 'base_attack_only' | 'blocked_source_data' | 'implemented_web_policy';
     readonly reason: string;
 };
 
 const blockedAbilityIdsByEnemyId: Readonly<Partial<Record<EnemyId, readonly string[]>>> = {
     darkguard: ['A02I', 'A024'],
-    dire_frost_wolf: ['ACct'],
     fel_ravager: ['A02I'],
     overlord: ['A02I', 'A023'],
     satyr: ['A02W'],
@@ -18,9 +17,23 @@ const blockedAbilityIdsByEnemyId: Readonly<Partial<Record<EnemyId, readonly stri
     shupikuta: ['A02I'],
 };
 
+const implementedWebAbilityIdsByEnemyId: Readonly<Partial<Record<EnemyId, readonly string[]>>> = {
+    dire_frost_wolf: ['ACct'],
+};
+
 export const ORDINARY_ENEMY_ABILITY_POLICIES: readonly OrdinaryEnemyAbilityPolicy[] =
     WAVE_ORDINARY_ENEMY_TIERS.map(({ enemyId }) => {
+        const implementedAbilityIds = implementedWebAbilityIdsByEnemyId[enemyId] ?? [];
         const attachedAbilityIds = blockedAbilityIdsByEnemyId[enemyId] ?? [];
+        if (implementedAbilityIds.length) {
+            return {
+                attachedAbilityIds: implementedAbilityIds,
+                enemyId,
+                execution: 'implemented_web_policy' as const,
+                reason:
+                    'ACct-W1 is an approved web policy: n00C direct hostile unit hits use a deterministic 15% critical chance with a 2x multiplier.',
+            };
+        }
         return attachedAbilityIds.length
             ? {
                   attachedAbilityIds,
@@ -41,7 +54,7 @@ export function getExecutableOrdinaryEnemyAbilities(enemyId: EnemyId): readonly 
     const policy = ORDINARY_ENEMY_ABILITY_POLICIES.find(
         (candidate) => candidate.enemyId === enemyId,
     );
-    return policy?.execution === 'base_attack_only' ? [] : [];
+    return policy?.execution === 'implemented_web_policy' ? policy.attachedAbilityIds : [];
 }
 
 export function validateOrdinaryEnemyAbilityPolicies() {
@@ -50,6 +63,9 @@ export function validateOrdinaryEnemyAbilityPolicies() {
     return {
         blockedPolicies: ORDINARY_ENEMY_ABILITY_POLICIES.filter(
             (policy) => policy.execution === 'blocked_source_data',
+        ),
+        implementedWebPolicies: ORDINARY_ENEMY_ABILITY_POLICIES.filter(
+            (policy) => policy.execution === 'implemented_web_policy',
         ),
         duplicateEnemyIds: policyEnemyIds.filter(
             (enemyId, index) => policyEnemyIds.indexOf(enemyId) !== index,

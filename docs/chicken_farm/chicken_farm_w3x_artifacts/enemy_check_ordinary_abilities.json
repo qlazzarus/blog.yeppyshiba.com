@@ -2,10 +2,10 @@
   "case": "ordinary_enemy_ability_policy",
   "checks": {
     "all18TiersCovered": true,
-    "attachmentWithoutEffectDoesNotExecute": true,
+    "acctW1PolicyIsExecutable": true,
     "baseAttackOnlyTiersExplicit": true,
     "pass": true,
-    "unresolvedAbilityPoliciesBlocked": true
+    "unresolvedAbilityPoliciesRemainBlocked": true
   },
   "policies": [
     {
@@ -43,8 +43,8 @@
         "ACct"
       ],
       "enemyId": "dire_frost_wolf",
-      "execution": "blocked_source_data",
-      "reason": "The extracted source confirms attachment or name only; target type, range, timing, damage, duration, and stacking are unresolved."
+      "execution": "implemented_web_policy",
+      "reason": "ACct-W1 is an approved web policy: n00C direct hostile unit hits use a deterministic 15% critical chance with a 2x multiplier."
     },
     {
       "attachedAbilityIds": [],

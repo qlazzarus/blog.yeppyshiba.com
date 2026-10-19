@@ -15,6 +15,7 @@ import type { OrdinarySummonEntry, OrdinarySummonTerminationReason } from './ord
 type AbilitySpec = Omit<CanonicalEnemyAbility, 'runtimeState'>;
 
 const UNSUPPORTED = 'unsupported' as const;
+const IMPLEMENTED_WEB_POLICY = 'implemented_web_policy' as const;
 
 export type EnemyProgressionSnapshot = {
     readonly bossMilestones: readonly {
@@ -63,7 +64,7 @@ export type EnemyProgressionSnapshot = {
         readonly ownerPlayerId: number;
         readonly ordinaryAbilityPolicy: {
             readonly attachedAbilityIds: readonly string[];
-            readonly execution: 'base_attack_only' | 'blocked_source_data';
+            readonly execution: 'base_attack_only' | 'blocked_source_data' | 'implemented_web_policy';
         } | null;
         readonly parentEnemyId: string | null;
         readonly rawcode: string;
@@ -175,7 +176,10 @@ function defineEnemy(enemyId: EnemyId): CanonicalEnemyDefinition {
     return {
         abilities: abilitiesByEnemyId[enemyId].map((ability) => ({
             ...ability,
-            runtimeState: UNSUPPORTED,
+            runtimeState:
+                enemyId === 'dire_frost_wolf' && ability.id === 'ACct'
+                    ? IMPLEMENTED_WEB_POLICY
+                    : UNSUPPORTED,
         })),
         enemyId,
         rawcode: config.source.rawcode ?? '',

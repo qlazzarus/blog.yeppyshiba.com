@@ -1,14 +1,28 @@
 {
   "case": "sp10_09_i_acct_effect_evidence",
   "abilityId": "ACct",
-  "ownerRawcodes": ["n00C", "n00E"],
-  "ownerInScope": { "rawcode": "n00C", "enemyId": "dire_frost_wolf" },
+  "ownerRawcodes": [
+    "n00C",
+    "n00E"
+  ],
+  "ownerInScope": {
+    "rawcode": "n00C",
+    "enemyId": "dire_frost_wolf"
+  },
   "baseEvidence": {
     "name": "치명타",
-    "targetFilter": ["air", "ground", "enemy", "neutral"],
+    "targetFilter": [
+      "air",
+      "ground",
+      "enemy",
+      "neutral"
+    ],
     "description": "DataA1 percent chance to deal DataB1 times normal attack damage"
   },
-  "missingInheritedFields": ["DataA1", "DataB1"],
+  "missingInheritedFields": [
+    "DataA1",
+    "DataB1"
+  ],
   "warsmashEvidence": {
     "checkedAt": "2026-10-19",
     "repository": "https://github.com/Retera/WarsmashModEngine",
@@ -16,16 +30,60 @@
     "method": "static_source_inspection_not_runtime_validation",
     "details": "../chicken_farm_sp10_09_i_warsmash_evidence.md",
     "engineFamilyEvidence": "AHbh/AOcr/ANdb shared passive checks valid target and seeded randomBoundedFloat(100) < DataA, then applies nonzero DataB as a multiplier.",
-    "unresolved": ["ACct SLK code dispatch", "DataA1 through DataE1", "levels, targets, buffs and normal/hero durations", "external game dataset version and map override merge"],
+    "unresolved": [
+      "ACct SLK code dispatch",
+      "DataA1 through DataE1",
+      "levels, targets, buffs and normal/hero durations",
+      "external game dataset version and map override merge"
+    ],
     "warning": "Family behavior does not establish ACct numeric values or enabled secondary effects. Current upstream engine is the selected reference, not proof of the map's original game data version."
   },
   "implementationDecision": {
-    "state": "engine_reference_recovered_pending_external_ability_data",
-    "reason": "Warsmash main establishes the shared engine behavior, but loads numeric values and alias code from external AbilityData.slk absent from the inspected checkout. The extracted W3X has no ACct chance/multiplier override. No numeric replacement is approved.",
-    "runtime": "dire_frost_wolf remains explicitly blocked_source_data; no base-attack-only reclassification and no critical damage effect is added."
+    "state": "approved_web_policy_pending_implementation",
+    "reason": "W1 approved by user. Source inherited fields remain unresolved; web contract permits implementation without external game data.",
+    "runtime": "No runtime change in this planning step. Keep n00C implementation incomplete until i-4-c validates actual damage and updates coverage."
   },
   "requiredToResume": [
-    "SP-10-09-i-2: obtain the selected Warsmash external ability dataset, record its version/hash, resolve ACct code and inherited fields with map overrides; distinguish selected dataset semantics from original map-version fidelity",
-    "or approve a web policy naming the chance, multiplier, RNG determinism, target interaction, and difficulty behavior"
-  ]
+    "Execute SP-10-09-i-3-a through i-4-c per the W1 execution plan; no further approval needed for the unchanged W1 contract."
+  ],
+  "approvedWebPolicy": {
+    "id": "ACct-W1",
+    "approvedAt": "2026-10-19",
+    "approval": "User accepted W1 and requested detailed Terra medium execution tasks.",
+    "provenance": "web_design_not_recovered_warcraft_data",
+    "actor": "n00C",
+    "enemyId": "dire_frost_wolf",
+    "chancePercent": 15,
+    "damageMultiplier": 2,
+    "flatBonusDamage": 0,
+    "stun": false,
+    "evasionBonus": false,
+    "guaranteedHit": false,
+    "targets": [
+      "eligible_alive_hostile_economy_chicken",
+      "eligible_alive_hostile_controllable_unit"
+    ],
+    "excludedTargets": [
+      "building",
+      "fence",
+      "corpse",
+      "item",
+      "neutral",
+      "ally",
+      "self"
+    ],
+    "otherActorsUnchanged": [
+      "n00E"
+    ],
+    "rng": "dedicated_seeded_stream; one draw per eligible hit; roll in [0,1); roll < 0.15; reset per run; no rollback on failed damage callback",
+    "damageOrder": [
+      "existing_base_and_difficulty_rounding_once",
+      "critical_multiplier",
+      "existing_target_defense_hp_death_adapter"
+    ],
+    "difficulty": "chance and multiplier fixed across difficulties",
+    "stacking": "at most one ACct application per attack ID",
+    "details": "../chicken_farm_sp10_09_i_acct_decision_gate.md",
+    "executionPlan": "../chicken_farm_sp10_09_i_w1_execution_plan.md"
+  }
 }

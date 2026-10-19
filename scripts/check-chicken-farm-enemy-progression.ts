@@ -40,6 +40,13 @@ async function main() {
     assert.equal(CANONICAL_ENEMY_DEFINITIONS.doom_guard.reward.score.effectiveScore, 700);
     assert.equal(CANONICAL_ENEMY_DEFINITIONS.nether_dragon.reward.score.effectiveScore, 1000);
     assert.ok(result.unsupportedAbilityCount > 0, 'unsupported abilities remain explicit');
+    assert.equal(
+        CANONICAL_ENEMY_DEFINITIONS.dire_frost_wolf.abilities.find(
+            (ability) => ability.id === 'ACct',
+        )?.runtimeState,
+        'implemented_web_policy',
+        'ACct W1 runtime state is explicit',
+    );
     assert.deepEqual(
         FARMER_LEVEL_REWARDS.map((reward) => reward.level),
         [5, 10, 15, 20, 25, 30, 35],

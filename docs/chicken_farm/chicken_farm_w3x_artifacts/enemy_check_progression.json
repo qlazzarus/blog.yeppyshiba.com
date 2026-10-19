@@ -258,7 +258,7 @@
         {
           "evidence": "unknown",
           "id": "ACct",
-          "runtimeState": "unsupported"
+          "runtimeState": "implemented_web_policy"
         }
       ],
       "enemyId": "dire_frost_wolf",
@@ -491,5 +491,5 @@
       "role": "summon"
     }
   ],
-  "unsupportedAbilityCount": 31
+  "unsupportedAbilityCount": 30
 }

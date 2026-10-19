@@ -149,7 +149,7 @@ export type EnemyAbilityEvidence =
     | 'unknown'
     | 'not_attached';
 
-export type EnemyAbilityRuntimeState = 'unsupported' | 'planned';
+export type EnemyAbilityRuntimeState = 'unsupported' | 'planned' | 'implemented_web_policy';
 
 export type CanonicalEnemyAbility = {
     readonly evidence: EnemyAbilityEvidence;

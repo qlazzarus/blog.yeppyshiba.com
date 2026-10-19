@@ -15,6 +15,11 @@ import {
     type EnemyDamageSource,
     type EnemyDeathLedger,
 } from '../enemyDeathLedger';
+import {
+    createAcctCriticalStrikeState,
+    resolveAcctCriticalStrike,
+    type AcctCriticalStrikeState,
+} from '../acctCriticalStrikeResolver';
 import { WAVE_ATTACK_WORLD_RECT } from '../waveSpawnManifest';
 import {
     MAJOR_TILE_PX,
@@ -132,6 +137,18 @@ const WOLF_HP_BAR_WIDTH_PX = 48;
 const COMBAT_TELEMETRY_SNAPSHOT_INTERVAL_SEC = 1;
 const COMBAT_SMOKE_VERTICAL_OFFSET_PX = TARGET_VIEW_MAJOR_ROWS * MAJOR_TILE_PX * 0.25;
 const COMBAT_SMOKE_WORLD_PADDING_PX = 192;
+const ACCT_CRITICAL_STRIKE_SEED = 1972;
+const MAX_ACCT_CRITICAL_STRIKE_OBSERVATIONS = 64;
+
+type AcctCriticalStrikeObservation = {
+    readonly actualHpDecrease: number;
+    readonly applied: boolean;
+    readonly attackId: string;
+    readonly deliveredDamage: number;
+    readonly proc: boolean;
+    readonly roll: number;
+    readonly targetId: string;
+};
 
 export class CombatPocSystem {
     private readonly scene: Phaser.Scene;
@@ -170,6 +187,10 @@ export class CombatPocSystem {
     private combatWolves: CombatWolf[] = [];
     private enemyAbilityClock: EnemyAbilityClock = createEnemyAbilityClock();
     private enemyAbilityResolutions: EnemyAbilityResolution[] = [];
+    private acctCriticalStrikeState: AcctCriticalStrikeState = createAcctCriticalStrikeState(0);
+    private acctCriticalStrikeRunId: number | null = null;
+    private nextAcctCriticalStrikeAttackSequence = 0;
+    private acctCriticalStrikeObservations: AcctCriticalStrikeObservation[] = [];
     private externalAbilityTargetIds = new Set<string>();
     private enemyDeathLedger: EnemyDeathLedger = createEnemyDeathLedger();
     private nextCombatDebugDrawAtSec = 0;
@@ -622,6 +643,25 @@ export class CombatPocSystem {
                 x: wolf.body.x,
                 y: wolf.body.y,
             }));
+    }
+
+    getAcctCriticalStrikeSnapshot() {
+        this.ensureAcctCriticalStrikeStateForRun();
+        return {
+            draws: this.acctCriticalStrikeState.draws,
+            observations: this.acctCriticalStrikeObservations,
+            seed: this.acctCriticalStrikeState.seed,
+            state: this.acctCriticalStrikeState.state,
+        };
+    }
+
+    private ensureAcctCriticalStrikeStateForRun() {
+        const runId = this.getRunId();
+        if (this.acctCriticalStrikeRunId === runId) return;
+        this.acctCriticalStrikeRunId = runId;
+        this.acctCriticalStrikeState = createAcctCriticalStrikeState(ACCT_CRITICAL_STRIKE_SEED);
+        this.nextAcctCriticalStrikeAttackSequence = 0;
+        this.acctCriticalStrikeObservations = [];
     }
 
     getEnemyDeathEvents() {
@@ -2023,13 +2063,62 @@ export class CombatPocSystem {
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
         const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
+        let deliveredDamage = damage;
+        let criticalObservation: Omit<AcctCriticalStrikeObservation, 'actualHpDecrease' | 'applied'> | null = null;
+        if (wolf.enemyId === 'dire_frost_wolf') {
+            this.ensureAcctCriticalStrikeStateForRun();
+            const resolution = resolveAcctCriticalStrike(this.acctCriticalStrikeState, {
+                actor: {
+                    alive: wolf.hp > 0,
+                    enemyId: wolf.enemyId,
+                    rawcode: enemy.source.rawcode ?? '',
+                },
+                adjustedDamage: damage,
+                attackId: `${this.getRunId()}:${wolf.id}:${this.nextAcctCriticalStrikeAttackSequence++}`,
+                target: {
+                    alive: target.value.hp > 0,
+                    isHostile: target.value.ownerPlayerId !== wolf.ownerPlayerId,
+                    targetKind: target.value.targetKind,
+                    targetableByWolves: target.value.targetableByWolves,
+                },
+            });
+            this.acctCriticalStrikeState = resolution.state;
+            deliveredDamage = resolution.decision?.damage ?? damage;
+            if (resolution.decision) {
+                criticalObservation = {
+                    attackId: resolution.decision.attackId,
+                    deliveredDamage,
+                    proc: resolution.decision.proc,
+                    roll: resolution.decision.roll,
+                    targetId: target.value.id,
+                };
+            }
+        }
         const damaged = target.value.targetKind === 'economy_chicken'
-            ? this.damageEconomyChicken?.(target.value.id, damage, wolf.id) ?? false
-            : this.damageControllableUnit?.(target.value.id, damage, wolf.id) ?? false;
+            ? this.damageEconomyChicken?.(target.value.id, deliveredDamage, wolf.id) ?? false
+            : this.damageControllableUnit?.(target.value.id, deliveredDamage, wolf.id) ?? false;
+        if (criticalObservation) {
+            const targetAfter = this.getWolfTargetableUnits().find(
+                (candidate) => candidate.id === target.value.id,
+            );
+            const actualHpDecrease = damaged
+                ? targetAfter
+                    ? Math.max(0, target.value.hp - targetAfter.hp)
+                    : target.value.hp
+                : 0;
+            this.acctCriticalStrikeObservations.push({
+                ...criticalObservation,
+                actualHpDecrease,
+                applied: damaged,
+            });
+            if (this.acctCriticalStrikeObservations.length > MAX_ACCT_CRITICAL_STRIKE_OBSERVATIONS) {
+                this.acctCriticalStrikeObservations.shift();
+            }
+        }
         wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
         this.recordTelemetry?.('wolf_attack_landed', {
-            damage,
-            targetHpAfter: Math.max(0, target.value.hp - damage),
+            damage: deliveredDamage,
+            targetHpAfter: Math.max(0, target.value.hp - deliveredDamage),
             targetId: target.value.id,
             targetKind: 'unit',
             targetType: target.value.templateId,

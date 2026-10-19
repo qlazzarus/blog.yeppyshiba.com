@@ -5,6 +5,7 @@
     "fixtureOriginExposed": true,
     "noRewardOrXpMutation": true,
     "ordinaryAbilityPolicyExposed": true,
+    "acctW1ImplementedPolicyExposed": true,
     "ordinaryDeathCreatesCorpse": true,
     "ordinarySummonConsumesReservedCorpse": true,
     "parentRemovalDespawnedLinkedSummon": true,
@@ -326,7 +327,7 @@
             {
               "evidence": "unknown",
               "id": "ACct",
-              "runtimeState": "unsupported"
+              "runtimeState": "implemented_web_policy"
             }
           ],
           "enemyId": "dire_frost_wolf",
@@ -561,7 +562,7 @@
         "state": "active"
       },
       "deathEvents": [],
-      "elapsedSec": 0.1586333333333217,
+      "elapsedSec": 0.17490893333333343,
       "fieldDrops": {
         "entries": [],
         "state": "not_started"
@@ -581,11 +582,11 @@
           {
             "enemyId": "timber_wolf",
             "id": "linked-r1-s0",
-            "lifetimeExpiresAtSec": 10.141966666666654,
+            "lifetimeExpiresAtSec": 10.158242266666667,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-snapshot-boss",
             "runId": 1,
-            "spawnedAtSec": 0.14196666666665503
+            "spawnedAtSec": 0.15824226666666677
           }
         ],
         "ended": [],
@@ -636,6 +637,28 @@
           },
           "parentEnemyId": null,
           "rawcode": "n015",
+          "rewardEligible": true
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "implemented_web_policy"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "id": "sp10-acct-w1",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "ACct"
+            ],
+            "execution": "implemented_web_policy"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00C",
           "rewardEligible": true
         },
         {
@@ -988,7 +1011,7 @@
             {
               "evidence": "unknown",
               "id": "ACct",
-              "runtimeState": "unsupported"
+              "runtimeState": "implemented_web_policy"
             }
           ],
           "enemyId": "dire_frost_wolf",
@@ -1221,15 +1244,15 @@
       "corpses": {
         "entries": [
           {
-            "createdAtSec": 0.17529999999998835,
+            "createdAtSec": 0.1915756000000001,
             "deadEntityId": "sp10-ordinary-ability",
             "deathKey": "1:sp10-ordinary-ability:1",
             "enemyId": "fel_ravager",
-            "expiresAtSec": 10.175299999999988,
+            "expiresAtSec": 10.1915756,
             "ownerPlayerId": 10,
             "runId": 1,
-            "x": 3685.8,
-            "y": 8718.5,
+            "x": 3688.1,
+            "y": 8726.1,
             "reservationCasterId": null,
             "status": "consumed"
           }
@@ -1242,18 +1265,18 @@
           "cause": "debug",
           "deadOwnerPlayerId": 10,
           "deadEntityId": "sp10-ordinary-ability",
-          "diedAtSec": 0.17529999999998835,
+          "diedAtSec": 0.1915756000000001,
           "enemyId": "fel_ravager",
           "ownerPlayerId": null,
           "rewardEligible": false,
           "runId": 1,
-          "x": 3685.8,
-          "y": 8718.5,
+          "x": 3688.1,
+          "y": 8726.1,
           "deathKey": "1:sp10-ordinary-ability:1",
           "deathSequence": 1
         }
       ],
-      "elapsedSec": 0.22529999999998834,
+      "elapsedSec": 0.24157560000000008,
       "fieldDrops": {
         "entries": [],
         "state": "not_started"
@@ -1273,11 +1296,11 @@
           {
             "enemyId": "timber_wolf",
             "id": "linked-r1-s0",
-            "lifetimeExpiresAtSec": 10.141966666666654,
+            "lifetimeExpiresAtSec": 10.158242266666667,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-snapshot-boss",
             "runId": 1,
-            "spawnedAtSec": 0.14196666666665503
+            "spawnedAtSec": 0.15824226666666677
           }
         ],
         "ended": [],
@@ -1288,7 +1311,7 @@
           {
             "enemyId": "skeleton_warrior",
             "id": "a02u-r1-s0",
-            "lifetimeExpiresAtSec": 40.22529999999999,
+            "lifetimeExpiresAtSec": 40.2415756,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-a02u-caster",
             "persistsAfterParentRemoval": true,
@@ -1296,7 +1319,7 @@
             "rewardEligible": false,
             "runId": 1,
             "sourceAbilityId": "A02U",
-            "spawnedAtSec": 0.22529999999998834
+            "spawnedAtSec": 0.24157560000000008
           }
         ],
         "ended": [],
@@ -1353,6 +1376,28 @@
           },
           "parentEnemyId": null,
           "rawcode": "n015",
+          "rewardEligible": true
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "implemented_web_policy"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "id": "sp10-acct-w1",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "ACct"
+            ],
+            "execution": "implemented_web_policy"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00C",
           "rewardEligible": true
         },
         {
@@ -1683,7 +1728,7 @@
             {
               "evidence": "unknown",
               "id": "ACct",
-              "runtimeState": "unsupported"
+              "runtimeState": "implemented_web_policy"
             }
           ],
           "enemyId": "dire_frost_wolf",
@@ -1916,15 +1961,15 @@
       "corpses": {
         "entries": [
           {
-            "createdAtSec": 0.17529999999998835,
+            "createdAtSec": 0.1915756000000001,
             "deadEntityId": "sp10-ordinary-ability",
             "deathKey": "1:sp10-ordinary-ability:1",
             "enemyId": "fel_ravager",
-            "expiresAtSec": 10.175299999999988,
+            "expiresAtSec": 10.1915756,
             "ownerPlayerId": 10,
             "runId": 1,
-            "x": 3685.8,
-            "y": 8718.5,
+            "x": 3688.1,
+            "y": 8726.1,
             "reservationCasterId": null,
             "status": "consumed"
           }
@@ -1937,18 +1982,18 @@
           "cause": "debug",
           "deadOwnerPlayerId": 10,
           "deadEntityId": "sp10-ordinary-ability",
-          "diedAtSec": 0.17529999999998835,
+          "diedAtSec": 0.1915756000000001,
           "enemyId": "fel_ravager",
           "ownerPlayerId": null,
           "rewardEligible": false,
           "runId": 1,
-          "x": 3685.8,
-          "y": 8718.5,
+          "x": 3688.1,
+          "y": 8726.1,
           "deathKey": "1:sp10-ordinary-ability:1",
           "deathSequence": 1
         }
       ],
-      "elapsedSec": 0.35863333333332165,
+      "elapsedSec": 0.37490893333333336,
       "fieldDrops": {
         "entries": [],
         "state": "not_started"
@@ -1969,11 +2014,11 @@
           {
             "enemyId": "timber_wolf",
             "id": "linked-r1-s0",
-            "lifetimeExpiresAtSec": 10.141966666666654,
+            "lifetimeExpiresAtSec": 10.158242266666667,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-snapshot-boss",
             "runId": 1,
-            "spawnedAtSec": 0.14196666666665503,
+            "spawnedAtSec": 0.15824226666666677,
             "reason": "parent_removed"
           }
         ],
@@ -1984,7 +2029,7 @@
           {
             "enemyId": "skeleton_warrior",
             "id": "a02u-r1-s0",
-            "lifetimeExpiresAtSec": 40.22529999999999,
+            "lifetimeExpiresAtSec": 40.2415756,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-a02u-caster",
             "persistsAfterParentRemoval": true,
@@ -1992,7 +2037,7 @@
             "rewardEligible": false,
             "runId": 1,
             "sourceAbilityId": "A02U",
-            "spawnedAtSec": 0.22529999999998834
+            "spawnedAtSec": 0.24157560000000008
           }
         ],
         "ended": [],
@@ -2035,6 +2080,28 @@
           },
           "parentEnemyId": null,
           "rawcode": "n015",
+          "rewardEligible": true
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "implemented_web_policy"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "id": "sp10-acct-w1",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "ACct"
+            ],
+            "execution": "implemented_web_policy"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00C",
           "rewardEligible": true
         }
       ]
@@ -2343,7 +2410,7 @@
             {
               "evidence": "unknown",
               "id": "ACct",
-              "runtimeState": "unsupported"
+              "runtimeState": "implemented_web_policy"
             }
           ],
           "enemyId": "dire_frost_wolf",
@@ -2576,15 +2643,15 @@
       "corpses": {
         "entries": [
           {
-            "createdAtSec": 0.17529999999998835,
+            "createdAtSec": 0.1915756000000001,
             "deadEntityId": "sp10-ordinary-ability",
             "deathKey": "1:sp10-ordinary-ability:1",
             "enemyId": "fel_ravager",
-            "expiresAtSec": 10.175299999999988,
+            "expiresAtSec": 10.1915756,
             "ownerPlayerId": 10,
             "runId": 1,
-            "x": 3685.8,
-            "y": 8718.5,
+            "x": 3688.1,
+            "y": 8726.1,
             "reservationCasterId": null,
             "status": "consumed"
           }
@@ -2597,18 +2664,18 @@
           "cause": "debug",
           "deadOwnerPlayerId": 10,
           "deadEntityId": "sp10-ordinary-ability",
-          "diedAtSec": 0.17529999999998835,
+          "diedAtSec": 0.1915756000000001,
           "enemyId": "fel_ravager",
           "ownerPlayerId": null,
           "rewardEligible": false,
           "runId": 1,
-          "x": 3685.8,
-          "y": 8718.5,
+          "x": 3688.1,
+          "y": 8726.1,
           "deathKey": "1:sp10-ordinary-ability:1",
           "deathSequence": 1
         }
       ],
-      "elapsedSec": 0.27529999999998833,
+      "elapsedSec": 0.29157560000000005,
       "fieldDrops": {
         "entries": [],
         "state": "not_started"
@@ -2628,11 +2695,11 @@
           {
             "enemyId": "timber_wolf",
             "id": "linked-r1-s0",
-            "lifetimeExpiresAtSec": 10.141966666666654,
+            "lifetimeExpiresAtSec": 10.158242266666667,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-snapshot-boss",
             "runId": 1,
-            "spawnedAtSec": 0.14196666666665503
+            "spawnedAtSec": 0.15824226666666677
           }
         ],
         "ended": [],
@@ -2643,7 +2710,7 @@
           {
             "enemyId": "skeleton_warrior",
             "id": "a02u-r1-s0",
-            "lifetimeExpiresAtSec": 40.22529999999999,
+            "lifetimeExpiresAtSec": 40.2415756,
             "ownerPlayerId": 10,
             "parentEnemyId": "sp10-a02u-caster",
             "persistsAfterParentRemoval": true,
@@ -2651,7 +2718,7 @@
             "rewardEligible": false,
             "runId": 1,
             "sourceAbilityId": "A02U",
-            "spawnedAtSec": 0.22529999999998834
+            "spawnedAtSec": 0.24157560000000008
           }
         ],
         "ended": [],
@@ -2708,6 +2775,28 @@
           },
           "parentEnemyId": null,
           "rawcode": "n015",
+          "rewardEligible": true
+        },
+        {
+          "abilities": [
+            {
+              "evidence": "unknown",
+              "id": "ACct",
+              "runtimeState": "implemented_web_policy"
+            }
+          ],
+          "enemyId": "dire_frost_wolf",
+          "id": "sp10-acct-w1",
+          "origin": "runtime_fixture_or_other",
+          "ownerPlayerId": 10,
+          "ordinaryAbilityPolicy": {
+            "attachedAbilityIds": [
+              "ACct"
+            ],
+            "execution": "implemented_web_policy"
+          },
+          "parentEnemyId": null,
+          "rawcode": "n00C",
           "rewardEligible": true
         },
         {
@@ -3038,7 +3127,7 @@
             {
               "evidence": "unknown",
               "id": "ACct",
-              "runtimeState": "unsupported"
+              "runtimeState": "implemented_web_policy"
             }
           ],
           "enemyId": "dire_frost_wolf",
@@ -3273,7 +3362,7 @@
         "state": "active"
       },
       "deathEvents": [],
-      "elapsedSec": 0.07531666666665505,
+      "elapsedSec": 0.07494633333333339,
       "fieldDrops": {
         "entries": [],
         "state": "not_started"
