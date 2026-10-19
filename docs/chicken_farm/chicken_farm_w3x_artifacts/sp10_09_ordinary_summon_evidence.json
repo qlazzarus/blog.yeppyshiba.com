@@ -1,0 +1,79 @@
+{
+  "case": "sp10_09_a_raw_object_evidence",
+  "source": {
+    "map": "docs/chicken_farm/닭농장1.3a.w3x",
+    "objectFile": "war3map.w3a",
+    "abilityId": "A02U",
+    "baseAbilityId": "ACrd",
+    "ownerRawcode": "n015",
+    "ownerEnemyId": "satyr_soulstealer"
+  },
+  "mapSha256": "254a8a461e515f562b4c631ccb457abff382dec7eb05811981cf24ed9749eb86",
+  "objects": {
+    "A02U": {
+      "baseAbilityId": "ACrd",
+      "modCount": 14,
+      "verifiedFields": {
+        "Rai1": 1,
+        "Rai3": "n016",
+        "Raiu": "n016",
+        "acdn": 3
+      },
+      "unmodifiedBaseFields": ["Rai2", "Rai4", "timedLife"],
+      "interpretation": "The map override sets the first raised unit group to one n016 Skeleton Warrior and sets a 3-second cooldown. The base Raise Dead values for a second group and timed life are not present in the W3X override."
+    },
+    "ACct": {
+      "table": "original",
+      "modCount": 4,
+      "name": "致命一击",
+      "targetFilter": "air,ground,enemy,neutral",
+      "description": "Gives a <ACct,DataA1>% chance to deal <ACct,DataB1> times normal attack damage.",
+      "unmodifiedBaseFields": ["DataA1", "DataB1"]
+    },
+    "A024": {
+      "baseAbilityId": "Aadm",
+      "modCount": 11,
+      "verifiedFields": { "acdn": 5, "atar": "air,ground,ward,invu,vuln,tree" },
+      "unmodifiedBaseFields": ["base ability title", "DataA through DataD", "range", "duration"]
+    },
+    "A023": {
+      "baseAbilityId": "ACce",
+      "modCount": 6,
+      "verifiedFields": { "aare": 200, "atar": "structure,enemies,neutral,ground", "nca1": 0.06 },
+      "unmodifiedBaseFields": ["base ability title", "remaining cleave fields"]
+    },
+    "A02W": {
+      "baseAbilityId": "ACcs",
+      "modCount": 11,
+      "verifiedFields": { "acdn": 4, "adur": 20, "ahdu": 20, "atar": "structure,enemies" },
+      "unmodifiedBaseFields": ["base ability title", "DataA through DataD", "range"]
+    }
+  },
+  "fieldMeaning": {
+    "acdn": "cooldown seconds",
+    "Rai1": "number of units in Raise Dead's first summon group",
+    "Rai3": "unit type of Raise Dead's first summon group",
+    "Raiu": "unit type used by Raise Dead's limit check"
+  },
+  "summon": {
+    "rawcode": "n016",
+    "name": "스켈레톤 워리어",
+    "sourceStatsArtifact": "combat_unit_stats_reference.tsv",
+    "sourceStats": {
+      "armor": 3,
+      "damage": 150,
+      "hp": 3000,
+      "speed": 350
+    }
+  },
+  "runtimeDecision": {
+    "state": "ready_for_policy_contract",
+    "notImplemented": [
+      "corpse eligibility and consumption",
+      "timed life duration",
+      "global summoned-unit limit",
+      "summon reward eligibility"
+    ],
+    "reason": "The W3X map override now establishes the A02U first summon group and cooldown, while the inherited Raise Dead fields remain unextracted. The current runtime has no corpse lifecycle; SP-10-09-b must make the web policy explicit before implementation."
+  }
+}

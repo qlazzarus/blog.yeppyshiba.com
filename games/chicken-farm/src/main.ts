@@ -8,11 +8,28 @@ import {
 } from './game/enemyProgression';
 import { ORDINARY_ENEMY_ABILITY_POLICIES } from './game/ordinaryEnemyAbilityPolicies';
 import {
+    advanceEnemyCorpseRegistry,
+    consumeReservedEnemyCorpse,
+    createEnemyCorpseRegistry,
+    releaseEnemyCorpseReservation,
+    registerEnemyCorpse,
+    reserveNearestEnemyCorpse,
+    type EnemyCorpseRegistry,
+} from './game/enemyCorpseRegistry';
+import {
     createLinkedSummonRegistry,
     reconcileLinkedSummons,
     registerLinkedSummon,
     type LinkedSummonRegistry,
 } from './game/linkedSummonRegistry';
+import {
+    A02U_SKELETON_LIFETIME_SEC,
+    createOrdinarySummonRegistry,
+    reconcileOrdinarySummons,
+    registerOrdinarySummon,
+    type OrdinarySummonRegistry,
+} from './game/ordinarySummonRegistry';
+import { selectOrdinarySummonSpawnPoint } from './game/ordinarySummonSpawn';
 import { getResearchedBuildingStats } from './game/buildingResearchStats';
 import { getResearchedUnitStats } from './game/unitResearchStats';
 import {
@@ -479,6 +496,7 @@ declare global {
                 enemyId: EnemyId,
                 lifetimeSec?: number,
             ) => string | null;
+            raiseSkeletonForTest: (casterId: string, requestKey: string) => string | null;
             damageWaveEnemyForTest: (id: string, damage: number) => boolean;
             setCombatEnemyHpForTest: (id: string, hp: number) => boolean;
             createEconomyChickenFixture: (
@@ -784,7 +802,11 @@ class FarmScene extends Phaser.Scene {
     private lastMinimapAnchor?: Phaser.Math.Vector2;
     private lastMinimapCamera?: Phaser.Math.Vector2;
     private linkedSummonRegistry: LinkedSummonRegistry = createLinkedSummonRegistry();
+    private ordinarySummonRegistry: OrdinarySummonRegistry = createOrdinarySummonRegistry();
+    private enemyCorpseRegistry: EnemyCorpseRegistry = createEnemyCorpseRegistry();
     private linkedSummonSequence = 0;
+    private ordinarySummonSequence = 0;
+    private a02uPendingCasts = new Map<string, { readonly casterId: string; readonly deathKey: string; readonly requestKey: string }>();
     private terrainBlocker?: TerrainBlocker;
     private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
     private terrainOverlayVisible = false;
@@ -1229,7 +1251,11 @@ class FarmScene extends Phaser.Scene {
         this.nextWaveReplenishAtSec = null;
         this.waveManagedEnemies.clear();
         this.linkedSummonRegistry = createLinkedSummonRegistry();
+        this.ordinarySummonRegistry = createOrdinarySummonRegistry();
+        this.enemyCorpseRegistry = createEnemyCorpseRegistry();
         this.linkedSummonSequence = 0;
+        this.ordinarySummonSequence = 0;
+        this.a02uPendingCasts.clear();
         this.waveSpawnSequence = 0;
         this.waveTargetOverridesForTest.clear();
     }
@@ -1263,7 +1289,10 @@ class FarmScene extends Phaser.Scene {
         if (!scheduler || !populationTargets || !combat) return;
 
         this.reconcileWaveManagedEnemies();
+        this.updateA02uAbility();
         this.reconcileLinkedSummons();
+        this.reconcileOrdinarySummons();
+        this.reconcileEnemyCorpses();
         const phaseStarts = scheduler.tick(this.elapsedSec);
         populationTargets.tick(this.elapsedSec, phaseStarts);
         if (this.nextWaveReplenishAtSec === null && phaseStarts.length > 0) {
@@ -1377,6 +1406,51 @@ class FarmScene extends Phaser.Scene {
         reconciled.removeIds.forEach((id) => combat.removeRuntimeEnemy(id));
     }
 
+    private reconcileOrdinarySummons() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        const deaths = combat.getEnemyDeathEvents().filter((death) => death.runId === this.runId);
+        const reconciled = reconcileOrdinarySummons(this.ordinarySummonRegistry, {
+            aliveEnemyIds: new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id)),
+            deadEnemyIds: new Set(deaths.map((death) => death.deadEntityId)),
+            nowSec: this.elapsedSec,
+        });
+        this.ordinarySummonRegistry = reconciled.registry;
+        reconciled.removeIds.forEach((id) => combat.removeRuntimeEnemy(id));
+    }
+
+    private reconcileEnemyCorpses() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        this.enemyCorpseRegistry = advanceEnemyCorpseRegistry(
+            this.enemyCorpseRegistry,
+            this.elapsedSec,
+        );
+        const linkedSummonIds = new Set([
+            ...this.linkedSummonRegistry.active.map((summon) => summon.id),
+            ...this.linkedSummonRegistry.ended.map((summon) => summon.id),
+        ]);
+        const ordinarySummonIds = new Set([
+            ...this.ordinarySummonRegistry.active.map((summon) => summon.id),
+            ...this.ordinarySummonRegistry.ended.map((summon) => summon.id),
+        ]);
+        for (const death of combat.getEnemyDeathEvents()) {
+            if (death.runId !== this.runId || linkedSummonIds.has(death.deadEntityId) || ordinarySummonIds.has(death.deadEntityId)) continue;
+            const registered = registerEnemyCorpse(this.enemyCorpseRegistry, {
+                createdAtSec: death.diedAtSec,
+                deadEntityId: death.deadEntityId,
+                deathKey: death.deathKey,
+                enemyId: death.enemyId,
+                expiresAtSec: death.diedAtSec + 10,
+                ownerPlayerId: death.deadOwnerPlayerId,
+                runId: death.runId,
+                x: death.x,
+                y: death.y,
+            });
+            this.enemyCorpseRegistry = registered.registry;
+        }
+    }
+
     private spawnLinkedSummonForTest(
         parentEnemyId: string,
         enemyId: EnemyId,
@@ -1418,6 +1492,114 @@ class FarmScene extends Phaser.Scene {
         this.linkedSummonRegistry = registered.registry;
         this.linkedSummonSequence += 1;
         return id;
+    }
+
+    private raiseSkeletonForTest(casterId: string, requestKey: string, reservedDeathKey?: string) {
+        const combat = this.combatPoc;
+        if (!combat || !casterId || !requestKey || this.runDisposed) return null;
+        const caster = combat.getRuntimeEnemySnapshot().find(
+            (enemy) => enemy.id === casterId && enemy.enemyId === 'satyr_soulstealer',
+        );
+        if (!caster) return null;
+        const existingReservation = reservedDeathKey
+            ? this.enemyCorpseRegistry.corpses.find((corpse) =>
+                corpse.deathKey === reservedDeathKey && corpse.status === 'reserved' && corpse.reservationCasterId === casterId,
+            ) ?? null
+            : null;
+        const reserved = existingReservation
+            ? { corpse: existingReservation, registry: this.enemyCorpseRegistry }
+            : reserveNearestEnemyCorpse(this.enemyCorpseRegistry, {
+                casterId, ownerPlayerId: caster.ownerPlayerId, radiusPx: 176, runId: this.runId, x: caster.x, y: caster.y,
+            });
+        if (!reserved.corpse) return null;
+        this.enemyCorpseRegistry = reserved.registry;
+        const spawnPoint = selectOrdinarySummonSpawnPoint({
+            corpse: reserved.corpse,
+            dynamicBlockedRects: this.getDynamicBlockedRects(),
+            isTerrainFootprintBlocked: (footprint) =>
+                (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+            worldSize: { height: this.worldSize.y, width: this.worldSize.x },
+        });
+        if (!spawnPoint) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const id = `a02u-r${this.runId}-s${this.ordinarySummonSequence}`;
+        const registered = registerOrdinarySummon(this.ordinarySummonRegistry, {
+            enemyId: 'skeleton_warrior',
+            id,
+            lifetimeExpiresAtSec: this.elapsedSec + A02U_SKELETON_LIFETIME_SEC,
+            ownerPlayerId: caster.ownerPlayerId,
+            parentEnemyId: casterId,
+            persistsAfterParentRemoval: true,
+            requestKey,
+            rewardEligible: false,
+            runId: this.runId,
+            sourceAbilityId: 'A02U',
+            spawnedAtSec: this.elapsedSec,
+        });
+        if (!registered.accepted) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const spawned = combat.spawnRuntimeEnemy({
+            enemyId: 'skeleton_warrior', id, ownerPlayerId: caster.ownerPlayerId, ...spawnPoint,
+        });
+        if (!spawned) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const consumed = consumeReservedEnemyCorpse(this.enemyCorpseRegistry, {
+            casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+        });
+        if (!consumed.consumed) {
+            combat.removeRuntimeEnemy(id);
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        this.enemyCorpseRegistry = consumed.registry;
+        this.ordinarySummonRegistry = registered.registry;
+        this.ordinarySummonSequence += 1;
+        return id;
+    }
+
+    private updateA02uAbility() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        for (const resolution of combat.consumeEnemyAbilityResolutions()) {
+            if (resolution.abilityId !== 'A02U') continue;
+            const pending = this.a02uPendingCasts.get(resolution.targetId);
+            this.a02uPendingCasts.delete(resolution.targetId);
+            if (!pending) continue;
+            if (resolution.status === 'executed') {
+                this.raiseSkeletonForTest(pending.casterId, pending.requestKey, pending.deathKey);
+            } else {
+                this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                    casterId: pending.casterId, deathKey: pending.deathKey, runId: this.runId,
+                }).registry;
+            }
+        }
+        const activeEnemyIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
+        for (const caster of combat.getRuntimeEnemySnapshot().filter((enemy) => enemy.enemyId === 'satyr_soulstealer')) {
+            if (this.a02uPendingCasts.size && [...this.a02uPendingCasts.values()].some((pending) => pending.casterId === caster.id)) continue;
+            const reserved = reserveNearestEnemyCorpse(this.enemyCorpseRegistry, {
+                casterId: caster.id, ownerPlayerId: caster.ownerPlayerId, radiusPx: 176, runId: this.runId, x: caster.x, y: caster.y,
+            });
+            if (!reserved.corpse) continue;
+            const started = combat.startEnemyAbilityCast({ abilityId: 'A02U', casterId: caster.id, cooldownSec: 3, targetId: reserved.corpse.deathKey, windupSec: 0 });
+            if (!started || !activeEnemyIds.has(caster.id)) continue;
+            this.enemyCorpseRegistry = reserved.registry;
+            combat.setExternalAbilityTargetValid(reserved.corpse.deathKey, true);
+            this.a02uPendingCasts.set(reserved.corpse.deathKey, { casterId: caster.id, deathKey: reserved.corpse.deathKey, requestKey: `a02u:${reserved.corpse.deathKey}` });
+        }
     }
 
     private renderTilemapObjects(
@@ -4446,6 +4628,10 @@ class FarmScene extends Phaser.Scene {
                         },
                     ),
                     canonicalEnemies,
+                    corpses: {
+                        entries: this.enemyCorpseRegistry.corpses,
+                        state: 'active' as const,
+                    },
                     deathEvents: this.combatPoc?.getEnemyDeathEvents() ?? [],
                     elapsedSec: this.elapsedSec,
                     fieldDrops: { entries: [], state: 'not_started' as const },
@@ -4461,6 +4647,11 @@ class FarmScene extends Phaser.Scene {
                         ended: this.linkedSummonRegistry.ended,
                         state: 'registry_active' as const,
                     },
+                    ordinarySummons: {
+                        active: this.ordinarySummonRegistry.active,
+                        ended: this.ordinarySummonRegistry.ended,
+                        state: 'registry_active' as const,
+                    },
                     rewardLedger: { entries: [], state: 'not_started' as const },
                     runId: this.runId,
                     runtimeEnemies: (this.combatPoc?.getRuntimeEnemySnapshot() ?? [])
@@ -4472,11 +4663,16 @@ class FarmScene extends Phaser.Scene {
                             const linkedSummon = this.linkedSummonRegistry.active.find(
                                 (summon) => summon.id === enemy.id,
                             );
+                            const ordinarySummon = this.ordinarySummonRegistry.active.find(
+                                (summon) => summon.id === enemy.id,
+                            );
                             return {
                                 abilities: definition.abilities,
                                 enemyId: enemy.enemyId,
                                 id: enemy.id,
-                                origin: linkedSummon
+                                origin: ordinarySummon
+                                    ? ('ordinary_summon' as const)
+                                    : linkedSummon
                                     ? ('linked_summon' as const)
                                     : waveEnemiesById.has(enemy.id)
                                       ? ('ordinary_wave' as const)
@@ -4488,8 +4684,9 @@ class FarmScene extends Phaser.Scene {
                                           execution: ordinaryAbilityPolicy.execution,
                                       }
                                     : null,
-                                parentEnemyId: linkedSummon?.parentEnemyId ?? null,
+                                parentEnemyId: ordinarySummon?.parentEnemyId ?? linkedSummon?.parentEnemyId ?? null,
                                 rawcode: definition.rawcode,
+                                rewardEligible: ordinarySummon?.rewardEligible ?? true,
                             };
                         })
                         .sort((left, right) => left.id.localeCompare(right.id)),
@@ -4514,6 +4711,10 @@ class FarmScene extends Phaser.Scene {
             spawnLinkedSummonForTest: (parentEnemyId, enemyId, lifetimeSec) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
                 return this.spawnLinkedSummonForTest(parentEnemyId, enemyId, lifetimeSec);
+            },
+            raiseSkeletonForTest: (casterId, requestKey) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                return this.raiseSkeletonForTest(casterId, requestKey);
             },
             damageWaveEnemyForTest: (id, damage) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;

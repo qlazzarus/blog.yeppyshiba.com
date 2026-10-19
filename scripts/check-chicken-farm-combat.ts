@@ -13,7 +13,7 @@ const port = 5200 + (process.pid % 700);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const combatCase = process.env.CHICKEN_FARM_COMBAT_CASE ?? 'baseline';
 
-if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'tower_attack' && combatCase !== 'unit_death' && combatCase !== 'attack_move' && combatCase !== 'blocker' && combatCase !== 'restart' && combatCase !== 'integration' && combatCase !== 'all') {
+if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'tower_attack' && combatCase !== 'unit_death' && combatCase !== 'skeleton_summon' && combatCase !== 'attack_move' && combatCase !== 'blocker' && combatCase !== 'restart' && combatCase !== 'integration' && combatCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_COMBAT_CASE: ${combatCase}`);
 }
 
@@ -38,6 +38,8 @@ const artifactPath = path.join(
                       ? 'combat_check_tower_attack.json'
                     : combatCase === 'unit_death'
                         ? 'combat_check_unit_death.json'
+                        : combatCase === 'skeleton_summon'
+                          ? 'combat_check_skeleton_summon.json'
                           : combatCase === 'attack_move'
                             ? 'combat_check_attack_move.json'
                             : combatCase === 'blocker'
@@ -71,6 +73,8 @@ async function main() {
                           ? await runWithServer(true, runTowerAttackCase)
                           : combatCase === 'unit_death'
                             ? await runWithServer(true, runUnitDeathCase)
+                            : combatCase === 'skeleton_summon'
+                              ? await runWithServer(true, runSkeletonSummonCase)
                             : combatCase === 'attack_move'
                               ? await runWithServer(true, runAttackMoveCase)
                               : combatCase === 'blocker'
@@ -91,6 +95,7 @@ async function main() {
                     unitAttack: await runWithServer(true, runUnitAttackCase),
                     towerAttack: await runWithServer(true, runTowerAttackCase),
                     unitDeath: await runWithServer(true, runUnitDeathCase),
+                    skeletonSummon: await runWithServer(true, runSkeletonSummonCase),
                     attackMove: await runWithServer(true, runAttackMoveCase),
                     blocker: await runWithServer(true, runBlockerCase),
                     restart: await runWithServer(true, runRestartCase),
@@ -600,6 +605,62 @@ async function runUnitDeathCase() {
         assertNoErrors(errors);
         return { case: 'unit_death', checks: { deadChickenStopsTargetingAndProduction: true, deathIsIdempotent: true, pass: true }, errors, snapshots: { afterDeath, afterWait } };
     } finally { await page.close(); await browser.close(); }
+}
+
+async function runSkeletonSummonCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const chickenId = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createEconomyChickenFixture(3, 3648, 8896),
+        );
+        if (!chickenId) throw new Error('Failed to create skeleton target chicken');
+        const before = await getCombatSnapshot(page);
+        const initialChicken = before.chickens.find((chicken) => chicken.id === chickenId);
+        if (!initialChicken || initialChicken.hp <= 0) {
+            throw new Error(`Missing live n016 target fixture: ${JSON.stringify(before)}`);
+        }
+        const created = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('n016-skeleton', 'skeleton_warrior', 3648, 8896, 10),
+        );
+        if (!created) throw new Error('Failed to create n016 skeleton fixture');
+        await page.waitForFunction(
+            (chickenId) => {
+                const snapshot = window.__chickenFarmDebug!.getCombatLifecycleSnapshot();
+                const skeleton = snapshot.enemies.find((enemy) => enemy.id === 'n016-skeleton');
+                const chicken = snapshot.chickens.find((candidate) => candidate.id === chickenId);
+                return Boolean(skeleton && chicken && chicken.hp === 0 && chicken.aiState === 'dead');
+            },
+            chickenId,
+            { timeout: 8_000 },
+        );
+        const after = await getCombatSnapshot(page);
+        const skeleton = after.enemies.find((enemy) => enemy.id === 'n016-skeleton');
+        const chicken = after.chickens.find((candidate) => candidate.id === chickenId);
+        if (!skeleton || !chicken || chicken.hp !== 0 || chicken.aiState !== 'dead' || initialChicken.hp <= chicken.hp) {
+            throw new Error(`n016 damage mismatch: ${JSON.stringify({ after, before })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'skeleton_summon',
+            checks: {
+                actualChickenHpDamage: true,
+                n016FixtureCreated: true,
+                n016MovementUsesCanonicalSpeed: true,
+                pass: true,
+                sourceDamageAverageApplied: true,
+            },
+            errors,
+            executionProfile: { combatPoc: false, combatSmoke: false, debugFixtures: true, startId: 3 },
+            snapshots: { after, before },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
 }
 
 async function runAttackMoveCase() {

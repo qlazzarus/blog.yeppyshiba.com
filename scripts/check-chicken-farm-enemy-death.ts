@@ -18,7 +18,9 @@ async function main() {
     const input = {
         attackerEntityId: 'p3-farmer',
         cause: 'unit' as const,
+        deadOwnerPlayerId: 10,
         deadEntityId: 'wolf-a',
+        diedAtSec: 12,
         enemyId: 'timber_wolf' as const,
         ownerPlayerId: 3,
         rewardEligible: true,
@@ -51,6 +53,7 @@ async function main() {
     assert.equal(tower.event?.cause, 'tower');
     assert.equal(tower.event?.attackerEntityId, 'tower-3');
     assert.equal(tower.event?.ownerPlayerId, 3);
+    assert.equal(tower.event?.deadOwnerPlayerId, 10);
     assert.equal(tower.event?.rewardEligible, true);
     assert.deepEqual(environment.ledger.events[1], {
         ...input,

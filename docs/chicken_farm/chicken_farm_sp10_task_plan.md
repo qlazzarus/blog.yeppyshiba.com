@@ -1,6 +1,6 @@
 # SP-10 적 단계·보스·보상 연결 — Terra Medium 실행 계획
 
-> 갱신: 2026-10-16. SP-10-01 적·보스·능력 coverage, SP-10-02 보상 계약, SP-10-03 canonical 정의, SP-10-04 읽기 전용 snapshot·harness를 완료했다. 다음 실행은 **SP-10-05**다. 나머지 24개 상위 세부 Task는 미착수다. Terra Medium에서 **한 요청에 한 ID**만 수행한다. 모델 명칭은 실행 권장 설정이며 이 문서가 현재 모델을 전환하거나 구현을 실행하지 않는다.
+> 갱신: 2026-10-19. SP-10-01~08과 SP-10-09-a/b/c/d/e/f/g/h는 각 카드에 완료 기록이 있다. SP-10-09-i-1은 Warsmash 엔진 근거 조사를 완료했다. 다음은 **SP-10-09-i-2 (외부 능력 데이터 입력 대기)**이며 상위 i는 근거 보류다. SP-10-10~28은 미착수다. Astra light 계획 → Terra Medium에서 **한 요청에 한 ID** 실행 전략을 유지한다. 모델 명칭은 실행 권장 설정이며 이 문서가 현재 모델을 전환하거나 구현을 실행하지 않는다.
 
 ## 목표와 범위
 
@@ -34,7 +34,7 @@ SP-08의 일반 적 웨이브와 SP-09의 성장 경로 위에 적 능력, 보�
 
 ## 실행 순서
 
-SP-10-01은 **완료**, 나머지 카드는 **미착수**다. 선행 숫자는 SP-10 내부 ID다.
+SP-10-01~08과 09-a/b/c/d는 완료 기록이 있고, SP-10-09는 나머지 하위 카드 진행 대상이다. 선행 숫자는 SP-10 내부 ID다. 07의 source-data block은 능력 구현 완료를 뜻하지 않으며 09에서 잔여 coverage를 확인한다.
 
 | ID | 한 요청의 산출물 | 선행 |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ SP-10-01은 **완료**, 나머지 카드는 **미착수**다. 선행 숫자는 S
 | SP-10-06 | 능력 실행 clock·대상 판정 | 03/05 |
 | SP-10-07 | 일반 적 지속 피해·공통 능력 | 06 |
 | SP-10-08 | 연결 소환체 registry·생성/제거 | 05/06 |
-| SP-10-09 | 일반 적 소환·잔여 고유 능력 | 07/08 |
+| SP-10-09 | 일반 적 소환·잔여 고유 능력 — 아래 09-a~m | 07/08 |
 | SP-10-10 | 보스 milestone scheduler | 03/04 |
 | SP-10-11 | 실제 맵 보스 생성·이동·기본 전투 | 08/10 |
 | SP-10-12 | 블러드 울프 능력 | 07/11 |
@@ -170,11 +170,176 @@ SP-10-01은 **완료**, 나머지 카드는 **미착수**다. 선행 숫자는 S
 
 ### SP-10-09 — 일반 적 소환·잔여 고유 능력
 
-- 상태: **미착수**. 선행: 07/08.
+- 상태: **진행 보류**. 선행: 07/08.
 - 읽기: 01 coverage, A02U 등 일반 적 근거, 06/08 API.
 - 수정 범위: 확정한 소환 능력을 실제 AI에 연결하고 일반 18티어의 남은 필수 능력을 coverage에 매핑한다.
 - 완료 조건: 소환 cooldown·수량·수명·보상 자격이 계약과 같고 재귀 소환 폭주가 없다. 미확인 ACct/A024/A023/A02W를 이름 기반 효과로 채우지 않는다.
 - 검증: 대표 소환의 실제 생성/공격/제거 browser 사례 및 18티어 coverage. 잔여 독립 효과는 09-a/b처럼 분할해 모두 끝낸 뒤 완료한다.
+- 조사 결과: A02U의 W3X object data를 재해석해 `ACrd`(Raise Dead) 기반, `Rai1=1`, `Rai3=n016`, `Raiu=n016`, `acdn=3`을 확인했다. 즉 사티로스 소울스틸러가 스켈레톤 워리어(n016) 1기를 3초 cooldown으로 일으키도록 설정한 것은 확인됐다. 근거는 [SP-10-09 A02U raw evidence](./chicken_farm_w3x_artifacts/sp10_09_ordinary_summon_evidence.json)에 남긴다.
+- 보류 사유: Raise Dead는 유효 시체의 대상·소모와 timed-life를 전제로 하며, `Raiu`는 output type이 아니라 limit-check unit type이다. 현재 runtime은 죽은 적 entity의 시체 상태/소모와 global summoned-unit limit을 구현하지 않았고, SP-08 wave 적을 시체로 추정하거나 기본 Raise Dead lifetime을 웹 정책으로 채택하는 것은 원본 복원이 아니다. 따라서 A02U를 실제 AI에 연결하거나 `linkedSummonRegistry`의 parent당 fixture cap을 gameplay cap으로 전용하지 않았다. ACct/A024/A023/A02W는 계속 unknown이며 이름으로 효과를 추가하지 않았다.
+- 재개 조건: 시체 lifecycle(eligible/consumed), A02U timed-life 및 소환 global limit에 대한 원본 근거 또는 명시적인 웹 정책 승인이 필요하다. 그 뒤 A02U 전용 하위 카드에서 source cooldown 3초·n016 1기·실제 생성/공격/정리 browser 사례를 구현한다.
+
+#### SP-10-09 하위 실행 순서
+
+09-a/b/c/d는 **완료**, 나머지 아래 카드는 **미착수**다. 기본 실행은 a→m, 한 요청에 한 하위 ID다. 선행은 최소 의존 관계이며 병렬 실행 지시가 아니다. 부모 09는 필수 하위 카드와 추가 분할 카드가 모두 통과해야 완료한다. 미확인 능력을 `unsupported`로 표시하는 것만으로 완료하지 않는다.
+
+| ID | 한 요청의 산출물 | 선행 |
+| --- | --- | --- |
+| SP-10-09-a | A02U·잔여 능력 원본 필드 및 상속 근거 복구 | 01/07/08 |
+| SP-10-09-b | A02U 시체·수명·상한·보상 웹 적용 계약 | 09-a/02 |
+| SP-10-09-c | run 단위 시체 예약·소모 코어 | 09-b/05 |
+| SP-10-09-d | 실제 사망→시체 등록 adapter | 09-c |
+| SP-10-09-e | n016 canonical 소환체·기본 전투 정의 | 09-b/03 |
+| SP-10-09-f | gameplay 소환 상한·종료·보상 자격 registry | 09-b/08 |
+| SP-10-09-g | 시체 위치 소환·실패 복구 adapter | 09-d/e/f |
+| SP-10-09-h | A02U AI·공용 clock 연결 | 09-g/06 |
+| SP-10-09-i | ACct 효과 구현 또는 승인된 웹 대체 | 09-a |
+| SP-10-09-j | A024 효과 구현 또는 승인된 웹 대체 | 09-a |
+| SP-10-09-k | A023 효과 구현 또는 승인된 웹 대체 | 09-a |
+| SP-10-09-l | A02W 효과 구현 또는 승인된 웹 대체 | 09-a |
+| SP-10-09-m | 18티어 통합 coverage·회귀·다음 카드 인계 | 09-h/i/j/k/l |
+
+#### SP-10-09-a — 원본 필드·상속 근거 복구
+
+- 상태: **완료**. 선행: 01/07/08.
+- 읽기: `sp10_09_ordinary_summon_evidence.json`, 01 계약, `wolf_ability_reference.tsv`, 원본 W3X, `scripts/analyze_chicken_w3x.py`의 MPQ/object parser, unit crosscheck.
+- 수정 범위: A02U/ACct/A024/A023/A02W의 전체 override와 base rawcode를 재현 가능한 추출로 기록한다. parser의 mod 20개 제한·상속 필드 누락 여부를 확인하고, 필요한 원본 버전의 기본 ability metadata/data를 찾는다. 확인되지 않은 기본값은 비워 둔다.
+- 완료 조건: A02U의 `Rai1=1`·`Rai3=n016`·`Raiu=n016`·`acdn=3`을 원본과 재대조한다. Rai2/Rai4의 상속값 확인 전에는 총 소환 수 1기를 확정하지 않는다. duration·range·시체 조건·상한·부모 사망 동작의 근거와 미확인을 분리한다. n016의 HP/armor/base damage/dice/cooldown은 TSV 헤더 기준으로 재대조한다.
+- 검증: 원본 hash, 추출 명령, raw field/type/level/value, 전체 필드 수 및 참조 일치를 artifact에 기록한다. 조사 완료와 gameplay 정책 확정을 구분하며 필요한 미확인은 b의 결정 항목으로 넘긴다.
+- 결과: [raw object evidence](./chicken_farm_w3x_artifacts/sp10_09_ordinary_summon_evidence.json)에 W3X SHA-256과 A02U/ACct/A024/A023/A02W의 base rawcode, 전체 override 수, 확인된 raw field를 기록했다. `A02U`는 ACrD 기반이며 `Rai1=1`, `Rai3=n016`, `Raiu=n016`, `acdn=3`이다. ACct는 original ability의 설명으로 critical-strike family임이 확인됐고, A023은 ACce의 `aare=200`/`nca1=0.06`, A024는 Aadm의 cooldown 5초, A02W는 ACcs의 cooldown 4초·normal/hero duration 20초를 보존한다.
+- 상속 한계: W3X에는 map override만 있어 A02U의 `Rai2`/`Rai4`와 timed-life, ACct의 DataA/B, A024/A023/A02W의 base Data field·range는 남아 있지 않다. parser의 `mods[:20]`는 summary 출력 제한일 뿐 A02U 14개/A024 11개/A023 6개/A02W 11개 override 전체를 직접 대조했다. total summon count 및 gameplay lifecycle은 확정하지 않았다.
+- 검증 명령·종료 코드: `python3`로 `scripts/analyze_chicken_w3x.py`의 `MPQ`/`parse_object_mods`를 호출해 W3X 직접 추출, SHA-256 대조, JSON parse 및 A02U/5 ability assertion, `git diff --check` 모두 종료 코드 0.
+- 다음 ID: **SP-10-09-b**.
+
+#### SP-10-09-b — A02U 웹 적용 계약
+
+- 상태: **완료**. 선행: 09-a/02.
+- 읽기: a의 근거, 01/02 계약, death ledger, ability clock, linked registry.
+- 수정 범위: 시체 대상 종류·owner·범위·유효시간·소환체 재사용 여부, 시전 시간·cooldown 시작/실패 처리, 소환 위치·총수량·수명, 상한 범위(run/owner/type/parent)·초과 처리, 부모 사망/제거 정책, 종료 추적 및 처치 보상 자격을 하나의 계약으로 고정한다.
+- 완료 조건: 각 항목에 원본 확인/웹 변환/미확인을 표시한다. 미확인 항목에는 구체적인 제안값·선택 이유·원본과의 차이를 작성하고 필요한 웹 정책 결정을 받는다. fixture의 parent당 1개 cap은 gameplay 근거로 쓰지 않는다. 미결정 항목을 사용하는 구현은 대기한다.
+- 검증: 시체 없음, 같은 시체 경쟁, spawn 실패, 상한 도달, 부모 사망, 자연 만료, 실제 처치의 기대 전이를 표로 대조한다. score/wallet/XP/drop 실제 지급은 17~21에 남기고 지급 자격·소환 origin 전달 계약만 정한다.
+- 결과: [A02U web policy contract](./chicken_farm_w3x_artifacts/sp10_09_b_a02u_web_policy.json)를 추가했다. source override는 `Rai1=1`/`Rai3=n016`/`Raiu=n016`/3초 cooldown만 채택하고, map override에 없는 두 번째 summon group은 생성하지 않는다. web baseline은 same-owner non-summon corpse, 176px search, 10초 corpse life, 0초 windup, 40초 skeleton life, run·owner·type별 25기 cap이다.
+- 종료·보상 정책: A02U skeleton은 parent 사망 뒤에도 유지되며 accepted combat death/timed life/run disposal만 종료 원인이다. source reward 근거가 없으므로 score/wallet/farmer XP/drop/level entitlement에는 reward-ineligible origin을 전달한다. cap·spawn 실패·유효 시체 없음은 시체를 소모하거나 cooldown을 시작하지 않는다.
+- 검증: artifact JSON assertion으로 source값·web policy·7개 transition case·후속 카드 경계를 대조한다. 계약 문서만 변경했으므로 browser/typecheck/build는 c~h implementation에서 수행한다. `git diff --check` 종료 코드 0.
+- 다음 ID: **SP-10-09-c**.
+
+#### SP-10-09-c — 시체 예약·소모 코어
+
+- 상태: **완료**. 선행: 09-b/05.
+- 읽기: b 계약과 `enemyDeathLedger.ts`.
+- 수정 범위: run/entity/death key·위치·owner·생성/만료 시각을 가진 별도 시체 상태와 eligible→reserved→consumed 전이, 취소 시 예약 해제를 순수 모듈로 만든다. HP는 기존 entity에만 둔다.
+- 완료 조건: 동일 death는 시체 1개, 동일 시체는 성공 소환 1회만 소비한다. 실패·시전자 소실·예약 만료 때 계약대로 복구하고 이전 run의 요청은 거부한다.
+- 검증: 중복 등록, 두 시전자 경쟁, 소모 재요청, 만료 경계, 예약 취소, dt 분할, run 불일치 순수 사례. artifact와 실제 등록한 runner 명령을 기록한다.
+- 결과: `enemyCorpseRegistry.ts`에 별도 run-scoped corpse registry를 추가했다. entry는 death key/entity/enemy/owner/position/created·expires 시각만 보존하며 `eligible → reserved → consumed` 전이를 제공한다. 만료는 eligible·reserved 상태만 `expired`로 바꾸며, consumed/expired entry는 같은 death/entity로 재등록할 수 없다. 이 코어는 HP나 Phaser entity를 만들거나 변경하지 않는다.
+- 예약·복구: nearest selection은 같은 run·owner의 eligible corpse만 대상으로 하고 거리 동률은 death key로 안정 정렬한다. reservation은 caster ID에 묶이고 같은 시체 경쟁은 첫 accepted transition만 성공한다. cast 취소/시전자 소실 adapter는 `releaseEnemyCorpseReservation()`을 사용하며, corpse lifetime 경계에서 남은 예약은 `expired`로 종료된다.
+- 검증: `npm run chicken:enemy:corpses --workspace @games/chicken-farm`이 [corpse artifact](./chicken_farm_w3x_artifacts/enemy_check_corpses.json)를 생성해 duplicate death/entity 거부, 경쟁 예약, release, 단일 consume, 정확한 만료 경계·dt 분할, run 격리를 assertion한다. `npm run typecheck --workspace @games/chicken-farm`, `npm run build --workspace @games/chicken-farm`, `git diff --check`은 종료 코드 0이다.
+- 다음 ID: **SP-10-09-d**.
+
+#### SP-10-09-d — 사망→시체 adapter
+
+- 상태: **완료**. 선행: 09-c.
+- 읽기: b 대상 표, c API, `systems/combatPocSystem.ts` 및 계약이 허용한 유닛/닭 사망 경로.
+- 수정 범위: 실제 사망에서 시체를 한 번 등록하고 shared simulation clock에서 만료시킨다. snapshot에 시체/예약을 노출하며 restart/dispose에서 정리한다. 여러 독립 대상 adapter가 필요하면 d-1 등으로 먼저 분할한다.
+- 완료 조건: 피해 원인·소속·위치가 실제 사망과 일치하고 cleanup/despawn은 시체를 만들지 않는다. 대상에서 제외된 건물·소환체 등은 b 계약대로 거부한다.
+- 검증: 실제 전투 사망 등록, 중복 lethal, 단순 제거, 만료, 같은 페이지 restart browser 사례. 허용 대상별 필수 adapter가 모두 통과해야 d를 완료한다.
+- 결과: `EnemyDeathEvent`에 `deadOwnerPlayerId`와 `diedAtSec`를 추가해 attacker owner와 사망 적 owner를 분리했다. `FarmScene`은 accepted runtime death event를 한 번 소비해 `enemyCorpseRegistry`에 등록하고 shared simulation clock으로 expiry를 진행한다. linked summon ID는 active/ended registry와 대조해 시체 등록 대상에서 제외하며, direct `removeRuntimeEnemy()`는 death event를 만들지 않아 시체가 생기지 않는다. run/restart에서는 wave runtime 초기화와 함께 registry를 새로 만든다.
+- 관찰: progression snapshot에 `corpses: { state, entries }`를 추가했다. entry는 death key, dead entity, dead owner, 위치, 생성/만료 시각, reservation/status를 노출하지만 HP 또는 별도 Phaser entity를 만들지 않는다.
+- 검증: 기존 `chicken:enemy:death` runner가 dead owner와 death time 보존을 확인한다. fixture browser는 일반 적을 실제 lethal debug damage로 처치해 `eligible` corpse가 한 번 등록되고 owner/ID가 일치함을 assertion한다. linked summon fixture는 기존 parent removal에서 corpse를 만들지 않는다. `npm run chicken:enemy:death --workspace @games/chicken-farm`, `CHICKEN_FARM_ENEMY_CASE=fixture npm run chicken:enemy:progression:browser --workspace @games/chicken-farm`, typecheck/build/diff check는 종료 코드 0이다.
+- 다음 ID: **SP-10-09-e**.
+
+#### SP-10-09-e — n016 canonical 소환체·기본 전투
+
+- 상태: **완료**. 선행: 09-b/03.
+- 읽기: a의 n016 수치, `balanceTypes.ts`, `balance.ts`, `enemyProgression.ts`, 기존 적 생성·전투 경로.
+- 수정 범위: skeleton warrior의 EnemyId/rawcode와 별도 summon 역할을 정의하고 기존 HP·난이도·이동·공격을 재사용한다. 공격 주사위 변환은 기존 규칙과 출처를 기록한다.
+- 완료 조건: 18 ordinary tier와 5 milestone 목록을 늘리지 않으며, 소환체를 보스로 오분류하지 않는다. 능력 부착 근거에 따라 재귀 소환 가능 여부를 명시한다. 처치 점수나 XP를 ordinary 값으로 자동 상속하지 않는다.
+- 검증: canonical 분류·rawcode·수치 assertion, explicit fixture의 생성/이동/공격/실제 HP 감소 browser 검사, 기존 progression 참조 회귀.
+- 결과: `skeleton_warrior` EnemyId/rawcode `n016`을 `summon` 역할과 tag로 추가했다. 원본 수치 HP 3000·armor 3·speed 350·2초 공격 간격을 사용하고, `150 + 1d50`은 기존 고정 평균 규칙으로 176으로 변환했다. n016은 18 ordinary tier 및 5 boss milestone에 추가되지 않고, abilities는 빈 목록이라 A02U 재귀 소환을 할 수 없다. score/농부 XP는 `web_policy_no_reward`/0으로 명시해 일반 적 보상을 상속하지 않는다.
+- 검증 결과: `chicken:enemy:progression`은 n016 rawcode·summon 역할·무보상·빈 ability와 기존 18/5 목록을 확인했다. `CHICKEN_FARM_COMBAT_CASE=skeleton_summon chicken:combat:check`은 실제 fixture 생성, canonical 이동 속도 경로, n016 공격으로 생존 치킨 HP가 39.9967에서 0/dead로 전이함을 browser에서 확인했다. baseline progression browser, typecheck/build/diff check도 종료 코드 0이다. 산출물은 `combat_check_skeleton_summon.json` 및 `enemy_check_progression.json`이다.
+- 다음 ID: **SP-10-09-f**.
+
+#### SP-10-09-f — gameplay registry·종료 정책
+
+- 상태: **완료**. 선행: 09-b/08.
+- 읽기: b 계약, `linkedSummonRegistry.ts`, death event·progression snapshot.
+- 수정 범위: fixture cap과 gameplay 정책을 구분해 run/owner/type별 상한, 중복 요청 키, source ability·parent·종료 추적 여부를 등록한다. 실제 처치, 수명 만료, 부모 사망/제거, 외부 제거를 구별하고 보상 소비자가 origin을 확인할 수 있게 한다.
+- 완료 조건: 동시 요청도 cap을 넘지 않고 ended entity를 재등록하지 않는다. 부모 소실 후 유지/정리와 보상 자격은 b 계약을 따른다. final 승패 판단이나 실제 보상 지급은 추가하지 않는다.
+- 검증: 상한 경계·owner/run 분리·중복 요청·죽음/만료 동시 발생·부모 소실 순수 사례와 기존 linked fixture browser 회귀.
+- 결과: `ordinarySummonRegistry.ts`에 A02U 전용 `skeleton_warrior` entry를 만들었다. entry는 source ability A02U, parent, request key, run/owner/type scope, 40초 수명, 부모 제거 후 유지, `rewardEligible: false`를 불변으로 가진다. scope별 active cap은 계약값 25이며 active/ended 모두에서 entity ID와 run별 request key 재사용을 거절한다. death와 expiry가 같은 update에 도착하면 combat death를 우선하고, timed life만 runtime remove를 요청한다. 외부 제거는 중복 remove 없이 기록한다.
+- runtime 연결: scene은 registry를 run reset하고 enemy death/alive snapshot으로 reconcile한다. progression snapshot은 `ordinarySummons` 및 runtime enemy의 `ordinary_summon` origin/reward eligibility를 제공하며, 등록된 skeleton death는 corpse registry에서 제외한다. 실제 시체 위치 생성은 다음 g 카드의 책임으로 남긴다.
+- 검증 결과: `chicken:enemy:ordinary-summons`가 25 상한, owner/run 분리, request/ID replay 거절, 부모 소실 유지, death-vs-expiry tie, 만료 및 외부 제거를 검증한다. linked registry runner, fixture progression browser, typecheck/build/diff check도 종료 코드 0이다. 산출물: `enemy_check_ordinary_summons.json`.
+- 다음 ID: **SP-10-09-g**.
+
+#### SP-10-09-g — 시체 위치 소환·실패 복구
+
+- 상태: **완료**. 선행: 09-d/e/f.
+- 읽기: b 위치/실패 계약, 시체 예약·registry API, `spawnRuntimeEnemy`, terrain/dynamic blocker 검사.
+- 수정 범위: 예약된 시체 위치 주변의 계약상 후보를 검증해 실제 entity를 생성하고 registry 등록·시체 소모를 함께 확정한다. 실패 시 entity/registry/예약을 일관된 상태로 되돌린다. wave 입구 selector를 시체 위치 소환으로 그대로 대체 사용하지 않는다.
+- 완료 조건: 생성 실패는 시체 영구 소모나 ghost를 남기지 않는다. 생성된 소환체는 wave 보충 수에 포함되지 않고 요청 중복에도 한 번만 생성된다.
+- 검증: 통과 가능한 위치, 모든 후보 차단, cap 거부, 중복 요청, entity 생성 실패, registry/실제 entity/시체 정합성 browser 사례.
+- 결과: `ordinarySummonSpawn.ts`는 wave spawn selector를 사용하지 않고 corpse 위치와 32px 주변 8개 후보만 순서대로 검사한다. terrain/dynamic blocker/world boundary를 통과한 위치만 선택하며 모두 막히면 fallback 없이 실패한다. `raiseSkeletonForTest()`는 reserve → 위치 검사 → cap/중복 registry 사전 검증 → runtime n016 생성 → corpse consume → registry commit 순서로 처리한다. 어느 단계에서든 실패하면 corpse reservation을 release하고 registry/entity ghost를 남기지 않는다.
+- 관찰·검증: fixture browser에서 n015 caster와 실제 ordinary corpse로 n016을 생성해 corpse가 `consumed`, runtime origin이 `ordinary_summon`, parent가 caster, rewardEligible가 false임을 확인했다. 동일 request는 두 번째 entity를 만들지 않는다. 순수 runner는 corpse 원위치 우선, 전체 후보 차단 실패, f의 cap/replay/종료 정책을 확인한다. typecheck, fixture progression browser, build, diff check는 종료 코드 0이다.
+- 다음 ID: **SP-10-09-h**.
+
+#### SP-10-09-h — A02U AI·clock 연결
+
+- 상태: **완료**. 선행: 09-g/06.
+- 읽기: b 시전 계약, 공용 ability clock, 시체 대상 adapter, g spawn API, ordinary policy.
+- 수정 범위: 실제 n015 AI가 적격 시체 탐색→예약→시전→재검사→소환을 실행하게 한다. cooldown/windup은 shared simulation clock을 쓰고 대상 판정은 원래 예약한 시체를 확인한다.
+- 완료 조건: 3초 cooldown을 포함한 b의 확정 정책이 적용되고 시전자 사망·시체 소실 뒤 예약 시전이 다른 시체에 새지 않는다. fixture 호출 없이 AI가 실행되며 n016에서 재귀 소환이 발생하지 않는다.
+- 검증: 실제 전투 사망→AI 소환→스켈레톤 공격→처치/만료 browser 사례, 복수 시전자 경쟁, cooldown 경계, 상한, 취소/재시도. 가속·fixture·강제 피해 사용을 별도로 명시한다.
+- 결과: shared `enemyAbilityClock`에 외부 시체 target을 등록해 n015가 176px 안의 자기 owner corpse를 reserve한 뒤 A02U를 시전한다. policy의 0초 windup과 3초 cooldown을 그대로 사용하며 resolution에서 오직 예약 death key를 재검사해 g의 transactional spawn을 호출한다. skeleton은 A02U 실행 대상이 아니므로 재귀하지 않는다. caster/target cancellation은 reservation release로 끝난다.
+- 검증: fixture에서 debug lethal damage로 만든 ordinary corpse에 대해 n015 AI가 별도 summon fixture 호출 없이 A02U cooldown entry를 만들고 n016을 생성·consume하는 browser 사례를 확인했다. n016은 `ordinary_summon`, parent n015, rewardEligible false로 노출된다. typecheck/build/diff check 및 기존 progression browser는 종료 코드 0이다.
+- 다음 ID: **SP-10-09-i**.
+
+#### SP-10-09-i — ACct 잔여 능력
+
+- 상태: **근거 보류**. 선행: 09-a.
+- 읽기: a의 ACct 근거, n00C attachment, 01/07 정책과 관련 전투 adapter.
+- 수정 범위: 효과·대상·수치·발동 조건을 원본 또는 명시적인 웹 계약으로 확정한 뒤 해당 effect family를 구현한다. n00E 등 일반 적 외 사용처는 영향 범위만 기록한다.
+- 완료 조건: n00C의 실제 효과와 종료 조건이 계약과 일치한다. 근거/웹 결정이 부족하면 보류하며 base attack-only로 완료하지 않는다.
+- 검증: 허용/금지 대상, 발동/종료, 실제 상태 변화의 순수·browser 사례. 여러 독립 효과면 i-1 등으로 분할한다.
+- 조사 결과: [ACct evidence](./chicken_farm_w3x_artifacts/sp10_09_i_acct_effect_evidence.json)는 n00C/n00E의 ACct가 일반 공격에 DataA1% 확률로 DataB1배 피해를 주는 critical-strike family임을 기록한다. 그러나 map override에는 DataA1·DataB1이 없고 추출된 W3X에는 상속 기본값도 없다.
+- 보류 이유: chance와 multiplier 모두 없으며 승인된 웹 대체 계약도 없다. 따라서 무작위 확률·추가 피해·대상 상호작용을 추측으로 구현하지 않았고, n00C는 `blocked_source_data`를 유지한다. base attack-only로 재분류해 완료 처리하지 않는다.
+- 재개 조건: 선택한 Warsmash 외부 데이터셋에서 ACct code 및 상속 수치를 복구한다. map 제작 버전과 일치하지 않으면 선택한 데이터셋 기준임을 명시한다. 또는 chance·multiplier·결정적 RNG·difficulty 적용을 포함한 명시적 웹 정책이 필요하다. 현재 Warsmash 채택은 임의 수치 승인이 아니다.
+- 추가 조사: [Warsmash 근거와 하위 카드](./chicken_farm_sp10_09_i_warsmash_evidence.md). main `f9e0aeed4be372d6016519d0e97b384aa873f374`의 데이터 loader·alias dispatch·공유 critical passive·seeded RNG·damage 전달 경로를 확인했다. code와 수치는 외부 SLK가 필요하므로 runtime은 변경하지 않았다.
+- 하위 ID: **i-1 엔진 근거 고정 (완료)** → **i-2 상속 데이터 확보 (입력 대기)** → **i-3 효과 계약·순수 resolver (미착수)** → **i-4 runtime·browser 회귀 (미착수)**. 각 카드의 읽기/수정/완료/검증은 위 문서에 정의한다.
+- 전략: Astra light 계획/계약 검토 → Terra medium 한 ID 실행은 작은 검증 단위에 적합하다고 판단해 유지한다. 실제 모델 전환이나 비용·성능 검증을 했다는 의미는 아니다.
+- 다음 ID: **SP-10-09-i-2**. 필요한 입력은 Warsmash에서 사용하는 `Units/AbilityData.slk` 및 관련 profile의 경로/데이터 버전이다.
+
+#### SP-10-09-j — A024 잔여 능력
+
+- 상태: **미착수**. 선행: 09-a.
+- 읽기: a의 A024 근거, n00U attachment, 01/07 정책과 관련 adapter.
+- 수정 범위: A024 전용 효과 계약을 확정해 다크가드에 연결한다. 함께 붙은 A02I와 실행·중첩 관계를 기록한다.
+- 완료 조건: 효과·대상·주기·취소가 계약과 일치하며 이름/소유 유닛만으로 효과를 정하지 않는다. 미확정은 보류한다.
+- 검증: 대상 경계, 재발동, 시전자 사망, 실제 상태 변화 순수·browser 사례. 여러 효과면 j-1 등으로 분할한다.
+
+#### SP-10-09-k — A023 잔여 능력
+
+- 상태: **미착수**. 선행: 09-a.
+- 읽기: a의 A023 근거, n00W/H01B/n00Q attachment, 01 계약과 관련 adapter.
+- 수정 범위: 확정한 공통 효과를 작은 모듈로 구현하고 일반 적 오버로드에 연결한다. 보스·인페르날 연결은 15에서 재사용하도록 계약을 남긴다.
+- 완료 조건: 일반 적 적용 조건과 보스 난이도 gate를 혼동하지 않으며, 미확인 효과는 보류한다. 이번 카드만으로 보스 능력 완료를 선언하지 않는다.
+- 검증: 오버로드 실제 효과, 대상/중첩/종료 조건 순수·browser 사례. 독립 효과가 복수면 k-1 등으로 분할한다.
+
+#### SP-10-09-l — A02W 잔여 능력
+
+- 상태: **미착수**. 선행: 09-a.
+- 읽기: a의 A02W 근거, n013 attachment, 공용 clock과 관련 전투 adapter.
+- 수정 범위: 사티로스 고유 효과의 대상·수치·시전/주기 계약을 확정하고 구현한다.
+- 완료 조건: 원본 또는 명시적인 웹 계약에 따라 실행하고, 이름만으로 능력을 만들거나 미확인을 완료 처리하지 않는다.
+- 검증: 실제 효과, 대상 소실·시전자 사망·재발동 순수·browser 사례. 독립 효과가 복수면 l-1 등으로 분할한다.
+
+#### SP-10-09-m — 18티어 coverage·통합 인계
+
+- 상태: **미착수**. 선행: 09-h/i/j/k/l 및 그 추가 하위 카드.
+- 읽기: a~l 결과, 01/02/07 계약, canonical/ordinary policy와 관련 runner.
+- 수정 범위: 18티어의 기본 공격·A02U·ACct/A024/A023/A02W·공통 A02I를 실제 지원/미해결 상태에 매핑하고 원본과 웹 차이를 기록한다. 07에서 차단된 A02I가 여전히 미해결이면 별도 `SP-10-09-m-1` 효과 카드를 추가해 해결 후 통합을 재개한다.
+- 완료 조건: 모든 필수 일반 적 능력이 구현·검증되거나 명시적으로 승인된 웹 대체 계약을 충족한다. A02U의 실제 생성→공격→처치/만료, wave 수 분리, 중복 보상 자격 방지, restart/run 격리를 확인한다. 미해결이 있으면 부모 09는 보류를 유지한다.
+- 검증: 관련 death/clock/linked-summon/ordinary/progression/wave 회귀와 browser 통합, typecheck/build/diff check. 정상 실행과 가속·fixture 결과를 분리한다. artifact·명령·종료 코드·한계를 남기고 통과 후 다음 ID를 **SP-10-10**으로 갱신한다.
+
+하위 계획 작성 및 09-a/b/c/d/e/f/g 검증: a~m의 ID·선행·읽기/수정/완료/검증 항목을 정적 확인했고, 09-a는 원본 W3X 재추출, 09-b는 source/web policy와 transition case JSON assertion, 09-c는 pure corpse transition runner, 09-d는 실제 runtime death browser 사례, 09-e는 n016 canonical summon 및 실제 공격 browser 사례, 09-f는 A02U 전용 registry·종료 정책, 09-g는 corpse 위치 생성·소비 browser 사례로 확인했다. 이후 h 완료 및 i-1 근거 조사 기록은 각 카드를 따른다. 다음 요청 대상은 **SP-10-09-i-2 (데이터 입력 대기)**다.
 
 ### SP-10-10 — 보스 milestone scheduler
 

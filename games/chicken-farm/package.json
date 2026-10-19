@@ -14,6 +14,8 @@
         "chicken:enemy:ability-clock": "tsx ../../scripts/check-chicken-farm-enemy-ability-clock.ts",
         "chicken:enemy:ordinary-abilities": "tsx ../../scripts/check-chicken-farm-ordinary-enemy-abilities.ts",
         "chicken:enemy:linked-summons": "tsx ../../scripts/check-chicken-farm-linked-summons.ts",
+        "chicken:enemy:ordinary-summons": "tsx ../../scripts/check-chicken-farm-ordinary-summons.ts",
+        "chicken:enemy:corpses": "tsx ../../scripts/check-chicken-farm-enemy-corpses.ts",
         "chicken:enemy:progression": "tsx ../../scripts/check-chicken-farm-enemy-progression.ts",
         "chicken:enemy:progression:browser": "tsx ../../scripts/check-chicken-farm-enemy-progression-browser.ts",
         "chicken:growth:check": "tsx ../../scripts/check-chicken-farm-growth-progression.ts",

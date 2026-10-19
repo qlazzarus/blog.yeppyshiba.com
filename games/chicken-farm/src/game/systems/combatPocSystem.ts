@@ -5,7 +5,9 @@ import type { EnemyId } from '../balanceTypes';
 import {
     advanceEnemyAbilityClock,
     createEnemyAbilityClock,
+    startEnemyAbilityCast,
     type EnemyAbilityClock,
+    type EnemyAbilityResolution,
 } from '../enemyAbilityClock';
 import {
     createEnemyDeathLedger,
@@ -167,6 +169,8 @@ export class CombatPocSystem {
     private combatLabel?: Phaser.GameObjects.Text;
     private combatWolves: CombatWolf[] = [];
     private enemyAbilityClock: EnemyAbilityClock = createEnemyAbilityClock();
+    private enemyAbilityResolutions: EnemyAbilityResolution[] = [];
+    private externalAbilityTargetIds = new Set<string>();
     private enemyDeathLedger: EnemyDeathLedger = createEnemyDeathLedger();
     private nextCombatDebugDrawAtSec = 0;
     private nextCombatTelemetrySnapshotAtSec = 0;
@@ -200,6 +204,8 @@ export class CombatPocSystem {
         this.clearCombatObjects();
         this.enemyDeathLedger = createEnemyDeathLedger();
         this.enemyAbilityClock = createEnemyAbilityClock();
+        this.enemyAbilityResolutions = [];
+        this.externalAbilityTargetIds.clear();
         const layoutPlan = createCombatLayoutPlan({
             anchor,
             worldSize: this.worldSize,
@@ -629,6 +635,30 @@ export class CombatPocSystem {
         };
     }
 
+    startEnemyAbilityCast(input: {
+        readonly abilityId: string;
+        readonly casterId: string;
+        readonly cooldownSec: number;
+        readonly targetId: string;
+        readonly windupSec: number;
+    }) {
+        const started = startEnemyAbilityCast(this.enemyAbilityClock, { ...input, nowSec: this.elapsedSec });
+        this.enemyAbilityClock = started.clock;
+        return started.accepted;
+    }
+
+    setExternalAbilityTargetValid(targetId: string, valid: boolean) {
+        if (!targetId) return;
+        if (valid) this.externalAbilityTargetIds.add(targetId);
+        else this.externalAbilityTargetIds.delete(targetId);
+    }
+
+    consumeEnemyAbilityResolutions() {
+        const resolutions = this.enemyAbilityResolutions;
+        this.enemyAbilityResolutions = [];
+        return resolutions;
+    }
+
     /** Applies one global attack order to the supplied live runtime enemy IDs. */
     refreshRuntimeEnemyAttackMoveOrders(ids: readonly string[]) {
         const requestedIds = new Set(ids);
@@ -843,10 +873,12 @@ export class CombatPocSystem {
             this.enemyAbilityClock,
             this.elapsedSec,
             (casterId) => Boolean(this.getTargetWolf(casterId)),
-            (targetId) => Boolean(this.getTargetWolf(targetId)),
+            (targetId) => Boolean(this.getTargetWolf(targetId)) || this.externalAbilityTargetIds.has(targetId),
         );
         this.enemyAbilityClock = advanced.clock;
         advanced.resolutions.forEach((resolution) => {
+            this.enemyAbilityResolutions.push(resolution);
+            this.externalAbilityTargetIds.delete(resolution.targetId);
             this.recordTelemetry?.('enemy_ability_resolved', resolution);
         });
     }
@@ -2094,7 +2126,9 @@ export class CombatPocSystem {
         const result = recordEnemyDeath(this.enemyDeathLedger, {
             attackerEntityId: source.attackerEntityId,
             cause: source.cause,
+            deadOwnerPlayerId: wolf.ownerPlayerId,
             deadEntityId: wolf.id,
+            diedAtSec: this.elapsedSec,
             enemyId: wolf.enemyId,
             ownerPlayerId: source.ownerPlayerId,
             rewardEligible: source.rewardEligible,

@@ -12,9 +12,11 @@ export type EnemyDamageSource = {
 export type EnemyDeathEvent = {
     readonly attackerEntityId: string | null;
     readonly cause: EnemyDeathCause;
+    readonly deadOwnerPlayerId: number;
     readonly deathKey: string;
     readonly deathSequence: number;
     readonly deadEntityId: string;
+    readonly diedAtSec: number;
     readonly enemyId: EnemyId;
     readonly ownerPlayerId: number | null;
     readonly rewardEligible: boolean;

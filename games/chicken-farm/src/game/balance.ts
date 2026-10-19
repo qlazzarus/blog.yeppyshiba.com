@@ -470,6 +470,27 @@ export const CHICKEN_FARM_BALANCE: ChickenFarmBalance = {
             score: 180,
             speedPxPerSec: 330,
         }),
+        skeleton_warrior: {
+            armor: 3,
+            attackCooldownSec: 2,
+            attackRangePx: WOLF_MELEE_ATTACK_RANGE_PX,
+            acquireRangePx: WOLF_AUTO_ACQUIRE_RANGE_PX,
+            damage: 176,
+            hp: 3000,
+            id: 'skeleton_warrior',
+            rangeLeashPx: WOLF_RANGE_LEASH_PX,
+            score: 0,
+            source: {
+                notes: [
+                    'W3X n016 base damage is 150 + 1d50; Phaser fixed damage uses rounded average 176.',
+                    'SP-10-09-b: A02U summon is reward-ineligible and is not an ordinary wave or boss milestone enemy.',
+                ],
+                rawcode: 'n016',
+            },
+            speedPxPerSec: 350,
+            tags: ['summon'],
+            windupSec: WOLF_WINDUP_SEC,
+        },
         hell_hound: {
             armor: 3,
             attackCooldownSec: 0.9,

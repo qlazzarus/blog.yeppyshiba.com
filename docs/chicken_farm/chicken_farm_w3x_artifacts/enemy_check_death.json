@@ -11,7 +11,9 @@
     {
       "attackerEntityId": "p3-farmer",
       "cause": "unit",
+      "deadOwnerPlayerId": 10,
       "deadEntityId": "wolf-a",
+      "diedAtSec": 12,
       "enemyId": "timber_wolf",
       "ownerPlayerId": 3,
       "rewardEligible": true,
@@ -24,7 +26,9 @@
     {
       "attackerEntityId": null,
       "cause": "environment",
+      "deadOwnerPlayerId": 10,
       "deadEntityId": "wolf-b",
+      "diedAtSec": 12,
       "enemyId": "timber_wolf",
       "ownerPlayerId": null,
       "rewardEligible": false,
@@ -37,7 +41,9 @@
     {
       "attackerEntityId": "tower-3",
       "cause": "tower",
+      "deadOwnerPlayerId": 10,
       "deadEntityId": "wolf-c",
+      "diedAtSec": 12,
       "enemyId": "timber_wolf",
       "ownerPlayerId": 3,
       "rewardEligible": true,

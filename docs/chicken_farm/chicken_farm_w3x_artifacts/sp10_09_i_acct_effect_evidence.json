@@ -1,0 +1,31 @@
+{
+  "case": "sp10_09_i_acct_effect_evidence",
+  "abilityId": "ACct",
+  "ownerRawcodes": ["n00C", "n00E"],
+  "ownerInScope": { "rawcode": "n00C", "enemyId": "dire_frost_wolf" },
+  "baseEvidence": {
+    "name": "치명타",
+    "targetFilter": ["air", "ground", "enemy", "neutral"],
+    "description": "DataA1 percent chance to deal DataB1 times normal attack damage"
+  },
+  "missingInheritedFields": ["DataA1", "DataB1"],
+  "warsmashEvidence": {
+    "checkedAt": "2026-10-19",
+    "repository": "https://github.com/Retera/WarsmashModEngine",
+    "commit": "f9e0aeed4be372d6016519d0e97b384aa873f374",
+    "method": "static_source_inspection_not_runtime_validation",
+    "details": "../chicken_farm_sp10_09_i_warsmash_evidence.md",
+    "engineFamilyEvidence": "AHbh/AOcr/ANdb shared passive checks valid target and seeded randomBoundedFloat(100) < DataA, then applies nonzero DataB as a multiplier.",
+    "unresolved": ["ACct SLK code dispatch", "DataA1 through DataE1", "levels, targets, buffs and normal/hero durations", "external game dataset version and map override merge"],
+    "warning": "Family behavior does not establish ACct numeric values or enabled secondary effects. Current upstream engine is the selected reference, not proof of the map's original game data version."
+  },
+  "implementationDecision": {
+    "state": "engine_reference_recovered_pending_external_ability_data",
+    "reason": "Warsmash main establishes the shared engine behavior, but loads numeric values and alias code from external AbilityData.slk absent from the inspected checkout. The extracted W3X has no ACct chance/multiplier override. No numeric replacement is approved.",
+    "runtime": "dire_frost_wolf remains explicitly blocked_source_data; no base-attack-only reclassification and no critical damage effect is added."
+  },
+  "requiredToResume": [
+    "SP-10-09-i-2: obtain the selected Warsmash external ability dataset, record its version/hash, resolve ACct code and inherited fields with map overrides; distinguish selected dataset semantics from original map-version fidelity",
+    "or approve a web policy naming the chance, multiplier, RNG determinism, target interaction, and difficulty behavior"
+  ]
+}

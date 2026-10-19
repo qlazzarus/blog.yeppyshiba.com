@@ -84,7 +84,7 @@ async function runBaseline() {
         return {
             case: 'baseline',
             checks: {
-                canonicalEnemyCount24: true,
+                canonicalEnemyCount25: true,
                 fixtureDisabled: true,
                 pass: true,
                 runtimeEnemyCountZero: true,
@@ -118,8 +118,12 @@ async function runFixture() {
         const ordinaryCreated = await page.evaluate(() =>
             window.__chickenFarmDebug!.createCombatEnemyFixture('sp10-ordinary-ability', 'fel_ravager', 3700, 8700, 10),
         );
+        const casterCreated = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('sp10-a02u-caster', 'satyr_soulstealer', 3650, 8700, 10),
+        );
         assert.equal(created, true, 'fixture profile must create the explicit runtime enemy');
         assert.equal(ordinaryCreated, true, 'fixture profile must create the ordinary ability coverage enemy');
+        assert.equal(casterCreated, true, 'fixture profile must create the A02U caster');
         const linkedId = await page.evaluate(() =>
             window.__chickenFarmDebug!.spawnLinkedSummonForTest('sp10-snapshot-boss', 'timber_wolf', 10),
         );
@@ -140,6 +144,41 @@ async function runFixture() {
         const linkedEnemy = after.runtimeEnemies.find((candidate) => candidate.id === linkedId);
         assert.equal(linkedEnemy?.origin, 'linked_summon');
         assert.equal(linkedEnemy?.parentEnemyId, 'sp10-snapshot-boss');
+        const ordinaryKilled = await page.evaluate(() =>
+            window.__chickenFarmDebug!.damageWaveEnemyForTest('sp10-ordinary-ability', 99_999),
+        );
+        assert.equal(ordinaryKilled, true, 'fixture damage must kill the ordinary runtime enemy');
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEnemyProgressionSnapshot().corpses.entries.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const afterDeath = await page.evaluate(() => window.__chickenFarmDebug!.getEnemyProgressionSnapshot());
+        assert.equal(afterDeath.corpses.entries[0]?.deadEntityId, 'sp10-ordinary-ability');
+        assert.equal(afterDeath.corpses.entries[0]?.ownerPlayerId, 10);
+        assert.ok(
+            afterDeath.corpses.entries[0]?.status === 'eligible' || afterDeath.corpses.entries[0]?.status === 'consumed',
+            'A02U may reserve and consume the eligible corpse on the same simulation tick',
+        );
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getEnemyProgressionSnapshot().ordinarySummons.active.length === 1,
+            null,
+            { timeout: 5_000 },
+        );
+        const afterSummon = await page.evaluate(() => window.__chickenFarmDebug!.getEnemyProgressionSnapshot());
+        const skeletonId = afterSummon.ordinarySummons.active[0]?.id;
+        assert.ok(skeletonId, 'A02U AI must create the reserved skeleton');
+        const skeleton = afterSummon.runtimeEnemies.find((enemy) => enemy.id === skeletonId);
+        assert.equal(skeleton?.enemyId, 'skeleton_warrior');
+        assert.equal(skeleton?.origin, 'ordinary_summon');
+        assert.equal(skeleton?.parentEnemyId, 'sp10-a02u-caster');
+        assert.equal(skeleton?.rewardEligible, false);
+        assert.equal(afterSummon.ordinarySummons.active.length, 1);
+        assert.equal(afterSummon.corpses.entries[0]?.status, 'consumed');
+        const duplicate = await page.evaluate(() =>
+            window.__chickenFarmDebug!.raiseSkeletonForTest('sp10-a02u-caster', 'sp10-a02u-request-1'),
+        );
+        assert.equal(duplicate, null, 'consumed corpse/request cannot duplicate the skeleton');
         const removedParent = await page.evaluate(() =>
             window.__chickenFarmDebug!.removeCombatEnemyFixture('sp10-snapshot-boss'),
         );
@@ -163,13 +202,15 @@ async function runFixture() {
                 fixtureOriginExposed: true,
                 noRewardOrXpMutation: true,
                 ordinaryAbilityPolicyExposed: true,
+                ordinaryDeathCreatesCorpse: true,
+                ordinarySummonConsumesReservedCorpse: true,
                 parentRemovalDespawnedLinkedSummon: true,
                 pass: true,
                 parentExplicitlyNullBeforeSummonRegistry: true,
             },
             errors,
             executionProfile: { debugFixtures: true, startId: 3 },
-            snapshots: { after, afterParentRemoval, before },
+            snapshots: { after, afterDeath, afterParentRemoval, afterSummon, before },
         };
     } finally {
         await page.close();
@@ -179,7 +220,13 @@ async function runFixture() {
 
 function assertBaseline(snapshot: EnemySnapshot) {
     assert.equal(snapshot.fixturesEnabled, false, 'normal profile keeps fixtures disabled');
-    assert.equal(snapshot.canonicalEnemies.length, 24, 'all canonical EnemyIds are visible');
+    assert.equal(snapshot.canonicalEnemies.length, 25, 'all canonical EnemyIds are visible');
+    const skeleton = snapshot.canonicalEnemies.find((enemy) => enemy.enemyId === 'skeleton_warrior');
+    assert.equal(skeleton?.rawcode, 'n016');
+    assert.equal(skeleton?.role, 'summon');
+    assert.equal(skeleton?.reward.score.effectiveScore, null);
+    assert.equal(skeleton?.reward.score.source, 'web_policy_no_reward');
+    assert.deepEqual(skeleton?.abilities, []);
     assert.equal(snapshot.runtimeEnemies.length, 0, 'normal boot has no injected enemy');
     assert.equal(snapshot.abilityClock.state, 'ready_no_supported_abilities');
     assert.equal(snapshot.abilityClock.activeCasts.length, 0);
@@ -190,6 +237,8 @@ function assertBaseline(snapshot: EnemySnapshot) {
     assert.equal(snapshot.farmerProgression.state, 'not_started');
     assert.equal(snapshot.fieldDrops.state, 'not_started');
     assert.equal(snapshot.finalTracking.state, 'not_started');
+    assert.equal(snapshot.corpses.state, 'active');
+    assert.equal(snapshot.corpses.entries.length, 0);
 }
 
 function createErrorCollector(page: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newPage']>>) {

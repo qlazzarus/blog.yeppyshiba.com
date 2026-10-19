@@ -9,6 +9,8 @@ import { WAVE_ORDINARY_ENEMY_TIERS } from './waveEnemyTiers';
 import type { EnemyDeathEvent } from './enemyDeathLedger';
 import type { EnemyAbilityCast } from './enemyAbilityClock';
 import type { LinkedSummonEntry, LinkedSummonTerminationReason } from './linkedSummonRegistry';
+import type { EnemyCorpseEntry } from './enemyCorpseRegistry';
+import type { OrdinarySummonEntry, OrdinarySummonTerminationReason } from './ordinarySummonRegistry';
 
 type AbilitySpec = Omit<CanonicalEnemyAbility, 'runtimeState'>;
 
@@ -29,6 +31,10 @@ export type EnemyProgressionSnapshot = {
     };
     readonly elapsedSec: number;
     readonly deathEvents: readonly EnemyDeathEvent[];
+    readonly corpses: {
+        readonly entries: readonly EnemyCorpseEntry[];
+        readonly state: 'active';
+    };
     readonly fieldDrops: { readonly entries: readonly []; readonly state: 'not_started' };
     readonly finalTracking: {
         readonly state: 'not_started';
@@ -40,6 +46,11 @@ export type EnemyProgressionSnapshot = {
         readonly ended: readonly (LinkedSummonEntry & { readonly reason: LinkedSummonTerminationReason })[];
         readonly state: 'registry_active';
     };
+    readonly ordinarySummons: {
+        readonly active: readonly OrdinarySummonEntry[];
+        readonly ended: readonly (OrdinarySummonEntry & { readonly reason: OrdinarySummonTerminationReason })[];
+        readonly state: 'registry_active';
+    };
     readonly fixturesEnabled: boolean;
     readonly farmerProgression: { readonly owners: readonly []; readonly state: 'not_started' };
     readonly rewardLedger: { readonly entries: readonly []; readonly state: 'not_started' };
@@ -48,7 +59,7 @@ export type EnemyProgressionSnapshot = {
         readonly abilities: readonly CanonicalEnemyAbility[];
         readonly enemyId: EnemyId;
         readonly id: string;
-        readonly origin: 'linked_summon' | 'ordinary_wave' | 'runtime_fixture_or_other';
+        readonly origin: 'linked_summon' | 'ordinary_summon' | 'ordinary_wave' | 'runtime_fixture_or_other';
         readonly ownerPlayerId: number;
         readonly ordinaryAbilityPolicy: {
             readonly attachedAbilityIds: readonly string[];
@@ -56,6 +67,7 @@ export type EnemyProgressionSnapshot = {
         } | null;
         readonly parentEnemyId: string | null;
         readonly rawcode: string;
+        readonly rewardEligible: boolean;
     }[];
 };
 
@@ -116,6 +128,7 @@ const abilitiesByEnemyId: Readonly<Record<EnemyId, readonly AbilitySpec[]>> = {
     satyr_soulstealer: [{ evidence: 'confirmed_name', id: 'A02U' }],
     shadow_wolf: [],
     shupikuta: [{ evidence: 'confirmed_name', id: 'A02I' }],
+    skeleton_warrior: [],
     spirit_wolf: [],
     timber_wolf: [],
     wild_wolf: [
@@ -150,11 +163,14 @@ function defineEnemy(enemyId: EnemyId): CanonicalEnemyDefinition {
     const config = CHICKEN_FARM_BALANCE.enemies[enemyId];
     const sourceScore = sourceBossScoreByEnemyId[enemyId];
     const isOrdinary = config.tags.includes('ordinary');
-    const role = isOrdinary
-        ? 'ordinary'
-        : enemyId === 'nether_dragon'
-          ? 'conditional_boss'
-          : 'regular_boss';
+    const isSummon = config.tags.includes('summon');
+    const role = isSummon
+        ? 'summon'
+        : isOrdinary
+          ? 'ordinary'
+          : enemyId === 'nether_dragon'
+            ? 'conditional_boss'
+            : 'regular_boss';
 
     return {
         abilities: abilitiesByEnemyId[enemyId].map((ability) => ({
@@ -172,6 +188,8 @@ function defineEnemy(enemyId: EnemyId): CanonicalEnemyDefinition {
                     ? 'source_score_message'
                     : isOrdinary
                       ? 'web_baseline'
+                      : isSummon
+                        ? 'web_policy_no_reward'
                       : 'unresolved',
             },
         },
@@ -213,6 +231,7 @@ export function validateCanonicalEnemyDefinitions() {
             .map((_, index) => CHICKEN_FARM_BALANCE.waves.bossMilestonesForSp10[index]!.bossRawcode),
         milestoneDefinitions: milestones,
         ordinaryDefinitions: ordinary,
+        summonDefinitions: definitions.filter((definition) => definition.role === 'summon'),
         unsupportedAbilityCount: definitions.flatMap((definition) => definition.abilities).filter(
             (ability) => ability.runtimeState === UNSUPPORTED,
         ).length,

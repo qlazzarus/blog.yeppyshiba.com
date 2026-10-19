@@ -476,5 +476,20 @@
     }
   ],
   "pass": true,
+  "summonDefinitions": [
+    {
+      "abilities": [],
+      "enemyId": "skeleton_warrior",
+      "rawcode": "n016",
+      "reward": {
+        "farmerKillXp": 0,
+        "score": {
+          "effectiveScore": null,
+          "source": "web_policy_no_reward"
+        }
+      },
+      "role": "summon"
+    }
+  ],
   "unsupportedAbilityCount": 31
 }
