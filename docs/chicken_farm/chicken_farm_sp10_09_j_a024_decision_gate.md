@@ -91,6 +91,48 @@ Warsmash source checkout 자체에는 게임 데이터가 들어 있지 않다. 
 
 Warsmash commit `f9e0aeed4be372d6016519d0e97b384aa873f374`는 `Units/AbilityData.slk`와 위의 ability profile TXT들을 로드한다. 이 데이터 bundle과 map override가 검증되면 `SP-10-09-j-3`에서 effect contract·pure resolver를 시작할 수 있다.
 
+#### 집에서 준비할 권장 도구 경로
+
+공개 GitHub 프로젝트는 게임 데이터의 대체본으로 채택하지 않는다. **합법적으로 보유한 로컬 설치본**을 읽는 다음 보조 도구만 사용한다.
+
+| 우선순위 | 프로젝트 | 이번 작업에서의 역할 | 제한 |
+| --- | --- | --- | --- |
+| 1 | [OpenWar3](https://github.com/elevchyt/openwar3) | 설치본 archive를 patch 순서로 병합하고 `AbilityData.slk`/profile을 추출·검토한다. `data:extract` 결과는 project에서 gitignore되는 설계다. | 설치본 데이터는 여전히 사용자가 제공해야 하며, 출력물을 이 repository에 commit하지 않는다. |
+| 2 | [W3x2Lni](https://github.com/sumneko/w3x2lni) | 기존 map의 `war3map.w3a` custom override를 점검하는 보조 수단이다. | base game data를 제공하거나 Aadm 값을 확정하지 않는다. |
+| 3 | [wc3lib](https://github.com/tdauth/wc3lib) | Classic/TFT MPQ에서 필요한 파일만 추출할 수 있는 대안이다. | Reforged CASC 지원을 주장하지 않으며, 1.26 계열 설치본일 때만 고려한다. |
+| 기준 | [Warsmash](https://github.com/Retera/WarsmashModEngine/tree/f9e0aeed4be372d6016519d0e97b384aa873f374) | 추출한 내부 `Units\\...` 경로를 loader/ability dispatch와 대조한다. | game data bundle을 포함하지 않는다. |
+
+가장 작은 목표는 전체 게임을 분석하는 것이 아니라, 원본 archive layering을 보존한 상태로 위 `Units/` bundle과 manifest만 만드는 것이다. Portable/modified executable, 공개 asset mirror, crack/patcher는 필요하지 않고 사용하지 않는다.
+
+#### 다음 세션에서 그대로 보낼 요청 프롬프트
+
+데이터 폴더를 준비한 뒤, 아래에서 `<ABSOLUTE_DATA_PATH>`만 실제 경로로 바꾸어 새 세션에 보낸다. 해당 경로는 workspace 밖에 두어도 되지만 이 에이전트가 **읽기 전용 접근**할 수 있어야 한다.
+
+```text
+SP-10-09-j-3을 진행해.
+
+합법적으로 보유한 Warcraft III 설치본에서 추출한 A024 source-data bundle이 여기 있어:
+<ABSOLUTE_DATA_PATH>
+
+먼저 `manifest.json`과 제공된 모든 file SHA-256을 검증하고, 이 저장소의
+`docs/chicken_farm/chicken_farm_sp10_09_j_a024_decision_gate.md`와
+`docs/chicken_farm/chicken_farm_w3x_artifacts/sp10_09_j_a024_effect_evidence.json`을 읽어.
+
+그 다음 `Units/AbilityData.slk`의 Aadm row, 필요한 profile TXT와 AbilityBuffData를 추출해
+A024의 map override(`acdn=5`, `atar=air,ground,ward,invu,vuln,tree`)와 분리된 merge artifact를 만들어.
+source row에 없는 값은 추정하거나 공개 기본값으로 채우지 마. map 제작 patch와 bundle version이 다르면
+`Warsmash selected dataset`으로 표시하고 원본 재현이라고 부르지 마.
+
+buff disposition, A02I interaction, 또는 현재 웹 runtime에 없는 adapter가 남으면 구현하지 말고
+결정 게이트에 보류 사유를 갱신해. source와 웹 정책을 혼동하지 마.
+
+값과 semantics가 충분히 확정된 경우에만 A024 effect contract와 pure resolver까지 구현해.
+runtime/browser 연결은 별도 하위 카드로 남기고 이번 요청에서 시작하지 마.
+
+변경 파일, source hash/버전, merge 결과, 실행한 검증 명령과 종료 코드, 남은 blocker,
+다음 정확한 ID를 task plan과 A024 handoff MD에 기록해.
+```
+
 ## W — 원본과 구별되는 웹 대체 정책 경로
 
 아래 항목 전부가 명시적으로 승인되기 전까지 이 경로는 구현 권한이 아니다. `TBD`는 기본값을 의미하지 않는다.
