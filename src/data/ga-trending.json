@@ -1,28 +1,16 @@
 {
-  "generatedAt": "2026-10-12T10:10:06.196Z",
+  "generatedAt": "2026-10-26T08:28:09.422Z",
   "trending": [
     {
-      "path": "/article/anyang-ottogi-hamtaehall-rolypoly-review",
-      "views": 3,
+      "path": "/article/amd-bc250-local-ai-server-project",
+      "views": 15,
       "avgSec": 0,
       "reason": "top_post"
     },
     {
       "path": "/article/apptech-income-september-2026",
-      "views": 3,
-      "avgSec": 121.43,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/allowance-300k-01",
-      "views": 1,
-      "avgSec": 72.65,
-      "reason": "amplify"
-    },
-    {
-      "path": "/article/apptech-income-may-2026",
-      "views": 1,
-      "avgSec": 61.42,
+      "views": 2,
+      "avgSec": 835.57,
       "reason": "amplify"
     }
   ]

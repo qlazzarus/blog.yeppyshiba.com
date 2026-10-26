@@ -1,6 +1,6 @@
 {
   "topPost": "/article/amd-bc250-local-ai-server-project",
-  "topPostViews": 39,
+  "topPostViews": 15,
   "relatedSuggestions": [
     "/amd-bc250-local-ai-server-project/",
     "/gpx-route-viewer-local-analyzer/",
@@ -9,41 +9,26 @@
   ],
   "amplifyCandidates": [
     {
-      "path": "/article/apptech-income-july-2026",
+      "path": "/article/apptech-income-september-2026",
       "views": 2,
-      "avgSec": 74.36
+      "avgSec": 835.57
     }
   ],
   "fixCandidates": [
     {
-      "path": "/article/a-look-back-in-2025",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
       "path": "/article/amd-bc250-local-ai-server-project",
-      "views": 1,
-      "avgSec": 0
+      "views": 15,
+      "avgSec": 4.12
     },
     {
-      "path": "/article/amd-bc250-local-ai-server-project",
+      "path": "/article/apptech-income-august-2026",
       "views": 1,
-      "avgSec": 0
+      "avgSec": 5.01
     },
     {
-      "path": "/article/apptech-income-september-2026",
+      "path": "/article/how-i-build-pocket-money-with-apptech",
       "views": 1,
-      "avgSec": 6.43
-    },
-    {
-      "path": "/article/deep-learning-prime-number",
-      "views": 1,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
-      "views": 1,
-      "avgSec": 0
+      "avgSec": 5.77
     }
   ]
 }
