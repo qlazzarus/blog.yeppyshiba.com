@@ -373,6 +373,7 @@ async function main() {
         ownerPlayerId: 3,
         resultChickenKind: 'basic',
         startedAtSec: 0,
+        supplyReserved: 0,
     });
     updateChickenFarmEconomy(orphanHatchState, 20);
 

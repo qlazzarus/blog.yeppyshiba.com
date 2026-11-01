@@ -1,0 +1,118 @@
+{
+  "case": "supply",
+  "checks": {
+    "browserChickenLifecycle": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "before": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  },
+  "created": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 2,
+      "cap": 3,
+      "reserved": 0,
+      "used": 1
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  },
+  "removed": {
+    "jobs": {
+      "hatch": [],
+      "production": []
+    },
+    "lastRejectionReason": null,
+    "ownerPlayerId": 3,
+    "research": {
+      "levels": [],
+      "queued": [],
+      "supportedIds": [
+        "arcaneTowerDamage",
+        "dogDamage",
+        "dogSpeedClaw",
+        "guardTowerDamage",
+        "masonry"
+      ]
+    },
+    "runId": 1,
+    "supply": {
+      "available": 3,
+      "cap": 3,
+      "reserved": 0,
+      "used": 0
+    },
+    "tech": {
+      "completeBuildingIds": [],
+      "completeBuildingTemplateIds": []
+    },
+    "upgrades": [],
+    "wallet": {
+      "gold": 1500,
+      "lumber": 0
+    }
+  }
+}

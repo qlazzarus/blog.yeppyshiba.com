@@ -1,0 +1,29 @@
+{
+  "case": "production_queue",
+  "pass": true,
+  "cases": {
+    "cancellation": {
+      "gold": 80,
+      "lumber": 15,
+      "supplyCap": 2,
+      "supplyReserved": 0,
+      "supplyUsed": 1
+    },
+    "destroy": {
+      "gold": 80,
+      "lumber": 15,
+      "supplyCap": 1,
+      "supplyReserved": 0,
+      "supplyUsed": 0
+    },
+    "fifo": true,
+    "insufficientWallet": true,
+    "sameTickSupplyContention": true
+  },
+  "policy": {
+    "capacityPerProducer": 1,
+    "payment": "enqueue",
+    "queue": "FIFO",
+    "reservation": "enqueue_to_complete_or_cancel"
+  }
+}

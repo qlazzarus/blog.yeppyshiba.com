@@ -1,0 +1,39 @@
+{
+  "case": "supply_lifecycle",
+  "cases": {
+    "capBelowUsed": {
+      "available": -1,
+      "cap": 0,
+      "used": 1
+    },
+    "capEqualUsed": {
+      "available": 0,
+      "cap": 1,
+      "used": 1
+    },
+    "capAboveUsed": {
+      "available": 3,
+      "cap": 3,
+      "used": 0
+    },
+    "owner3": {
+      "gold": 1500,
+      "lumber": 0,
+      "supplyCap": 3,
+      "supplyUsed": 0
+    },
+    "owner4": {
+      "gold": 0,
+      "lumber": 0,
+      "supplyCap": 7,
+      "supplyUsed": 1
+    }
+  },
+  "pass": true,
+  "policy": {
+    "chickenSupplyCost": 1,
+    "completedBuildingSupplyOnly": true,
+    "idempotentRegistration": true,
+    "starterFarmerAndDogSupplyCost": 0
+  }
+}

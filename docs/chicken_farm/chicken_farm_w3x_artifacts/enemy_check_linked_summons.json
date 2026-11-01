@@ -1,0 +1,36 @@
+{
+  "case": "linked_summon_registry",
+  "checks": {
+    "externalRemovalDoesNotRespawn": true,
+    "lifetimeExpiryRemoves": true,
+    "onePerParentFixtureGuard": true,
+    "parentRemovalRemoves": true,
+    "pass": true
+  },
+  "entries": {
+    "expired": [
+      {
+        "enemyId": "timber_wolf",
+        "id": "linked-1",
+        "lifetimeExpiresAtSec": 5,
+        "ownerPlayerId": 10,
+        "parentEnemyId": "parent-1",
+        "runId": 2,
+        "spawnedAtSec": 0,
+        "reason": "expired"
+      }
+    ],
+    "parentGone": [
+      {
+        "enemyId": "timber_wolf",
+        "id": "linked-1",
+        "lifetimeExpiresAtSec": 5,
+        "ownerPlayerId": 10,
+        "parentEnemyId": "parent-1",
+        "runId": 2,
+        "spawnedAtSec": 0,
+        "reason": "parent_removed"
+      }
+    ]
+  }
+}

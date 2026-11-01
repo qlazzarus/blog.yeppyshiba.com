@@ -1,0 +1,15 @@
+{
+  "case": "economy_upgrade_adapter",
+  "checks": {
+    "coopInventoryAndJobsPreserved": true,
+    "firstCoopCapabilityStableId": true,
+    "lumberGlobalPhaseAndSinglePayout": true,
+    "marketUsesStableWorldBuildingId": true
+  },
+  "pass": true,
+  "policy": {
+    "coopExistingJobs": "preserve_original_result_and_reservation",
+    "lumberIncome": "global_30_second_phase_preserved",
+    "well": "no_canonical_well_upgradeTo_template_in_current_growth_graph"
+  }
+}

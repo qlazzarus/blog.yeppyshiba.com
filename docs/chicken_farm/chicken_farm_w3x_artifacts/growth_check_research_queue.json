@@ -1,0 +1,12 @@
+{
+  "case": "research_queue",
+  "pass": true,
+  "cases": {
+    "cancellationFullRefund": true,
+    "destroyNoRefund": true,
+    "duplicateOwnerReservation": true,
+    "maxLevel": 3,
+    "ownerIsolation": 0,
+    "readyCompletionOnce": true
+  }
+}

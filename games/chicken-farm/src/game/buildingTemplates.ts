@@ -195,6 +195,7 @@ export const BUILDING_TEMPLATES = {
         id: 'family_temple',
         originalCost: { gold: 1200, lumber: 1200 },
         originalRequires: ['h01X', 'h00C'],
+        providesResearch: ['dogDamage'],
         produces: ['big_dog', 'H002', 'h01W', 'n003', 'n004'],
         productionExit: {
             clearancePx: 8,

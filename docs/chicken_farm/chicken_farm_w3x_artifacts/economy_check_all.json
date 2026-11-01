@@ -29,7 +29,7 @@
       "buildings": [],
       "chickens": [],
       "coops": [],
-      "elapsedSec": 0.07453333333333334,
+      "elapsedSec": 0.07542200000111757,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -139,11 +139,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 0.44160666666666654,
+        "elapsedSec": 0.4437766666659215,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -227,7 +228,7 @@
             "hp": 39.946666666666715,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 30.390126666704813,
+            "nextEggAtSec": 30.393726666668158,
             "ownerPlayerId": 3,
             "x": 3415.999559705712,
             "y": 8994.605067388298
@@ -237,7 +238,7 @@
             "hp": 39.960000000000036,
             "id": "chicken-2",
             "kind": "basic",
-            "nextEggAtSec": 30.45679333337148,
+            "nextEggAtSec": 30.460393333334824,
             "ownerPlayerId": 3,
             "x": 3461.7193168517765,
             "y": 8938.964870885773
@@ -247,7 +248,7 @@
             "hp": 39.97000000000003,
             "id": "chicken-3",
             "kind": "basic",
-            "nextEggAtSec": 30.50679333337148,
+            "nextEggAtSec": 30.510393333334825,
             "ownerPlayerId": 3,
             "x": 3405.3492740891165,
             "y": 8959.90322639991
@@ -257,7 +258,7 @@
             "hp": 39.98000000000002,
             "id": "chicken-4",
             "kind": "basic",
-            "nextEggAtSec": 30.55679333337148,
+            "nextEggAtSec": 30.560393333334822,
             "ownerPlayerId": 3,
             "x": 3445.2707257732927,
             "y": 8983.168770280532
@@ -267,14 +268,14 @@
             "hp": 39.99000000000001,
             "id": "chicken-5",
             "kind": "basic",
-            "nextEggAtSec": 30.60679333337148,
+            "nextEggAtSec": 30.610393333334823,
             "ownerPlayerId": 3,
             "x": 3435.7824159099882,
             "y": 8954.040469905734
           }
         ],
         "coops": [],
-        "elapsedSec": 0.6567933333714797,
+        "elapsedSec": 0.6603933333348229,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -313,7 +314,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 5
           }
         ],
         "runId": 1,
@@ -329,7 +330,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 5
         },
         "workerTasks": []
       },
@@ -343,14 +344,14 @@
             "hp": 39.99000000000001,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 30.390126666704813,
+            "nextEggAtSec": 30.393726666668158,
             "ownerPlayerId": 3,
             "x": 3432.067145745118,
             "y": 8970.010538553444
           }
         ],
         "coops": [],
-        "elapsedSec": 0.44012666670481354,
+        "elapsedSec": 0.44372666666815674,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -392,7 +393,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -408,7 +409,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       }
@@ -436,7 +437,7 @@
         "buildings": [],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.5099466666666665,
+        "elapsedSec": 0.5136933333328862,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -517,7 +518,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 1.593279999999996,
+        "elapsedSec": 1.5970266666662158,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -590,7 +591,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 1.3932799999999967,
+        "elapsedSec": 1.3970266666662166,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -664,7 +665,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 1.0766133333333312,
+        "elapsedSec": 1.080359999999551,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -736,7 +737,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.7932799999999989,
+        "elapsedSec": 0.7970266666662187,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -801,7 +802,7 @@
         "buildings": [],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.3766133333333333,
+        "elapsedSec": 0.38035999999955294,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -882,7 +883,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 1.6432799999999959,
+        "elapsedSec": 1.630359999999549,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -979,6 +980,12 @@
             "id": "player-building-3",
             "ownerPlayerId": 3,
             "state": "complete",
+            "templateId": "town_hall"
+          },
+          {
+            "id": "player-building-4",
+            "ownerPlayerId": 3,
+            "state": "complete",
             "templateId": "coop_basic"
           }
         ],
@@ -988,40 +995,64 @@
             "hp": 40,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 87.2070333333333,
+            "nextEggAtSec": 195.24577206666567,
             "ownerPlayerId": 3,
-            "x": 3511.999245582826,
-            "y": 8920.110123196639
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
           },
           {
-            "aiState": "recover",
-            "hp": 40,
+            "aiState": "seek_well",
+            "hp": 27.659047999999974,
             "id": "chicken-2",
             "kind": "basic",
-            "nextEggAtSec": 87.2937033333333,
+            "nextEggAtSec": 195.40743206666568,
             "ownerPlayerId": 3,
-            "x": 3511.7201647076795,
-            "y": 8951.308874996432
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
+          },
+          {
+            "aiState": "wander",
+            "hp": 39.35633800000002,
+            "id": "chicken-3",
+            "kind": "basic",
+            "nextEggAtSec": 201.0683220666658,
+            "ownerPlayerId": 3,
+            "x": 3360.0328601211877,
+            "y": 9242.552463038792
           }
         ],
         "coops": [
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 71.9082733333332,
-        "fieldEggs": [],
-        "hatchJobs": [
+        "elapsedSec": 174.2866320666657,
+        "fieldEggs": [
           {
-            "completeAtSec": 82.51540333333332,
-            "coopId": "player-building-3",
-            "id": "hatch-1",
+            "droppedAtSec": 165.24577206666567,
+            "id": "egg-3",
             "ownerPlayerId": 3,
-            "resultChickenKind": "basic"
+            "sourceChickenId": "chicken-1",
+            "stackCount": 1,
+            "wellBuffed": false,
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
+          },
+          {
+            "droppedAtSec": 165.40743206666568,
+            "id": "egg-4",
+            "ownerPlayerId": 3,
+            "sourceChickenId": "chicken-2",
+            "stackCount": 1,
+            "wellBuffed": false,
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           }
         ],
+        "hatchJobs": [],
         "inventories": [
           {
             "id": "p3-farmer",
@@ -1039,7 +1070,7 @@
             ]
           },
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
             "ownerPlayerId": 3,
             "slots": [
               null,
@@ -1052,7 +1083,7 @@
           }
         ],
         "lumberIncome": {
-          "lastProcessedTickSec": 60,
+          "lastProcessedTickSec": 150,
           "mills": [],
           "totalsByPlayer": [
             {
@@ -1063,11 +1094,11 @@
         },
         "wallets": [
           {
-            "gold": 1292,
-            "lumber": 18,
+            "gold": 992,
+            "lumber": 48,
             "playerId": 3,
-            "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyCap": 8,
+            "supplyUsed": 3
           }
         ],
         "runId": 1,
@@ -1080,10 +1111,10 @@
           ]
         },
         "wallet": {
-          "gold": 1292,
-          "lumber": 18,
-          "supplyCap": 3,
-          "supplyUsed": 0
+          "gold": 992,
+          "lumber": 48,
+          "supplyCap": 8,
+          "supplyUsed": 3
         },
         "workerTasks": []
       },
@@ -1093,7 +1124,7 @@
         "buildings": [],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.23821333333333328,
+        "elapsedSec": 0.24323539999888238,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -1173,6 +1204,12 @@
             "id": "player-building-3",
             "ownerPlayerId": 3,
             "state": "complete",
+            "templateId": "town_hall"
+          },
+          {
+            "id": "player-building-4",
+            "ownerPlayerId": 3,
+            "state": "complete",
             "templateId": "coop_basic"
           }
         ],
@@ -1182,41 +1219,63 @@
             "hp": 40,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 87.2070333333333,
+            "nextEggAtSec": 195.24577206666567,
             "ownerPlayerId": 3,
-            "x": 3511.999245582826,
-            "y": 8920.110123196639
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
           },
           {
-            "aiState": "recover",
-            "hp": 40,
+            "aiState": "seek_well",
+            "hp": 27.558045999999976,
             "id": "chicken-2",
             "kind": "basic",
-            "nextEggAtSec": 87.2937033333333,
+            "nextEggAtSec": 195.40743206666568,
             "ownerPlayerId": 3,
-            "x": 3511.7201647076795,
-            "y": 8951.308874996432
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           },
           {
             "aiState": "wander",
-            "hp": 40,
+            "hp": 39.25533600000003,
             "id": "chicken-3",
             "kind": "basic",
-            "nextEggAtSec": 112.53645333333327,
+            "nextEggAtSec": 201.0683220666658,
             "ownerPlayerId": 3,
-            "x": 3328,
-            "y": 8984
+            "x": 3379.184612692389,
+            "y": 9254.785878389952
           }
         ],
         "coops": [
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 82.53645333333327,
-        "fieldEggs": [],
+        "elapsedSec": 174.7916420666657,
+        "fieldEggs": [
+          {
+            "droppedAtSec": 165.24577206666567,
+            "id": "egg-3",
+            "ownerPlayerId": 3,
+            "sourceChickenId": "chicken-1",
+            "stackCount": 1,
+            "wellBuffed": false,
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
+          },
+          {
+            "droppedAtSec": 165.40743206666568,
+            "id": "egg-4",
+            "ownerPlayerId": 3,
+            "sourceChickenId": "chicken-2",
+            "stackCount": 1,
+            "wellBuffed": false,
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
+          }
+        ],
         "hatchJobs": [],
         "inventories": [
           {
@@ -1235,7 +1294,7 @@
             ]
           },
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
             "ownerPlayerId": 3,
             "slots": [
               null,
@@ -1248,7 +1307,7 @@
           }
         ],
         "lumberIncome": {
-          "lastProcessedTickSec": 60,
+          "lastProcessedTickSec": 150,
           "mills": [],
           "totalsByPlayer": [
             {
@@ -1259,11 +1318,11 @@
         },
         "wallets": [
           {
-            "gold": 1292,
-            "lumber": 18,
+            "gold": 992,
+            "lumber": 48,
             "playerId": 3,
-            "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyCap": 8,
+            "supplyUsed": 3
           }
         ],
         "runId": 1,
@@ -1276,10 +1335,10 @@
           ]
         },
         "wallet": {
-          "gold": 1292,
-          "lumber": 18,
-          "supplyCap": 3,
-          "supplyUsed": 0
+          "gold": 992,
+          "lumber": 48,
+          "supplyCap": 8,
+          "supplyUsed": 3
         },
         "workerTasks": []
       },
@@ -1303,6 +1362,12 @@
             "id": "player-building-3",
             "ownerPlayerId": 3,
             "state": "complete",
+            "templateId": "town_hall"
+          },
+          {
+            "id": "player-building-4",
+            "ownerPlayerId": 3,
+            "state": "complete",
             "templateId": "coop_basic"
           }
         ],
@@ -1312,40 +1377,41 @@
             "hp": 40,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 87.2070333333333,
+            "nextEggAtSec": 165.24577206666567,
             "ownerPlayerId": 3,
-            "x": 3511.9899808392493,
-            "y": 8921.981073217143
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
           },
           {
-            "aiState": "recover",
-            "hp": 40,
+            "aiState": "seek_well",
+            "hp": 32.62889200000003,
             "id": "chicken-2",
             "kind": "basic",
-            "nextEggAtSec": 87.2937033333333,
+            "nextEggAtSec": 165.40743206666568,
             "ownerPlayerId": 3,
-            "x": 3507.936908347212,
-            "y": 8952.916693517604
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           }
         ],
         "coops": [
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 1
           }
         ],
-        "elapsedSec": 61.69888333333331,
+        "elapsedSec": 149.4374120666658,
         "fieldEggs": [
           {
-            "droppedAtSec": 57.2937033333333,
+            "droppedAtSec": 135.40743206666568,
             "id": "egg-2",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-2",
             "stackCount": 1,
             "wellBuffed": false,
-            "x": 3507.936908347212,
-            "y": 8952.916693517604
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           }
         ],
         "hatchJobs": [],
@@ -1366,7 +1432,7 @@
             ]
           },
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
             "ownerPlayerId": 3,
             "slots": [
               {
@@ -1382,7 +1448,7 @@
           }
         ],
         "lumberIncome": {
-          "lastProcessedTickSec": 60,
+          "lastProcessedTickSec": 120,
           "mills": [],
           "totalsByPlayer": [
             {
@@ -1393,11 +1459,11 @@
         },
         "wallets": [
           {
-            "gold": 1280,
-            "lumber": 18,
+            "gold": 980,
+            "lumber": 48,
             "playerId": 3,
-            "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyCap": 8,
+            "supplyUsed": 2
           }
         ],
         "runId": 1,
@@ -1410,10 +1476,10 @@
           ]
         },
         "wallet": {
-          "gold": 1280,
-          "lumber": 18,
-          "supplyCap": 3,
-          "supplyUsed": 0
+          "gold": 980,
+          "lumber": 48,
+          "supplyCap": 8,
+          "supplyUsed": 2
         },
         "workerTasks": []
       },
@@ -1437,6 +1503,12 @@
             "id": "player-building-3",
             "ownerPlayerId": 3,
             "state": "complete",
+            "templateId": "town_hall"
+          },
+          {
+            "id": "player-building-4",
+            "ownerPlayerId": 3,
+            "state": "complete",
             "templateId": "coop_basic"
           }
         ],
@@ -1446,46 +1518,47 @@
             "hp": 40,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 87.2070333333333,
+            "nextEggAtSec": 165.24577206666567,
             "ownerPlayerId": 3,
-            "x": 3511.9899808392493,
-            "y": 8921.981073217143
+            "x": 3552.4608820607423,
+            "y": 8968.045377580318
           },
           {
-            "aiState": "recover",
-            "hp": 40,
+            "aiState": "seek_well",
+            "hp": 32.23090400000002,
             "id": "chicken-2",
             "kind": "basic",
-            "nextEggAtSec": 87.2937033333333,
+            "nextEggAtSec": 165.40743206666568,
             "ownerPlayerId": 3,
-            "x": 3507.936908347212,
-            "y": 8952.916693517604
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           }
         ],
         "coops": [
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 62.80176333333332,
+        "elapsedSec": 151.42735206666578,
         "fieldEggs": [
           {
-            "droppedAtSec": 57.2937033333333,
+            "droppedAtSec": 135.40743206666568,
             "id": "egg-2",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-2",
             "stackCount": 1,
             "wellBuffed": false,
-            "x": 3507.936908347212,
-            "y": 8952.916693517604
+            "x": 3521.378164898986,
+            "y": 8970.748097292431
           }
         ],
         "hatchJobs": [
           {
-            "completeAtSec": 82.51540333333332,
-            "coopId": "player-building-3",
+            "completeAtSec": 170.93069206666578,
+            "coopId": "player-building-4",
             "id": "hatch-1",
             "ownerPlayerId": 3,
             "resultChickenKind": "basic"
@@ -1508,7 +1581,7 @@
             ]
           },
           {
-            "id": "player-building-3",
+            "id": "player-building-4",
             "ownerPlayerId": 3,
             "slots": [
               null,
@@ -1521,7 +1594,7 @@
           }
         ],
         "lumberIncome": {
-          "lastProcessedTickSec": 60,
+          "lastProcessedTickSec": 150,
           "mills": [],
           "totalsByPlayer": [
             {
@@ -1532,25 +1605,25 @@
         },
         "wallets": [
           {
-            "gold": 1280,
-            "lumber": 18,
+            "gold": 980,
+            "lumber": 48,
             "playerId": 3,
-            "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyCap": 8,
+            "supplyUsed": 2
           }
         ],
         "runId": 1,
         "selected": {
           "buildingId": null,
-          "economyEntityId": "player-building-3",
+          "economyEntityId": "player-building-4",
           "economyEntityType": "coop",
           "unitIds": []
         },
         "wallet": {
-          "gold": 1280,
-          "lumber": 18,
-          "supplyCap": 3,
-          "supplyUsed": 0
+          "gold": 980,
+          "lumber": 48,
+          "supplyCap": 8,
+          "supplyUsed": 2
         },
         "workerTasks": []
       }
@@ -1588,17 +1661,17 @@
             "hp": 39.92666666666669,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.63755333333333,
+            "nextEggAtSec": 60.64593999999866,
             "ownerPlayerId": 3,
             "x": 3449.579299118207,
             "y": 8962.83004340334
           }
         ],
         "coops": [],
-        "elapsedSec": 30.68755333333333,
+        "elapsedSec": 30.695939999998657,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.637553333333333,
+            "droppedAtSec": 30.64593999999866,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -1645,7 +1718,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -1661,7 +1734,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -1679,20 +1752,20 @@
         "chickens": [
           {
             "aiState": "seek_well",
-            "hp": 39.90666666666671,
+            "hp": 39.9166666666667,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.63755333333333,
+            "nextEggAtSec": 60.64593999999866,
             "ownerPlayerId": 3,
-            "x": 3453.6087712656117,
-            "y": 8960.826707631859
+            "x": 3451.5940351919094,
+            "y": 8961.8283755176
           }
         ],
         "coops": [],
-        "elapsedSec": 30.787553333333324,
+        "elapsedSec": 30.745939999998654,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.637553333333333,
+            "droppedAtSec": 30.64593999999866,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -1739,7 +1812,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -1755,7 +1828,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       }
@@ -1793,14 +1866,14 @@
             "hp": 39.8400000000001,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.6366,
+            "nextEggAtSec": 60.64477666666629,
             "ownerPlayerId": 3,
             "x": 3467.040345090294,
             "y": 8954.148921726919
           }
         ],
         "coops": [],
-        "elapsedSec": 31.119933333333304,
+        "elapsedSec": 31.128109999999598,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -1842,7 +1915,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -1858,7 +1931,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -1879,17 +1952,17 @@
             "hp": 39.90000000000005,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.6366,
+            "nextEggAtSec": 60.64477666666629,
             "ownerPlayerId": 3,
             "x": 3454.95192864808,
             "y": 8960.158929041365
           }
         ],
         "coops": [],
-        "elapsedSec": 30.81993333333332,
+        "elapsedSec": 30.828109999999615,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.636599999999998,
+            "droppedAtSec": 30.644776666666292,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -1936,7 +2009,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -1952,7 +2025,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": [
           {
@@ -1991,20 +2064,20 @@
         "chickens": [
           {
             "aiState": "seek_well",
-            "hp": 39.69333333333357,
+            "hp": 39.6966666666669,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.64026666670482,
+            "nextEggAtSec": 60.64521333333408,
             "ownerPlayerId": 3,
-            "x": 3496.5898075045952,
-            "y": 8939.457792736059
+            "x": 3495.918228813361,
+            "y": 8939.791682031304
           }
         ],
         "coops": [],
-        "elapsedSec": 31.856933333371412,
+        "elapsedSec": 31.84521333333401,
         "fieldEggs": [
           {
-            "droppedAtSec": 31.856933333371412,
+            "droppedAtSec": 31.84521333333401,
             "id": "egg-2",
             "ownerPlayerId": 3,
             "sourceChickenId": "p3-farmer",
@@ -2051,7 +2124,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -2067,7 +2140,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -2085,17 +2158,17 @@
         "chickens": [
           {
             "aiState": "seek_well",
-            "hp": 39.750000000000185,
+            "hp": 39.753333333333515,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.64026666670482,
+            "nextEggAtSec": 60.64521333333408,
             "ownerPlayerId": 3,
-            "x": 3485.1729697536152,
-            "y": 8945.13391075525
+            "x": 3484.501391062381,
+            "y": 8945.467800050497
           }
         ],
         "coops": [],
-        "elapsedSec": 31.573600000038095,
+        "elapsedSec": 31.56188000000069,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2137,7 +2210,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -2153,7 +2226,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": [
           {
@@ -2194,11 +2267,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 1
           }
         ],
-        "elapsedSec": 1.1049399999999978,
+        "elapsedSec": 1.0787999999996254,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2290,11 +2364,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 1.0382733333333314,
+        "elapsedSec": 1.012133333332959,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2408,15 +2483,16 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 1.2866066666666638,
+        "elapsedSec": 1.27998666666875,
         "fieldEggs": [],
         "hatchJobs": [
           {
-            "completeAtSec": 21.236606666666663,
+            "completeAtSec": 21.22998666666875,
             "coopId": "player-building-1",
             "id": "hatch-1",
             "ownerPlayerId": 3,
@@ -2507,11 +2583,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 1
           }
         ],
-        "elapsedSec": 1.2032733333333308,
+        "elapsedSec": 1.196653333335417,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2601,15 +2678,16 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 1.3366066666666636,
+        "elapsedSec": 1.3299866666687499,
         "fieldEggs": [],
         "hatchJobs": [
           {
-            "completeAtSec": 21.236606666666663,
+            "completeAtSec": 21.22998666666875,
             "coopId": "player-building-1",
             "id": "hatch-1",
             "ownerPlayerId": 3,
@@ -2717,11 +2795,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 1
           }
         ],
-        "elapsedSec": 1.2231999999237033,
+        "elapsedSec": 1.196493333334672,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2811,15 +2890,16 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 20.2731999999237,
+        "elapsedSec": 20.24649333333467,
         "fieldEggs": [],
         "hatchJobs": [
           {
-            "completeAtSec": 21.256533333257035,
+            "completeAtSec": 21.229826666668004,
             "coopId": "player-building-1",
             "id": "hatch-1",
             "ownerPlayerId": 3,
@@ -2912,7 +2992,7 @@
             "hp": 39.99666666666667,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 51.25653333325704,
+            "nextEggAtSec": 51.229826666668004,
             "ownerPlayerId": 3,
             "x": 3764.11732584878,
             "y": 9048.740766255447
@@ -2921,11 +3001,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 21.2731999999237,
+        "elapsedSec": 21.24649333333467,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -2979,7 +3060,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -2993,7 +3074,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -3014,7 +3095,7 @@
             "hp": 39.94000000000001,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 51.25653333325704,
+            "nextEggAtSec": 51.229826666668004,
             "ownerPlayerId": 3,
             "x": 3766.1118652780433,
             "y": 9061.333792598036
@@ -3023,11 +3104,12 @@
         "coops": [
           {
             "id": "player-building-1",
+            "kind": "basic",
             "ownerPlayerId": 3,
             "storedEggs": 0
           }
         ],
-        "elapsedSec": 22.2731999999237,
+        "elapsedSec": 22.24649333333467,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3081,7 +3163,7 @@
             "lumber": 0,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           }
         ],
         "runId": 1,
@@ -3095,7 +3177,7 @@
           "gold": 1500,
           "lumber": 0,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       }
@@ -3136,7 +3218,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 6.832323333257037,
+        "elapsedSec": 15.33356899999962,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3220,7 +3302,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 9.258763333257036,
+        "elapsedSec": 21.641648999999635,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3298,7 +3380,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 4.780833333257035,
+        "elapsedSec": 9.990318999999621,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3385,7 +3467,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 7.980393333257035,
+        "elapsedSec": 18.08009899999963,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3475,7 +3557,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 8.173693333257035,
+        "elapsedSec": 18.568428999999632,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3553,7 +3635,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.2926666665903727,
+        "elapsedSec": 0.29240233333296084,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3641,7 +3723,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 6.945573333257037,
+        "elapsedSec": 15.660218999999621,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3719,7 +3801,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.5593333332570392,
+        "elapsedSec": 0.5590689999996272,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3803,7 +3885,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 5.647343333257036,
+        "elapsedSec": 12.278668999999622,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3893,7 +3975,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 1.087960000076292,
+        "elapsedSec": 1.0262387333329588,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -3971,7 +4053,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.6712933334096267,
+        "elapsedSec": 0.6429053999996268,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -4049,7 +4131,7 @@
         ],
         "chickens": [],
         "coops": [],
-        "elapsedSec": 0.28796000007629396,
+        "elapsedSec": 0.29290539999962734,
         "fieldEggs": [],
         "hatchJobs": [],
         "inventories": [
@@ -4175,17 +4257,17 @@
             "hp": 39.8666666666667,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.36937,
+            "nextEggAtSec": 60.378806666665774,
             "ownerPlayerId": 3,
             "x": 3447.5010497157423,
             "y": 8990.265618902684
           }
         ],
         "coops": [],
-        "elapsedSec": 30.419369999999997,
+        "elapsedSec": 30.42880666666577,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -4223,25 +4305,25 @@
           "lastProcessedTickSec": 30,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-1",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-3",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
@@ -4264,7 +4346,7 @@
             "lumber": 180,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -4287,7 +4369,7 @@
           "gold": 956,
           "lumber": 180,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -4326,17 +4408,17 @@
             "hp": 39.87333333333336,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.36937,
+            "nextEggAtSec": 60.378806666665774,
             "ownerPlayerId": 3,
             "x": 3446.490242596767,
             "y": 8989.157345936203
           }
         ],
         "coops": [],
-        "elapsedSec": 30.386036666666666,
+        "elapsedSec": 30.39547333333244,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -4374,25 +4456,25 @@
           "lastProcessedTickSec": 30,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-1",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-3",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
@@ -4415,7 +4497,7 @@
             "lumber": 180,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -4438,7 +4520,7 @@
           "gold": 956,
           "lumber": 180,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -4471,7 +4553,7 @@
             "hp": 39.79000000000006,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.36937,
+            "nextEggAtSec": 60.378806666665774,
             "ownerPlayerId": 3,
             "x": 3459.248070737734,
             "y": 8984.283545051176
@@ -4481,7 +4563,7 @@
         "elapsedSec": 60.03333333333333,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -4519,19 +4601,19 @@
           "lastProcessedTickSec": 60,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
             },
             {
-              "activeFromSec": 30.48603666666666,
+              "activeFromSec": 30.495473333332434,
               "id": "player-building-6",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
@@ -4554,7 +4636,7 @@
             "lumber": 430,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -4577,7 +4659,7 @@
           "gold": 872,
           "lumber": 430,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -4688,17 +4770,17 @@
             "hp": 39.85000000000005,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.36937,
+            "nextEggAtSec": 60.378806666665774,
             "ownerPlayerId": 3,
             "x": 3450.0280675131803,
             "y": 8993.036301318882
           }
         ],
         "coops": [],
-        "elapsedSec": 30.502703333333326,
+        "elapsedSec": 30.5121399999991,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -4736,31 +4818,31 @@
           "lastProcessedTickSec": 30,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-1",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-3",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
             },
             {
-              "activeFromSec": 30.48603666666666,
+              "activeFromSec": 30.495473333332434,
               "id": "player-building-6",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
@@ -4783,7 +4865,7 @@
             "lumber": 180,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -4806,7 +4888,7 @@
           "gold": 872,
           "lumber": 180,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -4845,7 +4927,7 @@
             "hp": 39.93000000000002,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 30.36937,
+            "nextEggAtSec": 30.378806666665774,
             "ownerPlayerId": 3,
             "x": 3437.898382085479,
             "y": 8979.737025721126
@@ -4882,25 +4964,25 @@
           "lastProcessedTickSec": 30,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-1",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-3",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
@@ -4923,7 +5005,7 @@
             "lumber": 180,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -4946,7 +5028,7 @@
           "gold": 956,
           "lumber": 180,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -4991,7 +5073,7 @@
             "hp": 39.796666666666724,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 60.36937,
+            "nextEggAtSec": 60.378806666665774,
             "ownerPlayerId": 3,
             "x": 3458.222823718315,
             "y": 8985.37847361011
@@ -5001,7 +5083,7 @@
         "elapsedSec": 60,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -5039,31 +5121,31 @@
           "lastProcessedTickSec": 60,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-1",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-3",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
             },
             {
-              "activeFromSec": 30.48603666666666,
+              "activeFromSec": 30.495473333332434,
               "id": "player-building-6",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
@@ -5086,7 +5168,7 @@
             "lumber": 430,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -5109,7 +5191,7 @@
           "gold": 872,
           "lumber": 430,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       },
@@ -5142,7 +5224,7 @@
             "hp": 39.736666666666736,
             "id": "chicken-1",
             "kind": "basic",
-            "nextEggAtSec": 90.36937,
+            "nextEggAtSec": 90.37880666666578,
             "ownerPlayerId": 3,
             "x": 3453.4885187665636,
             "y": 8974.396792001302
@@ -5152,7 +5234,7 @@
         "elapsedSec": 90,
         "fieldEggs": [
           {
-            "droppedAtSec": 30.36937,
+            "droppedAtSec": 30.378806666665774,
             "id": "egg-1",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -5162,7 +5244,7 @@
             "y": 8988.603209452964
           },
           {
-            "droppedAtSec": 60.36937,
+            "droppedAtSec": 60.378806666665774,
             "id": "egg-2",
             "ownerPlayerId": 3,
             "sourceChickenId": "chicken-1",
@@ -5200,19 +5282,19 @@
           "lastProcessedTickSec": 90,
           "mills": [
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-2",
               "ownerPlayerId": 4,
               "templateId": "lumber_mill_high"
             },
             {
-              "activeFromSec": 0.4360366666666666,
+              "activeFromSec": 0.44547333333243916,
               "id": "player-building-4",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill_mid"
             },
             {
-              "activeFromSec": 30.48603666666666,
+              "activeFromSec": 30.495473333332434,
               "id": "player-building-6",
               "ownerPlayerId": 3,
               "templateId": "lumber_mill"
@@ -5235,7 +5317,7 @@
             "lumber": 610,
             "playerId": 3,
             "supplyCap": 3,
-            "supplyUsed": 0
+            "supplyUsed": 1
           },
           {
             "gold": 0,
@@ -5258,7 +5340,7 @@
           "gold": 872,
           "lumber": 610,
           "supplyCap": 3,
-          "supplyUsed": 0
+          "supplyUsed": 1
         },
         "workerTasks": []
       }

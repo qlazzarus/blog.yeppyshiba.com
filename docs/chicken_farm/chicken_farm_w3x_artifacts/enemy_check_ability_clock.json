@@ -1,0 +1,37 @@
+{
+  "case": "enemy_ability_clock",
+  "checks": {
+    "casterDeathCancels": true,
+    "cooldownBoundaryStable": true,
+    "dtSplitStable": true,
+    "invalidTargetCancels": true,
+    "pass": true,
+    "windupBoundaryStable": true
+  },
+  "resolutions": {
+    "deadCaster": [
+      {
+        "abilityId": "caster_check",
+        "casterId": "caster-c",
+        "status": "cancelled_caster_dead",
+        "targetId": "target-c"
+      }
+    ],
+    "executed": [
+      {
+        "abilityId": "test_ability",
+        "casterId": "caster-a",
+        "status": "executed",
+        "targetId": "target-a"
+      }
+    ],
+    "invalidTarget": [
+      {
+        "abilityId": "target_check",
+        "casterId": "caster-b",
+        "status": "cancelled_target_invalid",
+        "targetId": "target-b"
+      }
+    ]
+  }
+}

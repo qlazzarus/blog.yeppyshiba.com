@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
+import { getResearchedUnitStats, type UnitResearchLevels } from '../unitResearchStats';
 import type { PlayerStart } from '../ecs/components';
 import { findGridPath, type GridPathRect } from './pathing';
 import {
@@ -20,11 +21,12 @@ import type {
 import type { TerrainBlocker } from './terrainBlocker';
 
 type ControllableUnitSystemConfig = {
-    readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    readonly damageEnemyTarget?: (targetId: string, damage: number, attackerId: string) => boolean;
     readonly getAttackableEnemyTarget?: (targetId: string) => AttackableEnemyTarget | null;
     readonly getAttackableEnemyTargets?: () => readonly AttackableEnemyTarget[];
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     readonly getElapsedSec: () => number;
+    readonly getResearchLevels?: (ownerPlayerId: number) => UnitResearchLevels;
     readonly onBuildCommandInterrupted?: (
         unitId: string,
         siteId: string,
@@ -34,6 +36,7 @@ type ControllableUnitSystemConfig = {
         unitId: string,
         reason: string,
     ) => void;
+    readonly onUnitDied?: (unit: ControllableUnitState) => void;
     readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     readonly recordTelemetry?: (
         type: string,
@@ -92,13 +95,14 @@ const UNIT_SELECTION_STROKE_PX = 4;
 const UNIT_ATTACK_MOVE_ACQUIRE_RADIUS_PX = 190;
 
 export class ControllableUnitSystem {
-    private readonly damageEnemyTarget?: (targetId: string, damage: number) => boolean;
+    private readonly damageEnemyTarget?: (targetId: string, damage: number, attackerId: string) => boolean;
     private readonly getAttackableEnemyTarget: (
         targetId: string,
     ) => AttackableEnemyTarget | null;
     private readonly getAttackableEnemyTargets: () => readonly AttackableEnemyTarget[];
     private readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     private readonly getElapsedSec: () => number;
+    private readonly getResearchLevels?: (ownerPlayerId: number) => UnitResearchLevels;
     private readonly onBuildCommandInterrupted?: (
         unitId: string,
         siteId: string,
@@ -108,6 +112,7 @@ export class ControllableUnitSystem {
         unitId: string,
         reason: string,
     ) => void;
+    private readonly onUnitDied?: (unit: ControllableUnitState) => void;
     private readonly recordPerformance?: (label: string, elapsedMs: number) => void;
     private readonly recordTelemetry?: (
         type: string,
@@ -126,9 +131,11 @@ export class ControllableUnitSystem {
         this.getAttackableEnemyTargets = config.getAttackableEnemyTargets ?? (() => []);
         this.getDynamicBlockedRects = config.getDynamicBlockedRects;
         this.getElapsedSec = config.getElapsedSec;
+        this.getResearchLevels = config.getResearchLevels;
         this.onBuildCommandInterrupted = config.onBuildCommandInterrupted;
         this.onPendingBuildOrdersInterrupted =
             config.onPendingBuildOrdersInterrupted;
+        this.onUnitDied = config.onUnitDied;
         this.recordPerformance = config.recordPerformance;
         this.recordTelemetry = config.recordTelemetry;
         this.scene = config.scene;
@@ -148,6 +155,13 @@ export class ControllableUnitSystem {
         }
         this.upsertUnit('farmer', { id: ownerPlayerId, label: id, x, y }, ownerPlayerId, id);
         return true;
+    }
+
+    createProducedDog(id: string, x: number, y: number, ownerPlayerId: number) {
+        if (!id || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isInteger(ownerPlayerId)) {
+            return false;
+        }
+        return this.createUnitAt('dog', id, { x, y }, ownerPlayerId);
     }
 
     setUnitPositionForTest(unitId: string, x: number, y: number) {
@@ -313,6 +327,11 @@ export class ControllableUnitSystem {
         return this.units.filter((unit) => unit.selected);
     }
 
+    getEffectiveStats(unitId: string) {
+        const unit = this.units.find((candidate) => candidate.id === unitId);
+        return unit ? { ...this.getUnitStats(unit) } : null;
+    }
+
     getSelectedCommandQueueCount() {
         return this.getSelectedUnits().reduce(
             (count, unit) => count + unit.commandQueue.length,
@@ -371,6 +390,7 @@ export class ControllableUnitSystem {
         if (unit.hp <= 0) {
             this.interruptBuildCommand(unit, 'death');
             this.interruptPendingBuildOrders(unit, 'death');
+            this.onUnitDied?.(unit);
         }
         unit.currentCommand = unit.hp > 0 ? unit.currentCommand : undefined;
         unit.commandQueue = unit.hp > 0 ? unit.commandQueue : [];
@@ -381,6 +401,21 @@ export class ControllableUnitSystem {
         }
         this.updateView(unit);
         return true;
+    }
+
+    /** Restores only living, same-owner units selected by the support aura. */
+    healUnitsInRange(ownerPlayerId: number, center: Point, rangePx: number, amount: number) {
+        if (!Number.isFinite(rangePx) || !Number.isFinite(amount) || rangePx < 0 || amount <= 0) return 0;
+        let healed = 0;
+        this.units.forEach((unit) => {
+            if (unit.ownerPlayerId !== ownerPlayerId || unit.hp <= 0) return;
+            if (Phaser.Math.Distance.Between(center.x, center.y, unit.position.x, unit.position.y) > rangePx) return;
+            const before = unit.hp;
+            unit.hp = Math.min(unit.maxHp, unit.hp + amount);
+            healed += unit.hp - before;
+            if (unit.hp !== before) this.updateView(unit);
+        });
+        return healed;
     }
 
     issueMoveCommandToSelected(
@@ -621,6 +656,26 @@ export class ControllableUnitSystem {
 
         this.units.push(state);
         this.createView(state);
+    }
+
+    private createUnitAt(
+        templateId: ControllableUnitTemplateId,
+        id: string,
+        position: Point,
+        ownerPlayerId: number,
+    ) {
+        if (this.units.some((unit) => unit.id === id)) return false;
+        const stats = CHICKEN_FARM_BALANCE.defenders[templateId];
+        const state: ControllableUnitState = {
+            armor: stats.armor, hp: stats.hp, id, mana: stats.mana ?? 0,
+            manaRegenPerSec: stats.manaRegenPerSec ?? 0, maxHp: stats.hp,
+            maxMana: stats.mana ?? 0, nextAttackAtSec: 0, ownerPlayerId,
+            path: [], pathIndex: 0, position: { ...position }, selected: false,
+            speedPxPerSec: stats.speedPxPerSec, templateId, commandQueue: [],
+        };
+        this.units.push(state);
+        this.createView(state);
+        return true;
     }
 
     private createView(unit: ControllableUnitState) {
@@ -885,7 +940,7 @@ export class ControllableUnitSystem {
             waypoint.x,
             waypoint.y,
         );
-        const step = unit.speedPxPerSec * deltaSec;
+        const step = this.getUnitStats(unit).speedPxPerSec * deltaSec;
 
         const nextPosition =
             distance <= Math.max(1, step)
@@ -965,7 +1020,7 @@ export class ControllableUnitSystem {
             return;
         }
 
-        const stats = CHICKEN_FARM_BALANCE.defenders[unit.templateId];
+        const stats = this.getUnitStats(unit);
         const attackRange = stats.attackRangePx ?? 85;
         const distance = Phaser.Math.Distance.Between(
             unit.position.x,
@@ -981,7 +1036,7 @@ export class ControllableUnitSystem {
 
         if (this.getElapsedSec() < unit.nextAttackAtSec) return;
 
-        const landed = this.damageEnemyTarget?.(target.id, stats.damage) ?? false;
+        const landed = this.damageEnemyTarget?.(target.id, stats.damage, unit.id) ?? false;
         if (!landed) {
             this.finishAttackCommand(unit, 'damage_rejected');
             return;
@@ -1052,7 +1107,7 @@ export class ControllableUnitSystem {
     }
 
     private findAttackMoveTarget(unit: ControllableUnitState) {
-        const stats = CHICKEN_FARM_BALANCE.defenders[unit.templateId];
+        const stats = this.getUnitStats(unit);
         const acquireRadius = Math.max(
             UNIT_ATTACK_MOVE_ACQUIRE_RADIUS_PX,
             (stats.attackRangePx ?? 85) * 2,
@@ -1086,7 +1141,7 @@ export class ControllableUnitSystem {
         );
         if (direction.lengthSq() <= 1) return;
 
-        direction.normalize().scale(unit.speedPxPerSec * deltaSec);
+        direction.normalize().scale(this.getUnitStats(unit).speedPxPerSec * deltaSec);
         const nextPosition = {
             x: unit.position.x + direction.x,
             y: unit.position.y + direction.y,
@@ -1095,6 +1150,17 @@ export class ControllableUnitSystem {
 
         unit.position = nextPosition;
         this.updateView(unit);
+    }
+
+    private getUnitStats(unit: ControllableUnitState) {
+        return getResearchedUnitStats(
+            unit.templateId,
+            CHICKEN_FARM_BALANCE.defenders[unit.templateId],
+            this.getResearchLevels?.(unit.ownerPlayerId) ?? {
+                dogDamage: 0,
+                dogSpeedClaw: 0,
+            },
+        );
     }
 
     private getMoveTargetPointForUnit(

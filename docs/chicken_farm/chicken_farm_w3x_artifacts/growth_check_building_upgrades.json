@@ -1,0 +1,25 @@
+{
+  "case": "building_upgrade_core",
+  "checks": {
+    "ownerIsolation": true,
+    "playerCancelRefundOnce": true,
+    "prerequisiteAndShortageNoCharge": true,
+    "progressState": true,
+    "repeatedRequestSingleCharge": true,
+    "destroyedReadyJobNoRefundOrLateCompletion": true
+  },
+  "pass": true,
+  "policy": {
+    "cancellation": "floor_75_percent_once",
+    "completion": "ready_for_sp09_14_adapter",
+    "destruction": "no_refund_discard",
+    "payment": "start_once",
+    "sourceIdentity": "building_id_owner_selection_preserved"
+  },
+  "walletAfterStart": {
+    "gold": 20,
+    "lumber": 10,
+    "supplyCap": 3,
+    "supplyUsed": 0
+  }
+}

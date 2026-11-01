@@ -1,0 +1,16 @@
+{
+  "case": "command_card",
+  "checks": {
+    "buildPageClickAndGrowthHotkeys": true,
+    "lumberMillPlacementStarted": true,
+    "pass": true,
+    "upgradeCancelledByHotkey": true,
+    "worldInputDidNotLeak": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  }
+}

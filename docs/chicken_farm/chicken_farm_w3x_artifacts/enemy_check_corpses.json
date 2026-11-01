@@ -1,0 +1,28 @@
+{
+  "case": "enemy_corpse_registry",
+  "checks": {
+    "consumedCorpseCannotBeReused": true,
+    "duplicateDeathRejected": true,
+    "expiryBoundaryAndDtSplitPreserved": true,
+    "pass": true,
+    "reservationCanRelease": true,
+    "reservationExpiresWithCorpse": true,
+    "runIsolationPreserved": true,
+    "sameCorpseCompetitionHasOneWinner": true
+  },
+  "corpses": [
+    {
+      "createdAtSec": 2,
+      "deadEntityId": "wolf-dead-1",
+      "deathKey": "7:wolf-dead-1:1",
+      "enemyId": "timber_wolf",
+      "expiresAtSec": 12,
+      "ownerPlayerId": 10,
+      "runId": 7,
+      "x": 100,
+      "y": 100,
+      "reservationCasterId": null,
+      "status": "consumed"
+    }
+  ]
+}

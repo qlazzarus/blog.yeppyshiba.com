@@ -89,9 +89,9 @@ export type EconomyChickenState = {
 
 export type EconomyCoopState = {
     readonly id: string;
-    readonly kind: CoopKind;
+    kind: CoopKind;
     readonly ownerPlayerId: number;
-    readonly position: EconomyPoint;
+    position: EconomyPoint;
     storedEggs: number;
 };
 
@@ -99,14 +99,14 @@ export type EconomyWellState = {
     readonly id: string;
     kind: EconomyWellKind;
     readonly ownerPlayerId: number;
-    readonly position: EconomyPoint;
+    position: EconomyPoint;
 };
 
 export type EconomyLumberMillState = {
     readonly activeFromSec: number;
     readonly id: string;
     readonly ownerPlayerId: number;
-    readonly templateId: LumberMillId;
+    templateId: LumberMillId;
 };
 
 export type FieldEggItemState = {
@@ -126,6 +126,8 @@ export type HatchJobState = {
     readonly ownerPlayerId: number;
     readonly resultChickenKind: ChickenKind;
     readonly startedAtSec: number;
+    /** Accepted hatch supply held until exit completion or cancellation. */
+    readonly supplyReserved: number;
 };
 
 export type EconomyEvent =
@@ -171,6 +173,11 @@ export type EconomyEvent =
           readonly coopId: string;
           readonly hatchJobId: string;
           readonly type: 'hatch_started';
+      }
+    | {
+          readonly coopId: string;
+          readonly hatchJobId: string;
+          readonly type: 'hatch_cancelled';
       }
     | {
           readonly chickenId: string;

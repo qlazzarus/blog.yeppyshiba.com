@@ -20,11 +20,18 @@ import type {
 import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { LumberMillId } from '../balanceTypes';
 import { resolveBuildingProductionExit } from './buildingProductionExit';
+import {
+    commitReservedSupply,
+    getAvailableSupply,
+    releaseReservedSupply,
+    reserveSupply,
+} from './playerWallet';
 
 const CHICKEN_COLLISION_RADIUS_PX = 20;
 
 type EconomyUpdateOptions = {
     readonly canChickenOccupyPoint?: (point: EconomyPoint) => boolean;
+    readonly getRallyPoint?: (coopId: string) => EconomyPoint | null;
 };
 
 export const DEFAULT_CHICKEN_FARM_ECONOMY_CONFIG: ChickenFarmEconomyConfig = {
@@ -266,6 +273,14 @@ export function removeEconomyBuilding(
 ) {
     const coopIndex = state.coops.findIndex((candidate) => candidate.id === buildingId);
     if (coopIndex >= 0) {
+        // Destruction destroys eggs/jobs (no refund) but must release their
+        // promised supply before the world owner disappears.
+        state.hatchJobs
+            .filter((job) => job.coopId === buildingId)
+            .forEach((job) => {
+                const wallet = state.players.find((player) => player.id === job.ownerPlayerId);
+                if (wallet) releaseReservedSupply(wallet, job.supplyReserved);
+            });
         state.coops.splice(coopIndex, 1);
         const inventoryIndex = state.inventories.findIndex(
             (candidate) => candidate.id === buildingId,
@@ -613,12 +628,19 @@ export function startCoopHatch(
 
     const eggSlotIndex = findInventoryItemSlot(state, coop.id, 'I006');
     if (eggSlotIndex === null) return null;
+    const wallet = state.players.find((player) => player.id === coop.ownerPlayerId);
+    const supplyCost = 1;
+    if (!wallet || getAvailableSupply(wallet) < supplyCost) return null;
+    if (!reserveSupply(wallet, supplyCost)) return null;
     const removed = removeInventoryItemAtSlot(state, coop.id, {
         itemRawcode: 'I006',
         quantity: 1,
         slotIndex: eggSlotIndex,
     });
-    if (removed <= 0) return null;
+    if (removed <= 0) {
+        releaseReservedSupply(wallet, supplyCost);
+        return null;
+    }
     syncCoopStoredEggs(state, coop.id);
     const job: HatchJobState = {
         completeAtSec: config.elapsedSec + coopRule.hatchSec,
@@ -627,6 +649,7 @@ export function startCoopHatch(
         ownerPlayerId: coop.ownerPlayerId,
         resultChickenKind: config.resultChickenKind ?? chickenKindForCoop(coop.kind),
         startedAtSec: config.elapsedSec,
+        supplyReserved: supplyCost,
     };
     state.nextHatchJobId += 1;
     state.hatchJobs.push(job);
@@ -635,6 +658,34 @@ export function startCoopHatch(
         hatchJobId: job.id,
         type: 'hatch_started',
     } satisfies EconomyEvent;
+}
+
+/** Player cancellation restores one egg only when the original coop can hold it. */
+export function cancelCoopHatch(
+    state: ChickenFarmEconomyState,
+    config: { readonly hatchJobId: string; readonly ownerPlayerId: number },
+) {
+    const index = state.hatchJobs.findIndex((job) => job.id === config.hatchJobId);
+    const job = state.hatchJobs[index];
+    if (!job || job.ownerPlayerId !== config.ownerPlayerId) return null;
+    const coop = state.coops.find(
+        (candidate) => candidate.id === job.coopId && candidate.ownerPlayerId === config.ownerPlayerId,
+    );
+    const wallet = state.players.find((player) => player.id === config.ownerPlayerId);
+    if (!coop || !wallet || !canAddInventoryItem(state, coop.id, 'I006')) return null;
+    if ((wallet.supplyReserved ?? 0) < job.supplyReserved) return null;
+
+    const restoredSlotIndex = grantEconomyInventoryItem(state, {
+        inventoryId: coop.id,
+        itemRawcode: 'I006',
+        quantity: 1,
+    });
+    if (restoredSlotIndex === null || !releaseReservedSupply(wallet, job.supplyReserved)) {
+        return null;
+    }
+    state.hatchJobs.splice(index, 1);
+    syncCoopStoredEggs(state, coop.id);
+    return { coopId: coop.id, hatchJobId: job.id, type: 'hatch_cancelled' as const };
 }
 
 export function ensureEconomyInventory(
@@ -983,12 +1034,20 @@ function completeHatches(
         // Keep the paid hatch reservation until an exit becomes available. The
         // next update retries it without consuming another egg or duplicating a chicken.
         if (!productionExit.resolved) continue;
+        const wallet = state.players.find((player) => player.id === job.ownerPlayerId);
+        if (!wallet || !commitReservedSupply(wallet, job.supplyReserved)) continue;
         const chicken = addEconomyChicken(state, {
             elapsedSec,
             kind: job.resultChickenKind,
             ownerPlayerId: job.ownerPlayerId,
             position: productionExit.point,
         });
+        const rallyPoint = options?.getRallyPoint?.(job.coopId) ?? null;
+        if (rallyPoint) {
+            chicken.aiState = 'herded';
+            chicken.herdedUntilSec = Number.POSITIVE_INFINITY;
+            chicken.targetPosition = { ...rallyPoint };
+        }
         state.hatchJobs.splice(index, 1);
         events.push({
             chickenId: chicken.id,
@@ -1102,6 +1161,19 @@ function canPlaceInInventorySlot(
 ) {
     const slot = inventory.slots[slotIndex];
     return slot === null || slot?.itemRawcode === itemRawcode;
+}
+
+function canAddInventoryItem(
+    state: ChickenFarmEconomyState,
+    inventoryId: string,
+    itemRawcode: EconomyItemRawcode,
+) {
+    const inventory = getEconomyInventory(state, inventoryId);
+    return Boolean(
+        inventory &&
+            (inventory.slots.some((slot) => slot?.itemRawcode === itemRawcode) ||
+                inventory.slots.some((slot) => slot === null)),
+    );
 }
 
 function mergeInventorySlot(

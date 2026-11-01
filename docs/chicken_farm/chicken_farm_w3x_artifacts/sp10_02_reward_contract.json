@@ -1,0 +1,69 @@
+{
+  "id": "SP-10-02",
+  "status": "complete",
+  "scope": "Static reward-ledger contract only. It does not add score, XP, level, item, or field-drop runtime state.",
+  "sources": [
+    { "path": "boss_and_level_reward_candidates.tsv", "evidence": "Five source boss scores, boss-unit AddHeroXPSwapped flow, n01D/n01K drops, and farmer level reward thresholds." },
+    { "path": "jass_score_events.tsv", "evidence": "Explicit score messages: wolf stone 100; H012 150; H00X 300; H013 450; H01B 700; H01O 1000." },
+    { "path": "item_acquisition_reference.tsv", "evidence": "Drop probability, level-reward item rawcodes, and current MVP translation boundaries." },
+    { "path": "item_catalog_reference.tsv", "evidence": "Item class, item effect descriptions, and source acquisition context." },
+    { "path": "../../../games/chicken-farm/src/game/balance.ts", "evidence": "Current EnemyConfig.score values are data only; no score ledger is connected." },
+    { "path": "../../../games/chicken-farm/src/game/systems/economySystem.ts", "evidence": "Existing economy inventory has six slots and supports I006 eggs only; it is not a generic combat-drop inventory." }
+  ],
+  "ledgers": {
+    "score": "A run-scoped integer per player. It is not gold, lumber, XP, supply, or an item. SP-10-17 is its only writer.",
+    "wallet": "The existing owner wallet holds only gold, lumber, supplyUsed, supplyReserved, and supplyCap. Enemy deaths grant neither gold nor lumber unless a later source-backed contract explicitly adds one.",
+    "farmerExperience": "A future run-scoped farmer XP and level ledger, separate from score. No source-backed kill-XP amount or recipient radius is available, so all ordinary and regular-boss deaths grant 0 farmer XP in the SP-10 web baseline. SP-10-18 may implement the ledger and test fixtures, not invent kill XP.",
+    "bossExperience": "The extracted AddHeroXPSwapped 150 flow targets an enum of boss units H012/H00X/H013/H01B/H01N/H01O. It is boss growth, not a player-farmer reward, and remains out of scope until a boss-growth contract exists.",
+    "fieldDrop": "A world item record, separate from wallet and inventory. SP-10-20 must extend the egg-only field/inventory model; it must not represent combat items as eggs or create a parallel hidden inventory.",
+    "levelReward": "A farmer-owner entitlement keyed by run, farmer entity, and threshold. It is separate from field drops and score. SP-10-21 applies the delivery policy."
+  },
+  "deathEligibility": {
+    "rewardable": "Only one accepted alive-to-dead combat event for a runtime enemy in the active run may evaluate a reward. The stable duplicate key is runId + deadEntityId + deathSequence.",
+    "nonRewardable": ["removeRuntimeEnemy/despawn", "restart or run disposal", "fixture teardown", "an already-dead entity", "a duplicate lethal event"],
+    "recipient": "Use the valid attacker owner captured by the accepted death event. A player unit, player tower, or player-owned summon awards its owner; a summon must carry its parent owner at creation. Invalid/no attacker, hostile owner, or environment damage has no player recipient and creates no score, XP, item entitlement, or wallet grant.",
+    "ownership": "Never infer recipient from the dead enemy owner. Multi-player mode is not implemented, but all ledgers remain keyed by player owner so future owners cannot share rewards accidentally."
+  },
+  "scorePolicy": {
+    "ordinaryTier1To18": {
+      "source": "No ordinary-enemy score event is present in the inspected source artifacts.",
+      "webBaseline": "Use the current EnemyConfig.score values 10 through 180 by tier when SP-10-17 creates the score ledger. Mark them as web baseline, not recovered W3X values."
+    },
+    "regularBosses": [
+      { "rawcode": "H012", "enemyId": "blood_wolf", "currentConfigScore": 40, "sourceScore": 150, "effectiveScore": 150, "basis": "source score message" },
+      { "rawcode": "H00X", "enemyId": "wild_wolf", "currentConfigScore": 70, "sourceScore": 300, "effectiveScore": 300, "basis": "source score message" },
+      { "rawcode": "H013", "enemyId": "hell_hound", "currentConfigScore": 100, "sourceScore": 450, "effectiveScore": 450, "basis": "source score message" },
+      { "rawcode": "H01B", "enemyId": "doom_guard", "currentConfigScore": 140, "sourceScore": 700, "effectiveScore": 700, "basis": "source score message" },
+      { "rawcode": "H01N", "enemyId": "archimonde", "currentConfigScore": 160, "sourceScore": null, "effectiveScore": null, "basis": "source score unresolved; do not award current config score as if it were source-backed" }
+    ],
+    "conditionalBoss": { "rawcode": "H01O", "enemyId": "nether_dragon", "currentConfigScore": 200, "sourceScore": 1000, "effectiveScore": 1000, "condition": "only if SP-10-16 confirms the H01O branch and creates this enemy; it is not a normal milestone reward" },
+    "wolfStone": { "sourceScore": 100, "scope": "neutral/event content; leave implementation and death routing to SP-12" }
+  },
+  "xpAndLevelPolicy": {
+    "farmerKillXp": { "effectiveXp": 0, "reason": "The inspected AddHeroXPSwapped evidence is boss-unit growth and gives no farmer recipient, level table, or range." },
+    "farmerThresholdRewards": [
+      { "level": 5, "source": "STR +10, AGI +10, INT +10", "delivery": "SP-10-19 stats" },
+      { "level": 10, "source": "STR +15, AGI +15, INT +5", "delivery": "SP-10-19 stats" },
+      { "level": 15, "source": "repair/defense/blessing abilities; STR +30, AGI +30, INT +30", "delivery": "SP-10-19 metadata/stats; active ability work belongs to its assigned future card" },
+      { "level": 20, "itemRawcode": "I00Q", "delivery": "SP-10-21" },
+      { "level": 25, "itemRawcode": "I00H", "delivery": "SP-10-21" },
+      { "level": 30, "itemRawcode": "I00I", "delivery": "SP-10-21" },
+      { "level": 35, "itemRawcode": "I00N", "delivery": "SP-10-21" }
+    ],
+    "thresholdRule": "An accepted XP change may cross several thresholds; process ascending thresholds once each. The delivery key is runId + farmerEntityId + threshold. Farmer absence/death does not transfer entitlement to another unit."
+  },
+  "dropPolicy": {
+    "regularOrdinaryAndMilestoneBosses": "No direct item drop is evidenced for ordinary tiers or H012/H00X/H013/H01B/H01N/H01O. Do not add one.",
+    "spider": { "rawcode": "n01D", "itemRawcode": "I00G", "chance": "50%", "webDecision": "The table is source-backed but its natural-spawn/content integration remains SP-12. SP-10-20 may exercise it only as an explicit source fixture." },
+    "specialGolem": { "rawcode": "n01K", "drops": [{ "itemRawcode": "I00O", "chance": "81%" }, { "itemRawcode": "I00P", "chance": "19%" }], "webDecision": "The source condition is GetRandomInt(1,100) >= 20 for I00O, otherwise I00P. Natural event/content integration remains SP-12." },
+    "delivery": "A successful reward-drop roll creates one owner-locked field item at the dead entity position. The reward owner alone may pick it up. If the six-slot inventory is full, retain the field item without expiry or duplication; never delete it, convert it to wallet currency, or give it to another owner. Level-reward items use the owner entitlement queue and are delivered to the field at the farmer position when inventory space becomes available; they are not stealable.",
+    "implementationBoundary": "SP-10-20 adds generic field item/pickup lifecycle. SP-10-21 adds level-item delivery. Item use effects, special-chicken creation, and event natural spawns remain SP-12."
+  },
+  "requiredBeforeSp10Completion": [
+    "Set an explicit source-backed or web-baseline Archimonde score before SP-10-17 can award it.",
+    "Keep farmer kill XP at zero unless source recovery or a separately recorded web policy supplies a table and recipient rule.",
+    "Implement generic field-item and entitlement delivery without changing egg inventory semantics or bypassing the six-slot capacity.",
+    "Ensure every accepted death path evaluates its duplicate key before score, drop, or level entitlement is written."
+  ],
+  "nextTask": "SP-10-03 — canonical 적 능력·보상 정의"
+}

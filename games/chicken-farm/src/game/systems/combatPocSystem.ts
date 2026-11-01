@@ -2,6 +2,24 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from '../balance';
 import type { EnemyId } from '../balanceTypes';
+import {
+    advanceEnemyAbilityClock,
+    createEnemyAbilityClock,
+    startEnemyAbilityCast,
+    type EnemyAbilityClock,
+    type EnemyAbilityResolution,
+} from '../enemyAbilityClock';
+import {
+    createEnemyDeathLedger,
+    recordEnemyDeath,
+    type EnemyDamageSource,
+    type EnemyDeathLedger,
+} from '../enemyDeathLedger';
+import {
+    createAcctCriticalStrikeState,
+    resolveAcctCriticalStrike,
+    type AcctCriticalStrikeState,
+} from '../acctCriticalStrikeResolver';
 import { WAVE_ATTACK_WORLD_RECT } from '../waveSpawnManifest';
 import {
     MAJOR_TILE_PX,
@@ -68,6 +86,7 @@ type CombatPocSystemConfig = {
     ) => boolean;
     readonly getDynamicBlockedRects?: () => readonly GridPathRect[];
     readonly getElapsedSec: () => number;
+    readonly getRunId: () => number;
     readonly getWolfTargetableUnits?: () => readonly ControllableUnitCombatTarget[];
     readonly getWolfTargetableBuildings?: () => readonly WolfTargetableBuilding[];
     readonly isTargetVisible?: (x: number, y: number) => boolean;
@@ -118,6 +137,18 @@ const WOLF_HP_BAR_WIDTH_PX = 48;
 const COMBAT_TELEMETRY_SNAPSHOT_INTERVAL_SEC = 1;
 const COMBAT_SMOKE_VERTICAL_OFFSET_PX = TARGET_VIEW_MAJOR_ROWS * MAJOR_TILE_PX * 0.25;
 const COMBAT_SMOKE_WORLD_PADDING_PX = 192;
+const ACCT_CRITICAL_STRIKE_SEED = 1972;
+const MAX_ACCT_CRITICAL_STRIKE_OBSERVATIONS = 64;
+
+type AcctCriticalStrikeObservation = {
+    readonly actualHpDecrease: number;
+    readonly applied: boolean;
+    readonly attackId: string;
+    readonly deliveredDamage: number;
+    readonly proc: boolean;
+    readonly roll: number;
+    readonly targetId: string;
+};
 
 export class CombatPocSystem {
     private readonly scene: Phaser.Scene;
@@ -141,6 +172,7 @@ export class CombatPocSystem {
     ) => boolean;
     private readonly getExternalDynamicBlockedRectsProvider: () => readonly GridPathRect[];
     private readonly getElapsedSec: () => number;
+    private readonly getRunId: () => number;
     private readonly getWolfTargetableUnits: () => readonly ControllableUnitCombatTarget[];
     private readonly getWolfTargetableBuildings: () => readonly WolfTargetableBuilding[];
     private readonly isTargetVisible: (x: number, y: number) => boolean;
@@ -153,6 +185,14 @@ export class CombatPocSystem {
     private combatGraphics?: Phaser.GameObjects.Graphics;
     private combatLabel?: Phaser.GameObjects.Text;
     private combatWolves: CombatWolf[] = [];
+    private enemyAbilityClock: EnemyAbilityClock = createEnemyAbilityClock();
+    private enemyAbilityResolutions: EnemyAbilityResolution[] = [];
+    private acctCriticalStrikeState: AcctCriticalStrikeState = createAcctCriticalStrikeState(0);
+    private acctCriticalStrikeRunId: number | null = null;
+    private nextAcctCriticalStrikeAttackSequence = 0;
+    private acctCriticalStrikeObservations: AcctCriticalStrikeObservation[] = [];
+    private externalAbilityTargetIds = new Set<string>();
+    private enemyDeathLedger: EnemyDeathLedger = createEnemyDeathLedger();
     private nextCombatDebugDrawAtSec = 0;
     private nextCombatTelemetrySnapshotAtSec = 0;
     private towerHitMarkers: TowerHitMarker[] = [];
@@ -169,6 +209,7 @@ export class CombatPocSystem {
         this.getExternalDynamicBlockedRectsProvider =
             config.getDynamicBlockedRects ?? (() => []);
         this.getElapsedSec = config.getElapsedSec;
+        this.getRunId = config.getRunId;
         this.getWolfTargetableUnits = config.getWolfTargetableUnits ?? (() => []);
         this.getWolfTargetableBuildings = config.getWolfTargetableBuildings ?? (() => []);
         this.isTargetVisible = config.isTargetVisible ?? (() => true);
@@ -182,6 +223,10 @@ export class CombatPocSystem {
 
     create(anchor: PlayerStart) {
         this.clearCombatObjects();
+        this.enemyDeathLedger = createEnemyDeathLedger();
+        this.enemyAbilityClock = createEnemyAbilityClock();
+        this.enemyAbilityResolutions = [];
+        this.externalAbilityTargetIds.clear();
         const layoutPlan = createCombatLayoutPlan({
             anchor,
             worldSize: this.worldSize,
@@ -483,6 +528,7 @@ export class CombatPocSystem {
     update(deltaSec: number) {
         if (!this.getAliveWolves().length) return;
 
+        this.updateEnemyAbilityClock();
         this.updateTowerCombat();
         this.getAliveWolves().forEach((wolf) => this.updateWolfCombat(wolf, deltaSec));
         this.getAliveWolves().forEach((wolf) =>
@@ -597,6 +643,60 @@ export class CombatPocSystem {
                 x: wolf.body.x,
                 y: wolf.body.y,
             }));
+    }
+
+    getAcctCriticalStrikeSnapshot() {
+        this.ensureAcctCriticalStrikeStateForRun();
+        return {
+            draws: this.acctCriticalStrikeState.draws,
+            observations: this.acctCriticalStrikeObservations,
+            seed: this.acctCriticalStrikeState.seed,
+            state: this.acctCriticalStrikeState.state,
+        };
+    }
+
+    private ensureAcctCriticalStrikeStateForRun() {
+        const runId = this.getRunId();
+        if (this.acctCriticalStrikeRunId === runId) return;
+        this.acctCriticalStrikeRunId = runId;
+        this.acctCriticalStrikeState = createAcctCriticalStrikeState(ACCT_CRITICAL_STRIKE_SEED);
+        this.nextAcctCriticalStrikeAttackSequence = 0;
+        this.acctCriticalStrikeObservations = [];
+    }
+
+    getEnemyDeathEvents() {
+        return this.enemyDeathLedger.events;
+    }
+
+    getEnemyAbilityClockSnapshot() {
+        return {
+            activeCasts: this.enemyAbilityClock.activeCasts,
+            cooldownCount: Object.keys(this.enemyAbilityClock.cooldowns).length,
+        };
+    }
+
+    startEnemyAbilityCast(input: {
+        readonly abilityId: string;
+        readonly casterId: string;
+        readonly cooldownSec: number;
+        readonly targetId: string;
+        readonly windupSec: number;
+    }) {
+        const started = startEnemyAbilityCast(this.enemyAbilityClock, { ...input, nowSec: this.elapsedSec });
+        this.enemyAbilityClock = started.clock;
+        return started.accepted;
+    }
+
+    setExternalAbilityTargetValid(targetId: string, valid: boolean) {
+        if (!targetId) return;
+        if (valid) this.externalAbilityTargetIds.add(targetId);
+        else this.externalAbilityTargetIds.delete(targetId);
+    }
+
+    consumeEnemyAbilityResolutions() {
+        const resolutions = this.enemyAbilityResolutions;
+        this.enemyAbilityResolutions = [];
+        return resolutions;
     }
 
     /** Applies one global attack order to the supplied live runtime enemy IDs. */
@@ -726,7 +826,16 @@ export class CombatPocSystem {
         return this.getAttackableEnemyTarget(wolf.id);
     }
 
-    damageEnemyTarget(targetId: string, damage: number) {
+    damageEnemyTarget(
+        targetId: string,
+        damage: number,
+        source: EnemyDamageSource = {
+            attackerEntityId: null,
+            cause: 'environment',
+            ownerPlayerId: null,
+            rewardEligible: false,
+        },
+    ) {
         const wolf = this.getTargetWolf(targetId);
         if (!wolf) return false;
 
@@ -735,8 +844,7 @@ export class CombatPocSystem {
         wolf.hpFill.width = WOLF_HP_BAR_WIDTH_PX * (wolf.hp / wolf.maxHp);
 
         if (wolf.hp <= 0) {
-            this.markWolfDead(wolf);
-            this.recordWolfDied(wolf, 'controllable_unit');
+            this.transitionWolfToDead(wolf, source);
         }
 
         return true;
@@ -759,6 +867,13 @@ export class CombatPocSystem {
 
         updateTowerCombatAdapter({
             combatBuildings: this.combatBuildings,
+            damageEnemyTarget: (targetId, damage, tower) =>
+                this.damageEnemyTarget(targetId, damage, {
+                    attackerEntityId: tower.id,
+                    cause: 'tower',
+                    ownerPlayerId: 3,
+                    rewardEligible: true,
+                }),
             elapsedSec: this.elapsedSec,
             focusWolfOnBuilding: (wolf, building) =>
                 this.focusWolfOnBuilding(wolf, building),
@@ -785,13 +900,26 @@ export class CombatPocSystem {
                     towerY: tower.body.y,
                 });
                 if (target.hp <= 0) {
-                    this.markWolfDead(target);
-                    this.recordWolfDied(target, tower.id);
                     return;
                 }
                 this.pulseWolfAggroFromTowerHit(target, tower);
             },
             wolves,
+        });
+    }
+
+    private updateEnemyAbilityClock() {
+        const advanced = advanceEnemyAbilityClock(
+            this.enemyAbilityClock,
+            this.elapsedSec,
+            (casterId) => Boolean(this.getTargetWolf(casterId)),
+            (targetId) => Boolean(this.getTargetWolf(targetId)) || this.externalAbilityTargetIds.has(targetId),
+        );
+        this.enemyAbilityClock = advanced.clock;
+        advanced.resolutions.forEach((resolution) => {
+            this.enemyAbilityResolutions.push(resolution);
+            this.externalAbilityTargetIds.delete(resolution.targetId);
+            this.recordTelemetry?.('enemy_ability_resolved', resolution);
         });
     }
 
@@ -1935,13 +2063,62 @@ export class CombatPocSystem {
         if (this.elapsedSec < wolf.nextAttackAtSec) return;
 
         const enemy = CHICKEN_FARM_BALANCE.enemies[wolf.enemyId];
+        let deliveredDamage = damage;
+        let criticalObservation: Omit<AcctCriticalStrikeObservation, 'actualHpDecrease' | 'applied'> | null = null;
+        if (wolf.enemyId === 'dire_frost_wolf') {
+            this.ensureAcctCriticalStrikeStateForRun();
+            const resolution = resolveAcctCriticalStrike(this.acctCriticalStrikeState, {
+                actor: {
+                    alive: wolf.hp > 0,
+                    enemyId: wolf.enemyId,
+                    rawcode: enemy.source.rawcode ?? '',
+                },
+                adjustedDamage: damage,
+                attackId: `${this.getRunId()}:${wolf.id}:${this.nextAcctCriticalStrikeAttackSequence++}`,
+                target: {
+                    alive: target.value.hp > 0,
+                    isHostile: target.value.ownerPlayerId !== wolf.ownerPlayerId,
+                    targetKind: target.value.targetKind,
+                    targetableByWolves: target.value.targetableByWolves,
+                },
+            });
+            this.acctCriticalStrikeState = resolution.state;
+            deliveredDamage = resolution.decision?.damage ?? damage;
+            if (resolution.decision) {
+                criticalObservation = {
+                    attackId: resolution.decision.attackId,
+                    deliveredDamage,
+                    proc: resolution.decision.proc,
+                    roll: resolution.decision.roll,
+                    targetId: target.value.id,
+                };
+            }
+        }
         const damaged = target.value.targetKind === 'economy_chicken'
-            ? this.damageEconomyChicken?.(target.value.id, damage, wolf.id) ?? false
-            : this.damageControllableUnit?.(target.value.id, damage, wolf.id) ?? false;
+            ? this.damageEconomyChicken?.(target.value.id, deliveredDamage, wolf.id) ?? false
+            : this.damageControllableUnit?.(target.value.id, deliveredDamage, wolf.id) ?? false;
+        if (criticalObservation) {
+            const targetAfter = this.getWolfTargetableUnits().find(
+                (candidate) => candidate.id === target.value.id,
+            );
+            const actualHpDecrease = damaged
+                ? targetAfter
+                    ? Math.max(0, target.value.hp - targetAfter.hp)
+                    : target.value.hp
+                : 0;
+            this.acctCriticalStrikeObservations.push({
+                ...criticalObservation,
+                actualHpDecrease,
+                applied: damaged,
+            });
+            if (this.acctCriticalStrikeObservations.length > MAX_ACCT_CRITICAL_STRIKE_OBSERVATIONS) {
+                this.acctCriticalStrikeObservations.shift();
+            }
+        }
         wolf.nextAttackAtSec = this.elapsedSec + enemy.attackCooldownSec;
         this.recordTelemetry?.('wolf_attack_landed', {
-            damage,
-            targetHpAfter: Math.max(0, target.value.hp - damage),
+            damage: deliveredDamage,
+            targetHpAfter: Math.max(0, target.value.hp - deliveredDamage),
             targetId: target.value.id,
             targetKind: 'unit',
             targetType: target.value.templateId,
@@ -2032,13 +2209,35 @@ export class CombatPocSystem {
         });
     }
 
-    private recordWolfDied(wolf: CombatWolf, killedBy: string) {
+    private transitionWolfToDead(wolf: CombatWolf, source: EnemyDamageSource) {
+        if (wolf.hp > 0 || wolf.state === 'dead') return false;
+        this.markWolfDead(wolf);
+        const result = recordEnemyDeath(this.enemyDeathLedger, {
+            attackerEntityId: source.attackerEntityId,
+            cause: source.cause,
+            deadOwnerPlayerId: wolf.ownerPlayerId,
+            deadEntityId: wolf.id,
+            diedAtSec: this.elapsedSec,
+            enemyId: wolf.enemyId,
+            ownerPlayerId: source.ownerPlayerId,
+            rewardEligible: source.rewardEligible,
+            runId: this.getRunId(),
+            x: Number(wolf.body.x.toFixed(1)),
+            y: Number(wolf.body.y.toFixed(1)),
+        });
+        this.enemyDeathLedger = result.ledger;
+        if (!result.event) return false;
         this.recordTelemetry?.('wolf_died', {
-            killedBy,
+            attackerEntityId: source.attackerEntityId,
+            cause: source.cause,
+            deathKey: result.event.deathKey,
+            ownerPlayerId: source.ownerPlayerId,
+            rewardEligible: source.rewardEligible,
             wolfId: wolf.id,
             x: Number(wolf.body.x.toFixed(1)),
             y: Number(wolf.body.y.toFixed(1)),
         });
+        return true;
     }
 
     private markWolfDead(wolf: CombatWolf) {
