@@ -1,34 +1,53 @@
 {
   "topPost": "/article/amd-bc250-local-ai-server-project",
-  "topPostViews": 15,
+  "topPostViews": 7,
   "relatedSuggestions": [
     "/amd-bc250-local-ai-server-project/",
     "/gpx-route-viewer-local-analyzer/",
     "/phaser4-apex-seoul-local-records-and-reset/",
     "/stl-3d-printing-calculator-local-browser/"
   ],
-  "amplifyCandidates": [
-    {
-      "path": "/article/apptech-income-september-2026",
-      "views": 2,
-      "avgSec": 835.57
-    }
-  ],
+  "amplifyCandidates": [],
   "fixCandidates": [
     {
-      "path": "/article/amd-bc250-local-ai-server-project",
-      "views": 15,
-      "avgSec": 4.12
+      "path": "/article/flutter-with-mobx",
+      "views": 5,
+      "avgSec": 2.22
     },
     {
-      "path": "/article/apptech-income-august-2026",
-      "views": 1,
-      "avgSec": 5.01
+      "path": "/article/github-page-static-deploy",
+      "views": 3,
+      "avgSec": 2.05
     },
     {
-      "path": "/article/how-i-build-pocket-money-with-apptech",
+      "path": "/article/migration-to-nextjs",
+      "views": 3,
+      "avgSec": 1.54
+    },
+    {
+      "path": "/article/apptech-income-july-2026",
+      "views": 2,
+      "avgSec": 7.68
+    },
+    {
+      "path": "/article/jeju-tour-review-별도봉",
       "views": 1,
-      "avgSec": 5.77
+      "avgSec": 0
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-comfyui-retro-palette-compiler",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/svn-to-git",
+      "views": 1,
+      "avgSec": 0
+    },
+    {
+      "path": "/article/thinking-math-function-machine",
+      "views": 1,
+      "avgSec": 6.42
     }
   ]
 }

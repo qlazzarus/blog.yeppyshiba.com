@@ -1,17 +1,11 @@
 {
-  "generatedAt": "2026-10-26T08:28:09.422Z",
+  "generatedAt": "2026-11-02T10:29:23.813Z",
   "trending": [
     {
       "path": "/article/amd-bc250-local-ai-server-project",
-      "views": 15,
+      "views": 7,
       "avgSec": 0,
       "reason": "top_post"
-    },
-    {
-      "path": "/article/apptech-income-september-2026",
-      "views": 2,
-      "avgSec": 835.57,
-      "reason": "amplify"
     }
   ]
 }
