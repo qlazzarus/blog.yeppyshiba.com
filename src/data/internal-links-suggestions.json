@@ -1,50 +1,53 @@
 {
-  "topPost": "/article/adding-view-count-in-gatsby",
-  "topPostViews": 2,
+  "topPost": "/article/quarter-view",
+  "topPostViews": 5,
   "relatedSuggestions": [
+    "/quarter-view/",
     "/adding-view-count-in-gatsby/",
-    "/a-look-back-in-2024/",
-    "/a-look-back-in-2025/",
-    "/a-look-back-in-november-2023/",
     "/ga4-to-cloudflare-view-counter/",
-    "/ganghwa-cafe-in-bunjae-review/"
+    "/wooz-bakery-gijang-ocean-view-cafe/"
   ],
   "amplifyCandidates": [],
   "fixCandidates": [
     {
+      "path": "/article/quarter-view",
+      "views": 5,
+      "avgSec": 0.99
+    },
+    {
       "path": "/article/adding-view-count-in-gatsby",
-      "views": 2,
-      "avgSec": 1.97
-    },
-    {
-      "path": "/article/amd-bc250-local-ai-server-project",
-      "views": 2,
-      "avgSec": 0
-    },
-    {
-      "path": "/article/akita-inu",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/anyang-ottogi-hamtaehall-rolypoly-review",
+      "path": "/article/apptech-income-july-2026",
       "views": 1,
-      "avgSec": 2.48
+      "avgSec": 0
     },
     {
-      "path": "/article/phaser3-with-parallax-scroll",
+      "path": "/article/jekyll-with-docker-and-wsl2",
       "views": 1,
-      "avgSec": 4.18
+      "avgSec": 3.19
     },
     {
-      "path": "/article/thinking-math-negative-coordinates",
+      "path": "/article/phaser3-to-4-ecs-code-conversion",
       "views": 1,
-      "avgSec": 3.95
+      "avgSec": 6.51
     },
     {
-      "path": "/article/thinking-math-variables",
+      "path": "/article/php8-attributes",
       "views": 1,
-      "avgSec": 4.07
+      "avgSec": 2.68
+    },
+    {
+      "path": "/article/what-is-babel",
+      "views": 1,
+      "avgSec": 3.02
+    },
+    {
+      "path": "/article/what-we-expect-from-software-developers-on-each-level",
+      "views": 1,
+      "avgSec": 4.01
     }
   ]
 }
