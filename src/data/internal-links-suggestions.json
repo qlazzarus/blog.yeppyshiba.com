@@ -1,53 +1,80 @@
 {
-  "topPost": "/article/quarter-view",
-  "topPostViews": 5,
+  "topPost": "/article/gwanggyo-mochiga",
+  "topPostViews": 3,
   "relatedSuggestions": [
-    "/quarter-view/",
-    "/adding-view-count-in-gatsby/",
-    "/ga4-to-cloudflare-view-counter/",
-    "/wooz-bakery-gijang-ocean-view-cafe/"
+    "/gwanggyo-mochiga/"
   ],
   "amplifyCandidates": [],
   "fixCandidates": [
     {
-      "path": "/article/quarter-view",
-      "views": 5,
-      "avgSec": 0.99
+      "path": "/article/gwanggyo-mochiga",
+      "views": 3,
+      "avgSec": 8.44
     },
     {
-      "path": "/article/adding-view-count-in-gatsby",
+      "path": "/article/anyang-ottogi-hamtaehall-rolypoly-review",
+      "views": 1,
+      "avgSec": 2.47
+    },
+    {
+      "path": "/article/apptech-income-august-2026",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/apptech-income-july-2026",
+      "path": "/article/apptech-income-september-2026",
+      "views": 1,
+      "avgSec": 9.56
+    },
+    {
+      "path": "/article/ganghwa-cafe-in-bunjae-review",
       "views": 1,
       "avgSec": 0
     },
     {
-      "path": "/article/jekyll-with-docker-and-wsl2",
+      "path": "/article/phaser4-apex-seoul-7way-vehicle-asset-compiler",
       "views": 1,
-      "avgSec": 3.19
+      "avgSec": 6.12
     },
     {
-      "path": "/article/phaser3-to-4-ecs-code-conversion",
+      "path": "/article/phaser4-apex-seoul-analog-hud-turbo-character",
       "views": 1,
-      "avgSec": 6.51
+      "avgSec": 5.06
     },
     {
-      "path": "/article/php8-attributes",
+      "path": "/article/phaser4-apex-seoul-crt-vhs-shader",
       "views": 1,
-      "avgSec": 2.68
+      "avgSec": 6.54
     },
     {
-      "path": "/article/what-is-babel",
+      "path": "/article/phaser4-apex-seoul-loading-scenes-and-garage-assets",
       "views": 1,
-      "avgSec": 3.02
+      "avgSec": 2.08
     },
     {
-      "path": "/article/what-we-expect-from-software-developers-on-each-level",
+      "path": "/article/phaser4-apex-seoul-local-records-and-reset",
       "views": 1,
-      "avgSec": 4.01
+      "avgSec": 2.01
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-mobile-controls-motion-pwa",
+      "views": 1,
+      "avgSec": 2.55
+    },
+    {
+      "path": "/article/phaser4-apex-seoul-stuck-recovery",
+      "views": 1,
+      "avgSec": 2.91
+    },
+    {
+      "path": "/article/raycasting-pseudo-3d",
+      "views": 1,
+      "avgSec": 5.01
+    },
+    {
+      "path": "/article/uiwang-bajirak-kalguksu",
+      "views": 1,
+      "avgSec": 0
     }
   ]
 }
