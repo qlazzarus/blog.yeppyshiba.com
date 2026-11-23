@@ -4,6 +4,8 @@ import path from 'node:path';
 const site = 'https://blog.yeppyshiba.com';
 const distDir = path.join(process.cwd(), 'dist');
 const sitemapPath = path.join(distDir, 'sitemap-0.xml');
+// Static compatibility redirects are intentionally excluded from indexing.
+const nonIndexableArticlePaths = new Set(['/article/jeju-tour-review-byeoldobong/']);
 
 async function getFiles(directory) {
     const entries = await readdir(directory, { withFileTypes: true });
@@ -35,6 +37,7 @@ function getArticlePath(file) {
 const failures = [];
 const [sitemap, files] = await Promise.all([readFile(sitemapPath, 'utf8'), getFiles(distDir)]);
 const sitemapUrls = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gu)].map((match) => match[1]));
+const checkedSitemapUrls = new Set();
 
 for (const url of sitemapUrls) {
     const parsed = new URL(url);
@@ -46,6 +49,21 @@ for (const url of sitemapUrls) {
 for (const file of files.filter((candidate) => candidate.endsWith('.html'))) {
     const html = await readFile(file, 'utf8');
     const articlePath = getArticlePath(file);
+    const relative = path.relative(distDir, file).split(path.sep).join('/');
+    const pagePath = relative === 'index.html' ? '/' : `/${relative.replace(/index\.html$/u, '')}`;
+    const pageUrl = new URL(pagePath, site).toString();
+
+    if (sitemapUrls.has(pageUrl)) {
+        checkedSitemapUrls.add(pageUrl);
+        if (!isIndexable(html)) failures.push(`${pagePath} is in the sitemap but is not indexable`);
+        if (getCanonical(html) !== pageUrl) {
+            failures.push(`${pagePath} is in the sitemap but does not self-canonicalize`);
+        }
+    }
+
+    if (articlePath && !nonIndexableArticlePaths.has(articlePath) && !isIndexable(html)) {
+        failures.push(`${articlePath} is an article but is not indexable`);
+    }
 
     if (articlePath && isIndexable(html)) {
         const canonical = getCanonical(html);
@@ -67,6 +85,10 @@ for (const file of files.filter((candidate) => candidate.endsWith('.html'))) {
             failures.push(`${path.relative(distDir, file)} links to non-canonical URL ${match[1]}`);
         }
     }
+}
+
+for (const url of sitemapUrls) {
+    if (!checkedSitemapUrls.has(url)) failures.push(`Sitemap URL has no matching HTML page: ${url}`);
 }
 
 if (failures.length > 0) {

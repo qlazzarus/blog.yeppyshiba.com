@@ -19,9 +19,15 @@
   },
   "snapshot": {
     "active": false,
+    "acctCriticalStrike": {
+      "draws": 0,
+      "observations": [],
+      "seed": 1972,
+      "state": 1972
+    },
     "buildings": [],
     "chickens": [],
-    "elapsedSec": 0.08146666666070619,
+    "elapsedSec": 0.07621666666629413,
     "enemies": [],
     "poc": null,
     "runId": 1,
@@ -66,6 +72,11 @@
         "maxHp": 100,
         "nextAttackAtSec": 0,
         "ownerPlayerId": 3,
+        "stats": {
+          "attackCooldownSec": 0.9,
+          "damage": 10,
+          "speedPxPerSec": 240
+        },
         "templateId": "farmer",
         "x": 3392,
         "y": 8928
@@ -80,6 +91,11 @@
         "maxHp": 220,
         "nextAttackAtSec": 0,
         "ownerPlayerId": 3,
+        "stats": {
+          "attackCooldownSec": 0.8,
+          "damage": 18,
+          "speedPxPerSec": 290
+        },
         "templateId": "dog",
         "x": 3434,
         "y": 8946

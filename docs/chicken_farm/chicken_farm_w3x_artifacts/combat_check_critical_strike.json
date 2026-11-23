@@ -1,0 +1,213 @@
+{
+  "case": "critical_strike",
+  "checks": {
+    "n00CUnitAttackConsumesOneDedicatedDraw": true,
+    "n00CUnitAttackUsesExistingDamageCallbackOnce": true,
+    "pass": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  },
+  "executionProfile": {
+    "debugFixtures": true,
+    "forceDamage": false,
+    "startId": 3
+  },
+  "snapshots": {
+    "after": {
+      "active": true,
+      "acctCriticalStrike": {
+        "draws": 1,
+        "observations": [
+          {
+            "attackId": "1:acct-dire-frost-wolf:0",
+            "deliveredDamage": 64,
+            "proc": true,
+            "roll": 0.0003213591407984495,
+            "targetId": "p3-dog",
+            "actualHpDecrease": 62,
+            "applied": true
+          }
+        ],
+        "seed": 1972,
+        "state": 1380227
+      },
+      "buildings": [],
+      "chickens": [],
+      "elapsedSec": 0.3607833333337058,
+      "enemies": [
+        {
+          "enemyId": "dire_frost_wolf",
+          "hp": 732,
+          "id": "acct-dire-frost-wolf",
+          "maxHp": 750,
+          "ownerPlayerId": 10,
+          "spawnX": 3420,
+          "spawnY": 8928,
+          "x": 3425.332589092788,
+          "y": 8911.939535985179
+        }
+      ],
+      "poc": null,
+      "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 158,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
+      "units": [
+        {
+          "armor": 0,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": "acct-dire-frost-wolf",
+          "currentCommandType": "attack",
+          "hp": 158,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "nextAttackAtSec": 0.9274500000003726,
+          "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ]
+    },
+    "before": {
+      "active": false,
+      "acctCriticalStrike": {
+        "draws": 0,
+        "observations": [],
+        "seed": 1972,
+        "state": 1972
+      },
+      "buildings": [],
+      "chickens": [],
+      "elapsedSec": 0.07745000000037254,
+      "enemies": [],
+      "poc": null,
+      "runId": 1,
+      "wolfTargets": [
+        {
+          "armor": 0,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "name": "Farmer",
+          "ownerPlayerId": 3,
+          "radius": 20,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "name": "Dog",
+          "ownerPlayerId": 3,
+          "radius": 18,
+          "targetableByWolves": true,
+          "targetKind": "controllable_unit",
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ],
+      "units": [
+        {
+          "armor": 0,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 100,
+          "id": "p3-farmer",
+          "maxHp": 100,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.9,
+            "damage": 10,
+            "speedPxPerSec": 240
+          },
+          "templateId": "farmer",
+          "x": 3392,
+          "y": 8928
+        },
+        {
+          "armor": 2,
+          "commandQueueCount": 0,
+          "currentCommandTargetId": null,
+          "currentCommandType": null,
+          "hp": 220,
+          "id": "p3-dog",
+          "maxHp": 220,
+          "nextAttackAtSec": 0,
+          "ownerPlayerId": 3,
+          "stats": {
+            "attackCooldownSec": 0.8,
+            "damage": 18,
+            "speedPxPerSec": 290
+          },
+          "templateId": "dog",
+          "x": 3434,
+          "y": 8946
+        }
+      ]
+    }
+  }
+}

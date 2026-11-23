@@ -32,7 +32,8 @@ export type EnemyId =
     | 'hell_hound'
     | 'doom_guard'
     | 'archimonde'
-    | 'nether_dragon';
+    | 'nether_dragon'
+    | 'skeleton_warrior';
 
 export type DefenderId = 'farmer' | 'dog' | 'big_dog';
 export type IncomeBuildingId = 'coop_basic' | 'coop_mid' | 'coop_high';
@@ -137,8 +138,48 @@ export type EnemyConfig = CombatStats & {
         | 'boss'
         | 'elite'
         | 'final'
+        | 'summon'
         | 'requires_play_observation'
     )[];
+};
+
+export type EnemyAbilityEvidence =
+    | 'source_description'
+    | 'confirmed_name'
+    | 'unknown'
+    | 'not_attached';
+
+export type EnemyAbilityRuntimeState = 'unsupported' | 'planned' | 'implemented_web_policy';
+
+export type CanonicalEnemyAbility = {
+    readonly evidence: EnemyAbilityEvidence;
+    readonly id: string;
+    readonly runtimeState: EnemyAbilityRuntimeState;
+    readonly sourceDescription?: string;
+};
+
+export type EnemyScoreReward = {
+    readonly effectiveScore: number | null;
+    readonly source: 'source_score_message' | 'web_baseline' | 'web_policy_no_reward' | 'unresolved';
+};
+
+export type CanonicalEnemyReward = {
+    readonly farmerKillXp: 0;
+    readonly score: EnemyScoreReward;
+};
+
+export type CanonicalEnemyDefinition = {
+    readonly abilities: readonly CanonicalEnemyAbility[];
+    readonly enemyId: EnemyId;
+    readonly rawcode: string;
+    readonly reward: CanonicalEnemyReward;
+    readonly role: 'ordinary' | 'regular_boss' | 'conditional_boss' | 'summon';
+};
+
+export type FarmerLevelRewardDefinition = {
+    readonly itemRawcode?: 'I00Q' | 'I00H' | 'I00I' | 'I00N';
+    readonly level: 5 | 10 | 15 | 20 | 25 | 30 | 35;
+    readonly sourceEffect: string;
 };
 
 export type IncomeBuildingConfig = {

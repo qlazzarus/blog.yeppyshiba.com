@@ -1,0 +1,60 @@
+{
+  "id": "SP-10-01",
+  "status": "complete",
+  "scope": "Static enemy, boss, and ability coverage contract only. No boss spawn, ability, reward, or runtime behavior is implemented by this artifact.",
+  "sources": [
+    { "path": "wolf_ability_reference.tsv", "evidence": "Ability ownership and the distinction between confirmed name/summon and unknown effects." },
+    { "path": "unit_rawcode_crosscheck.tsv", "evidence": "Rawcode-to-unit mapping, attached ability IDs, and source stat columns." },
+    { "path": "jass_wolf_special_spawns.tsv", "evidence": "H012/H00X/H013/H01B/H01N are each created once for Player(10) at IlilI center (2080,-896)." },
+    { "path": "jass_create_units.tsv", "evidence": "H01O has one create-unit call at source line 3488, but this extract does not retain its branch or trigger condition." },
+    { "path": "../chicken_farm_sp01_task_plan.md", "evidence": "H01O is not part of the basic victory requirement until its transform condition is confirmed." },
+    { "path": "../../../games/chicken-farm/src/game/waveEnemyTiers.ts", "evidence": "Current web ordinary tier 1-18 rawcode and EnemyId mapping." },
+    { "path": "../../../games/chicken-farm/src/game/balance.ts", "evidence": "Current web EnemyId entries, five source milestones, and Unlimited-only boss-special-abilities flag." }
+  ],
+  "ordinaryTiers": [
+    { "tier": 1, "rawcode": "n007", "enemyId": "timber_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 2, "rawcode": "n008", "enemyId": "frost_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 3, "rawcode": "n009", "enemyId": "giant_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 4, "rawcode": "n00A", "enemyId": "giant_frost_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 5, "rawcode": "n00B", "enemyId": "dire_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 6, "rawcode": "n00C", "enemyId": "dire_frost_wolf", "attachedAbilities": ["ACct"], "coverage": "unknown" },
+    { "tier": 7, "rawcode": "n00G", "enemyId": "spirit_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 8, "rawcode": "n00I", "enemyId": "dire_wolf_tier_8", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 9, "rawcode": "n00J", "enemyId": "shadow_wolf", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 10, "rawcode": "n00K", "enemyId": "fel_beast", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 11, "rawcode": "n00L", "enemyId": "fel_stalker", "attachedAbilities": [], "coverage": "base_attack_only" },
+    { "tier": 12, "rawcode": "n00M", "enemyId": "fel_ravager", "attachedAbilities": ["A02I"], "coverage": "confirmed_name_only" },
+    { "tier": 13, "rawcode": "n00U", "enemyId": "darkguard", "attachedAbilities": ["A02I", "A024"], "coverage": "mixed_confirmed_and_unknown" },
+    { "tier": 14, "rawcode": "n00V", "enemyId": "shupikuta", "attachedAbilities": ["A02I"], "coverage": "confirmed_name_only" },
+    { "tier": 15, "rawcode": "n00W", "enemyId": "overlord", "attachedAbilities": ["A02I", "A023"], "coverage": "mixed_confirmed_and_unknown" },
+    { "tier": 16, "rawcode": "n013", "enemyId": "satyr", "attachedAbilities": ["A02W"], "coverage": "unknown" },
+    { "tier": 17, "rawcode": "n015", "enemyId": "satyr_soulstealer", "attachedAbilities": ["A02U"], "coverage": "confirmed_summon_name_only" },
+    { "tier": 18, "rawcode": "n014", "enemyId": "satyr_shadowdancer", "attachedAbilities": [], "coverage": "base_attack_only" }
+  ],
+  "regularBossMilestones": [
+    { "atSec": 600, "rawcode": "H012", "enemyId": "blood_wolf", "sourceSpawn": { "ownerPlayerId": 10, "x": 2080, "y": -896 }, "abilities": ["A03B: unknown", "A02I: Immolation name confirmed"], "implementation": "SP-10-11 then SP-10-12" },
+    { "atSec": 1500, "rawcode": "H00X", "enemyId": "wild_wolf", "sourceSpawn": { "ownerPlayerId": 10, "x": 2080, "y": -896 }, "abilities": ["A03H: unknown", "A02I: Immolation name confirmed", "A01G: unknown"], "implementation": "SP-10-11 then SP-10-13" },
+    { "atSec": 2200, "rawcode": "H013", "enemyId": "hell_hound", "sourceSpawn": { "ownerPlayerId": 10, "x": 2080, "y": -896 }, "abilities": ["A03E: Ring of Fire name confirmed", "A01R: Immolation / nearby flame name confirmed", "A01H: Fel Arrow name confirmed"], "implementation": "SP-10-11 then SP-10-14" },
+    { "atSec": 2600, "rawcode": "H01B", "enemyId": "doom_guard", "sourceSpawn": { "ownerPlayerId": 10, "x": 2080, "y": -896 }, "abilities": ["A03C: summon Infernal, source description confirms 300 ground damage, stun duration, and summon duration fields", "A02I: Immolation name confirmed", "A023: unknown", "A025: Inferno Stone name confirmed"], "implementation": "SP-10-11 then SP-10-15" },
+    { "atSec": 3000, "rawcode": "H01N", "enemyId": "archimonde", "sourceSpawn": { "ownerPlayerId": 10, "x": 2080, "y": -896 }, "abilities": ["A03F: unknown", "A02R: unknown", "A02I: Immolation name confirmed", "A02Q: unknown"], "implementation": "SP-10-11 then SP-10-16" }
+  ],
+  "conditionalEnemies": [
+    { "rawcode": "H01O", "enemyId": "nether_dragon", "facts": ["has one source create-unit call", "attached abilities are A03G/A01J/A02T/A02I/A02S/A02V", "A03G Soul Nova and A01J Mirror Image names are confirmed"], "unresolved": "The trigger branch, condition, relation to H01N, and normal-session requirement are absent from the extracted evidence.", "webPolicy": "Do not schedule it as a sixth regular milestone or include it in basic victory tracking.", "owner": "SP-10-16; source observation required before implementation." },
+    { "rawcodes": ["n018", "n00N", "n00O", "n00P", "n00S", "n00T", "n019"], "facts": "Each appears once at IliiI center (2080,-1440) under role_inferred boss_or_difficulty_spawn.", "unresolved": "Neither condition nor gameplay role is retained by the static extract.", "webPolicy": "No spawn, ability, reward, or victory participation in SP-10 without a source branch or play observation.", "owner": "SP-12 content audit, unless later source recovery establishes a mandatory SP-10 role." }
+  ],
+  "abilityRules": {
+    "confirmed": "Only A03C has a source description with an explicit effect: landing damage 300 to enemy ground units, a stun duration field, and an Infernal duration field. Its target coordinates, cooldown, actual field values, parent-death behavior, and web-scaled value remain unresolved.",
+    "nameOnly": "A02I/A01R Immolation, A03E Ring of Fire, A01H Fel Arrow, A025 Inferno Stone, A02U Skeleton Warrior, A03G Soul Nova, and A01J Mirror Image have a confirmed name but not enough extracted behavior to choose target filtering, damage, range, period, cooldown, duration, or stack rules.",
+    "unknown": "ACct, A024, A023, A02W, A03B, A03H, A01G, A03F, A02R, and A02Q must not receive inferred effects from their owner unit or name similarity.",
+    "webGate": "All boss special abilities are disabled for easy through impossible and may be enabled only when the selected difficulty has bossSpecialAbilitiesEnabled=true (currently Unlimited). This preserves the current product flag; difficulty selection and balance tuning are outside this task.",
+    "targeting": "No ability implementation may assume unit, building, chicken, hero, ground, or air targeting; that is unresolved per ability. A03C's source text restricts landing damage to enemy ground units.",
+    "timing": "No ability implementation may invent a period, range, cooldown, duration, stack rule, or web damage value from an ability name. SP-10-06 supplies the shared clock after a per-ability policy or source fact exists."
+  },
+  "requiredBeforeSp10Completion": [
+    "Resolve or explicitly approve a web policy for every ability attached to the 18 ordinary tiers and five regular bosses; name-only and unknown entries cannot silently become base attacks.",
+    "Recover or explicitly defer H01O's source condition; it is excluded from normal final tracking until then.",
+    "For A03C, recover its target point/cooldown/field values or record an explicit web conversion before implementation.",
+    "Keep final victory, revival, defeat priority, and result UI in SP-11 even when SP-10 supplies tracked enemy/summon state."
+  ],
+  "nextTask": "SP-10-02 — 처치·점수·XP·드롭 계약"
+}

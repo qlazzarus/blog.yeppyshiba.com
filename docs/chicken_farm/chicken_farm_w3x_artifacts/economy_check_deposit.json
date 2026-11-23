@@ -14,6 +14,7 @@
   "snapshots": {
     "afterDeposit": {
       "activeStartItemPlacement": null,
+      "inventoryDrag": null,
       "buildings": [
         {
           "id": "player-building-1",
@@ -26,11 +27,12 @@
       "coops": [
         {
           "id": "player-building-1",
+          "kind": "basic",
           "ownerPlayerId": 3,
           "storedEggs": 1
         }
       ],
-      "elapsedSec": 1.0482033333333314,
+      "elapsedSec": 1.0781599999996254,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -69,6 +71,25 @@
             null,
             null
           ]
+        }
+      ],
+      "lumberIncome": {
+        "lastProcessedTickSec": 0,
+        "mills": [],
+        "totalsByPlayer": [
+          {
+            "lumber": 0,
+            "playerId": 3
+          }
+        ]
+      },
+      "wallets": [
+        {
+          "gold": 1500,
+          "lumber": 0,
+          "playerId": 3,
+          "supplyCap": 3,
+          "supplyUsed": 0
         }
       ],
       "runId": 1,
@@ -90,6 +111,7 @@
     },
     "beforeDeposit": {
       "activeStartItemPlacement": null,
+      "inventoryDrag": null,
       "buildings": [
         {
           "id": "player-building-1",
@@ -102,11 +124,12 @@
       "coops": [
         {
           "id": "player-building-1",
+          "kind": "basic",
           "ownerPlayerId": 3,
           "storedEggs": 0
         }
       ],
-      "elapsedSec": 0.981536666666665,
+      "elapsedSec": 1.011493333332959,
       "fieldEggs": [],
       "hatchJobs": [],
       "inventories": [
@@ -145,6 +168,25 @@
             null,
             null
           ]
+        }
+      ],
+      "lumberIncome": {
+        "lastProcessedTickSec": 0,
+        "mills": [],
+        "totalsByPlayer": [
+          {
+            "lumber": 0,
+            "playerId": 3
+          }
+        ]
+      },
+      "wallets": [
+        {
+          "gold": 1500,
+          "lumber": 0,
+          "playerId": 3,
+          "supplyCap": 3,
+          "supplyUsed": 0
         }
       ],
       "runId": 1,

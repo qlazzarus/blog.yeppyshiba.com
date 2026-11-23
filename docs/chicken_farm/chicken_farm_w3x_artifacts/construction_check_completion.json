@@ -24,6 +24,7 @@
           "x": 4032,
           "y": 8896
         },
+        "gateOpen": null,
         "id": "player-building-1",
         "ownerPlayerId": 3,
         "progress": 1,

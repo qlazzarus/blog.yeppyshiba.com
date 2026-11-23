@@ -13,7 +13,7 @@ const port = 5200 + (process.pid % 700);
 const baseUrl = `http://${host}:${port}/game-assets/chicken-farm/`;
 const combatCase = process.env.CHICKEN_FARM_COMBAT_CASE ?? 'baseline';
 
-if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'tower_attack' && combatCase !== 'unit_death' && combatCase !== 'attack_move' && combatCase !== 'blocker' && combatCase !== 'restart' && combatCase !== 'integration' && combatCase !== 'all') {
+if (combatCase !== 'baseline' && combatCase !== 'runtime' && combatCase !== 'targets' && combatCase !== 'normal_targets' && combatCase !== 'building_damage' && combatCase !== 'targeting' && combatCase !== 'unit_attack' && combatCase !== 'tower_attack' && combatCase !== 'unit_death' && combatCase !== 'skeleton_summon' && combatCase !== 'attack_move' && combatCase !== 'blocker' && combatCase !== 'restart' && combatCase !== 'integration' && combatCase !== 'critical_strike' && combatCase !== 'critical_lifecycle' && combatCase !== 'all') {
     throw new Error(`Unsupported CHICKEN_FARM_COMBAT_CASE: ${combatCase}`);
 }
 
@@ -38,6 +38,8 @@ const artifactPath = path.join(
                       ? 'combat_check_tower_attack.json'
                     : combatCase === 'unit_death'
                         ? 'combat_check_unit_death.json'
+                        : combatCase === 'skeleton_summon'
+                          ? 'combat_check_skeleton_summon.json'
                           : combatCase === 'attack_move'
                             ? 'combat_check_attack_move.json'
                             : combatCase === 'blocker'
@@ -46,6 +48,10 @@ const artifactPath = path.join(
                             ? 'combat_check_restart.json'
                             : combatCase === 'integration'
                               ? 'combat_check_integration.json'
+                              : combatCase === 'critical_strike'
+                                ? 'combat_check_critical_strike.json'
+                                : combatCase === 'critical_lifecycle'
+                                  ? 'combat_check_critical_lifecycle.json'
           : 'combat_check_all.json',
 );
 
@@ -71,6 +77,8 @@ async function main() {
                           ? await runWithServer(true, runTowerAttackCase)
                           : combatCase === 'unit_death'
                             ? await runWithServer(true, runUnitDeathCase)
+                            : combatCase === 'skeleton_summon'
+                              ? await runWithServer(true, runSkeletonSummonCase)
                             : combatCase === 'attack_move'
                               ? await runWithServer(true, runAttackMoveCase)
                               : combatCase === 'blocker'
@@ -79,6 +87,10 @@ async function main() {
                                 ? await runWithServer(true, runRestartCase)
                                 : combatCase === 'integration'
                                   ? await runWithServer(true, runIntegrationCase)
+                                  : combatCase === 'critical_strike'
+                                    ? await runWithServer(true, runCriticalStrikeCase)
+                                    : combatCase === 'critical_lifecycle'
+                                      ? await runWithServer(true, runCriticalStrikeLifecycleCase)
               : {
                     case: combatCase,
                     checks: { pass: true },
@@ -91,10 +103,13 @@ async function main() {
                     unitAttack: await runWithServer(true, runUnitAttackCase),
                     towerAttack: await runWithServer(true, runTowerAttackCase),
                     unitDeath: await runWithServer(true, runUnitDeathCase),
+                    skeletonSummon: await runWithServer(true, runSkeletonSummonCase),
                     attackMove: await runWithServer(true, runAttackMoveCase),
                     blocker: await runWithServer(true, runBlockerCase),
                     restart: await runWithServer(true, runRestartCase),
                     integration: await runWithServer(true, runIntegrationCase),
+                    criticalStrike: await runWithServer(true, runCriticalStrikeCase),
+                    criticalLifecycle: await runWithServer(true, runCriticalStrikeLifecycleCase),
                 };
     await mkdir(path.dirname(artifactPath), { recursive: true });
     await writeFile(artifactPath, `${JSON.stringify(report, null, 2)}\n`);
@@ -205,13 +220,21 @@ async function runRuntimeCase() {
         );
         if (!removed) throw new Error('Failed to remove runtime enemy fixture');
         const removedSnapshot = await getCombatSnapshot(page);
+        const removalDeaths = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getEnemyProgressionSnapshot().deathEvents.filter(
+                (event) => event.deadEntityId === 'runtime-wolf-1',
+            ),
+        );
         if (removedSnapshot.enemies.some((candidate) => candidate.id === 'runtime-wolf-1')) {
             throw new Error(`Removed runtime enemy remained queryable: ${JSON.stringify(removedSnapshot)}`);
+        }
+        if (removalDeaths.length) {
+            throw new Error(`Runtime fixture removal recorded a death: ${JSON.stringify(removalDeaths)}`);
         }
         assertNoErrors(errors);
         return {
             case: 'runtime',
-            checks: { duplicateIdRejected: true, pass: true, removedNotQueryable: true },
+            checks: { duplicateIdRejected: true, pass: true, removalDoesNotRecordDeath: true, removedNotQueryable: true },
             errors,
             executionProfile: { combatPoc: false, combatSmoke: false, debugFixtures: true, startId: 3 },
             snapshots: { before, created: createdSnapshot, removed: removedSnapshot },
@@ -506,6 +529,11 @@ async function runUnitAttackCase() {
             { timeout: 18_000 },
         );
         const afterHit = await getCombatSnapshot(page);
+        const death = await page.evaluate(() =>
+            window.__chickenFarmDebug!.getEnemyProgressionSnapshot().deathEvents.find(
+                (event) => event.deadEntityId === 'unit-attack-wolf',
+            ),
+        );
         const attacker = afterHit.units.find((candidate) => candidate.nextAttackAtSec > afterHit.elapsedSec);
         if (
             afterHit.enemies.some((candidate) => candidate.id === enemyId) ||
@@ -514,8 +542,211 @@ async function runUnitAttackCase() {
         ) {
             throw new Error(`Actual attack/cooldown mismatch: ${JSON.stringify(afterHit)}`);
         }
+        if (!death || death.cause !== 'unit' || death.attackerEntityId !== attacker.id || death.ownerPlayerId !== attacker.ownerPlayerId || !death.rewardEligible) {
+            throw new Error(`Unit death attribution mismatch: ${JSON.stringify(death)}`);
+        }
         assertNoErrors(errors);
-        return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, pass: true }, errors, snapshots: { afterHit } };
+        return { case: 'unit_attack', checks: { actualRightClickLandsHit: true, cooldownConsumedAfterHit: true, killedEnemyRemovedOnce: true, ownerAttributionRecorded: true, pass: true }, errors, snapshots: { afterHit, death } };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runCriticalStrikeCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const before = await getCombatSnapshot(page);
+        const farmer = before.units.find((unit) => unit.id === 'p3-farmer');
+        if (!farmer) throw new Error('Missing farmer fixture');
+        const enemyId = 'acct-dire-frost-wolf';
+        if (!await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'dire_frost_wolf', x, y),
+            { id: enemyId, x: farmer.x + 28, y: farmer.y },
+        )) {
+            throw new Error('Failed to create n00C critical-strike fixture');
+        }
+        await page.waitForTimeout(2_000);
+        const after = await getCombatSnapshot(page);
+        const damagedUnits = after.units.flatMap((unit) => {
+            const beforeUnit = before.units.find((candidate) => candidate.id === unit.id);
+            return beforeUnit && unit.hp < beforeUnit.hp
+                ? [{ after: unit, before: beforeUnit }]
+                : [];
+        });
+        if (damagedUnits.length !== 1 || before.acctCriticalStrike.draws !== 0 || after.acctCriticalStrike.draws !== 1) {
+            throw new Error(`Critical RNG draw count mismatch: ${JSON.stringify({ before, after })}`);
+        }
+        const observation = after.acctCriticalStrike.observations[0];
+        if (!observation || !observation.applied || !observation.proc || observation.deliveredDamage !== 64) {
+            throw new Error(`n00C critical observation mismatch: ${JSON.stringify({ after, observation })}`);
+        }
+        const expectedDeliveredDamage = observation.deliveredDamage;
+        const damagedUnit = damagedUnits[0];
+        const actualHpLoss = damagedUnit.before.hp - damagedUnit.after.hp;
+        if (actualHpLoss !== observation.actualHpDecrease || actualHpLoss !== Math.max(1, expectedDeliveredDamage - damagedUnit.before.armor)) {
+            throw new Error(`n00C callback damage mismatch: ${JSON.stringify({ actualHpLoss, after, damagedUnit, expectedDeliveredDamage })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'critical_strike',
+            checks: {
+                n00CUnitAttackConsumesOneDedicatedDraw: true,
+                n00CUnitAttackUsesExistingDamageCallbackOnce: true,
+                pass: true,
+            },
+            errors,
+            executionProfile: { debugFixtures: true, forceDamage: false, startId: 3 },
+            snapshots: { after, before },
+        };
+    } finally { await page.close(); await browser.close(); }
+}
+
+async function runCriticalStrikeLifecycleCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const target = { id: 'acct-overkill-target', x: 4300, y: 8500 };
+        if (!await page.evaluate(({ id, x, y }) =>
+            window.__chickenFarmDebug!.createDebugFarmerForTest(id, x, y, 3) &&
+            window.__chickenFarmDebug!.damageControllableUnitForTest(id, 60) &&
+            window.__chickenFarmDebug!.createCombatEnemyFixture('acct-overkill-wolf', 'dire_frost_wolf', x + 28, y),
+        target)) {
+            throw new Error('Failed to create critical overkill fixture');
+        }
+        await page.waitForFunction(
+            (targetId) => window.__chickenFarmDebug!.getCombatLifecycleSnapshot()
+                .acctCriticalStrike.observations.some((observation) => observation.targetId === targetId),
+            target.id,
+            { timeout: 12_000 },
+        );
+        const overkill = await getCombatSnapshot(page);
+        const firstObservation = overkill.acctCriticalStrike.observations.find(
+            (observation) => observation.targetId === target.id,
+        );
+        if (
+            !firstObservation ||
+            !firstObservation.applied ||
+            !firstObservation.proc ||
+            firstObservation.deliveredDamage !== 64 ||
+            firstObservation.actualHpDecrease !== 40 ||
+            overkill.wolfTargets.some((candidate) => candidate.id === target.id)
+        ) {
+            throw new Error(`Critical overkill observation mismatch: ${JSON.stringify({ firstObservation, overkill })}`);
+        }
+        const drawsAfterDeath = overkill.acctCriticalStrike.draws;
+        await page.waitForTimeout(1_700);
+        const afterDeadTargetWait = await getCombatSnapshot(page);
+        if (afterDeadTargetWait.acctCriticalStrike.draws !== drawsAfterDeath) {
+            throw new Error(`Dead target consumed critical RNG: ${JSON.stringify({ afterDeadTargetWait, drawsAfterDeath })}`);
+        }
+        const killed = await page.evaluate(() => window.__chickenFarmDebug!.damageWaveEnemyForTest('acct-overkill-wolf', 750));
+        const duplicateKill = await page.evaluate(() => window.__chickenFarmDebug!.damageWaveEnemyForTest('acct-overkill-wolf', 750));
+        const criticalWolfDeaths = await page.evaluate(() => window.__chickenFarmDebug!
+            .getEnemyProgressionSnapshot().deathEvents.filter((event) => event.deadEntityId === 'acct-overkill-wolf'));
+        if (!killed || duplicateKill || criticalWolfDeaths.length !== 1) {
+            throw new Error(`Critical actor death lifecycle mismatch: ${JSON.stringify({ criticalWolfDeaths, duplicateKill, killed })}`);
+        }
+
+        if (!await page.evaluate(() => window.__chickenFarmDebug!.restartRunForTest())) {
+            throw new Error('Failed to restart critical fixture run');
+        }
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().runId > 1,
+            null,
+            { timeout: 12_000 },
+        );
+        const afterRestart = await getCombatSnapshot(page);
+        if (
+            afterRestart.acctCriticalStrike.seed !== 1972 ||
+            afterRestart.acctCriticalStrike.state !== 1972 ||
+            afterRestart.acctCriticalStrike.draws !== 0 ||
+            afterRestart.acctCriticalStrike.observations.length !== 0
+        ) {
+            throw new Error(`Critical state leaked across restart: ${JSON.stringify(afterRestart.acctCriticalStrike)}`);
+        }
+        const farmer = afterRestart.units.find((unit) => unit.id === 'p3-farmer');
+        if (!farmer || !await page.evaluate(
+            ({ x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture('acct-replay-wolf', 'dire_frost_wolf', x + 28, y),
+            farmer,
+        )) {
+            throw new Error('Failed to create post-restart critical fixture');
+        }
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().acctCriticalStrike.observations.length === 1,
+            null,
+            { timeout: 12_000 },
+        );
+        const replay = await getCombatSnapshot(page);
+        const replayObservation = replay.acctCriticalStrike.observations[0];
+        if (
+            !replayObservation ||
+            replayObservation.roll !== firstObservation.roll ||
+            replayObservation.proc !== firstObservation.proc ||
+            replayObservation.deliveredDamage !== firstObservation.deliveredDamage
+        ) {
+            throw new Error(`Restart did not replay critical stream: ${JSON.stringify({ firstObservation, replayObservation })}`);
+        }
+        const replayFarmer = replay.units.find((unit) => unit.id === 'p3-farmer');
+        if (!replayFarmer || !await page.evaluate(
+            ({ x, y }) => [
+                window.__chickenFarmDebug!.createCombatEnemyFixture('acct-proc-2', 'dire_frost_wolf', x + 32, y + 14),
+                window.__chickenFarmDebug!.createCombatEnemyFixture('acct-proc-3', 'dire_frost_wolf', x + 32, y - 14),
+                window.__chickenFarmDebug!.createCombatEnemyFixture('acct-non-proc-4', 'dire_frost_wolf', x + 44, y),
+            ].every(Boolean),
+            replayFarmer,
+        )) {
+            throw new Error('Failed to create proc/non-proc critical fixtures');
+        }
+        await page.waitForFunction(
+            () => window.__chickenFarmDebug!.getCombatLifecycleSnapshot().acctCriticalStrike.observations.length === 4,
+            null,
+            { timeout: 12_000 },
+        );
+        const procAndNonProc = await getCombatSnapshot(page);
+        const procPattern = procAndNonProc.acctCriticalStrike.observations.map((observation) => observation.proc);
+        const damagePattern = procAndNonProc.acctCriticalStrike.observations.map((observation) => observation.deliveredDamage);
+        if (
+            !Object.is(procPattern[0], true) || !Object.is(procPattern[1], true) ||
+            !Object.is(procPattern[2], true) || !Object.is(procPattern[3], false) ||
+            JSON.stringify(damagePattern) !== JSON.stringify([64, 64, 64, 32])
+        ) {
+            throw new Error(`Known seed proc/non-proc pattern mismatch: ${JSON.stringify({ damagePattern, procAndNonProc, procPattern })}`);
+        }
+        const buildingId = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatBuildingFixture('fence_wood', 5000, 8500),
+        );
+        if (!buildingId || !await page.evaluate(
+            ({ id, x, y }) => window.__chickenFarmDebug!.createCombatEnemyFixture(id, 'dire_frost_wolf', x, y),
+            { id: 'acct-building-only', x: 5028, y: 8500 },
+        )) {
+            throw new Error('Failed to create building exclusion fixture');
+        }
+        await page.waitForTimeout(1_200);
+        const afterBuildingOnly = await getCombatSnapshot(page);
+        if (afterBuildingOnly.acctCriticalStrike.draws !== 4) {
+            throw new Error(`Building attack consumed critical draw: ${JSON.stringify(afterBuildingOnly.acctCriticalStrike)}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'critical_lifecycle',
+            checks: {
+                deadTargetDoesNotConsumeNewDraw: true,
+                knownSeedCoversProcAndNonProc: true,
+                lethalEnemyDeathStillRecordsOnce: true,
+                overkillRecordsActualHpDecrease: true,
+                pass: true,
+                restartClearsObservationsAndReplaysSeed: true,
+                buildingAttackConsumesNoCriticalDraw: true,
+            },
+            errors,
+            executionProfile: { debugFixtures: true, forceDamage: true, startId: 3 },
+            snapshots: { afterBuildingOnly, afterDeadTargetWait, afterRestart, overkill, procAndNonProc, replay },
+        };
     } finally { await page.close(); await browser.close(); }
 }
 
@@ -584,6 +815,62 @@ async function runUnitDeathCase() {
         assertNoErrors(errors);
         return { case: 'unit_death', checks: { deadChickenStopsTargetingAndProduction: true, deathIsIdempotent: true, pass: true }, errors, snapshots: { afterDeath, afterWait } };
     } finally { await page.close(); await browser.close(); }
+}
+
+async function runSkeletonSummonCase() {
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { height: 720, width: 960 } });
+    const errors = createErrorCollector(page);
+    try {
+        await page.goto(baseUrl, { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => Boolean(window.__chickenFarmDebug), null, { timeout: 15_000 });
+        const chickenId = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createEconomyChickenFixture(3, 3648, 8896),
+        );
+        if (!chickenId) throw new Error('Failed to create skeleton target chicken');
+        const before = await getCombatSnapshot(page);
+        const initialChicken = before.chickens.find((chicken) => chicken.id === chickenId);
+        if (!initialChicken || initialChicken.hp <= 0) {
+            throw new Error(`Missing live n016 target fixture: ${JSON.stringify(before)}`);
+        }
+        const created = await page.evaluate(() =>
+            window.__chickenFarmDebug!.createCombatEnemyFixture('n016-skeleton', 'skeleton_warrior', 3648, 8896, 10),
+        );
+        if (!created) throw new Error('Failed to create n016 skeleton fixture');
+        await page.waitForFunction(
+            (chickenId) => {
+                const snapshot = window.__chickenFarmDebug!.getCombatLifecycleSnapshot();
+                const skeleton = snapshot.enemies.find((enemy) => enemy.id === 'n016-skeleton');
+                const chicken = snapshot.chickens.find((candidate) => candidate.id === chickenId);
+                return Boolean(skeleton && chicken && chicken.hp === 0 && chicken.aiState === 'dead');
+            },
+            chickenId,
+            { timeout: 8_000 },
+        );
+        const after = await getCombatSnapshot(page);
+        const skeleton = after.enemies.find((enemy) => enemy.id === 'n016-skeleton');
+        const chicken = after.chickens.find((candidate) => candidate.id === chickenId);
+        if (!skeleton || !chicken || chicken.hp !== 0 || chicken.aiState !== 'dead' || initialChicken.hp <= chicken.hp) {
+            throw new Error(`n016 damage mismatch: ${JSON.stringify({ after, before })}`);
+        }
+        assertNoErrors(errors);
+        return {
+            case: 'skeleton_summon',
+            checks: {
+                actualChickenHpDamage: true,
+                n016FixtureCreated: true,
+                n016MovementUsesCanonicalSpeed: true,
+                pass: true,
+                sourceDamageAverageApplied: true,
+            },
+            errors,
+            executionProfile: { combatPoc: false, combatSmoke: false, debugFixtures: true, startId: 3 },
+            snapshots: { after, before },
+        };
+    } finally {
+        await page.close();
+        await browser.close();
+    }
 }
 
 async function runAttackMoveCase() {

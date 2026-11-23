@@ -1,0 +1,66 @@
+{
+  "id": "SP-10-09-b",
+  "status": "complete",
+  "scope": "Web application contract for A02U only. It authorizes the corpse, summon, and reward-origin behavior required by SP-10-09-c through h; it does not implement them.",
+  "source": {
+    "mapEvidence": "sp10_09_ordinary_summon_evidence.json: A02U inherits ACrD; Rai1=1, Rai3=n016, Raiu=n016, acdn=3.",
+    "externalBaseline": "Classic Warcraft III Raise Dead documentation: skeleton timed life is 40 seconds. The map does not override timed life.",
+    "unresolved": ["Rai2/Rai4 inherited second summon group", "original corpse decay lifetime", "original casting range", "original global limit overflow behavior"]
+  },
+  "policy": {
+    "ability": {
+      "abilityId": "A02U",
+      "casterEnemyId": "satyr_soulstealer",
+      "cooldownSec": { "value": 3, "basis": "source_override" },
+      "windupSec": { "value": 0, "basis": "web_baseline_no_source_cast_point" },
+      "summonGroups": [
+        { "count": 1, "enemyRawcode": "n016", "enemyId": "skeleton_warrior", "basis": "source_override_Rai1_Rai3" }
+      ],
+      "suppressedInheritedGroups": "Do not create an unverified Rai2/Rai4 group until source base-object values are recovered."
+    },
+    "corpse": {
+      "eligible": "An accepted active-run death event for a non-summoned runtime enemy with the same hostile owner as the caster.",
+      "excluded": ["linked summons", "cleanup/despawn/restart events", "already consumed corpses", "environment-only non-death removal", "a caster itself"],
+      "searchRadiusPx": { "value": 176, "basis": "web_baseline_current_enemy_acquire_range" },
+      "lifetimeSec": { "value": 10, "basis": "web_baseline_to_bound_dead-entity_reservations" },
+      "selection": "Nearest eligible unreserved corpse; distance tie-breaks by deathSequence.",
+      "reservation": "Reserve before cooldown commitment. The reservation identifies the original death key and is released if casting cannot resolve.",
+      "consumption": "Consume only after the runtime skeleton entity and gameplay summon registry have both accepted the creation."
+    },
+    "summon": {
+      "spawn": "Spawn at the consumed corpse position or the nearest passable candidate determined by SP-10-09-g. Never fall back to a wave entrance.",
+      "lifetimeSec": { "value": 40, "basis": "web_baseline_classic_raise_dead_timed_life" },
+      "cap": {
+        "value": 25,
+        "scope": "runId + ownerPlayerId + skeleton_warrior",
+        "basis": "Raiu_limit_check_type plus web_baseline",
+        "onReached": "Reject the cast without consuming the corpse or advancing cooldown."
+      },
+      "parentRemoval": "The skeleton remains after the Soulstealer parent dies or is removed; it ends only by accepted combat death, timed-life expiry, run disposal, or explicit external removal.",
+      "recursion": "skeleton_warrior has no A02U and cannot make corpses eligible for A02U."
+    },
+    "rewardOrigin": {
+      "owner": "Inherit ownerPlayerId from the Soulstealer parent.",
+      "ledger": "Record normal combat death identity for observability, but mark skeleton_warrior as reward-ineligible for score, wallet, farmer XP, drops, and level entitlements.",
+      "basis": "SP-10-02 provides no direct reward evidence for regular-enemy or summoned skeleton deaths; this prevents a summon loop from creating a reward source.",
+      "boundary": "SP-10-17 through 21 own ledger writes and must consume this origin flag."
+    }
+  },
+  "transitionCases": [
+    { "case": "no eligible corpse", "cast": "not started", "cooldown": "unchanged", "corpse": "unchanged", "summon": "none" },
+    { "case": "two Soulstealers choose one corpse", "cast": "one reservation wins by first accepted transition", "cooldown": "winner starts; loser unchanged", "corpse": "consumed once only", "summon": "one or none if spawn fails" },
+    { "case": "spawn or registry failure", "cast": "cancelled", "cooldown": "unchanged", "corpse": "reservation released and unconsumed", "summon": "none" },
+    { "case": "cap reached", "cast": "not started", "cooldown": "unchanged", "corpse": "unchanged", "summon": "none" },
+    { "case": "parent dies after spawn", "cast": "already resolved", "cooldown": "irrelevant", "corpse": "already consumed", "summon": "remains until death or expiry" },
+    { "case": "timed life expiry", "cast": "resolved", "cooldown": "unaffected", "corpse": "already consumed", "summon": "removed with expired reason and no reward" },
+    { "case": "player kills skeleton", "cast": "resolved", "cooldown": "unaffected", "corpse": "already consumed", "summon": "accepted combat death, no score/wallet/XP/drop entitlement" }
+  ],
+  "implementationBoundaries": {
+    "SP-10-09-c": "Pure corpse reservation and consumption state.",
+    "SP-10-09-d": "Runtime death-to-corpse registration and expiry.",
+    "SP-10-09-e": "n016 canonical combat definition.",
+    "SP-10-09-f": "Gameplay cap, termination, and reward-origin registry.",
+    "SP-10-09-g": "Passable corpse-position spawn and rollback.",
+    "SP-10-09-h": "A02U target selection and shared clock execution."
+  }
+}

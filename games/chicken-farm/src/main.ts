@@ -2,7 +2,42 @@ import Phaser from 'phaser';
 
 import { CHICKEN_FARM_BALANCE } from './game/balance';
 import type { EnemyId } from './game/balanceTypes';
-import { GROWTH_PRODUCTION_RECIPES, GROWTH_RESEARCH, type ResearchDefinition } from './game/growthProgression';
+import {
+    CANONICAL_ENEMY_DEFINITIONS,
+    type EnemyProgressionSnapshot,
+} from './game/enemyProgression';
+import { ORDINARY_ENEMY_ABILITY_POLICIES } from './game/ordinaryEnemyAbilityPolicies';
+import {
+    advanceEnemyCorpseRegistry,
+    consumeReservedEnemyCorpse,
+    createEnemyCorpseRegistry,
+    releaseEnemyCorpseReservation,
+    registerEnemyCorpse,
+    reserveNearestEnemyCorpse,
+    type EnemyCorpseRegistry,
+} from './game/enemyCorpseRegistry';
+import {
+    createLinkedSummonRegistry,
+    reconcileLinkedSummons,
+    registerLinkedSummon,
+    type LinkedSummonRegistry,
+} from './game/linkedSummonRegistry';
+import {
+    A02U_SKELETON_LIFETIME_SEC,
+    createOrdinarySummonRegistry,
+    reconcileOrdinarySummons,
+    registerOrdinarySummon,
+    type OrdinarySummonRegistry,
+} from './game/ordinarySummonRegistry';
+import { selectOrdinarySummonSpawnPoint } from './game/ordinarySummonSpawn';
+import { getResearchedBuildingStats } from './game/buildingResearchStats';
+import { getResearchedUnitStats } from './game/unitResearchStats';
+import {
+    GROWTH_BUILDING_RULES,
+    GROWTH_PRODUCTION_RECIPES,
+    GROWTH_RESEARCH,
+    type ResearchDefinition,
+} from './game/growthProgression';
 import { evaluateBuildingEligibility } from './game/growthEligibility';
 import { calculateWaveReplenishPlan } from './game/waveReplenish';
 import { createWavePopulationTargets, type WavePopulationTargets } from './game/wavePopulationTargets';
@@ -69,6 +104,7 @@ import type {
 import { canOccupyPoint } from './game/systems/movementGuards';
 import {
     addEconomyChicken,
+    cancelCoopHatch,
     countInventoryItem,
     consumeEconomyInventoryItem,
     createChickenFarmEconomyState,
@@ -180,6 +216,7 @@ declare global {
                         readonly x: number;
                         readonly y: number;
                     };
+                    readonly gateOpen: boolean | null;
                     readonly id: string;
                     readonly ownerPlayerId: number;
                     readonly progress: number;
@@ -209,6 +246,20 @@ declare global {
             };
             getCombatLifecycleSnapshot: () => {
                 readonly active: boolean;
+                readonly acctCriticalStrike: {
+                    readonly draws: number;
+                    readonly observations: readonly {
+                        readonly actualHpDecrease: number;
+                        readonly applied: boolean;
+                        readonly attackId: string;
+                        readonly deliveredDamage: number;
+                        readonly proc: boolean;
+                        readonly roll: number;
+                        readonly targetId: string;
+                    }[];
+                    readonly seed: number;
+                    readonly state: number;
+                };
                 readonly buildings: readonly {
                     readonly attack: { readonly cooldownSec: number; readonly damage: number; readonly rangePx: number } | null;
                     readonly armor: number;
@@ -273,6 +324,7 @@ declare global {
                     readonly maxHp: number;
                     readonly nextAttackAtSec: number;
                     readonly ownerPlayerId: number;
+                    readonly stats: { readonly attackCooldownSec: number; readonly damage: number; readonly speedPxPerSec: number };
                     readonly templateId: string;
                     readonly x: number;
                     readonly y: number;
@@ -301,6 +353,7 @@ declare global {
                     readonly tier: number;
                 }[];
             };
+            getEnemyProgressionSnapshot: () => EnemyProgressionSnapshot;
             getEconomyLifecycleSnapshot: () => {
                 readonly activeStartItemPlacement: {
                     readonly inventoryId: string;
@@ -452,6 +505,12 @@ declare global {
                 ownerPlayerId?: number,
             ) => boolean;
             removeCombatEnemyFixture: (id: string) => boolean;
+            spawnLinkedSummonForTest: (
+                parentEnemyId: string,
+                enemyId: EnemyId,
+                lifetimeSec?: number,
+            ) => string | null;
+            raiseSkeletonForTest: (casterId: string, requestKey: string) => string | null;
             damageWaveEnemyForTest: (id: string, damage: number) => boolean;
             setCombatEnemyHpForTest: (id: string, hp: number) => boolean;
             createEconomyChickenFixture: (
@@ -465,7 +524,7 @@ declare global {
             getWolfTargetingProbeForTest: (enemyId: string) => ReturnType<CombatPocSystem['getWolfTargetingProbe']>;
             setCombatVisibilityForTest: (visible: boolean | null) => boolean;
             getConstructionPlacementPreview: (
-                templateId: 'coop_basic' | 'fence_wood',
+                templateId: 'coop_basic' | 'farm_house' | 'fence_wood',
                 x: number,
                 y: number,
             ) => {
@@ -489,13 +548,13 @@ declare global {
             ) => boolean;
             setControllableUnitPositionForTest: (unitId: string, x: number, y: number) => boolean;
             createEconomyBuildingFixture: (
-                templateId: 'arcane_lab' | 'coop_basic' | 'coop_mid' | 'family_temple' | 'farm_house' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'power_generator' | 'town_hall' | 'well_basic' | 'workshop_lab',
+                templateId: 'arcane_lab' | 'campfire' | 'coop_basic' | 'coop_mid' | 'family_temple' | 'farm_house' | 'lumber_mill' | 'lumber_mill_mid' | 'lumber_mill_high' | 'market' | 'power_generator' | 'town_hall' | 'well_basic' | 'workshop_lab',
                 x: number,
                 y: number,
                 ownerPlayerId?: number,
             ) => string | null;
             createCombatBuildingFixture: (
-                templateId: 'fence_wood' | 'tower_scout',
+                templateId: 'fence_wood' | 'gate_wood' | 'tower_arcane_small' | 'tower_guard_small' | 'tower_scout',
                 x: number,
                 y: number,
             ) => string | null;
@@ -510,6 +569,7 @@ declare global {
             advanceProductionForTest: (targetElapsedSec: number) => boolean;
             setProductionExitBlockedForTest: (blocked: boolean) => boolean;
             setBuildingRallyPointForTest: (buildingId: string, x: number, y: number) => boolean;
+            setGateOpenForTest: (buildingId: string, open: boolean) => boolean;
             removeCompletedBuildingFixture: (buildingId: string) => boolean;
             replayCompletedBuildingEconomyAttachmentForTest: (buildingId: string) => boolean;
             advanceEconomyForTest: (targetElapsedSec: number) => boolean;
@@ -696,6 +756,7 @@ class FarmScene extends Phaser.Scene {
     private inventorySlots: readonly InventorySlotView[] = [];
     private renderedInventoryId?: string;
     private attackTargetingActive = false;
+    private rallyTargetingBuildingId?: string;
     private farmerFeedAutocast = false;
     private herdTargetingActive = false;
     private initialPlacementRegistry = new InitialPlacementRegistry();
@@ -754,6 +815,12 @@ class FarmScene extends Phaser.Scene {
     private lastFogAnchor?: Phaser.Math.Vector2;
     private lastMinimapAnchor?: Phaser.Math.Vector2;
     private lastMinimapCamera?: Phaser.Math.Vector2;
+    private linkedSummonRegistry: LinkedSummonRegistry = createLinkedSummonRegistry();
+    private ordinarySummonRegistry: OrdinarySummonRegistry = createOrdinarySummonRegistry();
+    private enemyCorpseRegistry: EnemyCorpseRegistry = createEnemyCorpseRegistry();
+    private linkedSummonSequence = 0;
+    private ordinarySummonSequence = 0;
+    private a02uPendingCasts = new Map<string, { readonly casterId: string; readonly deathKey: string; readonly requestKey: string }>();
     private terrainBlocker?: TerrainBlocker;
     private terrainOverlayGraphics?: Phaser.GameObjects.Graphics;
     private terrainOverlayVisible = false;
@@ -868,14 +935,25 @@ class FarmScene extends Phaser.Scene {
         this.configureControls();
         this.input.mouse?.disableContextMenu();
         this.controllableUnits = new ControllableUnitSystem({
-            damageEnemyTarget: (targetId, damage) =>
-                this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+            damageEnemyTarget: (targetId, damage, attackerId) => {
+                const attacker = this.controllableUnits.getUnits().find((unit) => unit.id === attackerId);
+                return this.combatPoc?.damageEnemyTarget(targetId, damage, {
+                    attackerEntityId: attackerId,
+                    cause: 'unit',
+                    ownerPlayerId: attacker?.ownerPlayerId ?? null,
+                    rewardEligible: Boolean(attacker),
+                }) ?? false;
+            },
             getAttackableEnemyTarget: (targetId) =>
                 this.combatPoc?.getAttackableEnemyTarget(targetId) ?? null,
             getAttackableEnemyTargets: () =>
                 this.combatPoc?.getAttackableEnemyTargets() ?? [],
             getDynamicBlockedRects: () => this.getDynamicBlockedRects(),
             getElapsedSec: () => this.elapsedSec,
+            getResearchLevels: (ownerPlayerId) => ({
+                dogDamage: this.researchQueue?.getLevel(ownerPlayerId, 'dogDamage') ?? 0,
+                dogSpeedClaw: this.researchQueue?.getLevel(ownerPlayerId, 'dogSpeedClaw') ?? 0,
+            }),
             onBuildCommandInterrupted: (unitId, siteId, reason) =>
                 this.buildingSystem?.pauseConstruction(siteId, unitId, reason),
             onPendingBuildOrdersInterrupted: (unitId, reason) =>
@@ -934,10 +1012,20 @@ class FarmScene extends Phaser.Scene {
         this.createEconomyPoc();
         if (CHICKEN_FARM_POC_FLAGS.construction) {
             this.buildingSystem = new BuildingSystem({
-                damageEnemyTarget: (targetId, damage) =>
-                    this.combatPoc?.damageEnemyTarget(targetId, damage) ?? false,
+                damageEnemyTarget: (targetId, damage, attacker) =>
+                    this.combatPoc?.damageEnemyTarget(targetId, damage, {
+                        attackerEntityId: attacker.id,
+                        cause: 'tower',
+                        ownerPlayerId: attacker.ownerPlayerId,
+                        rewardEligible: true,
+                    }) ?? false,
                 economy: this.getSharedPlayerEconomy(),
                 getElapsedSec: () => this.elapsedSec,
+                getResearchLevels: (ownerPlayerId) => ({
+                    arcaneTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'arcaneTowerDamage') ?? 0,
+                    guardTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'guardTowerDamage') ?? 0,
+                    masonry: this.researchQueue?.getLevel(ownerPlayerId, 'masonry') ?? 0,
+                }),
                 getAttackableEnemyTargets: () =>
                     this.combatPoc?.getAttackableEnemyTargets() ?? [],
                 isTargetVisible: (x, y) =>
@@ -979,9 +1067,49 @@ class FarmScene extends Phaser.Scene {
                 buttons: hud.commandButtons,
                 getSelectionKind: () => this.getCommandCardSelectionKind(),
                 isActionEnabled: (action) => {
+                    if (action.type === 'request_building_upgrade') {
+                        return this.canRequestSelectedBuildingUpgrade();
+                    }
+                    if (action.type === 'cancel_building_upgrade') {
+                        return Boolean(this.selectedBuildingId && this.buildingUpgrades?.has(this.selectedBuildingId));
+                    }
+                    if (action.type === 'toggle_gate') {
+                        const building = this.selectedBuildingId
+                            ? this.buildingSystem?.getBuilding(this.selectedBuildingId)
+                            : null;
+                        return Boolean(
+                            building &&
+                            building.templateId === 'gate_wood' &&
+                            (building.gateOpen || !this.isGateFootprintOccupied(building.footprint)),
+                        );
+                    }
+                    if (action.type === 'request_dog_production') {
+                        return this.canRequestSelectedDogProduction();
+                    }
+                    if (action.type === 'cancel_selected_production') {
+                        return Boolean(this.getSelectedProductionJob());
+                    }
+                    if (action.type === 'cancel_selected_hatch') {
+                        return Boolean(this.getSelectedHatchJob());
+                    }
+                    if (action.type === 'request_research') {
+                        return this.canRequestSelectedResearch(action.researchId);
+                    }
+                    if (action.type === 'cancel_selected_research') {
+                        return Boolean(this.getSelectedResearchJob());
+                    }
+                    if (action.type === 'start_rally_targeting') {
+                        return Boolean(this.getSelectedRallyBuilding());
+                    }
+                    if (action.type === 'start_coop_hatch') {
+                        return this.canRequestSelectedHatch();
+                    }
                     const farmer = this.controllableUnits
                         .getSelectedUnits()
                         .find((unit) => unit.templateId === 'farmer' && unit.hp > 0);
+                    if (action.type === 'start_build_placement') {
+                        return Boolean(farmer && this.canStartBuildPlacement(action.buildingId, farmer.ownerPlayerId));
+                    }
                     if (!farmer) return true;
                     if (action.type === 'feed_nearby_chicken') {
                         return this.controllableUnits.hasMana(
@@ -1029,6 +1157,7 @@ class FarmScene extends Phaser.Scene {
             getDynamicBlockedRects: () =>
                 this.buildingSystem?.getDynamicBlockedRects() ?? [],
             getElapsedSec: () => this.elapsedSec,
+            getRunId: () => this.runId,
             getWolfTargetableUnits: () =>
                 this.getWolfTargetableUnits(),
             getWolfTargetableBuildings: () =>
@@ -1088,6 +1217,7 @@ class FarmScene extends Phaser.Scene {
         this.performanceProfiler.measure('update.buildings', () =>
             this.buildingSystem?.update(),
         );
+        this.updateSupportAuras(delta / 1000);
         this.performanceProfiler.measure('update.constructionPlacement', () =>
             this.constructionPlacement?.update(),
         );
@@ -1134,6 +1264,12 @@ class FarmScene extends Phaser.Scene {
         this.waveGlobalAttackRefresh = createWaveGlobalAttackRefresh();
         this.nextWaveReplenishAtSec = null;
         this.waveManagedEnemies.clear();
+        this.linkedSummonRegistry = createLinkedSummonRegistry();
+        this.ordinarySummonRegistry = createOrdinarySummonRegistry();
+        this.enemyCorpseRegistry = createEnemyCorpseRegistry();
+        this.linkedSummonSequence = 0;
+        this.ordinarySummonSequence = 0;
+        this.a02uPendingCasts.clear();
         this.waveSpawnSequence = 0;
         this.waveTargetOverridesForTest.clear();
     }
@@ -1167,6 +1303,10 @@ class FarmScene extends Phaser.Scene {
         if (!scheduler || !populationTargets || !combat) return;
 
         this.reconcileWaveManagedEnemies();
+        this.updateA02uAbility();
+        this.reconcileLinkedSummons();
+        this.reconcileOrdinarySummons();
+        this.reconcileEnemyCorpses();
         const phaseStarts = scheduler.tick(this.elapsedSec);
         populationTargets.tick(this.elapsedSec, phaseStarts);
         if (this.nextWaveReplenishAtSec === null && phaseStarts.length > 0) {
@@ -1265,6 +1405,214 @@ class FarmScene extends Phaser.Scene {
         const aliveIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
         for (const id of this.waveManagedEnemies.keys()) {
             if (!aliveIds.has(id)) this.waveManagedEnemies.delete(id);
+        }
+    }
+
+    private reconcileLinkedSummons() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        const aliveEnemyIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
+        const reconciled = reconcileLinkedSummons(this.linkedSummonRegistry, {
+            aliveEnemyIds,
+            nowSec: this.elapsedSec,
+        });
+        this.linkedSummonRegistry = reconciled.registry;
+        reconciled.removeIds.forEach((id) => combat.removeRuntimeEnemy(id));
+    }
+
+    private reconcileOrdinarySummons() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        const deaths = combat.getEnemyDeathEvents().filter((death) => death.runId === this.runId);
+        const reconciled = reconcileOrdinarySummons(this.ordinarySummonRegistry, {
+            aliveEnemyIds: new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id)),
+            deadEnemyIds: new Set(deaths.map((death) => death.deadEntityId)),
+            nowSec: this.elapsedSec,
+        });
+        this.ordinarySummonRegistry = reconciled.registry;
+        reconciled.removeIds.forEach((id) => combat.removeRuntimeEnemy(id));
+    }
+
+    private reconcileEnemyCorpses() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        this.enemyCorpseRegistry = advanceEnemyCorpseRegistry(
+            this.enemyCorpseRegistry,
+            this.elapsedSec,
+        );
+        const linkedSummonIds = new Set([
+            ...this.linkedSummonRegistry.active.map((summon) => summon.id),
+            ...this.linkedSummonRegistry.ended.map((summon) => summon.id),
+        ]);
+        const ordinarySummonIds = new Set([
+            ...this.ordinarySummonRegistry.active.map((summon) => summon.id),
+            ...this.ordinarySummonRegistry.ended.map((summon) => summon.id),
+        ]);
+        for (const death of combat.getEnemyDeathEvents()) {
+            if (death.runId !== this.runId || linkedSummonIds.has(death.deadEntityId) || ordinarySummonIds.has(death.deadEntityId)) continue;
+            const registered = registerEnemyCorpse(this.enemyCorpseRegistry, {
+                createdAtSec: death.diedAtSec,
+                deadEntityId: death.deadEntityId,
+                deathKey: death.deathKey,
+                enemyId: death.enemyId,
+                expiresAtSec: death.diedAtSec + 10,
+                ownerPlayerId: death.deadOwnerPlayerId,
+                runId: death.runId,
+                x: death.x,
+                y: death.y,
+            });
+            this.enemyCorpseRegistry = registered.registry;
+        }
+    }
+
+    private spawnLinkedSummonForTest(
+        parentEnemyId: string,
+        enemyId: EnemyId,
+        lifetimeSec: number | undefined,
+    ) {
+        const combat = this.combatPoc;
+        if (!combat || !parentEnemyId || !Number.isFinite(lifetimeSec ?? 0) || (lifetimeSec ?? 0) < 0) {
+            return null;
+        }
+        const parent = combat.getRuntimeEnemySnapshot().find((enemy) => enemy.id === parentEnemyId);
+        if (!parent) return null;
+        const selection = selectWaveSpawnPoint({
+            dynamicBlockedRects: this.getDynamicBlockedRects(),
+            isTerrainFootprintBlocked: (footprint) =>
+                (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+            rects: WAVE_SPAWN_MANIFEST,
+            worldSize: { height: this.worldSize.y, width: this.worldSize.x },
+        });
+        if (!selection) return null;
+        const id = `linked-r${this.runId}-s${this.linkedSummonSequence}`;
+        const registered = registerLinkedSummon(this.linkedSummonRegistry, {
+            enemyId,
+            id,
+            lifetimeExpiresAtSec: lifetimeSec === undefined ? null : this.elapsedSec + lifetimeSec,
+            ownerPlayerId: parent.ownerPlayerId,
+            parentEnemyId,
+            runId: this.runId,
+            spawnedAtSec: this.elapsedSec,
+        });
+        if (!registered.accepted) return null;
+        const spawned = combat.spawnRuntimeEnemy({
+            enemyId,
+            id,
+            ownerPlayerId: parent.ownerPlayerId,
+            x: selection.candidate.x,
+            y: selection.candidate.y,
+        });
+        if (!spawned) return null;
+        this.linkedSummonRegistry = registered.registry;
+        this.linkedSummonSequence += 1;
+        return id;
+    }
+
+    private raiseSkeletonForTest(casterId: string, requestKey: string, reservedDeathKey?: string) {
+        const combat = this.combatPoc;
+        if (!combat || !casterId || !requestKey || this.runDisposed) return null;
+        const caster = combat.getRuntimeEnemySnapshot().find(
+            (enemy) => enemy.id === casterId && enemy.enemyId === 'satyr_soulstealer',
+        );
+        if (!caster) return null;
+        const existingReservation = reservedDeathKey
+            ? this.enemyCorpseRegistry.corpses.find((corpse) =>
+                corpse.deathKey === reservedDeathKey && corpse.status === 'reserved' && corpse.reservationCasterId === casterId,
+            ) ?? null
+            : null;
+        const reserved = existingReservation
+            ? { corpse: existingReservation, registry: this.enemyCorpseRegistry }
+            : reserveNearestEnemyCorpse(this.enemyCorpseRegistry, {
+                casterId, ownerPlayerId: caster.ownerPlayerId, radiusPx: 176, runId: this.runId, x: caster.x, y: caster.y,
+            });
+        if (!reserved.corpse) return null;
+        this.enemyCorpseRegistry = reserved.registry;
+        const spawnPoint = selectOrdinarySummonSpawnPoint({
+            corpse: reserved.corpse,
+            dynamicBlockedRects: this.getDynamicBlockedRects(),
+            isTerrainFootprintBlocked: (footprint) =>
+                (this.terrainBlocker?.getGroundBlockedRects(footprint).length ?? 0) > 0,
+            worldSize: { height: this.worldSize.y, width: this.worldSize.x },
+        });
+        if (!spawnPoint) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const id = `a02u-r${this.runId}-s${this.ordinarySummonSequence}`;
+        const registered = registerOrdinarySummon(this.ordinarySummonRegistry, {
+            enemyId: 'skeleton_warrior',
+            id,
+            lifetimeExpiresAtSec: this.elapsedSec + A02U_SKELETON_LIFETIME_SEC,
+            ownerPlayerId: caster.ownerPlayerId,
+            parentEnemyId: casterId,
+            persistsAfterParentRemoval: true,
+            requestKey,
+            rewardEligible: false,
+            runId: this.runId,
+            sourceAbilityId: 'A02U',
+            spawnedAtSec: this.elapsedSec,
+        });
+        if (!registered.accepted) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const spawned = combat.spawnRuntimeEnemy({
+            enemyId: 'skeleton_warrior', id, ownerPlayerId: caster.ownerPlayerId, ...spawnPoint,
+        });
+        if (!spawned) {
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        const consumed = consumeReservedEnemyCorpse(this.enemyCorpseRegistry, {
+            casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+        });
+        if (!consumed.consumed) {
+            combat.removeRuntimeEnemy(id);
+            this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                casterId, deathKey: reserved.corpse.deathKey, runId: this.runId,
+            }).registry;
+            return null;
+        }
+        this.enemyCorpseRegistry = consumed.registry;
+        this.ordinarySummonRegistry = registered.registry;
+        this.ordinarySummonSequence += 1;
+        return id;
+    }
+
+    private updateA02uAbility() {
+        const combat = this.combatPoc;
+        if (!combat) return;
+        for (const resolution of combat.consumeEnemyAbilityResolutions()) {
+            if (resolution.abilityId !== 'A02U') continue;
+            const pending = this.a02uPendingCasts.get(resolution.targetId);
+            this.a02uPendingCasts.delete(resolution.targetId);
+            if (!pending) continue;
+            if (resolution.status === 'executed') {
+                this.raiseSkeletonForTest(pending.casterId, pending.requestKey, pending.deathKey);
+            } else {
+                this.enemyCorpseRegistry = releaseEnemyCorpseReservation(this.enemyCorpseRegistry, {
+                    casterId: pending.casterId, deathKey: pending.deathKey, runId: this.runId,
+                }).registry;
+            }
+        }
+        const activeEnemyIds = new Set(combat.getRuntimeEnemySnapshot().map((enemy) => enemy.id));
+        for (const caster of combat.getRuntimeEnemySnapshot().filter((enemy) => enemy.enemyId === 'satyr_soulstealer')) {
+            if (this.a02uPendingCasts.size && [...this.a02uPendingCasts.values()].some((pending) => pending.casterId === caster.id)) continue;
+            const reserved = reserveNearestEnemyCorpse(this.enemyCorpseRegistry, {
+                casterId: caster.id, ownerPlayerId: caster.ownerPlayerId, radiusPx: 176, runId: this.runId, x: caster.x, y: caster.y,
+            });
+            if (!reserved.corpse) continue;
+            const started = combat.startEnemyAbilityCast({ abilityId: 'A02U', casterId: caster.id, cooldownSec: 3, targetId: reserved.corpse.deathKey, windupSec: 0 });
+            if (!started || !activeEnemyIds.has(caster.id)) continue;
+            this.enemyCorpseRegistry = reserved.registry;
+            combat.setExternalAbilityTargetValid(reserved.corpse.deathKey, true);
+            this.a02uPendingCasts.set(reserved.corpse.deathKey, { casterId: caster.id, deathKey: reserved.corpse.deathKey, requestKey: `a02u:${reserved.corpse.deathKey}` });
         }
     }
 
@@ -1386,6 +1734,7 @@ class FarmScene extends Phaser.Scene {
         this.economyWorkerTasks.clear();
         this.selectedBuildingId = undefined;
         this.selectedEconomyEntity = undefined;
+        this.rallyTargetingBuildingId = undefined;
         this.startItemPlacement = undefined;
         this.startItemPlacementGraphics = undefined;
         this.attackTargetingActive = false;
@@ -1530,6 +1879,9 @@ class FarmScene extends Phaser.Scene {
     }
 
     private handleBuildingCompleted(building: Parameters<typeof attachCompletedBuildingEconomy>[1]) {
+        // A building may have started construction before research completed.
+        // Completion reuses the same base+level projection as existing/new tiers.
+        this.buildingSystem?.refreshResearchStats(building.ownerPlayerId);
         this.supplyLifecycle?.registerBuilding(
             building.id,
             building.ownerPlayerId,
@@ -1683,7 +2035,53 @@ class FarmScene extends Phaser.Scene {
                 this.researchQueue?.discardProvider(job.providerId);
                 return;
             }
-            this.researchQueue?.complete(job.providerId);
+            const completed = this.researchQueue?.complete(job.providerId);
+            if (completed) this.buildingSystem?.refreshResearchStats(completed.ownerPlayerId);
+        });
+    }
+
+    private getResearchedBuildingAttack(ownerPlayerId: number, templateId: keyof typeof CHICKEN_FARM_BALANCE.buildingTemplates) {
+        return getResearchedBuildingStats(
+            CHICKEN_FARM_BALANCE.buildingTemplates[templateId],
+            {
+                arcaneTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'arcaneTowerDamage') ?? 0,
+                guardTowerDamage: this.researchQueue?.getLevel(ownerPlayerId, 'guardTowerDamage') ?? 0,
+                masonry: this.researchQueue?.getLevel(ownerPlayerId, 'masonry') ?? 0,
+            },
+        ).attack ?? null;
+    }
+
+    private getResearchedUnitStats(ownerPlayerId: number, templateId: 'dog' | 'farmer') {
+        const stats = getResearchedUnitStats(
+            templateId,
+            CHICKEN_FARM_BALANCE.defenders[templateId],
+            {
+                dogDamage: this.researchQueue?.getLevel(ownerPlayerId, 'dogDamage') ?? 0,
+                dogSpeedClaw: this.researchQueue?.getLevel(ownerPlayerId, 'dogSpeedClaw') ?? 0,
+            },
+        );
+        return {
+            attackCooldownSec: stats.attackCooldownSec,
+            damage: stats.damage,
+            speedPxPerSec: stats.speedPxPerSec,
+        };
+    }
+
+    private updateSupportAuras(deltaSec: number) {
+        if (!Number.isFinite(deltaSec) || deltaSec <= 0) return;
+        (this.buildingSystem?.getBuildings() ?? []).forEach((building) => {
+            if (building.state !== 'complete' || building.hp <= 0) return;
+            const aura = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].aura;
+            if (!aura || aura.kind !== 'heal') return;
+            this.controllableUnits.healUnitsInRange(
+                building.ownerPlayerId,
+                {
+                    x: building.footprint.x + building.footprint.width / 2,
+                    y: building.footprint.y + building.footprint.height / 2,
+                },
+                aura.rangePx,
+                aura.amountPerSec * deltaSec,
+            );
         });
     }
 
@@ -2233,16 +2631,24 @@ class FarmScene extends Phaser.Scene {
                 this.economyWorkerTasks.delete(unitId);
                 return;
             }
-            const distance = Phaser.Math.Distance.Between(
-                unit.position.x,
-                unit.position.y,
-                coop.position.x,
-                coop.position.y,
-            );
-            if (
-                distance >
-                ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX + 22
-            ) {
+            const coopBuilding = this.buildingSystem?.getBuilding(coop.id);
+            const isInInteractionRange = coopBuilding
+                ? this.isWithinBuildingInteractionRange(unit.position, coopBuilding.footprint)
+                : Phaser.Math.Distance.Between(
+                    unit.position.x,
+                    unit.position.y,
+                    coop.position.x,
+                    coop.position.y,
+                ) <= ECONOMY_INTERACTION_RADIUS_PX + ECONOMY_COOP_INTERACTION_MARGIN_PX + 22;
+            // A deposit task is created only after a reachable coop approach
+            // point has accepted a move command. Pathing can finish that
+            // approach just outside the geometry-derived range (notably after
+            // a 4x4 egg-storage upgrade), leaving an idle farmer with a
+            // permanently pending task. An idle worker with no queued order
+            // has therefore completed that already-validated approach.
+            const reachedOrderedApproach =
+                !unit.currentCommand && unit.commandQueue.length === 0;
+            if (!isInInteractionRange && !reachedOrderedApproach) {
                 return;
             }
 
@@ -2976,6 +3382,10 @@ class FarmScene extends Phaser.Scene {
             });
             return true;
         }
+        if (this.rallyTargetingBuildingId && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
+            this.rallyTargetingBuildingId = undefined;
+            return true;
+        }
         if (this.attackTargetingActive && Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
             this.attackTargetingActive = false;
             this.telemetry.record('attack_targeting_cancelled', { reason: 'escape' });
@@ -3061,7 +3471,187 @@ class FarmScene extends Phaser.Scene {
 
             this.selectedBuildingId = undefined;
             this.commandCard?.refresh();
+            return;
         }
+
+        if (action.type === 'request_building_upgrade') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building) return;
+            this.requestBuildingUpgrade(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'cancel_building_upgrade') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building) return;
+            this.cancelBuildingUpgrade(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'toggle_gate') {
+            if (!this.selectedBuildingId) return;
+            const building = this.buildingSystem?.getBuilding(this.selectedBuildingId);
+            if (!building || building.templateId !== 'gate_wood') return;
+            this.setGateOpen(building.id, building.ownerPlayerId, !building.gateOpen);
+            return;
+        }
+
+        if (action.type === 'request_dog_production') {
+            const building = this.getSelectedBuilding();
+            if (building) this.requestDogProduction(building.id, building.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_production') {
+            const job = this.getSelectedProductionJob();
+            if (job) this.productionQueue?.cancel(job.id, job.ownerPlayerId, this.elapsedSec);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_hatch') {
+            const job = this.getSelectedHatchJob();
+            if (!job || !this.economyState) return;
+            const cancelled = cancelCoopHatch(this.economyState, {
+                hatchJobId: job.id,
+                ownerPlayerId: job.ownerPlayerId,
+            });
+            if (cancelled) this.handleEconomyEvent(cancelled);
+            return;
+        }
+
+        if (action.type === 'request_research') {
+            const building = this.getSelectedBuilding();
+            if (building) this.requestResearch(building.id, building.ownerPlayerId, action.researchId);
+            return;
+        }
+
+        if (action.type === 'cancel_selected_research') {
+            const job = this.getSelectedResearchJob();
+            if (job) this.cancelResearch(job.providerId, job.ownerPlayerId);
+            return;
+        }
+
+        if (action.type === 'start_rally_targeting') {
+            const building = this.getSelectedRallyBuilding();
+            if (!building) return;
+            this.constructionPlacement?.cancelPlacement('rally_targeting');
+            this.attackTargetingActive = false;
+            this.herdTargetingActive = false;
+            this.rallyTargetingBuildingId = building.id;
+        }
+    }
+
+    private getSelectedBuilding() {
+        return this.selectedBuildingId ? this.buildingSystem?.getBuilding(this.selectedBuildingId) ?? null : null;
+    }
+
+    private getSelectedProductionJob() {
+        const building = this.getSelectedBuilding();
+        if (!building) return null;
+        return this.productionQueue?.getJobs(building.ownerPlayerId).find((job) => job.producerId === building.id) ?? null;
+    }
+
+    private getSelectedResearchJob() {
+        const building = this.getSelectedBuilding();
+        if (!building) return null;
+        return this.researchQueue?.get(building.ownerPlayerId).find((job) => job.providerId === building.id) ?? null;
+    }
+
+    private getSelectedHatchJob() {
+        const coopId = this.selectedEconomyEntity?.type === 'coop' ? this.selectedEconomyEntity.id : null;
+        if (!coopId) return null;
+        return this.economyState?.hatchJobs.find((job) => job.coopId === coopId) ?? null;
+    }
+
+    private canRequestSelectedHatch() {
+        const coopId = this.selectedEconomyEntity?.type === 'coop' ? this.selectedEconomyEntity.id : null;
+        const state = this.economyState;
+        if (!coopId || !state) return false;
+        const coop = state.coops.find((candidate) => candidate.id === coopId);
+        const wallet = coop && state.players.find((player) => player.id === coop.ownerPlayerId);
+        return Boolean(
+            coop && wallet && coop.storedEggs > 0 &&
+            state.hatchJobs.filter((job) => job.coopId === coop.id).length < state.config.coopRules[coop.kind].hatchCapacity &&
+            wallet.supplyCap - wallet.supplyUsed - (wallet.supplyReserved ?? 0) >= 1,
+        );
+    }
+
+    private getSelectedRallyBuilding() {
+        if (this.selectedEconomyEntity?.type === 'coop') {
+            return this.buildingSystem?.getBuilding(this.selectedEconomyEntity.id) ?? null;
+        }
+        const building = this.getSelectedBuilding();
+        return building?.state === 'complete' && CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].productionExit
+            ? building
+            : null;
+    }
+
+    private canRequestSelectedDogProduction() {
+        const building = this.getSelectedBuilding();
+        if (!building) return false;
+        const recipe = GROWTH_PRODUCTION_RECIPES.dog;
+        const wallet = this.economyState?.players.find((player) => player.id === building.ownerPlayerId);
+        return Boolean(
+            wallet && building.state === 'complete' && !this.buildingUpgrades?.has(building.id) &&
+            recipe.producerTemplateIds.some((templateId) => templateId === building.templateId) &&
+            wallet.gold >= recipe.cost.gold && wallet.lumber >= recipe.cost.lumber &&
+            wallet.supplyCap - wallet.supplyUsed - (wallet.supplyReserved ?? 0) >= recipe.supplyCost,
+        );
+    }
+
+    private canRequestSelectedResearch(researchId: ResearchDefinition['id']) {
+        const building = this.getSelectedBuilding();
+        if (!building || building.state !== 'complete' || this.buildingUpgrades?.has(building.id)) return false;
+        const template = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId];
+        const definition = GROWTH_RESEARCH[researchId];
+        const wallet = this.economyState?.players.find((player) => player.id === building.ownerPlayerId);
+        const researchQueue = this.researchQueue;
+        return Boolean(
+            wallet && researchQueue && template.providesResearch?.includes(researchId) &&
+            !researchQueue.get(building.ownerPlayerId).some((job) => job.providerId === building.id || job.researchId === researchId) &&
+            researchQueue.getLevel(building.ownerPlayerId, researchId) < definition.maxLevel &&
+            wallet.gold >= definition.costPerLevel.gold && wallet.lumber >= definition.costPerLevel.lumber,
+        );
+    }
+
+    private canStartBuildPlacement(templateId: keyof typeof CHICKEN_FARM_BALANCE.buildingTemplates, ownerPlayerId?: number) {
+        if (
+            ownerPlayerId === undefined ||
+            GROWTH_BUILDING_RULES[templateId].acquisition !== 'build' ||
+            !this.buildingSystem?.canAfford(CHICKEN_FARM_BALANCE.buildingTemplates[templateId])
+        ) return false;
+        return evaluateBuildingEligibility({
+            buildings: (this.buildingSystem.getBuildings() ?? []).map((building) => ({
+                hp: building.hp,
+                ownerPlayerId: building.ownerPlayerId,
+                state: building.state,
+                templateId: building.templateId,
+            })),
+            ownerPlayerId,
+        }, templateId).eligible;
+    }
+
+    private canRequestSelectedBuildingUpgrade() {
+        if (!this.selectedBuildingId) return false;
+        const buildingSystem = this.buildingSystem;
+        if (!buildingSystem) return false;
+        const building = buildingSystem?.getBuilding(this.selectedBuildingId);
+        if (!building || building.state !== 'complete' || this.buildingUpgrades?.has(building.id)) return false;
+        const targetTemplateId = CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].upgradeTo;
+        if (!targetTemplateId || this.productionQueue?.getJobs().some((job) => job.producerId === building.id)) return false;
+        const target = CHICKEN_FARM_BALANCE.buildingTemplates[targetTemplateId];
+        if (!buildingSystem.canAfford(target)) return false;
+        return evaluateBuildingEligibility({
+            buildings: buildingSystem.getBuildings().map((candidate) => ({
+                hp: candidate.hp,
+                ownerPlayerId: candidate.ownerPlayerId,
+                state: candidate.state,
+                templateId: candidate.templateId,
+            })),
+            ownerPlayerId: building.ownerPlayerId,
+        }, targetTemplateId).eligible;
     }
 
     private getCommandCardSelectionKind(): CommandCardSelectionKind {
@@ -3098,6 +3688,27 @@ class FarmScene extends Phaser.Scene {
             ...(this.combatPoc?.getDynamicBlockedRects() ?? []),
             ...(this.buildingSystem?.getDynamicBlockedRects() ?? []),
         ];
+    }
+
+    private setGateOpen(buildingId: string, ownerPlayerId: number, open: boolean) {
+        const building = this.buildingSystem?.getBuilding(buildingId);
+        if (!building || building.ownerPlayerId !== ownerPlayerId) return false;
+        return this.buildingSystem?.setGateOpen(
+            buildingId,
+            open,
+            (footprint) => this.isGateFootprintOccupied(footprint),
+        ) ?? false;
+    }
+
+    private isGateFootprintOccupied(footprint: { readonly height: number; readonly width: number; readonly x: number; readonly y: number }) {
+        const contains = (point: { readonly x: number; readonly y: number }) =>
+            point.x >= footprint.x &&
+            point.x <= footprint.x + footprint.width &&
+            point.y >= footprint.y &&
+            point.y <= footprint.y + footprint.height;
+        return this.controllableUnits.getUnits().some((unit) => unit.hp > 0 && contains(unit.position)) ||
+            (this.economyState?.chickens ?? []).some((chicken) => chicken.aiState !== 'dead' && chicken.hp > 0 && contains(chicken.position)) ||
+            (this.combatPoc?.getRuntimeEnemySnapshot() ?? []).some((enemy) => enemy.hp > 0 && contains(enemy));
     }
 
     private getWolfTargetableUnits(): readonly ControllableUnitCombatTarget[] {
@@ -3300,12 +3911,16 @@ class FarmScene extends Phaser.Scene {
             e: Phaser.Input.Keyboard.KeyCodes.E,
             escape: Phaser.Input.Keyboard.KeyCodes.ESC,
             f: Phaser.Input.Keyboard.KeyCodes.F,
+            g: Phaser.Input.Keyboard.KeyCodes.G,
             grid: Phaser.Input.Keyboard.KeyCodes.G,
             h: Phaser.Input.Keyboard.KeyCodes.H,
             left: Phaser.Input.Keyboard.KeyCodes.A,
+            l: Phaser.Input.Keyboard.KeyCodes.L,
             m: Phaser.Input.Keyboard.KeyCodes.M,
             microPathingFocus: Phaser.Input.Keyboard.KeyCodes.NINE,
+            p: Phaser.Input.Keyboard.KeyCodes.P,
             right: Phaser.Input.Keyboard.KeyCodes.D,
+            r: Phaser.Input.Keyboard.KeyCodes.R,
             s: Phaser.Input.Keyboard.KeyCodes.S,
             shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
             stop: Phaser.Input.Keyboard.KeyCodes.S,
@@ -3313,6 +3928,7 @@ class FarmScene extends Phaser.Scene {
             telemetryExport: Phaser.Input.Keyboard.KeyCodes.L,
             terrainOverlay: Phaser.Input.Keyboard.KeyCodes.T,
             up: Phaser.Input.Keyboard.KeyCodes.W,
+            u: Phaser.Input.Keyboard.KeyCodes.U,
             w: Phaser.Input.Keyboard.KeyCodes.W,
             x: Phaser.Input.Keyboard.KeyCodes.X,
         }) as FarmScene['keys'];
@@ -3339,6 +3955,14 @@ class FarmScene extends Phaser.Scene {
                     y: worldPoint.y,
                 };
                 if (this.startItemPlacement && this.placeStartItem(worldPoint)) return;
+                if (this.rallyTargetingBuildingId) {
+                    const building = this.buildingSystem?.getBuilding(this.rallyTargetingBuildingId);
+                    if (building) this.buildingSystem?.setRallyPoint(building.id, worldPoint);
+                    this.rallyTargetingBuildingId = undefined;
+                    this.commandCard?.refresh();
+                    this.updateSelectionInfo();
+                    return;
+                }
                 if (this.herdTargetingActive) {
                     this.issueHerdTargetingCommand(worldPoint);
                     return;
@@ -3927,10 +4551,17 @@ class FarmScene extends Phaser.Scene {
             }),
             getCombatLifecycleSnapshot: () => ({
                 active: (this.combatPoc?.getLifecycleSnapshot().wolfCount ?? 0) > 0,
+                acctCriticalStrike: this.combatPoc?.getAcctCriticalStrikeSnapshot() ?? {
+                    draws: 0,
+                    observations: [],
+                    seed: this.runId,
+                    state: this.runId,
+                },
                 buildings: (this.buildingSystem?.getBuildings() ?? []).map((building) => ({
-                    attack: CHICKEN_FARM_BALANCE.buildingTemplates[building.templateId].attack ?? null,
+                    attack: this.getResearchedBuildingAttack(building.ownerPlayerId, building.templateId),
                     armor: building.armor,
                     footprint: { ...building.footprint },
+                    gateOpen: building.templateId === 'gate_wood' ? Boolean(building.gateOpen) : null,
                     hp: building.hp,
                     id: building.id,
                     maxHp: building.maxHp,
@@ -3969,6 +4600,7 @@ class FarmScene extends Phaser.Scene {
                     maxHp: unit.maxHp,
                     nextAttackAtSec: unit.nextAttackAtSec,
                     ownerPlayerId: unit.ownerPlayerId,
+                    stats: this.getResearchedUnitStats(unit.ownerPlayerId, unit.templateId),
                     templateId: unit.templateId,
                     x: unit.position.x,
                     y: unit.position.y,
@@ -3977,6 +4609,109 @@ class FarmScene extends Phaser.Scene {
             getWaveSnapshot: () => ({
                 ...this.getWaveSnapshot(),
             }),
+            getEnemyProgressionSnapshot: () => {
+                const waveEnemiesById = new Map(
+                    this.getWaveSnapshot().waveManagedEnemies.map((enemy) => [
+                        enemy.id,
+                        enemy,
+                    ]),
+                );
+                const canonicalEnemies = Object.values(CANONICAL_ENEMY_DEFINITIONS).sort(
+                    (left, right) => left.rawcode.localeCompare(right.rawcode),
+                );
+                const definitionByRawcode = new Map(
+                    canonicalEnemies.map((definition) => [definition.rawcode, definition]),
+                );
+                const abilityClock = this.combatPoc?.getEnemyAbilityClockSnapshot();
+
+                return {
+                    abilityClock: {
+                        activeCasts: abilityClock?.activeCasts ?? [],
+                        cooldownCount: abilityClock?.cooldownCount ?? 0,
+                        state: 'ready_no_supported_abilities' as const,
+                    },
+                    bossMilestones: CHICKEN_FARM_BALANCE.waves.bossMilestonesForSp10.map(
+                        (milestone) => {
+                            const definition = definitionByRawcode.get(milestone.bossRawcode);
+                            if (!definition) {
+                                throw new Error(`Missing canonical boss definition: ${milestone.bossRawcode}`);
+                            }
+                            return {
+                                atSec: milestone.atSec,
+                                enemyId: definition.enemyId,
+                                rawcode: milestone.bossRawcode,
+                                state:
+                                    this.elapsedSec >= milestone.atSec
+                                        ? ('due_not_scheduled' as const)
+                                        : ('pending' as const),
+                            };
+                        },
+                    ),
+                    canonicalEnemies,
+                    corpses: {
+                        entries: this.enemyCorpseRegistry.corpses,
+                        state: 'active' as const,
+                    },
+                    deathEvents: this.combatPoc?.getEnemyDeathEvents() ?? [],
+                    elapsedSec: this.elapsedSec,
+                    fieldDrops: { entries: [], state: 'not_started' as const },
+                    finalTracking: {
+                        state: 'not_started' as const,
+                        trackedLinkedSummonIds: [],
+                        trackedWaveEnemyIds: [],
+                    },
+                    fixturesEnabled: CHICKEN_FARM_POC_FLAGS.debugFixtures,
+                    farmerProgression: { owners: [], state: 'not_started' as const },
+                    linkedSummons: {
+                        active: this.linkedSummonRegistry.active,
+                        ended: this.linkedSummonRegistry.ended,
+                        state: 'registry_active' as const,
+                    },
+                    ordinarySummons: {
+                        active: this.ordinarySummonRegistry.active,
+                        ended: this.ordinarySummonRegistry.ended,
+                        state: 'registry_active' as const,
+                    },
+                    rewardLedger: { entries: [], state: 'not_started' as const },
+                    runId: this.runId,
+                    runtimeEnemies: (this.combatPoc?.getRuntimeEnemySnapshot() ?? [])
+                        .map((enemy) => {
+                            const definition = CANONICAL_ENEMY_DEFINITIONS[enemy.enemyId];
+                            const ordinaryAbilityPolicy = ORDINARY_ENEMY_ABILITY_POLICIES.find(
+                                (policy) => policy.enemyId === enemy.enemyId,
+                            );
+                            const linkedSummon = this.linkedSummonRegistry.active.find(
+                                (summon) => summon.id === enemy.id,
+                            );
+                            const ordinarySummon = this.ordinarySummonRegistry.active.find(
+                                (summon) => summon.id === enemy.id,
+                            );
+                            return {
+                                abilities: definition.abilities,
+                                enemyId: enemy.enemyId,
+                                id: enemy.id,
+                                origin: ordinarySummon
+                                    ? ('ordinary_summon' as const)
+                                    : linkedSummon
+                                    ? ('linked_summon' as const)
+                                    : waveEnemiesById.has(enemy.id)
+                                      ? ('ordinary_wave' as const)
+                                      : ('runtime_fixture_or_other' as const),
+                                ownerPlayerId: enemy.ownerPlayerId,
+                                ordinaryAbilityPolicy: ordinaryAbilityPolicy
+                                    ? {
+                                          attachedAbilityIds: ordinaryAbilityPolicy.attachedAbilityIds,
+                                          execution: ordinaryAbilityPolicy.execution,
+                                      }
+                                    : null,
+                                parentEnemyId: ordinarySummon?.parentEnemyId ?? linkedSummon?.parentEnemyId ?? null,
+                                rawcode: definition.rawcode,
+                                rewardEligible: ordinarySummon?.rewardEligible ?? true,
+                            };
+                        })
+                        .sort((left, right) => left.id.localeCompare(right.id)),
+                };
+            },
             createCombatEnemyFixture: (id, enemyId, x, y, ownerPlayerId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return Boolean(
@@ -3993,9 +4728,22 @@ class FarmScene extends Phaser.Scene {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.combatPoc?.removeRuntimeEnemy(id) ?? false;
             },
+            spawnLinkedSummonForTest: (parentEnemyId, enemyId, lifetimeSec) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                return this.spawnLinkedSummonForTest(parentEnemyId, enemyId, lifetimeSec);
+            },
+            raiseSkeletonForTest: (casterId, requestKey) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return null;
+                return this.raiseSkeletonForTest(casterId, requestKey);
+            },
             damageWaveEnemyForTest: (id, damage) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
-                return this.combatPoc?.damageEnemyTarget(id, damage) ?? false;
+                return this.combatPoc?.damageEnemyTarget(id, damage, {
+                    attackerEntityId: null,
+                    cause: 'debug',
+                    ownerPlayerId: null,
+                    rewardEligible: false,
+                }) ?? false;
             },
             setCombatEnemyHpForTest: (id, hp) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
@@ -4307,6 +5055,14 @@ class FarmScene extends Phaser.Scene {
                 if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
                 return this.buildingSystem?.setRallyPoint(buildingId, { x, y }) ?? false;
             },
+            setGateOpenForTest: (buildingId, open) => {
+                if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
+                if (typeof open !== 'boolean') return false;
+                const building = this.buildingSystem?.getBuilding(buildingId);
+                return Boolean(
+                    building && this.setGateOpen(buildingId, building.ownerPlayerId, open),
+                );
+            },
             removeCompletedBuildingFixture: (buildingId) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 return this.constructionPlacement?.removeCompletedBuilding(buildingId, 'debug_fixture') ?? false;
@@ -4320,12 +5076,14 @@ class FarmScene extends Phaser.Scene {
             advanceEconomyForTest: (targetElapsedSec) => {
                 if (!CHICKEN_FARM_POC_FLAGS.debugFixtures || this.runDisposed) return false;
                 if (!Number.isFinite(targetElapsedSec) || targetElapsedSec < this.elapsedSec) return false;
+                const elapsedDeltaSec = targetElapsedSec - this.elapsedSec;
                 this.elapsedSec = targetElapsedSec;
                 const events = updateChickenFarmEconomy(this.economyState!, this.elapsedSec, {
                     canChickenOccupyPoint: (point) => this.canProductionExitOccupyPoint(point),
                     getRallyPoint: (buildingId) => this.buildingSystem?.getRallyPoint(buildingId) ?? null,
                 });
                 events.forEach((event) => this.handleEconomyEvent(event));
+                this.updateSupportAuras(elapsedDeltaSec);
                 this.syncChickenViews();
                 this.refreshEconomyLabels();
                 return true;
@@ -4614,6 +5372,32 @@ class FarmScene extends Phaser.Scene {
         }
         if (selectedBuilding) {
             const template = CHICKEN_FARM_BALANCE.buildingTemplates[selectedBuilding.templateId];
+            const upgradeTargetId = template.upgradeTo;
+            const upgradeTarget = upgradeTargetId
+                ? CHICKEN_FARM_BALANCE.buildingTemplates[upgradeTargetId]
+                : null;
+            const upgradeJob = this.buildingUpgrades
+                ?.get(selectedBuilding.ownerPlayerId)
+                .find((job) => job.buildingId === selectedBuilding.id);
+            const upgradeEligibility = upgradeTargetId
+                ? evaluateBuildingEligibility(
+                      {
+                          buildings: this.buildingSystem?.getBuildings().map((building) => ({
+                              hp: building.hp,
+                              ownerPlayerId: building.ownerPlayerId,
+                              state: building.state,
+                              templateId: building.templateId,
+                          })) ?? [],
+                          ownerPlayerId: selectedBuilding.ownerPlayerId,
+                      },
+                      upgradeTargetId,
+                  )
+                : null;
+            const productionJob = this.getSelectedProductionJob();
+            const researchJob = this.getSelectedResearchJob();
+            const supply = this.economyState?.players.find(
+                (player) => player.id === selectedBuilding.ownerPlayerId,
+            );
             const buildPercent = Math.round(selectedBuilding.progress * 100);
             const workerText =
                 selectedBuilding.state === 'complete'
@@ -4636,20 +5420,49 @@ class FarmScene extends Phaser.Scene {
                 `HP ${selectedBuilding.hp}/${selectedBuilding.maxHp} | Armor ${template.armor} | Footprint ${selectedBuilding.footprintCells.w}x${selectedBuilding.footprintCells.h}${attackText}`,
             );
             this.selectionInfoStatusText.setText(
-                `Status ${selectedBuilding.state} | Build ${buildPercent}% | Remaining ${selectedBuilding.remainingSec.toFixed(
-                    1,
-                )}s`,
+                upgradeJob
+                    ? `Upgrade → ${upgradeTarget?.displayName ?? upgradeJob.targetTemplateId} | ${Math.round(
+                          Math.min(
+                              1,
+                              Math.max(
+                                  0,
+                                  (this.elapsedSec - upgradeJob.startedAtSec) /
+                                      Math.max(0.001, upgradeJob.completeAtSec - upgradeJob.startedAtSec),
+                              ),
+                          ) * 100,
+                      )}% | ${Math.max(0, upgradeJob.completeAtSec - this.elapsedSec).toFixed(1)}s | X: 75% refund`
+                    : productionJob
+                      ? `Train dog ${productionJob.state} | ${productionJob.completeAtSec === null ? 'queued' : `${Math.max(0, productionJob.completeAtSec - this.elapsedSec).toFixed(1)}s`} | Supply ${supply?.supplyUsed ?? 0}+${supply?.supplyReserved ?? 0}/${supply?.supplyCap ?? 0}`
+                      : researchJob
+                        ? `Research ${researchJob.researchId} Lv.${researchJob.targetLevel} | ${Math.max(0, researchJob.completeAtSec - this.elapsedSec).toFixed(1)}s | X: full refund`
+                    : selectedBuilding.templateId === 'gate_wood'
+                      ? `Gate ${selectedBuilding.gateOpen ? 'open' : 'closed'} | G: toggle${
+                            !selectedBuilding.gateOpen && this.isGateFootprintOccupied(selectedBuilding.footprint)
+                                ? ' (blocked: unit in gate)'
+                                : ''
+                        }`
+                      : `Status ${selectedBuilding.state} | Build ${buildPercent}% | Remaining ${selectedBuilding.remainingSec.toFixed(
+                            1,
+                        )}s`,
             );
             this.selectionInfoBodyText.setText(
                 selectedBuilding.state === 'complete' &&
                     (selectedBuilding.templateId === 'market' ||
                         selectedBuilding.templateId === 'grand_market')
                     ? '농부가 알을 들고 시장을 우클릭하면 판매합니다.'
-                    : `${workerText} | Cost ${template.originalCost?.gold ?? template.costGold}g${
-                          template.originalCost?.lumber
-                              ? ` ${template.originalCost.lumber}l`
-                              : ''
-                      } | W3X bldtm ${template.buildTimeSec}s | PathTex footprint source`,
+                    : productionJob
+                      ? `P: cancel only this building's ${productionJob.recipeId} job; refund and supply reservation return.`
+                      : researchJob
+                        ? `X: cancel only this provider's research job; full cost returns.`
+                    : upgradeTarget
+                      ? upgradeJob
+                        ? `${workerText} | upgrade running; X cancels and refunds 75% of paid cost.`
+                        : `U: ${upgradeTarget.displayName} ${upgradeTarget.costGold}g${
+                              upgradeTarget.costLumber ? ` ${upgradeTarget.costLumber}l` : ''
+                          } | ${this.describeEligibility(upgradeEligibility)}`
+                      : `${workerText} | Cost ${template.costGold}g${
+                            template.costLumber ? ` ${template.costLumber}l` : ''
+                        } | no further upgrade`,
             );
             this.clearInventorySlots();
             return;
@@ -4708,6 +5521,20 @@ class FarmScene extends Phaser.Scene {
         this.clearInventorySlots();
     }
 
+    private describeEligibility(eligibility: ReturnType<typeof evaluateBuildingEligibility> | null) {
+        if (!eligibility || eligibility.eligible) return 'Ready';
+        const missing = [
+            ...eligibility.missingBuildingTemplateIds.map((id) =>
+                CHICKEN_FARM_BALANCE.buildingTemplates[id].displayName,
+            ),
+            ...eligibility.missingResearchLevels.map(
+                (requirement) => `${requirement.id} Lv.${requirement.requiredLevel}`,
+            ),
+            ...eligibility.missingUnitTemplateIds,
+        ];
+        return `Locked: needs ${missing.join(', ')}`;
+    }
+
     private updateSelectedBuildingRangeOverlay() {
         const selectedBuilding = this.selectedBuildingId
             ? this.buildingSystem?.getBuilding(this.selectedBuildingId)
@@ -4759,7 +5586,9 @@ class FarmScene extends Phaser.Scene {
             );
             this.selectionInfoStatusText.setText(`Hatch ${hatchText}`);
             this.selectionInfoBodyText.setText(
-                '농부가 든 알을 닭장에 넣으면 닭장 인벤토리에 들어가고 부화가 시작됩니다.',
+                hatchJobs[0]
+                    ? `X: cancel this coop's hatch (egg and reserved supply return) | R: set rally`
+                    : 'H: hatch one stored egg | R: set rally',
             );
             this.renderInventorySlots(inventory);
             return true;

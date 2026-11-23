@@ -1,0 +1,15 @@
+{
+  "case": "restart",
+  "checks": {
+    "doubleRestartFreshBaseline": true,
+    "exitWaitUpgradeResearchGateCleared": true,
+    "pass": true,
+    "walletAndSupplyIsolated": true
+  },
+  "errors": {
+    "console": [],
+    "page": [],
+    "request": [],
+    "response": []
+  }
+}
