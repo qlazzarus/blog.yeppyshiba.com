@@ -9,7 +9,7 @@ type VirtualDriveControls = {
     destroy: () => void;
     getCommand: () => DriveCommand;
     reset: () => void;
-    setMode: (mode: VirtualDriveControlsMode, viewport: { height: number; width: number }) => void;
+    setMode: (mode: VirtualDriveControlsMode) => void;
     layout: (viewport: { height: number; width: number }) => void;
 };
 
@@ -26,7 +26,7 @@ const BUTTON_ACTIVE_STROKE = 0xffc469;
 export function createVirtualDriveControls(scene: Phaser.Scene): VirtualDriveControls {
     const pressed = new Map<ControlName, Set<number>>();
     const buttons = new Map<ControlName, Phaser.GameObjects.Rectangle>();
-    let mode: VirtualDriveControlsMode = 'hidden';
+    let mode: VirtualDriveControlsMode | undefined;
 
     const makeButton = (name: ControlName, label: string) => {
         pressed.set(name, new Set());
@@ -38,7 +38,7 @@ export function createVirtualDriveControls(scene: Phaser.Scene): VirtualDriveCon
             fontSize: '27px',
             fontStyle: 'bold',
         }).setDepth(RenderDepth.Hud + 1.01).setOrigin(0.5).setVisible(false);
-        background.setDepth(RenderDepth.Hud + 1).setVisible(false);
+        background.setDepth(RenderDepth.Hud + 1).setVisible(false).setInteractive();
 
         const updateStyle = () => {
             const active = (pressed.get(name)?.size ?? 0) > 0;
@@ -97,9 +97,6 @@ export function createVirtualDriveControls(scene: Phaser.Scene): VirtualDriveCon
             height: number,
         ) => {
             view.background.setSize(width, height);
-            // Recreate Phaser's default rectangle hit area after every size
-            // change. It tracks the entire visible button, not its label.
-            view.background.removeInteractive().setInteractive({ useHandCursor: false });
             view.background.setPosition(x, y);
             view.text.setPosition(x, y);
         };
@@ -126,13 +123,13 @@ export function createVirtualDriveControls(scene: Phaser.Scene): VirtualDriveCon
         }),
         layout,
         reset: releaseAll,
-        setMode: (nextMode, viewport) => {
+        setMode: (nextMode) => {
+            if (nextMode === mode) return;
             mode = nextMode;
-            releaseAll();
-            layout(viewport);
             for (const [name, button] of buttons) {
                 const visible = mode === 'full' ||
                     (mode === 'pedals' && (name === 'accel' || name === 'brake'));
+                if (!visible) controlViews[name].release();
                 button.setVisible(visible).setActive(visible);
                 controlViews[name].background.input!.enabled = visible;
                 controlViews[name].text.setVisible(visible).setActive(visible);

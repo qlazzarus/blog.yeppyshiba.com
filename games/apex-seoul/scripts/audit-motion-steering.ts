@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import { getEventListeners } from 'node:events';
+import { createMotionSteering, MOTION_STEERING_STALE_MS } from '../src/game/platform/motionSteering';
+
+const orientation = Object.assign(new EventTarget(), { angle: 0 });
+const source = Object.assign(new EventTarget(), { screen: { orientation } });
+let time = 0;
+const motion = createMotionSteering(() => 50, source as unknown as Window, () => time);
+const sample = (gamma: number | null, beta: number | null = null) =>
+    source.dispatchEvent(Object.assign(new Event('deviceorientation'), { gamma, beta }));
+const axis = () => motion.getCommand().steerAxis;
+function checkWaiting() {
+    assert.deepEqual(motion.getStatus(), { state: 'waiting', lastValidInputAtMs: null });
+    assert.equal(axis(), 0);
+}
+
+sample(90);
+motion.setEnabled(true);
+for (const value of [null, NaN, Infinity, -Infinity]) sample(value, 40);
+checkWaiting();
+sample(20);
+assert.deepEqual(motion.getStatus(), { state: 'ready', lastValidInputAtMs: 0 });
+assert.equal(axis(), 0);
+time = 10;
+sample(80);
+const turn = axis();
+assert.ok(turn > 0);
+time += MOTION_STEERING_STALE_MS - 1;
+for (const value of [null, NaN, Infinity, -Infinity]) sample(value, 40);
+assert.deepEqual(motion.getStatus(), { state: 'ready', lastValidInputAtMs: 10 });
+assert.equal(axis(), turn);
+time++;
+assert.equal(axis(), 0);
+assert.deepEqual(motion.getStatus(), { state: 'stale', lastValidInputAtMs: 10 });
+sample(-40);
+assert.deepEqual(motion.getStatus(), { state: 'ready', lastValidInputAtMs: time });
+assert.equal(axis(), 0);
+sample(40);
+assert.ok(axis() > 0);
+
+motion.reset();
+checkWaiting();
+sample(50);
+assert.equal(axis(), 0);
+orientation.angle = 90;
+orientation.dispatchEvent(new Event('change'));
+checkWaiting();
+sample(45, Infinity);
+checkWaiting();
+sample(null, 45);
+assert.equal(axis(), 0);
+sample(null, -45);
+assert.ok(axis() > 0);
+orientation.angle = -90;
+source.dispatchEvent(new Event('orientationchange'));
+checkWaiting();
+sample(null, 45);
+assert.equal(axis(), 0);
+sample(null, -45);
+assert.ok(axis() < 0);
+motion.setEnabled(false);
+sample(null, 90);
+checkWaiting();
+motion.setEnabled(true);
+sample(null, 80);
+assert.equal(axis(), 0);
+sample(null, -80);
+assert.ok(axis() < 0);
+motion.destroy();
+assert.equal(getEventListeners(source, 'deviceorientation').length, 0);
+assert.equal(getEventListeners(source, 'orientationchange').length, 0);
+assert.equal(getEventListeners(orientation, 'change').length, 0);
+sample(null, 60);
+checkWaiting();
+console.log('PASS: valid samples, stale boundary, neutral calibration, orientation changes, listener cleanup');

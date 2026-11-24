@@ -9,11 +9,16 @@ type OrientationReading = Pick<DeviceOrientationEvent, 'alpha' | 'beta' | 'gamma
 export type MotionSteering = {
     destroy: () => void;
     getCommand: () => DriveCommand;
+    getStatus: () => {
+        state: 'waiting' | 'ready' | 'stale';
+        lastValidInputAtMs: number | null;
+    };
     reset: () => void;
     setEnabled: (enabled: boolean) => void;
 };
 
 const FILTER_RESPONSE = 0.22;
+export const MOTION_STEERING_STALE_MS = 500;
 
 /**
  * Uses the device's long-axis tilt in landscape. The first valid reading is
@@ -23,21 +28,33 @@ const FILTER_RESPONSE = 0.22;
 export function createMotionSteering(
     getSensitivity: () => number,
     source: OrientationSource = window,
+    nowMs: () => number = () => performance.now(),
 ): MotionSteering {
     let enabled = false;
+    let lastValidInputAtMs: number | null = null;
     let neutralTilt: number | null = null;
     let filteredTilt: number | null = null;
     let steerAxis = 0;
 
     const reset = () => {
+        lastValidInputAtMs = null;
         neutralTilt = null;
         filteredTilt = null;
         steerAxis = 0;
     };
+    const isStale = (time: number) =>
+        lastValidInputAtMs !== null && time - lastValidInputAtMs >= MOTION_STEERING_STALE_MS;
+    const getStatus: MotionSteering['getStatus'] = () => ({
+        state: lastValidInputAtMs === null ? 'waiting' : isStale(nowMs()) ? 'stale' : 'ready',
+        lastValidInputAtMs,
+    });
     const onOrientation = (event: DeviceOrientationEvent) => {
         if (!enabled) return;
         const tilt = getLandscapeTilt(event, getScreenAngle(source));
         if (tilt === null) return;
+        const time = nowMs();
+        if (isStale(time)) reset();
+        lastValidInputAtMs = time;
         if (neutralTilt === null || filteredTilt === null) {
             neutralTilt = tilt;
             filteredTilt = tilt;
@@ -54,11 +71,18 @@ export function createMotionSteering(
 
     return {
         destroy: () => {
+            enabled = false;
+            reset();
             source.removeEventListener('deviceorientation', onOrientation);
             source.removeEventListener('orientationchange', onScreenOrientationChange);
             source.screen?.orientation?.removeEventListener?.('change', onScreenOrientationChange);
         },
-        getCommand: () => ({ accelPressed: false, brakePressed: false, steerAxis: enabled ? steerAxis : 0 }),
+        getCommand: () => ({
+            accelPressed: false,
+            brakePressed: false,
+            steerAxis: enabled && !isStale(nowMs()) ? steerAxis : 0,
+        }),
+        getStatus,
         reset,
         setEnabled: (nextEnabled) => {
             if (enabled === nextEnabled) return;
@@ -69,11 +93,10 @@ export function createMotionSteering(
 }
 
 export function getLandscapeTilt(reading: OrientationReading, screenAngle: number): number | null {
-    const beta = reading.beta;
-    const gamma = reading.gamma;
-    if (screenAngle === 90) return typeof beta === 'number' ? -beta : null;
-    if (screenAngle === 270 || screenAngle === -90) return typeof beta === 'number' ? beta : null;
-    return typeof gamma === 'number' ? gamma : null;
+    const landscape = screenAngle === 90 || screenAngle === 270 || screenAngle === -90;
+    const tilt = landscape ? reading.beta : reading.gamma;
+    if (tilt === null || !Number.isFinite(tilt)) return null;
+    return screenAngle === 90 ? -tilt : tilt;
 }
 
 export function getSteerAxis(tiltDegrees: number, sensitivity: number) {

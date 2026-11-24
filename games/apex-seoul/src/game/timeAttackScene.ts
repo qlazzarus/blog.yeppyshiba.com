@@ -482,6 +482,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private hudText!: Phaser.GameObjects.Text;
     private runStatusText!: Phaser.GameObjects.Text;
     private motionSteering!: ReturnType<typeof createMotionSteering>;
+    private landscapeTouchControls = false;
     private virtualDriveControls!: ReturnType<typeof createVirtualDriveControls>;
     private keys!: Record<'a' | 'b' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
@@ -766,7 +767,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const onDisplayChange = (event: Event) => {
             const metrics = readDisplayChange(event);
             if (!metrics) return;
-            this.updateVirtualDriveControls();
+            this.updateVirtualDriveControls(metrics);
             if (!isPortraitMobile(metrics)) return;
             this.orientationPaused = true;
             this.input.keyboard?.resetKeys();
@@ -802,6 +803,7 @@ export class TimeAttackScene extends Phaser.Scene {
 
     update(_time: number, delta: number) {
         if (document.hidden || this.focusPaused || this.orientationPaused) return;
+        this.syncTouchControlMode();
         if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
         const seconds = delta / 1000 * this.runtimeQa.timeScale;
         const camera = this.cameraResource;
@@ -2449,18 +2451,19 @@ export class TimeAttackScene extends Phaser.Scene {
         ]);
     }
 
-    private updateVirtualDriveControls() {
-        const mobileDisplay = getSceneMobileDisplayMetrics(this);
-        const landscapeMobile = mobileDisplay.layout === 'landscape-mobile';
-        const motionEnabled = landscapeMobile && gameSettingsStore.getSettings().controlScheme === 'motion';
-        this.motionSteering.setEnabled(motionEnabled);
-        this.virtualDriveControls.setMode(
-            !landscapeMobile ? 'hidden' : motionEnabled ? 'pedals' : 'full',
-            {
-                height: this.scale.height,
-                width: this.scale.width,
-            },
+    private updateVirtualDriveControls(metrics = getSceneMobileDisplayMetrics(this)) {
+        this.landscapeTouchControls = metrics.layout === 'landscape-mobile';
+        this.motionSteering.setEnabled(
+            this.landscapeTouchControls && gameSettingsStore.getSettings().controlScheme === 'motion',
         );
+        this.virtualDriveControls.layout(this.scale);
+        this.syncTouchControlMode();
+    }
+
+    private syncTouchControlMode() {
+        const mode = !this.landscapeTouchControls ? 'hidden'
+            : this.motionSteering.getStatus().state === 'ready' ? 'pedals' : 'full';
+        this.virtualDriveControls.setMode(mode);
     }
 
     private getSceneHotkeys() {

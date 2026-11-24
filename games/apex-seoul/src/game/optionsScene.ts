@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 
 import { IS_INTERNAL_BUILD } from './buildFlavor';
 import { gameSettingsStore, type GameSettings } from './gameSettings';
+import { createMotionSteering } from './motionSteering';
 import { requestMotionSteeringPermission } from './motionSteeringPermission';
 import { getPwaInstallAction, requestPwaInstall } from './pwaInstall';
 import { UI_THEME } from './uiTheme';
@@ -57,6 +58,12 @@ export class OptionsScene extends Phaser.Scene {
         const visuals: RowVisual[] = [];
         let resetArmed = false;
         let motionSteeringPending = false;
+        let closed = false;
+        let cancelCalibration: (() => void) | undefined;
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            closed = true;
+            cancelCalibration?.();
+        });
         const resetNotice = this.add.text(width / 2, height - 51, '', {
             color: UI_THEME.amberHex, fontFamily: 'Arial, sans-serif', fontSize: '11px',
         }).setOrigin(0.5).setDepth(10);
@@ -393,7 +400,10 @@ export class OptionsScene extends Phaser.Scene {
                 fontStyle: 'bold',
             })
             .setOrigin(0.5);
-        const returnToMain = () => this.scene.start('main');
+        const returnToMain = () => {
+            closed = true;
+            this.scene.start('main');
+        };
         const activate = () => {
             if (selectedIndex === backIndex) return returnToMain();
             const row = rows[selectedIndex];
@@ -405,12 +415,35 @@ export class OptionsScene extends Phaser.Scene {
                     motionSteeringPending = true;
                     resetNotice.setText('Checking motion steering permission…');
                     void requestMotionSteeringPermission().then((status) => {
-                        motionSteeringPending = false;
+                        if (closed) return;
                         if (status === 'enabled') {
-                            row.value = true;
-                            persist(row);
-                            resetNotice.setText('Motion steering enabled.');
+                            const sensor = createMotionSteering(() => settings.steeringSensitivity);
+                            sensor.setEnabled(true);
+                            resetNotice.setText('Waiting for a tilt reading…');
+                            const finish = (ready: boolean) => {
+                                cancelCalibration?.();
+                                if (closed) return;
+                                if (ready) {
+                                    row.value = true;
+                                    persist(row);
+                                }
+                                resetNotice.setText(ready ? 'Motion steering enabled.' : 'No tilt reading. Virtual controls remain active.');
+                                update();
+                            };
+                            const checkReading = () => {
+                                if (sensor.getStatus().state === 'ready') finish(true);
+                            };
+                            const timeout = this.time.delayedCall(3000, () => finish(false));
+                            window.addEventListener('deviceorientation', checkReading);
+                            cancelCalibration = () => {
+                                window.removeEventListener('deviceorientation', checkReading);
+                                timeout.remove();
+                                sensor.destroy();
+                                motionSteeringPending = false;
+                                cancelCalibration = undefined;
+                            };
                         } else {
+                            motionSteeringPending = false;
                             const notices: Record<Exclude<typeof status, 'enabled'>, string> = {
                                 'not-mobile': 'Motion steering is available on mobile devices only.',
                                 unsupported: 'This browser does not support device orientation.',
