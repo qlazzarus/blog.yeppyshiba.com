@@ -4,6 +4,7 @@ import { DEFAULT_PLAYER_NAME, SAVE_COLORS, SAVE_COURSES } from './saveDefaults';
 import { compareBestRuns, currentBuckets } from './runComparison';
 import { formatGameplayTime } from './gameplayHudState';
 import { UI_THEME } from './uiTheme';
+import { getSceneMobileDisplayMetrics } from './mobileDisplay';
 
 // Production sheets share frame 6 (spin-front-right-1); mirror it for a front-left portrait.
 const RECORD_VEHICLE_FRAME = 6;
@@ -13,6 +14,7 @@ export class RecordsScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
+        const mobile = getSceneMobileDisplayMetrics(this).layout === 'landscape-mobile';
         const course = SAVE_COURSES.find(c => c.id === runRecordStore.getSetup().trackId) ?? SAVE_COURSES[0];
         const runs = [...new Map(currentBuckets(runRecordStore.getRecords().buckets, course.id)
             .flatMap(b => b.recentRuns).map(run => [run.runId, run])).values()]
@@ -38,8 +40,9 @@ export class RecordsScene extends Phaser.Scene {
         text(width / 2, 104, 'FASTEST TIMES FIRST', 10).setColor(UI_THEME.secondaryTextHex);
         ['VEHICLE', 'TIME', 'NAME'].forEach((label, i) =>
             text(columnX[i], 158, label, 12, i === 0 ? 0 : i === 2 ? 1 : 0.5).setColor(UI_THEME.amberHex));
-        const rowHeight = compact ? 48 : 58;
-        const visibleRowCount = Math.max(1, Math.floor((height - 214) / rowHeight));
+        const rowHeight = compact ? 48 : 52;
+        const listBottom = height - (mobile ? 176 : 58);
+        const visibleRowCount = Math.max(1, Math.floor((listBottom - 162) / rowHeight));
         let scrollIndex = 0;
         let dragPointerId: number | null = null;
         let dragLastY = 0;
@@ -53,8 +56,8 @@ export class RecordsScene extends Phaser.Scene {
                 .setName(`record-vehicle-${i}`).setVisible(false);
             return {
                 vehicle,
-                time: text(columnX[1], y, '', compact ? 12 : 18),
-                name: text(columnX[2], y, '', compact ? 12 : 18, 1),
+                time: text(columnX[1], y, '', mobile ? 22 : compact ? 12 : 18),
+                name: text(columnX[2], y, '', mobile ? 22 : compact ? 12 : 18, 1),
             };
         });
         const empty = text(width / 2, 240, 'NO RECORD', 16).setVisible(runs.length === 0);
@@ -77,10 +80,11 @@ export class RecordsScene extends Phaser.Scene {
         };
         const onWheel = (_pointer: Phaser.Input.Pointer, _currentlyOver: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => scroll(deltaY);
         const returnToMain = () => this.scene.start('main');
-        const back = this.add.rectangle(width / 2, height - 26, 190, 30, UI_THEME.panel)
+        const backY = height - (mobile ? 96 : 26);
+        const back = this.add.rectangle(width / 2, backY, mobile ? 260 : 190, mobile ? 96 : 30, UI_THEME.panel)
             .setStrokeStyle(1, UI_THEME.borderMuted).setInteractive({ useHandCursor: true });
-        const backLabel = this.add.text(width / 2, height - 26, '‹  BACK TO MENU', {
-            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: '13px', fontStyle: 'bold',
+        const backLabel = this.add.text(width / 2, backY, '‹  BACK TO MENU', {
+            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: mobile ? '20px' : '13px', fontStyle: 'bold',
         }).setOrigin(0.5);
         back.on('pointerover', () => {
             back.setFillStyle(UI_THEME.amber).setStrokeStyle(1, UI_THEME.amberHighlight);
@@ -90,9 +94,16 @@ export class RecordsScene extends Phaser.Scene {
             back.setFillStyle(UI_THEME.panel).setStrokeStyle(1, UI_THEME.borderMuted);
             backLabel.setColor(UI_THEME.menuTextHex);
         });
-        back.on('pointerup', returnToMain);
+        let backPointer: number | null = null;
+        back.on('pointerdown', (pointer: Phaser.Input.Pointer) => { backPointer = pointer.id; });
+        back.on('pointerout', () => { backPointer = null; });
+        back.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+            const isTap = backPointer === pointer.id && pointer.getDistance() * this.game.canvas.getBoundingClientRect().height / height <= 10;
+            backPointer = null;
+            if (isTap) returnToMain();
+        });
         const onPointerDown = (pointer: Phaser.Input.Pointer) => {
-            if (pointer.y < 132 || pointer.y > height - 58) return;
+            if (pointer.y < 132 || pointer.y > listBottom) return;
             dragPointerId = pointer.id;
             dragLastY = pointer.y;
         };

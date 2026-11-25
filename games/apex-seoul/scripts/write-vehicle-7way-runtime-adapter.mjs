@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
-const LEGACY_FT86_ATLAS = path.join(
+const RENDER_PROFILE_SEED = path.join(
     projectRoot,
-    'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json',
+    'assets/vehicles/source/manifests/vehicle-render-profile-seed.json',
 );
 const REQUIRED_HEADLIGHT_FRAMES = [
     'center', 'steer-right-1', 'steer-right-2',
@@ -77,7 +77,7 @@ async function resolveHeadlightProfiles(vehicleId, candidate) {
     if (vehicleId !== 'raven-coupe') {
         throw new Error(`${vehicleId}: add a vehicle-local headlight profile override before runtime promotion`);
     }
-    const legacy = await readJson(LEGACY_FT86_ATLAS);
+    const legacy = await readJson(RENDER_PROFILE_SEED);
     const profiles = structuredClone(legacy.apex.headlightProfiles);
     // The new slight pose is not selected by the existing controller yet, but
     // recording a deterministic interpolation avoids a second atlas format later.

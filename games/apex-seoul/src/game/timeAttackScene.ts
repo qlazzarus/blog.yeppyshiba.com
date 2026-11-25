@@ -11,7 +11,6 @@ import { OptionsScene } from './optionsScene';
 import { ResultScene, type TimeAttackResult } from './resultScene';
 import { VehicleSelectScene } from './vehicleSelectScene';
 import genesisG70VehicleAtlas from '../../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
-import ft86RetroVehicleAtlas from '../../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json';
 import ravenCoupePreview256Atlas from '../../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/runtime-256.atlas.json';
 import ravenCoupePreview192Atlas from '../../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/runtime-192.atlas.json';
 import seorinGtPreview192Atlas from '../../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/runtime-192.atlas.json';
@@ -23,8 +22,6 @@ import {
     CITY_FAR_PARALLAX_KEY,
     CITY_RIDGE_PARALLAX_KEY,
     CLOUD_DARK_BLUE_KEY,
-    FT86_RETRO_SPRITE_URLS,
-    ft86RetroShadowSpriteUrl,
     genesisG70VehicleShadowSpriteUrl,
     genesisG70VehicleSpriteUrl,
     miraeGtPreview192ShadowSpriteUrl,
@@ -162,10 +159,10 @@ import {
 } from './mobileDisplay';
 import {
     createSceneKeyboardBindings,
-    mergeDriveCommands,
     readDriveCommand,
     readSceneHotkeys,
 } from './sceneInput';
+import { arbitrateDriveCommand } from './phaser/arbitrateDriveCommand';
 import { createVirtualDriveControls } from './virtualDriveControls';
 import {
     getLaunchBurnoutPresentation,
@@ -295,13 +292,6 @@ const CANDIDATE_192_PRESENTATION_SCALE = 0.97;
 
 function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     return selectRuntimeVehicleAsset(selection, {
-    ft86: {
-        atlas: ft86RetroVehicleAtlas as VehicleAtlas,
-        colors: FT86_RETRO_SPRITE_URLS,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
-        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
-        shadowSpriteUrl: ft86RetroShadowSpriteUrl,
-    },
     ravenCoupe: {
         atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         colors: RAVEN_COUPE_SPRITE_URLS,
@@ -436,7 +426,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private readonly longitudinalProgression = this.apexRuntime.longitudinalProgression;
     private activeRunSetup = resolveRunSetup(undefined, this.urlParams);
     private activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
-    private launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+    private launchControlEnabled = this.activeRuntimeVehicle.id === 'raven-coupe';
     private playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
     private playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
     private activeRoadTrackId = parseRoadTrackId(this.activeRunSetup.trackId);
@@ -597,7 +587,7 @@ export class TimeAttackScene extends Phaser.Scene {
         );
 
         this.activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
-        this.launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+        this.launchControlEnabled = this.activeRuntimeVehicle.id === 'raven-coupe';
         this.playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
         this.playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
         this.playerVehicleAtlas = this.activeRuntimeVehicle.atlas;
@@ -803,7 +793,7 @@ export class TimeAttackScene extends Phaser.Scene {
 
     update(_time: number, delta: number) {
         if (document.hidden || this.focusPaused || this.orientationPaused) return;
-        this.syncTouchControlMode();
+        this.virtualDriveControls.setMode(this.getTouchControlMode());
         if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
         const seconds = delta / 1000 * this.runtimeQa.timeScale;
         const camera = this.cameraResource;
@@ -2444,11 +2434,12 @@ export class TimeAttackScene extends Phaser.Scene {
             steerLeft: this.cursors.left,
             steerRight: this.cursors.right,
         });
-        return mergeDriveCommands([
+        return arbitrateDriveCommand(
+            this.getTouchControlMode(),
             keyboardCommand,
             this.virtualDriveControls.getCommand(),
             this.motionSteering.getCommand(),
-        ]);
+        );
     }
 
     private updateVirtualDriveControls(metrics = getSceneMobileDisplayMetrics(this)) {
@@ -2457,13 +2448,12 @@ export class TimeAttackScene extends Phaser.Scene {
             this.landscapeTouchControls && gameSettingsStore.getSettings().controlScheme === 'motion',
         );
         this.virtualDriveControls.layout(this.scale);
-        this.syncTouchControlMode();
+        this.virtualDriveControls.setMode(this.getTouchControlMode());
     }
 
-    private syncTouchControlMode() {
-        const mode = !this.landscapeTouchControls ? 'hidden'
+    private getTouchControlMode() {
+        return !this.landscapeTouchControls ? 'hidden'
             : this.motionSteering.getStatus().state === 'ready' ? 'pedals' : 'full';
-        this.virtualDriveControls.setMode(mode);
     }
 
     private getSceneHotkeys() {

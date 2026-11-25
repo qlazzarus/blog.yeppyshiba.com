@@ -1,18 +1,20 @@
 import Phaser from 'phaser';
 import { ASSET_ATTRIBUTIONS } from './assetAttributions';
 import { UI_THEME } from './uiTheme';
+import { getSceneMobileDisplayMetrics } from './mobileDisplay';
 
 export class AssetNoticesScene extends Phaser.Scene {
     constructor() { super('asset-notices'); }
 
     create() {
         const { width, height } = this.scale;
+        const mobile = getSceneMobileDisplayMetrics(this).layout === 'landscape-mobile';
         const compact = width < 680;
         const left = Math.max(20, (width - 940) / 2);
         const right = width - left;
-        const rowHeight = compact ? 48 : 54;
+        const rowHeight = mobile ? 72 : compact ? 48 : 54;
         const listTop = 118;
-        const listBottom = height - 56;
+        const listBottom = height - (mobile ? 176 : 56);
         const visibleRowCount = Math.max(1, Math.floor((listBottom - listTop) / rowHeight));
         let scrollIndex = 0;
         let backSelected = false;
@@ -38,13 +40,13 @@ export class AssetNoticesScene extends Phaser.Scene {
             const line = this.add.graphics();
             const title = this.add.text(left, y + 7, '', {
                 color: UI_THEME.textMainHex, fontFamily: 'Arial, sans-serif',
-                fontSize: compact ? '11px' : '13px', fontStyle: 'bold',
+                fontSize: mobile ? '21px' : compact ? '11px' : '13px', fontStyle: 'bold',
             });
-            const details = this.add.text(left, y + 25, '', {
-                color: UI_THEME.amberHighlightHex, fontFamily: 'monospace', fontSize: compact ? '8px' : '10px',
+            const details = this.add.text(left, y + (mobile ? 32 : 25), '', {
+                color: UI_THEME.amberHighlightHex, fontFamily: 'monospace', fontSize: mobile ? '16px' : compact ? '8px' : '10px',
             });
-            const source = this.add.text(left, y + 38, '', {
-                color: UI_THEME.secondaryTextHex, fontFamily: 'monospace', fontSize: compact ? '7px' : '8px',
+            const source = this.add.text(left, y + (mobile ? 52 : 38), '', {
+                color: UI_THEME.secondaryTextHex, fontFamily: 'monospace', fontSize: mobile ? '14px' : compact ? '7px' : '8px',
             });
             return { details, line, source, title };
         });
@@ -58,14 +60,15 @@ export class AssetNoticesScene extends Phaser.Scene {
             if (!notice) return;
             row.line.lineStyle(1, UI_THEME.borderMuted, 0.7).lineBetween(left, listTop + index * rowHeight, right, listTop + index * rowHeight);
             row.title.setText(notice.name);
-            row.details.setText(`${notice.author}  |  ${notice.license}`);
-            row.source.setText(notice.sourceUrl.replace(/^https:\/\//, ''));
+            row.details.setText(`${notice.author ?? 'Unknown author'}  |  ${notice.license ?? 'License unresolved'}`);
+            row.source.setText(notice.sourceUrl?.replace(/^https:\/\//, '') ?? 'Source unresolved');
         });
 
-        const back = this.add.rectangle(width / 2, height - 26, 190, 30, UI_THEME.panel)
+        const backY = height - (mobile ? 96 : 26);
+        const back = this.add.rectangle(width / 2, backY, mobile ? 260 : 190, mobile ? 96 : 30, UI_THEME.panel)
             .setStrokeStyle(1, UI_THEME.borderMuted).setInteractive({ useHandCursor: true });
-        const backLabel = this.add.text(width / 2, height - 26, '‹  BACK TO MENU', {
-            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: '13px', fontStyle: 'bold',
+        const backLabel = this.add.text(width / 2, backY, '‹  BACK TO MENU', {
+            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: mobile ? '20px' : '13px', fontStyle: 'bold',
         }).setOrigin(0.5);
         const returnToMain = () => this.scene.start('main');
         const setBackSelected = (selected: boolean) => {
@@ -79,7 +82,14 @@ export class AssetNoticesScene extends Phaser.Scene {
             if (next !== scrollIndex) { scrollIndex = next; render(); }
         };
         const onWheel = (_pointer: Phaser.Input.Pointer, _over: Phaser.GameObjects.GameObject[], _deltaX: number, deltaY: number) => scroll(deltaY);
-        back.on('pointerup', returnToMain);
+        let backPointer: number | null = null;
+        back.on('pointerdown', (pointer: Phaser.Input.Pointer) => { backPointer = pointer.id; });
+        back.on('pointerout', () => { backPointer = null; });
+        back.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+            const isTap = backPointer === pointer.id && pointer.getDistance() * this.game.canvas.getBoundingClientRect().height / height <= 10;
+            backPointer = null;
+            if (isTap) returnToMain();
+        });
         back.on('pointerover', () => {
             setBackSelected(true);
         });

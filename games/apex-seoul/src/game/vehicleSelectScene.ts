@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 
 import type { RunSetup } from './runSetup';
 import { UI_THEME } from './uiTheme';
+import { getSceneMobileDisplayMetrics } from './mobileDisplay';
 
 const COLORS = ['blue', 'red', 'silver', 'black'] as const;
 const COLOR_HEX: Record<(typeof COLORS)[number], number> = {
@@ -56,6 +57,7 @@ export class VehicleSelectScene extends Phaser.Scene {
         this.colorIndex = Math.max(0, COLORS.findIndex(c => c === saved.vehicleColor));
         this.step = 0;
         const { width, height } = this.scale;
+        const mobile = getSceneMobileDisplayMetrics(this).layout === 'landscape-mobile';
         const compact = width < 680;
         const panelWidth = compact ? width - 48 : Math.min(430, width * 0.38);
         const panelX = compact ? 24 : width - panelWidth - 46;
@@ -63,6 +65,16 @@ export class VehicleSelectScene extends Phaser.Scene {
         const previewY = height * 0.52;
         const previewSize = compact ? 310 : 420;
         const panelObjects: Phaser.GameObjects.GameObject[] = [];
+        const bindTap = (target: Phaser.GameObjects.Rectangle, action: () => void) => {
+            let pointerId: number | null = null;
+            target.on('pointerdown', (pointer: Phaser.Input.Pointer) => { pointerId = pointer.id; });
+            target.on('pointerout', () => { pointerId = null; });
+            target.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+                const isTap = pointerId === pointer.id && pointer.getDistance() * this.game.canvas.getBoundingClientRect().height / height <= 10;
+                pointerId = null;
+                if (isTap) action();
+            });
+        };
         const stepLabels: Phaser.GameObjects.Text[] = [];
         const stepNumbers: Phaser.GameObjects.Text[] = [];
         const selectedName = this.add
@@ -127,14 +139,14 @@ export class VehicleSelectScene extends Phaser.Scene {
             .setOrigin(0.5);
         const backToMenu = () => this.scene.start('main');
         const menuBack = this.add
-            .rectangle(112, 100, 176, 30, UI_THEME.panel)
+            .rectangle(112, mobile ? 96 : 100, 176, mobile ? 96 : 30, UI_THEME.panel)
             .setStrokeStyle(1, UI_THEME.borderMuted)
             .setInteractive({ useHandCursor: true });
         const menuBackLabel = this.add
-            .text(112, 100, '‹  BACK TO MENU', {
+            .text(112, mobile ? 96 : 100, '‹  BACK TO MENU', {
                 color: UI_THEME.menuTextHex,
                 fontFamily: 'Arial, sans-serif',
-                fontSize: '13px',
+                fontSize: mobile ? '22px' : '13px',
                 fontStyle: 'bold',
             })
             .setOrigin(0.5);
@@ -146,7 +158,7 @@ export class VehicleSelectScene extends Phaser.Scene {
             menuBack.setFillStyle(UI_THEME.panel).setStrokeStyle(1, UI_THEME.borderMuted);
             menuBackLabel.setColor(UI_THEME.menuTextHex);
         });
-        menuBack.on('pointerup', backToMenu);
+        bindTap(menuBack, backToMenu);
         const steps = ['VEHICLE', 'COLOUR', 'COURSE'];
         steps.forEach((label, index) => {
             const x = panelX + 34 + index * ((panelWidth - 68) / 3);
@@ -221,7 +233,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                             ? UI_THEME.menuSelectedTextHex
                             : UI_THEME.menuTextHex,
                         fontFamily: 'Arial, sans-serif',
-                        fontSize: '13px',
+                        fontSize: mobile ? '22px' : '13px',
                         fontStyle: 'bold',
                     })
                     .setOrigin(0.5),
@@ -241,7 +253,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                     active ? UI_THEME.menuSelectedTextHex : UI_THEME.menuTextHex,
                 );
             });
-            rectangle.on('pointerup', onClick);
+            bindTap(rectangle, onClick);
         };
         const refreshPreview = () => {
             const vehicle = currentVehicle();
@@ -287,9 +299,19 @@ export class VehicleSelectScene extends Phaser.Scene {
                 renderPanel();
             }
         };
+        const stepBack = this.add.rectangle(width - 120, 96, 190, 96, UI_THEME.panel)
+            .setStrokeStyle(1, UI_THEME.borderMuted).setInteractive({ useHandCursor: true });
+        const stepBackLabel = this.add.text(width - 120, 96, '‹  PREVIOUS', {
+            color: UI_THEME.menuTextHex, fontFamily: 'Arial, sans-serif', fontSize: '20px', fontStyle: 'bold',
+        }).setOrigin(0.5);
+        bindTap(stepBack, previousStep);
         const renderPanel = () => {
             clearPanel();
             refreshPreview();
+            const showStepBack = mobile && this.step > 0;
+            stepBack.setVisible(showStepBack).setActive(showStepBack);
+            stepBack.input!.enabled = showStepBack;
+            stepBackLabel.setVisible(showStepBack);
             stepLabels.forEach((label, index) =>
                 label.setColor(
                     index === this.step
@@ -329,9 +351,9 @@ export class VehicleSelectScene extends Phaser.Scene {
                 VEHICLES.forEach((vehicle, index) =>
                     button(
                         panelX + panelWidth / 2,
-                        324 + index * 60,
+                        mobile ? 340 + index * 104 : 324 + index * 60,
                         innerWidth,
-                        46,
+                        mobile ? 96 : 46,
                         vehicle.label,
                         index === this.vehicleIndex,
                         () => selectVehicle(index),
@@ -339,9 +361,9 @@ export class VehicleSelectScene extends Phaser.Scene {
                 );
                 button(
                     panelX + panelWidth / 2,
-                    height - 126,
+                    height - (mobile ? 92 : 126),
                     innerWidth,
-                    48,
+                    mobile ? 96 : 48,
                     'CONFIRM VEHICLE  ›',
                     true,
                     nextStep,
@@ -374,7 +396,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                     const column = index % 2;
                     const row = Math.floor(index / 2);
                     const x = innerX + column * (innerWidth / 2) + innerWidth / 4;
-                    const y = 334 + row * 76;
+                    const y = mobile ? 350 + row * 112 : 334 + row * 76;
                     const active = index === this.colorIndex;
                     const swatch = addPanel(
                         this.add
@@ -382,7 +404,7 @@ export class VehicleSelectScene extends Phaser.Scene {
                                 x,
                                 y,
                                 innerWidth / 2 - 12,
-                                58,
+                                mobile ? 96 : 58,
                                 active ? UI_THEME.amber : UI_THEME.background,
                             )
                             .setStrokeStyle(
@@ -406,18 +428,18 @@ export class VehicleSelectScene extends Phaser.Scene {
                                     ? UI_THEME.menuSelectedTextHex
                                     : UI_THEME.menuTextHex,
                                 fontFamily: 'monospace',
-                                fontSize: '11px',
+                                fontSize: mobile ? '22px' : '11px',
                                 fontStyle: 'bold',
                             })
                             .setOrigin(0, 0.5),
                     );
-                    swatch.on('pointerup', () => selectColor(index));
+                    bindTap(swatch, () => selectColor(index));
                 });
                 button(
                     panelX + panelWidth / 2,
-                    height - 126,
+                    height - (mobile ? 92 : 126),
                     innerWidth,
-                    48,
+                    mobile ? 96 : 48,
                     'CONFIRM COLOUR  ›',
                     true,
                     nextStep,
@@ -482,9 +504,9 @@ export class VehicleSelectScene extends Phaser.Scene {
                 );
                 button(
                     panelX + panelWidth / 2,
-                    height - 126,
+                    height - (mobile ? 92 : 126),
                     innerWidth,
-                    48,
+                    mobile ? 96 : 48,
                     'CONFIRM COURSE  ›',
                     true,
                     nextStep,
@@ -530,9 +552,9 @@ export class VehicleSelectScene extends Phaser.Scene {
                 });
                 button(
                     panelX + panelWidth / 2,
-                    height - 126,
+                    height - (mobile ? 92 : 126),
                     innerWidth,
-                    52,
+                    mobile ? 96 : 52,
                     'START TIME ATTACK  ›',
                     true,
                     launch,

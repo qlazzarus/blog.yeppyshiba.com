@@ -79,6 +79,32 @@ Apex Seoul의 docs/apex-seoul/apex-seoul-deepseek-tasks.md에서 [DS-번호]만 
 - 완료 조건: 모든 메뉴를 pointer만으로 탐색하고 reset 확인/취소 가능. drag를 tap으로 오인하지 않으며 scene shutdown 뒤 입력이 남지 않는다.
 - 검증: browser pointer flow와 CSS hit area 실측 결과. qa:mobile-display, qa:game-settings.
 
+DS-05 측정에서 여러 Scene의 결함을 확인했다. 메인 메뉴는 DS-05에서 수정하고 아래 카드는 각각 해당 Scene만 수정한다. DS-05 전체 완료 조건은 모든 하위 카드와 통합 pointer flow 검증 후 판정한다.
+
+#### DS-05a — Garage 모바일 조작
+
+- 범위: `vehicleSelectScene.ts`의 4단계 선택·확인과 단계별 뒤로 가기, 메뉴 복귀의 모바일 hit area 및 safe-area를 수정한다.
+- 완료 조건: 지정된 3 viewport에서 모든 action을 pointer로 조작하고 각 단계에서 뒤로 돌아갈 수 있다. drag 오인과 shutdown 후 입력을 검사한다.
+- 검증: browser pointer flow, 실제 canvas 배율의 hit area 측정, `typecheck`, `qa:mobile-display`.
+
+#### DS-05b — Records 모바일 조작
+
+- 범위: `recordsScene.ts`의 목록 스크롤과 뒤로 가기 hit area 및 safe-area를 수정한다. DS-04에서 확인한 Records 회귀의 9개/10개 불일치 원인을 확인한다.
+- 완료 조건: 3 viewport에서 목록 스크롤·복귀가 pointer로 가능하고 drag와 tap을 구분하며 종료 후 입력이 남지 않는다.
+- 검증: browser pointer flow, hit area 측정, `qa:recovery-records-browser`, `typecheck`.
+
+#### DS-05c — Credits 모바일 조작
+
+- 범위: `assetNoticesScene.ts`의 목록 스크롤과 뒤로 가기 hit area 및 safe-area를 수정한다.
+- 완료 조건: 3 viewport에서 목록 스크롤·복귀가 pointer로 가능하고 drag와 tap을 구분하며 종료 후 입력이 남지 않는다.
+- 검증: browser pointer flow, hit area 측정, `typecheck`.
+
+#### DS-05d — Options 모바일 조작
+
+- 범위: `optionsScene.ts`의 설정·스크롤·뒤로 가기 및 reset 확인/취소를 모바일에서 조작할 수 있도록 수정한다.
+- 완료 조건: 3 viewport에서 설정과 reset 확인/취소를 pointer로 조작하고 drag와 tap을 구분하며 종료 후 입력이 남지 않는다.
+- 검증: browser pointer flow, hit area 측정, `qa:game-settings`, `typecheck`.
+
 ### DS-06 — PWA 설치 경로와 오류 복구
 
 - 선행: DS-00

@@ -3,39 +3,33 @@ import { selectRuntimeVehicleAsset } from '../src/game/vehicleCatalog';
 import type { VehicleCatalogAssets } from '../src/game/vehicleCatalog';
 
 const assets: VehicleCatalogAssets = {
-    ft86: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'],
-        colors: { black: 'ft86-black.png', blue: 'ft86-blue.png' },
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
-        shadowSpriteUrl: 'ft86-shadow.png',
-    },
     ravenCoupe: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'],
+        atlas: {} as VehicleCatalogAssets['genesis']['atlas'],
         colors: { black: 'raven-black.png', blue: 'raven-blue.png', red: 'raven-red.png', silver: 'raven-silver.png' },
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
         presentationScale: 0.97,
         shadowSpriteUrl: 'raven-shadow.png',
     },
     ravenCoupePreview256: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'],
+        atlas: {} as VehicleCatalogAssets['genesis']['atlas'],
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
         shadowSpriteUrl: 'raven-preview-shadow.png',
         spriteUrl: 'raven-preview.png',
     },
     ravenCoupePreview192: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'],
+        atlas: {} as VehicleCatalogAssets['genesis']['atlas'],
         engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
         presentationScale: 0.97,
         shadowSpriteUrl: 'raven-preview-192-shadow.png',
         spriteUrl: 'raven-preview-192.png',
     },
     seorinGtPreview192: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'], engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
+        atlas: {} as VehicleCatalogAssets['genesis']['atlas'], engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
         presentationScale: 0.97,
         shadowSpriteUrl: 'seorin-preview-192-shadow.png', spriteUrl: 'seorin-preview-192.png',
     },
     miraeGtPreview192: {
-        atlas: {} as VehicleCatalogAssets['ft86']['atlas'], engineProfile: MIRAE_GT_ENGINE_PROFILE,
+        atlas: {} as VehicleCatalogAssets['genesis']['atlas'], engineProfile: MIRAE_GT_ENGINE_PROFILE,
         presentationScale: 0.97,
         shadowSpriteUrl: 'mirae-preview-192-shadow.png', spriteUrl: 'mirae-preview-192.png',
     },
@@ -47,8 +41,8 @@ const assets: VehicleCatalogAssets = {
     },
 };
 
-const blueFallback = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=ft86-retro&vehicleColor=purple'), assets);
-const blackFt86 = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=ft86-retro&vehicleColor=black'), assets);
+const retiredVehicle = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=ft86-retro'), assets);
+const blackRaven = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=raven-coupe&vehicleColor=black'), assets);
 const defaultRaven = selectRuntimeVehicleAsset(new URLSearchParams(), assets);
 const blueRaven = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=raven-coupe&vehicleColor=blue'), assets);
 const fallbackRaven = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=raven-coupe&vehicleColor=yellow'), assets);
@@ -58,8 +52,8 @@ const seorinPreview192 = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=
 const miraePreview192 = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=mirae-gt-192-preview'), assets);
 const genesis = selectRuntimeVehicleAsset(new URLSearchParams('vehicle=anything-else'), assets);
 const results = [
-    check('ft86-invalid-color-falls-back-to-blue', blueFallback.id === 'ft86-retro' && blueFallback.color === 'blue' && blueFallback.spriteUrl === 'ft86-blue.png'),
-    check('ft86-valid-color-preserves-engine-and-texture-key', blackFt86.color === 'black' && blackFt86.engineProfile.id === RAVEN_COUPE_ENGINE_PROFILE.id && blackFt86.textureKey === 'player-vehicle-ft86-retro-black'),
+    check('retired-vehicle-uses-unknown-vehicle-fallback', retiredVehicle.id === 'genesis-g70-poc'),
+    check('raven-valid-color-preserves-engine-and-texture-key', blackRaven.color === 'black' && blackRaven.engineProfile.id === RAVEN_COUPE_ENGINE_PROFILE.id && blackRaven.textureKey === 'player-vehicle-raven-coupe-black'),
     check('default-vehicle-promotes-raven-coupe-with-its-own-7way-asset-key', defaultRaven.id === 'raven-coupe' && defaultRaven.color === 'blue' && defaultRaven.presentationScale === 0.97 && defaultRaven.textureKey === 'player-vehicle-raven-coupe-blue'),
     check('raven-coupe-selects-its-own-192px-sprite-and-shadow', blueRaven.id === 'raven-coupe' && blueRaven.color === 'blue' && blueRaven.spriteUrl === 'raven-blue.png' && blueRaven.shadowSpriteUrl === 'raven-shadow.png' && blueRaven.textureKey === 'player-vehicle-raven-coupe-blue'),
     check('raven-invalid-color-falls-back-to-blue', fallbackRaven.color === 'blue' && fallbackRaven.spriteUrl === 'raven-blue.png'),

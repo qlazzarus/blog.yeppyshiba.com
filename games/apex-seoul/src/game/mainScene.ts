@@ -26,12 +26,13 @@ export class MainScene extends Phaser.Scene {
             ? (width - menuWidth) / 2
             : compact ? 24 : width - menuWidth - 42;
         const menuY = mobileMenu ? 256 : compact ? height * 0.57 : height * 0.36;
-        const buttonHeights = mobileMenu ? [88, 84, 84, 84] : [50, 50, 50, 50];
+        const buttonHeights = mobileMenu ? [96, 96, 96, 96] : [50, 50, 50, 50];
         const menuGap = mobileMenu ? 12 : 14;
         const menuEntries = ['START', 'RECORDS', 'OPTIONS', 'CREDITS & LICENSES'] as const;
         const menuButtons: Phaser.GameObjects.Rectangle[] = [];
         const menuLabels: Phaser.GameObjects.Text[] = [];
         let selectedIndex = 0;
+        let pressedButton: { index: number; pointerId: number } | null = null;
 
         this.cameras.main.setBackgroundColor(UI_THEME.backgroundHex);
         this.add
@@ -207,7 +208,14 @@ export class MainScene extends Phaser.Scene {
                 })
                 .setOrigin(0, 0.5);
             button.on('pointerover', () => select(index));
-            button.on('pointerup', () => {
+            button.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+                pressedButton = { index, pointerId: pointer.id };
+            });
+            button.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+                const wasPressed = pressedButton?.index === index && pressedButton.pointerId === pointer.id;
+                pressedButton = null;
+                const scale = this.game.canvas.getBoundingClientRect().height / height;
+                if (!wasPressed || pointer.getDistance() * scale > 10) return;
                 select(index);
                 activate();
             });

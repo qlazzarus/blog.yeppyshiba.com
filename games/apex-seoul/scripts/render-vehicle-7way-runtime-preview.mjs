@@ -144,7 +144,7 @@ async function readRuntimeBase(adapterPath, candidateAtlasPath, shadowProfilePat
     const [candidate, shadow, legacy] = await Promise.all([
         readJson(candidateAtlasPath),
         readJson(shadowProfilePath),
-        readJson(path.join(projectRoot, 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json')),
+        readJson(path.join(projectRoot, 'assets/vehicles/source/manifests/vehicle-render-profile-seed.json')),
     ]);
     const headlightProfiles = structuredClone(legacy.apex.headlightProfiles);
     headlightProfiles['steer-right-0'] = interpolateProfile(
