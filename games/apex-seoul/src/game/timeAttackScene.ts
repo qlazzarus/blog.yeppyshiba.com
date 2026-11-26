@@ -11,7 +11,6 @@ import { OptionsScene } from './optionsScene';
 import { ResultScene, type TimeAttackResult } from './resultScene';
 import { VehicleSelectScene } from './vehicleSelectScene';
 import genesisG70VehicleAtlas from '../../assets/vehicles/approved/atlases/genesis-g70-poc-128.json';
-import ft86RetroVehicleAtlas from '../../assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json';
 import ravenCoupePreview256Atlas from '../../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-preview-256/runtime-256.atlas.json';
 import ravenCoupePreview192Atlas from '../../assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/runtime-192.atlas.json';
 import seorinGtPreview192Atlas from '../../assets/vehicles/generated/7way-candidates/seorin-gt/runtime-192-blue/runtime-192.atlas.json';
@@ -23,8 +22,6 @@ import {
     CITY_FAR_PARALLAX_KEY,
     CITY_RIDGE_PARALLAX_KEY,
     CLOUD_DARK_BLUE_KEY,
-    FT86_RETRO_SPRITE_URLS,
-    ft86RetroShadowSpriteUrl,
     genesisG70VehicleShadowSpriteUrl,
     genesisG70VehicleSpriteUrl,
     miraeGtPreview192ShadowSpriteUrl,
@@ -152,6 +149,7 @@ import * as PLAYER_DEFAULTS from './playerVehicleDefaults';
 import { createPlayerVehicleRuntimeConfig } from './playerVehicleDefaults';
 import { RuntimeTelemetryRecorder } from './runtimeTelemetry';
 import { gameSettingsStore } from './gameSettings';
+import { RuntimeAudio } from './platform/runtimeAudio';
 import { createMotionSteering } from './motionSteering';
 import {
     DISPLAY_CHANGE_EVENT,
@@ -162,10 +160,10 @@ import {
 } from './mobileDisplay';
 import {
     createSceneKeyboardBindings,
-    mergeDriveCommands,
     readDriveCommand,
     readSceneHotkeys,
 } from './sceneInput';
+import { arbitrateDriveCommand } from './phaser/arbitrateDriveCommand';
 import { createVirtualDriveControls } from './virtualDriveControls';
 import {
     getLaunchBurnoutPresentation,
@@ -295,13 +293,6 @@ const CANDIDATE_192_PRESENTATION_SCALE = 0.97;
 
 function selectActiveRuntimeVehicle(selection: RuntimeVehicleSelection) {
     return selectRuntimeVehicleAsset(selection, {
-    ft86: {
-        atlas: ft86RetroVehicleAtlas as VehicleAtlas,
-        colors: FT86_RETRO_SPRITE_URLS,
-        engineProfile: RAVEN_COUPE_ENGINE_PROFILE,
-        handlingProfile: RAVEN_COUPE_HANDLING_PROFILE,
-        shadowSpriteUrl: ft86RetroShadowSpriteUrl,
-    },
     ravenCoupe: {
         atlas: ravenCoupePreview192Atlas as VehicleAtlas,
         colors: RAVEN_COUPE_SPRITE_URLS,
@@ -436,7 +427,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private readonly longitudinalProgression = this.apexRuntime.longitudinalProgression;
     private activeRunSetup = resolveRunSetup(undefined, this.urlParams);
     private activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
-    private launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+    private launchControlEnabled = this.activeRuntimeVehicle.id === 'raven-coupe';
     private playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
     private playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
     private activeRoadTrackId = parseRoadTrackId(this.activeRunSetup.trackId);
@@ -482,6 +473,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private hudText!: Phaser.GameObjects.Text;
     private runStatusText!: Phaser.GameObjects.Text;
     private motionSteering!: ReturnType<typeof createMotionSteering>;
+    private landscapeTouchControls = false;
     private virtualDriveControls!: ReturnType<typeof createVirtualDriveControls>;
     private keys!: Record<'a' | 'b' | 'd' | 'e' | 'l' | 'q' | 'r' | 's' | 'space' | 'w', Phaser.Input.Keyboard.Key>;
     private elapsedSec = 0;
@@ -565,6 +557,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private checkpointNoticeText = '';
     private lastFinishDeltaSec: number | null = null;
     private runFinishedWithBest = false;
+    private runtimeAudio!: RuntimeAudio;
     private finishCoastRemainingSec = 0;
     private finishCoastProgress = 0;
     private finishCoastStartProjectionScale = 0;
@@ -596,7 +589,7 @@ export class TimeAttackScene extends Phaser.Scene {
         );
 
         this.activeRuntimeVehicle = selectActiveRuntimeVehicle(this.activeRunSetup);
-        this.launchControlEnabled = this.activeRuntimeVehicle.id === 'ft86-retro' || this.activeRuntimeVehicle.id === 'raven-coupe';
+        this.launchControlEnabled = this.activeRuntimeVehicle.id === 'raven-coupe';
         this.playerVehicleTextureKey = this.activeRuntimeVehicle.textureKey;
         this.playerVehicleShadowTextureKey = this.activeRuntimeVehicle.shadowTextureKey;
         this.playerVehicleAtlas = this.activeRuntimeVehicle.atlas;
@@ -620,6 +613,24 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     create() {
+        this.runtimeAudio = new RuntimeAudio(gameSettingsStore);
+        const onAudioPause = () => this.runtimeAudio.setPaused('scene', true);
+        const onAudioResume = () => this.runtimeAudio.setPaused('scene', false);
+        const disposeAudio = () => {
+            this.runtimeAudio.destroy();
+            this.events.off(Phaser.Scenes.Events.PAUSE, onAudioPause);
+            this.events.off(Phaser.Scenes.Events.RESUME, onAudioResume);
+            this.events.off(Phaser.Scenes.Events.SLEEP, onAudioPause);
+            this.events.off(Phaser.Scenes.Events.WAKE, onAudioResume);
+            this.events.off(Phaser.Scenes.Events.SHUTDOWN, disposeAudio);
+            this.events.off(Phaser.Scenes.Events.DESTROY, disposeAudio);
+        };
+        this.events.on(Phaser.Scenes.Events.PAUSE, onAudioPause);
+        this.events.on(Phaser.Scenes.Events.RESUME, onAudioResume);
+        this.events.on(Phaser.Scenes.Events.SLEEP, onAudioPause);
+        this.events.on(Phaser.Scenes.Events.WAKE, onAudioResume);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, disposeAudio);
+        this.events.once(Phaser.Scenes.Events.DESTROY, disposeAudio);
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.courseRunConfig = {
             ...COURSE_RUN_CONFIG,
@@ -752,6 +763,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.focusPaused = false;
         this.orientationPaused = isPortraitMobile(getSceneMobileDisplayMetrics(this));
+        this.runtimeAudio.setPaused('orientation', this.orientationPaused);
         this.skipFocusFrame = false;
         const onBlur = () => {
             this.focusPaused = true;
@@ -766,9 +778,10 @@ export class TimeAttackScene extends Phaser.Scene {
         const onDisplayChange = (event: Event) => {
             const metrics = readDisplayChange(event);
             if (!metrics) return;
-            this.updateVirtualDriveControls();
+            this.updateVirtualDriveControls(metrics);
             if (!isPortraitMobile(metrics)) return;
             this.orientationPaused = true;
+            this.runtimeAudio.setPaused('orientation', true);
             this.input.keyboard?.resetKeys();
             this.virtualDriveControls.reset();
             this.motionSteering.reset();
@@ -778,6 +791,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const onOrientationResume = () => {
             if (!this.orientationPaused) return;
             this.orientationPaused = false;
+            this.runtimeAudio.setPaused('orientation', false);
             this.skipFocusFrame = true;
             this.input.keyboard?.resetKeys();
             this.virtualDriveControls.reset();
@@ -797,11 +811,13 @@ export class TimeAttackScene extends Phaser.Scene {
             window.removeEventListener(DISPLAY_CHANGE_EVENT, onDisplayChange);
             window.removeEventListener(ORIENTATION_RESUME_EVENT, onOrientationResume);
         });
+        this.updateEngineAudio(0);
         this.render();
     }
 
     update(_time: number, delta: number) {
         if (document.hidden || this.focusPaused || this.orientationPaused) return;
+        this.virtualDriveControls.setMode(this.getTouchControlMode());
         if (this.skipFocusFrame) { this.skipFocusFrame = false; return; }
         const seconds = delta / 1000 * this.runtimeQa.timeScale;
         const camera = this.cameraResource;
@@ -825,6 +841,7 @@ export class TimeAttackScene extends Phaser.Scene {
         }
 
         if (!this.runState.started) {
+            this.updateEngineAudio(0);
             this.updateRunCountdown(seconds);
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
@@ -1359,6 +1376,14 @@ export class TimeAttackScene extends Phaser.Scene {
         });
     }
 
+    private updateEngineAudio(throttle: number) {
+        this.runtimeAudio.updateEngine(createPowertrainSnapshot(
+            this.activeRuntimeVehicle.engineProfile.induction,
+            this.playerVehicle,
+            throttle,
+        ));
+    }
+
     private updatePlayerVehicle(seconds: number) {
         const physicsRoad = this.playerPhysicsRoadSample;
         const drive = this.getDriveCommand();
@@ -1399,10 +1424,24 @@ export class TimeAttackScene extends Phaser.Scene {
             ),
             seconds,
         );
+        this.updateEngineAudio(drive.accelPressed && !drive.brakePressed ? 1 : 0);
         const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
         const impactCountBeforeCollision = this.playerVehicle.guardrailImpactCount;
 
         applyGuardrailCollision(this.playerVehicle, guardrailContext, seconds);
+        this.runtimeAudio.updateEffects({
+            runId: this.recordRunId,
+            sequence: this.powertrainFeedback.sequence,
+            events: this.powertrainFeedback.events,
+            speed: this.playerVehicle.speed,
+            slipAngle: this.playerVehicle.slipAngle,
+            // The current vehicle simulation remains in contact with the road.
+            tireContact: true,
+            guardrailContactActive: this.playerVehicle.guardrailContactActive,
+            guardrailContactPhase: this.playerVehicle.guardrailContactPhase,
+            guardrailImpactCount: this.playerVehicle.guardrailImpactCount,
+            guardrailImpactCue: this.playerVehicle.guardrailImpactCue,
+        });
         if (this.playerVehicle.guardrailImpactCount > impactCountBeforeCollision) {
             this.debugGuardrailImpactTimer = DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS;
             this.debugGuardrailImpactSide = this.playerVehicle.guardrailContactDirection;
@@ -1431,6 +1470,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const impacts = this.playerVehicle.guardrailImpactCount;
         this.playerVehicle = createDefaultPlayerVehicleState(0, this.activeRuntimeVehicle.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
         this.powertrainFeedback = createPowertrainFeedbackState();
+        this.runtimeAudio.resetEffects();
         this.playerVehicle.guardrailImpactCount = impacts;
         this.launchState = createLaunchControlState();
         this.vehicleRenderState = null;
@@ -2442,25 +2482,26 @@ export class TimeAttackScene extends Phaser.Scene {
             steerLeft: this.cursors.left,
             steerRight: this.cursors.right,
         });
-        return mergeDriveCommands([
+        return arbitrateDriveCommand(
+            this.getTouchControlMode(),
             keyboardCommand,
             this.virtualDriveControls.getCommand(),
             this.motionSteering.getCommand(),
-        ]);
+        );
     }
 
-    private updateVirtualDriveControls() {
-        const mobileDisplay = getSceneMobileDisplayMetrics(this);
-        const landscapeMobile = mobileDisplay.layout === 'landscape-mobile';
-        const motionEnabled = landscapeMobile && gameSettingsStore.getSettings().controlScheme === 'motion';
-        this.motionSteering.setEnabled(motionEnabled);
-        this.virtualDriveControls.setMode(
-            !landscapeMobile ? 'hidden' : motionEnabled ? 'pedals' : 'full',
-            {
-                height: this.scale.height,
-                width: this.scale.width,
-            },
+    private updateVirtualDriveControls(metrics = getSceneMobileDisplayMetrics(this)) {
+        this.landscapeTouchControls = metrics.layout === 'landscape-mobile';
+        this.motionSteering.setEnabled(
+            this.landscapeTouchControls && gameSettingsStore.getSettings().controlScheme === 'motion',
         );
+        this.virtualDriveControls.layout(this.scale);
+        this.virtualDriveControls.setMode(this.getTouchControlMode());
+    }
+
+    private getTouchControlMode() {
+        return !this.landscapeTouchControls ? 'hidden'
+            : this.motionSteering.getStatus().state === 'ready' ? 'pedals' : 'full';
     }
 
     private getSceneHotkeys() {
@@ -2528,6 +2569,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.checkpointNoticeRemainingSec = Math.max(0, this.checkpointNoticeRemainingSec - seconds);
 
         if (finishedNow) {
+            this.runtimeAudio.finish();
             this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
             this.finishCoastRemainingSec = FINISH_COAST_DURATION_SEC;
             this.finishCoastProgress = 0;
@@ -2560,6 +2602,8 @@ export class TimeAttackScene extends Phaser.Scene {
         this.resultSceneStarted = true;
         const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
         const result: TimeAttackResult = {
+            recordRunId: this.recordStatus === 'saved' || this.recordStatus === 'memory-only'
+                ? this.recordRunId : undefined,
             bestSnapshot: this.bestSnapshot,
             recoveryCount: this.recovery.count,
             bestTimeSec: this.bestRunTimeSec,
@@ -2578,6 +2622,7 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private restartRun() {
+        this.runtimeAudio.retry();
         this.recovery = createStuckRecoveryState();
         this.lastSplitText = '';
         this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, this.activeRuntimeVehicle.id);

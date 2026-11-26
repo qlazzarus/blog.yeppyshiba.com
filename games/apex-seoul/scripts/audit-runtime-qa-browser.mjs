@@ -23,9 +23,10 @@ if (process.platform !== 'win32' && browserPath.startsWith('/mnt/')) {
 const suppliedBrowser = process.argv.indexOf('--browser');
 const executablePath = suppliedBrowser >= 0 ? process.argv[suppliedBrowser + 1] : undefined;
 const url = new URL(baseUrl);
+url.searchParams.set('launch', 'time-attack');
 url.searchParams.set('qaFreeze', '1');
 url.searchParams.set('qaStartSpeed', '180');
-url.searchParams.set('vehicle', 'ft86-retro');
+url.searchParams.set('vehicle', 'raven-coupe');
 
 const browser = await chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true });
 const page = await browser.newPage({ viewport: { width: 1200, height: 760 } });

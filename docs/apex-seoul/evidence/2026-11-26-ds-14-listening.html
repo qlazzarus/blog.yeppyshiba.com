@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apex Seoul 음악 후보 청음</title>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#0b1420;color:#ecf1f6;max-width:760px;margin:32px auto;padding:0 20px;line-height:1.6}
+h1{font-size:26px}h2{font-size:21px;margin:0}section{border:1px solid #435368;border-radius:10px;padding:20px;margin:20px 0}
+a{color:#ffc477}audio{width:100%;min-height:48px}p{margin:8px 0}small{color:#c4ccd5}
+</style>
+<h1>Apex Seoul 음악 후보 청음</h1>
+<p>먼저 Midnight Drive와 Pure Raceway를 비교해 보세요. 한 곡을 재생하면 다른 곡은 멈춥니다.</p>
+<p>각 곡을 30–60초 들어 보고 야간 분위기, 속도감, 반복 피로도, 엔진음이 들어갈 여유를 확인하세요.</p>
+<small>인터넷에서 작가 원본을 재생합니다. 초기 볼륨은 35%이며 곡별 음량 정규화는 적용하지 않았습니다.</small>
+<section><h2>Midnight Drive</h2><p>congusbongus · CC0</p><p>야간 synthwave · tracker 소스 제공</p><audio controls preload="none" src="https://opengameart.org/sites/default/files/midnight_drive.ogg"></audio><p><a href="https://opengameart.org/content/midnight-drive" target="_blank" rel="noopener">작가 페이지와 라이선스</a> · <a href="https://opengameart.org/sites/default/files/midnight_drive.ogg" target="_blank" rel="noopener">음원 직접 열기</a></p></section>
+<section><h2>Pure Raceway</h2><p>MintoDog · CC0</p><p>레이스 · 160 BPM · loopable 표기</p><audio controls preload="none" src="https://opengameart.org/sites/default/files/pure_raceway_bpm160.mp3"></audio><p><a href="https://opengameart.org/content/pure-raceway" target="_blank" rel="noopener">작가 페이지와 라이선스</a> · <a href="https://opengameart.org/sites/default/files/pure_raceway_bpm160.mp3" target="_blank" rel="noopener">음원 직접 열기</a></p></section>
+<section><h2>StarShooter</h2><p>Centurion_of_war · CC0</p><p>경쾌한 retrowave · 아케이드 비교</p><audio controls preload="none" src="https://opengameart.org/sites/default/files/starshooterv2.1_0.ogg"></audio><p><a href="https://opengameart.org/content/starshooter" target="_blank" rel="noopener">작가 페이지와 라이선스</a> · <a href="https://opengameart.org/sites/default/files/starshooterv2.1_0.ogg" target="_blank" rel="noopener">음원 직접 열기</a></p></section>
+<section><h2>As fast as you can</h2><p>Centurion_of_war · CC0</p><p>빠른 chiptune · race/boss 테마</p><audio controls preload="none" src="https://opengameart.org/sites/default/files/as_fast_as_you_can_2.31_low_0.ogg"></audio><p><a href="https://opengameart.org/content/as-fast-as-you-can" target="_blank" rel="noopener">작가 페이지와 라이선스</a> · <a href="https://opengameart.org/sites/default/files/as_fast_as_you_can_2.31_low_0.ogg" target="_blank" rel="noopener">음원 직접 열기</a></p></section>
+<section><h2>Retroracing Nightlife</h2><p>Bogart VGM · CC BY 4.0</p><p>80년대 도시 주행 synthwave · 작가 credit과 Facebook 링크 요청</p><audio controls preload="none" src="https://opengameart.org/sites/default/files/Retroracing%20Nightlife_0.mp3"></audio><p><a href="https://opengameart.org/content/retroracing-nightlife" target="_blank" rel="noopener">작가 페이지와 라이선스</a> · <a href="https://opengameart.org/sites/default/files/Retroracing%20Nightlife_0.mp3" target="_blank" rel="noopener">음원 직접 열기</a></p></section>
+<script>
+const players = [...document.querySelectorAll('audio')];
+for (const player of players) {
+    player.volume = 0.35;
+    player.addEventListener('play', () => {
+        for (const other of players) if (other !== player) other.pause();
+    });
+    player.addEventListener('error', () => {
+        if (player.nextElementSibling?.className === 'error') return;
+        const message = document.createElement('p');
+        message.className = 'error';
+        message.textContent = '음원을 불러오지 못했습니다. 아래 작가 페이지 또는 직접 열기를 이용하세요.';
+        player.after(message);
+    });
+}
+</script></html>
