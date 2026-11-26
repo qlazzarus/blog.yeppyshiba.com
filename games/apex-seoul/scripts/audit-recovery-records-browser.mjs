@@ -49,7 +49,7 @@ try {
     await page.evaluate(() => {
         const game = window.__testGame;
         game.scale.resize(640, 600);
-        game.scene.getScene('records').scene.restart();
+        game.scene.getScene('main').scene.start('records');
     });
     await page.waitForTimeout(150);
     await page.screenshot({ path: '/tmp/apex-records-compact.png' });

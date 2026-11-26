@@ -16,7 +16,6 @@ export type RuntimeVehicleAsset = {
 };
 
 export type VehicleCatalogAssets = {
-    ft86: PaletteVehicleCatalogAsset;
     ravenCoupe?: PaletteVehicleCatalogAsset;
     seorinGt?: PaletteVehicleCatalogAsset;
     miraeGt?: PaletteVehicleCatalogAsset;
@@ -82,10 +81,6 @@ export function selectRuntimeVehicleAsset(
         ? selection.get('vehicleColor')
         : selection.vehicleColor;
 
-    // Keep the legacy FT86 route available for comparison and rollback. Raven Coupe is the default.
-    if (vehicleId === 'ft86-retro') {
-        return selectPaletteVehicle('ft86-retro', 'ft86-retro', requestedColor, assets.ft86);
-    }
     if (vehicleId === 'raven-coupe' && assets.ravenCoupe) {
         return selectPaletteVehicle('raven-coupe', 'raven-coupe', requestedColor, assets.ravenCoupe);
     }

@@ -1,8 +1,17 @@
 # Apex Seoul 내부 문서 안내
 
-갱신일: 2026-09-13
+갱신일: 2026-11-23
 
 이 문서는 Apex Seoul 비-archive 내부 문서의 진입점이다. 공개된 개발 기록은 `contents/phaser4-apex-seoul-*.md`에 있으며, 내부 문서에는 현재 구현 판단과 앞으로의 작업만 남긴다. 완료된 설계·검증 기록은 [archive](./archive/README.md)에 둔다.
+
+## 현재 작업 시작점
+
+1. [현재 상태 점검](./apex-seoul-current-state-review.md): 실제 코드, 확인된 gap, 실행 검증 한계.
+2. [다음 구현 우선순위](./apex-seoul-next-priority-plan.md): 활성 태스크의 순서와 상태.
+3. [DeepSeek V4.1 Flash 실행 태스크](./apex-seoul-deepseek-tasks.md): DS-00~DS-17 및 DS-18A~F의 작업 카드와 복사할 프롬프트.
+4. [게임성 개선·자동 실행 계획](./apex-seoul-gameplay-automation-plan.md): Astra 계획/검토 → DeepSeek 실행, 측정 계약·판정·중단 조건.
+
+2026-11-23 점검은 문서 정리와 정적 분석이다. 자동 검사와 실기기 검증을 완료한 기록이 아니다. 과거 설계의 “예정” 표기보다 위 현재 점검을 우선한다.
 
 ## 먼저 볼 문서
 

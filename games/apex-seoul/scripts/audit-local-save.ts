@@ -131,3 +131,113 @@ for (const oldRules of ['time-attack-v2', 'time-attack-v3', 'time-attack-v4']) {
     assert.equal(reloadedRules.getBucket('bugak-ridge-downhill', 'raven-coupe', oldRules).bestRun?.runId, 'old-best');
 }
 console.log('PASS: previous handling rules preserved and excluded from current PB');
+
+// DS-07 updates an accepted run in place, independently reporting each document write.
+const renameStorage = new MemoryStorage();
+const rename = new RunRecordStore(() => renameStorage);
+assert.equal(rename.getLastPlayerName(), 'PLAYER');
+rename.record(run('rename-best', 80));
+rename.record(run('rename-recent', 90));
+rename.record(run('untouched', 95, 'mirae-gt'));
+const beforeNames = rename.getRecords();
+const withoutNames = (document: ReturnType<RunRecordStore['getRecords']>) => {
+    for (const b of document.buckets) {
+        if (b.bestRun) delete b.bestRun.playerName;
+        for (const item of b.recentRuns) delete item.playerName;
+    }
+    return document;
+};
+assert.deepEqual(rename.updateRunName('rename-best', 'aBc'), { recordStatus: 'saved', profileStatus: 'saved' });
+assert.deepEqual(rename.updateRunName('rename-best', 'ABC'), { recordStatus: 'saved', profileStatus: 'saved' });
+assert.deepEqual(withoutNames(rename.getRecords()), withoutNames(beforeNames));
+let renamedBucket = rename.getBucket('bugak-ridge-downhill', 'raven-coupe');
+assert.equal(renamedBucket.bestRun?.playerName, 'ABC');
+assert.equal(renamedBucket.recentRuns.find(item => item.runId === 'rename-best')?.playerName, 'ABC');
+assert.equal(renamedBucket.recentRuns.find(item => item.runId === 'rename-recent')?.playerName, 'PLAYER');
+assert.equal(rename.getBucket('bugak-ridge-downhill', 'mirae-gt').bestRun?.playerName, 'PLAYER');
+assert.equal(rename.updateRunName('rename-recent', 'xyz').recordStatus, 'saved');
+assert.equal(rename.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.playerName, 'ABC');
+rename.saveSetup({ trackId: 'bugak-ridge-downhill', vehicleId: 'mirae-gt', vehicleColor: 'black' });
+assert.equal(new RunRecordStore(() => renameStorage).getLastPlayerName(), 'XYZ');
+assert.equal(new RunRecordStore(() => renameStorage).getSetup().vehicleColor, 'black');
+const validBytes = [...renameStorage.data];
+for (const invalid of ['', 'AB', 'ABCD', ' Aaa', 'A1C', '가나다', 'ＡＢＣ', 'ab\n', 'abc\n', null, 123, {}, 'ßaa']) {
+    assert.deepEqual(rename.updateRunName('rename-best', invalid), { recordStatus: 'invalid-name', profileStatus: null });
+}
+rename.record(run('excluded-name'), false);
+assert.equal(rename.updateRunName('excluded-name', 'ABC').recordStatus, 'excluded');
+assert.equal(rename.updateRunName('missing', 'ABC').recordStatus, 'excluded');
+assert.deepEqual([...renameStorage.data], validBytes);
+for (let i = 0; i < 21; i++) rename.record(run(`evict-name-${i}`, 150));
+assert.equal(rename.updateRunName('rename-recent', 'AAA').recordStatus, 'excluded');
+assert.equal(rename.updateRunName('rename-best', 'pbx').recordStatus, 'saved');
+assert.equal(rename.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.playerName, 'PBX');
+renameStorage.denied = true;
+assert.deepEqual(rename.updateRunName('rename-best', 'mem'), { recordStatus: 'memory-only', profileStatus: 'memory-only' });
+assert.equal(rename.getLastPlayerName(), 'MEM');
+assert.equal(rename.getBucket('bugak-ridge-downhill', 'raven-coupe').bestRun?.playerName, 'MEM');
+renameStorage.denied = false;
+assert.equal(rename.updateRunName('rename-best', 'mem').recordStatus, 'saved');
+assert.equal(new RunRecordStore(() => renameStorage).getLastPlayerName(), 'MEM');
+rename.handleExternalChange(RECORDS_KEY);
+const externalBytes = [...renameStorage.data];
+assert.deepEqual(rename.updateRunName('rename-best', 'BAD'), { recordStatus: 'external-change', profileStatus: null });
+assert.deepEqual([...renameStorage.data], externalBytes);
+
+// Independent document failures preserve the successful write and report partial persistence.
+for (const deniedKey of [RECORDS_KEY, PROFILE_KEY]) {
+    const partialStorage = new MemoryStorage();
+    let blocked = false;
+    const partial = new RunRecordStore(() => ({
+        get length() { return partialStorage.length; },
+        key: index => partialStorage.key(index),
+        getItem: key => partialStorage.getItem(key),
+        removeItem: key => partialStorage.removeItem(key),
+        setItem(key, value) {
+            if (blocked && key === deniedKey) throw Error('quota');
+            partialStorage.setItem(key, value);
+        },
+    }));
+    partial.record(run('partial'));
+    blocked = true;
+    assert.deepEqual(partial.updateRunName('partial', 'new'), {
+        recordStatus: deniedKey === RECORDS_KEY ? 'memory-only' : 'saved',
+        profileStatus: deniedKey === PROFILE_KEY ? 'memory-only' : 'saved',
+    });
+    blocked = false;
+    assert.deepEqual(partial.updateRunName('partial', 'new'), { recordStatus: 'saved', profileStatus: 'saved' });
+    assert.equal(partial.getBucket('bugak-ridge-downhill', 'raven-coupe').completedRunCount, 1);
+}
+const compatibilityStorage = new MemoryStorage();
+compatibilityStorage.setItem(PROFILE_KEY, JSON.stringify({ schemaVersion: 1, lastRunSetup: store.getSetup() }));
+const compatibility = new RunRecordStore(() => compatibilityStorage);
+assert.equal(compatibility.getLastPlayerName(), 'PLAYER');
+compatibility.record(run('compat'));
+compatibilityStorage.setItem(PROFILE_KEY, JSON.stringify({ schemaVersion: 99, keep: 'future-profile' }));
+const futureProfile = new RunRecordStore(() => compatibilityStorage);
+assert.deepEqual(futureProfile.updateRunName('compat', 'new'), { recordStatus: 'saved', profileStatus: 'unsupported-version' });
+assert(compatibilityStorage.getItem(PROFILE_KEY)?.includes('future-profile'));
+compatibilityStorage.setItem(RECORDS_KEY, JSON.stringify({ schemaVersion: 99, keep: 'future-records' }));
+const futureNames = new RunRecordStore(() => compatibilityStorage);
+assert.deepEqual(futureNames.updateRunName('compat', 'new'), { recordStatus: 'unsupported-version', profileStatus: null });
+assert(compatibilityStorage.getItem(RECORDS_KEY)?.includes('future-records'));
+const profileExternal = new RunRecordStore(() => renameStorage);
+profileExternal.handleExternalChange(PROFILE_KEY);
+assert.deepEqual(profileExternal.updateRunName('rename-best', 'ext'), { recordStatus: 'saved', profileStatus: 'external-change' });
+assert.equal(new RunRecordStore(() => renameStorage).getLastPlayerName(), 'MEM');
+rename.resetRecords();
+assert.equal(rename.updateRunName('rename-best', 'ABC').recordStatus, 'excluded');
+assert.equal(denied.updateRunName('denied', 'abc').recordStatus, 'memory-only');
+console.log('PASS: run-ID name update, ASCII normalization, PB/recent isolation, idempotency, eviction, profile compatibility, partial failure/retry, future/external/denied storage');
+assert.equal(expanded.updateRunName('archived', 'ABC').recordStatus, 'excluded');
+const ambiguousStorage = new MemoryStorage();
+const ambiguousRun = run('ambiguous');
+const otherAmbiguousRun = { ...ambiguousRun, vehicleId: 'mirae-gt' };
+ambiguousStorage.setItem(RECORDS_KEY, JSON.stringify({ schemaVersion: 1, legacy: [], buckets: [
+    { ...createDefaultBuckets()[0], bestRun: ambiguousRun, recentRuns: [ambiguousRun], completedRunCount: 1, totalFinishTimeSec: 100 },
+    { ...createDefaultBuckets()[2], bestRun: otherAmbiguousRun, recentRuns: [otherAmbiguousRun], completedRunCount: 1, totalFinishTimeSec: 100 },
+] }));
+const ambiguous = new RunRecordStore(() => ambiguousStorage);
+assert.equal(ambiguous.updateRunName('ambiguous', 'ABC').recordStatus, 'excluded');
+assert(ambiguous.getRecords().buckets.every(item => !item.bestRun || item.bestRun.playerName === 'PLAYER'));
+console.log('PASS: archived and ambiguous IDs cannot update another record');

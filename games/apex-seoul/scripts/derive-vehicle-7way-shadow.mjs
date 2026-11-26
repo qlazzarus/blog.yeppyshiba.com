@@ -63,7 +63,7 @@ async function deriveVehicleShadow(vehicleId) {
 
     const generatedProfiles = deriveShadowProfiles(metadata, atlas, source.data, source.info.width);
     const legacyProfiles = vehicleId === 'raven-coupe'
-        ? (await readJson(path.join(projectRoot, 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json'))).apex.shadowProfiles
+        ? (await readJson(path.join(projectRoot, 'assets/vehicles/source/manifests/vehicle-render-profile-seed.json'))).apex.shadowProfiles
         : null;
     const profileOverrides = await readOptionalJson(profileOverridePath);
     const shadowProfiles = mergeShadowProfiles(generatedProfiles, legacyProfiles, profileOverrides?.shadowProfiles ?? profileOverrides);

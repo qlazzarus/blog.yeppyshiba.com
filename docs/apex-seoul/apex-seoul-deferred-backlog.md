@@ -1,8 +1,16 @@
 # Apex Seoul 후순위 보류 백로그
 
-갱신일: 2026-07-29
+갱신일: 2026-11-23
 
 상태: active roadmap에서 제외된 세부 항목을 한 곳에서 관리한다. 이 문서의 항목은 단독 작업으로 시작하지 않고, 연결된 상위 기능을 구현할 때 함께 재검토한다.
+
+## 현재 구현과의 대조
+
+- D-08은 차량별 handling profile과 garage가 구현되어 활성 P1 범위로 흡수됐다. 새 기능으로 다시 열지 않는다.
+- D-17의 로컬 저장·호환 ruleset·PB checkpoint 비교는 구현되어 있다. 별도 revision 분리와 ghost replay는 계속 보류한다.
+- D-16의 vehicle catalog는 구현되어 있다. track registry 확대는 실제 새 코스 요구가 생길 때만 재검토한다.
+- D-09 중 엔진/타이어/충돌 피드백은 활성 오디오 태스크가 소유한다. traffic/whoosh 확장은 계속 보류한다.
+- 아래 표는 원래 재개 조건을 보존한다. 현재 코드 판정은 [현재 상태 점검](./apex-seoul-current-state-review.md)을 우선한다.
 
 ## 운영 원칙
 

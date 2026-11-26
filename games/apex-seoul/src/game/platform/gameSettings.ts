@@ -55,6 +55,7 @@ function normalize(value: unknown, internalBuild = IS_INTERNAL_BUILD): GameSetti
 
 /** Browser settings are independent from run records and always have safe defaults. */
 export class GameSettingsStore {
+    private readonly listeners = new Set<(settings: GameSettings) => void>();
     private loaded = false;
     private settings = defaults();
     private status: GameSettingsSaveStatus | null = null;
@@ -90,6 +91,11 @@ export class GameSettingsStore {
         return { ...this.settings };
     }
 
+    subscribe(listener: (settings: GameSettings) => void) {
+        this.listeners.add(listener);
+        return () => { this.listeners.delete(listener); };
+    }
+
     update(value: Partial<GameSettings>): GameSettingsSaveStatus {
         this.ensureLoaded();
         this.settings = normalize(
@@ -100,6 +106,7 @@ export class GameSettingsStore {
             },
             this.internalBuild,
         );
+        for (const listener of this.listeners) listener(this.getSettings());
         if (this.status === 'unsupported-version') return this.status;
         try {
             const document: SettingsDocument = { schemaVersion: 1, ...this.settings };

@@ -235,6 +235,7 @@ export default defineConfig({
                     !/^\/rides\/[^/]+\/$/u.test(pathname) &&
                     !pathname.startsWith('/play/') &&
                     pathname !== '/naeson-eats/' &&
+                    pathname !== '/naeson-raemian/' &&
                     pathname !== '/trending/' &&
                     pathname !== '/404/'
                 );

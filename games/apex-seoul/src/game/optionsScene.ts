@@ -3,9 +3,11 @@ import Phaser from 'phaser';
 
 import { IS_INTERNAL_BUILD } from './buildFlavor';
 import { gameSettingsStore, type GameSettings } from './gameSettings';
+import { createMotionSteering } from './motionSteering';
 import { requestMotionSteeringPermission } from './motionSteeringPermission';
-import { getPwaInstallAction, requestPwaInstall } from './pwaInstall';
+import { getPwaInstallAction, requestPwaInstall, subscribePwaInstall } from './pwaInstall';
 import { UI_THEME } from './uiTheme';
+import { getSceneMobileDisplayMetrics } from './mobileDisplay';
 
 type OptionKind = 'range' | 'reset' | 'toggle' | 'action';
 type OptionRow = { kind: OptionKind; label: string; setting?: keyof GameSettings; value: number | boolean | null };
@@ -30,11 +32,11 @@ export class OptionsScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
+        const mobile = getSceneMobileDisplayMetrics(this).layout === 'landscape-mobile';
         const compact = width < 680;
         const panelWidth = Math.min(compact ? width - 40 : 680, width - 40);
         const panelX = (width - panelWidth) / 2;
         const settings = gameSettingsStore.getSettings();
-        const installAction = getPwaInstallAction();
         const rows: OptionRow[] = [
             { kind: 'toggle', label: 'MOTION STEERING', setting: 'controlScheme', value: settings.controlScheme === 'motion' },
             { kind: 'range', label: 'STEERING SENSITIVITY', setting: 'steeringSensitivity', value: settings.steeringSensitivity },
@@ -45,8 +47,8 @@ export class OptionsScene extends Phaser.Scene {
             ...(IS_INTERNAL_BUILD
                 ? [{ kind: 'toggle' as const, label: 'DEBUG MODE', setting: 'debugMode' as const, value: settings.debugMode }]
                 : []),
-            ...(installAction ? [{ kind: 'action' as const, label: 'INSTALL APP', value: null }] : []),
             { kind: 'reset', label: 'RESET RECORDS', value: null },
+            { kind: 'action', label: 'INSTALL APP', value: null },
         ];
         const sectionStarts = new Map<number, string>([
             [0, 'CONTROLS'],
@@ -57,7 +59,13 @@ export class OptionsScene extends Phaser.Scene {
         const visuals: RowVisual[] = [];
         let resetArmed = false;
         let motionSteeringPending = false;
-        const resetNotice = this.add.text(width / 2, height - 51, '', {
+        let closed = false;
+        let cancelCalibration: (() => void) | undefined;
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            closed = true;
+            cancelCalibration?.();
+        });
+        const resetNotice = this.add.text(width / 2, height - (mobile ? 158 : 51), '', {
             color: UI_THEME.amberHex, fontFamily: 'Arial, sans-serif', fontSize: '11px',
         }).setOrigin(0.5).setDepth(10);
         const backIndex = rows.length;
@@ -89,13 +97,14 @@ export class OptionsScene extends Phaser.Scene {
             })
             .setOrigin(0.5);
         const valueText = (row: OptionRow, active: boolean) => {
-            if (row.kind === 'range') return `${row.value}%`;
+            if (row.kind === 'range') return mobile ? `−  ${row.value}%  +` : `${row.value}%`;
             if (row.kind === 'reset') return active ? 'ENTER ›' : 'ENTER';
             if (row.kind === 'action') return active ? 'OPEN ›' : 'OPEN';
             return row.value ? 'ON' : 'OFF';
         };
         const isEnabled = (row: OptionRow) =>
-            row.setting !== 'steeringSensitivity' || rows.some(item => item.setting === 'controlScheme' && item.value === true);
+            (row.kind !== 'action' || getPwaInstallAction() !== null) &&
+            (row.setting !== 'steeringSensitivity' || rows.some(item => item.setting === 'controlScheme' && item.value === true));
         const persist = (row: OptionRow) => {
             if (!row.setting) return;
             if (row.setting === 'controlScheme') {
@@ -237,14 +246,38 @@ export class OptionsScene extends Phaser.Scene {
             let next = selectedIndex;
             for (let attempt = 0; attempt <= rows.length; attempt += 1) {
                 next = Phaser.Math.Wrap(next + direction, 0, rows.length + 1);
-                if (next === backIndex || isEnabled(rows[next])) return select(next);
+                if (next === backIndex || isEnabled(rows[next])) {
+                    select(next);
+                    if (mobile && next !== backIndex) {
+                        firstVisibleRow = Phaser.Math.Clamp(next - visibleRows + 1, 0, rows.length - visibleRows);
+                        updateRowVisibility();
+                    }
+                    return;
+                }
             }
         };
 
+        const rowObjects: Array<Array<{ object: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible; y: number; visible: boolean }>> = [];
+        let firstVisibleRow = 0;
+        const visibleRows = mobile ? 4 : rows.length;
+        const lastFirstVisibleRow = () => Math.max(0, rows.length - (getPwaInstallAction() ? 0 : 1) - visibleRows);
+        const rowSpacing = 106;
+        const updateRowVisibility = () => {
+            rowObjects.forEach((objects, index) => {
+                const visible = (rows[index].kind !== 'action' || getPwaInstallAction() !== null) &&
+                    (!mobile || (index >= firstVisibleRow && index < firstVisibleRow + visibleRows));
+                objects.forEach(({ object, y, visible: originallyVisible }) => {
+                    object.y = y - (mobile ? firstVisibleRow * rowSpacing : 0);
+                    object.setVisible(visible && originallyVisible);
+                    object.setActive(visible);
+                });
+                visuals[index].control.input!.enabled = visible;
+            });
+        };
         let rowTop = 170;
         rows.forEach((row, index) => {
             const section = sectionStarts.get(index);
-            if (section) {
+            if (section && !mobile) {
                 this.add.text(panelX + 24, rowTop, section, {
                     color: UI_THEME.amberHex,
                     fontFamily: 'monospace',
@@ -261,8 +294,9 @@ export class OptionsScene extends Phaser.Scene {
                     );
                 rowTop += 18;
             }
-            const rowHeight = row.kind === 'range' ? 48 : 38;
+            const rowHeight = mobile ? 96 : row.kind === 'range' ? 48 : 38;
             const y = rowTop + rowHeight / 2;
+            const firstObject = this.children.length;
             const control = this.add
                 .rectangle(
                     panelX + panelWidth / 2,
@@ -297,7 +331,7 @@ export class OptionsScene extends Phaser.Scene {
                               ? '#d49a55'
                               : UI_THEME.menuTextHex,
                     fontFamily: 'Arial, sans-serif',
-                    fontSize: compact ? '14px' : '16px',
+                    fontSize: mobile ? '23px' : compact ? '14px' : '16px',
                     fontStyle: 'bold',
                     letterSpacing: 1,
                 })
@@ -311,7 +345,7 @@ export class OptionsScene extends Phaser.Scene {
                               ? '#d49a55'
                               : UI_THEME.amberHighlightHex,
                     fontFamily: 'monospace',
-                    fontSize: compact ? '11px' : '12px',
+                    fontSize: mobile ? '20px' : compact ? '11px' : '12px',
                     fontStyle: 'bold',
                 })
                 .setOrigin(1, 0.5);
@@ -373,27 +407,42 @@ export class OptionsScene extends Phaser.Scene {
                 value.setVisible(false);
             }
             control.on('pointerover', () => select(index));
-            control.on('pointerup', () => {
+            let pressedPointer: number | null = null;
+            control.on('pointerdown', (pointer: Phaser.Input.Pointer) => { pressedPointer = pointer.id; });
+            control.on('pointerout', () => { pressedPointer = null; });
+            control.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+                const isTap = pressedPointer === pointer.id && pointer.getDistance() * this.game.canvas.getBoundingClientRect().height / height <= 10;
+                pressedPointer = null;
+                if (!isTap || !isEnabled(row)) return;
                 select(index);
-                activate();
+                if (mobile && row.kind === 'range') adjust(pointer.x < width / 2 ? -1 : 1);
+                else activate();
             });
             visuals.push(visual);
-            rowTop += rowHeight + 6;
+            rowObjects.push(this.children.getChildren().slice(firstObject).map(item => {
+                const object = item as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform & Phaser.GameObjects.Components.Visible;
+                return { object, y: object.y, visible: object.visible };
+            }));
+            rowTop += rowHeight + (mobile ? 10 : 6);
         });
+        updateRowVisibility();
 
         const back = this.add
-            .rectangle(width / 2, height - 25, 178, 30, UI_THEME.panel)
+            .rectangle(width / 2, height - (mobile ? 96 : 25), mobile ? 260 : 178, mobile ? 96 : 30, UI_THEME.panel)
             .setStrokeStyle(1, UI_THEME.borderMuted)
             .setInteractive({ useHandCursor: true });
         const backLabel = this.add
-            .text(width / 2, height - 25, '‹  BACK TO MENU', {
+            .text(width / 2, height - (mobile ? 96 : 25), '‹  BACK TO MENU', {
                 color: UI_THEME.menuTextHex,
                 fontFamily: 'Arial, sans-serif',
-                fontSize: '13px',
+                fontSize: mobile ? '20px' : '13px',
                 fontStyle: 'bold',
             })
             .setOrigin(0.5);
-        const returnToMain = () => this.scene.start('main');
+        const returnToMain = () => {
+            closed = true;
+            this.scene.start('main');
+        };
         const activate = () => {
             if (selectedIndex === backIndex) return returnToMain();
             const row = rows[selectedIndex];
@@ -405,12 +454,35 @@ export class OptionsScene extends Phaser.Scene {
                     motionSteeringPending = true;
                     resetNotice.setText('Checking motion steering permission…');
                     void requestMotionSteeringPermission().then((status) => {
-                        motionSteeringPending = false;
+                        if (closed) return;
                         if (status === 'enabled') {
-                            row.value = true;
-                            persist(row);
-                            resetNotice.setText('Motion steering enabled.');
+                            const sensor = createMotionSteering(() => settings.steeringSensitivity);
+                            sensor.setEnabled(true);
+                            resetNotice.setText('Waiting for a tilt reading…');
+                            const finish = (ready: boolean) => {
+                                cancelCalibration?.();
+                                if (closed) return;
+                                if (ready) {
+                                    row.value = true;
+                                    persist(row);
+                                }
+                                resetNotice.setText(ready ? 'Motion steering enabled.' : 'No tilt reading. Virtual controls remain active.');
+                                update();
+                            };
+                            const checkReading = () => {
+                                if (sensor.getStatus().state === 'ready') finish(true);
+                            };
+                            const timeout = this.time.delayedCall(3000, () => finish(false));
+                            window.addEventListener('deviceorientation', checkReading);
+                            cancelCalibration = () => {
+                                window.removeEventListener('deviceorientation', checkReading);
+                                timeout.remove();
+                                sensor.destroy();
+                                motionSteeringPending = false;
+                                cancelCalibration = undefined;
+                            };
                         } else {
+                            motionSteeringPending = false;
                             const notices: Record<Exclude<typeof status, 'enabled'>, string> = {
                                 'not-mobile': 'Motion steering is available on mobile devices only.',
                                 unsupported: 'This browser does not support device orientation.',
@@ -439,9 +511,12 @@ export class OptionsScene extends Phaser.Scene {
             }
             if (row.kind === 'action') {
                 void requestPwaInstall().then((result) => {
+                    if (closed) return;
                     const notices: Record<string, string> = {
                         accepted: 'Install request accepted. Apex Seoul will appear on your home screen.',
                         dismissed: 'Install request dismissed.',
+                        rejected: 'Installation could not be started. Try again when available.',
+                        opened: 'Opening the game in a new tab.',
                         'ios-guide': 'In Safari, tap Share then Add to Home Screen.',
                         unavailable: 'App installation is not available in this browser right now.',
                     };
@@ -450,10 +525,55 @@ export class OptionsScene extends Phaser.Scene {
             }
         };
         back.on('pointerover', () => select(backIndex));
-        back.on('pointerup', () => {
+        let backPointer: number | null = null;
+        back.on('pointerdown', (pointer: Phaser.Input.Pointer) => { backPointer = pointer.id; });
+        back.on('pointerout', () => { backPointer = null; });
+        back.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+            const isTap = backPointer === pointer.id && pointer.getDistance() * this.game.canvas.getBoundingClientRect().height / height <= 10;
+            backPointer = null;
+            if (!isTap) return;
             select(backIndex);
             activate();
         });
+        let dragPointer: number | null = null;
+        let dragY = 0;
+        const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+            if (!mobile || pointer.y < 170 || pointer.y > 170 + visibleRows * rowSpacing) return;
+            dragPointer = pointer.id;
+            dragY = pointer.y;
+        };
+        const onPointerMove = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointer !== pointer.id || Math.abs(dragY - pointer.y) < rowSpacing / 2) return;
+            firstVisibleRow = Phaser.Math.Clamp(firstVisibleRow + Math.sign(dragY - pointer.y), 0, lastFirstVisibleRow());
+            dragY = pointer.y;
+            updateRowVisibility();
+        };
+        const onPointerEnd = (pointer: Phaser.Input.Pointer) => {
+            if (dragPointer === pointer.id) dragPointer = null;
+        };
+        this.input.on('pointerdown', onPointerDown);
+        this.input.on('pointermove', onPointerMove);
+        this.input.on('pointerup', onPointerEnd);
+        this.input.on('pointerupoutside', onPointerEnd);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.input.off('pointerdown', onPointerDown);
+            this.input.off('pointermove', onPointerMove);
+            this.input.off('pointerup', onPointerEnd);
+            this.input.off('pointerupoutside', onPointerEnd);
+        });
+        const refreshInstallAction = () => {
+            if (closed) return;
+            const installIndex = rows.length - 1;
+            rows[installIndex].label = getPwaInstallAction() === 'open-game' ? 'OPEN GAME' : 'INSTALL APP';
+            visuals[installIndex].label.setText(rows[installIndex].label);
+            if (!isEnabled(rows[installIndex]) && selectedIndex === installIndex) selectedIndex = installIndex - 1;
+            firstVisibleRow = Math.min(firstVisibleRow, lastFirstVisibleRow());
+            updateRowVisibility();
+            update();
+        };
+        const unsubscribeInstall = subscribePwaInstall(refreshInstallAction);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, unsubscribeInstall);
+        refreshInstallAction();
         this.input.keyboard?.on('keydown-UP', () => move(-1));
         this.input.keyboard?.on('keydown-DOWN', () => move(1));
         this.input.keyboard?.on('keydown-LEFT', () => adjust(-1));

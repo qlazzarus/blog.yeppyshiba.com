@@ -33,8 +33,8 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, '..');
 const vehicleAssets = [
     {
-        atlasPath: 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/ft86-retro-runtime-256.json',
-        spritePath: 'assets/vehicles/generated/pixel-candidates/toyota-gt86-256/sheet-256-ai-retro-v1-balanced-alpha.png',
+        atlasPath: 'assets/vehicles/generated/7way-candidates/raven-coupe/runtime-192-blue/runtime-192.atlas.json',
+        spritePath: 'assets/vehicles/generated/7way-candidates/raven-coupe/processed/blue-192/sheet-192.png',
     },
     {
         atlasPath: 'assets/vehicles/approved/atlases/genesis-g70-poc-128.json',
@@ -65,6 +65,12 @@ for (const { atlasPath, spritePath } of vehicleAssets) {
 
     for (const frameId of Object.keys(atlas.apex.headlightProfiles)) {
         if (!frameId.includes('right-')) continue;
+        if (frameId.endsWith('right-0')) {
+            const slightPose = getVehicleHeadlightScreenPose(atlas, frameId, transform);
+            assertNear(slightPose.frameForwardYawDeg, 42 * 0.46, `${atlasPath}:${frameId} interpolated yaw`);
+            assertNear(slightPose.footprint.farHalfWidthRatio, 0.125 + (0.09 - 0.125) * 0.46, `${atlasPath}:${frameId} interpolated width`);
+            continue;
+        }
 
         const curveMagnitude = frameId.endsWith('right-1') ? 0.5 : 1;
         const rightOptical = getVehicleHeadlightOpticalState(atlas, curveMagnitude);
