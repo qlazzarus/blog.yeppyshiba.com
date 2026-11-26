@@ -149,6 +149,7 @@ import * as PLAYER_DEFAULTS from './playerVehicleDefaults';
 import { createPlayerVehicleRuntimeConfig } from './playerVehicleDefaults';
 import { RuntimeTelemetryRecorder } from './runtimeTelemetry';
 import { gameSettingsStore } from './gameSettings';
+import { RuntimeAudio } from './platform/runtimeAudio';
 import { createMotionSteering } from './motionSteering';
 import {
     DISPLAY_CHANGE_EVENT,
@@ -556,6 +557,7 @@ export class TimeAttackScene extends Phaser.Scene {
     private checkpointNoticeText = '';
     private lastFinishDeltaSec: number | null = null;
     private runFinishedWithBest = false;
+    private runtimeAudio!: RuntimeAudio;
     private finishCoastRemainingSec = 0;
     private finishCoastProgress = 0;
     private finishCoastStartProjectionScale = 0;
@@ -611,6 +613,24 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     create() {
+        this.runtimeAudio = new RuntimeAudio(gameSettingsStore);
+        const onAudioPause = () => this.runtimeAudio.setPaused('scene', true);
+        const onAudioResume = () => this.runtimeAudio.setPaused('scene', false);
+        const disposeAudio = () => {
+            this.runtimeAudio.destroy();
+            this.events.off(Phaser.Scenes.Events.PAUSE, onAudioPause);
+            this.events.off(Phaser.Scenes.Events.RESUME, onAudioResume);
+            this.events.off(Phaser.Scenes.Events.SLEEP, onAudioPause);
+            this.events.off(Phaser.Scenes.Events.WAKE, onAudioResume);
+            this.events.off(Phaser.Scenes.Events.SHUTDOWN, disposeAudio);
+            this.events.off(Phaser.Scenes.Events.DESTROY, disposeAudio);
+        };
+        this.events.on(Phaser.Scenes.Events.PAUSE, onAudioPause);
+        this.events.on(Phaser.Scenes.Events.RESUME, onAudioResume);
+        this.events.on(Phaser.Scenes.Events.SLEEP, onAudioPause);
+        this.events.on(Phaser.Scenes.Events.WAKE, onAudioResume);
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, disposeAudio);
+        this.events.once(Phaser.Scenes.Events.DESTROY, disposeAudio);
         this.cameraResource.fovDegrees = this.cameraEffects.fovDegrees;
         this.courseRunConfig = {
             ...COURSE_RUN_CONFIG,
@@ -743,6 +763,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
         this.focusPaused = false;
         this.orientationPaused = isPortraitMobile(getSceneMobileDisplayMetrics(this));
+        this.runtimeAudio.setPaused('orientation', this.orientationPaused);
         this.skipFocusFrame = false;
         const onBlur = () => {
             this.focusPaused = true;
@@ -760,6 +781,7 @@ export class TimeAttackScene extends Phaser.Scene {
             this.updateVirtualDriveControls(metrics);
             if (!isPortraitMobile(metrics)) return;
             this.orientationPaused = true;
+            this.runtimeAudio.setPaused('orientation', true);
             this.input.keyboard?.resetKeys();
             this.virtualDriveControls.reset();
             this.motionSteering.reset();
@@ -769,6 +791,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const onOrientationResume = () => {
             if (!this.orientationPaused) return;
             this.orientationPaused = false;
+            this.runtimeAudio.setPaused('orientation', false);
             this.skipFocusFrame = true;
             this.input.keyboard?.resetKeys();
             this.virtualDriveControls.reset();
@@ -788,6 +811,7 @@ export class TimeAttackScene extends Phaser.Scene {
             window.removeEventListener(DISPLAY_CHANGE_EVENT, onDisplayChange);
             window.removeEventListener(ORIENTATION_RESUME_EVENT, onOrientationResume);
         });
+        this.updateEngineAudio(0);
         this.render();
     }
 
@@ -817,6 +841,7 @@ export class TimeAttackScene extends Phaser.Scene {
         }
 
         if (!this.runState.started) {
+            this.updateEngineAudio(0);
             this.updateRunCountdown(seconds);
             camera.pitch = this.updateCameraPitch(seconds);
             this.updateSpeedEffect(seconds);
@@ -1351,6 +1376,14 @@ export class TimeAttackScene extends Phaser.Scene {
         });
     }
 
+    private updateEngineAudio(throttle: number) {
+        this.runtimeAudio.updateEngine(createPowertrainSnapshot(
+            this.activeRuntimeVehicle.engineProfile.induction,
+            this.playerVehicle,
+            throttle,
+        ));
+    }
+
     private updatePlayerVehicle(seconds: number) {
         const physicsRoad = this.playerPhysicsRoadSample;
         const drive = this.getDriveCommand();
@@ -1391,10 +1424,24 @@ export class TimeAttackScene extends Phaser.Scene {
             ),
             seconds,
         );
+        this.updateEngineAudio(drive.accelPressed && !drive.brakePressed ? 1 : 0);
         const guardrailContext = this.getGuardrailCollisionContext(physicsRoad);
         const impactCountBeforeCollision = this.playerVehicle.guardrailImpactCount;
 
         applyGuardrailCollision(this.playerVehicle, guardrailContext, seconds);
+        this.runtimeAudio.updateEffects({
+            runId: this.recordRunId,
+            sequence: this.powertrainFeedback.sequence,
+            events: this.powertrainFeedback.events,
+            speed: this.playerVehicle.speed,
+            slipAngle: this.playerVehicle.slipAngle,
+            // The current vehicle simulation remains in contact with the road.
+            tireContact: true,
+            guardrailContactActive: this.playerVehicle.guardrailContactActive,
+            guardrailContactPhase: this.playerVehicle.guardrailContactPhase,
+            guardrailImpactCount: this.playerVehicle.guardrailImpactCount,
+            guardrailImpactCue: this.playerVehicle.guardrailImpactCue,
+        });
         if (this.playerVehicle.guardrailImpactCount > impactCountBeforeCollision) {
             this.debugGuardrailImpactTimer = DEBUG_GUARDRAIL_IMPACT_HOLD_SECONDS;
             this.debugGuardrailImpactSide = this.playerVehicle.guardrailContactDirection;
@@ -1423,6 +1470,7 @@ export class TimeAttackScene extends Phaser.Scene {
         const impacts = this.playerVehicle.guardrailImpactCount;
         this.playerVehicle = createDefaultPlayerVehicleState(0, this.activeRuntimeVehicle.engineProfile, PLAYER_DEFAULTS.PLAYER_ACCEL_SPEED);
         this.powertrainFeedback = createPowertrainFeedbackState();
+        this.runtimeAudio.resetEffects();
         this.playerVehicle.guardrailImpactCount = impacts;
         this.launchState = createLaunchControlState();
         this.vehicleRenderState = null;
@@ -2521,6 +2569,7 @@ export class TimeAttackScene extends Phaser.Scene {
         this.checkpointNoticeRemainingSec = Math.max(0, this.checkpointNoticeRemainingSec - seconds);
 
         if (finishedNow) {
+            this.runtimeAudio.finish();
             this.playerVehicle.speed = RUN_FINISH_COAST_SPEED;
             this.finishCoastRemainingSec = FINISH_COAST_DURATION_SEC;
             this.finishCoastProgress = 0;
@@ -2553,6 +2602,8 @@ export class TimeAttackScene extends Phaser.Scene {
         this.resultSceneStarted = true;
         const finishTimeSec = this.runState.finishTimeSec ?? this.runState.elapsedSec;
         const result: TimeAttackResult = {
+            recordRunId: this.recordStatus === 'saved' || this.recordStatus === 'memory-only'
+                ? this.recordRunId : undefined,
             bestSnapshot: this.bestSnapshot,
             recoveryCount: this.recovery.count,
             bestTimeSec: this.bestRunTimeSec,
@@ -2571,6 +2622,7 @@ export class TimeAttackScene extends Phaser.Scene {
     }
 
     private restartRun() {
+        this.runtimeAudio.retry();
         this.recovery = createStuckRecoveryState();
         this.lastSplitText = '';
         this.bestSnapshot = bestSnapshots(runRecordStore.getRecords().buckets, this.roadTrack.id, this.activeRuntimeVehicle.id);

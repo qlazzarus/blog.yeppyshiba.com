@@ -1,11 +1,12 @@
 import { splitLines, finishRecordLabel, formatDelta, type BestSnapshots } from './runComparison';
 import type { RunSetup } from './runSetup';
-import type { SaveStatus } from './runRecord';
+import { runRecordStore, type SaveStatus } from './runRecord';
 import Phaser from 'phaser';
 import { getSceneMobileDisplayMetrics } from './platform/mobileDisplay';
 import { UI_THEME } from './uiTheme';
 
 export type TimeAttackResult = {
+    recordRunId?: string; // Present when the run was accepted, including memory-only storage.
     bestSnapshot?: BestSnapshots;
     recoveryCount?: number;
     bestTimeSec: number | null;
@@ -26,15 +27,16 @@ function formatTime(seconds: number) {
     return `${minutes}:${(seconds - minutes * 60).toFixed(2).padStart(5, '0')}`;
 }
 
-/** Post-run mockup. It deliberately keeps only the two immediate next actions. */
+/** Result actions and optional name entry for an accepted finish. */
 export class ResultScene extends Phaser.Scene {
     constructor() { super('result'); }
 
     create(result: TimeAttackResult) {
         let selectedIndex = 0;
         let leaving = false;
+        let nameEntryOpen = false;
         const activate = () => {
-            if (leaving) return;
+            if (leaving || nameEntryOpen) return;
             leaving = true;
             if (selectedIndex === 0) this.scene.start('time-attack', result.runSetup);
             else this.scene.start('main');
@@ -51,12 +53,124 @@ export class ResultScene extends Phaser.Scene {
             updateSelection(selectedIndex);
         };
         this.scale.on('resize', layout);
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', layout));
-        const move = () => select(1 - selectedIndex);
-        this.input.keyboard?.on('keydown-UP', move);
-        this.input.keyboard?.on('keydown-DOWN', move);
-        this.input.keyboard?.on('keydown-ENTER', activate);
-        this.input.keyboard?.on('keydown-SPACE', activate);
+        const move = (event: KeyboardEvent) => {
+            if (!nameEntryOpen && !event.repeat) select(1 - selectedIndex);
+        };
+        const confirm = (event: KeyboardEvent) => {
+            if (!event.repeat) activate();
+        };
+        const keyboard = this.input.keyboard;
+        keyboard?.on('keydown-UP', move);
+        keyboard?.on('keydown-DOWN', move);
+        keyboard?.on('keydown-ENTER', confirm);
+        keyboard?.on('keydown-SPACE', confirm);
+        let closeNameEntry = () => {};
+        if (result.recordRunId && ['saved', 'memory-only'].includes(result.recordStatus)) {
+            nameEntryOpen = true;
+            const keyboardEnabled = keyboard?.enabled ?? false;
+            if (keyboard) keyboard.enabled = false;
+            closeNameEntry = this.showNameEntry(result.recordRunId, () => {
+                nameEntryOpen = false;
+                if (keyboard) keyboard.enabled = keyboardEnabled;
+            }, () => { result.recordStatus = 'saved'; layout(); });
+        }
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            closeNameEntry();
+            this.scale.off('resize', layout);
+            keyboard?.off('keydown-UP', move);
+            keyboard?.off('keydown-DOWN', move);
+            keyboard?.off('keydown-ENTER', confirm);
+            keyboard?.off('keydown-SPACE', confirm);
+        });
+    }
+
+    private showNameEntry(runId: string, onClose: () => void, onRecordSaved: () => void) {
+        const dialog = document.createElement('dialog');
+        dialog.setAttribute('aria-label', 'Record name');
+        dialog.style.cssText = `background:${UI_THEME.backgroundHex};color:${UI_THEME.textMainHex};
+            border:2px solid ${UI_THEME.amberHex};border-radius:8px;padding:16px;
+            width:min(360px,calc(100vw - 64px));max-height:calc(100dvh - 64px);overflow:auto;
+            font:16px Arial,sans-serif;box-sizing:border-box;`;
+        const heading = document.createElement('h2');
+        heading.textContent = 'RECORD NAME';
+        heading.style.cssText = 'font-size:20px;margin:0 0 12px';
+        dialog.append(heading);
+        const letters = document.createElement('div');
+        letters.style.cssText = 'display:flex;gap:12px;justify-content:center';
+        const saved = runRecordStore.getLastPlayerName();
+        const initial = /^[A-Z]{3}$/.test(saved) ? saved : 'AAA';
+        const selectors: HTMLSelectElement[] = [];
+        for (let index = 0; index < 3; index++) {
+            const select = document.createElement('select');
+            select.setAttribute('aria-label', `Letter ${index + 1}`);
+            select.style.cssText = 'font-size:24px;min-width:64px;min-height:48px;text-align:center';
+            for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') select.add(new Option(letter, letter));
+            select.value = initial[index];
+            selectors.push(select);
+            letters.append(select);
+        }
+        dialog.append(letters);
+        const status = document.createElement('p');
+        status.setAttribute('role', 'status');
+        status.style.cssText = 'font-size:14px;margin:12px 0;line-height:1.4';
+        status.textContent = 'Choose three letters. Use left/right to move.';
+        dialog.append(status);
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:12px';
+        const save = document.createElement('button');
+        save.textContent = 'SAVE NAME';
+        const skip = document.createElement('button');
+        skip.textContent = 'SKIP';
+        for (const button of [save, skip]) {
+            button.type = 'button';
+            button.style.cssText = 'min-height:48px;flex:1;font-size:16px';
+            actions.append(button);
+        }
+        dialog.append(actions);
+        let closed = false;
+        const close = () => {
+            if (closed) return;
+            closed = true;
+            dialog.close();
+            dialog.remove();
+            onClose();
+        };
+        const submit = () => {
+            if (closed) return;
+            const result = runRecordStore.updateRunName(runId, selectors.map(select => select.value).join(''));
+            if (result.recordStatus === 'saved') onRecordSaved();
+            if (result.recordStatus === 'saved' && result.profileStatus === 'saved') {
+                close();
+                return;
+            }
+            status.textContent = result.recordStatus === 'saved'
+                ? 'Record name saved. Last name preference could not be saved. Retry or continue.'
+                : result.recordStatus === 'memory-only'
+                    ? 'Name kept for this session. Browser storage failed. Retry or continue.'
+                    : 'Name could not be updated. Your completed run is kept. Continue to results.';
+            skip.textContent = 'CONTINUE';
+        };
+        save.addEventListener('click', submit);
+        skip.addEventListener('click', close);
+        dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
+        dialog.addEventListener('keydown', event => {
+            event.stopPropagation();
+            if (event.repeat) { event.preventDefault(); return; }
+            const index = selectors.indexOf(document.activeElement as HTMLSelectElement);
+            if (index >= 0 && ['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                event.preventDefault();
+                selectors[(index + (event.key === 'ArrowLeft' ? 2 : 1)) % 3].focus();
+            }
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (document.activeElement === skip) close();
+                else submit();
+            }
+        });
+        document.body.append(dialog);
+        dialog.showModal();
+        selectors[0].focus();
+        return close;
     }
 
     private drawResult(result: TimeAttackResult, select: (index: number) => void, activate: () => void) {

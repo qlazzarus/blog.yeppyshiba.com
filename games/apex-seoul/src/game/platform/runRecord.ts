@@ -8,8 +8,11 @@ export const RECORDS_KEY = 'apex-seoul:records:v1';
 export const PROFILE_KEY = 'apex-seoul:profile:v1';
 const LEGACY_PREFIX = 'apex-seoul:best-run:';
 export type SaveStatus = 'saved' | 'memory-only' | 'unsupported-version' | 'external-change' | 'excluded';
+export type NameUpdateResult = { recordStatus: SaveStatus | 'invalid-name'; profileStatus: SaveStatus | null };
 type StoragePort = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'>;
 type RecordDocument = { schemaVersion: 1; buckets: RecordBucket[]; legacy: { trackId: string; timeSec: number }[] };
+const normalizedPlayerName = (value: unknown): string | null =>
+    typeof value === 'string' && value.length === 3 && /^[a-zA-Z]{3}$/.test(value) ? value.toUpperCase() : null;
 const normalizeRun = (run: RunSummary): RunSummary => ({ ...clone(run), recoveryCount: run.recoveryCount ?? 0, playerName: run.playerName ?? DEFAULT_PLAYER_NAME });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 const same = (a: RecordIdentity, b: RecordIdentity) => a.trackId === b.trackId && a.vehicleId === b.vehicleId && a.rulesetVersion === b.rulesetVersion;
@@ -39,7 +42,8 @@ export class RunRecordStore {
     private setup = createDefaultSetup();
     private loaded = false;
     private recordsBlocked: SaveStatus | null = null;
-    private profileBlocked = false;
+    private profileBlocked: SaveStatus | null = null;
+    private lastPlayerName = DEFAULT_PLAYER_NAME;
     private processedRuns = new Set<string>();
 
     constructor(private readonly storage: () => StoragePort = () => window.localStorage) {}
@@ -82,8 +86,11 @@ export class RunRecordStore {
         try {
             const raw = this.storage().getItem(PROFILE_KEY);
             const data: unknown = raw ? JSON.parse(raw) : null;
-            if (object(data) && data.schemaVersion !== 1) this.profileBlocked = true;
-            else if (object(data)) this.setup = this.normalizeSetup(data.lastRunSetup);
+            if (object(data) && data.schemaVersion !== 1) this.profileBlocked = 'unsupported-version';
+            else if (object(data)) {
+                this.setup = this.normalizeSetup(data.lastRunSetup);
+                this.lastPlayerName = normalizedPlayerName(data.lastPlayerName) ?? DEFAULT_PLAYER_NAME;
+            }
         } catch { /* Selection defaults are independent of record recovery. */ }
     }
 
@@ -101,9 +108,15 @@ export class RunRecordStore {
     saveSetup(value: ReturnType<typeof createDefaultSetup>): SaveStatus {
         this.ensureLoaded();
         this.setup = this.normalizeSetup(value);
-        if (this.profileBlocked) return 'unsupported-version';
+        return this.persistProfile();
+    }
+    getLastPlayerName() { this.ensureLoaded(); return this.lastPlayerName; }
+    private persistProfile(): SaveStatus {
+        if (this.profileBlocked) return this.profileBlocked;
         try {
-            this.storage().setItem(PROFILE_KEY, JSON.stringify({ schemaVersion: 1, lastRunSetup: this.setup }));
+            this.storage().setItem(PROFILE_KEY, JSON.stringify({
+                schemaVersion: 1, lastRunSetup: this.setup, lastPlayerName: this.lastPlayerName,
+            }));
             return 'saved';
         } catch { return 'memory-only'; }
     }
@@ -129,6 +142,25 @@ export class RunRecordStore {
         bucket.recentRuns.length = Math.min(bucket.recentRuns.length, 20);
         if (!bucket.bestRun || run.finishTimeSec < bucket.bestRun.finishTimeSec) bucket.bestRun = normalizeRun(run);
         return this.persist();
+    }
+
+    updateRunName(runId: string, value: unknown): NameUpdateResult {
+        this.ensureLoaded();
+        const playerName = normalizedPlayerName(value);
+        if (!playerName) return { recordStatus: 'invalid-name', profileStatus: null };
+        if (this.recordsBlocked) return { recordStatus: this.recordsBlocked, profileStatus: null };
+        const buckets = this.document.buckets.filter(bucket =>
+            bucket.rulesetVersion === RECORD_RULESET && isRecordableSetup(bucket) &&
+            (bucket.bestRun?.runId === runId || bucket.recentRuns.some(run => run.runId === runId)));
+        // Unknown, excluded, evicted and ambiguous IDs cannot rename another record.
+        if (buckets.length !== 1) return { recordStatus: 'excluded', profileStatus: null };
+        const bucket = buckets[0];
+        if (bucket.bestRun?.runId === runId) bucket.bestRun.playerName = playerName;
+        for (const run of bucket.recentRuns) if (run.runId === runId) run.playerName = playerName;
+        this.lastPlayerName = playerName;
+        // Both documents retain the in-memory update if either write fails.
+        // Retrying the same ID persists the same data without adding a finish.
+        return { recordStatus: this.persist(), profileStatus: this.persistProfile() };
     }
 
     private persist(): SaveStatus {
@@ -161,6 +193,7 @@ export class RunRecordStore {
     }
     handleExternalChange(key: string | null) {
         if (key === RECORDS_KEY || key === null) this.recordsBlocked = 'external-change';
+        if (key === PROFILE_KEY || key === null) this.profileBlocked = 'external-change';
     }
 }
 

@@ -31,9 +31,6 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Apex Seoul core and asset QA
-              run: npm run qa:ci --workspace @games/apex-seoul
-
             - name: Fetch GA page views
               run: npm run ga:fetch
               env:

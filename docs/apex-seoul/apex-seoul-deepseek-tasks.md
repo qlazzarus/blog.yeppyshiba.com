@@ -195,7 +195,9 @@ DS-05 측정에서 여러 Scene의 결함을 확인했다. 메인 메뉴는 DS-0
 
 ### DS-17 — playable release 통합 검증
 
-- 선행: DS-02~06, DS-08, DS-10, DS-13, DS-16, DS-18E(후보가 없으면 기준 회귀와 Astra의 변경 불필요 판단), DS-18F의 구현 또는 보류 판단; 음악 포함 release면 DS-15
+2026-11-26 사용자 지시로 DS-13·DS-16의 잔여 작업과 사람 확인은 DS-17 이후에 진행한다. DS-17 결과에 해당 미검증 항목을 기록하고, 후속 순서와 상태는 [다음 구현 우선순위](./apex-seoul-next-priority-plan.md)를 따른다.
+
+- 선행: DS-02~06, DS-08, DS-10, DS-18E(후보가 없으면 기준 회귀와 Astra의 변경 불필요 판단), DS-18F의 구현 또는 보류 판단; 음악 포함 release면 DS-15
 - 읽을 파일: [scripts/audit-driving-browser.mjs](../../games/apex-seoul/scripts/audit-driving-browser.mjs), [scripts/audit-retry-visual-lifecycle-browser.mjs](../../games/apex-seoul/scripts/audit-retry-visual-lifecycle-browser.mjs), [scripts/audit-local-save-browser.mjs](../../games/apex-seoul/scripts/audit-local-save-browser.mjs), docs/apex-seoul/apex-seoul-hud-plan.md
 - 범위: 세 차량×네 색상에서 pointer garage/run/result/retry; 3 viewport; 세로 전환; 저장 거부/손상; 10회 retry; production debug 차단을 검증한다. Android/iOS 기기·OS·browser·설치·motion·audio 결과와 frame time을 기록한다.
 - 완료 조건: 미실행 기기를 PASS 처리하지 않음. 30/60/120Hz 순수 sim 계약과 실제 화면 FPS 측정을 분리. blocker마다 재현 절차·증거·후속 카드. build/fixture 통과만으로 release 승인하지 않음.

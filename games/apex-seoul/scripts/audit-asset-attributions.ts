@@ -93,7 +93,14 @@ assert(audit([fixture], [{ ...fixtureEntry, surface: 'vehicle-preview' }], [fixt
 assert(audit([{ ...fixture, licenseUrl: null }], [fixtureEntry], [fixture]).some(error => error.includes('license URL')));
 console.log('Attribution audit regression fixtures passed.');
 
-const server = await createServer({ root: gameRoot, configFile: false, server: { middlewareMode: true }, appType: 'custom' });
+const server = await createServer({
+    root: gameRoot,
+    configFile: false,
+    // This audit loads the manifest through SSR and needs no client dependency scan.
+    optimizeDeps: { noDiscovery: true, include: [] },
+    server: { middlewareMode: true },
+    appType: 'custom',
+});
 let startupAssets: { key: string; attributionIds: readonly string[] }[];
 try {
     ({ startupAssets } = await server.ssrLoadModule('/src/game/startupAssetManifest.ts'));
