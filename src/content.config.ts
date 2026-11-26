@@ -21,6 +21,7 @@ const blog = defineCollection({
                 'ride',
             ]),
             summary: z.string(),
+            imageAlt: z.string().optional(),
             // optional tags array
             tags: z.array(z.union([z.number(), z.string()])).optional(),
             // image: either an absolute http(s) URL or a local path (starting with '/')

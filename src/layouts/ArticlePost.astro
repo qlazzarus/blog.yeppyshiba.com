@@ -20,6 +20,7 @@ const {
     date,
     updated,
     image,
+    imageAlt,
     tags,
     category,
     parcelAddress,
@@ -137,7 +138,7 @@ const breadcrumbs = [
                 image && (
                     <>
                         <div class='my-6 overflow-hidden rounded-lg shadow-lg'>
-                            <Image width={1020} height={510} src={image} alt='' />
+                            <Image width={1020} height={510} src={image} alt={imageAlt ?? ''} />
                         </div>
                         {(coverCredit || coverLicense) && (
                             <p class='text-muted-foreground -mt-4 mb-6 text-xs'>
